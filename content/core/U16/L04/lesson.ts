@@ -144,7 +144,7 @@ const singPart = (
 
 export default defineLesson({
   id: "U16.L04",
-  version: 2,
+  version: 4,
   title: "Picardy & Dorian IV",
   objective:
     "I can end a minor piece on the major home chord and brighten its iv into IV, one raised note each.",
@@ -170,7 +170,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight bars of a minor ballad, twice. The second time some chords change. Listen to the last chord each time: does the verse end in the dark, or somewhere brighter?",
+          "Eight bars of a minor ballad, twice. The second time, the chords of bars 2, 6 and 8 change. Listen to the last chord each time: does the verse end in the dark, or somewhere brighter?",
         skills: [{ skill: "H13", w: 1 }],
         hints: null,
         tests: [],
@@ -200,7 +200,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`chord("<Am A>")` plays A minor for a bar, then A major. A minor is A, C and E. Which note moves, and where?',
+          '`chord("<Am A>")` plays A minor for a bar, then A major. A minor is A, C and E. Predict which one of those three notes moves in bar 2, and in which direction. Pick your answer, then run it.',
         skills: [{ skill: "H13", w: 1 }],
         hints: null,
         tests: [],
@@ -228,14 +228,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A minor, then A major; D minor, then D major, each stacked from its root. Compare each pair on the roll, note by note.",
+          "Four bars, each chord stacked from its root: A minor, A major, D minor, D major. Compare each pair on the roll, note by note. Then answer both questions: which scale on A has F♯ and C, and how many notes changed in each pair.",
         skills: [{ skill: "H13", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. In each pair, count the notes that sit at a different height in the second bar. For the scale: which minor you have played keeps C and raises F to F♯?",
         },
         hints: ladder(
-          "Which notes of the first chord in each pair are still there in the second?",
+          "Look at bars 1 and 2, then bars 3 and 4. Which notes of the first chord in each pair sit at the same height in the second?",
           "A and E stay in the first pair, D and A in the second. A natural minor has F; the scale you need raises it.",
           "D major is the IV of a minor scale with a raised 6. You wrote i–IV grooves on that scale in Dorian ♮6.",
         ),
@@ -293,7 +293,7 @@ export default defineLesson({
         role: "check",
         key: E_MINOR,
         prompt:
-          "A four-bar phrase in E minor: Em, Am, B, Em. Give it the Dorian IV in bar 2 and the major home chord at the end: in each chord, raise its 3rd a half step. The bass reads `changes` too.",
+          "A four-bar phrase in E minor: Em, Am, B, Em. Change two chords in `changes`: in bar 2 and in bar 4, raise the chord's 3rd a half step, so each minor chord becomes major on the same root. Keep bars 1 and 3 as they are.",
         skills: [{ skill: "H13", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 4 },
@@ -307,7 +307,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}; the target has {exp}. In bars 2 and 4 one note of the minor chord rises a half step: its 3rd.",
         },
         hints: ladder(
-          "In A minor, Dm became D and Am became A. What are the same two moves in E minor?",
+          "Only bars 2 and 4 change. In A minor, Dm became D and Am became A. What are the same two moves on this phrase's chords?",
           "A minor chord with its 3rd raised a half step is the major chord on the same root. In code that is the letter without its m.",
           "Bar 2 is Am: its 3rd, C, rises to C♯, and that chord is written `A`. Bar 4 makes the same move on its own root.",
         ),
@@ -368,7 +368,7 @@ export default defineLesson({
         role: "check",
         key: D_MINOR,
         prompt:
-          "A phrase in D minor: Dm, G, A, D. Write the numeral of each bar against the minor scale: upper case for a major chord, lower case for a minor one.",
+          "A phrase in D minor: Dm, G, A, D. Write the numeral of each of the 4 bars, counted on the D minor scale: upper case for a major chord, lower case for a minor one.",
         skills: [
           { skill: "H13", w: 0.6 },
           { skill: "N06", w: 0.4 },
@@ -418,7 +418,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Sing down the home chord twice on the same home note. First over A minor: sol, me, do. Then over A major: sol, mi, do. Only the middle note changes, by a half step. The numbers stay on screen. Sing in your own range.",
+          "Sing down the home chord twice, one note a bar, on the same home note. First over A minor: sol, me, do. Then over A major: sol, mi, do. Only the middle note changes, by a half step. Sing in your own range.",
         skills: [
           { skill: "V03", w: 0.6 },
           { skill: "H13", w: 0.4 },
@@ -434,7 +434,7 @@ export default defineLesson({
         parts: [
           singPart(
             "sol-me-do",
-            "Hear it, then sing it over A minor: sol, me, do. In numbers: 5, ♭3, 1.",
+            "Listen, then sing over A minor, one note a bar: sol, me, do. In numbers: 5, ♭3, 1.",
             SING_MINOR,
             "b3",
             [
@@ -446,7 +446,7 @@ export default defineLesson({
           ),
           singPart(
             "sol-mi-do",
-            "Now over A major, the chord the ending borrows: sol, mi, do. In numbers: 5, 3, 1.",
+            "Listen, then sing over A major, the chord the ending borrows, one note a bar: sol, mi, do. In numbers: 5, 3, 1.",
             SING_MAJOR,
             "3",
             [
@@ -471,7 +471,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight bars in A minor with a bass, a strings pad and a tune. Let the verse end in sunlight: make the last chord A major, and decide whether the tune climbs to C♯ (`2#`) to meet it or stays on A. Then try the bright IV wherever the verse needs a lift, and make the tune yours.",
+          "Eight bars in A minor with a bass, a strings pad and a tune. In `changes`, make the last chord that sounds A major. Done when the verse ends on A major. Then, if you like, let the tune end on C♯ (`2#`), put the bright IV, D major, in an earlier bar, or rewrite the tune.",
         skills: [{ skill: "H13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [8, 8],
@@ -480,7 +480,7 @@ export default defineLesson({
           {
             // The last chord that sounds, not a chord somewhere in bar 8: `[A Am]` ends on A minor.
             id: "major-home-at-the-end",
-            label: "The piece ends on the major home chord",
+            label: "The last chord that sounds is A major, the major home chord",
             required: true,
             skills: ["H13"],
             rule: "custom",
@@ -489,7 +489,7 @@ export default defineLesson({
           },
           {
             id: "the-bright-four",
-            label: "The bright IV somewhere before the end",
+            label: "At least one bar plays D major, the bright IV",
             required: false,
             skills: ["H13"],
             rule: "contains-rn",
@@ -498,7 +498,7 @@ export default defineLesson({
           },
           {
             id: "tune-ends-in-the-chord",
-            label: "The tune ends on a note of the major home chord",
+            label: "The mel line ends on A, C♯ or E over the last A major",
             required: false,
             skills: ["P06"],
             rule: "ends-on-degree",
@@ -510,7 +510,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which bar is the last one, and which chord does it hold now?",
+          "The piece must end on A major. Which chord does the last bar of `changes` hold now?",
           "All eight chords live in `changes`. Bar 8 is A minor; the major chord on the same root has its 3rd, C, raised to C♯.",
           "In E minor you turned the last `Em` into its major chord. Do the same to the last chord of this string.",
         ),

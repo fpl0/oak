@@ -74,7 +74,7 @@ const TUMBAO_ONSETS: Rat[] = [
 ];
 const BASS_TUMBAO: RubricRule = {
   id: "bass-tumbao",
-  label: "The bass plays the “and” of 2 and beat 4 in every bar, and nothing else",
+  label: "The bass plays only on the “and” of 2 and on beat 4, in every bar",
   required: true,
   skills: ["B04"],
   rule: "onsets",
@@ -91,7 +91,7 @@ const s4 = (keysLine: string, claveLine = CLAVE) => code(claveLine, BELL, keysLi
 const S4_SOLUTION = s4(keys(MONTUNO));
 const FACES: RubricRule = {
   id: "keys-face-the-clave",
-  label: "The piano faces the clave",
+  label: "In every two bars, at least 4 piano chords land with a rimshot, more than land between them",
   required: true,
   skills: ["R18"],
   rule: "custom",
@@ -111,7 +111,7 @@ type EarAnswer = (typeof EAR_OPTIONS)[number]["id"];
 const earCode = (bpm: number, montuno: string) => `${tempo(bpm)}${[CLAVE, BELL, keys(montuno)].join("\n")}`;
 const earHints = (): HintLadder =>
   ladder(
-    "Listen to the clave first. Which of its two bars has three hits?",
+    "Listen to the clave first and find its bar of three hits.",
     "In the bar with three rimshots, how many piano chords land exactly with a rimshot? Count, then do the same in the other bar.",
     "A piano that faces the clave lands with most of its hits; a crossed one lands between them and only meets one.",
   );
@@ -157,7 +157,8 @@ const MAKE_STARTER = code(CLAVE, BELL, bass(ROOTS), BLOCKS);
 const make = (...lines: string[]) => code(...lines);
 const MAKE_FACES: RubricRule = {
   id: "montuno-faces-the-clave",
-  label: "Your montuno faces the clave",
+  label:
+    "In every two bars the piano's two bars differ, and at least 3 of its chords land with a rimshot, more than land between them",
   required: true,
   skills: ["R18"],
   rule: "custom",
@@ -173,7 +174,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R3.L04",
-  version: 2,
+  version: 3,
   title: "Montuno & Tumbao Layering",
   objective: "I can layer a montuno and a tumbao on the clave.",
   key: { tonic: "C", mode: "major" },
@@ -201,7 +202,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The whole son band, then only its clave and cowbell, then the band again. When the bass and the piano come back, does the groove sit on the beat or lean ahead of it? Listen for where the bass lands against beat 1.",
+          "Listen to the whole son band, then its clave and cowbell alone, then the band again. When the bass and the piano come back, notice whether the groove sits on the beat or leans ahead, and where the bass lands against beat 1.",
         skills: [{ skill: "R18", w: 1 }],
         hints: null,
         tests: [],
@@ -237,14 +238,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the groove and read the bass's row on the roll. The piano plays C in bar 1 and G7 in bar 2.",
+          "Run the groove and read the bass's row on the roll; the piano plays C in bar 1 and G7 in bar 2. Then answer: on which eighth of bar 1 the bass plays first, and whose root its note on beat 4 is.",
         skills: [{ skill: "B04", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the eighth notes of bar 1 with the cowbell, two to a beat, to find where the bass starts; then look at which chord the piano plays in the bar after the bass's last note.",
         },
         hints: ladder(
-          "Does the bass play on beat 1?",
+          "Count the eighths of bar 1 from 1 to 8 with the cowbell and find the first bass note.",
           "Count the eighths of one bar 1 to 8: each beat is a number and its “and”. Then name the last bass note of bar 1.",
           "The last bass note of bar 1 is G. Which chord comes in bar 2?",
         ),
@@ -297,7 +298,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "This bass plays each chord's root on beats 1 and 3. Turn it into the bass you just read: nothing on beat 1, its own chord's 5th on the “and” of 2, and on beat 4 the root of the chord that comes next.",
+          "Rewrite the bass, which plays each chord's root on beats 1 and 3. In every bar: nothing on beat 1, its own chord's 5th on the “and” of 2, and on beat 4 the root of the chord that comes next. Done when the bass matches the target.",
         skills: [
           { skill: "B04", w: 0.6 },
           { skill: "R18", w: 0.4 },
@@ -329,7 +330,7 @@ export default defineLesson({
           "melody.extra-note": "Bar {bar}, {beatLabel}: your bass plays where the target's is silent.",
         },
         hints: ladder(
-          "In the target, which bass notes come before the chord they belong to?",
+          "Find the bass notes in the target that sound before the chord they belong to.",
           "Slot 4 of each bar is the “and” of 2 and slot 7 is beat 4. The note on beat 4 belongs to the next bar's chord, and the bars alternate C and G7.",
           "Bar 1 ends on G, the root of G7. Bar 2 ends on the root of the chord that follows it when the loop comes round.",
         ),
@@ -398,7 +399,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The bass sits out: only the clave, the cowbell and the piano. The piano's two bars are in the wrong order, so they land between the rimshots. Turn the piano round so its bars face the clave. The clave stays as it is.",
+          "The piano's two bars are in the wrong order, so they land between the rimshots. Turn the piano round so the bar that lands with the clave's three rimshots plays under them. Keep the clave and the notes inside each bar. Done when the piano faces the clave.",
         skills: [{ skill: "R18", w: 1 }],
         code: { starter: S4_STARTER },
         reference: { solutions: [S4_SOLUTION], bars: 4 },
@@ -412,7 +413,7 @@ export default defineLesson({
             "{label}: not yet. In the clave's bar of three, count the piano chords that land exactly with a rimshot.",
         },
         hints: ladder(
-          "Which of the piano's two bars has the most chords on the beat and on the rimshots of the bar of three?",
+          "Compare each piano bar with the clave's bar of three: one bar lands with more of its rimshots.",
           "The piano's line alternates two bars with `< >`. The clave's bar of three comes first; the piano bar that meets it should come first too.",
           "Either swap the two bars inside `< >`, or keep them and move the whole line by one bar in time.",
         ),
@@ -490,7 +491,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Three grooves: the clave, the cowbell and the piano, with the same notes every time. Does the piano face the clave, or cross it?",
+          "Three grooves: the clave, the cowbell and the piano, with the same notes every time. For each, pick whether the piano faces the clave or crosses it.",
         skills: [{ skill: "R18", w: 1 }],
         hints: earHints(),
         srs: [{ family: "fam.rhy.clave", mode: "review-if-due" }],
@@ -519,7 +520,7 @@ export default defineLesson({
         role: "practice",
         title: "Son montuno",
         prompt:
-          "The clave plays 3-2 on the rimshot and the band's drums keep time. The bass and the piano are yours: a bass that skips beat 1 and reaches for the next chord, and a two-bar piano figure that faces the clave. C and G7 is the starting point; any two chords and any key work.",
+          "Write the son's piano and bass over the clave 3-2 and the band's drums. Required: a two-bar piano figure that faces the clave, its two bars different. Also on the checklist: a tumbao bass, on the “and” of 2 and beat 4 but not beat 1, and the cowbell on all four beats. Any two chords work.",
         skills: [
           { skill: "R18", w: 0.6 },
           { skill: "B04", w: 0.4 },
@@ -531,7 +532,7 @@ export default defineLesson({
           MAKE_FACES,
           {
             id: "bass-tumbao",
-            label: "A tumbao: the bass on the “and” of 2 and on beat 4, not on beat 1",
+            label: "The bass plays the “and” of 2 and beat 4 in every bar, and not beat 1",
             required: false,
             skills: ["B04"],
             rule: "onsets",
@@ -542,7 +543,7 @@ export default defineLesson({
           },
           {
             id: "bell-on-the-beats",
-            label: "The cowbell keeps the four beats",
+            label: "The cowbell plays on all four beats of every bar",
             required: false,
             skills: ["R18"],
             rule: "onsets",
@@ -559,7 +560,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "In the starter the piano plays the same thing on every beat of both bars. Can a figure like that lean towards one side of the clave?",
+          "The starter's piano plays the same thing on every beat of both bars. Give its two bars different rhythms.",
           "Write the piano's two bars apart inside `< >`, and give the bar under the clave's three hits most of its chords on those hits.",
           "The bar under the clave's three: hits on its beat 1, its “and” of 2 and its beat 4. The bar under the two: hits on its beats 2 and 3.",
         ),

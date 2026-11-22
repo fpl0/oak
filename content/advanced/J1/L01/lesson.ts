@@ -71,7 +71,7 @@ const MAKE_STARTER = code(ride(QUARTERS, ""), HATS);
 /** The skip notes really swing: each beat that holds two hits is divided long–short, about 2:1. */
 const SKIPS_SWING: RubricRule = {
   id: "skips-swing",
-  label: "The short hits swing",
+  label: "The short hits inside beats 2 and 4 land late (long-short), not halfway through the beat",
   required: true,
   skills: ["R13"],
   rule: "custom",
@@ -81,7 +81,7 @@ const SKIPS_SWING: RubricRule = {
 /** The hi-hat closes on 2 and 4 in every bar, and never on 1 or 3. */
 const TWO_AND_FOUR: RubricRule = {
   id: "two-and-four",
-  label: "The hi-hat closes on 2 and 4",
+  label: "The hi-hat plays on beats 2 and 4 of every bar, and not on 1 or 3",
   required: true,
   skills: ["R13"],
   rule: "onsets",
@@ -106,7 +106,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "J1.L01",
-  version: 2,
+  version: 3,
   title: "Swing Feel & the Ride",
   objective: "I can play a swing ride pattern with the hi-hat on 2 and 4, and make a trio swing.",
   key: { tonic: "C", mode: "major" },
@@ -132,7 +132,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to the cymbal on top. In which take does the trio roll forward, and in which does it only keep count?",
+          "Listen to the cymbal on top, the ringing sound above the trio, in both takes. Notice which take rolls forward and which only keeps count, and listen for what the cymbal plays between the beats.",
         skills: [{ skill: "R13", w: 1 }],
         hints: null,
         tests: [],
@@ -158,7 +158,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`s("rd [rd rd] rd [rd rd]")` plays the cymbal on each beat, with two hits inside beats 2 and 4. Then comes `.swingBy(1/3, 4)`. Which hits will move?',
+          '`s("rd [rd rd] rd [rd rd]")` plays the cymbal on each beat, with two hits inside beats 2 and 4. Then comes `.swingBy(1/3, 4)`. Predict which of the six hits move, and pick your answer.',
         skills: [{ skill: "R13", w: 1 }],
         hints: null,
         tests: [],
@@ -185,14 +185,15 @@ export default defineLesson({
         id: "six-hits",
         version: 1,
         role: "practice",
-        prompt: "Run the cymbal alone and read one bar on the roll against the beat lines.",
+        prompt:
+          "Run the cymbal alone and read one bar on the roll against the beat lines. Then answer: how many hits the bar holds, and where the short hit inside beat 2 lands.",
         skills: [{ skill: "R13", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Stop the loop and count the hits between two bar lines, then look inside beat 2: one hit on the line, one further in. How far?",
         },
         hints: ladder(
-          "How many hits fall between one bar line and the next?",
+          "Stop the loop and count the hits between one bar line and the next on the roll. Then look inside beat 2: how far into the beat is its second hit?",
           "Beats 1 and 3 have one hit each; beats 2 and 4 have two. The call moves the second of the two later.",
           "Count them in one bar: 1 on beat 1, then the two in beat 2, and so on. The short hit sits in the last part of its beat.",
         ),
@@ -241,7 +242,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Give the cymbal its short swung hit just after beats 2 and 4. The target plays the feel you are after.",
+          "Change the cymbal line so beats 2 and 4 each play two hits: one on the beat and a short one after it. Keep one hit on beats 1 and 3, and keep the swing call. Done when the cymbal plays six hits a bar, like the target.",
         skills: [{ skill: "R13", w: 1 }],
         swing: SWUNG,
         code: { starter: RIDE_STARTER },
@@ -269,7 +270,7 @@ export default defineLesson({
             "{label}: not yet. The two hits inside beats 2 and 4 sit an equal distance apart, so the cymbal ticks evenly. Listen to the target: the second hit of each pair is late and short.",
         },
         hints: ladder(
-          "After which beats does a jazz drummer add a second, shorter hit?",
+          "Listen to the cymbal in the target: after two of the four beats it adds a second, shorter hit. Which two beats?",
           "Beats 2 and 4 each hold two hits: one on the beat and one just after it. In mini-notation a beat that holds two sounds is a pair in square brackets.",
           "Beat 2 becomes `[rd rd]`. Beat 4 does the same; the call after the pattern does the swinging.",
         ),
@@ -340,10 +341,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The trio plays four bars. Tap with the hi-hat, the way a jazz audience snaps on 2 and 4: eight taps in all. Any key works.",
+          "Tap with the hi-hat, the short closed “chick” under the cymbal: once on beat 2 and once on beat 4 of every bar, as a jazz audience snaps. The trio plays four bars, so eight taps in all. Done when your taps land with the hi-hat.",
         skills: [{ skill: "R13", w: 1 }],
         hints: ladder(
-          "Which beats does the hi-hat close on?",
+          "Listen past the cymbal for the hi-hat's short “chick”. It sounds on two of the four beats in every bar. Which two?",
           "Count 1, 2, 3, 4 with the cymbal and tap only on the even numbers.",
           "Say the count out loud and tap on the word two and the word four.",
         ),
@@ -383,7 +384,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The hi-hat line is empty. Write it so the drummer's foot closes the hi-hat on the two beats you snapped on.",
+          "Write the empty hi-hat line so it plays on beats 2 and 4 of every bar and rests on beats 1 and 3. Keep the other lines as they are.",
         skills: [{ skill: "R13", w: 1 }],
         swing: SWUNG,
         code: { starter: HATS_STARTER },
@@ -394,10 +395,10 @@ export default defineLesson({
         target: { audible: true },
         feedbackText: {
           "rubric.unmet":
-            "{label}: not yet. Count the beats of one bar with the cymbal and listen for where the hi-hat sounds, and where it stays quiet.",
+            "{label}: not yet. Count the four beats of one bar with the cymbal. The hi-hat sounds on the even beats only and stays silent on the odd ones.",
         },
         hints: ladder(
-          "On which beats did you snap?",
+          "Use the beats you snapped on in the last step. The hi-hat line has four beats, like the cymbal's.",
           "The hi-hat line has four beats, like the cymbal: the even ones sound, the odd ones are rests.",
           "The line starts with a rest on beat 1: `~ hh` and then the same again.",
         ),
@@ -454,7 +455,7 @@ export default defineLesson({
         role: "practice",
         title: "Swing pocket",
         prompt:
-          "Swing the drums: the ride pattern on the cymbal, the hi-hat on 2 and 4. Around them, bring back what you know: a soft kick on every beat, a ghost-note snare, a vibes line on `.scale()`, a tempo between 110 and 180.",
+          "Make the drums swing. Required: the ride cymbal (`rd`) plays the ride pattern, swung long-short. Also on the checklist: the hi-hat on beats 2 and 4 only, and a tempo of 110 to 180. For more, add a soft kick on every beat, a ghost-note snare or a vibes line on `.scale()`.",
         skills: [{ skill: "R13", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -463,7 +464,7 @@ export default defineLesson({
         rubric: [
           {
             id: "ride-swings",
-            label: "The ride swings",
+            label: "The ride cymbal swings: its pairs of hits are long-short, not even",
             required: true,
             skills: ["R13"],
             rule: "swing",
@@ -475,7 +476,7 @@ export default defineLesson({
           { ...TWO_AND_FOUR, required: false },
           {
             id: "swing-tempo",
-            label: "A medium-swing tempo, 110–180",
+            label: "`setcpm` sets a tempo between 110 and 180 beats a minute",
             required: false,
             skills: ["R13"],
             rule: "tempo-bpm",
@@ -486,7 +487,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "What does the cymbal play in a swing groove?",
+          "Start with the cymbal line: it needs the ride pattern from earlier in this lesson, with its swing call.",
           "Four beats, with a second, shorter hit inside beats 2 and 4, and the swing call on that line.",
           'The cymbal\'s pattern is `"rd [rd rd] rd [rd rd]"`; the swing call goes after it.',
         ),

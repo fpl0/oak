@@ -76,7 +76,7 @@ const STAFF = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L01",
-  version: 2,
+  version: 3,
   title: "Shape",
   objective: "I can shape a melody: mostly steps, a leap or two, and one high point placed on purpose.",
   key: { tonic: "C", mode: "major" },
@@ -104,7 +104,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Follow the line on the roll. How does the tune move from note to note: mostly small moves, or big jumps?",
+          "Follow the line on the roll as it plays. Listen for how the tune gets from each note to the next: mostly small moves, or big jumps?",
         skills: [{ skill: "M01", w: 1 }],
         hints: null,
         tests: [],
@@ -125,7 +125,8 @@ export default defineLesson({
         id: "read-the-shape",
         version: 1,
         role: "practice",
-        prompt: "Read the numbers in `n`: bigger is higher. What shape will this four-bar line draw?",
+        prompt:
+          "Read the numbers in `n` before you play it: a bigger number is a higher note. Predict the shape the four bars draw, and pick it below.",
         skills: [{ skill: "M01", w: 1 }],
         hints: null,
         tests: [],
@@ -152,14 +153,15 @@ export default defineLesson({
         id: "find-the-top",
         version: 1,
         role: "practice",
-        prompt: "Run the tune and watch the roll. Find its highest note and measure how far it climbs.",
+        prompt:
+          "Run the tune and find its highest note on the roll. Then answer both questions: which bar that note is in, and how many half steps it sits above home, C4.",
         skills: [{ skill: "M01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
-            "Not quite. Look for the biggest number in `n`, then count the half steps from C4 up to that note on the roll.",
+            "Not quite. The biggest number in `n` is the highest note: find its bar. Then count the half steps from C4 up to it: 12 take you to C5.",
         },
         hints: ladder(
-          "Which note sits highest on the roll? Which bar is it in?",
+          "Find the note that sits highest on the roll and read which bar it is in. Then measure from home, C4, up to it.",
           "The biggest number in `n` is the highest note. To measure, count half steps from home, C4, up to it.",
           "The highest note is `n` 10: degree 4 an octave up, F5. An octave is 12 half steps; from C5 up to F5 is a 4th.",
         ),
@@ -212,7 +214,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Bars 2 and 3 of this line leap across two octaves. Rewrite them so the line moves mostly by step and stays within an octave and a 3rd, 16 half steps, from its lowest note to its highest.",
+          "Rewrite bars 2 and 3 so the line moves mostly by step, to the next degree up or down. Keep bars 1 and 4 as they are. Done when at least 6 in 10 moves are steps and the line spans at most 16 half steps, an octave and a 3rd, from its lowest note to its highest.",
         skills: [{ skill: "M01", w: 1 }],
         code: { starter: TAME_STARTER },
         reference: { solutions: [TAME("[3 4 5 ~]", "[4 ~ 2 ~]")], bars: 4 },
@@ -222,7 +224,8 @@ export default defineLesson({
           rules: [
             {
               id: "steps",
-              label: "Mostly steps: at least 6 moves in 10",
+              label:
+                "At least 6 in 10 moves go to the next degree up or down (a repeated note is not a move)",
               required: true,
               skills: ["M01"],
               rule: "step-ratio",
@@ -231,7 +234,7 @@ export default defineLesson({
             },
             {
               id: "span",
-              label: "Within an octave and a 3rd: 16 half steps from lowest to highest",
+              label: "At most 16 half steps, an octave and a 3rd, from the lowest note to the highest",
               required: true,
               skills: ["M01"],
               rule: "range",
@@ -246,12 +249,12 @@ export default defineLesson({
         // numbers instead.
         feedbackText: {
           "rubric.unmet":
-            "{label}: not yet. On the roll, look for the jumps and for the lowest and highest notes.",
+            "{label}: not yet. On the roll, find the big jumps in bars 2 and 3 and replace them with moves to the next degree. If the span is too wide, bring the highest or lowest note of bars 2 and 3 closer to the rest.",
         },
         hints: ladder(
-          "Sing the line, or try to. Where does your voice have to jump?",
-          "A step moves to the next degree: `n` up or down by 1. Keep each new number close to the one before it.",
-          "Bar 1 ends on `n` 2, degree 3 (E). Bar 2 could carry on up from there by step; then bring bar 3 back down.",
+          "The jumps are in bars 2 and 3. Read their numbers in `n`: how far is each number from the one before it?",
+          "A step moves to the next degree: `n` up or down by 1. In bars 2 and 3, make each new number 1 more or 1 less than the one before it, most of the time.",
+          "Bar 1 ends on `n` 2, degree 3 (E). Start bar 2 one step above it and keep climbing by step; then bring bar 3 back down by step towards bar 4's `n` 1.",
         ),
         tests: [
           { name: "reference", response: { code: TAME("[3 4 5 ~]", "[4 ~ 2 ~]") }, expect: "pass" },
@@ -299,10 +302,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The same eight bars in two orders. In one the tune reaches its highest note in bar 2, in the other in bar 6. Which one goes somewhere?",
+          "Play both cards: the same eight bars in two orders. Card A reaches its highest note in bar 2, card B in bar 6. Pick the card whose second half still sounds as if it is going somewhere.",
         skills: [{ skill: "M01", w: 1 }],
         hints: ladder(
-          "After the highest note, what is left for the tune to do?",
+          "Listen to what each card does after its highest note. Is there anything left to build towards?",
           "Listen to the second half of each card. Does it build, or wind down?",
           "Card A peaks in bar 2. Play bars 5 to 8 of it: is there anything still to come?",
         ),
@@ -344,7 +347,8 @@ export default defineLesson({
         id: "hear-the-shape",
         version: 1,
         role: "check",
-        prompt: "Four short tunes, one at a time. Which shape does each one draw?",
+        prompt:
+          "Listen to four two-bar tunes, one at a time. For each one, pick the shape it draws: climbs, falls, arch or valley.",
         skills: [
           { skill: "M01", w: 0.6 },
           { skill: "E07", w: 0.4 },
@@ -488,7 +492,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Every move in this draft is a leap. Rewrite it into a tune that moves mostly by step, reaches its highest note once, in bars 5 to 8, and comes home.",
+          "Rewrite the eight bars so the tune moves mostly by step, reaches its highest note once, in bars 5 to 8, and ends on home. Done when at least 6 in 10 moves go to the next degree up or down.",
         skills: [{ skill: "M01", w: 1 }],
         // As in S4: the labels carry the numbers, so the rules' "semitones" details stay out of sight.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
@@ -498,7 +502,7 @@ export default defineLesson({
         rubric: [
           {
             id: "mostly-steps",
-            label: "Mostly steps, with a leap or two: at least 6 moves in 10",
+            label: "At least 6 in 10 moves go to the next degree up or down (a repeated note is not a move)",
             required: true,
             skills: ["M01"],
             rule: "step-ratio",
@@ -508,7 +512,7 @@ export default defineLesson({
           {
             id: "span",
             // The hook itself spans C4 to F5, an octave and a 4th: the suggestion allows what the hook does.
-            label: "Within an octave and a 4th, the hook's own span: 17 half steps from lowest to highest",
+            label: "At most 17 half steps, an octave and a 4th, from the lowest note to the highest",
             required: false,
             skills: ["M01"],
             rule: "range",
@@ -517,7 +521,7 @@ export default defineLesson({
           },
           {
             id: "home",
-            label: "Ends on home",
+            label: "The last note is home, degree 1",
             required: false,
             skills: ["M01"],
             rule: "ends-on-degree",
@@ -526,7 +530,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Sing the first two bars. How many of the moves are steps?",
+          "Look at bar 1, `[0 2 4 7]`: every number is two or more away from the one before. Those are the leaps to replace with steps.",
           "A step changes `n` by 1. Fill the gaps between a chord's notes with the degrees between them.",
           "Bar 1 `[0 2 4 7]` can walk `[0 1 2 ~]`: still on chord notes for beats 1 and 3, a step at a time.",
         ),

@@ -101,7 +101,7 @@ const singHome = (
 /** S5: one trial of `fam.key.mode` level 5 per part, drawn by the lesson host (new ones every series). */
 const earHints = (): HintLadder =>
   ladder(
-    "Where is home? Hum the note the phrase keeps coming back to.",
+    "Start with home: hum the note the phrase keeps coming back to.",
     "Now the 3rd above home: major or minor? That leaves three colours on each side.",
     "Sing the plain major or minor scale against the phrase. Which one note does the phrase play differently, and is it raised or lowered?",
   );
@@ -150,7 +150,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U14.L06",
-  version: 2,
+  version: 3,
   title: "Mode Lab",
   objective:
     "I can name Mixolydian, Dorian, Lydian and Phrygian by ear, and write a vamp that makes its mode heard.",
@@ -176,7 +176,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "One guitar line over a repeated D, six times. The numbers never change; the scale under them does, once a bar. Listen for the bar where the line crosses from bright to dark.",
+          "Listen for the bar where the line crosses from bright to dark. One guitar line plays six bars over a repeated D; the numbers never change, and the scale under them changes once a bar.",
         skills: [{ skill: "E10", w: 1 }],
         hints: null,
         tests: [],
@@ -201,7 +201,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bar 3 is D Mixolydian, major with ♭7. Bar 4 is D Dorian, minor with a raised 6. Which note drops a half step between them?",
+          "Predict which note drops a half step from bar 3 to bar 4. Bar 3 is D Mixolydian, major with ♭7. Bar 4 is D Dorian, minor with a raised 6. Pick one answer.",
         skills: [{ skill: "E10", w: 1 }],
         hints: null,
         tests: [],
@@ -229,14 +229,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the six bars and read the note names on the roll, bar against bar. Bar 5 is natural minor.",
+          "Run the six bars and compare the note names on the roll, each bar against the one before. Bar 5 is natural minor. Then answer both questions: how many notes change from bar to bar, and which two colours sit on either side of minor.",
         skills: [{ skill: "E10", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Compare each bar with the one before, note by note: one name changes each time. Natural minor is bar 5; bar 4 sits just above it and bar 6 just below.",
         },
         hints: ladder(
-          "Put your finger on bar 1's notes, then bar 2's. How many names differ?",
+          "Compare two neighbours first: bar 1's note names, then bar 2's. How many names differ?",
           "Lydian to major: G♯ becomes G. Do the same for every pair of neighbours; then look at the bars on either side of bar 5.",
           "Bar 4 has B where bar 5 has B♭, so it is one note brighter. Bar 6 has E♭ where bar 5 has E.",
         ),
@@ -292,13 +292,13 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two loops. Let each one go round, find the chord it rests on, and sing do, its home, as a long note. Numbers stay on screen. Sing in your own range.",
+          "For each of the two loops, sing one long note: do, the home note the loop rests on. Let the loop go round first and find the chord it comes back to; its bass note is do. Sing in your own range.",
         skills: [
           { skill: "E10", w: 0.6 },
           { skill: "V03", w: 0.4 },
         ],
         hints: [
-          { text: "Which chord sounds like the place the loop comes back to?" },
+          { text: "Listen for the chord the loop comes back to and rests on. Which one is it?" },
           { text: "The first chord of each loop is a good guess. Hum its lowest note, the bass." },
           {
             text: "Hear it again, slower, and hum the bass of the first bar before you sing.",
@@ -338,7 +338,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Six phrases, each on its own home note. Name the colour. Three questions, in order: where is home; is the 3rd above it major or minor; which one note is not the plain scale's?",
+          "Name the colour of each of the six phrases: one of the six you know. Each is on its own home note. Listen in three steps. Find home. Decide whether the 3rd above it is major or minor. Then find the one note the plain scale does not have.",
         skills: [{ skill: "E10", w: 1 }],
         hints: earHints(),
         srs: [{ family: "fam.key.mode", mode: "review-if-due" }],
@@ -359,14 +359,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Headphones on. This is the vamp you will make your own. `.pan(.3)` places the Rhodes; `.jux(rev)` plays the riff twice at once, once as written and once backwards. Run it. On which side is the riff played backwards?",
+          "Find the side where the riff plays backwards: left, right or middle. Use headphones. `.pan(.3)` places the Rhodes; `.jux(rev)` plays the riff twice at once, once as written and once backwards. Run the code, then pick the side.",
         skills: [{ skill: "E10", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Listen to the first note of each bar: the riff as written starts on D, beat 1. The backwards copy starts later and ends on D. Which ear hears that one?",
         },
         hints: ladder(
-          "Take one side of the headphones off. Does that side play the riff you can read in the code?",
+          "Listen to one ear at a time: take one side of the headphones off. Does that side play the riff as written in the code?",
           "`.jux()` sends the line as written to one side and the changed copy to the other. `rev` is the change: the bar played backwards.",
           "The written riff starts on D right on beat 1, and it is on the left. Listen for the copy that ends on D instead.",
         ),
@@ -408,7 +408,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A vamp on D that could be Dorian, minor or Phrygian. Choose a colour and show it. Dorian: add G7, play B. Phrygian: scale word `phrygian`, add E♭. Mixolydian: scale word, chords D and C. Lydian: scale word, chords D and E, play G♯. Home in half the bars, the colour note on beat 1 or 3.",
+          "Pick one colour for this D vamp and show it. Dorian: add G7, play B. Phrygian: scale word `phrygian`, add E♭. Mixolydian: scale word, chords D and C. Lydian: scale word, chords D and E, play G♯. Done when the colour note lands on beat 1 or 3 twice, with D the chord in 40% of the bars.",
         skills: [
           { skill: "E10", w: 0.4 },
           { skill: "S12", w: 0.3 },
@@ -420,7 +420,8 @@ export default defineLesson({
         rubric: [
           {
             id: "one-mode",
-            label: "A vamp in one mode: its colour note on a strong beat, home in half the bars",
+            label:
+              "One mode on D: its colour note on beat 1 or 3 at least twice, and the D chord in at least 40% of the bars",
             required: true,
             skills: ["E10", "S12", "S13"],
             rule: "mode",
@@ -431,7 +432,7 @@ export default defineLesson({
           },
           {
             id: "roots-in-the-bass",
-            label: "The bass on each chord's root",
+            label: "The `bass:` line plays the root where most chords start",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -444,7 +445,7 @@ export default defineLesson({
         // ("its colour note 6 (B) is on a strong beat 0 times; put it on beat 1 or 3 at least twice"; "the D
         // chord is in 0% of the bars"; "B♭ in bar 1 is degree ♭6; D Dorian has 6 (B) in its place").
         hints: ladder(
-          "Which mood do you want: rock (Mixolydian), funk (Dorian), floating (Lydian) or dark (Phrygian)? Which one note says it?",
+          "Choose a mood first: rock (Mixolydian), funk (Dorian), floating (Lydian) or dark (Phrygian). Then find the one note that says it.",
           "The colour notes on D: B for Dorian, E♭ for Phrygian, C over a D major chord for Mixolydian, G♯ for Lydian. `n` counts from 0, so degree 6 is `n` 5.",
           "Dorian in two moves: the changes become `<Dm7 G7>`, and one riff note on beat 1 or 3 becomes a `5`.",
         ),

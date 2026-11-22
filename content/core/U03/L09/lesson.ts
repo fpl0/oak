@@ -61,7 +61,7 @@ const MAKE_STARTER = deg("<[0 2 4 7] [5 3 5 7] [4 2 0 2] [5 3 5 ~]>");
 
 export default defineLesson({
   id: "U03.L09",
-  version: 2,
+  version: 4,
   title: "Tunes by Number",
   objective:
     "I can write a known tune as degrees, tell its steps from its leaps, join its notes with .legato(), and sing it from the staff.",
@@ -91,7 +91,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Follow the staff and read the syllables as they sound. Does the tune move smoothly, or in jumps?",
+          "Follow the staff and read the syllables as they sound. Listen for how the tune moves from note to note: smoothly to the next note, or in jumps?",
         skills: [{ skill: "M01", w: 1 }],
         hints: null,
         tests: [],
@@ -111,7 +111,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "When the Saints, in degrees. Bar 1: a rest, then 1 3 4. Bar 2: 5, held for the whole bar. Bars 3 and 4 repeat them.",
+          "Write When the Saints in `n`, in place of the zeros. Bar 1: a rest, then degrees 1 3 4. Bar 2: degree 5, held for the whole bar. Bars 3 and 4 repeat bars 1 and 2. `n` counts from 0, so each number is the degree minus one.",
         skills: [
           { skill: "M01", w: 0.6 },
           { skill: "S02", w: 0.4 },
@@ -123,9 +123,13 @@ export default defineLesson({
         matcher: { m: "events", pitch: "absolute", rhythm: "onsets", durations: true },
         constraints: [{ c: "must-use", tool: "tb.n", feedback: "code.must-use" }],
         target: { audible: true, showRoll: false, revealRollAfter: 1 },
-        feedbackText: BRIDGE,
+        feedbackText: {
+          ...BRIDGE,
+          "rhythm.duration":
+            "Bar {bar}, {beatLabel}: the note lasts {got}; it should last {expected}. Hold it with `@`, as the starter's `0@4` does.",
+        },
         hints: ladder(
-          "Sing the target on syllables. Which degree comes after the rest, and which one is held?",
+          "Bar 1 is a rest, then degrees 1 3 4; bar 2 holds degree 5. What is each of those degrees in `n`?",
           "`n` counts from 0, so every degree is one less: degree 3 is `n` 2. The rest keeps its `~`.",
           "Bar 1 is `[~ 0 2 3]`. Bar 2 holds one note for the whole bar, written like the `0@4` in the starter.",
         ),
@@ -177,14 +181,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it: Ode to Joy in bars 1 to 4, the Saints in bars 5 to 8. Follow the numbers from note to note. Does each one go to the next degree, or further?",
+          "Run both tunes: Ode to Joy in bars 1 to 4, the Saints in bars 5 to 8. Follow the numbers from note to note and check whether each move goes to the next degree or jumps past one. Then answer both questions below.",
         skills: [{ skill: "M01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
-            "Not quite. Read the numbers one pair at a time: 3 to 4 is next door, 1 to 3 jumps over 2.",
+            "Not yet. Read the numbers one pair at a time: 3 to 4 is next door, 1 to 3 jumps over 2. Count only the jumps that go up.",
         },
         hints: ladder(
-          "When does the line jump past a degree instead of going to its neighbour?",
+          "Find the moves that skip a degree instead of going to its neighbour. Where does each tune jump?",
           "Read each pair of neighbouring numbers. A difference of 1 goes next door and 0 stays put; 2 or more jumps over a degree.",
           "In the Saints, the first two notes are 1 and 3: that move jumps over 2. Look for the same move again.",
         ),
@@ -193,7 +197,7 @@ export default defineLesson({
         questions: [
           {
             q: "choice",
-            prompt: "Which tune never jumps past a degree?",
+            prompt: "Pick the tune that never jumps past a degree.",
             options: [
               { id: "ode", label: "Ode to Joy, bars 1 to 4" },
               { id: "saints", label: "The Saints, bars 5 to 8" },
@@ -203,7 +207,7 @@ export default defineLesson({
           },
           {
             q: "number",
-            prompt: "In bars 5 to 8, how many times does the Saints jump upward past a degree?",
+            prompt: "Type how many times the Saints, in bars 5 to 8, jumps upward past a degree.",
             correct: 2,
           },
         ],
@@ -237,15 +241,19 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "`.legato()` sets how long each note lasts, as a share of its time, like `.clip()`. At `.4` the Ode sounds clipped. Make every note last until the next begins.",
+          "Change the number in `.legato()` so every note lasts until the next one begins. Like `.clip()`, `.legato()` sets how long each note sounds as a share of its time: at `.4`, less than half. Done when the notes join with no gaps.",
         skills: [{ skill: "M01", w: 1 }],
         code: { starter: `${TEMPO}mel: n("${ODE}").scale("C4:major").s("piano").legato(⟪.4⟫)` },
         reference: { solutions: [deg(ODE, "C4:major", ".legato(1)")], bars: 4 },
         matcher: { m: "events", pitch: "absolute", rhythm: "onsets", durations: true },
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true, showRoll: true },
+        feedbackText: {
+          "rhythm.duration":
+            "Bar {bar}, {beatLabel}: the note sounds {got}, but its time is {expected}. Raise the number in `.legato()` until each note fills its whole time.",
+        },
         hints: ladder(
-          "On the roll, how much of each note's space does its bar fill now?",
+          "Each note must fill all of its time. On the roll, how much of its space does each note's block fill now?",
           "The number in `.legato()` is the share of its time each note sounds: `.5` is half.",
           "The whole of its time is one share. Which number is that?",
         ),
@@ -289,14 +297,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Read the two bars on the staff. Chords set home, then sing them on syllables, one note to a beat. Oak plays them after you.",
+          "Sing the two bars on the staff on syllables after the chords set home: eight notes, one to a beat. Do is home, the note the chords end on. Oak plays the bars after you sing.",
         skills: [
           { skill: "V04", w: 0.7 },
           { skill: "V03", w: 0.3 },
         ],
         hints: [
           {
-            text: "Hum do first, the note the chords end on. Then find the first note on the staff: how many lines and spaces above do is it?",
+            text: "Start from do: hum the note the chords end on. Then find the first note on the staff: how many lines and spaces above do is it?",
           },
           { text: "Mi mi fa sol: up by neighbours. Then back down the same way, one further." },
           { text: "Hear the two bars once, slower, then sing them from the page.", replay: { rate: 0.75 } },
@@ -333,7 +341,7 @@ export default defineLesson({
         // The catalog's text for a `uses` rule names the tool ID; the label says it in words.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         prompt:
-          "Write a four-bar tune in degrees. Move mostly to the next degree, with a leap or two for interest.",
+          "Rewrite the starter's tune so most moves go to the next degree, up or down; the starter leaps on every move. Keep a leap or two for interest. Done when at least 6 in 10 moves to a new note are steps.",
         skills: [{ skill: "M01", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],
@@ -341,7 +349,7 @@ export default defineLesson({
         rubric: [
           {
             id: "mostly-steps",
-            label: "Mostly steps (at least 6 moves in 10)",
+            label: "At least 6 in 10 moves to a new note are steps, to the next degree up or down",
             required: true,
             skills: ["M01"],
             rule: "step-ratio",
@@ -350,7 +358,7 @@ export default defineLesson({
           },
           {
             id: "ends-home",
-            label: "Ends on 1, do",
+            label: "The tune's last note is degree 1, do",
             required: false,
             skills: ["M01"],
             rule: "ends-on-degree",
@@ -359,7 +367,7 @@ export default defineLesson({
           },
           {
             id: "joined",
-            label: "Notes joined with `.legato()`",
+            label: "Uses `.legato()` to join the notes",
             required: false,
             skills: ["M01"],
             rule: "uses",
@@ -368,7 +376,7 @@ export default defineLesson({
           {
             id: "singable",
             // Not "a sixth": interval names arrive in U04.L01.
-            label: "Spans no more than do up to la (9 half steps)",
+            label: "From its lowest note to its highest, the tune spans at most 9 half steps: do up to la",
             required: false,
             skills: ["V04"],
             rule: "range",
@@ -377,8 +385,8 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Sing the starter. Does any note go to its neighbour, or does every one jump?",
-          "A step goes to the next degree: `n` one more or one less. A repeated note counts with the steps.",
+          "Most moves must go to the next degree. Sing the starter: does any note go to its neighbour, or does every one jump?",
+          "A step goes to the next degree: `n` one more or one less. A repeated note does not count either way.",
           "Keep a few of the starter's jumps and fill the gaps between them: 0 2 becomes 0 1 2.",
         ),
         tests: [

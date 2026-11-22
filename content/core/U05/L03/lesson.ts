@@ -62,7 +62,7 @@ const ROLL_KEYS = { roll: true, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "U05.L03",
-  version: 2,
+  version: 3,
   title: "Diminished & Augmented",
   objective:
     "I can build and hear the two restless triads: two minor 3rds (diminished) and two major 3rds (augmented).",
@@ -91,7 +91,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Follow the top note of the chords through bars 1 to 3. Then listen to bar 4: does it sound finished, or does it lean towards the start?",
+          "Follow the top note of the chords through bars 1 to 3. Then listen for whether bar 4 sounds finished or leans back towards bar 1.",
         skills: [{ skill: "C03", w: 1 }],
         hints: null,
         tests: [],
@@ -117,10 +117,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two chords, each on its own. Which one sounds restless, as if it has to move on to another chord?",
+          "Listen to both cards, each one chord on its own. Pick the chord that sounds restless, as if it has to move on to another chord.",
         skills: [{ skill: "C03", w: 1 }],
         hints: ladder(
-          "Which of the two could end a song, and which one could not?",
+          "Imagine each card as the last chord of a song. Pick the one that could not end it.",
           "One of them has a tritone between its outer notes: six half steps, the tense distance from Together Now.",
           "Play card 1, then bar 1 of the hook. They are the same chord: is that one restless?",
         ),
@@ -163,7 +163,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it: the stack on degree 7, then the stack on 1 an octave up. Find bar 1's notes on the keyboard and count the half steps between them.",
+          "Run it: bar 1 is the stack on degree 7, bar 2 the stack on 1 an octave up. Find bar 1's three notes on the keyboard and count the half steps from each note up to the next. Then answer both questions below.",
         skills: [
           { skill: "C03", w: 1 },
           { skill: "I03", w: 0.5 },
@@ -173,7 +173,7 @@ export default defineLesson({
             "Not quite. Count keys on the keyboard, black ones too, from each note of bar 1 up to the next.",
         },
         hints: ladder(
-          "Bar 1 is `n` 6, 8 and 10. Which three notes of C major are those?",
+          "Bar 1 is `n` 6, 8 and 10. Name those three notes of C major first: each degree is its `n` plus one.",
           "`n` 6 is degree 7, B; then D and F. A minor 3rd is three half steps, a major 3rd four.",
           "B up to D: C is one key, C♯ two, D three. Now count from D to F the same way.",
         ),
@@ -226,7 +226,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The tune climbs G♯ to A, but bar 1's chord is plain C major, and its top note rubs against the tune. Make bar 1 augmented: two major 3rds.",
+          "The tune climbs G♯ to A, but bar 1's chord is plain C major, C E G, and its top note rubs against the tune. Move one note of bar 1's chord a half step to make it augmented: two major 3rds. Done when bar 1 is C augmented, C still at the bottom.",
         skills: [{ skill: "C03", w: 1 }],
         code: { starter: RISE_STARTER },
         reference: { solutions: [RISE], bars: 2 },
@@ -242,7 +242,7 @@ export default defineLesson({
             "Bar {bar}: C is no longer the lowest note. Keep C at the bottom; the change is at the top.",
         },
         hints: ladder(
-          "C up to E is already a major 3rd. Which of the other two 3rds has to grow?",
+          "C up to E is already a major 3rd, four half steps. Check the size of the other 3rd, from E up to the top note.",
           "E up to G is three half steps, a minor 3rd. Two major 3rds need four there, so the top note goes up.",
           "Up a half step is one key to the right. The new key is a black one, and the note keeps its letter.",
         ),
@@ -297,10 +297,11 @@ export default defineLesson({
         id: "four-colours",
         version: 1,
         role: "check",
-        prompt: "One chord at a time, on a new note each time. Major, minor, diminished or augmented?",
+        prompt:
+          "Oak plays one chord at a time, each on a new note. Pick its kind: major, minor, diminished or augmented.",
         skills: [{ skill: "E08", w: 1 }],
         hints: [
-          { text: "Settled or restless? Major and minor can end a song; the other two cannot." },
+          { text: "First decide settled or restless: major and minor can end a song, the other two cannot." },
           {
             text: "If it is settled, is it bright (major) or darker (minor)? If restless, does it sound squeezed and dark (diminished) or stretched and bright (augmented)?",
           },
@@ -328,13 +329,13 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Oak names a triad by its root and a sign: nothing for major, m for minor, ° for diminished, + for augmented. Write its three notes from the root up.",
+          "Oak names a triad by its root and a sign: nothing for major, m for minor, ° for diminished, + for augmented. Type its three notes from the root up, with any sharps or flats.",
         skills: [
           { skill: "C03", w: 1 },
           { skill: "I03", w: 0.5 },
         ],
         hints: ladder(
-          "Which letters do you land on when you skip one letter, twice, from the root?",
+          "Start with the letters: from the root, skip one letter, then skip one more.",
           "Letters first, then the 3rds in half steps: major 4 then 3, minor 3 then 4, diminished 3 and 3, augmented 4 and 4.",
           "E♭ augmented: the letters are E♭, G, B. E♭ up to G is four half steps, and G up to B is four too, so B stays natural.",
         ),
@@ -361,7 +362,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a four-bar loop with one restless triad in it, diminished or augmented, and let the next chord answer it: B° to C, or C+ (C, E, G♯) to F. A tune on top can climb with the chords, as in the hook.",
+          "Put one restless triad, diminished or augmented, into the four-bar loop, and let the next chord answer it: B° to C, or C+ (C, E, G♯) to F. A tune on top can climb with the chords. Done when the loop has at least one diminished or augmented triad.",
         skills: [{ skill: "C03", w: 1 }],
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         code: { starter: MAKE_STARTER },
@@ -370,7 +371,7 @@ export default defineLesson({
         rubric: [
           {
             id: "a-restless-triad",
-            label: "A diminished or an augmented triad",
+            label: "At least one diminished or augmented triad",
             required: true,
             skills: ["C03"],
             rule: "chord-qualities",
@@ -379,7 +380,7 @@ export default defineLesson({
           },
           {
             id: "a-tune",
-            label: "A tune that moves with the chords",
+            label: "A tune on its own line, such as `mel`",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -388,7 +389,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which degree of C carries a triad of two minor 3rds?",
+          "Start with the diminished triad: one degree of C major carries a stack of two minor 3rds.",
           "The stack on degree 7 is diminished, and in code degree 7 is `n` 6. An augmented triad is not in the key: write its notes by letter in `note()`, as in Make it rise.",
           "Put the stack on degree 7 in bar 3, and let bar 4 be the stack on 1 an octave up, where it leans.",
         ),

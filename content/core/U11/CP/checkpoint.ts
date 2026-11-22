@@ -90,7 +90,7 @@ const SWING_MATCHER: Matcher = {
   rules: [
     {
       id: "hats-swing",
-      label: "The hats swing",
+      label: "The hats play their eighths long–short",
       required: true,
       skills: ["R13"],
       rule: "swing",
@@ -101,7 +101,7 @@ const SWING_MATCHER: Matcher = {
     },
     {
       id: "riff-swings",
-      label: "The riff swings with them",
+      label: "The gtr line plays its eighths long–short",
       required: true,
       skills: ["R13"],
       rule: "swing",
@@ -142,14 +142,15 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["U11"],
   gated: ["S09", "S10", "S11", "C06", "H10", "F04", "R13", "M08"],
   levelSetting: [],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "all",
       id: "build-the-scales",
       version: 1,
       role: "checkpoint",
-      prompt: "Three scales on the keyboard, one at a time, each from its home note up.",
+      prompt:
+        "Build three scales on the keyboard, one at a time. For each, start on its home note and press only that scale's keys.",
       skills: [
         { skill: "S09", w: 0.34 },
         { skill: "S10", w: 0.33 },
@@ -160,7 +161,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       parts: [
         scalePart(
           "d-major-pentatonic",
-          "D major pentatonic: home on D, then degrees 2, 3, 5 and 6 of D major. Five keys.",
+          "Build D major pentatonic: D as home, then degrees 2, 3, 5 and 6 of D major. Five keys in all.",
           "S09",
           "D",
           ["d4", "d5"],
@@ -188,7 +189,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
         ),
         scalePart(
           "e-minor-pentatonic",
-          "E minor pentatonic: home on E, then ♭3, 4, 5 and ♭7. Five keys.",
+          "Build E minor pentatonic: E as home, then ♭3, 4, 5 and ♭7 above it. Five keys in all.",
           "S10",
           "E",
           ["e4", "e5"],
@@ -216,7 +217,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
         ),
         scalePart(
           "a-blues",
-          "A blues: the minor pentatonic on A with the blue note between 4 and 5. Six keys.",
+          "Build the A blues scale: the minor pentatonic on A, plus the blue note between 4 and 5. Six keys in all.",
           "S11",
           "A",
           ["a3", "a4"],
@@ -255,7 +256,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: { tonic: "F", mode: "blues" },
       prompt:
-        "A twelve-bar blues in F, one chord a bar, the chords hidden. Chart it in numerals with their sevenths, one a bar; bar 1, I7, is filled in. Play it as often as you like.",
+        "Listen to a twelve-bar blues in F, one chord a bar, with the chords hidden. Chart each bar as a numeral with its seventh, such as I7; bar 1 is filled in. Replay it as often as you like.",
       skills: [
         { skill: "H10", w: 0.4 },
         { skill: "F04", w: 0.4 },
@@ -296,7 +297,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "A blues in C plays straight. Make it shuffle: swing the hats and the riff, each with its own call.",
+        "This blues in C plays straight. Make it shuffle: add a swing call to the `hats:` line and to the `gtr:` line, in the two highlighted spots. Done when both lines play their eighths long–short.",
       skills: [{ skill: "R13", w: 1 }],
       hints: null,
       swing: { subdivision: 8, amount: 1 / 3 },
@@ -358,7 +359,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     role: "checkpoint",
     title: "Twelve bars",
     prompt:
-      "A twelve-bar blues of your own over the band's kick and snare: dominant sevenths, a two-bar riff that comes back in each line, and an answer after it that changes. Swing it or keep it straight.",
+      "Write a twelve-bar blues of your own over the band's kick and snare. Put a two-bar riff on `mel:` in bars 1–2 of each line, and a different answer after it on `vox:`. Use dominant sevenths, swung or straight. Done when the riff returns in bars 5–6 and 9–10.",
     skills: [{ skill: "M08", w: 1 }],
     hints: null,
     key: { tonic: "C", mode: "blues" },
@@ -369,7 +370,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     rubric: [
       {
         id: "riff",
-        label: "The riff comes back in every line, under answers that change",
+        label: "The riff of bars 1–2 comes back in bars 5–6 and 9–10, while the answers change",
         required: true,
         skills: ["M08"],
         rule: "motif-reuse",
@@ -379,7 +380,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "form",
-        label: "Twelve bars of blues, standard or quick change",
+        label: "The chords follow the twelve-bar blues, standard or with the quick change",
         required: false,
         skills: ["F04", "H10"],
         rule: "blues-form",
@@ -388,7 +389,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "sevenths",
-        label: "Every chord a dominant seventh",
+        label: "Every chord is a dominant seventh, a 7 after the letter",
         required: false,
         skills: ["C06"],
         rule: "chord-qualities",
@@ -397,7 +398,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "swing",
-        label: "Swung hats",
+        label: "The hats play long–short, as with `.swingBy(1/3, 4)`",
         required: false,
         skills: ["R13"],
         rule: "swing",

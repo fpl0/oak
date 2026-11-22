@@ -47,7 +47,7 @@ const ROLL_STAFF = { roll: true, staff: "treble", keyboard: false } as const;
 /** Before U03.L02 feedback names letters and places, never degree numbers or syllables. */
 const LETTERS = {
   "melody.wrong-degree":
-    "Bar {bar}, {beatLabel}: not the note the scale needs here. Walk the steps again from `g4`: whole, whole, half, whole, whole, whole, half.",
+    "Bar {bar}, {beatLabel}: not the note the scale needs here. Only one note of the starter changes: walk the steps from `g4` again (whole, whole, half, whole, whole, whole, half) to find which.",
   "melody.missing-note":
     "Bar {bar}, {beatLabel}: a note is missing here. The scale has eight notes, `g4` to `g5`.",
   "melody.extra-note":
@@ -58,7 +58,7 @@ const LETTERS = {
 
 export default defineLesson({
   id: "U03.L01",
-  version: 2,
+  version: 3,
   title: "Home & the Major Scale",
   objective:
     "I can hear which note is home, and spell a major scale from any note with whole and half steps, each letter once.",
@@ -87,7 +87,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Hum the note the line comes to rest on, and hold it while the loop starts again. Does it still fit?",
+          "Listen for the note the line comes to rest on at the end of bar 2. Hum that note and hold it while the loop starts again. Listen for whether it still fits under bar 1.",
         skills: [{ skill: "E03", w: 1 }],
         hints: null,
         tests: [],
@@ -106,12 +106,13 @@ export default defineLesson({
         id: "which-climb-arrives",
         version: 1,
         role: "practice",
-        prompt: "Play both cards. Which climb sounds finished, and which leaves you waiting?",
+        prompt:
+          "Listen to both climbs, A and B. Pick the one that sounds finished: the one that does not leave you waiting for one more note.",
         skills: [{ skill: "E03", w: 1 }],
         hints: ladder(
-          "Play B and hum on after it stops. Which note does your voice want next?",
-          "A finished ending lets you stop listening. Which card leaves you waiting?",
-          "B stops on `b4`. Play A: the note after `b4` is the one you hummed.",
+          "Pick the climb that could end a tune. Listen to B and keep humming after it stops: which note does your voice want next?",
+          "B stops on `b4`, one note below `c5`. A finished ending lets you stop listening; the other one makes you wait.",
+          "The note you hum after B stops is a note B never plays. One of the two climbs does play it, as its last note.",
         ),
         stimulus: { src: "code", code: mel(`<[${CLIMB_HOME}] [${CLIMB_SHORT}]>`), bars: 2, showCode: false },
         cue: { context: "none", countInBars: 0, click: false, replays: -1 },
@@ -126,7 +127,7 @@ export default defineLesson({
         correct: { choice: ["a"] },
         feedbackText: {
           "id.wrong":
-            "Not B: it stops on `b4` and leaves you waiting. Play A again: it goes one note further.",
+            "Not B: it stops on `b4` and leaves you waiting. Listen to A again: it goes one note further.",
         },
         tests: [
           { name: "A", response: { answer: { choice: ["a"] } }, expect: "pass" },
@@ -147,15 +148,15 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the climb from `c4` to `c5` and watch the keyboard. Name each of the seven steps, half or whole, and note where the half steps fall.",
+          "Run the climb from `c4` to `c5` and watch the keyboard. For each of its seven steps, check whether a black key sits between the two notes. Then answer both questions below.",
         skills: [{ skill: "S01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
-            "Not quite. Run it again and look between each pair of neighbours: is there a black key in the gap?",
+            "Not yet. Run it again and check each pair of neighbours on the keyboard: a black key in the gap means a whole step (2 half steps), no black key means a half step (1).",
         },
         hints: ladder(
-          "Which neighbours sit side by side on the keyboard, with nothing in between?",
-          "No black key between two notes means a half step; a black key in the gap means a whole step, two half steps.",
+          "Find the two pairs of neighbouring notes in the climb that sit side by side on the keyboard, with no black key between them. Which pairs are they?",
+          "Check the pairs in order: `c4`–`d4`, `d4`–`e4`, `e4`–`f4`, and on up to `b4`–`c5`. No black key in the gap means a half step; a black key in the gap means a whole step, two half steps.",
           "`e4` to `f4` is one of the two short steps. The other one is near the top.",
         ),
         code: { starter: C_SCALE },
@@ -163,7 +164,7 @@ export default defineLesson({
         questions: [
           {
             q: "choice",
-            prompt: "Which neighbours have no black key between them?",
+            prompt: "Pick the two pairs of neighbours that have no black key between them.",
             options: [
               { id: "ef-bc", label: "`e4`–`f4` and `b4`–`c5`" },
               { id: "cd-fg", label: "`c4`–`d4` and `f4`–`g4`" },
@@ -171,7 +172,11 @@ export default defineLesson({
             ],
             correct: ["ef-bc"],
           },
-          { q: "number", prompt: "How many half steps from `c4` up to `d4`?", correct: 2 },
+          {
+            q: "number",
+            prompt: "Type how many half steps it is from `c4` up to `d4`, as a number.",
+            correct: 2,
+          },
         ],
         tests: [
           { name: "both right", response: { answer: { choice: ["ef-bc"], number: 2 } }, expect: "pass" },
@@ -214,7 +219,7 @@ export default defineLesson({
         // The answer is G major; the starter is the white keys from g4 (content check 13: the lesson's key).
         key: { tonic: "G", mode: "major" },
         prompt:
-          "These are the white keys from `g4` to `g5`. Make them a major scale: whole, whole, half, whole, whole, whole, half. One note has to change.",
+          "The line plays the white keys from `g4` up to `g5`. Change one note so the steps go whole, whole, half, whole, whole, whole, half, each letter used once. Keep the other seven notes as they are. Done when the line is the G major scale.",
         skills: [{ skill: "S01", w: 1 }],
         code: { starter: mel("⟪g4 a4 b4 c5 d5 e5 f5 g5⟫") },
         reference: { solutions: [G_MAJOR], bars: 1 },
@@ -236,9 +241,9 @@ export default defineLesson({
             "Right sound, wrong name: `gb5` uses the letter G twice and skips F. Each letter once: write it as an F.",
         },
         hints: ladder(
-          "Walk the steps from `g4` on the staff. Where does the pattern break?",
-          "From `g4`: whole to `a4`, whole to `b4`, half to `c5`. Keep going: the step into `g5` must be the half.",
-          "`e5` to `f5` is only a half step, and `f5` to `g5` is a whole one. One note must move up by a half step.",
+          "Compare each step from `g4` with the pattern whole, whole, half, whole, whole, whole, half. The first steps fit. Where does the pattern break?",
+          "Look at the last two steps, `e5` to `f5` and `f5` to `g5`. The pattern needs whole then half there; the white keys give half then whole.",
+          "One note moves up by a half step: it keeps its letter and gains a sharp.",
         ),
         srs: [{ family: "fam.key.scale-spell", mode: "evidence-only" }],
         tests: [
@@ -288,11 +293,15 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A short phrase over a few chords, in a different key each time. Which note is home? Play the cards to compare.",
+          "Listen to a short phrase over a few chords, in a different key each time. Pick the card that plays home: the note the music could end on and feel finished.",
         skills: [{ skill: "E03", w: 1 }],
         hints: [
-          { text: "Hum the phrase's last note and hold it. Could the music stop there?" },
-          { text: "Home is the note that lets you stop listening. Play each card after the phrase ends." },
+          {
+            text: "Find the note the phrase could stop on. Hum its last note and hold it: could the music end there?",
+          },
+          {
+            text: "Listen to each card right after the phrase ends. Home sounds like an ending; the other two leave you waiting.",
+          },
           { text: "Hear it again, slower, and hum the note the chords settle on.", replay: { rate: 0.75 } },
           "auto",
         ],
@@ -326,7 +335,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Spell D major from D up: seven letters, each once, with a sharp where the steps need one. Write them in order, separated by spaces, and stop before D comes round again.",
+          "Spell D major from D up. Write its seven letters in order, separated by spaces, each letter once. Add a sharp wherever a step must grow to fit whole, whole, half, whole, whole, whole, half. Stop at the seventh letter: no D at the top.",
         skills: [{ skill: "S01", w: 1 }],
         // Spelling is judged in D major, the scale asked for (not the lesson's C).
         key: { tonic: "D", mode: "major" },
@@ -338,7 +347,7 @@ export default defineLesson({
             "{got} sounds right, but its letter is already taken. Each letter once: write {exp}.",
         },
         hints: ladder(
-          "Write the seven letters from D first, each once. Which steps between them come out wrong?",
+          "Start from the seven letters D E F G A B C, then check each step against whole, whole, half, whole, whole, whole, half. Which steps come out too short?",
           "Whole, whole, half, whole, whole, whole, half. `e` to `f` is only a half step, so the third note must rise.",
           "The first four are D E F# G. Walk on from G: whole, whole, whole, and the last step back to D is a half.",
         ),
@@ -391,7 +400,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a two-bar line using **only the notes of the C major scale**, and let it come home to `c`. One note of the starter does not belong.",
+          "Find the one note in the starter that is not in C major and change it to a note that is. Then end the line on a `c`, home, and keep `< >` so bar 2 answers bar 1. Done when every note is in C major.",
         skills: [{ skill: "S01", w: 1 }],
         code: { starter: mel(MAKE_STARTER) },
         bars: [1, 4],
@@ -399,7 +408,7 @@ export default defineLesson({
         rubric: [
           {
             id: "in-c",
-            label: "Every note is in C major",
+            label: "Every note of the line is in C major: white keys only",
             required: true,
             skills: ["S01"],
             rule: "in-key",
@@ -409,7 +418,7 @@ export default defineLesson({
           },
           {
             id: "ends-home",
-            label: "Ends on `c`, home",
+            label: "The line's last note is a `c`, home",
             required: false,
             skills: ["E03"],
             rule: "ends-on-degree",
@@ -418,7 +427,7 @@ export default defineLesson({
           },
           {
             id: "answer",
-            label: "Two bars that answer each other, with `< >`",
+            label: "Uses `< >`, so bar 2 plays different notes from bar 1",
             required: false,
             skills: ["R03"],
             rule: "uses",
@@ -426,7 +435,7 @@ export default defineLesson({
           },
           {
             id: "space",
-            label: "Leaves some space with a rest",
+            label: "At least one rest, `~`, somewhere in the line",
             required: false,
             skills: ["R06"],
             rule: "uses",
@@ -435,12 +444,12 @@ export default defineLesson({
         ],
         // The catalog words these in degree numbers ("it ends on 5"), which wait for U03.L02.
         feedbackText: {
-          "melody.ends-on": "The line does not end on `c` yet. Home is where it can stop.",
+          "melody.ends-on": "The line does not end on `c` yet. Make its last note a `c`, home.",
           "rubric.unmet": "{label}: not yet.",
         },
         hints: ladder(
-          "Play the starter over the band. Which note sounds sour?",
-          "C major uses the white keys only. Look for the one black key in the code.",
+          "One note of the starter is not in C major. Listen to the starter over the band: which note sounds sour?",
+          "C major uses the white keys only. Look for the one note in the code with a sharp or a flat.",
           "`eb4` is not in C major: it sours the band's chord. Move it up a half step, then try ending the second bar on `c4`.",
         ),
         tests: [

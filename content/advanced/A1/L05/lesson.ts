@@ -77,7 +77,7 @@ const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L05",
-  version: 2,
+  version: 3,
   title: "Grit",
   objective:
     "I can add warmth or grit to a part with saturation and a bitcrusher, and keep it in proportion.",
@@ -106,7 +106,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Loop 2 damages two parts on purpose, the bass and the hats. Listen to the bass: does the damage make it sound smaller, or bigger?",
+          "Loop 2 damages two parts on purpose, the bass and the hats. Listen to the bass in both loops, and listen for whether the damage makes it sound smaller or bigger.",
         skills: [{ skill: "D06", w: 1 }],
         hints: null,
         tests: [],
@@ -132,7 +132,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'The bass over the drums with `.distort("<0 .5 1 2>")`: a bigger number each bar, starting from none. What happens bar by bar?',
+          'The bass over the drums with `.distort("<0 .5 1 2>")`: a bigger number each bar, starting from none. Predict what happens to the bass bar by bar, and pick it.',
         skills: [{ skill: "D06", w: 1 }],
         hints: null,
         tests: [],
@@ -160,14 +160,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "One low sine, a bar each with `.distort()` at 0, 1 and 3, and the scope open. Run it, watch the top of each wave and listen to it change.",
+          "One low sine plays a bar each with `.distort()` at 0, 1 and 3, with the scope open. Watch the top of each wave and listen. Then answer both questions: in which bar the top is flat, and what flattening the sine added.",
         skills: [{ skill: "D06", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Watch the top of the wave in each bar: one stays a round hill, one gets broader, one goes flat. A flat top is a new shape, and a new shape is a new colour.",
         },
         hints: ladder(
-          "In which bar does the wave stop looking like a round hill?",
+          "Watch the top of the wave bar by bar. In which bar does it stop looking like a round hill?",
           "A sine has one harmonic only. Change its shape and you change which harmonics it has: Waves & Harmonics showed which shape has which.",
           "A flattened sine starts to look like a square. What does a square have that a sine does not?",
         ),
@@ -220,7 +220,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The target's bass is saturated: warm and thick, a growl under the riff. Yours is clean. Saturate it by ear, and turn it down a little if it jumps out.",
+          "Your bass is clean; the target's is saturated, a warm growl under the riff. Change the number in `.distort()` on the bass line by ear to match it. Keep the bass playing, and turn it down a little only if it jumps out. Done when your saturation is close to the target's.",
         skills: [{ skill: "D06", w: 1 }],
         code: { starter: WARM_STARTER },
         reference: { solutions: [WARM_SOLUTION], bars: 2 },
@@ -240,7 +240,7 @@ export default defineLesson({
           "melody.wrong-degree": "Bar {bar}, {beatLabel}: the bass's notes changed. Change its sound only.",
         },
         hints: ladder(
-          "Listen to the target's low notes: a little rough, or torn apart?",
+          "Compare the target's low notes with yours. Are the target's a little rough, or torn apart?",
           "`.distort()` sets how hard the bass is pushed: 0 is clean, and every step up adds more new harmonics and more level.",
           "Bar 4 of Push the bass was far past a warm growl, and bar 1 was clean. The target sits between them, nearer the clean end.",
         ),
@@ -306,7 +306,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The riff over the drums. `.crush()` keeps a number of bits for each point of the wave: 16 in bar 1, 4 in bar 2. Next to bar 1, how does bar 2 sound?",
+          "The riff over the drums. `.crush()` keeps a number of bits for each point of the wave: 16 in bar 1, 4 in bar 2. Listen to the riff's long notes, and pick how bar 2 sounds next to bar 1.",
         skills: [{ skill: "D06", w: 1 }],
         hints: ladder(
           "Listen to the riff's long notes in each bar: smooth, or full of fine grain?",
@@ -345,10 +345,12 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The loop twice. The second time, the riff sounds different and nothing else does. What happened to it?",
+          "The loop plays twice. The second time, only the riff changes. Listen to the riff and its echoes, and pick what happened to it.",
         skills: [{ skill: "D06", w: 1 }],
         hints: [
-          { text: "Is the riff the second time louder and thicker, grainier, or duller?" },
+          {
+            text: "Compare the riff the second time with the first. Is it louder and thicker, grainier, or duller?",
+          },
           {
             text: "Saturation rounds the wave's peaks: warmer, thicker, louder. Crushing puts it on a staircase: a fine, hard grain. A closed filter takes the top off: duller.",
           },
@@ -400,7 +402,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The loop from Space, clean. Give it some dirt: a bass that growls, crushed hats, a riff like an old record. Saturate or crush at least one part so you can hear it, and turn a saturated part down so it does not win by being louder.",
+          "This loop is clean. Give at least one part grit you can hear: saturate it with `.distort()`, or crush it with `.crush()` or `.coarse()`. Try a bass that growls, crushed hats, a riff like an old record. Turn a saturated part down with `.gain()` so it does not win by being louder.",
         skills: [{ skill: "D06", w: 1 }],
         code: { starter: CLEAN },
         bars: [2, 8],
@@ -408,7 +410,8 @@ export default defineLesson({
         rubric: [
           {
             id: "grit-you-can-hear",
-            label: "A part with grit you can hear",
+            label:
+              "A heard part with grit: .distort() above 0.5, .crush() under 7 bits, or .coarse() above 3",
             required: true,
             skills: ["D06"],
             rule: "custom",
@@ -425,7 +428,7 @@ export default defineLesson({
           },
           {
             id: "a-second-grit",
-            label: "A second part crushed or coarsened",
+            label: "A part crushed (.crush() under 7 bits) or coarsened (.coarse() above 3)",
             required: false,
             skills: ["D06"],
             rule: "custom",
@@ -439,7 +442,7 @@ export default defineLesson({
           },
           {
             id: "a-curve-of-your-own",
-            label: "A saturation curve of your own",
+            label: "A saturation curve chosen with .distorttype()",
             required: false,
             skills: ["D06"],
             rule: "uses",
@@ -449,7 +452,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which part of the loop would sound best with a rough edge: the bass, the hats or the riff?",
+          "Choose one part to roughen first: the bass, the hats or the riff. Which would sound best with a rough edge?",
           '`.distort()` saturates a part, `.crush()` keeps fewer bits, `.coarse()` holds each point of the wave for longer. `.distorttype("diode")` or `"fold"` changes how the saturation bends the wave.',
           "Saturate the bass about as much as the target in Warm the bass, then turn its `.gain()` down until it sits where it did.",
         ),

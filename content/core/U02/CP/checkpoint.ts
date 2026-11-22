@@ -24,7 +24,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["U02"],
   gated: ["P01", "P02", "P03", "P04", "P05", "P06", "N02", "D01"],
   levelSetting: ["E02", "V01"],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "code-modify",
@@ -32,7 +32,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "Move this line up a **whole step**: every note two half steps higher. Rewrite the notes or use `.transpose()`.",
+        "Move this line up a **whole step**: every note two half steps higher. Rewrite the note names or add `.transpose()`; either is fine.",
       skills: [
         { skill: "P06", w: 0.6 },
         { skill: "P03", w: 0.4 },
@@ -72,7 +72,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       id: "number-of-c3",
       version: 1,
       role: "checkpoint",
-      prompt: "`c4` is MIDI number 60. What number is `c3`, one octave lower?",
+      prompt: "`c4` is MIDI number 60. Answer with the MIDI number of `c3`, one octave lower.",
       skills: [
         { skill: "P01", w: 0.5 },
         { skill: "P05", w: 0.5 },
@@ -95,7 +95,8 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       id: "which-is-square",
       version: 1,
       role: "checkpoint",
-      prompt: "The same four notes on two synth sounds. Which one is the square wave?",
+      prompt:
+        "Listen to the same four notes on two synth sounds, A and B. Pick the one played on the square wave.",
       skills: [{ skill: "D01", w: 1 }],
       hints: null,
       stimulus: { src: "code", code: wave("sine"), bars: 1, showCode: false },
@@ -137,7 +138,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     version: 1,
     role: "checkpoint",
     prompt:
-      "A two-bar line for the piano over the band, written in note names. Use at least five different notes, and a sharp or a flat if you like.",
+      "Write a line of two bars or more for the piano over the band, in note names like `e4`. Use at least five different notes; a sharp or a flat is welcome. Done when five or more different notes play.",
     skills: [{ skill: "P02", w: 1 }],
     hints: null,
     code: { starter: mel("<[c4 e4 g4 e4] [c4 e4 g4 ~]>") },
@@ -146,7 +147,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     rubric: [
       {
         id: "five-notes",
-        label: "At least five different notes",
+        label: "Five or more different notes",
         required: true,
         skills: ["P02"],
         rule: "distinct-pitches",
@@ -155,7 +156,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "on-the-staff",
-        label: "Stays between `c4` and `a5`, at most one ledger line off the staff",
+        label: "Every note from `c4` to `a5`, both included: at most one ledger line off the staff",
         required: false,
         skills: ["N02"],
         rule: "range",

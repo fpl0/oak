@@ -106,7 +106,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["U12", "U13"],
   gated: ["C07", "C08", "I04", "R09", "R10", "R11", "R12", "N08", "N09"],
   levelSetting: ["E11", "E14"],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "fact",
@@ -115,7 +115,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: { tonic: "F", mode: "major" },
       prompt:
-        "A loop in F major, its chords named in the code: Gm7, C7, Fmaj7, B♭maj7. Write the numeral of each chord with its seventh. Play it as often as you like.",
+        "A loop in F major, its chords named in the code: Gm7, C7, Fmaj7, B♭maj7. Write the numeral of each of the four chords in F, in order, with its seventh: maj7, m7 or 7, as the chord name shows.",
       skills: [
         { skill: "C08", w: 0.6 },
         { skill: "C07", w: 0.4 },
@@ -154,7 +154,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "No sound this time. Two bars on the staff in C major, from middle C: a dotted quarter, then an E on beat 4 tied over the bar line. The starter has the notes in even values. Give each note the length the page gives it, with `@`.",
+        "No sound this time. Read the two bars on the staff, C major from middle C. The starter has the notes in even lengths, with the tied E written twice. Give each note the length the page shows, using `@`. Done when every note starts and ends where the page has it.",
       skills: [
         { skill: "R09", w: 0.5 },
         { skill: "N08", w: 0.5 },
@@ -205,7 +205,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "No sound this time. One bar of a guitar chop on the staff, in C major from middle C: one note a beat in the starter, G G E D. On the page each beat is split, into two eighths or into a triplet. Write the bar in code.",
+        "No sound this time. Read one bar of a guitar chop on the staff, C major from middle C. The starter has one note a beat: G G E D. Split each beat as the page does, into two eighths or a triplet, keeping its note. Done when every beat holds as many notes as the page shows.",
       skills: [
         { skill: "N09", w: 0.6 },
         { skill: "R12", w: 0.4 },
@@ -270,7 +270,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     role: "checkpoint",
     title: "A groove that leans",
     prompt:
-      "A groove of your own with seventh chords, four or eight bars, every hit square on the beat for now. Push the chords ahead of the beat. Then make it yours: push the bass with them, quiet hits between the loud ones, a triplet, chords of your own.",
+      "Every hit of this groove is on the beat. Push the chords ahead of the beat, so at least two of them start between beats and ring through the next one. Then, if you like, push the bass with them, add ghost notes on the snare, a triplet, or chords of your own. Keep it four or eight bars.",
     skills: [{ skill: "R10", w: 1 }],
     hints: null,
     key: { tonic: "C", mode: "major" },
@@ -281,7 +281,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     rubric: [
       {
         id: "pushed",
-        label: "At least two chords arrive ahead of their beat, or after it, and hold across it",
+        label: "At least two chords start between beats and ring through the next beat",
         required: true,
         skills: ["R10"],
         rule: "syncopation",
@@ -290,7 +290,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "bass-pushed",
-        label: "The bass pushes with them",
+        label: "At least two bass notes start between beats and ring through the next beat",
         required: false,
         skills: ["R10"],
         rule: "syncopation",
@@ -299,7 +299,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "sevenths",
-        label: "Seventh chords: at least two of maj7, m7 and 7",
+        label: "At least two chords are maj7, m7 or 7",
         required: false,
         skills: ["C08", "C07"],
         rule: "chord-qualities",
@@ -309,7 +309,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "ghosts",
-        label: "Ghost notes on the snare between loud ones",
+        label: "At least two snare hits at .4 or less, and at least two at full strength",
         required: false,
         skills: ["R10"],
         rule: "velocity-ghosts",
@@ -319,7 +319,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "triplet",
-        label: "A triplet somewhere",
+        label: "At least one triplet, in any line",
         required: false,
         skills: ["R12"],
         rule: "tuplets",
@@ -327,7 +327,9 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
         min: 1,
       },
     ],
-    feedbackText: { "rubric.unmet": "{label}: not yet." },
+    feedbackText: {
+      "rubric.unmet": "{label}: not yet. Check your lines against the item, then run it again.",
+    },
     tests: [
       {
         name: "the starter: everything on the beat",

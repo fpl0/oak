@@ -70,7 +70,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U06.L08",
-  version: 2,
+  version: 3,
   title: "Harmonic Rhythm",
   objective:
     "I can set the pace of a song by changing chords once or twice a bar, and speed up the changes to drive a phrase home.",
@@ -97,7 +97,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight bars, and the tempo never changes. Listen to the second half: does it relax, hold steady, or seem to hurry?",
+          "Eight bars, and the tempo never changes. Listen for whether the second half relaxes, holds steady or seems to hurry.",
         skills: [{ skill: "H06", w: 1 }],
         hints: null,
         tests: [],
@@ -123,7 +123,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`n("<[0 3] [4 0]>")` holds the roots, and the stack is added to each of them. Each `< >` item is one bar. How many chords will each bar hold?',
+          '`n("<[0 3] [4 0]>")` holds the roots, the stack is added to each of them, and each `< >` item is one bar. Predict how many chords each bar holds, and pick it.',
         skills: [{ skill: "H06", w: 1 }],
         hints: null,
         tests: [],
@@ -151,14 +151,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The hook again, with the numerals under the roll. The roots come first, as in the last step. Run it and watch how often the numerals change.",
+          "Run the hook again, with the numerals under the roll, and watch how often they change. The roots come first, as in the last step. Then answer both questions below.",
         skills: [{ skill: "H06", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the numerals under each bar of the roll, and read the brackets in the roots.",
         },
         hints: ladder(
-          "In which bars does a new numeral appear halfway through the bar?",
+          "Look for bars where a new numeral appears halfway through.",
           "Each `[ ]` in the roots squeezes two of them into one bar, as `[ ]` squeezes two hits into one beat.",
           "Bar 5 is `[0 4]`. Count its chords, then look for the other brackets.",
         ),
@@ -211,7 +211,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "In the target, bars 3 and 4 each hold two chords, half a bar each: vi then IV, and ii then V. Write them into the last two items of the roots.",
+          "In the target, bars 3 and 4 each hold two chords, half a bar each: vi then IV in bar 3, ii then V in bar 4. Write them into the last two items of the roots pattern.",
         skills: [{ skill: "H06", w: 1 }],
         code: { starter: PUSH_STARTER },
         reference: { solutions: [push(PUSH)], bars: 4 },
@@ -223,7 +223,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}; the target has {exp}. Two chords in one bar go in brackets, and `n` counts from 0.",
         },
         hints: ladder(
-          "How do you fit two hits into one beat? Two chords fit into one bar the same way.",
+          "Two hits fit into one beat with brackets. Two chords fit into one bar the same way.",
           "Each `< >` item of the roots is a bar. Brackets around two roots put two chords in that bar, half a bar each.",
           "Bar 3 already starts on vi, the 5. Put it in brackets with the root of IV after it.",
         ),
@@ -263,10 +263,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The opening of a loop, then two cards that play all eight bars. Same tempo, same chords until bar 7. Which card pushes into its ending?",
+          "The opening of a loop plays, then two cards that play all eight bars: same tempo, same chords until bar 7. Pick the card that pushes into its ending.",
         skills: [{ skill: "H06", w: 1 }],
         hints: ladder(
-          "Listen to the last two bars of each card. Where do the chords change more often?",
+          "Listen to the last two bars of each card and count how often the chords change.",
           "One card changes chord once a bar all the way; the other changes twice a bar at the end.",
           "Card A keeps one chord a bar to the end. Listen to bars 7 and 8 of card B.",
         ),
@@ -310,10 +310,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A four-bar loop, chords and bass, with the code hidden. Which bars hold two chords? Pick every one.",
+          "A four-bar loop of chords and bass plays, with the code hidden. Pick every bar that holds two chords.",
         skills: [{ skill: "H06", w: 1 }],
         hints: ladder(
-          "Follow the bass: in which bars does it move halfway through?",
+          "Follow the bass and listen for bars where it moves halfway through.",
           "A bar with one chord holds its bass note for the whole bar; a bar with two moves on beat 3.",
           "Bar 1 holds one chord. Listen to bar 2 again, then to the last bar.",
         ),
@@ -359,7 +359,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The starter changes chord once a bar. Write a four- or eight-bar loop and set its pace: one chord in some bars, two in others. Try the faster changes just before the end.",
+          "The starter changes chord once a bar. Set the pace: put two chords, in brackets, in at least one bar, and keep one chord in at least one other. Try the faster changes just before the end. Done when some bars hold one chord and some hold two.",
         skills: [{ skill: "H06", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -367,7 +367,7 @@ export default defineLesson({
         rubric: [
           {
             id: "some-bars-twice",
-            label: "One chord in some bars, two in others",
+            label: "At least one bar with one chord and one with two, never more than two",
             required: true,
             skills: ["H06"],
             rule: "custom",
@@ -376,7 +376,7 @@ export default defineLesson({
           },
           {
             id: "ends-home",
-            label: "The loop ends home: IV to I, or V to I",
+            label: "The last two chords go home: IV to I, or V to I",
             required: false,
             skills: ["H03"],
             rule: "cadence",
@@ -385,7 +385,7 @@ export default defineLesson({
           },
           {
             id: "a-bass",
-            label: "A bass that follows the changes",
+            label: "A bass line on its own line, such as `bass`",
             required: false,
             skills: ["H06"],
             rule: "tracks",
@@ -394,7 +394,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which bars would you like to move faster? The last ones push hardest.",
+          "Pick the bars to hurry; the last ones push hardest. Each of them needs two chords.",
           "Brackets in the roots put two chords in one bar, half a bar each. Keep the roots first: `.add()` keeps the rhythm of the pattern before it.",
           "Turn bar 4 into two chords: V for half a bar, then home. Brackets and two numbers.",
         ),

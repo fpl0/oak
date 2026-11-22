@@ -100,7 +100,8 @@ const MAKE_STARTER = makeAnswer(MAJOR, MAJOR_LINE);
  */
 const MINOR_CADENCE: RubricRule = {
   id: "minor-ii-v-i",
-  label: "A minor ii–V–i",
+  label:
+    "The chords play a minor ii–V–i in order: a half-diminished ii, a dominant seventh V, then a minor home",
   required: true,
   skills: ["J06"],
   rule: "contains-rn",
@@ -116,7 +117,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J2.L02",
-  version: 2,
+  version: 3,
   title: "Minor ii–V–i",
   objective:
     "I can hear and write a minor ii–V–i: a half-diminished ii, a V with its 9th bent down, a minor home.",
@@ -145,7 +146,8 @@ export default defineLesson({
         id: "light-then-shadow",
         version: 1,
         role: "practice",
-        prompt: "Listen to home, bar 3, in each take. How does the second landing feel next to the first?",
+        prompt:
+          "Listen to home, bar 3, in each take. Notice how the second landing feels next to the first: brighter, or darker.",
         skills: [{ skill: "J06", w: 1 }],
         hints: null,
         tests: [],
@@ -172,14 +174,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the minor version. The V's symbol in the chord band says one of its notes is bent down a half step. Find it, then find it in D minor's own scale.",
+          "Run the minor version. The V's symbol in the chord band says one of its notes is bent down a half step. Answer two questions: which note is the ♭9 of A7♭9, and which number that note is in the D minor scale, counting D as 1.",
         skills: [{ skill: "J06", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read bar 2 in the chord band, then listen to the vibes' first note in that bar: it is the bent note. Then count up D minor from D.",
         },
         hints: ladder(
-          "What does the ♭9 in the V's symbol tell you to bend?",
+          "Read the V's symbol in bar 2: the ♭9 names one note, counted up from the V's root, and bends it down.",
           "The 9th is the 2nd an octave up. Count a 2nd above the V's root, then bend it down a half step.",
           "The V's root is A, and the 2nd above A is B. Then find that bent note in D minor: D is 1.",
         ),
@@ -230,10 +232,11 @@ export default defineLesson({
         id: "which-v-bends",
         version: 1,
         role: "practice",
-        prompt: "In one card the V, bar 2, bends a note down to one D minor already has. Which card?",
+        prompt:
+          "Listen to bar 2, the V, in both cards. In one card the V bends a note down to one D minor already has. Pick that card.",
         skills: [{ skill: "J02", w: 1 }],
         hints: ladder(
-          "Which card's bar 2 sounds darker, closer to home before it gets there?",
+          "Listen only to bar 2 of each card. One V sounds darker, as if it already leans toward the minor home.",
           "Bar 2 of each card is a chord on A. In one of them a note sits a half step above A, an octave up, and rubs against it.",
           "Play bar 2 of each card and then hum the vibes' B♭ from the first example: which V already holds it?",
         ),
@@ -276,7 +279,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The trio plays the ii–V–I of D major. Rename its chords so it plays the minor ii–V–i of D minor: the same three roots, each chord darkened.",
+          "The trio plays the ii–V–I of D major. Rename its three chords in `changes` so it plays the minor ii–V–i of D minor: the same three roots, each chord darkened. Done when the trio sounds like the target.",
         skills: [{ skill: "J06", w: 1 }],
         swing: SWUNG,
         code: { starter: CHART_STARTER },
@@ -301,7 +304,7 @@ export default defineLesson({
             '"{sym}" is not a chord name Strudel knows. The glyphs on a chart are for reading; code uses the spellings you have been writing.',
         },
         hints: ladder(
-          "Which chord of each version sounds brightest, and what darkens it?",
+          "Rename all three chords. Each keeps its root and changes its quality, as in the second take of the first step.",
           "Each of the three chords changes its quality: the ii becomes half-diminished, the V takes the bent 9th you found, home becomes minor.",
           "The ii is the half-diminished seventh on E: in code, its root followed by `m7b5`.",
         ),
@@ -389,10 +392,11 @@ export default defineLesson({
         id: "major-or-minor-ii-v",
         version: 1,
         role: "check",
-        prompt: "Four bars on Rhodes or piano with a bass, in any key. A major ii–V–I or a minor ii–V–i?",
+        prompt:
+          "Four bars on Rhodes or piano with a bass, in any key. For each, pick whether it is a major ii–V–I or a minor ii–V–i.",
         skills: [{ skill: "J06", w: 1 }],
         hints: [
-          { text: "Does home, in bar 3, sound bright or shadowed?" },
+          { text: "Listen to home in bar 3 first: a bright landing means major, a shadowed one minor." },
           {
             text: "Listen to bars 1 and 3: the minor version's ii is darker than a minor seventh, and its home is minor.",
           },
@@ -433,7 +437,7 @@ export default defineLesson({
         role: "practice",
         title: "Minor ii–V–i",
         prompt:
-          "Write four or eight bars in D minor: a minor ii–V–i, and a vibes line that leans on B♭ over the V before it falls home. Home can be Dm7, Dm6 or the darker Dm with a major 7th (`Dm^7`). Slow or up; let the line meet the other changes on their guide tones.",
+          "Turn the bright starter into four or eight bars in D minor. Required: the chords play a minor ii–V–i. Also on the checklist: the V carries its ♭9, and the vibes line ends on D over the minor home. Home can be Dm7, Dm6 or Dm with a major 7th (`Dm^7`).",
         skills: [{ skill: "J06", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -443,7 +447,7 @@ export default defineLesson({
           MINOR_CADENCE,
           {
             id: "bent-v",
-            label: "Your V carries its ♭9",
+            label: "The V is written as a 7♭9 chord",
             required: false,
             skills: ["J02"],
             rule: "chord-qualities",
@@ -453,7 +457,7 @@ export default defineLesson({
           },
           {
             id: "line-home",
-            label: "Your vibes line ends on D over the minor home",
+            label: "The vibes line's last note is D, over the minor home chord",
             required: false,
             skills: ["J06"],
             rule: "ends-on-degree",
@@ -465,7 +469,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which chords of the starter are still bright?",
+          "Start with the chords: all three in the starter are still the bright major ii–V–I.",
           "All three chord names change, as in the trio you darkened; then the vibes line has two notes that clash with the new chords.",
           "The V is the A7♭9 you met; over it the line's long note bends from B down to B♭, and over home F♯ becomes F.",
         ),

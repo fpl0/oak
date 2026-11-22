@@ -170,7 +170,7 @@ const BELL_ROTATED: RubricRule = {
 const MAKE_STARTER = TAPE;
 const DISPLACED: RubricRule = {
   id: "bell-displaced",
-  label: "The bell's figure comes back displaced",
+  label: "The cowbell's figure from one bar comes back in another, moved by a sixteenth or more",
   required: true,
   // The lab's skill (E14: the figure the learner took down comes back) and displacement (R15, R1.L05).
   skills: ["E14", "R15"],
@@ -184,7 +184,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R3.L05",
-  version: 2,
+  version: 3,
   title: "Rhythm Master Lab",
   objective: "I can take down syncopated, swung and odd-meter rhythms by ear.",
   key: { tonic: "C", mode: "major" },
@@ -209,7 +209,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The lab tape, a son groove in C, twice through, then each line on its own. As each line plays alone, ask two things: does it play on beat 1, and how many hits does it play in a bar?",
+          "Listen to the lab tape, a son groove in C, twice through, then each line alone. For each line, notice two things: whether it plays on beat 1, and how many hits it plays in a bar.",
         skills: [{ skill: "E14", w: 1 }],
         hints: null,
         tests: [],
@@ -235,7 +235,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four rhythms from the whole track, each with its own answers: the tape's clave, a bar of seven, two pulses at once, and a swing.",
+          "Four rhythms from the whole track: the tape's clave, a bar of seven, two pulses at once, and a swing. For each, count against its ruler and pick your answer.",
         skills: [{ skill: "E14", w: 1 }],
         hints: earHints(),
         srs: [
@@ -304,13 +304,13 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The tape plays with its code hidden. In your code everything is there but the bass's rhythm: its notes are given, and `struct` plays only the first, on beat 1. Give `struct` its eight slots, one per eighth note, as you hear the bass. Switch between the tape and your code to check.",
+          "Take down the tape's bass rhythm. In your code its notes are given, but `struct` plays only the first, on beat 1. Write `struct`'s eight slots, one per eighth note, so your bass plays what the tape's bass plays. Compare with the tape as you go.",
         skills: [
           { skill: "E14", w: 0.7 },
           { skill: "B04", w: 0.3 },
         ],
         hints: ladder(
-          "Does the tape's bass play on beat 1?",
+          "Listen to the tape's bass on beat 1 first: it may not play there.",
           "Count the eighths of one bar with the cowbell, 1 to 8. The bass takes two of them, and both bars have the same rhythm.",
           "The second bass note of each bar lands on beat 4, slot 7. Find the first one by counting back from it.",
         ),
@@ -384,13 +384,13 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The tape again, with one change: the cowbell plays another figure. Your code still has the tape's cinquillo. Change the cowbell until it plays what you hear. Switch between the tape and your code to check.",
+          "Change the cowbell line, which still plays the tape's cinquillo, so it plays the new cowbell figure on the tape. Everything else on the tape is the same. Compare with the tape as you go.",
         skills: [
           { skill: "E14", w: 0.7 },
           { skill: "R18", w: 0.3 },
         ],
         hints: ladder(
-          "Does the tape's cowbell still play on beat 1?",
+          "Listen for the tape's first cowbell hit of each bar and compare it with beat 1.",
           "Count its hits in one bar against the bass and the rimshot: still five, the same spacing as before, started somewhere else.",
           "Every hit sits one eighth note later than the cinquillo's. You can write the eight slots out, or give `(k,n)` its third number.",
         ),
@@ -482,7 +482,7 @@ export default defineLesson({
         role: "practice",
         title: "Displaced son",
         prompt:
-          "Four bars of the lab tape. In bars 1 and 2 the cowbell plays its figure; make bars 3 and 4 play the same figure moved later, by an eighth or a sixteenth, while the clave, the bass and the piano hold their ground. Add another bell figure, a ghosted hi-hat or a new tempo if you like.",
+          "Displace the cowbell. Required: bars 1 and 2 play its figure; bars 3 and 4 play the same figure moved later, by an eighth or a sixteenth. Keep the clave, the bass and the piano. Also on the checklist: the clave holds 3-2 through all four bars, and a `hats` line with ghost notes.",
         skills: [
           { skill: "R15", w: 0.6 },
           { skill: "E14", w: 0.4 },
@@ -494,7 +494,7 @@ export default defineLesson({
           DISPLACED,
           {
             id: "clave-holds",
-            label: "The clave holds 3-2 through every two bars",
+            label: "The rimshot keeps the son clave 3-2 through all four bars",
             required: false,
             skills: ["R18"],
             rule: "clave",
@@ -505,7 +505,7 @@ export default defineLesson({
           },
           {
             id: "hats-ghosted",
-            label: "A hi-hat line with ghost notes",
+            label: "A `hats` line with at least 4 quiet hits on the “e”s and “a”s, between louder ones",
             required: false,
             skills: ["R14"],
             rule: "velocity-ghosts",
@@ -518,7 +518,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "In bars 3 and 4, where does the cowbell's first hit land, compared with bars 1 and 2?",
+          "Leave bars 1 and 2 as they are, and move the cowbell's whole figure later in bars 3 and 4.",
           "One line can play its figure as written in some bars and moved in others: give it an amount per bar inside `< >`, or write its bars out one by one.",
           "An eighth note is an eighth of a bar, a sixteenth half that; nothing moves in bars 1 and 2. Keep the amount under a whole bar.",
         ),

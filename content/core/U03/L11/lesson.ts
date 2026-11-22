@@ -55,7 +55,7 @@ const ROLL_STAFF = { roll: true, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U03.L11",
-  version: 2,
+  version: 3,
   title: "Melody Workshop",
   objective: "I can write an eight-bar melody that pauses half-way and comes home to 1 at the end.",
   key: { tonic: "C", mode: "major" },
@@ -80,7 +80,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen for where the tune pauses and where it truly ends. Which pause sounds as if it wants to go on?",
+          "Listen to all eight bars. Find the bar where the tune pauses but wants to go on, and the bar where it truly ends.",
         skills: [{ skill: "M01", w: 1 }],
         hints: null,
         tests: [],
@@ -102,17 +102,17 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and follow the labels. One bar in the middle sounds like a comma: a pause that wants to go on. The last bar sounds like a full stop.",
+          "Run the tune and read the label on the last held note of each bar. One bar in the middle pauses like a comma, wanting to go on; bar 8 stops like a full stop. Answer both questions below.",
         skills: [
           { skill: "M01", w: 0.7 },
           { skill: "E04", w: 0.3 },
         ],
         feedbackText: {
           "investigate.wrong":
-            "Not quite. Play bars 2, 4 and 6 again: after which one does the tune hold a note that sounds open, not finished?",
+            "Not yet. Listen to bars 2, 4 and 6 again: which one holds a note that sounds open, not finished, just before the tune starts over? For bar 8, type the degree, not the `n`.",
         },
         hints: ladder(
-          "Which bars end with a held note? Of those, which sounds most like a pause?",
+          "Look at the bars that end with a held note. Which of them sounds most like a pause that wants to go on?",
           "A comma rests on an open degree, such as 5. A full stop rests on 1. Read the labels on the held notes.",
           "Bar 2 rests on 3, bars 4 and 6 on 5. Of those two, which one comes right before the tune starts over?",
         ),
@@ -121,7 +121,7 @@ export default defineLesson({
         questions: [
           {
             q: "choice",
-            prompt: "Which bar sounds like a comma?",
+            prompt: "Pick the bar that sounds like a comma: a pause that wants to go on.",
             options: [
               { id: "bar-2", label: "Bar 2" },
               { id: "bar-4", label: "Bar 4" },
@@ -129,7 +129,7 @@ export default defineLesson({
             ],
             correct: ["bar-4"],
           },
-          { q: "number", prompt: "On which degree does bar 8 end?", correct: 1 },
+          { q: "number", prompt: "Type the degree that bar 8 ends on.", correct: 1 },
         ],
         tests: [
           { name: "both right", response: { answer: { choice: ["bar-4"], number: 1 } }, expect: "pass" },
@@ -160,7 +160,8 @@ export default defineLesson({
         id: "bring-it-home",
         version: 1,
         role: "check",
-        prompt: "This draft stops in bar 8 without getting home. Change bar 8 so the tune ends on 1.",
+        prompt:
+          "Change bar 8 so the tune's last note is degree 1, home; the draft's bar 8 holds degree 2. Keep bars 1 to 7 as they are.",
         skills: [
           { skill: "M01", w: 0.6 },
           { skill: "E04", w: 0.4 },
@@ -175,7 +176,7 @@ export default defineLesson({
           rules: [
             {
               id: "ends-home",
-              label: "Ends on 1",
+              label: "The tune's last note is degree 1, home",
               required: true,
               skills: ["M01"],
               rule: "ends-on-degree",
@@ -187,7 +188,7 @@ export default defineLesson({
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true, showRoll: false },
         hints: ladder(
-          "Sing bar 7 and bar 8. Does the last note sound finished?",
+          "The last note of bar 8 must be home. Sing bars 7 and 8: does the last note sound finished?",
           "Bar 8 holds `n` 1: degree 2, re, one note above home. Which `n` plays home?",
           "Keep the bar's rhythm, one note and then three beats of rest, and change only its number to home's.",
         ),
@@ -235,7 +236,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "In this draft, bar 5 walks straight home and the tune sounds over half-way. Make bar 5 start the second half the way bar 1 starts the first.",
+          "Rewrite bar 5 so it starts the second half the way bar 1 starts the first: bar 1's exact shape, every distance between notes the same. Copy bar 1's four numbers, or add 7 to each for the octave above. Keep the other bars as they are.",
         skills: [{ skill: "M01", w: 1 }],
         code: {
           starter: deg(`<${TUNE.slice(0, 4).join(" ")} ⟪${TOO_SOON}⟫ ${TUNE.slice(5).join(" ")}>`),
@@ -247,7 +248,7 @@ export default defineLesson({
           rules: [
             {
               id: "reuse",
-              label: "Bar 5 reuses the shape of bar 1",
+              label: "Bar 5 has bar 1's exact shape: the same distances between its notes, at any height",
               required: true,
               skills: ["M01"],
               // Corrections pass: bar 5 against bar 1 only. `motif-reuse` took any earlier bar, so bar 5 written as
@@ -268,7 +269,7 @@ export default defineLesson({
             "{label}: not yet. Bar 5 needs bar 1's exact shape, every distance the same in half steps: its four numbers, all four plus 7 for the octave above, or the same distances from another note (F A C A keeps them).",
         },
         hints: ladder(
-          "Sing bar 1, then bar 5. Which one sounds like a beginning?",
+          "Bar 5 must start like bar 1. Sing bar 1, then bar 5: which one sounds like a beginning?",
           "Copy bar 1's four numbers into bar 5, or add 7 to each of them: the same notes an octave up.",
           "Bar 1 climbs 1, 3, 5 and drops back to 3. Bar 5 can do exactly that, from home or from the 1 above.",
         ),
@@ -343,13 +344,15 @@ export default defineLesson({
         id: "any-degree",
         version: 1,
         role: "check",
-        prompt: "Chords set home, then one note. Which degree is it? Any of the seven.",
+        prompt: "Listen to the chords that set home, then to one note. Pick its degree, from 1 to 7.",
         skills: [
           { skill: "E04", w: 0.5 },
           { skill: "E05", w: 0.5 },
         ],
         hints: [
-          { text: "Hum the note, then sing to do on syllables. Which way is shorter, up or down?" },
+          {
+            text: "Find the way home from the note. Hum it, then sing to do on syllables: which way is shorter, up or down?",
+          },
           { text: "1, 3 and 5 sound at rest. 2, 4, 6 and 7 lean: 7 pulls up to 1, 4 settles down to 3." },
           { text: "Hear it again, slower, and sing the way home from it.", replay: { rate: 0.75 } },
           "auto",
@@ -374,13 +377,13 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Chords set home, then the guitar plays the last two bars of the tune. Sing them back: fa, mi, re, then do, held.",
+          "After the chords set home, the guitar plays the tune's last two bars. Sing those four notes back on syllables: fa, mi, re, then do on the first beat of bar 8.",
         skills: [
           { skill: "V03", w: 0.6 },
           { skill: "M01", w: 0.4 },
         ],
         hints: [
-          { text: "Hum do first, the note the chords end on. Where is fa from there?" },
+          { text: "Start from do: hum the note the chords end on. Where is fa from there?" },
           { text: "Fa is three notes of the scale above do. From there, step down one note at a time." },
           { text: "Hear it again, slower, and sing along the second time.", replay: { rate: 0.75 } },
           "auto",
@@ -412,7 +415,7 @@ export default defineLesson({
         // The catalog's text for a `uses` rule names the tool ID; the label says it in words.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         prompt:
-          'Write an eight-bar melody. Let bar 4 pause on an open degree and bar 8 **come home to 1**. Acoustic guitar suits it: `.s("acgtr")`.',
+          "Change the outline so the melody's last note is degree 1, home; the outline ends on 2. Then make the eight bars yours, with bar 4 pausing on an open degree such as 5. Done when the last note is 1.",
         skills: [{ skill: "M01", w: 1 }],
         code: { starter: deg(OUTLINE, "piano") },
         bars: [8, 16],
@@ -420,17 +423,24 @@ export default defineLesson({
         rubric: [
           {
             id: "home",
-            label: "Ends on 1",
+            label: "The melody's last note is degree 1, home",
             required: true,
             skills: ["M01"],
             rule: "ends-on-degree",
             track: "@melody",
             degrees: ["1"],
           },
-          { id: "eight", label: "Eight bars", required: false, skills: ["M01"], rule: "bars", min: 8 },
+          {
+            id: "eight",
+            label: "At least eight bars long",
+            required: false,
+            skills: ["M01"],
+            rule: "bars",
+            min: 8,
+          },
           {
             id: "steps",
-            label: "Mostly steps, a few leaps",
+            label: "At least 6 in 10 moves to a new note go to the next degree; the rest can leap",
             required: false,
             skills: ["M01"],
             rule: "step-ratio",
@@ -439,7 +449,8 @@ export default defineLesson({
           },
           {
             id: "again",
-            label: "Bars 5–6 come back to bars 1–2",
+            label:
+              "At least a quarter of the bars repeat the shape of an earlier bar, as bars 5–6 can repeat bars 1–2",
             required: false,
             skills: ["M01"],
             rule: "motif-reuse",
@@ -449,7 +460,7 @@ export default defineLesson({
           },
           {
             id: "guitar",
-            label: "On acoustic guitar",
+            label: 'Plays on acoustic guitar: `.s("acgtr")`',
             required: false,
             skills: ["S03"],
             rule: "sounds",
@@ -457,7 +468,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Play the outline. Which bar sounds unfinished, and which degree would finish it?",
+          "The last note of bar 8 must be home. Listen to the outline: which bar sounds unfinished, and which degree would finish it?",
           "The band's last chord is home's own chord. The last note of bar 8 decides how the tune ends.",
           "Bars 1–4 can stay as they are; fill bars 5–7 with your own notes, then end bar 8 on the degree the chords end on.",
         ),

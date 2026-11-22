@@ -70,7 +70,7 @@ const STARTER_PLAIN = `${TEMPO}mel: n("0 ~ ~ ~").scale("C4:major").s("piano")`;
 
 export default defineLesson({
   id: "U03.L10",
-  version: 2,
+  version: 4,
   title: "By-Ear Transcription I",
   objective: "I can hear a short tune, find home and its first note, and write the rest down in degrees.",
   key: { tonic: "C", mode: "major" },
@@ -94,7 +94,8 @@ export default defineLesson({
         id: "know-this-tune",
         version: 1,
         role: "practice",
-        prompt: "Do you know the tune? Hum its first note, then hum home. Are they the same note?",
+        prompt:
+          "Listen to the four bars. Hum the tune's first note, then hum home, the note the tune keeps coming back to. Listen for whether they are the same note.",
         skills: [{ skill: "E07", w: 1 }],
         hints: null,
         tests: [],
@@ -114,10 +115,12 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Chords set home, then three or four notes, each a step from the one before. Tap their degrees in order.",
+          "Listen to the chords that set home, then to three or four notes, each one step from the one before. Tap their degrees on the pad in order, one tap per note.",
         skills: [{ skill: "E07", w: 1 }],
         hints: [
-          { text: "Sing the notes back on syllables. Is the first one home, or above it?" },
+          {
+            text: "Find the first note's degree first. Sing the notes back on syllables: is the first one home, or above it?",
+          },
           {
             text: "Find the first note by singing down to do. Then each note moves one degree up or down: follow them.",
           },
@@ -156,13 +159,13 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Write the hidden tune in `n`, four bars with `< >`; the fourth bar is silent, `~`. Switch between it and yours at the same bar, slower if you like. Any key passes.",
+          "Write the hidden tune in `n`: four bars inside `< >`, the fourth bar a silent `~`. Compare yours with the tune bar by bar, slower if you need. Any key passes, as long as every degree and its timing are right.",
         skills: [
           { skill: "E07", w: 0.8 },
           { skill: "S02", w: 0.2 },
         ],
         hints: ladder(
-          "Hum the first note, then hum home. Is the first note above home or below it?",
+          "Start with the first note: hum it, then hum home. Is the first note above home or below it?",
           "It starts on degree 3 and drops to home, then goes below home. `n` counts from 0, so degree 3 is `n` 2, and the notes below home are negative.",
           "Bar 1 is `[2@2 0@2]`: degree 3, then home, two beats each. Bar 2 starts the same way and keeps falling, a quarter at a time.",
         ),
@@ -222,13 +225,13 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A chord sets home, then the piano plays four notes from another old tune. Sing them straight back, on syllables or on any vowel.",
+          "After the chord sets home, the piano plays four notes from another old tune. Sing those four notes straight back, on syllables or on any vowel.",
         skills: [
           { skill: "V03", w: 0.7 },
           { skill: "E07", w: 0.3 },
         ],
         hints: [
-          { text: "Hum home first, the note of the chord. Is the first note above it?" },
+          { text: "Start from home: hum the note of the chord. Is the tune's first note above it?" },
           {
             text: "The first note is mi, a little above home. Then it climbs twice and steps back down once.",
           },
@@ -260,7 +263,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The tune from the start of the lesson, now yours to write down. Four bars, the same way: any key passes.",
+          "Write the tune from the start of the lesson in `n`: four bars inside `< >`, the last note held through bar 4. Compare yours with the tune bar by bar, slower if you need. Any key passes, as long as every degree and its timing are right.",
         skills: [
           { skill: "E07", w: 0.8 },
           { skill: "S02", w: 0.2 },
@@ -327,7 +330,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bars 1–2 are the start of the tune you took down. Write bars 3–4 to answer them: **the same shape, at another height**. Move every number of bars 1–2 by the same amount. Start bar 3 on degree 6, `n` 5, and the answer lands on home; another start gives another ending.",
+          "Write bars 3 and 4 as a copy of bars 1 and 2 at another height: add the same number to every `n`. Start bar 3 on degree 6, `n` 5, and the answer ends on home. Done when bars 3 and 4 are bars 1 and 2 moved by one amount.",
         skills: [
           { skill: "E07", w: 0.5 },
           { skill: "M01", w: 0.5 },
@@ -339,7 +342,7 @@ export default defineLesson({
         rubric: [
           {
             id: "same-shape",
-            label: "Bars 3 and 4 are bars 1 and 2 moved: every number by the same amount",
+            label: "Bars 3 and 4 copy bars 1 and 2, every note moved up or down by the same amount",
             required: true,
             // The phrase came in by ear; the answer is heard against it.
             skills: ["E07", "M01"],
@@ -355,7 +358,7 @@ export default defineLesson({
           },
           {
             id: "ends-home",
-            label: "Ends on 1, home",
+            label: "The line's last note is degree 1, home",
             required: false,
             skills: ["E04"],
             rule: "ends-on-degree",
@@ -364,7 +367,7 @@ export default defineLesson({
           },
           {
             id: "joined",
-            label: "Joined notes, with `.legato()`",
+            label: "Uses `.legato()` to join the notes",
             required: false,
             skills: ["M01"],
             rule: "uses",
@@ -372,7 +375,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Sing bars 1 and 2. Which notes repeat, and where does the line step up?",
+          "Bars 3 and 4 copy the shape of bars 1 and 2 at another height. Sing bars 1 and 2: which notes repeat, and where does the line step up?",
           "Bars 3 and 4 copy bars 1 and 2 with every number moved by the same amount. The phrase ends on 3; to end the answer on home, move it so that its last note becomes 1.",
           "Bar 3 is `[5 5 5 7]`: bar 1 with 5 added to each number, so its 3 becomes the 1 above home. Do the same to bar 2.",
         ),

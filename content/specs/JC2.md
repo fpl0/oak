@@ -18,7 +18,7 @@ This spec has no lessons. `bun test content/validate/specs.test.ts` checks that 
 
 Author: **capstones-jazz-a**. The first jazz tune that is wholly the learner's, made from the skills of J3 and J4: a jazz blues in F, two choruses, comped in shells and walked by a bass whose roots come from the same chord pattern as the comping, with an original head on top. Session 1 is the band (changes, comping, walk: the tune's floor); session 2 is the tune (a head over two choruses, the second not a copy of the first) and the release. The brief fixes the form and the one-pattern rule and leaves the music to the learner.
 
-Opens after: {"lessonsCompleted":["J4.L04"]}. Meter 4/4, 100–180 BPM. Brief: "A jazz blues in F, yours. Write the changes once and let them drive the band: shells on the Rhodes, a bass that walks with its roots taken from your chord pattern, the ride swinging. Then put your own head on top for two choruses, the second one changed. Tempo, comping, the walk and the tune are yours."
+Opens after: {"lessonsCompleted":["J4.L04"]}. Meter 4/4, 100–180 BPM. Brief: "Write a jazz blues in F. Write the changes once, as one chord pattern, and drive the band from it: shells on the Rhodes, and a walking bass that takes its roots from the pattern. Swing the ride or the comping. Put your own head on top for two choruses, the second one changed. Tempo and tune are yours."
 
 Starter:
 
@@ -37,10 +37,10 @@ bass: chord(changes).rootNotes(2).struct("x ~ x ~").s("upright")
 | Rule | Label | Required | Rule kind | Parameters | Skills |
 |---|---|---|---|---|---|
 | form | A jazz blues in F, two choruses | yes | `blues-form` | {"variant":"jazz","choruses":2} | J11 |
-| walking | The bass walks | yes | `custom` | {"fn":"walking-bass","params":{"bass":"@bass","harmony":"@chords","rootOnOne":0.75,"chordToneOnThree":0.5,"approachOnFour":0.5,"maxSemis":2}} | B05 |
+| walking | The bass walks: mostly the root on beat 1, a chord tone on 3, and on 4 a note a step from the next bar's root | yes | `custom` | {"fn":"walking-bass","params":{"bass":"@bass","harmony":"@chords","rootOnOne":0.75,"chordToneOnThree":0.5,"approachOnFour":0.5,"maxSemis":2}} | B05 |
 | swing | Swung 8ths on the ride or the comping | yes | `swing` | {"track":["hats","@drums","chords"],"drums":["hatClosed","hatOpen","ride"],"subdivision":8,"ratio":[1.6,2.4]} | R13 |
 | one-pattern | Comping and bass come from one chord pattern | yes | `uses` | {"tool":["tb.set","tb.rootNotes"],"min":1} | J08 |
-| head | A head on top | yes | `tracks` | {"min":4,"roles":["drums","bass","chords","melody"]} | J11 |
+| head | Four parts heard: drums, bass, chords and your head on top | yes | `tracks` | {"min":4,"roles":["drums","bass","chords","melody"]} | J11 |
 | head-sound | The head on the muted trumpet or the vibes |  | `sounds` | {"track":"mel","anyOf":["snd.mutetpt","snd.vibes"]} | J11 |
 | chord-tones | The head lands on chord tones |  | `chord-tones-strong` | {"minRatio":0.6,"melody":"@melody","harmony":"@chords","strength":"strong"} | M03 |
 | tempo | A medium-swing tempo, 100 to 180 BPM |  | `tempo-bpm` | {"min":100,"max":180} | R02 |

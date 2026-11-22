@@ -116,7 +116,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U09.L01",
-  version: 2,
+  version: 3,
   title: "Phrases Make Sections",
   objective: "I can hear where a section starts and count a song in four- and eight-bar phrases.",
   key: { tonic: "C", mode: "major" },
@@ -141,7 +141,8 @@ export default defineLesson({
         id: "where-it-breathes",
         version: 1,
         role: "practice",
-        prompt: "Where does the music take a breath? In loop 2, notice where the crash falls.",
+        prompt:
+          "Listen to both loops for the bar where the music takes a breath. In loop 2, notice which bars the crash falls on.",
         skills: [{ skill: "F01", w: 1 }],
         hints: null,
         tests: [],
@@ -163,7 +164,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'The crash line is `perc: s("<cr ~ ~ ~>")`. Remember that `< >` plays one of its steps in each bar. How often does the crash play?',
+          'Predict how often the crash plays, then pick it. The crash line is `perc: s("<cr ~ ~ ~>")`, and `< >` plays one of its steps in each bar.',
         skills: [{ skill: "F01", w: 1 }],
         hints: null,
         tests: [],
@@ -191,14 +192,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and watch the roll each time the crash hits. Compare how the two four-bar halves begin, then count the bars before it all starts over.",
+          "Run the loop and watch the roll each time the crash hits. Answer both questions below: how the second four-bar half begins compared with the first, and how many bars play before the whole loop starts over.",
         skills: [{ skill: "F01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Play it again: compare bar 1 with bar 5 on the roll, then count the bars from the first crash until the whole thing repeats.",
         },
         hints: ladder(
-          "When the crash comes back in bar 5, what does the tune do?",
+          "The crash comes back in bar 5. Compare what the tune does there with bar 1.",
           "Read the degree labels of bar 1 and bar 5, then of bar 2 and bar 6.",
           "Bars 1–2 and 5–6 carry the same labels. Now count: two halves of four bars each.",
         ),
@@ -246,10 +247,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Tap once on beat 1 of every bar, with the kick, for eight bars. Count the bars aloud as you go: one, two, three, four, one, two, three, four. Any key works.",
+          "Tap once on beat 1 of every bar, with the kick, for eight bars: eight taps in all. Count the bars aloud as you tap: one, two, three, four, one, two, three, four.",
         skills: [{ skill: "F01", w: 1 }],
         hints: ladder(
-          "Which beat of the bar does the kick play on?",
+          "The kick plays once a bar, on beat 1. Tap only with it.",
           "One tap a bar, on the kick. Say the bar's number as you tap: four numbers, then start again.",
           "Count four beats in your head and tap only on each 1. The tune starts over at your second 'one'.",
         ),
@@ -284,7 +285,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The crash hits on every bar, so no bar sounds stronger than the next. Make it hit only on the first bar of each four-bar phrase.",
+          "The crash plays on every bar, so no bar sounds stronger than the next. Change the highlighted `cr` so the crash plays only on the first bar of each four-bar phrase. Done when it plays in bars 1 and 5 and nowhere else.",
         skills: [{ skill: "F01", w: 1 }],
         code: { starter: CRASH_STARTER },
         reference: { solutions: [CRASH_SOLUTION], bars: 8 },
@@ -296,7 +297,7 @@ export default defineLesson({
           "rhythm.extra": "Bar {bar}: a crash where no phrase starts. Phrases start on bars 1 and 5.",
         },
         hints: ladder(
-          "In eight bars, which bars start a phrase?",
+          "Eight bars hold two four-bar phrases. Find the bar each one starts on.",
           "`< >` plays one of its steps in each bar, so a list of four steps takes four bars to come round.",
           "`<bd ~>` would play a kick in bars 1, 3, 5 and 7. Your crash needs a longer list.",
         ),
@@ -343,10 +344,12 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Sixteen bars, no crash this time: two sections of eight bars, each made of two phrases. Click the bar where the second section starts.",
+          "Listen to sixteen bars with no crash: two sections of eight bars, each made of two four-bar phrases. Pick the bar where the second section starts.",
         skills: [{ skill: "F01", w: 1 }],
         hints: [
-          { text: "Count the bars in fours. Which bar starts a group that sounds new?" },
+          {
+            text: "Count the bars in fours. Find the group of four that sounds new, and the bar it starts on.",
+          },
           {
             text: "Phrases start on bars 1, 5, 9 and 13. In one of them the chords and the tune leave what you heard before.",
           },
@@ -361,7 +364,8 @@ export default defineLesson({
         answer: { ui: "bar-buttons", bars: 16 },
         correct: { number: 9 },
         feedbackText: {
-          "id.wrong": "Bar {got} is not it. Listen for the bar where the chords and the tune change.",
+          "id.wrong":
+            "Bar {got} is not it. Count the bars in fours and listen for the first bar where the chords and the tune move somewhere new.",
         },
         srs: [{ family: "fam.har.cadence", mode: "review-if-due" }],
         tests: [
@@ -393,7 +397,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Make the tune a section: keep its four-bar idea or write your own, then answer it with a phrase that starts the same way and ends home on 1. Mark each phrase with a crash.",
+          "After the four-bar question, add a four-bar answer inside the same `< >`. Start the answer with the question's first two bars, the same or a step higher or lower. End it home on 1. Then add a crash on bars 1 and 5.",
         skills: [{ skill: "F01", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [8, 16],
@@ -401,7 +405,7 @@ export default defineLesson({
         rubric: [
           {
             id: "starts-alike",
-            label: "An answer: the second phrase starts like the first and ends its own way",
+            label: "A two-bar piece of the tune comes back later, the same or moved by a step",
             required: true,
             skills: ["F01"],
             rule: "motif-reuse",
@@ -412,7 +416,7 @@ export default defineLesson({
           },
           {
             id: "crash-on-phrases",
-            label: "A crash on the first bar of each phrase",
+            label: "A crash on bars 1 and 5, where the phrases start",
             required: false,
             skills: ["F01"],
             rule: "onsets",
@@ -426,7 +430,7 @@ export default defineLesson({
           },
           {
             id: "comes-home",
-            label: "The answer ends home, on 1",
+            label: "The tune's last note is degree 1",
             required: false,
             skills: ["F01"],
             rule: "ends-on-degree",
@@ -437,7 +441,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Play it. How does bar 8 end, and does it sound like the end?",
+          "Play it and listen to the end of bar 4: the question stops open, and nothing answers it.",
           "The answer is four more bars inside the same `< >`. Its first two bars can be the question's first two.",
           "Bars 5 and 6 can copy bars 1 and 2. Bar 7 sits on V: degrees 5, 7 and 2 lead down to 1 in bar 8.",
         ),

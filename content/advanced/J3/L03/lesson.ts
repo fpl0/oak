@@ -84,7 +84,7 @@ const CHARLESTON_TAPS = at(FOUR.flatMap((b) => [b, b + 5 / 12]));
  */
 const HITS_SWING = (min: number): RubricRule => ({
   id: "hits-swing",
-  label: "The off-beat hits swing with the ride",
+  label: "The off-beat hits land late in their beat, swung with the ride, not halfway",
   required: true,
   skills: ["R13"],
   rule: "custom",
@@ -97,7 +97,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "J3.L03",
-  version: 2,
+  version: 3,
   title: "Comping Rhythms",
   objective: "I can comp a ii–V–I with the Charleston rhythm and with pushes into the next bar.",
   key: { tonic: "Bb", mode: "major" },
@@ -123,7 +123,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The ride, the bass and the chords' notes never change. Listen to when the Rhodes plays against the ride: how does each take change the conversation between them?",
+          "The ride, the bass and the chords' notes never change. Listen to when the Rhodes plays against the ride in each take. Notice how each take changes the conversation between them.",
         skills: [{ skill: "H06", w: 1 }],
         hints: null,
         tests: [],
@@ -158,10 +158,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Tap with the Rhodes: two taps a bar, one on beat 1 and one just after beat 2, eight taps over four bars. Any key works.",
+          "Tap with the Rhodes chords, not the ride: one tap on beat 1 and one on the swung “and” of 2, late in beat 2, in every bar. Nothing on beats 3 and 4. Four bars, eight taps in all. Done when each tap lands with a chord.",
         skills: [{ skill: "H06", w: 1 }],
         hints: ladder(
-          "Does the second hit land on a beat, or between two beats?",
+          "Listen for the second Rhodes chord of each bar: it does not land on a beat, but between two.",
           "Count 1 & 2 & 3 & 4 & with the ride. The second hit is on the “&” after 2, late in its beat, where the ride's short note falls.",
           "Say “ONE two-AND three four” and tap on ONE and on AND. Nothing on 3 or 4.",
         ),
@@ -208,7 +208,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The Rhodes holds each chord for a bar. Give it the rhythm you tapped: a hit on beat 1 and one on the “and” of 2, every bar, swung with the ride. Keep the chords.",
+          "The Rhodes holds each chord for a bar. Give it the rhythm you tapped: a hit on beat 1 and one on the swung “and” of 2, every bar. Place the hits before the swing call so the second one swings with the ride. Keep the chords.",
         skills: [
           { skill: "H06", w: 0.6 },
           { skill: "R10", w: 0.4 },
@@ -249,7 +249,7 @@ export default defineLesson({
             "Bar {bar}: the rhythm is there, but that chord has another note at the bottom. Keep the chords as they were.",
         },
         hints: ladder(
-          "Which call in the core gave a line its rhythm from a string of x's and rests?",
+          "Give the chords a rhythm with the call that takes a string of `x`s and rests, the way the drums and comping did in earlier lessons.",
           "`.struct()` takes one place per eighth note of the bar: eight places, an `x` where the Rhodes plays. It goes before `.swingBy()`, so the off-beat hit swings.",
           "The first place of the eight is `x`, and so is one more, three eighths later. The rest are `~`.",
         ),
@@ -352,14 +352,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The Rhodes holds its chords again, now with `.early(1/8)` before the swing call: the push you already know, swung. Run it from the start and read the roll against the bass.",
+          "The Rhodes holds its chords again, now with `.early(1/8)` before the swing call: the push you already know, swung. Run it from the start, read the roll against the bass and answer two questions: where each Rhodes chord begins, and how many begin inside bar 1 the first time through.",
         skills: [{ skill: "R10", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Find where a Rhodes chord begins on the roll and compare it with the next bass note on beat 1. Then look at bar 1 alone, the first time through: how many chords begin inside it?",
         },
         hints: ladder(
-          "Does a Rhodes chord begin together with the bass on beat 1, or before it?",
+          "Compare where a Rhodes chord begins on the roll with the next bass note on beat 1.",
           "`.early(1/8)` moves every chord an eighth earlier, and the swing call moves that off-beat later inside its beat, as it does the ride's short note.",
           "The first chord, Cm7, would have begun before the music started, so you never hear it the first time. Count what does begin in bar 1.",
         ),
@@ -412,7 +412,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The Rhodes holds each chord for its bar. Make every chord arrive on the swung “and” of 4 of the bar before and ring across the bar line. Keep the chords.",
+          "The Rhodes holds each chord for its bar. Make every chord arrive on the swung “and” of 4 of the bar before and ring across the bar line. Add one call to the chords line, before the swing call. Keep the chords.",
         skills: [
           { skill: "R10", w: 0.6 },
           { skill: "H06", w: 0.4 },
@@ -445,7 +445,7 @@ export default defineLesson({
             "{label}: not yet. Listen to where the target's push lands: late in beat 4, with the ride's short note, not halfway through the beat.",
         },
         hints: ladder(
-          "Which call makes a whole line arrive before the beat?",
+          "Use the call from the core that makes a whole line arrive before the beat, as in the last step's code.",
           "`.early()` takes a share of the bar; an eighth note is one eighth of it. Put the call before `.swingBy()` so the early hit swings with the ride.",
           "The line reads `…voicing().early(` then the share, then `)` and the swing call.",
         ),
@@ -531,7 +531,7 @@ export default defineLesson({
         role: "practice",
         title: "Comping in B♭",
         prompt:
-          "The Rhodes holds the chords. Make it talk with the ride: the Charleston, pushes into the next bar, or hits that change from bar to bar with `< >`. At least three chords in four bars should land off the beat. A vibes line on top is yours to add.",
+          "Give the held Rhodes chords a rhythm that talks with the ride: the Charleston, pushes into the next bar, or hits that change from bar to bar with `< >`. Required: at least three chords start off the beat, with no chord on the beat after them. Also on the checklist: a vibes line, and a tempo of 120 to 200.",
         skills: [
           { skill: "H06", w: 0.6 },
           { skill: "R10", w: 0.4 },
@@ -543,7 +543,7 @@ export default defineLesson({
         rubric: [
           {
             id: "off-the-beat",
-            label: "At least three chords land off the beat",
+            label: "At least three chords start between two beats, with no chord on the beat after them",
             required: true,
             skills: ["R10"],
             rule: "syncopation",
@@ -552,7 +552,7 @@ export default defineLesson({
           },
           {
             id: "tune-on-top",
-            label: "A vibes line over the comping",
+            label: "A vibes line plays over the comping",
             required: false,
             skills: ["H06"],
             rule: "sounds",
@@ -560,7 +560,7 @@ export default defineLesson({
           },
           {
             id: "swing-tempo",
-            label: "A swinging tempo, 120–200",
+            label: "`setcpm` sets a tempo between 120 and 200 beats a minute",
             required: false,
             skills: ["R13"],
             rule: "tempo-bpm",
@@ -571,7 +571,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Where do the chords start now: on beats, or between them?",
+          "Right now every chord starts on beat 1. Move some of them between two beats.",
           "What counts is a hit that starts between two beats, with no new hit on the beat after it. `.struct()` places hits; `.early()` moves the whole line.",
           "The Charleston gives one such hit a bar, and so does a push. Either call goes before the swing call.",
         ),

@@ -140,7 +140,7 @@ const PUSHES = [7, 15, 23, 31];
 
 export default defineLesson({
   id: "U13.L01",
-  version: 2,
+  version: 3,
   title: "Pushes & Anticipations",
   objective:
     "I can make a chord arrive before its beat with .early(), move a line after the beat with .late(), and hear whether chords are pushed.",
@@ -169,7 +169,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to when each new chord arrives. In which loop does the music lean forward, and which instrument is doing the leaning?",
+          "Listen for when each new chord arrives, in both loops. Notice which loop leans forward, and which instrument reaches the new chord before beat 1.",
         skills: [{ skill: "R10", w: 1 }],
         hints: null,
         tests: [],
@@ -195,10 +195,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Tap where the Rhodes comes in: one tap in each bar, on the “and” after beat 4, just before the bar line. Four taps in all. Any key works.",
+          "Tap once each time the Rhodes plays a new chord: on the “and” after beat 4, the last hat before each bar line. One tap a bar, four taps in all. Done when every tap lands with a Rhodes chord, just before the kick on 1.",
         skills: [{ skill: "R10", w: 1 }],
         hints: ladder(
-          "Does the Rhodes come in with the kick on beat 1, or before it?",
+          "Tap the Rhodes, not the kick. Listen to bar 1: does the Rhodes come in with the kick on beat 1, or before it?",
           "Count the eighth notes with the hats: 1 & 2 & 3 & 4 &. The Rhodes lands on the last “&”, and the kick answers on 1.",
           "Say “four-AND-one” out loud and tap on “AND”. Let the next kick fall right after your tap.",
         ),
@@ -209,9 +209,10 @@ export default defineLesson({
         target: { track: "chords" },
         tol: { windowMs: "auto", tempo: "locked", forgiveOffset: true, passF1: 0.8, passTiming: 0.7 },
         feedbackText: {
-          "tap.missed": "A chord came in without a tap. It lands on the “and” after beat 4, in every bar.",
+          "tap.missed":
+            "A Rhodes chord came in with no tap. Tap on the “and” after beat 4, the last hat of each bar.",
           "tap.extra":
-            "A tap landed where the Rhodes is only holding its chord. One tap a bar, on the last “and”.",
+            "A tap landed where the Rhodes is only holding its chord. Tap once a bar, on the last “and”, and let the kick on 1 go by.",
         },
         srs: [{ family: "fam.rhy.echo", mode: "review-if-due" }],
         tests: [
@@ -242,7 +243,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The Rhodes line you just tapped ends `.early(1/8)`: every chord comes an eighth note early. Here the number is `1/16`. What will you hear?",
+          "The Rhodes line you tapped ended `.early(1/8)`: every chord an eighth note early. This one ends `.early(1/16)`. Predict how far before the bar line each chord now lands, then pick your answer.",
         skills: [{ skill: "R10", w: 1 }],
         hints: null,
         tests: [],
@@ -270,7 +271,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and watch the Rhodes on the roll against the kick. Each chord is as long as a bar, eight eighth notes, but it does not start on beat 1.",
+          "Run it and watch the Rhodes on the roll against the kick. Each chord lasts a bar, eight eighth notes, but does not start on beat 1. Answer both questions: the count each chord starts on, and how many of its eight eighth notes come after the bar line.",
         skills: [{ skill: "R10", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -330,7 +331,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A new loop, everything on the beat. Make the Rhodes arrive an eighth note before each bar line. The call goes in the chain after `.voicing()` and before `.s()`. Leave the bass where it is.",
+          "Move the Rhodes so every chord arrives one eighth note before its bar line. Add one call to the `chords:` line, after `.voicing()` and before `.s()`. Leave the bass and drums as they are. Done when each chord starts on the “and” after beat 4.",
         skills: [{ skill: "R10", w: 1 }],
         code: { starter: S5_STARTER },
         reference: { solutions: [S5_SOLUTION], bars: 4 },
@@ -341,11 +342,13 @@ export default defineLesson({
         feedbackText: {
           "harmony.pcset":
             "Bar {bar}: the Rhodes has {got} where the target has {exp}. Play the target again and listen for when each chord arrives, and which notes it holds.",
+          "harmony.shifted":
+            "The chords are right, but each starts {shift} than in the target{push}. The push is one eighth note: the number is `1/8`.",
           "code.time-fraction-string":
             "In quotes, `1/8` is read as a pattern and nothing moves. Write the number bare: `.early(1/8)`.",
         },
         hints: ladder(
-          "Which call moved the Rhodes ahead of the beat in the loop you tapped?",
+          "Every Rhodes chord should start one eighth note before its bar line. Which call moved the Rhodes ahead in the loop you tapped?",
           "The call is `.early()`, and its number is a share of the bar: an eighth note is one eighth of a bar of 4/4.",
           'The line begins `chord(changes).voicing().early(` and ends `.s("rhodes")`. Only the number is missing.',
         ),
@@ -427,7 +430,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "`.late()` is the same move the other way. The organ plays a short chord on every beat. Move all four an eighth note later, so they land on the “ands” between the beats.",
+          "The organ plays a short chord on every beat. Move all four one eighth note later with `.late()`, the same move the other way. Put the call after `.struct()` and before `.s()`. Done when every organ chord lands on the “and” after its beat.",
         skills: [{ skill: "R10", w: 1 }],
         code: { starter: S6_STARTER },
         reference: { solutions: [S6_SOLUTION], bars: 4 },
@@ -495,7 +498,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four grooves, two bars each, two chords in every bar. The drums and the bass never move. Do the chords land on the beat with the bass, or are they pushed?",
+          "Four grooves, two bars each, two chords a bar. The drums and bass stay on the beat. For each groove, pick whether the chords land on the beat with the bass, or are pushed ahead of it.",
         skills: [{ skill: "R10", w: 1 }],
         hints: earHints(),
         srs: [{ family: "fam.rhy.syncopation", mode: "seed" }],
@@ -544,7 +547,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A soul loop with everything on the beat: drums, bass and four seventh chords. Push the Rhodes ahead of the beat. Then keep going: push the bass with it, try a sixteenth, give the chords a rhythm with `.struct()`, change the chords, add a line on top.",
+          "Push the Rhodes chords ahead of the beat with `.early()`, so at least two of them start before a beat and ring through it. Then, if you like, push the bass with them, try a sixteenth, give the chords a rhythm with `.struct()`, change the chords, or add a line on top.",
         skills: [{ skill: "R10", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -552,7 +555,8 @@ export default defineLesson({
         rubric: [
           {
             id: "chords-off-the-beat",
-            label: "At least two chords arrive ahead of their beat, or after it",
+            label:
+              "At least two chords on the `chords:` line start between beats and ring through the next beat",
             required: true,
             skills: ["R10"],
             rule: "syncopation",
@@ -561,7 +565,7 @@ export default defineLesson({
           },
           {
             id: "bass-pushes-too",
-            label: "The bass pushes with them",
+            label: "At least two bass notes start between beats and ring through the next beat",
             required: false,
             skills: ["R10"],
             rule: "syncopation",
@@ -570,7 +574,7 @@ export default defineLesson({
           },
           {
             id: "groove-tempo",
-            label: "A tempo that grooves, 84–108",
+            label: "A tempo from 84 to 108 BPM",
             required: false,
             skills: ["R10"],
             rule: "tempo-bpm",
@@ -579,9 +583,11 @@ export default defineLesson({
           },
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
-        feedbackText: { "rubric.unmet": "{label}: not yet." },
+        feedbackText: {
+          "rubric.unmet": "{label}: not yet. Check that line against the item, then run it again.",
+        },
         hints: ladder(
-          "Which line should get to each chord before the bass does?",
+          "The Rhodes should reach each new chord before the bass does. Which line gets the call?",
           "The Rhodes line takes the call: `.early()` after `.voicing()`, with a share of the bar as its number.",
           "`.early(1/8)` puts every chord on the “and” after beat 4. For a tighter push, try a sixteenth.",
         ),

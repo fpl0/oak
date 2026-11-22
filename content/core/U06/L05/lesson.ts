@@ -85,7 +85,7 @@ const PAD: AnswerUi = {
 
 export default defineLesson({
   id: "U06.L05",
-  version: 2,
+  version: 3,
   title: "Hear the Bass First",
   objective:
     "I can pick the bass out of a chord loop, sing its roots and write them down in degrees: a root bass of 1 5 6 4 spells I V vi IV.",
@@ -137,7 +137,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Hear the loop with its roots, one a bar. Then sing them, one syllable each: do, sol, la, fa. Sing them in your own range: your voice does not need to reach the bass.",
+          "Listen to the loop with its roots, one a bar. Then sing four notes, one a bar, one syllable each: do, sol, la, fa. Sing in your own range: your voice does not need to reach the bass.",
         skills: [
           { skill: "V05", w: 0.7 },
           { skill: "E09", w: 0.3 },
@@ -175,10 +175,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A loop of four chords with its bass, not always in C. Enter the bass note of each bar as a degree, in order.",
+          "A loop of four chords plays with its bass, not always in C. Enter the bass note of each of the four bars as a degree, in order.",
         skills: [{ skill: "E09", w: 1 }],
         hints: [
-          { text: "Hum the lowest note of each bar. Where is home?" },
+          { text: "Hum the lowest note of each bar, and find home first: the note the loop rests on." },
           {
             text: "Sing down from each bass note to do and count the steps, both ends included: that is its degree.",
           },
@@ -209,13 +209,13 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A new loop, one chord a bar, its bass on the roots. Write the bass in `n`, one note a bar. The chords are there to help: leave them out of your code.",
+          "A new loop plays, one chord a bar, its bass on the roots. Replace the four 0s with the bass line in `n`, one note a bar. Leave the chords out of your code. Done when your four notes match the bass, in any octave.",
         skills: [
           { skill: "E09", w: 0.7 },
           { skill: "H01", w: 0.3 },
         ],
         hints: ladder(
-          "Hum the lowest note of each bar. Does it go up or down from the bar before?",
+          "Hum the lowest note of each bar and notice whether it goes up or down from the bar before.",
           "Sing down from each bass note to do and count: that is its degree. `n` counts from 0, so write the degree minus one.",
           "Bar 1 is home, `n` 0, and bar 2 sits on la, degree 6. Two bars to go.",
         ),
@@ -284,7 +284,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The `chords` line plays the four-chord loop, I V vi IV. Write the bass: on beat 1 of every bar, a note of that bar's chord. Between, anything you like.",
+          "The `chords` line plays I V vi IV, and the `bass` line plays only C. Change the bass so that on beat 1 of every bar it plays a note of that bar's chord; between, anything you like. Done when every beat 1 has a note of its chord.",
         skills: [
           { skill: "E09", w: 0.5 },
           { skill: "H01", w: 0.5 },
@@ -298,7 +298,7 @@ export default defineLesson({
         rubric: [
           {
             id: "chord-note-on-one",
-            label: "A note of the chord on beat 1 of every bar",
+            label: "On beat 1 of every bar, `bass` plays a note of that bar's chord",
             required: true,
             skills: ["E09", "H01"],
             rule: "chord-tones-strong",
@@ -312,7 +312,7 @@ export default defineLesson({
           },
           {
             id: "low",
-            label: "The line stays low, between C1 and C3",
+            label: "Every note of `bass` between `c1` and `c3`",
             required: false,
             skills: ["E09"],
             rule: "range",
@@ -321,7 +321,7 @@ export default defineLesson({
           },
           {
             id: "four-notes",
-            label: "At least four different notes",
+            label: "At least four different notes in `bass`",
             required: false,
             skills: ["E09"],
             rule: "distinct-pitches",
@@ -330,7 +330,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which chord plays in each bar, and which notes does it have?",
+          "Find the chord in each bar first: the `chords` line names them, one a bar.",
           "The chords go I V vi IV, so their roots are degrees 1, 5, 6 and 4. `n` counts from 0.",
           "Bar 1 can stay on C. Bar 2's chord is G: put `n` 4 on its first beat.",
         ),

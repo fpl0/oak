@@ -68,7 +68,7 @@ const MINOR = { tonic: "C", mode: "minor" } as const;
 
 export default defineLesson({
   id: "U10.L01",
-  version: 2,
+  version: 3,
   title: "The Dark Twin",
   objective:
     "I can turn a tune minor by lowering degrees 3, 6 and 7, and sing the minor scale as do re me fa sol le te.",
@@ -95,7 +95,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Four bars as you know them, then the same four bars again. Listen for the bar where the mood turns, and for what happens to the tune's brightness.",
+          "Listen to all eight bars. Bars 5–8 repeat bars 1–4 with one word changed in every line. Listen for the bar where the mood turns, and for whether the tune sounds brighter or darker after it.",
         skills: [{ skill: "S05", w: 1 }],
         hints: null,
         tests: [],
@@ -120,7 +120,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "At bar 5 each line's scale word changes from `major` to `minor`; the numbers in `n()` stay the same. What happens to the notes?",
+          "Predict what happens to the notes at bar 5, where each line's scale word changes from `major` to `minor` and the numbers in `n()` stay the same. Pick one answer, then hear it.",
         skills: [{ skill: "S05", w: 1 }],
         hints: null,
         tests: [],
@@ -148,14 +148,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it: home to home in major, then in minor, over a held C. Compare the two bars on the roll, degree by degree, and read the labels.",
+          "Run the code: bar 1 climbs home to home in C major, bar 2 does the same in C minor. Compare the two bars on the roll, degree by degree. Then answer both questions: which degrees sit lower in bar 2, and by how many half steps.",
         skills: [{ skill: "S05", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Put bar 1 and bar 2 side by side on the roll: three of the eight notes sit lower in bar 2, each by the smallest step on the keyboard.",
         },
         hints: ladder(
-          "Which notes are the same height in both bars, and which are not?",
+          "Find the notes that sit lower in bar 2 than in bar 1. Which degrees are they?",
           "Read the degree labels in bar 2. Where a number has a ♭ in front of it, the note moved.",
           "Degree 3 is E in bar 1 and E♭ in bar 2. Count the keys from E down to E♭.",
         ),
@@ -204,7 +204,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The chords and the bass are in C minor; the tune still has major's letters. Lower the three letters that minor lowers, so the tune sits on its chords again.",
+          "The chords and bass are in C minor, but the `mel:` line still uses C major's letters. Lower degrees 3, 6 and 7 of C by a half step everywhere they appear: write each as a flat, letter then `b`. Keep the rhythm and the octave numbers. Done when the tune uses only C minor's notes.",
         skills: [{ skill: "S05", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 4 },
@@ -224,7 +224,7 @@ export default defineLesson({
             "Bar {bar}: the right letter in the wrong octave. Keep the number after each letter as it was.",
         },
         hints: ladder(
-          "Which three degrees did the second bar of the scale lower? Which letters are they from C?",
+          "Minor lowers degrees 3, 6 and 7. Count up from C to find the letter of each one.",
           "From C, degree 3 is E, degree 6 is A and degree 7 is B. Each one takes a `b` after its letter.",
           "Bar 1 becomes `[g4 ~ eb4 g4]`. Find the B in bar 2 and the A's in bars 3 and 4.",
         ),
@@ -279,12 +279,14 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A short tune with its chords, in a new key each time. Major or minor? Listen to where the tune comes home: does home sound bright or dark?",
+          "Name each short tune as major or minor; each one is in a new key. Listen to the note the tune comes home to: bright means major, dark means minor.",
         // S05, not E10: the node E10 (minor degrees by ear) is introduced in U10.L03; `fam.key.mode` gives the
         // drill's own evidence from tomorrow's warm-up on.
         skills: [{ skill: "S05", w: 1 }],
         hints: [
-          { text: "Hum the note the tune comes home to. Is the note just above it bright or dark?" },
+          {
+            text: "Hum the note the tune comes home to, then listen to the notes just above it. Bright or dark?",
+          },
           { text: "Listen for degree 3, a few steps above home: in minor it sits a half step lower." },
           {
             text: "Hear it again, slower, and sing home, then two steps up: do re mi, or do re me?",
@@ -318,7 +320,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Hear it, then sing it: do re me fa sol, up to le, and back down to sol. Sing in your own range.",
+          "Listen, then sing seven notes: do re me fa sol le sol. Climb from do up to le, then fall a half step back to sol. Sing in your own range.",
         skills: [
           { skill: "V02", w: 0.6 },
           { skill: "S05", w: 0.4 },
@@ -355,7 +357,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Chords and bass in C minor, and a tune that only says home. Write a tune that sings me and le, degrees ♭3 and ♭6, and make it one you would want to hear again and again.",
+          "Rewrite the `mel:` line, which now plays only home, as a tune of your own that sings me and le, degrees ♭3 and ♭6. Keep the chords and bass as they are. Done when the tune plays both ♭3 and ♭6.",
         skills: [{ skill: "S05", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -363,7 +365,7 @@ export default defineLesson({
         rubric: [
           {
             id: "me-and-le",
-            label: "The tune sings ♭3 and ♭6",
+            label: "The tune plays both ♭3 (me) and ♭6 (le)",
             required: true,
             skills: ["S05"],
             rule: "degree-set",
@@ -372,7 +374,7 @@ export default defineLesson({
           },
           {
             id: "comes-home",
-            label: "The tune ends on 1",
+            label: "The tune's last note is 1 (do)",
             required: false,
             skills: ["S05"],
             rule: "ends-on-degree",
@@ -381,7 +383,7 @@ export default defineLesson({
           },
           {
             id: "singable",
-            label: "The tune spans an octave or less",
+            label: "The tune's lowest and highest notes are an octave apart or less",
             required: false,
             skills: ["M01"],
             rule: "range",
@@ -392,7 +394,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which two degrees did the scale lower that you can hear most in a tune?",
+          "The tune needs two of the lowered notes: ♭3 and ♭6. Where in the `mel:` line could they go?",
           'In `n()` over `"C4:minor"`, degree ♭3 is `n` 2 and degree ♭6 is `n` 5: the same numbers as in major.',
           'Try `n("<[4 ~ 2 4] [5 ~ 4 ~]>")`: sol, me, sol, then le falling to sol.',
         ),

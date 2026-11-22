@@ -40,7 +40,7 @@ const LABELS = { rollLabels: "degree+solfege", staffLabels: "degree+solfege" } a
 
 export default defineLesson({
   id: "U04.L01",
-  version: 2,
+  version: 3,
   title: "Steps Apart",
   objective:
     "I can count the distance between two degrees of a key, and write a second voice a 3rd above a line.",
@@ -66,7 +66,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen for how the two lines move. When `mel` rises or falls, what does `vox` do? Mute `vox` for one loop, then bring it back.",
+          "Listen for what `vox` does each time `mel` rises or falls. Then mute `vox` for one loop to hear `mel` alone, and bring `vox` back.",
         skills: [{ skill: "I01", w: 1 }],
         hints: null,
         tests: [],
@@ -86,7 +86,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "This plays degree 1, then degree 5. Walk up the scale from one to the other and count every note you pass, both ends included. What number do you get?",
+          "Predict a count. This plays degree 1, then degree 5. Walk up the scale from 1 to 5 and count every note on the way, both ends included. Enter that number.",
         skills: [{ skill: "I01", w: 1 }],
         hints: null,
         tests: [],
@@ -109,14 +109,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Three bars, two notes each: home, then a higher note. Run it and read the labels. A distance is named by its count, both ends included, so 1 up to 5 is a 5th.",
+          "Run the code and read the degree labels. Each bar plays home, then a higher note. Answer both questions below by counting degrees, both ends included: 1 up to 5 is a 5th.",
         skills: [{ skill: "I01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count on the labels, not in the code: start at the lower note as 1 and count up to the higher one.",
         },
         hints: ladder(
-          "Which bar ends on the note labelled 5?",
+          "For the first question, find the bar whose higher note is labelled 5. Read the labels, not the `n` numbers.",
           "`n` counts from 0, so each label is one more than its `n`. For the count, start at the lower note as 1 and walk up.",
           "From 3 up to 4 is a 2nd: two notes, both counted. Go on to 5, then to 6.",
         ),
@@ -169,7 +169,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "`vox` plays the same notes as `mel`. Move every note of `vox` up a 3rd, two degrees higher, so the two lines sound together like the hook. Leave `mel` as it is.",
+          "`vox` plays the same notes as `mel`. Move every note of `vox` up a 3rd: two degrees higher, so each `n` number in `vox` goes up by 2. Leave `mel` as it is. Done when every `vox` note sits a 3rd above the `mel` note it plays with.",
         skills: [
           { skill: "I01", w: 0.8 },
           { skill: "E06", w: 0.2 },
@@ -186,7 +186,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: you have {got} ({gotSyl}); a 3rd above `mel` is {exp} ({expSyl}). Count both ends: the note in `mel` is 1.",
         },
         hints: ladder(
-          "In the hook, how far above `mel` did `vox` sit?",
+          "Each `vox` note must sit a 3rd above the `mel` note it plays with, as in the hook. Count a 3rd from the `mel` note: it is 1.",
           "A 3rd counts three notes, both ends included: two degrees up. In `n`, add the same number to every note of `vox`.",
           "The first note of `mel` is `n` 4, degree 5. A 3rd above it is degree 7: `n` 6. Do the same for each note.",
         ),
@@ -241,7 +241,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Chords set home. Then home, and one note above it. Enter both degrees, 1 and then the second note. The second number is the distance: 5 means a 5th.",
+          "Chords set home, then you hear home and one note above it. Enter both degrees: 1, then the degree of the higher note. That second degree names the distance, so 5 means a 5th.",
         skills: [{ skill: "E06", w: 1 }],
         hints: [
           { text: "Hum the second note, then sing down to home on syllables. How many notes did you sing?" },
@@ -278,7 +278,7 @@ export default defineLesson({
         // The catalog's text for a `uses` rule names the tool ID; the label says it in words.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         prompt:
-          "Write a two-bar riff in two voices, a `mel` line and a `vox` line that moves with it. A 3rd above sounds sweet. Try a 6th above too, five degrees up, and keep the one you like.",
+          "Add a `vox` line under `mel` that moves with it note for note. Try it a 3rd above (each `n` plus 2), then a 6th above (each `n` plus 5), and keep the one you like. Done when the riff has two lines that play notes.",
         skills: [{ skill: "I01", w: 1 }],
         code: { starter: deg(MAKE_RIFF) },
         bars: [1, 4],
@@ -286,7 +286,7 @@ export default defineLesson({
         rubric: [
           {
             id: "two-voices",
-            label: "Two melody lines",
+            label: "Two labelled lines that play notes, such as `mel` and `vox`",
             required: true,
             skills: ["I01"],
             rule: "tracks",
@@ -295,7 +295,7 @@ export default defineLesson({
           },
           {
             id: "in-key",
-            label: "`vox` stays in C major",
+            label: "Every note of `vox` is a degree of C major, none raised or lowered",
             required: false,
             skills: ["I01"],
             rule: "degree-set",
@@ -304,7 +304,7 @@ export default defineLesson({
           },
           {
             id: "answer",
-            label: "Two bars that answer each other, with `< >`",
+            label: "`< >` used somewhere, so bar 2 can answer bar 1",
             required: false,
             skills: ["R03"],
             rule: "uses",
@@ -312,8 +312,8 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "How many lines does the band hear from you now, and what is the second voice called?",
-          "Add a second line labelled `vox` under `mel`. Copy the `n` pattern, then move it.",
+          "The riff has one line that plays notes, `mel`. Add a second one under it, labelled `vox`.",
+          "Copy the whole `mel` line onto a new line, rename its label to `vox`, then raise every `n` number by the same amount.",
           "Add 2 to the first note of the copy: `n` 0 becomes `n` 2, a 3rd above. Do the same to the rest.",
         ),
         tests: [

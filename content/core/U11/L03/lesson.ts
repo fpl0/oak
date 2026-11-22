@@ -82,7 +82,7 @@ const COLOURS = [...SCALE_COLOUR_OPTIONS];
 
 export default defineLesson({
   id: "U11.L03",
-  version: 2,
+  version: 3,
   title: "Blue Notes",
   objective: "I can give a line its bite with ♭3, ♭5 and ♭7, the notes of the blues scale.",
   key: { tonic: "C", mode: "blues" },
@@ -111,7 +111,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "An organ vamp on C and F with a riff on top, then the same rhythm on other notes through a distorted guitar. Listen past the distortion to the notes: where does the second riff rub against the organ's chords?",
+          "Listen to riff 1, then riff 2, both over an organ vamp on C and F. Riff 2 keeps the rhythm but changes the notes and the guitar. Listen past the distortion to the notes: where does riff 2 rub against the organ's chords?",
         skills: [{ skill: "S11", w: 1 }],
         hints: null,
         tests: [],
@@ -137,7 +137,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'C minor pentatonic is C E♭ F G B♭. The scale `"C3:blues"` has one note more. Read `n("0 1 2 3 4 5")` on it: which note is new?',
+          'C minor pentatonic is C E♭ F G B♭, and the scale `"C3:blues"` has one note more. Predict which note is new when `n("0 1 2 3 4 5")` plays on it. Pick one answer, then listen to check it.',
         skills: [{ skill: "S11", w: 1 }],
         hints: null,
         tests: [],
@@ -165,14 +165,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the scale up and down over the vamp, with the degree labels on the roll. Which degrees carry a flat? Then count the half steps between two of them.",
+          "Run the scale up and down over the vamp and read the degree label on each note in the roll. Then answer two questions: which three degrees carry a flat, and how many half steps lie from ♭5 up to 5.",
         skills: [{ skill: "S11", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read the six labels on the roll from the bottom: 1, then ♭3, 4, ♭5, 5 itself and ♭7. ♭5 and 5 sit side by side on the keyboard.",
         },
         hints: ladder(
-          "How many of the labels on the roll have a ♭ in front of them?",
+          "Read the six labels on the roll from home upward. Which of them have a ♭ in front?",
           "Read the labels from home upward. Three of the six carry a flat; one of them sits just under 5.",
           "♭5 is G♭ and 5 is G. Count the keys from one to the other, black ones included.",
         ),
@@ -221,7 +221,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A two-bar lick over a C chord. Bar 1 starts with a rest, then E. Guitarists slide into that E from the blue note just below it: put that note on beat 1, right before the E.",
+          "Bar 1 of this lick starts with a rest, then E. Replace the rest with the blue note a half step below E, in the same octave, so it slides straight into the E. Keep every other note as it is.",
         skills: [{ skill: "S11", w: 1 }],
         code: { starter: BEND_STARTER },
         reference: { solutions: [BEND_SOLUTION], bars: 2 },
@@ -233,7 +233,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: the lick plays {got}, the target has {exp}. The bend rises: the blue 3rd first, then E, degree 3.",
         },
         hints: ladder(
-          "Which blue note sits just below degree 3?",
+          "The new note goes where the rest is, right before the E. Which blue note sits just below degree 3?",
           "Degree 3 of C is E. The blue note under it is ♭3, a half step lower, written with a `b` after the letter.",
           "The rest on beat 1 becomes that note, in the same octave as the E after it.",
         ),
@@ -284,10 +284,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four short licks over a C chord. Major pentatonic, minor pentatonic or blues scale? Listen to the 3rd first, then to the space between 4 and 5.",
+          "Listen to four short licks over a C chord. For each lick, pick major pentatonic, minor pentatonic or blues scale. First listen for 3 or ♭3, then for a note squeezed between 4 and 5.",
         skills: [{ skill: "S11", w: 1 }],
         hints: ladder(
-          "Does the lick sound sweet against the chord, or does it bite?",
+          "Start with the 3rd above C. Does the lick sound sweet against the chord, or does it bite?",
           "Sweet means 3, the major pentatonic. With ♭3, listen between 4 and 5: the blues scale squeezes ♭5 in there.",
           "Hum C, then F and G. Does the lick pass through a note between them?",
         ),
@@ -439,7 +439,7 @@ export default defineLesson({
         // The starter sits on the major pentatonic of C; the rules read degrees against C either way.
         key: { tonic: "C", mode: "major pentatonic" },
         prompt:
-          "A sweet riff on the major pentatonic over the C–F vamp. Give it the blues: move it to the blues scale, or bend a note in from a blue note below. Then try the crunch guitar and a touch of `.distort()`.",
+          "Your riff is on the major pentatonic over the C–F vamp. Give it at least one blue note, ♭3, ♭5 or ♭7: change its scale to the blues scale, or write it in note names with a flat note such as `eb3`. Then try the crunch guitar and a small `.distort()`.",
         skills: [{ skill: "S11", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],
@@ -447,7 +447,7 @@ export default defineLesson({
         rubric: [
           {
             id: "a-blue-note",
-            label: "The riff has a blue note: ♭3, ♭5 or ♭7",
+            label: "The gtr line plays at least one blue note: ♭3, ♭5 or ♭7",
             required: true,
             skills: ["S11"],
             rule: "degree-set",
@@ -457,7 +457,7 @@ export default defineLesson({
           },
           {
             id: "crunch",
-            label: "The crunch guitar",
+            label: "Some line plays the crunch guitar, `crunch`",
             required: false,
             skills: ["S11"],
             rule: "sounds",
@@ -465,7 +465,7 @@ export default defineLesson({
           },
           {
             id: "resolves",
-            label: "Both ♭3 and 3 in the riff: a blue 3rd that bends up",
+            label: "The gtr line plays both ♭3 (E♭) and 3 (E)",
             required: false,
             skills: ["S11"],
             rule: "degree-set",
@@ -476,7 +476,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which three notes give the blues its bite?",
+          "The riff needs one note that rubs against the major chords. Which three degrees do that?",
           "Change the scale word to the six-note scale, or write one note by name with a flat, such as the one a half step under E.",
           'Try `.scale("C3:blues")` on the riff and listen. Then try `.s("crunch")`, and `.distort()` with a small number.',
         ),

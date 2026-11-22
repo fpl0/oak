@@ -228,8 +228,24 @@ describe("drill machine", () => {
     await waitFor(actor, (st) => st.matches("summary"));
   });
 
+  test("a sung trial waits for Start: nothing plays and the mic stays closed until the learner presses it", async () => {
+    const { actor } = run(session("fam.pit.match", 2));
+    await waitFor(actor, (st) => st.matches({ trial: "ready" }));
+    await new Promise((r) => setTimeout(r, 30));
+    expect(actor.getSnapshot().matches({ trial: "ready" })).toBe(true);
+    actor.send({ type: "START" });
+    await waitFor(actor, (st) => st.matches({ trial: "presenting" }));
+    // Skip singing works before Start too.
+    const other = run(session("fam.pit.match", 2));
+    await waitFor(other.actor, (st) => st.matches({ trial: "ready" }));
+    other.actor.send({ type: "SKIP_SUNG" });
+    expect(other.actor.getSnapshot().context.records[0]?.response.skipped).toBe(true);
+  });
+
   test("a sung part can be skipped with Shift+S: logged, no evidence, no penalty", async () => {
     const { actor } = run(session("fam.pit.match", 2));
+    await waitFor(actor, (st) => st.matches({ trial: "ready" }));
+    actor.send({ type: "START" });
     await waitFor(actor, (st) => st.matches({ trial: "presenting" }));
     actor.send({ type: "MIC_ERROR", message: "Microphone access was blocked." });
     expect(actor.getSnapshot().context.micError).toContain("blocked");
@@ -237,6 +253,8 @@ describe("drill machine", () => {
     const rec = actor.getSnapshot().context.records[0];
     expect(rec?.response.skipped).toBe(true);
     actor.send({ type: "NEXT" });
+    await waitFor(actor, (st) => st.matches({ trial: "ready" }));
+    actor.send({ type: "START" });
     await waitFor(actor, (st) => st.matches({ trial: "presenting" }));
     actor.send({ type: "CAPTURED", frames: [] });
     expect(actor.getSnapshot().context.outcomes[1]?.sung).toEqual([{ midi: 61, cents: 30, credit: 1 }]);
@@ -626,10 +644,13 @@ describe("drill machine: Try again", () => {
     expect(ctx.records[0]).toMatchObject({ credit: 0, revealed: true, retries: 1 });
 
     const sung = run(session("fam.pit.match", 1));
+    await waitFor(sung.actor, (st) => st.matches({ trial: "ready" }));
+    sung.actor.send({ type: "START" });
     await waitFor(sung.actor, (st) => st.matches({ trial: "presenting" }));
     sung.actor.send({ type: "SKIP_SUNG" });
     sung.actor.send({ type: "RETRY" });
-    expect(sung.actor.getSnapshot().matches({ trial: "presenting" })).toBe(true);
+    expect(sung.actor.getSnapshot().matches({ trial: "ready" })).toBe(true);
+    sung.actor.send({ type: "START" });
     sung.actor.send({ type: "CAPTURED", frames: [] });
     const c2 = sung.actor.getSnapshot().context;
     expect(shownOutcome(c2)?.result.skipped).toBeFalsy();

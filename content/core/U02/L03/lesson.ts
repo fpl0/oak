@@ -32,14 +32,14 @@ const NOTE_FEEDBACK = {
   "melody.octave":
     "Bar {bar}, {beatLabel}: the right key, but {dir} than asked. Check the number after the letter.",
   "melody.wrong-degree":
-    "Bar {bar}, {beatLabel}: a different key from the one asked for. Only one note moves, by one key.",
+    "Bar {bar}, {beatLabel}: a different key from the one asked for. Only the third note moves, up to the very next key.",
   "melody.missing-note": "Bar {bar}, {beatLabel}: a note is missing here. The line keeps its four notes.",
   "melody.extra-note": "Bar {bar}, {beatLabel}: one note too many here. The line keeps its four notes.",
 } as const;
 
 export default defineLesson({
   id: "U02.L03",
-  version: 2,
+  version: 4,
   title: "Half & Whole Steps",
   objective:
     "I can find half and whole steps on the keyboard and name a black key as a sharp or a flat of its neighbours.",
@@ -72,7 +72,8 @@ export default defineLesson({
         id: "creep-and-stride",
         version: 1,
         role: "practice",
-        prompt: "Which bar sounds tighter, bar 1 or bar 2? Keep your eyes on the keys while it plays.",
+        prompt:
+          "Listen for which bar sounds tighter, bar 1 or bar 2. Watch the keys: in which bar do the notes sit closer together?",
         skills: [{ skill: "P03", w: 1 }],
         hints: null,
         tests: [],
@@ -97,13 +98,13 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and watch the keyboard: which neighbours have no black key between them? Then try `c4 d4` in place of `e4 f4`.",
+          "Listen to the line and watch the keyboard: find the white keys with no black key between them. Then change `e4 f4` to `c4 d4` and listen again. Answer the two questions below.",
         skills: [{ skill: "P03", w: 1 }],
         feedbackText: {
           "investigate.wrong": "Not quite. Count every key on the way, black and white, then look again.",
         },
         hints: ladder(
-          "Look at the keyboard: what sits between `e4` and `f4`?",
+          "Find `e4` and `f4` on the keyboard and look between them. Is there a black key there, or nothing?",
           "Count every key, black and white. From `e4`, the very next key up is already `f4`.",
           "From `c4` the next key up is a black key, and `d4` is the one after it.",
         ),
@@ -155,13 +156,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and watch the keyboard. `f#4` is `f4` with a `#`; `gb4` is `g4` with a `b` after the letter.",
+          "Listen to the four notes and watch which key lights up for each. `f#4` is `f4` with a `#`, and `gb4` is `g4` with a `b` after the letter. Then answer the two questions below.",
         skills: [{ skill: "P04", w: 1 }],
         feedbackText: {
-          "investigate.wrong": "Not quite. Run it again and watch which key lights up for each note.",
+          "investigate.wrong":
+            "Not quite. Listen again and watch which key lights up for the second note, `f#4`, and for the third, `gb4`.",
         },
         hints: ladder(
-          "Which keys light up for the second and third notes?",
+          "Watch the keyboard for the second note, `f#4`, and the third, `gb4`. Does one key light up for both, or two different keys?",
           "`#` moves a note up by a half step; `b` after the letter moves it down by a half step.",
           "`f4` up one key and `g4` down one key: count from each side.",
         ),
@@ -212,7 +214,8 @@ export default defineLesson({
         id: "half-or-whole",
         version: 1,
         role: "check",
-        prompt: "Two notes, one after the other. Is the step between them a half step or a whole step?",
+        prompt:
+          "Listen to two notes, one after the other. Pick half step if they are neighbouring keys, or whole step if one key lies between them. Six pairs in all.",
         skills: [{ skill: "P03", w: 1 }],
         hints: [
           { text: "Hum both notes. Did your voice barely move, or move a little more?" },
@@ -246,7 +249,8 @@ export default defineLesson({
         id: "raise-one-note",
         version: 1,
         role: "check",
-        prompt: "Raise the third note of the line by a half step. The other three stay as they are.",
+        prompt:
+          "Raise the third note, `f4`, by one half step, to the black key just above it. Keep the other three notes as they are.",
         skills: [
           { skill: "P03", w: 0.5 },
           { skill: "P04", w: 0.5 },
@@ -257,8 +261,8 @@ export default defineLesson({
         target: { audible: true },
         feedbackText: NOTE_FEEDBACK,
         hints: ladder(
-          "Which note is third, and which key is one half step above it?",
-          "A `#` after the letter raises a note by a half step.",
+          "Only the third note, `f4`, changes: it moves up to the very next key. Which key is that?",
+          "The third word of the line is `f4`. A `#` after its letter raises it by a half step; the number stays 4.",
           "A half step above `c4` would be `c#4`. Do the same to the third note.",
         ),
         srs: [{ family: "fam.pit.steps", mode: "evidence-only" }],
@@ -304,15 +308,15 @@ export default defineLesson({
         id: "whole-step-above-e4",
         version: 1,
         role: "check",
-        prompt: "Play the key a whole step above `e4`.",
+        prompt: "Play the key one whole step above `e4` on the keyboard. Count black and white keys alike.",
         skills: [
           { skill: "P03", w: 0.5 },
           { skill: "P04", w: 0.5 },
         ],
         hints: ladder(
-          "How many half steps make a whole step?",
-          "Count two keys up from `e4`, black or white. Is there a black key right after `e4`?",
-          "One half step above `e4` is `f4`. Go one key further.",
+          "A whole step is two half steps: two keys up from `e4`, black or white. Which key comes first after `e4`?",
+          "There is no black key between `e4` and `f4`, so the first key up from `e4` is already `f4`.",
+          "The answer is the key right after `f4`: a black key, named from `f` with a `#`.",
         ),
         answer: { ui: "keyboard", range: ["c4", "c5"], mode: "single" },
         expect: { midi: [66] },
@@ -352,7 +356,8 @@ export default defineLesson({
         id: "riff-black-key",
         version: 1,
         role: "practice",
-        prompt: "Write a riff that uses at least **one sharp or flat**, and listen to it against the band.",
+        prompt:
+          "Write a riff on the `mel:` line with at least **one note on a black key**, written with `#` or `b`, such as `f#4` or `bb4`. Listen to it with the band. Done when a black key sounds in the riff.",
         skills: [
           { skill: "P04", w: 0.5 },
           { skill: "P03", w: 0.5 },
@@ -363,7 +368,7 @@ export default defineLesson({
         rubric: [
           {
             id: "black-key",
-            label: "Uses a sharp or a flat on a black key",
+            label: "At least one note lands on a black key, written with `#` or `b`",
             required: true,
             skills: ["P04"],
             // Corrections gate (AS-38): the note lands on a black key (`e#4` is spelt with a sharp but sounds F).
@@ -373,7 +378,7 @@ export default defineLesson({
           },
           {
             id: "steps",
-            label: "Moves by half and whole steps more often than it jumps",
+            label: "At least half of the moves to another note are half or whole steps",
             required: false,
             skills: ["P03"],
             rule: "step-ratio",
@@ -382,7 +387,7 @@ export default defineLesson({
           },
           {
             id: "four-notes",
-            label: "At least four different pitches",
+            label: "Four or more different notes",
             required: false,
             skills: ["P02"],
             rule: "distinct-pitches",
@@ -391,8 +396,8 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which note of the starter could slide to a black key next to it?",
-          "A `#` raises a note by a half step and a `b` lowers it. Try it on the last note.",
+          "The riff needs one note on a black key, and the starter uses white keys only. Which of its notes could slide to a black key next to it?",
+          "A `#` after the letter raises a note by a half step and a `b` lowers it. Try it on the last note, `a4`.",
           "End bar 1 on `bb4`, the black key below `b4`, and start bar 2 on `a4`: `<[c4 e4 g4 bb4] [a4 g4 f4 c4]>`. Over the band, the `bb4` sags into the `a4`.",
         ),
         tests: [

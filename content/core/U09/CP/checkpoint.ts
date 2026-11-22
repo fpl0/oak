@@ -51,7 +51,7 @@ const BASS_RULE = { rule: "bass-line", track: "bass", harmony: "chords" } as con
 const BASS_RULES: RubricRule[] = [
   {
     id: "roots",
-    label: "Each chord's root on its beat 1",
+    label: "Each chord's root in the bass on beat 1 of its bar, in all four bars",
     required: true,
     skills: ["B01"],
     ...BASS_RULE,
@@ -59,7 +59,7 @@ const BASS_RULES: RubricRule[] = [
   },
   {
     id: "members",
-    label: "Only roots, 5ths, octaves and approach notes",
+    label: "At least 9 in 10 bass notes are roots, 5ths, octaves or approach tones",
     required: true,
     skills: ["B02"],
     ...BASS_RULE,
@@ -67,7 +67,7 @@ const BASS_RULES: RubricRule[] = [
   },
   {
     id: "fifths",
-    label: "A 5th or an octave in most bars",
+    label: "At least a quarter of the bass notes are 5ths or octaves",
     required: true,
     skills: ["B02"],
     ...BASS_RULE,
@@ -75,7 +75,7 @@ const BASS_RULES: RubricRule[] = [
   },
   {
     id: "approach",
-    label: "Approach notes into three of the four changes or more",
+    label: "An approach tone just before three of the four chord changes or more",
     required: true,
     skills: ["B03"],
     ...BASS_RULE,
@@ -201,7 +201,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["U08", "U09"],
   gated: ["B01", "B02", "B03", "B04", "F02", "F03", "F05", "F06"],
   levelSetting: [],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "code-modify",
@@ -209,7 +209,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "Four chords, C Am F G, one a bar. The bass sits on C under all of them. Rewrite it: each chord's root on beat 1, a 5th or an octave in most bars, and approach notes into at least three of the four changes.",
+        "The bass sits on C under C Am F G, one chord a bar. Rewrite the highlighted bass using only roots, 5ths, octaves and approach tones: each chord's root on beat 1, a 5th or an octave in most bars, and an approach tone just before at least three of the four chord changes.",
       skills: [
         { skill: "B01", w: 0.35 },
         { skill: "B02", w: 0.35 },
@@ -263,7 +263,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "The sections of a song are written, and the chords are arranged: intro, verse, chorus, verse, chorus. Arrange the bass and the tune the same way, and let the bass come in at bar 2 of the intro.",
+        "The chords play intro, verse, chorus, verse, chorus, four bars each. Replace the highlighted `bassVerse` and `melVerse` with an `arrange()` each, in the same order. Then add a `.mask()` at the highlighted end of `bassIntro` so the bass is silent in bar 1 of the intro and plays from bar 2.",
       skills: [
         { skill: "F02", w: 0.5 },
         { skill: "F06", w: 0.5 },
@@ -322,7 +322,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "The kick plays the rhythm named `hits`. The bass plays on every beat and rubs against it. Give the bass the kick's rhythm, so the two hit as one.",
+        "The kick plays the rhythm named `hits`; the bass plays on every beat and rubs against it. Change the highlighted rhythm in the bass's `.struct()` so the bass plays the kick's rhythm. Done when every bass note starts with a kick.",
       skills: [{ skill: "B04", w: 1 }],
       hints: null,
       code: { starter: LOCK_STARTER },
@@ -374,7 +374,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     role: "checkpoint",
     title: "Verse and chorus",
     prompt:
-      "Drums and bass for a verse and a chorus, four bars each, arranged verse, chorus, verse, chorus. The band's keys follow your sections. The chorus is a copy of the verse's groove: make it lift. A bass on the kick is a bonus.",
+      "The chorus copies the verse's groove. Change `drumsChorus` or `bassChorus` so the chorus has more energy, more notes or higher notes than the verse. Keep the sections four bars each, arranged verse, chorus, verse, chorus; the band's keys follow them. For more, put the bass on the kick.",
     skills: [{ skill: "F05", w: 1 }],
     hints: null,
     key: { tonic: "C", mode: "major" },
@@ -385,7 +385,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     rubric: [
       {
         id: "lift",
-        label: "The chorus lifts: more energy, more notes or a higher register than the verse",
+        label: "The chorus has more energy, more notes or higher notes than the verse",
         required: true,
         skills: ["F05"],
         rule: "contrast",
@@ -396,7 +396,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "lock",
-        label: "The bass locks with the kick",
+        label: "At least half the bass notes start with a kick",
         required: false,
         skills: ["B04"],
         rule: "groove-lock",
@@ -406,7 +406,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "form",
-        label: "Verse, chorus, verse, chorus",
+        label: "The sections play verse, chorus, verse, chorus",
         required: false,
         skills: ["F02"],
         rule: "form",

@@ -92,8 +92,8 @@ const swings = (id: string, label: string, track: string): RubricRule => ({
   subdivision: 8,
   ratio: [1.6, 2.4],
 });
-const RIFF_SWINGS = swings("riff-swings", "The riff swings", "gtr");
-const SWING_RULES = [swings("hats-swing", "The hats swing", "hats"), RIFF_SWINGS];
+const RIFF_SWINGS = swings("riff-swings", "The gtr line plays its eighths long–short", "gtr");
+const SWING_RULES = [swings("hats-swing", "The hats line plays its eighths long–short", "hats"), RIFF_SWINGS];
 const SWING_UNMET =
   "{label}: not yet. Its eighths still sound even. In 4/4 the call's second number is 4, one slice a beat; with 8 the slices are half a beat long and eighth notes stay even.";
 const NONE = { roll: false, staff: false, keyboard: false } as const;
@@ -103,7 +103,7 @@ const STAFF = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U11.L07",
-  version: 3,
+  version: 4,
   title: "Shuffle",
   objective: "I can swing my own lines in code and hear whether a groove is straight or swung.",
   key: { tonic: "C", mode: "blues" },
@@ -132,7 +132,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The start of a blues in C, twice, with the same notes both times. Nod along with the hats and the riff: what changes in the way they move?",
+          "Listen to the start of a blues in C twice, with the same notes both times. Nod along with the hats and the riff. Listen for what changes in the way they move from version 1 to version 2.",
         skills: [{ skill: "R13", w: 1 }],
         hints: null,
         tests: [],
@@ -154,7 +154,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`s("hh*8")` plays eight even hats a bar: one on each beat and one between. `.swingBy(1/3, 4)` is the only change. Which hats will move?',
+          '`s("hh*8")` plays eight even hats a bar, one on each beat and one between. The only change is `.swingBy(1/3, 4)`. Predict which hats move. Pick one answer, then listen to check it.',
         skills: [{ skill: "R13", w: 1 }],
         hints: null,
         tests: [],
@@ -182,14 +182,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and look at the hats on the roll against the beat lines. Then delete `.swingBy(1/3, 4)`, run it again, and compare.",
+          "Run it and look at the hats on the roll against the beat lines. Delete `.swingBy(1/3, 4)`, run it again and compare. Then answer two questions: where the second hat of each beat lands with the call, and what the second number would be for a three-beat waltz.",
         skills: [{ skill: "R13", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Stop the loop and look at one beat on the roll: one hat on the line, one inside the beat. How far in?",
         },
         hints: ladder(
-          "With the call deleted, where does the second hat of each beat sit?",
+          "Look at one beat only, from one beat line to the next. With the call deleted, where does its second hat sit?",
           "The call keeps the first hat of each beat where it was and delays the second. The 4 says how many slices of the bar it treats that way.",
           "Each slice is one beat: a bar of 4/4 has four of them. A waltz bar has fewer.",
         ),
@@ -243,7 +243,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The twelve bars play straight. Make them shuffle: swing the hats and the riff, each with its own call.",
+          "The twelve bars play straight. Add `.swingBy(1/3, 4)` to the `hats:` line and to the `gtr:` line, after each pattern. Done when both lines play their eighths long–short and every note keeps its place.",
         skills: [{ skill: "R13", w: 1 }],
         swing: SWUNG,
         code: { starter: STRAIGHT },
@@ -272,7 +272,7 @@ export default defineLesson({
           "rubric.unmet": SWING_UNMET,
         },
         hints: ladder(
-          "Which two lines play eighth notes?",
+          "Two lines play eighth notes, and each needs its own call. Which two?",
           "The call goes in the chain after the pattern and before `.s()`, on the `hats:` line and on the `gtr:` line.",
           'The hats become `s("hh*8").swingBy(1/3, 4).gain(.5)`. Do the same for the riff, after its `.scale()`.',
         ),
@@ -338,7 +338,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          'The staff shows a two-bar riff in the blues scale on C, in plain eighths. The part says "Swing 8ths": write the riff on the `gtr:` line as it stands, then make it swing.',
+          'The staff shows a two-bar riff on the C blues scale, in plain eighths, marked "Swing 8ths". Write it on the `gtr:` line in `n()`, eight slots a bar, `~` for a rest. Then add `.swingBy(1/3, 4)` so it plays long–short.',
         skills: [
           { skill: "R13", w: 0.7 },
           { skill: "N04", w: 0.3 },
@@ -368,7 +368,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: a different note from the one on the page. In `C4:blues`, `n` counts the scale's six notes: C E♭ F G♭ G B♭.",
         },
         hints: ladder(
-          "How many eighth notes and rests are in each bar on the page?",
+          "Read bar 1 on the staff slot by slot. How many eighth notes and rests does it hold?",
           "Each bar is eight slots: write `[ ]` with eight entries, `~` for a rest. The first note is C, the bottom of `C4:blues`, `n` 0.",
           "Bar 1 climbs the scale note by note from C to G, rests, plays F and rests: `[0 1 2 3 4 ~ ? ~]`.",
         ),
@@ -432,7 +432,8 @@ export default defineLesson({
         id: "straight-or-swung",
         version: 1,
         role: "check",
-        prompt: "A groove plays twice through. Are its eighths even, or long–short?",
+        prompt:
+          "Listen to a groove, twice through. Pick straight if its eighths are even, swung if they are long–short. Listen to the hats.",
         skills: [{ skill: "R13", w: 1 }],
         hints: [
           { text: "Listen to the hats only: do the two hats inside a beat sound equal?" },
@@ -466,7 +467,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Make the blues shuffle: swing the hats, then the riff. Try a lighter swing as well, `.swingBy(.2, 4)`, and keep the feel and the tempo you like best.",
+          "Swing the hats with `.swingBy(1/3, 4)`, then the riff the same way. Try a lighter swing too, `.swingBy(.2, 4)`, and a tempo between 80 and 140 in `setcpm`. Keep the feel and tempo you like best. Done when the hats play long–short.",
         skills: [{ skill: "R13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [12, 24],
@@ -477,7 +478,7 @@ export default defineLesson({
         rubric: [
           {
             id: "hats-swing",
-            label: "The hats swing",
+            label: "The hats play long–short, between about `.swingBy(.2, 4)` and `.swingBy(.4, 4)`",
             required: true,
             skills: ["R13"],
             rule: "swing",
@@ -488,7 +489,7 @@ export default defineLesson({
           },
           {
             id: "riff-swings",
-            label: "The riff swings too",
+            label: "The gtr line swings too, between about `.swingBy(.2, 4)` and `.swingBy(.4, 4)`",
             required: false,
             skills: ["R13"],
             rule: "swing",
@@ -498,7 +499,7 @@ export default defineLesson({
           },
           {
             id: "shuffle-tempo",
-            label: "A shuffle tempo, 80–140",
+            label: "The tempo is between 80 and 140 beats a minute",
             required: false,
             skills: ["R13"],
             rule: "tempo-bpm",
@@ -509,7 +510,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which line keeps the shuffle going for the whole twelve bars?",
+          "Only the hats must swing. Which line is that, and where in its chain does the call go?",
           "Swing goes on the hats first: their eighths carry the feel. Then the riff, with the same call.",
           'The hats become `s("hh*8").swingBy(1/3, 4).gain(.5)`. A lighter swing is a smaller first number.',
         ),

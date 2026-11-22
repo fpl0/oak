@@ -85,7 +85,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U06.L11",
-  version: 2,
+  version: 3,
   title: "Slash Chords & Walking Down",
   objective:
     "I can walk a bass down by step under a chord loop, so that some chords stand on their 3rd or 5th (C G/B Am).",
@@ -114,7 +114,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Follow the bass on the lower staff, bar by bar. Does it leap from root to root, or move another way? Listen to what that does to the ballad.",
+          "Follow the bass on the lower staff, bar by bar. Listen for whether it leaps from root to root or moves another way, and what that does to the ballad.",
         skills: [{ skill: "H15", w: 1 }],
         hints: null,
         tests: [],
@@ -134,7 +134,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'The chords are `chord("<C G>")`; the bass plays `c3`, then `b2`. What will the second bar sound like?',
+          'The chords are `chord("<C G>")`; the bass plays `c3`, then `b2`. Predict what the second bar sounds like, and pick it.',
         skills: [{ skill: "C04", w: 1 }],
         hints: null,
         tests: [],
@@ -162,7 +162,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the hook's first four bars. Watch the bass on the lower staff and on the roll, and find the chord that stands on a note that is not its root.",
+          "Run the hook's first four bars in the editor. Watch the bass on the lower staff and on the roll, bar by bar, then answer both questions below.",
         skills: [
           { skill: "H15", w: 0.6 },
           { skill: "C04", w: 0.4 },
@@ -172,7 +172,7 @@ export default defineLesson({
             "Not quite. Count the keys from C down to B on the keyboard, and look for the bar whose bass is G.",
         },
         hints: ladder(
-          "How far does the bass move from bar 1 to bar 2: a step, or a leap?",
+          "Count how far the bass moves from bar 1 to bar 2 on the keyboard: a step or a leap.",
           "B and C have no black key between them. In which bar does the bass play G under an A minor chord?",
           "From C down to B is one key. Bars 3 and 4 are both Am; only their bass differs.",
         ),
@@ -230,7 +230,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The bass staff shows the bass part for the chords C, G, Am, Am, one note a bar. The bass in the code plays every root. Write the part from the page in its place, letter and number.",
+          "The bass staff shows the bass part for the chords C, G, Am, Am, one note a bar. The `bass` line in the code plays every root. Replace its notes with the part from the page, letter and number. Done when each bar's lowest note matches the page.",
         skills: [
           { skill: "H15", w: 0.6 },
           { skill: "C04", w: 0.4 },
@@ -247,7 +247,7 @@ export default defineLesson({
             "Bar {bar}: the lowest note is {got}; the page shows {exp}. Read the note on the bass staff, and keep it under the chords.",
         },
         hints: ladder(
-          "Does the bass on the page leap from root to root, or move one step at a time?",
+          "Look at the bass on the page: it moves one line or space at a time, not from root to root.",
           "The first note sits in the second space from the bottom: `c3`. Each note after it is one line or space lower.",
           "Bar 1 is `c3` and bar 3 is `a2`. Read bars 2 and 4 from the page.",
         ),
@@ -292,13 +292,13 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Write the Roman numeral of each chord, one a bar. Where the bass is not the root, add the figure: 6 when the 3rd is at the bottom, 64 when the 5th is.",
+          "Enter the Roman numeral of each of the three chords, one a bar. Where the bass is not the root, add the figure: 6 when the 3rd is at the bottom, 64 when the 5th is.",
         skills: [
           { skill: "C04", w: 0.6 },
           { skill: "N06", w: 0.4 },
         ],
         hints: ladder(
-          "Which chord sits in each bar, and which note does the bass play under it?",
+          "For each bar, name the chord first, then the note the bass plays under it.",
           "Find each chord's degree for the numeral. Then compare the bass with the chord's own notes: root, 3rd or 5th.",
           "Bar 1 is I with C at the bottom. Bar 2 is G with B in the bass: which member of the chord is B?",
         ),
@@ -347,10 +347,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The chords C, F, G, C, twice, each time with a different bass part. In which one does the bass stay on one note?",
+          "Both cards play the chords C, F, G, C, each with a different bass part. Pick the card whose bass stays on one note.",
         skills: [{ skill: "H15", w: 1 }],
         hints: ladder(
-          "Listen only to the lowest sound. Does it move when the chords change?",
+          "Listen only to the lowest sound, and notice whether it moves when the chords change.",
           "In one card the bass follows each chord's root; in the other it keeps playing C.",
           "Play each card and hum its bass. Which one could you hum on a single note?",
         ),
@@ -394,14 +394,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it. The bass slides down from C while the chord above it waits. Read the bass on the roll, bar by bar.",
+          "Run it. The bass slides down from C while the chord above it waits. Read the bass on the roll, bar by bar, then answer both questions below.",
         skills: [{ skill: "H15", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Compare bars 1 to 3 on the roll: one line moves, and the notes above it do not.",
         },
         hints: ladder(
-          "From C to B, and from B to B♭: how many keys does the bass move each time?",
+          "Count the keys the bass moves each time: from C to B, then from B to B♭.",
           "A half step is the very next key, black or white. Then look at the three notes above the bass in bars 1 to 3.",
           "C to B is one half step. In bars 1 to 3 the notes above the bass never change: which are they?",
         ),
@@ -457,7 +457,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Here the bass plays every root. Make it walk down by step instead, so at least one chord stands on its 3rd or 5th. Four or eight bars; change the chords too, if you like.",
+          "The `bass` line plays every root: C, G, A, F. Make it walk down by step instead, C, B, A, so at least one chord stands on its 3rd or 5th. Change the chords too if you like. Done when at least one chord has its 3rd or 5th in the bass.",
         skills: [
           { skill: "H15", w: 0.6 },
           { skill: "C04", w: 0.4 },
@@ -468,7 +468,7 @@ export default defineLesson({
         rubric: [
           {
             id: "one-inversion",
-            label: "At least one chord with its 3rd or 5th in the bass",
+            label: "At least one chord with its 3rd or 5th as the lowest note",
             required: true,
             skills: ["C04"],
             rule: "chord-inversions",
@@ -477,7 +477,7 @@ export default defineLesson({
           },
           {
             id: "by-step",
-            label: "The bass moves mostly by step",
+            label: "Most moves in `bass` are steps, at least three in four",
             required: false,
             skills: ["H15"],
             rule: "step-ratio",
@@ -486,7 +486,7 @@ export default defineLesson({
           },
           {
             id: "a-tune",
-            label: "A tune on top",
+            label: "A tune on its own line, such as `mel`",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -495,7 +495,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Between C and A, which note could the bass play under the G chord so it steps instead of leaping?",
+          "Between C and A the bass needs one note to step instead of leap. Find it, and check it belongs to the G chord.",
           "A bass note that is the chord's 3rd or 5th turns it into a slash chord. G's 3rd is B; F's 3rd is A.",
           "Bars 1 and 3 can keep C and A. Bar 2 needs the note between them, which belongs to the G chord.",
         ),

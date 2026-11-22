@@ -81,7 +81,7 @@ const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L06",
-  version: 2,
+  version: 3,
   title: "Movement",
   objective:
     "I can make a sound move while it plays, with vibrato, a phaser, tremolo or a slow filter sweep.",
@@ -110,7 +110,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen only to the long notes, in the lead and in the pad. In loop 2, what keeps changing while each one holds?",
+          "Listen only to the long notes of the lead and the pad. Listen for what keeps changing in loop 2 while each one holds.",
         skills: [{ skill: "D07", w: 1 }],
         hints: null,
         tests: [],
@@ -136,7 +136,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'One G held for a whole bar, twice, with `.vib("<0 5>")`: nothing in bar 1, 5 in bar 2. What changes in bar 2?',
+          'One G held for a whole bar, twice, with `.vib("<0 5>")`: nothing in bar 1, 5 in bar 2. Predict what changes in bar 2, and pick it.',
         skills: [{ skill: "D07", w: 1 }],
         hints: null,
         tests: [],
@@ -164,14 +164,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The long G again, now with two calls: `.vib()` changes between the bars, `.vibmod()` stays the same. Run it, count the wobbles in each bar, then answer.",
+          "The long G again, now with two calls: `.vib()` changes between the bars, `.vibmod()` stays the same. Count the wobbles in each bar. Then answer both questions: how many wobbles a second in bar 2, and which call sets how far the pitch moves.",
         skills: [{ skill: "D07", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Listen to bar 2: the wobbles come faster, but the pitch moves no further than in bar 1. One call changed between the bars, the other did not.",
         },
         hints: ladder(
-          "Which bar wobbles faster, and does it move any further from the G?",
+          "Compare the two bars: one wobbles faster. Does it also move any further from the G?",
           "`.vib()` takes a number of wobbles a second. Read the two values in the pattern, one for each bar.",
           "Bar 1 wobbles twice a second. The call that stayed the same between the bars sets the other thing.",
         ),
@@ -224,7 +224,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The target's lead sings with a gentle vibrato, about as fast and as narrow as a singer's. Yours holds its notes still. Add a vibrato at the end of the lead's line and match it by ear.",
+          "Your lead holds its notes still; the target's sings with a gentle vibrato, about as fast and as narrow as a singer's. At the end of the mel line, add `.vib()` and `.vibmod()` and set both by ear. Done when your speed and width are close to the target's.",
         skills: [{ skill: "D07", w: 1 }],
         code: { starter: SING_STARTER },
         reference: { solutions: [SING_SOLUTION], bars: 2 },
@@ -253,7 +253,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: no lead note is heard here. Keep the lead playing; give it a wobble only.",
         },
         hints: ladder(
-          "How many times a second does the target's pitch wobble, and how far does it move each way?",
+          "Listen to one long target note and count its wobbles in a second. Then listen to how far it moves each way: further than yours, or less?",
           "`.vib()` sets how many wobbles a second; `.vibmod()` how far, in semitones each way. Left out, `.vibmod()` is half a semitone.",
           "The target's speed sits between the two bars of How fast, how far, and its width is about the same as there.",
         ),
@@ -326,14 +326,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "One chord a bar, each bar on its own line with one setting moving: `.phaser(2)` in bar 1, `.tremolosync(4)` in bar 2, `.lpf(800).lprate(1)` in bar 3. Run it and listen to what moves in each bar.",
+          "One chord plays a bar, with one setting moving in each bar: `.phaser(2)` in bar 1, `.tremolosync(4)` in bar 2, `.lpf(800).lprate(1)` in bar 3. Listen to what moves in each bar. Then answer both questions: in which bar the loudness dips, and how many times.",
         skills: [{ skill: "D07", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. In one bar the chord keeps its colour and only its loudness dips and swells, evenly, a few times. Count the dips in that bar.",
         },
         hints: ladder(
-          "In which bar does the chord get softer and louder again, without changing colour?",
+          "Listen for the bar where the chord keeps its colour and only gets softer and louder again. Which bar is it?",
           "`.tremolosync()` counts its dips per bar: the number it is given is how many times the level falls and comes back in each bar.",
           "Bar 1 sweeps the colour, bar 3 opens and closes the brightness. That leaves one bar.",
         ),
@@ -385,7 +385,8 @@ export default defineLesson({
         id: "what-moves",
         version: 1,
         role: "check",
-        prompt: "A held pad over the drums, with one setting moved by a slow wave. Which one?",
+        prompt:
+          "A held pad plays over the drums, with one setting moved by a slow wave. Listen to the pad's pitch, loudness and brightness, and pick the one that moves.",
         skills: [{ skill: "D07", w: 1 }],
         hints: [
           { text: "Hum along with the pad. Does the note you hum move, or does something else?" },
@@ -440,7 +441,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The loop with a pad and a long-note lead, both perfectly still. Make something move: vibrato on the lead, a phaser on the pad, a slow filter sweep, a level that pulses with the beat. Choose how fast and how far by ear.",
+          "The pad and the long-note lead are both perfectly still. Make at least one of them move while its notes hold: vibrato on the lead, a phaser on the pad, a slow filter sweep, or a level that pulses with the beat. Choose how fast and how far by ear.",
         skills: [{ skill: "D07", w: 1 }],
         code: { starter: STILL },
         bars: [2, 8],
@@ -448,7 +449,8 @@ export default defineLesson({
         rubric: [
           {
             id: "a-part-that-moves",
-            label: "A part that moves: you hear it change while a note sounds",
+            label:
+              "One heard part moves while its notes hold: vibrato, a phaser, a tremolo or a filter sweep",
             required: true,
             skills: ["D07"],
             rule: "custom",
@@ -467,7 +469,7 @@ export default defineLesson({
           },
           {
             id: "a-sweep",
-            label: "A slow sweep of a filter",
+            label: "A filter sweep, .lprate() or .lpdepth(), on a part",
             required: false,
             skills: ["D07"],
             rule: "custom",
@@ -481,7 +483,7 @@ export default defineLesson({
           },
           {
             id: "a-singing-lead",
-            label: "A lead that sings with vibrato",
+            label: "Vibrato, .vib(), on the lead (the mel line)",
             required: false,
             skills: ["D07"],
             rule: "custom",
@@ -492,7 +494,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which part holds its notes longest? That is where movement is heard.",
+          "Movement is heard best on long notes. Start with the part that holds its notes longest: which one is it?",
           "`.vib()` moves the pitch, `.phaser()` sweeps the colour, `.tremolosync()` dips the level a number of times a bar, `.lprate()` moves the cutoff of a line that has `.lpf()`.",
           "Try the lead first: a vibrato as in Match the vibrato. Then give the pad a slow sweep of its own.",
         ),

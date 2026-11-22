@@ -35,7 +35,7 @@ const NONE = { roll: false, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U01.L08",
-  version: 2,
+  version: 3,
   title: "Three to a Bar",
   objective: "I can hear a groove in three, write a waltz with setcpm(bpm/3), and tell three from four.",
   key: { tonic: "C", mode: "major" },
@@ -63,7 +63,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Count along from the kick: 1, 2, 3, 4. Does a count of four fit, or does the kick come back sooner?",
+          "Count along from the kick: 1, 2, 3, 4. Listen for whether a count of four fits, or the kick comes back sooner.",
         skills: [{ skill: "R08", w: 1 }],
         hints: null,
         tests: [],
@@ -84,13 +84,13 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Tap only on the kick: beat 1 of every bar, four taps in all. Count 1, 2, 3 in your head between taps.",
+          "Tap only on the kick, the low thump on beat 1 of every bar: one tap per bar, four taps in all. Do not tap the two snares after it; count 2, 3 in your head instead.",
         skills: [
           { skill: "R08", w: 0.5 },
           { skill: "E01", w: 0.5 },
         ],
         hints: ladder(
-          "Which drum starts every bar?",
+          "Tap the kick only, once per bar. Which drum starts every bar?",
           "The kick plays once a bar, then two snares follow it.",
           "Count 1, 2, 3 out loud with the drums and tap on every 1.",
         ),
@@ -126,14 +126,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and compare the first line with the ones you have written so far. Try `bd sd sd sd` on the drums line and listen to the bar.",
+          "Compare the first line with the tempo lines you have written so far. Then change the drums line to `bd sd sd sd`, listen to the bar, and answer the two questions below.",
         skills: [{ skill: "R08", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Compare `setcpm(108/3)` with the `setcpm(96/4)` you wrote before, and count the beats of a bar while it plays.",
         },
         hints: ladder(
-          "What did the `/4` in `setcpm(96/4)` stand for?",
+          "Compare the `/3` here with the `/4` you used before. What did the `/4` in `setcpm(96/4)` stand for?",
           "The first number is the beats per minute; the second says how many beats make one bar.",
           "With four words in a three-beat bar, each word gets less than a beat.",
         ),
@@ -189,7 +189,8 @@ export default defineLesson({
         id: "two-to-a-bar",
         version: 1,
         role: "practice",
-        prompt: "Count along, 1, 2, 1, 2. Listen for how the march moves compared with the waltz.",
+        prompt:
+          "Count along with the march, 1, 2, 1, 2. Listen for how its step of two moves compared with the waltz's three.",
         skills: [{ skill: "R08", w: 1 }],
         meter: "2/4",
         hints: null,
@@ -210,7 +211,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The tempo line already makes bars of three, but the drums line still has four sounds, so they crowd the bar. Make it a waltz: `bd` on beat 1, then `sd` on beats 2 and 3.",
+          "Change the drums line to three words, one per beat: `bd` on beat 1, then `sd` on beats 2 and 3. Leave the tempo line as it is: it already makes bars of three.",
         skills: [{ skill: "R08", w: 1 }],
         code: { starter: code(drums("⟪bd sd bd sd⟫")) },
         reference: { solutions: [code(drums("bd sd sd"))], bars: 2 },
@@ -218,8 +219,15 @@ export default defineLesson({
         matcher: { m: "events", pitch: "absolute", rhythm: "onsets", durations: false, sound: "drum-role" },
         constraints: [{ c: "tempo", bpm: BPM }],
         target: { audible: true, showRoll: true },
+        // The catalog says "missing hit" and "extra hit": these say what the bar of three holds.
+        feedbackText: {
+          "rhythm.missing":
+            "Bar {bar}, {beatLabel}: no hit here yet{role}. The bar holds three beats: `bd`, then `sd`, then `sd`.",
+          "rhythm.extra":
+            "Bar {bar}, {beatLabel}: a hit that should not be there{role}. The bar holds three beats: `bd`, then `sd`, then `sd`.",
+        },
         hints: ladder(
-          "How many words does a bar of three beats need, one per beat?",
+          "Write one word per beat, three words for a bar of three. How many words does the line hold now?",
           "Each word in the quotes takes an equal share of the bar. Four words in three beats are each shorter than a beat.",
           "Beat 1 stays `bd`. Beats 2 and 3 both get `sd`.",
         ),
@@ -266,10 +274,11 @@ export default defineLesson({
         id: "three-or-four",
         version: 1,
         role: "check",
-        prompt: "A groove plays for four bars. Is it in three or in four?",
+        prompt:
+          "Listen to four bars of a groove. Count from one kick to the next, then pick whether it is in three or in four.",
         skills: [{ skill: "R08", w: 1 }],
         hints: [
-          { text: "Where does the loudest kick come back?" },
+          { text: "Count the beats from one kick to the next. Where does the loudest kick come back?" },
           { text: "Count from one kick to the next: 1, 2, 3 or 1, 2, 3, 4." },
           { text: "Listen again slower and count out loud.", replay: { rate: 0.75 } },
           "auto",
@@ -299,7 +308,8 @@ export default defineLesson({
         id: "your-waltz",
         version: 1,
         role: "practice",
-        prompt: "Write a groove in three. Every one of the three beats needs a sound.",
+        prompt:
+          "Write a groove in three: a drum sound on each of the three beats of every bar. The starter leaves beat 2 silent.",
         skills: [{ skill: "R08", w: 1 }],
         code: { starter: code(drums("bd ~ sd")) },
         bars: [1, 4],
@@ -307,7 +317,7 @@ export default defineLesson({
         rubric: [
           {
             id: "three-beats",
-            label: "A sound on each of the three beats",
+            label: "A drum sound starts on each of the three beats, in every bar",
             required: true,
             skills: ["R08"],
             rule: "onsets",
@@ -321,7 +331,7 @@ export default defineLesson({
           },
           {
             id: "kick-on-one",
-            label: "The kick on beat 1 only",
+            label: "The kick plays on beat 1 and nowhere else",
             required: false,
             skills: ["R08"],
             rule: "onsets",
@@ -332,7 +342,7 @@ export default defineLesson({
           },
           {
             id: "two-lines",
-            label: "Hats or another line on top",
+            label: "At least two drum lines, for example hats on top",
             required: false,
             skills: ["R04"],
             rule: "tracks",
@@ -341,7 +351,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which beat of the starter is silent?",
+          "Each of the three beats needs a sound. Which beat of the starter is silent?",
           "The `~` sits on beat 2. A waltz wants all three beats heard.",
           "Put a `sd` or a `hh` where the `~` is, or add a hats line that plays on every beat.",
         ),

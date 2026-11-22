@@ -89,7 +89,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U13.L05",
-  version: 2,
+  version: 3,
   title: "Triplets",
   objective:
     "I can play three even notes in the time of two with .ply(3) or a bracket of three, write a roll, and read a triplet on the staff.",
@@ -115,7 +115,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to the piano and the hats against the square kick and snare. In which loop do they walk, and in which do they roll? Where have you felt that roll before?",
+          "Listen to the piano and the hats against the square kick and snare. Notice in which loop they walk and in which they roll, and listen for the snare at the very end of bar 4.",
         skills: [{ skill: "R12", w: 1 }],
         hints: null,
         tests: [],
@@ -141,10 +141,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to two bars, then tap them back. Some beats split in two and some in three: say “1 trip let” under your breath for the beats in three.",
+          "Listen to two bars, then tap their rhythm back, one tap per note. Some beats hold two notes and some hold three: say “1 trip let” under your breath for the beats in three, and tap three even taps there.",
         skills: [{ skill: "R12", w: 1 }],
         hints: ladder(
-          "Which beats were busiest, and were their notes even?",
+          "One tap per note you heard. Which beats were busiest, and were their notes even?",
           "Count each beat while it plays: “1 &” for two notes, “1 trip let” for three.",
           "Tap the beats first, then fill in the busy ones: three even taps where you said “1 trip let”.",
         ),
@@ -170,7 +170,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`.ply(3)` plays every step of the pattern on its left three times, in the time of that step. Here it follows `s("hh*4")`, four hats. How many hats will you hear in each bar?',
+          '`.ply(3)` plays every step of the pattern on its left three times, in the time of that step. Here it follows `s("hh*4")`, four hats. Predict how many hats you will hear in each bar, and enter that number.',
         skills: [{ skill: "R12", w: 1 }],
         hints: null,
         tests: [],
@@ -193,7 +193,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Run it and look at the roll and the staff: each beat holds three even hats. In Shuffle you swung eighths with `s("hh*8").swingBy(1/3, 4)`. Try the lines below in place of the hats and listen.',
+          'Run it and look at the roll and the staff: each beat holds three even hats. Then try each answer line in place of the hats line. Answer both questions: which line matches the swung eighths of Shuffle, `s("hh*8").swingBy(1/3, 4)`, and into how many parts the hats cut each beat.',
         skills: [{ skill: "R12", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -253,7 +253,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The hats already move in triplets; the piano still plays one chord a beat. Make the piano play three chords to every beat, with the hats.",
+          "The hats already move in triplets; the piano still plays one chord a beat. Make the piano play three even chords on every beat, with the hats. Keep its chords: change only its rhythm. Done when the piano plays twelve chords a bar.",
         skills: [{ skill: "R12", w: 1 }],
         code: { starter: S5_STARTER },
         reference: { solutions: [S5_SOLUTION], bars: 4 },
@@ -265,7 +265,7 @@ export default defineLesson({
         },
         target: { audible: true, showRoll: false, revealRollAfter: 1 },
         hints: ladder(
-          "How do the hats get three notes out of each of their four steps?",
+          "The piano needs three chords where it now has one. How do the hats get three notes out of each of their four steps?",
           "The hats line takes `.ply()` after its pattern. The piano's rhythm comes from `.struct()`, so its call goes after that.",
           'The line keeps `.struct("x*4")` and gains one call before `.s("piano")`.',
         ),
@@ -335,7 +335,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "No sound this time. One bar on the staff: a quarter note, a triplet, a quarter note, a triplet. Write the bar in code, in C major from middle C.",
+          "No sound this time. Read the bar on the staff: a quarter note, a triplet, a quarter note, a triplet. Write it in the `n()` string, one step per beat, with C major numbers from middle C (`0` is C). The starter already has beats 1 and 3 as `0` and `4`.",
         skills: [
           { skill: "N09", w: 0.7 },
           { skill: "R12", w: 0.3 },
@@ -352,7 +352,7 @@ export default defineLesson({
           tracks: ["mel"],
         },
         hints: ladder(
-          "How many beats does the bar have, and which of them hold three notes?",
+          "Replace each `~` with the beat it stands for. How many beats does the bar have, and which of them hold three notes?",
           "A quarter note is one step of four. A triplet shares one beat between three notes: a bracket of three inside one step.",
           "Beat 1 is `0` and beat 3 is `4`. Beat 2 is a bracket of three notes, `[2 4 …]`.",
         ),
@@ -398,7 +398,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Two bars of hats over a kick and a snare, a new groove each time. Do the hats move two to the beat, or three?",
+          "Two bars of hats over a kick and a snare, a new groove each time. Pick whether the hats move two to the beat or three.",
         skills: [{ skill: "R12", w: 1 }],
         hints: [
           {
@@ -434,7 +434,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A ballad in plain 4/4: piano on the beats, even hats, kick, snare and a bass. Turn it into a slow dance: set the piano or the hats in triplets and keep them going through every bar. Then roll the snare into the repeat, and float a tune over the threes.",
+          "Put the piano or the hats in triplets: three even notes on every beat, through every bar, with `.ply(3)` or brackets of three. Then, if you like, roll the snare into the repeat with three hits in beat 4 of bar 4, and float a tune over the threes.",
         skills: [{ skill: "R12", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -442,7 +442,7 @@ export default defineLesson({
         rubric: [
           {
             id: "triplets-every-bar",
-            label: "The piano or the hats play triplets through every bar",
+            label: "The piano (`chords:`) or the hats play three even notes on every beat of every bar",
             required: true,
             skills: ["R12"],
             rule: "custom",
@@ -452,7 +452,7 @@ export default defineLesson({
           },
           {
             id: "snare-roll",
-            label: "The snare rolls three hits into the repeat, in beat 4 of bar 4",
+            label: "The snare plays three even hits in beat 4 of bar 4",
             required: false,
             skills: ["R12"],
             rule: "onsets",
@@ -467,7 +467,7 @@ export default defineLesson({
           },
           {
             id: "tune-on-chord-tones",
-            label: "A tune whose strong beats are notes of the chord",
+            label: "On at least 6 of every 10 strong beats, the `mel:` tune plays a note of the chord",
             required: false,
             skills: ["R12"],
             rule: "chord-tones-strong",
@@ -478,7 +478,7 @@ export default defineLesson({
           },
           {
             id: "slow-dance-tempo",
-            label: "A slow-dance tempo, 60–84",
+            label: "A tempo from 60 to 84 beats a minute",
             required: false,
             skills: ["R12"],
             rule: "tempo-bpm",
@@ -486,9 +486,11 @@ export default defineLesson({
             max: 84,
           },
         ],
-        feedbackText: { "rubric.unmet": "{label}: not yet." },
+        feedbackText: {
+          "rubric.unmet": "{label}: not yet. Check your lines against the item, then run it again.",
+        },
         hints: ladder(
-          "Which line could move three to the beat without changing its chords?",
+          "One line has to play three even notes on every beat, in every bar. Which line could do that without changing its chords?",
           "`.ply(3)` after a line's rhythm plays each of its steps three times. Put it on the piano or the hats.",
           "On the piano it goes after `.struct()`; on the hats, write four hats and multiply them.",
         ),

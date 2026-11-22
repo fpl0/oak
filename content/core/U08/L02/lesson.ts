@@ -72,7 +72,7 @@ const BASS_STAFF = { roll: false, staff: "bass", keyboard: false } as const;
 
 export default defineLesson({
   id: "U08.L02",
-  version: 2,
+  version: 3,
   title: "Root–Five–Octave",
   objective:
     "I can write a bass line from each chord's root, its 5th and its octave, as one cell moved onto every root.",
@@ -99,7 +99,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Three basses under the same loop. Listen to how each one changes the feel: which one makes you want to move?",
+          "Listen to three basses under the same loop. Listen for how the number of bass notes in a bar changes the feel, from bass 1 to bass 3.",
         skills: [{ skill: "B02", w: 1 }],
         hints: null,
         tests: [],
@@ -122,7 +122,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'The bass is `n("[0 ~ 4 ~]").add(n("<0 4 5 3>"))`: the cell `[0 ~ 4 ~]` moved onto each chord\'s number. Beat 1 plays the root. What does the 4 play on beat 3?',
+          'Predict what the 4 in the cell plays on beat 3, then pick it. The bass is `n("[0 ~ 4 ~]").add(n("<0 4 5 3>"))`: the cell `[0 ~ 4 ~]` moved onto each chord\'s number, so beat 1 plays the root.',
         skills: [{ skill: "B02", w: 1 }],
         hints: null,
         tests: [],
@@ -150,14 +150,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and follow the lowest line on the roll: four notes a bar, the same cell moved onto every root.",
+          "Run the loop and follow the bass, the lowest line on the roll: the cell `[0 4 7 4]` moved onto every root. Answer both questions below: which number plays the root an octave up, and which degree of C the 5th of G is.",
         skills: [{ skill: "B02", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Stop on bar 2 and read the degree labels of the bass: the root, then each number of the cell added to it.",
         },
         hints: ladder(
-          "Which note of each bar sounds like the first one, only higher?",
+          "Find the note in each bar that sounds like the first one, only higher. Which number of the cell plays it?",
           "`n` counts scale steps from the root: four steps up is the 5th, seven steps up the same letter again. Bar 2's root is G, `n` 4.",
           "In bar 1 the cell plays C, G, the next C up, G. In bar 2 add each number of the cell to 4 and read the letter.",
         ),
@@ -210,7 +210,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The bass plays the root on every eighth. Change the cell so every second eighth jumps to the same note an octave up: the disco bounce.",
+          "The highlighted cell `[0 0]*4` plays the root on every eighth. Change the second 0 so every second eighth plays the root an octave up. Done when each bar goes root, octave, root, octave, four times.",
         skills: [{ skill: "B02", w: 1 }],
         code: { starter: BOUNCE_STARTER },
         reference: { solutions: [BOUNCE], bars: 4 },
@@ -230,7 +230,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: the right letter, but {dir} than the target. The bounce jumps up from the root, so its number is above 0.",
         },
         hints: ladder(
-          "Which number added to a root lands on the same letter, higher up?",
+          "Find the number that, added to a root, lands on the same letter one octave higher.",
           "In S3, `n` counted seven steps from the root to reach the root again. The cell's second number is the one that jumps.",
           "Keep the first number of the pair at 0 and keep the `*4`. Only the second number changes.",
         ),
@@ -278,7 +278,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The bass clef shows two bars under C, then G: two notes a bar. Write them as one cell moved onto the two roots with `.add()`.",
+          "Write the bass on the bass clef in the highlighted part: two bars, under C then G, two notes a bar. Use one two-number cell moved onto the two roots with `.add()`. Done when the bass plays the notes on the page.",
         skills: [
           { skill: "B02", w: 0.7 },
           { skill: "N04", w: 0.3 },
@@ -301,7 +301,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: the page has a note here. The cell goes on the left of `.add()`, so its two notes reach every bar.",
         },
         hints: ladder(
-          "Each bar starts on its chord's root. How far above the root is the second note?",
+          "Each bar starts on its chord's root. Count how many steps above the root the second note is.",
           "Bar 1 starts on `c2`, two short lines below the staff, and moves up to the bottom line, `g2`. Count the letters from C, C as 1; the same count holds in bar 2, from G.",
           'The cell is `[0 ?]`, and `.add(n("<0 4>"))` stays after it. The second number is the same in both bars.',
         ),
@@ -345,13 +345,13 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two basses under the same chords, each moving on beat 3. One goes to the chord's 5th, the other to its root an octave up. Which one jumps the whole octave?",
+          "Listen to both cards. Each bass moves on beat 3: one to the chord's 5th, the other to its root an octave up. Pick the card that jumps to the octave.",
         skills: [
           { skill: "B02", w: 0.6 },
           { skill: "I02", w: 0.4 },
         ],
         hints: ladder(
-          "In which card does the beat-3 note sound like the same note as beat 1, only higher?",
+          "Compare beat 1 and beat 3 in each card. In which card does beat 3 sound like the same note, only higher?",
           "The octave keeps the letter: the two notes blend into one. The 5th is a different note that sits between them.",
           "Play card 1, then hum its beat 1 and beat 3. Do you hum one note at two heights, or two notes?",
         ),
@@ -395,7 +395,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Swap the 3rd in this bass cell for the 5th or the octave. Then build your own cell from root, 5th and octave: any rhythm, any order.",
+          "The bass cell `[0 ~ 2 ~]` plays each root, then its 3rd. Replace the 2 with the 5th (4) or the octave (7). Then build your own cell from 0, 4 and 7, in any rhythm and order. Keep the chords as they are.",
         skills: [{ skill: "B02", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -403,7 +403,7 @@ export default defineLesson({
         rubric: [
           {
             id: "three-notes",
-            label: "The bass plays only roots, 5ths and octaves",
+            label: "At least 9 in 10 bass notes are a root, 5th or octave of the chord above",
             required: true,
             skills: ["B02"],
             rule: "bass-line",
@@ -413,7 +413,7 @@ export default defineLesson({
           },
           {
             id: "more-than-roots",
-            label: "A 5th or an octave in the line, not only roots",
+            label: "At least a quarter of the bass notes are 5ths or octaves",
             required: false,
             skills: ["B02"],
             rule: "bass-line",
@@ -423,7 +423,7 @@ export default defineLesson({
           },
           {
             id: "a-tune",
-            label: "A tune on top",
+            label: "A melody line on top of the chords",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -434,7 +434,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which number in the cell plays each chord's 3rd?",
+          "The cell counts from each root. Find the number in it that plays the 3rd.",
           "The 5th is four steps above the root and the octave seven. The cell's numbers count from each root.",
           "Change the 2 in the cell to a 4 for root–5th. Then try a 7 somewhere, or more notes in the cell.",
         ),

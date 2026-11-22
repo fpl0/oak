@@ -41,7 +41,7 @@ const NOTE_FEEDBACK = {
 
 export default defineLesson({
   id: "U02.L04",
-  version: 2,
+  version: 3,
   title: "The Treble Staff",
   objective: "I can read and write notes from c4 to f5 on the treble staff and play them in code.",
   key: { tonic: "C", mode: "major" },
@@ -69,7 +69,8 @@ export default defineLesson({
         id: "slow-climb",
         version: 1,
         role: "practice",
-        prompt: "Hum the climb, and watch the keys: how many white keys does each note skip over?",
+        prompt:
+          "Listen to the four-note climb and watch the keys. Count how many white keys each note skips over on its way up.",
         skills: [{ skill: "N02", w: 1 }],
         hints: null,
         tests: [],
@@ -96,13 +97,13 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Change one note, run, and watch where it moves on the five lines. Then click the note that sits on the second line from the bottom.",
+          "Change the letter or the number of one note, listen, and watch where it moves on the five lines. Then click the note that sits on the second line from the bottom.",
         skills: [{ skill: "N02", w: 1 }],
         feedbackText: {
           "investigate.not-here": "Not that one. The bottom line holds `e4`; count up one line from it.",
         },
         hints: ladder(
-          "Which line is the bottom one, and which note sits on it?",
+          "Count the five lines from the bottom up and find the note on line 2. Which note sits on line 1?",
           "The bottom line holds `e4`. Count up one line from it.",
           "The notes climb one line at a time: the first is on line 1, the next on line 2.",
         ),
@@ -147,14 +148,14 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Name the three notes, left to right, by letter. The last one sits below the five lines, on a short line of its own.",
+          "Name the three notes on the staff, left to right: one letter each, no numbers. The last note sits below the five lines, on a short line of its own.",
         skills: [{ skill: "N02", w: 1 }],
         feedbackText: {
           "spell.wrong":
             "Not {got}. Is that note on a line or in a space? Count up from the bottom line, `e4`.",
         },
         hints: ladder(
-          "Which line does the clef curl around?",
+          "Start from a line you know: the clef curls around the second line from the bottom. Which note does that line hold?",
           "The second line from the bottom is `g4` and the bottom line is `e4`. Below the bottom line, count on: space, then the short line.",
           "The first note is on the second line: g. The second is on the bottom line.",
         ),
@@ -199,13 +200,13 @@ export default defineLesson({
         id: "write-c-e-g-c",
         version: 1,
         role: "check",
-        prompt: "Write `c4 e4 g4 c5` on the staff, one note per beat.",
+        prompt: "Write `c4`, `e4`, `g4` and `c5` on the staff, in that order, one note per beat.",
         skills: [{ skill: "N02", w: 1 }],
         feedbackText: {
           "spell.wrong": "{got} → {exp}. Count lines and spaces up from the bottom line, `e4`.",
         },
         hints: ladder(
-          "Where does `c4` go: on the lines, or below them?",
+          "Place the four notes left to right, starting with `c4`. Does `c4` sit on the five lines, or below them?",
           "`c4` sits on a ledger line below the staff; `e4` is the bottom line and `g4` the second.",
           "`c5` is in the third space from the bottom, between `b4` and `d5`.",
         ),
@@ -253,7 +254,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The staff shows four notes. Write them in code in place of the four `c4`s, letter and number.",
+          "Read the four notes on the staff and write them in code in place of the four `c4`s, left to right, each with its letter and number. Done when your line matches the staff.",
         skills: [{ skill: "N02", w: 1 }],
         code: { starter: mel("⟪c4 c4 c4 c4⟫") },
         reference: { solutions: [mel(PAGE)], bars: 1 },
@@ -261,7 +262,7 @@ export default defineLesson({
         target: { audible: true },
         feedbackText: NOTE_FEEDBACK,
         hints: ladder(
-          "Which of the four notes sit on lines, and which in spaces?",
+          "Read each note up from the bottom line, `e4`: lines and spaces alternate. Which of the four notes sit on lines, and which in spaces?",
           "The bottom line is `e4` and the second line `g4`. The space between them is `f4`.",
           "The first two notes are `e4 g4`. Read the other two the same way.",
         ),
@@ -301,7 +302,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a melody you could read back from the staff: every note from `e4` up to `f5`, no ledger lines.",
+          "Write a melody on the `mel:` line that stays on the staff: every note from `e4`, the bottom line, to `f5`, the top line, so no ledger lines. Done when no note is below `e4` or above `f5`.",
         skills: [{ skill: "N02", w: 1 }],
         code: { starter: mel("c4 e4 g4 c5") },
         bars: [1, 4],
@@ -309,7 +310,7 @@ export default defineLesson({
         rubric: [
           {
             id: "on-the-staff",
-            label: "Every note on the staff (e4 to f5)",
+            label: "Every note from `e4` to `f5`, both included: no ledger lines",
             required: true,
             skills: ["N02"],
             rule: "range",
@@ -318,7 +319,7 @@ export default defineLesson({
           },
           {
             id: "five-notes",
-            label: "At least five different pitches",
+            label: "Five or more different notes",
             required: false,
             skills: ["P02"],
             rule: "distinct-pitches",
@@ -327,7 +328,7 @@ export default defineLesson({
           },
           {
             id: "long-note",
-            label: "A note held for two beats, with `@`",
+            label: "Uses `@` to hold a note longer, such as `c5@2`",
             required: false,
             skills: ["N02"],
             rule: "uses",
@@ -335,7 +336,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which note of the starter needs a short line of its own?",
+          "Every note must sit between the bottom line, `e4`, and the top line, `f5`. Which note of the starter falls outside?",
           "`c4` sits on a ledger line below the staff. The lowest line note is `e4`.",
           "Swap `c4` for `e4` and the line is on the staff. Then add notes of your own.",
         ),

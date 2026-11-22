@@ -36,7 +36,7 @@ const SING_TOL = (octave: SingTolerance["octave"]): SingTolerance => ({
   passHitRate: 0.8,
 });
 const SING_HINTS = ladder(
-  "Hum it first with your mouth closed. Does the hum feel like the same note?",
+  "Match the piano's note itself, not one near it. Hum it first with your mouth closed: does the hum feel like the same note?",
   "Watch the trace: above the lane means ease down, below means lift a little.",
   "Hear it again more slowly and hum along while it plays.",
 );
@@ -60,7 +60,7 @@ const DRIFT_FEEDBACK = {
 
 export default defineLesson({
   id: "U02.L07",
-  version: 3,
+  version: 4,
   title: "Sing It Back",
   objective:
     "I can match a note with my voice, hear whether a note goes up or down, and sing back a short phrase.",
@@ -86,7 +86,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Hum the two notes back into the empty bar. Listen for which way your hum moves between them: up or down?",
+          "Listen to the two-note call in bar 1, then hum it back in the empty bar 2. Listen for which way the call moves: up or down.",
         skills: [{ skill: "V01", w: 1 }],
         hints: null,
         tests: [],
@@ -105,7 +105,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A piano note plays, then a moment of quiet. Sing the note back on any vowel and hold it steady.",
+          'Listen to one piano note. When it stops, sing the same note back on any vowel, such as "ah", and hold it steady.',
         skills: [{ skill: "V01", w: 1 }],
         hints: SING_HINTS,
         // Quiet mode or no microphone: the same notes as a listening choice (contracts §8.5).
@@ -132,7 +132,8 @@ export default defineLesson({
         id: "up-or-down",
         version: 1,
         role: "check",
-        prompt: "Does the second note go up, go down, or stay on the same note?",
+        prompt:
+          "Listen to two notes, one after the other. Pick whether the second note goes up, goes down, or stays on the same note. Six pairs in all.",
         skills: [{ skill: "E02", w: 1 }],
         hints: [
           { text: "Sing the first note, then slide your voice to the second. Which way did it move?" },
@@ -168,7 +169,8 @@ export default defineLesson({
         id: "echo-the-call",
         version: 1,
         role: "practice",
-        prompt: "Two calls on the piano. After each one, sing it straight back in the gap.",
+        prompt:
+          "Listen to two calls on the piano, one at a time. After each call, sing it straight back in the gap that follows, on any vowel.",
         skills: [
           { skill: "V01", w: 0.5 },
           { skill: "E02", w: 0.5 },
@@ -182,7 +184,8 @@ export default defineLesson({
             id: "echo-two",
             version: 1,
             role: "practice",
-            prompt: "Two notes: the second is higher. Sing them back.",
+            prompt:
+              "Sing back the two-note call in the gap after it. The second note is higher than the first.",
             skills: [
               { skill: "V01", w: 0.5 },
               { skill: "E02", w: 0.5 },
@@ -203,7 +206,8 @@ export default defineLesson({
             id: "echo-three",
             version: 1,
             role: "practice",
-            prompt: "Three notes, each one a little lower. Sing them back.",
+            prompt:
+              "Sing back the three-note call in the gap after it. Each note is a little lower than the one before.",
             skills: [
               { skill: "V01", w: 0.5 },
               { skill: "E02", w: 0.5 },
@@ -235,7 +239,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Write the three-note call you just sang. It starts on `e4`, and each note moves to the next white key down. Keep the rest at the end.",
+          "Write the three-note call you just sang: put its second and third notes in place of the two `~` after `e4`. Each note is the next white key down from the one before. Keep the last `~`, so beat 4 stays silent.",
         skills: [
           { skill: "E02", w: 0.5 },
           { skill: "P02", w: 0.5 },
@@ -267,7 +271,7 @@ export default defineLesson({
         target: { audible: true, showRoll: false, revealRollAfter: 1 },
         feedbackText: LETTER_FEEDBACK,
         hints: ladder(
-          "Sing it again. Does each note go up or down from the one before?",
+          "Two notes are missing after `e4`, and each one is lower than the note before it. Sing the call again and feel each step down.",
           "Down to the next white key each time: find `e4` on the keys and walk left.",
           "The second note is `d4`. One more step down for the third.",
         ),
@@ -335,7 +339,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a short call that fits your voice: every note between the lowest and highest notes you can sing. Then sing it back in the gap.",
+          "Write a short call on the `mel:` line with every note inside your voice's range, the lowest to highest notes Oak measured when you set up the mic. Leave a bar of `~` after it, then sing the call back in that gap. Done when no note is out of your range.",
         skills: [
           { skill: "V01", w: 0.5 },
           { skill: "P02", w: 0.5 },
@@ -346,7 +350,7 @@ export default defineLesson({
         rubric: [
           {
             id: "fits-your-voice",
-            label: "Fits your voice",
+            label: "Every note inside your voice's range, as Oak measured it",
             required: true,
             skills: ["V01"],
             rule: "range",
@@ -355,7 +359,7 @@ export default defineLesson({
           },
           {
             id: "few-notes",
-            label: "Stays within a few neighbouring keys, so you can echo it",
+            label: "Lowest to highest note at most 7 half steps apart, so you can echo it",
             required: false,
             skills: ["E02"],
             rule: "range",
@@ -364,7 +368,7 @@ export default defineLesson({
           },
           {
             id: "gap",
-            label: "Leaves a gap for your echo",
+            label: "At least one `~` (a rest), leaving a gap for your echo",
             required: false,
             skills: ["R06"],
             rule: "uses",
@@ -372,7 +376,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which notes of the starter could you sing without straining?",
+          "Every note must sit where your voice is comfortable. Sing the starter: which of its notes strain?",
           "Oak measured your range when you set up the mic. If a note feels high, write the same letter with a smaller number: `c3` for `c4`.",
           "Keep the call in the first bar and the gap in the second: `<[… ~] [~ ~ ~ ~]>`.",
         ),

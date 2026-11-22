@@ -69,7 +69,7 @@ const kickAnswer = (line: string) => code(line, SNARE, HATS, bass(), KEYS);
 const KICK_SOLUTION = kickAnswer(kick(FUNK_KICK));
 const KICK_ON_ONE: RubricRule = {
   id: "kick-on-one",
-  label: "The kick lands on the one in every bar",
+  label: "The kick plays on beat 1 of every bar",
   required: true,
   skills: ["R14"],
   rule: "onsets",
@@ -80,7 +80,7 @@ const KICK_ON_ONE: RubricRule = {
 /** Counted over the four bars the step renders: two pulls a bar. */
 const KICK_PULLS: RubricRule = {
   id: "kick-pulls",
-  label: "The kick pulls against the beat, twice a bar or more",
+  label: "At least two kicks a bar pull: each on a light place, with the heavier place after it empty",
   required: true,
   skills: ["R14"],
   rule: "syncopation",
@@ -94,7 +94,7 @@ const ghostAnswer = (line: string) => code(kick(FUNK_KICK), line, HATS, bass(), 
 const GHOST_SOLUTION = ghostAnswer(SNARE);
 const ghostRule = (min: number): RubricRule => ({
   id: "snare-whispers",
-  label: "The snare whispers between the backbeats",
+  label: `At least ${min} quiet snare hits on the “e”s and “a”s, with the hits on 2 and 4 loud`,
   required: true,
   skills: ["R14"],
   rule: "velocity-ghosts",
@@ -105,7 +105,7 @@ const ghostRule = (min: number): RubricRule => ({
 });
 const BACKBEAT_KEPT: RubricRule = {
   id: "backbeat-kept",
-  label: "The backbeat stays on 2 and 4",
+  label: "The snare still plays on beats 2 and 4 of every bar",
   required: true,
   skills: ["R14"],
   rule: "onsets",
@@ -139,7 +139,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R1.L03",
-  version: 2,
+  version: 3,
   title: "The One",
   objective: "I can write a 16th-note funk beat with ghost notes that lands together on the downbeat.",
   key: { tonic: "E", mode: "minor" },
@@ -164,7 +164,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Only the bass changes, and only by a sixteenth. Which loop stands firm, and which seems to tilt? Listen to the first beat of each bar: what lands there together?",
+          "Listen to beat 1 of each bar in both loops; only the bass changes, by a sixteenth. Notice which loop stands firm and which seems to tilt, and which parts land together on beat 1.",
         skills: [{ skill: "R14", w: 1 }],
         hints: null,
         tests: [],
@@ -194,10 +194,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Four bars, with a soft crash on each downbeat. Tap only there, once a bar, and let everything in between go by.",
+          "Tap with the soft crash, the long splashy cymbal on beat 1 of every bar, and nothing else. Let everything in between go by. Four bars, four taps in all. Done when each tap lands with the crash.",
         skills: [{ skill: "R14", w: 1 }],
         hints: ladder(
-          "Which hit of the bar do the kick, the bass and the clav share?",
+          "Listen for the crash, the long splashy cymbal: it rings once a bar, together with the kick, the bass and the clav.",
           "The crash sounds once a bar, on beat 1. Everything between it is busy on purpose.",
           "Count 1, 2, 3, 4 and tap on every 1 only.",
         ),
@@ -237,14 +237,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the drums alone and read one bar: the snare's sixteen steps, and its `.velocity()` string, one value for each step.",
+          "Run the drums alone and read one bar: the snare's sixteen steps, and its `.velocity()` string, one value per step. Then answer: how many snare hits one bar holds, and which of them are ghost notes.",
         skills: [{ skill: "R14", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the `sd` words in the snare's string, then read the velocity value under each one.",
         },
         hints: ladder(
-          "How many `sd` words does the snare's string hold?",
+          "Count the `sd` words in the snare's string first, then read the velocity value under each.",
           "Each step of the snare string has a value at the same place in the velocity string. Two values are 1; the others under a hit are much lower.",
           "The loud hits are on beats 2 and 4. Count the quiet ones and add them.",
         ),
@@ -293,7 +293,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The kick plays four on the floor under a funk snare, bass and clav. Write a funk kick. Keep it on the one in every bar, and let it pull against the beat at least twice a bar, each time on a light place with the heavier place after it left empty.",
+          "Rewrite the kick line, now on every beat, as a funk kick. Keep a kick on beat 1 of every bar. Add at least two kicks a bar that pull: each on a light place, with the heavier place after it left empty. Keep the other lines.",
         skills: [{ skill: "R14", w: 1 }],
         code: { starter: KICK_STARTER },
         reference: { solutions: [KICK_SOLUTION], bars: 4 },
@@ -306,7 +306,7 @@ export default defineLesson({
             "{label}: not yet. In the target the kick starts every bar with the bass, then lands just before places it leaves empty.",
         },
         hints: ladder(
-          "Which beats does a kick on every beat leave for the snare to own?",
+          "Keep the first kick of the bar and clear the others. Then look at the light places just before beats 2, 3 and 4.",
           "A kick hit pulls when it sits on a light place and the heavier place after it stays empty. Beats 2 and 4 belong to the snare.",
           "Keep the first `bd`. Move the kick on beat 2 one step earlier and leave beat 2 empty; find one more pull later in the bar.",
         ),
@@ -375,7 +375,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The snare plays only 2 and 4. Add ghost notes between them: at least three quiet snare hits a bar on the “e”s and “a”s, while the backbeat stays loud.",
+          "Add ghost notes to the snare, which plays only 2 and 4: at least three quiet hits a bar on the “e”s and “a”s, kept low with a `.velocity()` string. The hits on 2 and 4 stay in place and loud. Keep the other lines.",
         skills: [{ skill: "R14", w: 1 }],
         code: { starter: GHOST_STARTER },
         reference: { solutions: [GHOST_SOLUTION], bars: 2 },
@@ -388,7 +388,7 @@ export default defineLesson({
             "{label}: not yet. In the target the backbeat cracks on 2 and 4, and between them a few snare hits sit so low you feel them more than hear them.",
         },
         hints: ladder(
-          "Where can a snare hit go so that it whispers instead of cracking?",
+          "Ghost notes go on the sixteenths off the beat, the “e”s and “a”s, and they play quietly.",
           "Ghost notes are snare hits on sixteenths off the beat, played quietly with `.velocity()`. The hits on 2 and 4 keep full strength.",
           "Add three or four `sd` on the “e”s and “a”s of the string, then give the snare a velocity string with one value per step: 1 on the backbeat, a low value on each new hit.",
         ),
@@ -468,7 +468,7 @@ export default defineLesson({
         role: "practice",
         title: "Funk pocket",
         prompt:
-          "One chord, Em7, and a pocket of your own. The starter has the backbeat and a bass and clav on the one. Make it funk: ghost notes around 2 and 4, a kick that pulls on the sixteenths, a bass and a clav that land with the kick on the one.",
+          "Make the Em7 pocket funk. Required: at least four quiet snare hits on the “e”s and “a”s, with 2 and 4 loud. Also on the checklist: bass and kick on beat 1 of every bar, a kick that pulls against the beat, and the clav on the keys line.",
         skills: [{ skill: "R14", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -477,7 +477,7 @@ export default defineLesson({
           ghostRule(4),
           {
             id: "bass-on-one",
-            label: "The bass lands on the one in every bar",
+            label: "The bass plays on beat 1 of every bar",
             required: false,
             skills: ["R14"],
             rule: "onsets",
@@ -488,7 +488,7 @@ export default defineLesson({
           { ...KICK_ON_ONE, required: false },
           {
             id: "kick-pulls",
-            label: "The kick pulls against the beat",
+            label: "At least 4 kicks pull: each on a light place, with the heavier place after it empty",
             required: false,
             skills: ["R14"],
             rule: "syncopation",
@@ -497,7 +497,7 @@ export default defineLesson({
           },
           {
             id: "clav-stabs",
-            label: "The clav stabs on the keys line",
+            label: "The keys line plays the clav",
             required: false,
             skills: ["R14"],
             rule: "sounds",
@@ -508,7 +508,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "What does the snare play between the backbeats in a funk groove?",
+          "Start with the snare: add quiet hits between the backbeats.",
           "Quiet snare hits on sixteenths off the beat, with `.velocity()` keeping 2 and 4 loud.",
           "Write the snare as sixteen steps with an `sd` on 2 and 4 and on four of the “e”s and “a”s, then one velocity value per step.",
         ),

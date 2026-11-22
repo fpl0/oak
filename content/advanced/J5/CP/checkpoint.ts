@@ -107,7 +107,8 @@ const WALK = "[bb1 d2 f2 a1] [b1 d2 f2 gb2] [f2 a2 c3 eb3] [d3 a2 f#2 c2]";
 const WALK_SOLUTION = walkPiece(walk(WALK));
 const WALK_RULE: RubricRule = {
   id: "walks",
-  label: "The bass walks: a note on every beat, the root on 1, a chord tone on 3, a step into the next bar",
+  label:
+    "In every bar: a bass note on every beat, the root on beat 1, a chord tone on beat 3, and beat 4 a step or less from the next bar's first note",
   required: true,
   skills: ["B05", "J11"],
   rule: "custom",
@@ -172,7 +173,7 @@ const REHARM_SOLUTION = lastA(
 const DEVICE_RULES: RubricRule[] = [
   {
     id: "tritone-sub",
-    label: "A tritone substitute that slides into its chord",
+    label: "At least one dominant is replaced by its tritone substitute",
     required: true,
     skills: ["J13"],
     rule: "device-count",
@@ -182,7 +183,7 @@ const DEVICE_RULES: RubricRule[] = [
   {
     id: "another-device",
     label:
-      "A second device of another kind: a ii–V aimed at a chord, the backdoor or a passing diminished chord",
+      "A second device of another kind: a ii–V aimed at a chord, the backdoor, or a passing diminished chord",
     required: true,
     skills: ["J14"],
     rule: "device-count",
@@ -222,7 +223,7 @@ const MAKE_RICH = at(
 const ONE_DEVICE: RubricRule = {
   id: "one-device",
   label:
-    "A jazz device in your changes: a tritone sub, a secondary ii–V, the backdoor or a passing diminished chord",
+    "Your changes hold at least one device: a tritone substitute, a secondary ii–V, the backdoor or a passing diminished chord",
   required: true,
   skills: ["J14"],
   rule: "device-count",
@@ -236,7 +237,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["J2", "J3", "J4", "J5"],
   gated: ["J03", "J09", "J10", "J11", "J12", "J13", "J14", "B05"],
   levelSetting: [],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "code-modify",
@@ -245,7 +246,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: B_FLAT,
       prompt:
-        "Rhythm changes in B♭: the A section, then the bridge, sixteen bars. Write the bridge by name from its numerals, V7/vi V7/ii V7/V V7, two bars each. Then turn bars 7–8 of the A section, which end plainly, into the turnaround back to the top: I vi in bar 7, ii V in bar 8.",
+        "Rhythm changes in B♭, sixteen bars: the A section, then the bridge. First, write the bridge by name from its numerals, V7/vi V7/ii V7/V V7, two bars each. Second, rewrite bars 7–8 of the A section as the turnaround back to the top: I vi in bar 7, ii V in bar 8.",
       skills: [
         { skill: "J12", w: 0.6 },
         { skill: "J10", w: 0.4 },
@@ -318,7 +319,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: { tonic: "F", mode: "major" },
       prompt:
-        "Bars 5–8 of a jazz blues in F: B♭7, B°7, F7, D7. The bass holds one note a bar. Walk it: a note on every beat, the chord's root on beat 1, a note of the chord on beat 3, and beat 4 a step or a half step from the next bar's first note.",
+        "Bars 5–8 of a jazz blues in F: B♭7, B°7, F7, D7. Rewrite the bass, now one note a bar, as a walk. Every bar: a note on every beat, the chord's root on beat 1, a note of the chord on beat 3, and beat 4 a step or a half step from the next bar's first note.",
       skills: [
         { skill: "B05", w: 0.7 },
         { skill: "J11", w: 0.3 },
@@ -396,7 +397,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: B_FLAT,
       prompt:
-        "The last A of rhythm changes in B♭, a tune on the muted trumpet over the trio. Reharmonize it with two different devices: a tritone substitute and a ii–V aimed at a chord of the tune, or the backdoor, or a passing diminished chord. Put each where the tune's long notes agree with it. The tune does not change.",
+        "Reharmonize the last A of rhythm changes in B♭ in `changes`, under the muted trumpet tune. Use two different devices: a tritone substitute, and one of a ii–V aimed at a chord, the backdoor or a passing diminished chord. Put each where the tune's long notes agree with it. Do not change the tune.",
       skills: [
         { skill: "J13", w: 0.5 },
         { skill: "J14", w: 0.5 },
@@ -501,7 +502,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     role: "checkpoint",
     title: "Room for a device",
     prompt:
-      "The A section of rhythm changes in B♭, yours for eight bars over the band's drums: comp it, and walk it or play a tune on it if you like. Then put one device where you hear room for it: a tritone substitute, a ii–V aimed at a chord, the backdoor or a passing diminished chord.",
+      "Play the A section of rhythm changes in B♭ over the band's drums, eight bars. Required: put at least one device in `changes` where you hear room for it: a tritone substitute, a ii–V aimed at a chord, the backdoor or a passing diminished chord. Also on the checklist: a walking bass, and a tune on top.",
     skills: [{ skill: "J14", w: 1 }],
     hints: null,
     key: B_FLAT,
@@ -513,7 +514,8 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       ONE_DEVICE,
       {
         id: "walks",
-        label: "The bass walks, a note on every beat",
+        label:
+          "The bass walks: a note on every beat, the root on beat 1 and a step into the next bar in at least half the bars",
         required: false,
         skills: ["B05"],
         rule: "custom",
@@ -522,7 +524,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "a-tune",
-        label: "A line on top of the trio",
+        label: "A third line plays over the chords and bass, such as a tune",
         required: false,
         skills: ["J14"],
         rule: "tracks",

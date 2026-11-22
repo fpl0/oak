@@ -103,7 +103,7 @@ const earPart = (id: string, prompt: string, stimulus: string, answer: "triad" |
 
 export default defineLesson({
   id: "U11.L04",
-  version: 2,
+  version: 3,
   title: "The Dominant Seventh",
   objective: "I can build, name and hear a dominant seventh: a major triad with a ♭7 on top, written C7.",
   key: { tonic: "C", mode: "blues" },
@@ -129,7 +129,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A C–F vamp in plain triads, then the same vamp with one note added to each chord and a riff on top. Listen to the chords: does the added note make them more settled, or more restless?",
+          "Listen to the C–F vamp in plain triads, then the same vamp with one note added to each chord and a riff on top. Listen to the chords: does the added note make them more settled, or more restless?",
         skills: [{ skill: "C06", w: 1 }],
         hints: null,
         tests: [],
@@ -150,7 +150,8 @@ export default defineLesson({
         id: "what-the-seven-adds",
         version: 1,
         role: "practice",
-        prompt: '`chord("<G G7>")` plays G for a bar, then G7. What does the 7 add to the G chord?',
+        prompt:
+          '`chord("<G G7>")` plays G for a bar, then G7. Predict which note the 7 adds to the G chord. Pick one answer, then listen to check it.',
         skills: [{ skill: "C06", w: 1 }],
         hints: null,
         tests: [],
@@ -178,7 +179,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it: C7, F7, then G7 and a plain C. Read bar 1's degree labels on the roll, bottom to top.",
+          "Run the four bars: C7, F7, G7, then a plain C. Read the degree labels of bar 1 on the roll, bottom to top. Then answer two questions: which four notes make C7, and how many half steps lie from C up to B♭.",
         skills: [{ skill: "C06", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -237,10 +238,11 @@ export default defineLesson({
         id: "build-f7",
         version: 1,
         role: "check",
-        prompt: "Play F7 on the keyboard, F at the bottom: the F major triad with its ♭7 on top.",
+        prompt:
+          "Build F7 on the keyboard with F at the bottom: the F major triad, plus its ♭7 on top. Done when exactly those four keys are down.",
         skills: [{ skill: "C06", w: 1 }],
         hints: ladder(
-          "Start with the F major triad. Which three notes is it?",
+          "Start with the F major triad, then add one note on top. Which three notes make F major?",
           "F major is F, A and C. The ♭7 sits a whole step below the F an octave up.",
           "F, A, C, then one more key above C: a black key.",
         ),
@@ -296,7 +298,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four triads: C, F, G, C. Make every one of them a dominant seventh. The chords and the bass both read `changes`, so one edit does it.",
+          "The `changes` string holds four triads: C, F, G, C. Make each of the four a dominant seventh by editing that string. The chords and the bass both read `changes`, so this one edit changes both.",
         skills: [{ skill: "C06", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 4 },
@@ -309,7 +311,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}; the target has {exp}. Every chord needs its ♭7: write the root's name, then 7.",
         },
         hints: ladder(
-          "What does a chord symbol need so that it plays the ♭7?",
+          "Look only at the `changes` string. What does each chord name need so that it plays the ♭7?",
           "C becomes C7 in the string: the number goes straight after the letter.",
           "The first chord is `C7`. Do the same to F, G and the last C.",
         ),
@@ -373,7 +375,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four chords in different keys and voicings, one at a time. A plain major triad, or a dominant seventh? Listen for a lean at the top of the chord.",
+          "Listen to four chords, one at a time, each in its own key and voicing. For each chord, pick a plain major triad or a dominant seventh. Listen for a note that leans and rubs: that is the ♭7.",
         skills: [{ skill: "C06", w: 1 }],
         hints: earHints(),
         tests: [],
@@ -397,7 +399,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Make both chords dominant sevenths, then make the riff yours: new notes from the blues scale, a new rhythm. Try another pair too: G7 and C7, or F7 and B♭7 (`Bb7`).",
+          "Change both chords in `changes` to dominant sevenths. Then make the riff yours with new notes from the blues scale and a new rhythm. You can also try another pair, such as G7 and C7, or F7 and B♭7 (`Bb7`). Done when the chords line plays at least two dominant sevenths.",
         skills: [{ skill: "C06", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],
@@ -405,7 +407,7 @@ export default defineLesson({
         rubric: [
           {
             id: "two-dominant-sevenths",
-            label: "Two dominant sevenths or more in the chords",
+            label: "The chords line plays at least two dominant seventh chords",
             required: true,
             skills: ["C06"],
             rule: "chord-qualities",
@@ -416,7 +418,7 @@ export default defineLesson({
           },
           {
             id: "blues-riff",
-            label: "A riff on top with the blue third, ♭3",
+            label: "The gtr line plays the blue 3rd, ♭3 (E♭ over C), at least once",
             required: false,
             skills: ["S11"],
             rule: "degree-set",
@@ -425,7 +427,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root",
+            label: "When the chord changes, the bass plays its root, at least 3 times in 4",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -437,7 +439,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which symbol turns a C chord into one with a ♭7 on top?",
+          "Look at the `changes` string: both chords are plain triads. Which symbol turns a C chord into one with a ♭7 on top?",
           "Both chords live in `changes`. Each name needs a 7 after its letter.",
           'Write `"<C7 F>"` and hear the first chord lean. Now the second one.',
         ),

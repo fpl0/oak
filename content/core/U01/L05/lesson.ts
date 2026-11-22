@@ -43,7 +43,7 @@ const DRUM_LENGTHS = {
 
 export default defineLesson({
   id: "U01.L05",
-  version: 2,
+  version: 3,
   title: "Seeing Rhythm",
   objective:
     "I can read quarter, eighth, half and whole notes on the percussion staff and hold a sound with @ or _.",
@@ -74,7 +74,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Count four beats a bar. Under the soft hats, three sounds share the bar: which one gets two beats to itself?",
+          "Count four beats a bar along with the soft hats. Crash, kick and snare share each bar: listen for the one that gets two beats to itself.",
         skills: [{ skill: "N01", w: 1 }],
         hints: null,
         tests: [],
@@ -102,14 +102,15 @@ export default defineLesson({
         id: "two-ways-to-hold",
         version: 1,
         role: "practice",
-        prompt: "Run it and watch both panels. Then change `bd@2` to `bd _` and run it again.",
+        prompt:
+          "Listen and watch both panels. Then change `bd@2` to `bd _`, listen again and compare. Answer the two questions below.",
         skills: [{ skill: "N01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the shares: `bd@2` takes two and each `sd` one, four in all for the four beats. Where does the first snare start?",
         },
         hints: ladder(
-          "Where does the first snare start, counting from beat 1?",
+          "Find where the kick ends: it ends where the first snare starts. Counting from beat 1, where is that?",
           "The words in a bar share it out. `@2` gives a word two shares; `_` gives the word before it one more. Here four shares make four beats.",
           "The two snares take beats 3 and 4, so the kick has whatever is left before them.",
         ),
@@ -161,7 +162,8 @@ export default defineLesson({
         id: "read-the-bar",
         version: 1,
         role: "check",
-        prompt: "No sound this time: read the notes. Which line of code is written here?",
+        prompt:
+          "Read the notes on the page; nothing plays this time. Pick the line of code that is written here.",
         skills: [{ skill: "N01", w: 1 }],
         source: drums("bd sd bd@2"),
         bars: 1,
@@ -180,7 +182,7 @@ export default defineLesson({
             "Not that one. Find the open note head: it lasts two beats. Does it come first or last in the bar?",
         },
         hints: ladder(
-          "Which of the three notes looks different from the others?",
+          "Match each shape to a length. One of the three notes looks different from the others: which one?",
           "A filled head with a stem lasts one beat. An open head lasts longer.",
           "The first two notes are one beat each, so the long one comes last.",
         ),
@@ -215,7 +217,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The crash lasts one beat and a rest follows. Make the crash last two beats instead. The kick and snare stay on beats 3 and 4.",
+          "Make the crash last two beats, using `@` or `_`: it takes over beat 2, where the `~` is now. Keep the kick on beat 3 and the snare on beat 4.",
         skills: [
           { skill: "N01", w: 0.7 },
           { skill: "R06", w: 0.3 },
@@ -224,8 +226,15 @@ export default defineLesson({
         reference: { solutions: [drums("cr@2 bd sd")], bars: 1 },
         matcher: DRUM_LENGTHS,
         target: { audible: true, showRoll: true },
+        // The catalog says "missing hit" and "extra hit": these say what the bar should hold.
+        feedbackText: {
+          "rhythm.missing":
+            "Bar {bar}, {beatLabel}: no hit here yet{role}. The crash rings over beats 1 and 2, then the kick on 3 and the snare on 4, with no rest left.",
+          "rhythm.extra":
+            "Bar {bar}, {beatLabel}: a hit that should not be there{role}. The bar holds three sounds: one crash over beats 1 and 2, the kick on 3, the snare on 4.",
+        },
         hints: ladder(
-          "How many words does the bar hold now, and how many beats should the crash take?",
+          "The crash should take beats 1 and 2. How many words does the bar hold now, and how many beats does the crash take?",
           "The crash needs the two beats that `cr` and `~` share now. `@` or `_` gives it both.",
           "If the crash takes two beats, the `~` has no beat left to take.",
         ),
@@ -265,13 +274,13 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Read the two bars and tap one key for every note: once where it starts, never while it is held.",
+          "Tap the written rhythm, both bars: one tap at the start of each note, none while a note is held. Each bar holds three notes, so that is six taps in all.",
         skills: [
           { skill: "N01", w: 0.7 },
           { skill: "E01", w: 0.3 },
         ],
         hints: ladder(
-          "How many notes does each bar hold?",
+          "Tap only where a note starts. How many notes does each bar hold, and which one is long?",
           "The open note lasts two beats: tap once on beat 1, then wait through beat 2.",
           "Count along: tap, two, tap, tap.",
         ),
@@ -306,7 +315,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a groove that mixes long and short sounds. Hold at least one sound with `@` or `_`, so it lasts two beats or more, or twice as long as another sound in its bar.",
+          "Write a groove that mixes long and short sounds. Hold at least one sound with `@` or `_`, so it lasts two beats or more, or twice as long as another sound on its line in the same bar.",
         skills: [
           { skill: "N01", w: 0.7 },
           { skill: "R06", w: 0.3 },
@@ -317,7 +326,7 @@ export default defineLesson({
         rubric: [
           {
             id: "held",
-            label: "Holds a sound with `@` or `_`",
+            label: "One sound held with `@` or `_`: two beats or more, or twice another sound on its line",
             required: true,
             skills: ["N01"],
             // The effect, not the symbol: `cr@1 bd sd sd` holds nothing.
@@ -327,7 +336,7 @@ export default defineLesson({
           },
           {
             id: "space",
-            label: "A rest somewhere",
+            label: "Uses a rest, `~`",
             required: false,
             skills: ["R06"],
             rule: "uses",
@@ -335,7 +344,7 @@ export default defineLesson({
           },
           {
             id: "eighths",
-            label: "Eighth notes too, with `[ ]`",
+            label: "Uses `[ ]` to split a beat",
             required: false,
             skills: ["R05"],
             rule: "uses",
@@ -343,7 +352,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which sound in the starter would you like to ring longer?",
+          "Pick one sound and make it last two beats. Which sound in the starter would you like to ring longer?",
           "`@2` gives a word two shares of the bar and every other word one. Count the shares: four of them make four beats.",
           "Try the crash on beats 1 and 2: then the bar holds three words, not four.",
         ),

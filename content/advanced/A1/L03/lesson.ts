@@ -73,7 +73,7 @@ const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L03",
-  version: 2,
+  version: 3,
   title: "Envelopes",
   objective:
     "I can shape how each note starts, falls, holds and ends with `.attack() .decay() .sustain() .release()`.",
@@ -99,7 +99,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to the edges of each note. In loop 2, how does a bass note end, and how does a riff note begin?",
+          "Listen to the edges of each note in loop 2: how each bass note ends, and how each riff note begins.",
         skills: [{ skill: "D04", w: 1 }],
         hints: null,
         tests: [],
@@ -125,7 +125,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "One c4 held for a whole bar, four bars. `.attack()` sets how many seconds a note takes to reach full level: 0, then 0.1, 0.3 and 0.6. What changes from bar to bar?",
+          "One c4 is held for a whole bar, four bars in a row. `.attack()` sets how many seconds a note takes to reach full level: 0, then 0.1, 0.3 and 0.6. Predict what changes from bar to bar, and pick it.",
         skills: [{ skill: "D04", w: 1 }],
         hints: null,
         tests: [],
@@ -153,14 +153,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "One note, one beat long, with all four controls set. Run it and watch the scope: the wave grows, falls back to half, holds, then dies away after the beat. Which control does what?",
+          "One note, one beat long, has all four controls set. Watch the scope: the wave grows, falls back to half, holds, then dies away after the beat. Then answer both questions: which control makes the note ring on after it ends, and for how many seconds.",
         skills: [{ skill: "D04", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Four controls, four stages in order: the start, the fall, the level held while the note lasts, and the tail after it ends.",
         },
         hints: ladder(
-          "The note lasts one beat. What do you hear after that beat is over?",
+          "The note lasts one beat. Watch and listen to what happens after that beat is over: which control could set that?",
           "The controls come in the order they happen to the note: start, fall, hold, and what happens after the note ends.",
           "`.attack(.3)` is the start and `.decay(.2)` the fall. Two left.",
         ),
@@ -218,7 +218,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "In the target each bass note hits and dies away fast, even while it is held: a pluck. Give your bass that shape.",
+          "In the target each bass note hits, then falls to nothing in a fraction of a second, even while it is held: a pluck. Add envelope controls to the bass line to give it that shape. Done when your fall time and held level are close to the target's.",
         skills: [{ skill: "D04", w: 1 }],
         code: { starter: PLUCK_STARTER },
         reference: { solutions: [PLUCK_SOLUTION], bars: 2 },
@@ -233,7 +233,7 @@ export default defineLesson({
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true, showRoll: false },
         hints: ladder(
-          "Which stage of the note do you need: the start, the fall, the hold or the tail?",
+          "Compare one target note with yours. The target's start and tail sound like yours; which stages are left: the fall, the hold, or both?",
           "The fall is `.decay()`, in seconds; the level the note holds after it is `.sustain()`, from 0 to 1.",
           "The target holds nothing after its fall, so its sustain is 0. How fast does it fall: a fifth of a second, or two seconds?",
         ),
@@ -289,7 +289,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The riff on longer notes: G and E, then A and F. In the target each note swells in and rings on after it ends. Match it with two controls.",
+          "The riff plays longer notes: G and E, then A and F. In the target each note swells in and rings on after it ends. Add the two controls for the start and the tail to the mel line, and set them by ear. Done when both are close to the target's.",
         skills: [{ skill: "D04", w: 1 }],
         code: { starter: PAD_STARTER },
         reference: { solutions: [PAD_SOLUTION], bars: 2 },
@@ -304,7 +304,7 @@ export default defineLesson({
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true, showRoll: false },
         hints: ladder(
-          "Which two stages does the target change: the start, the fall, the hold or the tail?",
+          "Compare the start and the end of each target note with yours. Which two stages of the envelope differ?",
           "The start is `.attack()` and the tail `.release()`, both in seconds. A beat here lasts 0.6 seconds.",
           "The swell takes about half a beat. Now the tail: longer or shorter than a beat?",
         ),
@@ -356,7 +356,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Bar 2 plays the phrase of bar 1 with one stage of the envelope changed. Softer start, or longer tail?",
+          "Bar 2 plays the phrase of bar 1 with one stage of the envelope changed. Listen to the start of each note and the gap after it, and pick: a softer start or a longer tail.",
         skills: [{ skill: "D04", w: 1 }],
         hints: [
           { text: "Listen to the first moment of each note in bar 2, then to the gap after it." },
@@ -392,7 +392,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The loop from Filters, every note in its default shape. Give the bass one shape and the riff another: a punchy pluck, a slow swell, a long tail. A loop of your own works too.",
+          "Every note of this loop has its default shape. Give the bass one shape and the riff another: a punchy pluck on one, a slow swell or a long tail on the other. A loop of your own works too. Done when at least one part's new shape is clearly heard.",
         skills: [{ skill: "D04", w: 1 }],
         code: { starter: FILTERED },
         bars: [2, 8],
@@ -400,7 +400,8 @@ export default defineLesson({
         rubric: [
           {
             id: "a-shape",
-            label: "A part shaped with attack, decay, sustain or release",
+            label:
+              "One heard part has a shape you can hear: a slower start, a longer tail, or a fall to a lower level",
             required: true,
             skills: ["D04"],
             // Carry f4 (corrections pass): what is heard, not the call. The envelope superdough plays must differ
@@ -412,7 +413,7 @@ export default defineLesson({
           },
           {
             id: "two-shapes",
-            label: "Two or more envelope controls",
+            label: "Two or more of .attack(), .decay(), .sustain() and .release() in the code",
             required: false,
             skills: ["D04"],
             rule: "uses",
@@ -421,7 +422,7 @@ export default defineLesson({
           },
           {
             id: "filter-envelope-too",
-            label: "A part plucked with .lpenv() as well",
+            label: "A filter envelope, .lpenv(), on a part as well",
             required: false,
             skills: ["D03"],
             rule: "uses",
@@ -431,7 +432,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which part should punch, and which should float?",
+          "Decide which part should punch and which should float, then give each its own shape. Which is which?",
           "A pluck falls fast to nothing: `.decay()` with `.sustain(0)`. A swell starts slowly and rings on: `.attack()` with `.release()`.",
           "Try the bass first: a decay of a fifth of a second and nothing held.",
         ),

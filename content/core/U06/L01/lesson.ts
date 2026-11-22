@@ -58,7 +58,7 @@ const KEYS = { roll: false, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "U06.L01",
-  version: 2,
+  version: 3,
   title: "The Seven Chords",
   objective:
     'I can build a triad on any degree of a key and move one stack onto any root with .add(n("…")): seven chords, all from the key\'s own notes.',
@@ -85,7 +85,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The chords climb the key a step a bar, then turn back, with the bass on every root. Listen to each chord's colour as it passes: which sound bright, which darker?",
+          "The chords climb the key a step a bar, then turn back, with the bass on every root. Listen for which chords sound bright and which sound darker as they pass.",
         skills: [{ skill: "H01", w: 1 }],
         hints: null,
         tests: [],
@@ -105,7 +105,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`.add(n("<0 3>"))` comes before `.scale()`. In bar 1 it adds 0 to the stack `[0,2,4]`, in bar 2 it adds 3. What will the two bars play?',
+          'Predict what the two bars play, and pick it. `.add(n("<0 3>"))` comes before `.scale()`: in bar 1 it adds 0 to the stack `[0,2,4]`, in bar 2 it adds 3.',
         skills: [{ skill: "H01", w: 1 }],
         hints: null,
         tests: [],
@@ -132,14 +132,15 @@ export default defineLesson({
         id: "a-triad-on-every-degree",
         version: 1,
         role: "practice",
-        prompt: "Run it and read the degree labels on the roll, bar by bar.",
+        prompt:
+          "Run it and read the degree labels on the roll, bar by bar. Each bar adds 1 more than the bar before. Then answer both questions below.",
         skills: [{ skill: "H01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Compare bar 1 with bar 2 on the roll: look at all three labels, not only the lowest.",
         },
         hints: ladder(
-          "In bar 1 the labels read 1, 3, 5. What do they read in bar 2?",
+          "In bar 1 the labels read 1, 3, 5. Read all three labels of bar 2 and compare.",
           "`.add()` adds its number to every note of the stack, and `n` counts from 0: adding 4 starts the stack on `n` 4.",
           "Bar 2 adds 1 and plays 2, 4, 6: every label one higher. Now read bar 5's lowest label.",
         ),
@@ -192,7 +193,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The four-chord loop from Stacking Thirds, one stack moved by `.add()`. Bars 3 and 4 still sit on degree 1. Put bar 3's chord on degree 6 and bar 4's on degree 4.",
+          "This is the four-chord loop from Stacking Thirds, one stack moved by `.add()`. Bars 3 and 4 still add 0, so they sit on degree 1. Change those two numbers so bar 3's chord sits on degree 6 and bar 4's on degree 4.",
         skills: [{ skill: "H01", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [code(triads(LOOP))], bars: 4 },
@@ -205,7 +206,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}; the target has {exp}. `n` counts from 0, so the number to add is the degree minus one.",
         },
         hints: ladder(
-          "Bar 2 adds 4, and its chord sits on degree 5. How do you get from a degree to the number?",
+          "Bar 2 adds 4, and its chord sits on degree 5. Compare the number with the degree.",
           "`n` counts from 0, so the number to add is the degree minus one.",
           "Bar 3 needs degree 6, so it adds one less than 6. Bar 4 works the same way.",
         ),
@@ -258,10 +259,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Play the triad on degree 2 of C major on the keyboard, with its root at the bottom. Use only notes of C major.",
+          "Play the triad on degree 2 of C major: three notes at once, its root at the bottom. Use only notes of C major.",
         skills: [{ skill: "H01", w: 1 }],
         hints: ladder(
-          "Which note is degree 2 of C major?",
+          "Start from degree 2 of C major: count up the scale from C.",
           "Stack from D the way `[1,3,5]` does: skip a white key, take the next, twice.",
           "D and F are the first two. One more white key, a 3rd above F.",
         ),
@@ -298,10 +299,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A bar of C, then two cards: C again, followed by a chord on D. Both D chords are triads. Which one uses only notes of C major?",
+          "A bar of C plays, then two cards: each plays C again, then a triad on D. Pick the card whose D chord uses only notes of C major.",
         skills: [{ skill: "H01", w: 1 }],
         hints: ladder(
-          "Does either D chord bring in a note you have not heard in the C bar?",
+          "Listen for a D chord that brings in a note from outside the C bar's key.",
           "C major has no black keys. A triad on D that is major needs one: F♯.",
           "Card A plays D, F♯ and A. Is F♯ a note of C major?",
         ),
@@ -344,7 +345,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a four-bar loop from the seven chords of C with `.add()`. Use at least one chord the four-chord loop never had: the one on degree 2, 3 or 7. A bass line on the same roots, low on the bass clef, puts a floor under it.",
+          "Change at least one number in `.add()` so the loop uses a chord the four-chord loop never had: the one on degree 2, 3 or 7. A bass line on the same roots, low on the bass clef, can go under it. Done when the loop has a chord on degree 2, 3 or 7.",
         skills: [{ skill: "H01", w: 1 }],
         // The catalog's text is "{label}: {detail}", and this rule's detail names the chords in Roman
         // numerals (U06.L02). The same text serves the suggestions, so it says only "not yet".
@@ -355,7 +356,7 @@ export default defineLesson({
         rubric: [
           {
             id: "a-new-chord",
-            label: "A chord on degree 2, 3 or 7",
+            label: "At least one chord on degree 2, 3 or 7",
             required: true,
             skills: ["H01"],
             rule: "contains-rn",
@@ -364,7 +365,7 @@ export default defineLesson({
           },
           {
             id: "a-bass",
-            label: "A bass line under the chords",
+            label: "A bass line on its own line, such as `bass`",
             required: false,
             skills: ["C01"],
             rule: "tracks",
@@ -373,7 +374,7 @@ export default defineLesson({
           },
           {
             id: "middle",
-            label: "Chords in the middle, between C3 and C5",
+            label: "Every note of `chords` between `c3` and `c5`",
             required: false,
             skills: ["H01"],
             rule: "range",
@@ -382,7 +383,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which numbers in `.add()` put a chord on degree 2, 3 or 7?",
+          "Change one number in `.add()`. The number for a degree is that degree minus one.",
           "`n` counts from 0: degree 2 is 1, degree 3 is 2, degree 7 is 6. Change one of the four numbers.",
           "Bar 3 could add 1 instead of 5: the dark chord on degree 2. The one on 7 sounds tense on its own; it settles best when the next bar adds 0.",
         ),

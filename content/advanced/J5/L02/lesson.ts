@@ -99,7 +99,7 @@ const BACKDOOR_BASS = "[f2 c2] [d2 a1] [bb1 f2] [eb2 bb1]";
 /** The Make's one idea: the minor iv, the dominant on ♭7, then home, heard on the chords line. */
 const BACKDOOR: RubricRule = {
   id: "backdoor",
-  label: "Home through the back door",
+  label: "Home through the back door: the minor iv7, then the dominant a whole step below home",
   required: true,
   skills: ["J13"],
   rule: "device-count",
@@ -113,7 +113,7 @@ const BACKDOOR: RubricRule = {
  */
 const BASS_FOLLOWS: RubricRule = {
   id: "bass-follows",
-  label: "The bass plays each chord's root as it changes",
+  label: "At every chord change the bass plays the new chord's root",
   required: false,
   skills: ["J13"],
   rule: "bass-line",
@@ -128,7 +128,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J5.L02",
-  version: 2,
+  version: 3,
   title: "Backdoor",
   objective: "I can bring a tune home through the backdoor: the minor iv, the dominant on ♭7, then home.",
   key: C,
@@ -154,7 +154,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to how each ending arrives on Cmaj7 in bar 3. Which arrival is firm, and which is softer?",
+          "Listen to how each ending arrives on Cmaj7 in bar 3. Notice which arrival is firm and which is softer.",
         skills: [{ skill: "J13", w: 1 }],
         hints: null,
         tests: [],
@@ -184,7 +184,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The second ending: Fm7, B♭7, Cmaj7. Bar 2 ends with the bass on B♭. How does the bass reach C in bar 3?",
+          "The second ending: Fm7, B♭7, Cmaj7. Bar 2 ends with the bass on B♭. Predict how the bass reaches C in bar 3, and pick your answer.",
         skills: [{ skill: "J13", w: 1 }],
         hints: null,
         tests: [],
@@ -212,14 +212,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and read the roll. Name the three chords as numerals in C major, then follow the A♭ in the Rhodes from bar 2 into bar 3.",
+          "Run it and read the roll. Answer two questions: which numerals the three chords are in C major, and how many half steps the A♭ in the Rhodes moves from bar 2 into bar 3.",
         skills: [{ skill: "J13", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count each chord's root up from C, and check whether its 3rd is major or minor. Then find the A♭ in bar 2's chord on the roll and the note just below it in bar 3.",
         },
         hints: ladder(
-          "Which of these chords also belongs to C minor?",
+          "Count each root up from C, then check each chord's 3rd: major or minor.",
           "F is degree 4 of C and B♭ is degree ♭7. F minor is the sad iv borrowed from C minor; the chord on ♭7 here has a 7th of its own.",
           "The first chord is iv7. On the roll, A♭ sits in bar 2's Rhodes chord; in bar 3 the nearest note to it is G.",
         ),
@@ -273,7 +273,7 @@ export default defineLesson({
         role: "check",
         key: G,
         prompt:
-          "A ii–V–I in G: Am7, D7, Gmaj7. Change the first two chords so the tune comes home the way the softer ending did: from the minor iv, then the dominant a whole step below home.",
+          "A ii–V–I in G: Am7, D7, Gmaj7. Rewrite the first two chords in `changes` so the tune comes home the way the softer ending did: the minor iv7, then the dominant seventh a whole step below G. Keep Gmaj7.",
         skills: [{ skill: "J13", w: 1 }],
         swing: SWUNG,
         code: { starter: BACK_STARTER },
@@ -287,7 +287,7 @@ export default defineLesson({
             "Bar {bar}: other notes than the target's. Listen to the bass from bar 2 into bar 3 in the target, and to the colour of the chord in bar 1: it is darker than anything in G major.",
         },
         hints: ladder(
-          "In C the back door opened on degree 4 and ♭7. Which notes are those in G?",
+          "In C the back door used degrees 4 and ♭7. Count those degrees up from G.",
           "Count up from G: degree 4 is C, and ♭7 is the note a whole step below G. The first chord is minor, the second a dominant seventh.",
           "The second chord's root sits a whole step below G, and it is the same kind of chord as D7.",
         ),
@@ -357,11 +357,11 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Short endings in different keys, one at a time. Each comes home through the V7, through its tritone substitute, or through the back door. Which one?",
+          "Short endings in different keys, one at a time. Each comes home through the V7, through its tritone substitute, or through the back door. For each, pick which.",
         skills: [{ skill: "J13", w: 1 }],
         hints: [
           {
-            text: "Hum the lowest note of the last two chords. Does the bass fall, slide or climb into home?",
+            text: "Hum the lowest note of the last two chords: the bass falls, slides or climbs into home.",
           },
           {
             text: "Through the V7 the bass falls a 5th; through the substitute it steps down a half step; through the back door it climbs a whole step.",
@@ -402,7 +402,7 @@ export default defineLesson({
         key: F,
         title: "Late-night loop in F",
         prompt:
-          "The loop is Fmaj7, Dm7, Gm7, C7. Bring it home through the back door: the minor iv and the dominant a whole step below home, the bass moving with them. Keep the tune or write your own, and put a tritone substitute somewhere else in the loop if you like.",
+          "The loop is Fmaj7, Dm7, Gm7, C7. Required: bring it home to Fmaj7 through the back door, the minor iv7 and then the dominant seventh a whole step below home. Also on the checklist: the bass plays each chord's root, and a tritone substitute somewhere else in the loop.",
         skills: [{ skill: "J13", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -413,7 +413,7 @@ export default defineLesson({
           BASS_FOLLOWS,
           {
             id: "a-tritone-sub",
-            label: "A tritone substitute somewhere else in the loop",
+            label: "A dominant somewhere else in the loop is replaced by its tritone substitute",
             required: false,
             skills: ["J13"],
             rule: "device-count",
@@ -424,7 +424,7 @@ export default defineLesson({
         // The override serves every rule, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which two bars lead into Fmaj7 when the loop comes round?",
+          "Change bars 3 and 4, the two bars that lead back into Fmaj7 when the loop comes round.",
           "In F, degree 4 is B♭ and ♭7 is the note a whole step below F. The first of the two chords is minor, the second a dominant seventh.",
           "Bar 3 becomes the minor seventh on B♭, the bass on its root. Bar 4 follows the way B♭7 followed Fm7 in C.",
         ),

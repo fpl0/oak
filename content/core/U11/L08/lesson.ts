@@ -98,7 +98,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U11.L08",
-  version: 2,
+  version: 3,
   title: "Riffs & Response",
   objective: "I can write a blues riff that comes back in every line and answer it on another part.",
   key: { tonic: "C", mode: "blues" },
@@ -129,7 +129,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A shuffle in C, twelve bars, twice: the guitar riff alone, then the same riff with the organ. Listen to the silence after each riff. How does the music feel with that space empty, and with it filled?",
+          "Listen to a twelve-bar shuffle in C twice: the guitar riff alone, then the same riff with the organ. Listen to the gap after each riff: how does the music feel with that space empty, and with it filled?",
         skills: [
           { skill: "M08", w: 0.5 },
           { skill: "M07", w: 0.5 },
@@ -154,7 +154,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'The organ line is `n("<~ ~ [~ 4 5 4 ~ 2 ~ ~] [1 ~ 0 ~]>")`. Inside `< >` each entry lasts a bar. When does it play?',
+          'The organ line is `n("<~ ~ [~ 4 5 4 ~ 2 ~ ~] [1 ~ 0 ~]>")`, and inside `< >` each entry lasts one bar. Predict when the organ plays. Pick one answer, then listen to check it.',
         skills: [{ skill: "M07", w: 1 }],
         hints: null,
         tests: [],
@@ -182,7 +182,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the shuffle. Watch the guitar when the chords move to IV7 in bar 5, and count its riffs.",
+          "Run the shuffle. Watch the guitar's notes on the roll when the chords move to IV7 in bar 5, and count its riffs. Then answer two questions: what the riff plays under IV7, and how many times it sounds in the twelve bars.",
         skills: [
           { skill: "M08", w: 0.6 },
           { skill: "F04", w: 0.4 },
@@ -192,7 +192,7 @@ export default defineLesson({
             "Not quite. Stop the loop and compare bars 1–2 with bars 5–6 on the roll, note by note.",
         },
         hints: ladder(
-          "Does the `mel:` line know which chord is playing?",
+          "Compare the guitar's notes in bars 1–2 with bars 5–6 on the roll. Does the `mel:` line know which chord is playing?",
           "The guitar's pattern has four entries, so it starts again every four bars, whatever the chords do.",
           "Twelve bars, a riff every four: count the lines of the blues.",
         ),
@@ -241,7 +241,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The organ's bars 3 and 4 are empty. Write an answer there from the blues scale: at least three different notes, ending at home on 1.",
+          "Bars 3 and 4 of the organ line, the highlighted part, are empty. Write an answer there on the blues scale. Use at least three different notes, and make the last note home, C (degree 1).",
         skills: [
           { skill: "M07", w: 0.6 },
           { skill: "M08", w: 0.4 },
@@ -253,7 +253,7 @@ export default defineLesson({
           rules: [
             {
               id: "ends-home",
-              label: "The answer ends on home, 1",
+              label: "The organ answer ends on home, C (degree 1)",
               required: true,
               skills: ["M07"],
               rule: "ends-on-degree",
@@ -262,7 +262,7 @@ export default defineLesson({
             },
             {
               id: "blues-scale",
-              label: "Every note from the blues scale",
+              label: "Every note of the organ answer is in the C blues scale",
               required: true,
               skills: ["M08"],
               rule: "in-key",
@@ -272,7 +272,7 @@ export default defineLesson({
             },
             {
               id: "three-notes",
-              label: "At least three different notes",
+              label: "The organ answer uses at least three different notes",
               required: true,
               skills: ["M08"],
               rule: "distinct-pitches",
@@ -336,7 +336,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "One line of a blues, four bars: a tune, then a fill that answers it. In which bar does the answer begin?",
+          "Listen to one four-bar line of a blues: a tune on piano, then a fill on another instrument that answers it. Pick the bar where the answer begins.",
         skills: [
           { skill: "M07", w: 0.6 },
           { skill: "E07", w: 0.4 },
@@ -387,7 +387,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Hear the first bar of the riff, then sing it back on syllables: do, me, fa, sol. Then sing an answer of your own over the hats; nobody checks that one.",
+          "Hear the first bar of the riff, then sing it back, four notes: do, me, fa, sol. After that, sing an answer of your own over the hats. Only the four-note echo is checked.",
         skills: [
           { skill: "V05", w: 0.6 },
           { skill: "M07", w: 0.4 },
@@ -422,7 +422,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Give the guitar one riff that comes back in bars 1–2 of every line, and keep the answers changing. Then make both yours: your own riff, your own three answers.",
+          "The guitar plays a new figure in every line, so nothing calls. Change the `mel:` line so one riff plays in bars 1–2 of every line, and keep the three organ answers different. Then make riff and answers your own. Done when the riff returns in bars 5–6 and 9–10.",
         skills: [
           { skill: "M08", w: 0.7 },
           { skill: "M07", w: 0.3 },
@@ -433,7 +433,7 @@ export default defineLesson({
         rubric: [
           {
             id: "call-comes-back",
-            label: "The riff comes back in every line, under answers that change",
+            label: "The riff of bars 1–2 comes back in bars 5–6 and 9–10, while the answers change",
             required: true,
             skills: ["M08"],
             rule: "motif-reuse",
@@ -443,7 +443,7 @@ export default defineLesson({
           },
           {
             id: "two-parts",
-            label: "The answer on a second part",
+            label: "Two melody lines: one for the riff, one for the answers",
             required: false,
             skills: ["M07"],
             rule: "tracks",
@@ -452,7 +452,7 @@ export default defineLesson({
           },
           {
             id: "blue-call",
-            label: "A blue note, ♭3, in the riff",
+            label: "The mel line plays the blue 3rd, ♭3 (E♭), at least once",
             required: false,
             skills: ["S11"],
             rule: "degree-set",
@@ -463,7 +463,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which two bars of the first line would you want to hear again in the second and third?",
+          "Only the `mel:` line needs to change. Which two bars of its first line should come back in the second and third lines?",
           "The guitar's pattern has twelve entries, a new figure every four bars. A pattern of four entries starts again every four bars.",
           "Keep the first four entries of the `mel:` pattern and delete the rest: the riff, its second bar and two bars of rest.",
         ),

@@ -930,3 +930,51 @@ The warm-up's "Just listen" block and Practice's listening block say what to lis
 1. Sound, then code, then the name and its place in music. Where a step names a phenomenon, at most one sentence on why it works or where it lives (at most two per lesson), and only what is true; prefer general statements to dates and names.
 2. One idea per pass text, two at most. Short sentences, one idea each; at most one colon per sentence, no chains of colons and semicolons; concrete verbs; active voice.
 
+
+## 22. Clarity: the learner never guesses what is asked (the clarity pass of 2026-11-22)
+
+The owner, learning from the course, made most of their mistakes because the objective was unclear, not because the music was hard: "This is a learning platform, I shouldn't be guessing what's expected from me." Real cases: U01.L04 S6 said only "A kick placed the same way, on an and, pushes the groove forward" above the editor (nine failed attempts, then Skip); U01.L02's Make checklist said "At least one beat where nothing plays" and the hats kept playing; the tap pad was "weird and hard to understand". Every lesson was rewritten against these rules; keep them. They win over §21 where the two pull apart: clear beats elegant.
+
+### 22.1 The voice is instructional
+
+1. Write like a good teacher giving a lab instruction: direct, second person, imperative. "Add a kick on the second half of beat 2." Not "A kick could go on an and." Not "What if the kick moved?"
+2. Say exactly what to do, where, and how much: which line (`kick:`), which word of the pattern (the second word), which beat and bar, how many hits, notes or bars. A number beats an adjective.
+3. Only words the learner has been taught. When the precise word is not taught yet, describe the place plainly ("the second half of beat 2"), never leave it vague.
+4. No riddles. A question is fine as a focus for listening or prediction; it is never the only statement of a task the learner must perform.
+
+### 22.2 Every graded or interactive step states one task, in its `prompt`
+
+The app shows the `prompt` in a box headed **Your task**. That box is the contract with the learner.
+
+1. The task lives in the prompt, complete. The prose above it gives context (why, what it sounds like) in at most three short sentences; prose never carries part of the task, and the prompt never depends on the prose to make sense.
+2. Open with the action verb: Tap, Sing, Write, Add, Change, Remove, Pick, Listen for, Predict, Count. One task per step. Two required changes are written as two short sentences, in order.
+3. End with what counts as done when it is not obvious from the action itself: "Done when the kick plays on 1 and on the second half of beat 2, and nowhere else." Keep "Done when" short and checkable. Leave it out where the action already says it ("Pick the line that plays on beat 2.").
+4. Name the sound to act on and how to recognise it when it is new: "Tap on each crash, the long splashy cymbal that opens every bar."
+5. Say what must stay unchanged when it matters: "Keep the snare and hats as they are."
+6. Do not write controls (Space, Enter, Start, Check, Play): the app draws a **How** line under the task for every interactive kind (tap, sing, code, choice, Make). Write the music, not the buttons. Exception: a step that teaches a control.
+7. Still ≤ 60 words (check 14).
+
+### 22.3 Checklists say exactly what is checked
+
+Make rubric `label`s (and capstone rubric labels) are shown as the learner's checklist. Each is one concrete, checkable statement, naming lines and places in the learner's words: "One whole beat where every line is silent, hats included", not "At least one beat where nothing plays". The label must match what the rule really checks; if a rule checks something the label cannot say plainly, say less, never something different. Labels are text only: never change a rule, its params or its `required` flag.
+
+### 22.4 Hints climb from the goal to the answer
+
+1. Rung 1 (nudge) restates the goal more concretely and points at where to look. It may end with a question, never be only one.
+2. Rung 2 (pointer) names the exact place and the idea needed there.
+3. Rung 3 (partial) gives the shape of the answer (as U01.L04 S6's "the same shape as `[~ hh]`"), without the literal solution.
+4. Rung 4 stays `'auto'` (the reveal).
+
+### 22.5 Feedback says what is wrong and what to do next
+
+A `feedbackText` override names the place, the problem and the fix in the lesson's words: "Bar 1, beat 3: one kick too many on the kick line. The only new kick goes on the second half of beat 2." Override a catalog template whenever it uses an untaught word or leaves the learner without a next action. Keep every `{placeholder}` the template has.
+
+### 22.6 Listening, predicting and investigating
+
+1. A predict prompt says what to predict and what form the answer takes: "Predict how many hats play in one bar, then run it."
+2. An investigate prompt says what to find and how to answer: "Find the line that plays on beats 2 and 4. Pick it below."
+3. A listen prompt keeps §21.1: one concrete thing to listen for.
+
+### 22.7 What the clarity pass did not change
+
+Grading is untouched: rules, matchers, targets, tolerances, tests, IDs, code, examples and `required` flags stay as they were. Text changes bump `LessonDef.version` (contracts §11.7), never an exercise version.

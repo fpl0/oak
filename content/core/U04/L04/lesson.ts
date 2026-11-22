@@ -36,7 +36,7 @@ const PAD: AnswerUi = {
 
 export default defineLesson({
   id: "U04.L04",
-  version: 2,
+  version: 3,
   title: "Interval Ear Lab",
   objective: "I can name the distance between two notes in a key, up, down and played together.",
   key: { tonic: "C", mode: "major" },
@@ -61,7 +61,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen for the colour of each distance: close, warm, open or wide? First home with a 5th, a 3rd, a 6th and the octave. Then twelve pairs from anywhere in the key, each named as it plays. Nothing to answer.",
+          "Listen for the colour of each distance: close, warm, open or wide. First home plays with a 5th, a 3rd, a 6th and the octave above it. Then twelve pairs from anywhere in the key, each named as it plays. Nothing to answer.",
         skills: [{ skill: "E06", w: 1 }],
         hints: null,
         tests: [],
@@ -88,11 +88,11 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Chords set home. Then two notes, the second higher, from anywhere in the key. Enter both degrees, in the order they play.",
+          "Chords set home, then you hear two notes from anywhere in the key, the second higher than the first. Enter both degrees, in the order they play.",
         skills: [{ skill: "E06", w: 1 }],
         hints: [
           {
-            text: "Find the first note against home: sing down from it to do. Which syllable did you start on?",
+            text: "Place the first note against home: sing down from it to do and note the syllable you started on.",
           },
           {
             text: "Then count up from the first note to the second, both ends included: that is the distance.",
@@ -123,7 +123,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight pairs going down. Listen to how far the second note falls, name the distance silently, then hear Oak name it. Nobody keeps score here.",
+          "Eight pairs, each going down. Listen for how far the second note falls, name the distance silently, then hear Oak name it. Nothing to answer.",
         skills: [{ skill: "E06", w: 1 }],
         hints: null,
         tests: [],
@@ -144,10 +144,12 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Chords set home. Then two notes, the second lower, from anywhere in the key. Enter both degrees, in the order they play.",
+          "Chords set home, then you hear two notes from anywhere in the key, the second lower than the first. Enter both degrees, in the order they play.",
         skills: [{ skill: "E06", w: 1 }],
         hints: [
-          { text: "Which of the two notes is closer to home? Start from that one." },
+          {
+            text: "Place the first note against home: sing down from it to do and note its syllable. Then place the second note.",
+          },
           {
             text: "Sing down from the first note to the second on syllables and count both ends: that is the distance.",
           },
@@ -177,7 +179,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Chords set home. Sing do, up a 3rd to mi; then do again, up a 5th to sol. One syllable to two beats.",
+          "Chords set home. Sing four notes on syllables, two beats each: do, then up a 3rd to mi, then do again, then up a 5th to sol.",
         skills: [
           { skill: "V03", w: 0.6 },
           { skill: "E06", w: 0.4 },
@@ -215,10 +217,10 @@ export default defineLesson({
         id: "pairs-together",
         version: 1,
         role: "check",
-        prompt: "Chords set home. Then two notes at once. Enter both degrees, the lower one first.",
+        prompt: "Chords set home, then you hear two notes at once. Enter both degrees, the lower note first.",
         skills: [{ skill: "E06", w: 1 }],
         hints: [
-          { text: "Hum the top note, then the bottom one. Which one is easier to hear?" },
+          { text: "Hum the top note, then the bottom one, and name each by its syllable." },
           {
             text: "Find each note on its way down to do. Rest or clash tells you something too: 2nds and 7ths rub.",
           },
@@ -245,7 +247,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a one-bar riff, then answer it in bar 2 with the same shape moved by one named distance, so every distance inside the riff keeps its size in half steps. A perfect 4th up puts the starter's riff on the band's F chord. Other distances work too; some leave C major, and you will hear it.",
+          "Bar 2 is empty. Fill it with bar 1's riff moved up or down by one distance, every note by the same number of half steps. A perfect 4th up puts it on the band's F chord. Done when bar 2 is bar 1 at a new height, every distance inside it the same size.",
         skills: [{ skill: "E06", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [1, 4],
@@ -253,7 +255,7 @@ export default defineLesson({
         rubric: [
           {
             id: "same-shape",
-            label: "Bar 2 is bar 1 moved: every distance the same in half steps",
+            label: "Bar 2 plays bar 1's notes, all moved up or down by the same number of half steps",
             required: true,
             skills: ["E06", "I01"],
             // The exact copy, moved (review finding theory-c A2): the same rhythm, and every note of bar 1 moved by one
@@ -265,7 +267,7 @@ export default defineLesson({
           },
           {
             id: "named",
-            label: 'Moved with a named interval, `.transpose("…")`',
+            label: "`.transpose()` used with an interval name in quotes",
             required: false,
             skills: ["I02"],
             rule: "uses",
@@ -273,7 +275,7 @@ export default defineLesson({
           },
           {
             id: "home",
-            label: "Ends on 1, home",
+            label: "The last note of the melody is 1, home",
             required: false,
             skills: ["E04"],
             rule: "ends-on-degree",
@@ -285,7 +287,7 @@ export default defineLesson({
         // (`n` plus 2, as in U04.L01) turns C–E, a major 3rd, into E–G, a minor one, and fails.
         // Corrections gate: the rule's own detail reaches the learner ("bar 2 does not bring back bar 1: …").
         hints: ladder(
-          "Bar 2 is a rest now. What would make it sound like an answer to bar 1, not a new idea?",
+          "Bar 2 is a rest now. Fill it with bar 1's riff, every note moved by the same distance, so it answers bar 1 instead of starting a new idea.",
           "The same shape is the same distances between the notes, in half steps. Move every note of bar 1 by one named distance, up or down: a major 3rd stays a major 3rd.",
           "A 4th above C is F: the answer starts on `f4`. Move the other three notes the same way, five half steps each.",
         ),

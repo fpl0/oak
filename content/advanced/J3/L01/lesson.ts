@@ -92,7 +92,7 @@ const plain = (starter: string) => starter.replace(/[⟪⟫]/g, "");
 /** The chords are the dictionary's (`.dict("lefthand")` before `.voicing()`, really in force). */
 const LEFTHAND_IN_FORCE: RubricRule = {
   id: "lefthand",
-  label: "The chords are voiced from the left-hand dictionary",
+  label: "The chords line takes its notes from the left-hand dictionary",
   required: true,
   skills: ["J09"],
   rule: "custom",
@@ -104,7 +104,8 @@ const LEFTHAND_IN_FORCE: RubricRule = {
 const ROOTLESS_REF = (stacks: string) => code(`chords: note("<${stacks}>").s("rhodes")`);
 const ALTERNATES: RubricRule = {
   id: "rootless-alternating",
-  label: "Rootless voicings that alternate: A B A or B A B",
+  label:
+    "Every chord is a four-note rootless voicing on beat 1, the lowest note alternating between a 3rd and a 7th (A B A or B A B)",
   required: true,
   skills: ["J09"],
   rule: "matches",
@@ -118,7 +119,7 @@ const KEYS = { roll: false, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "J3.L01",
-  version: 2,
+  version: 3,
   title: "Rootless A/B Voicings",
   objective:
     "I can voice a ii–V–I with rootless A and B voicings, by hand and with the left-hand dictionary.",
@@ -148,7 +149,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bass and drums are the same both times. Listen to the Rhodes: which take sounds richer, and where on the keyboard does each one sit?",
+          "Bass and drums are the same both times. Listen to the Rhodes in both takes. Notice which take sounds richer, and where on the keyboard each one sits: low, or in the middle.",
         skills: [{ skill: "J09", w: 1 }],
         hints: null,
         tests: [],
@@ -178,14 +179,15 @@ export default defineLesson({
         id: "what-is-missing",
         version: 1,
         role: "practice",
-        prompt: "Run it and read the roll: the Gm7 in bar 1, then what changes in bar 2.",
+        prompt:
+          "Run it, read the roll and answer two questions: which note of Gm7 the Rhodes leaves out in bar 1, and how many of its four notes move from bar 1 to bar 2.",
         skills: [{ skill: "J09", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Name the four notes of the first chord from the bottom, then compare them with G B♭ D F A, a Gm7 with its 9th. Then count how many of the four change at bar 2.",
         },
         hints: ladder(
-          "Gm7 with its 9th is G, B♭, D, F, A. Which of those five is not in the Rhodes chord?",
+          "Gm7 with its 9th is G, B♭, D, F, A. Name the four notes of bar 1 on the roll and find the one of those five that is missing.",
           "The bass plays G under bar 1. Now compare bar 1 and bar 2 note by note: three of them stay where they are.",
           "The chord is B♭ D F A. At bar 2 the F slides down to the note just below it.",
         ),
@@ -241,7 +243,7 @@ export default defineLesson({
           "Play the A voicing of Fmaj7 on the keyboard: no F, its 3rd at the bottom, and the 5th, the 7th and the 9th above it.",
         skills: [{ skill: "J09", w: 1 }],
         hints: ladder(
-          "Which note is the 3rd of Fmaj7? It goes at the bottom.",
+          "Start from the 3rd of Fmaj7: it goes at the bottom.",
           "Fmaj7 is F A C E; its 9th is G. The A voicing leaves F to the bass and stacks the other four from the 3rd up.",
           "Start on A, then C and E. One more note on top: the 9th, a step above the root F.",
         ),
@@ -293,7 +295,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The Rhodes comps in shells. Rewrite the four chords by hand as rootless voicings: Gm7 as an A voicing, C7 as a B voicing, Fmaj7 as an A voicing again. Keep the rhythm.",
+          "The Rhodes comps in shells. Rewrite the four chords in note names as rootless voicings: Gm7 as an A voicing, C7 as a B voicing, Fmaj7 (bars 3 and 4) as an A voicing. Each is four notes with no root. Keep `.struct()` and the rest of the chain.",
         skills: [{ skill: "J09", w: 1 }],
         swing: SWUNG,
         code: { starter: HAND_STARTER },
@@ -309,7 +311,7 @@ export default defineLesson({
             "Not yet: the right notes with the wrong one at the bottom. An A voicing stands on the chord's 3rd, a B voicing on its 7th.",
         },
         hints: ladder(
-          "Which note do all three shells have at the bottom, and who already plays it?",
+          "Look at the lowest note of each shell: the bass already plays it. A rootless voicing leaves it out.",
           "Leave the root to the bass. Gm7's A voicing is its 3rd, 5th, 7th and 9th from the 3rd up; C7's B voicing starts on its 7th.",
           "Bar 1 is `[bb3,d4,f4,a4]`. Bar 2 keeps three of those notes and moves F down a half step.",
         ),
@@ -380,7 +382,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Anchored at A4, the dictionary plays what you wrote: A B A. Turn it round so the progression starts on a B voicing. One call before `.voicing()` moves every chord to the next place the dictionary has for it.",
+          "Anchored at A4, the dictionary plays what you wrote: A B A. Add one call before `.voicing()` so every chord moves to the dictionary's other placement and the progression runs B A B. Keep the dictionary and the anchor. Done when the first chord stands on F, the 7th of Gm7.",
         skills: [{ skill: "J09", w: 1 }],
         swing: SWUNG,
         code: { starter: OFFSET_STARTER },
@@ -401,7 +403,7 @@ export default defineLesson({
           "rubric.unmet": "{label}: not yet. The chords should still come from the dictionary.",
         },
         hints: ladder(
-          "Which note is at the bottom of each chord now, and which should be?",
+          "Compare the lowest note of each chord now with the target's: Gm7 should stand on its 7th, not its 3rd.",
           "The dictionary keeps two shapes for each chord. A call between `.dict()` and `.voicing()` moves every chord to its next placement up.",
           "The call takes a number, `1` for one placement up, and it goes before `.voicing()`.",
         ),
@@ -468,14 +470,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'The vibes hold A4 over the ii–V–I, and the dictionary\'s hand sits at A4 too. Run it, then delete `.mode("duck")` and run it again: what did that call leave out of Gm7 and C7?',
+          'The vibes hold A4 over the ii–V–I, and the dictionary\'s hand sits at A4 too. Run it, then delete `.mode("duck")` and run it again. Pick what that call left out of Gm7 and C7.',
         skills: [{ skill: "J09", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Compare the Rhodes' top note in bar 1 with and without the call, and look at what the vibes play there.",
         },
         hints: ladder(
-          "Without the call, which note do the Rhodes and the vibes both play in bar 1?",
+          "Run it without the call and read bar 1: one note sounds in both the Rhodes and the vibes.",
           "With the call, Gm7 has three notes. The missing one is the note the hand was anchored on.",
           "The bass still plays G, and the Rhodes still has B♭ at the bottom: the missing note is on top.",
         ),
@@ -521,7 +523,7 @@ export default defineLesson({
         role: "practice",
         title: "Rootless ii–V–I",
         prompt:
-          "Turn the shells into rootless voicings that alternate, A B A or B A B, by hand or with the dictionary, each chord sounding on the first beat of its bar. Then choose your rhythm and how high the hand sits, and put a vibes line on top, like your tune on the guide-tone thread.",
+          "Turn the shells into rootless voicings. Required: four notes a chord, no root, the lowest note alternating A B A or B A B, each chord sounding on beat 1 of its bar. Write them by hand or with the dictionary. Also on the checklist: a tempo of 100 to 180, and a vibes line on top.",
         skills: [{ skill: "J09", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -531,7 +533,7 @@ export default defineLesson({
           ALTERNATES,
           {
             id: "swing-tempo",
-            label: "A medium-swing tempo, 100–180",
+            label: "`setcpm` sets a tempo between 100 and 180 beats a minute",
             required: false,
             skills: ["R13"],
             rule: "tempo-bpm",
@@ -540,7 +542,7 @@ export default defineLesson({
           },
           {
             id: "tune-on-top",
-            label: "A vibes line on top",
+            label: "A vibes line plays with the chords",
             required: false,
             skills: ["J09"],
             rule: "sounds",
@@ -559,7 +561,7 @@ export default defineLesson({
             "Listen to the first beat of each bar: a chord sounds there, four notes with no root, and its lowest note moves between a 3rd and a 7th from one chord to the next.",
         },
         hints: ladder(
-          "Which note of each shell can the comping give away to the bass?",
+          "Start from the shells: the bass already plays each chord's root, so the voicing can leave it out and add the 9th.",
           "Four notes a chord, no root, the 9th added; the bottom note alternates between a 3rd and a 7th from chord to chord.",
           'One way: `chord("<Gm7 C7 F^7 F^7>").dict("lefthand")` with the hand anchored at A4, before `.voicing()`.',
         ),

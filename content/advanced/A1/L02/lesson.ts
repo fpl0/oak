@@ -71,7 +71,7 @@ const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L02",
-  version: 2,
+  version: 3,
   title: "Filters & Filter Envelopes",
   objective: "I can darken a sound with `.lpf()`, make it ring with `.lpq()` and pluck it with `.lpenv()`.",
   key: { tonic: "C", mode: "major" },
@@ -100,7 +100,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Loop 2 plays the same notes with part of each sound taken away. Listen to the bass and the riff: which part of their sound is gone?",
+          "Loop 2 plays the same notes with part of each sound taken away. Listen to the top of the bass and the riff in both loops, and listen for which part of their sound is gone.",
         skills: [{ skill: "D03", w: 1 }],
         hints: null,
         tests: [],
@@ -130,7 +130,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The riff on a sawtooth, with the `.lpf()` number falling bar by bar: 4000, 2000, 1000, 500. What will you hear from bar to bar?",
+          "The riff plays on a sawtooth while the `.lpf()` number falls bar by bar: 4000, 2000, 1000, 500. Predict what changes in the sound from bar to bar, and pick it.",
         skills: [{ skill: "D03", w: 1 }],
         hints: null,
         tests: [],
@@ -158,14 +158,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The same four bars with `.scope()` open. Run it, watch the corners of the wave from bar to bar, then answer.",
+          "The same four bars play with the scope open. Watch the corners of the wave as the number falls. Then answer both questions: which harmonics go first, and how many of G4's harmonics sit below 1000.",
         skills: [{ skill: "D03", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. The number is a line: harmonics above it go. G4's harmonics sit at 392, 784, 1176 and up; count those under 1000.",
         },
         hints: ladder(
-          "As the number falls, which harmonics does it reach first: the low ones or the high ones?",
+          "Watch the corners of the wave as the number falls. Corners are made by the high harmonics: do they go first, or last?",
           "Harmonics sit at 1, 2, 3 … times a note's frequency. Only those under the `.lpf()` number stay.",
           "G4's first harmonic is 392, its second 784. Is the third, 3 × 392, under 1000?",
         ),
@@ -223,7 +223,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The target is this bass with its buzz taken away: a round, low line. Yours still buzzes. Move the `.lpf()` number until the two sound the same.",
+          "Your bass still buzzes; the target is the same bass, round and low. Lower the number in `.lpf()` on the bass line until yours sounds like the target. Keep `.lpf()`; change only its number. Done when your cutoff is close to the target's.",
         skills: [{ skill: "D03", w: 1 }],
         code: { starter: MATCH_STARTER },
         reference: { solutions: [MATCH_SOLUTION], bars: 2 },
@@ -242,7 +242,7 @@ export default defineLesson({
             "This step needs `.lpf()`, the low-pass: it keeps the lows. `.hpf()` does the opposite and takes the low note away.",
         },
         hints: ladder(
-          "Is yours brighter or darker than the target?",
+          "Play yours, then the target, and compare the top of the sound. Is yours brighter or darker?",
           "A lower `.lpf()` number takes away more of the top. The target keeps only the bass's lowest few harmonics.",
           "The bass's c2 repeats about 65 times a second, so its first few harmonics sit under a few hundred. Try a number in the hundreds.",
         ),
@@ -290,7 +290,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "`.lpq()` adds a peak at the `.lpf()` number. Raise the `.lpq()` number to somewhere from 10 to 30 and listen for a whistle in the riff. Then move the `.lpf()` number and hear the whistle move with it.",
+          "`.lpq()` adds a peak at the `.lpf()` number. On the mel line, change the `.lpq()` number from 0 to a number from 10 to 30, and listen for a whistle in the riff. Then move the `.lpf()` number and hear the whistle move with it.",
         skills: [{ skill: "D03", w: 1 }],
         code: { starter: RING_STARTER },
         reference: { solutions: [RING_SOLUTION], bars: 2 },
@@ -301,7 +301,7 @@ export default defineLesson({
           "code.control-off": "Not yet: yours is {how}. The brief asks for an `.lpq()` number from 10 to 30.",
         },
         hints: ladder(
-          "Which number sets how big the peak is?",
+          "Only one number on the mel line sets how big the peak is. Which call holds it?",
           "`.lpq()` sets the peak; at 0 there is none. Above about 10 it starts to whistle.",
           "At 5 you hear a slight edge. Go higher.",
         ),
@@ -354,7 +354,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The riff sits under `.lpf(300)`: dull. The target opens the low-pass on every note and closes it fast. `.lpenv(n)` opens it n octaves above the number on each note; `.lpd(s)` closes it again in s seconds. Add both to match the target.",
+          "The riff sits under `.lpf(300)`: dull. `.lpenv(n)` opens the low-pass n octaves above 300 on each note; `.lpd(s)` closes it again in s seconds. Add both to the mel line and set their numbers by ear to match the target. Done when both numbers are close to the target's.",
         skills: [{ skill: "D03", w: 1 }],
         code: { starter: PLUCK_STARTER },
         reference: { solutions: [PLUCK_SOLUTION], bars: 2 },
@@ -369,7 +369,7 @@ export default defineLesson({
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true, showRoll: false },
         hints: ladder(
-          "Does each target note start bright and turn dull, or stay the same all the way?",
+          "Listen to one target note from start to end. Does it start bright and turn dull, or stay the same all the way?",
           "`.lpenv()` sets how far up the low-pass jumps on each note, in octaves; `.lpd()` how long it takes to fall back, in seconds.",
           "From 300, one octave up is 600 and two are 1200. The target's notes start several octaves up and fall back in a fraction of a second.",
         ),
@@ -410,7 +410,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "One phrase, twice. Between bar 1 and bar 2 the low-pass moved. Did bar 2 get brighter or darker?",
+          "One phrase plays twice, and between bar 1 and bar 2 the low-pass moved. Listen to the top of the sound and pick whether bar 2 got brighter or darker.",
         skills: [{ skill: "D03", w: 1 }],
         hints: [
           { text: "Listen to the top of the sound in each bar: buzzy or muffled?" },
@@ -447,7 +447,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The loop from Waves & Harmonics, raw: a sawtooth bass and a square riff with nothing taken away. Put the bass under a low-pass so the riff sits on top, then give one part movement with `.lpenv()`. Or bring a loop of your own.",
+          "This is the raw loop: a sawtooth bass and a square riff with nothing taken away. Put the bass under a low-pass with `.lpf()` so the riff sits on top. Then give one part an `.lpenv()` above 0, so its sound opens on every note. Or bring a loop of your own.",
         skills: [{ skill: "D03", w: 1 }],
         code: { starter: RAW },
         bars: [2, 8],
@@ -455,7 +455,7 @@ export default defineLesson({
         rubric: [
           {
             id: "filter-envelope",
-            label: "One part plucked or swept with .lpenv()",
+            label: "One heard part has an .lpenv() number other than 0",
             required: true,
             skills: ["D03"],
             // Corrections gate (fix:leftovers notDone): an envelope you can hear; `.lpenv(0)` moves nothing.
@@ -465,7 +465,7 @@ export default defineLesson({
           },
           {
             id: "bass-low-pass",
-            label: "A low-pass on a part",
+            label: "A low-pass, .lpf(), on at least one part",
             required: false,
             skills: ["D03"],
             rule: "uses",
@@ -473,7 +473,7 @@ export default defineLesson({
           },
           {
             id: "resonance",
-            label: "Resonance somewhere",
+            label: "Resonance, .lpq(), on at least one part",
             required: false,
             skills: ["D03"],
             rule: "uses",
@@ -483,7 +483,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which part would you like to move on every note: the bass or the riff?",
+          "Choose the part that should open on every note, the bass or the riff. Which one would you like to hear move?",
           "`.lpenv()` moves a low-pass, so the part needs one: `.lpf()` sets where it rests, `.lpenv()` how far it jumps, `.lpd()` how fast it falls back.",
           "On the riff, try `.lpf(400)` and then a jump of three octaves that falls back in a quarter of a second.",
         ),

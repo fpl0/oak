@@ -159,7 +159,7 @@ const LEAD = { roll: false, staff: "lead", keyboard: false } as const;
 
 export default defineLesson({
   id: "U16.L03",
-  version: 2,
+  version: 3,
   title: "♭III & Minor Plagal",
   objective:
     "I can use ♭III beside iv, ♭VI and ♭VII, name all four as C minor's chords, and hear iv close into I.",
@@ -185,7 +185,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A riff on organ stabs and an overdriven guitar, twice. The second time bar 2 holds a new chord, and the sad IV comes in near the end. Listen to bar 2 each time: how does the riff's colour change there?",
+          "A riff on organ stabs and an overdriven guitar, twice. The first time bar 2 is E minor; the second time it is a new chord, E♭ major, and the sad IV comes in near the end. Listen to bar 2 each time: how does the riff's colour change?",
         skills: [{ skill: "H13", w: 1 }],
         hints: null,
         tests: [],
@@ -215,7 +215,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`chord("<Cm Eb>")` starts on C minor, the home chord of the parallel minor: C, E♭ and G. Step its C down a whole step to B♭ and keep the rest. Which chord is B♭, E♭ and G?',
+          '`chord("<Cm Eb>")` starts on C minor, the home chord of the parallel minor: C, E♭ and G. Step its C down a whole step to B♭ and keep the rest. Predict which chord B♭, E♭ and G make. Pick your answer, then run it.',
         skills: [{ skill: "H13", w: 1 }],
         hints: null,
         tests: [],
@@ -243,14 +243,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "C, E♭, F and F minor, one chord a bar. Read each chord's degrees on the roll and decide which key each one belongs to.",
+          "C, E♭, F and F minor play one chord a bar. Read each chord's degrees on the roll. Then answer both questions: which chords come from C minor, and how many of E♭ major's notes belong to C major.",
         skills: [{ skill: "H13", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. A chord belongs to C minor when it holds E♭, A♭ or B♭ and nothing from C major in their place. Check each bar's degrees on the roll.",
         },
         hints: ladder(
-          "Which notes does C minor have that C major does not?",
+          "Compare the two scales on C. Which notes does C minor have that C major does not?",
           "C minor lowers 3, 6 and 7: E♭, A♭ and B♭. A chord with one of them comes from the minor side.",
           "F major holds A, so it is C major's own. For E♭ major, check its three notes one by one against C major.",
         ),
@@ -303,7 +303,7 @@ export default defineLesson({
         role: "check",
         key: D,
         prompt:
-          "Four bars of a tune in D major, whose key signature has two sharps, F♯ and C♯. The numerals of the four bars are I, ♭III, IV, iv, and bar 1 is D. Write the four chords by name in `changes`, where the starter has D in every bar.",
+          "The staff shows four bars of a tune in D major (two sharps, F♯ and C♯). Their numerals are I, ♭III, IV, iv. In `changes`, replace the D in bars 2, 3 and 4 with the chord each numeral names, written by name. Bar 1 stays D.",
         skills: [{ skill: "H13", w: 1 }],
         code: { starter: PAGE_STARTER },
         reference: { solutions: [PAGE_SOLUTION], bars: 4 },
@@ -373,7 +373,7 @@ export default defineLesson({
         role: "check",
         key: G,
         prompt:
-          "The same four chords in G major, shown as code. Write the numeral of each bar: a flat where the root is a lowered degree, upper case for major, lower case for minor.",
+          "The same four chords in G major, shown as code. Write the numeral of each of the 4 bars: a flat before it where the root is a lowered degree, upper case for a major chord, lower case for a minor one.",
         skills: [
           { skill: "H13", w: 0.6 },
           { skill: "N06", w: 0.4 },
@@ -429,7 +429,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four endings, heard and not seen, each in its own key: a bar of home, one chord, and home again. Which chord brings it home: V, IV, or the sad iv?",
+          "Four endings, heard and not seen, each in its own key: a bar of home, one chord, and home again. For each ending, pick the chord in the middle bar: V, IV or the sad iv.",
         skills: [
           { skill: "H13", w: 0.6 },
           { skill: "H03", w: 0.4 },
@@ -456,7 +456,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A riff over C and F with organ stabs and a bass. You have seven chords for it now. C, F and G come from C major; E♭, A♭, B♭ and F minor from C minor. Write a four- or eight-bar loop that brings in E♭ and anything else from the minor side. Try closing on F minor into C.",
+          "A riff over C and F. C, F and G come from C major; E♭, A♭, B♭ and F minor from C minor. Write a four- or eight-bar loop in `changes` with E♭, ♭III, in at least one bar. Then, if you like, add a second chord from C minor and close on F minor into C.",
         skills: [{ skill: "H13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -464,7 +464,7 @@ export default defineLesson({
         rubric: [
           {
             id: "flat-three",
-            label: "♭III somewhere in your loop",
+            label: "At least one bar plays E♭ major, ♭III",
             required: true,
             skills: ["H13"],
             rule: "contains-rn",
@@ -473,7 +473,7 @@ export default defineLesson({
           },
           {
             id: "two-borrowed",
-            label: "A second borrowed chord beside it",
+            label: "At least two borrowed chords in the loop",
             required: false,
             skills: ["H13"],
             rule: "contains-rn",
@@ -483,7 +483,7 @@ export default defineLesson({
           },
           {
             id: "riff-touches-minor",
-            label: "The riff touches ♭3 or ♭7",
+            label: "The mel line plays ♭3 (E♭) or ♭7 (B♭) at least once",
             required: false,
             skills: ["P06"],
             rule: "degree-set",
@@ -493,7 +493,7 @@ export default defineLesson({
           {
             id: "minor-plagal-close",
             // `cadence` PC is IV or iv into I: the label says so, and the brief suggests the minor one.
-            label: "The loop closes on home from F or F minor",
+            label: "The last chord is C, coming from F or F minor",
             required: false,
             skills: ["H03"],
             rule: "cadence",
@@ -504,7 +504,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which of the seven chords stands on the lowered 3rd of C major?",
+          "The loop needs ♭III. Which of the seven chords stands on the lowered 3rd of C major?",
           "All the chords live in `changes`. Degree 3 of C major is E; lowered it is E♭, and ♭III is the major chord on it.",
           "Put that chord where a C or an F is now, for example in bar 2. Then try F minor in the last bar but one.",
         ),

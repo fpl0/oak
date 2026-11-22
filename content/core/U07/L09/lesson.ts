@@ -97,7 +97,7 @@ const PICKUP = { units: [1, 1] } as const;
 
 export default defineLesson({
   id: "U07.L09",
-  version: 2,
+  version: 3,
   title: "Reading Lead Sheets",
   objective:
     "I can play a song from a lead sheet: the tune from the staff, the chords from the symbols above it, pickup and all.",
@@ -127,7 +127,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Amazing Grace, an old American hymn, sung to the tune called New Britain. Follow the staff as it plays: how does each bar share its three beats between long and short notes?",
+          "Amazing Grace, an old American hymn, to the tune called New Britain. Follow the notes on the staff as it plays. Listen for how each bar splits its three beats between long notes and short ones.",
         skills: [{ skill: "N07", w: 1 }],
         pickup: PICKUP,
         hints: null,
@@ -158,7 +158,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and read along. Bar 1 is the first full bar; the short bar before it is the pickup. Each chord name sits over the beat where that chord starts.",
+          "Run it and read along. Bar 1 is the first full bar; the short bar before it is the pickup. Find the chord name printed above bar 3, and count how many beats the pickup holds. Answer both questions below.",
         skills: [{ skill: "N07", w: 1 }],
         pickup: PICKUP,
         feedbackText: {
@@ -225,7 +225,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The page shows the start of the hymn: the pickup and bars 1 to 4. Write the tune in `n`, in F. The starter holds a placeholder home on each beat 1; replace them with the notes on the page.",
+          "Write the tune on the page in `n`, in F major: the pickup in bar 0, then bars 1 to 4. The starter holds a placeholder home note on each beat 1; replace each bar with the notes the page shows. Done when every note matches the page in pitch, beat and length.",
         skills: [
           { skill: "N07", w: 0.7 },
           { skill: "M10", w: 0.3 },
@@ -293,7 +293,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Read the same five bars. A chord sets home and one bar counts you in, in 3. Then sing the tune on syllables, from the pickup. Oak plays it after you.",
+          "Sing the five bars on the page on syllables, ten notes, starting with the pickup. A chord sets home and one bar counts you in, in 3. Keep counting, and come in on count 3 of the pickup bar. Oak plays the tune after you.",
         skills: [
           { skill: "V04", w: 0.8 },
           { skill: "N07", w: 0.2 },
@@ -341,7 +341,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The tune is written. Write its `chords` line from the symbols above the staff: one chord a bar, and nothing in the pickup bar. Stack them in `n`, or name them with `chord()` and `.voicing()`.",
+          "Fill in the `chords` line from the chord symbols above the staff: one chord for each of bars 1 to 4, and a rest, `~`, in the pickup bar. Stack each chord in `n`, or name it with `chord()` and `.voicing()`. Done when every bar plays the chord its symbol names.",
         skills: [{ skill: "N07", w: 1 }],
         pickup: PICKUP,
         code: { starter: s5(`⟪${S5_CHORDS_STARTER}⟫`) },
@@ -406,7 +406,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A new page: a short waltz in G, with a pickup. Look at bar 3, the third full bar. Name the chord above it, then the tune's note on its beat 1.",
+          "Read the new page, a short waltz in G with a pickup. Find bar 3, the third full bar after the pickup. Type the chord name printed above it, then the letter of the tune's note on its beat 1.",
         skills: [{ skill: "N07", w: 1 }],
         key: G_MAJOR,
         pickup: PICKUP,
@@ -423,7 +423,7 @@ export default defineLesson({
             id: "read-one-bar-chord",
             version: 1,
             role: "check",
-            prompt: "The chord name above bar 3.",
+            prompt: "Type the chord name printed above bar 3.",
             skills: [{ skill: "N07", w: 1 }],
             key: G_MAJOR,
             pickup: PICKUP,
@@ -462,7 +462,7 @@ export default defineLesson({
             id: "read-one-bar-note",
             version: 1,
             role: "check",
-            prompt: "The tune's note on beat 1 of bar 3, by letter.",
+            prompt: "Type the letter of the tune's note on beat 1 of bar 3.",
             skills: [{ skill: "N07", w: 1 }],
             key: G_MAJOR,
             pickup: PICKUP,
@@ -516,7 +516,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a `chords` line under this waltz tune, so its lead sheet gets chord names. Then rework the tune or extend it, to four to eight bars.",
+          "Add a `chords:` line under this waltz tune, one chord a bar, so the page shows chord names. For each bar, pick a chord that holds the tune's note on beat 1. Then rework or extend the tune, to four to eight bars. Done when the page shows both notes and chord names.",
         skills: [{ skill: "N07", w: 1 }],
         // The rules' own details name tracks and onsets; the label says it in words.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
@@ -526,7 +526,7 @@ export default defineLesson({
         rubric: [
           {
             id: "tune-and-chords",
-            label: "A tune and its chords, so the lead sheet has both",
+            label: "A tune line and a `chords` line both play, so the page shows notes and chord names",
             required: true,
             skills: ["N07"],
             rule: "tracks",
@@ -535,7 +535,7 @@ export default defineLesson({
           },
           {
             id: "chord-notes-on-one",
-            label: "A chord note on beat 1 of most bars",
+            label: "The tune's note on beat 1 is a chord tone in at least 3 of every 5 bars",
             required: false,
             skills: ["M03"],
             rule: "chord-tones-strong",
@@ -546,7 +546,7 @@ export default defineLesson({
           },
           {
             id: "a-pickup",
-            label: "A pickup into bar 1",
+            label: "A pickup: a note or two before beat 1 of bar 1",
             required: false,
             skills: ["M10"],
             rule: "pickup",
@@ -554,7 +554,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "What would a player need to read off your page to play along with the tune?",
+          "The page has notes but no chord names yet. What would a player need to read off it to play along with the tune?",
           "A `chords` line, one chord a bar, stacked in `n` or named with `chord()`. Pick for each bar a chord that holds the tune's note on beat 1.",
           "Bar 1 starts on F, so F fits: `[0,2,4]`. Bar 3 starts on B♭: the chord on degree 4.",
         ),

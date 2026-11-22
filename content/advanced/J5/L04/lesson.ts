@@ -92,7 +92,7 @@ const PASSING_SOLUTION = phrase1("<[C^7@3 C#o7] D7 G7 C^7>");
 const DEVICES = ["tritone sub", "secondary ii–V", "backdoor", "diminished passing"] as const;
 const SAME_TUNE: RubricRule = {
   id: "same-tune-two-devices",
-  label: "The same tune over at least two different devices",
+  label: "The tenor tune is unchanged, over at least two different devices",
   required: true,
   skills: ["J14"],
   rule: "reharmonize",
@@ -110,7 +110,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J5.L04",
-  version: 2,
+  version: 3,
   title: "Reharm Techniques",
   objective: "I can reharmonize a tune with several jazz devices and keep its melody note for note.",
   key: C,
@@ -136,7 +136,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Follow the tenor, then listen under it. In the second take, which bars sound most changed, though the tune is the same?",
+          "Follow the tenor, then listen under it. Notice which bars of the second take sound most changed, though the tune is the same.",
         skills: [{ skill: "J14", w: 1 }],
         hints: null,
         tests: [],
@@ -166,10 +166,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The first two bars of the verse, twice. In one card the last beat of bar 1 holds a short chord of its own. In which card does the bass climb into bar 2 by half steps?",
+          "The first two bars of the verse, twice. In one card the last beat of bar 1 holds a short chord of its own. Pick the card whose bass climbs into bar 2 by half steps.",
         skills: [{ skill: "J14", w: 1 }],
         hints: ladder(
-          "Listen to the bass only. How many notes does it play before bar 2?",
+          "Listen to the bass only, and count its notes before bar 2.",
           "In one card the bass jumps from C straight up to D. In the other it stops on a note between them.",
           "The note between C and D is a half step from each. Which card plays three bass notes?",
         ),
@@ -212,14 +212,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bar 3 of the tune, C B A B, twice. First D♭7 holds the whole bar; then G7 holds beats 1 and 2 and D♭7 comes in on beat 3. Run it and listen to beat 1 of each bar.",
+          "Bar 3 of the tune, C B A B, twice. First D♭7 holds the whole bar; then G7 holds beats 1 and 2 and D♭7 comes in on beat 3. Listen to beat 1 of each bar, then answer: how many half steps D♭7's 7th is from the tune's C, and why the second bar sounds smooth.",
         skills: [{ skill: "J14", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Find D♭7's 7th on the roll (a note you also call B) and count the half steps to the tune's C. Then compare which tune notes sound over D♭7 in the second bar.",
         },
         hints: ladder(
-          "In which of the two bars does beat 1 sound rough?",
+          "Listen to beat 1 of each bar: one sounds rough.",
           "D♭7 is D♭, F, A♭ and C♭. C♭ is the same key as B. How far is that from the tune's C?",
           "In the second bar D♭7 waits for beat 3. Read the tune's notes on beats 3 and 4 and look for them in D♭7.",
         ),
@@ -276,7 +276,7 @@ export default defineLesson({
         role: "check",
         key: C,
         prompt:
-          "The verse's first phrase over its sevenths. Put a passing diminished chord on the last beat of bar 1, so the bass climbs into D7 by half steps. Only bar 1's chord changes; the tune stays.",
+          "The verse's first phrase over its sevenths. Put a passing diminished seventh on beat 4 of bar 1, so the bass climbs into D7 by half steps. Keep Cmaj7 for beats 1 to 3. Change only bar 1 of `changes`; the tune stays.",
         skills: [{ skill: "J14", w: 1 }],
         swing: SWUNG,
         code: { starter: PASSING_STARTER },
@@ -291,7 +291,7 @@ export default defineLesson({
             "Bar {bar}: other notes than the target's. Play the target and follow its bass through bar 1: on which beat does it leave C, and how far does it move?",
         },
         hints: ladder(
-          "On which beat of bar 1 does the target's bass move, and to which note?",
+          "Follow the target's bass through bar 1: on beat 4 it leaves C for the note a half step above.",
           "On beat 4 the bass is a half step above C, and the chord there is a diminished seventh on that note.",
           "Bar 1 now holds two chords: Cmaj7 for three beats, weighted with `@`, then the new chord for one.",
         ),
@@ -361,10 +361,12 @@ export default defineLesson({
         role: "check",
         key: C,
         prompt:
-          "The new setting of the verse once more, with nothing on screen. In which bar does a secondary ii–V aim at G7?",
+          "The new setting of the verse once more, with nothing on screen. Pick the bar where a secondary ii–V aims at G7.",
         skills: [{ skill: "J14", w: 1 }],
         hints: [
-          { text: "A secondary ii–V is two chords in one bar. Which bars hold two chords?" },
+          {
+            text: "A secondary ii–V is two chords in one bar. Start by finding the bars that hold two chords.",
+          },
           {
             text: "Hum the bass. Under a ii–V the roots move by a 5th inside the bar, and by a 5th again into the next bar.",
           },
@@ -414,7 +416,7 @@ export default defineLesson({
         key: C,
         title: "Aura Lee, reharmonized",
         prompt:
-          "The verse sits over Cmaj7, D7, G7, Cmaj7. Reharmonize it with at least two different devices: a tritone substitute, a backdoor, a secondary ii–V, a passing diminished chord. The tune stays exactly as it is; where the tenor holds one long note, a new chord has room.",
+          "Reharmonize the verse, now over Cmaj7, D7, G7, Cmaj7. Required: at least two different devices from these four: a tritone substitute, a backdoor, a secondary ii–V, a passing diminished chord, with the tune unchanged. Also on the checklist: three devices, and tune notes that fit the new chords.",
         skills: [{ skill: "J14", w: 1 }],
         swing: SWUNG,
         code: { starter: PLAIN },
@@ -424,7 +426,7 @@ export default defineLesson({
           SAME_TUNE,
           {
             id: "three-devices",
-            label: "Three different devices, as your standard will ask",
+            label: "At least three different devices",
             required: false,
             skills: ["J14"],
             rule: "reharmonize",
@@ -435,7 +437,7 @@ export default defineLesson({
           },
           {
             id: "tune-fits",
-            label: "The tune's notes on the beat belong to the new chords",
+            label: "The tune's long or on-beat notes fit the new chords",
             required: false,
             skills: ["J14"],
             rule: "custom",
@@ -446,7 +448,7 @@ export default defineLesson({
         // The override serves every rule, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which bars of the tune hold one long note, and which chords lead into the bar after them?",
+          "Find the bars where the tenor holds one long note: a new chord has room there.",
           "A passing diminished chord goes between two chords a whole step apart; a tritone substitute takes the place of a V7; a ii–V aims at the chord after it; a backdoor fits a bar where the tune holds the home note, right before home.",
           "Bar 1 can climb as in the modify step. Then look at bar 6: the D7 there can get its own ii in front of it, two chords in one bar.",
         ),

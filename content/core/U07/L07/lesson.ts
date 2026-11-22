@@ -52,7 +52,7 @@ const S4_RULES: Matcher = {
   rules: [
     {
       id: "two-parts",
-      label: "A second part answers the first",
+      label: "Two melody lines play: the piano's `mel` and your `vox`",
       required: true,
       skills: ["M07"],
       rule: "tracks",
@@ -61,7 +61,8 @@ const S4_RULES: Matcher = {
     },
     {
       id: "on-the-chords",
-      label: "The response has notes of the chord on beats 1 and 3",
+      label:
+        "At least three in four of the `vox` notes on beats 1 and 3 are chord tones of the `chords:` line",
       required: true,
       skills: ["M03"],
       rule: "chord-tones-strong",
@@ -111,7 +112,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L07",
-  version: 2,
+  version: 3,
   title: "Call & Response",
   objective: "I can write a call in one part and a response in another part that answers it in the gap.",
   key: { tonic: "C", mode: "major" },
@@ -136,7 +137,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A piano and a Rhodes share four bars. Listen to how they divide them: do they play at once, or take turns?",
+          "Listen for how the piano and the Rhodes share the four bars: do they play at the same time, or take turns?",
         skills: [{ skill: "M07", w: 1 }],
         hints: null,
         tests: [],
@@ -162,7 +163,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Each `< >` holds four bars, and `~` alone is a bar of rest. In which bars will the Rhodes, the `vox` line, play?",
+          "Predict the bars in which the Rhodes, the `vox` line, plays. Each `< >` holds four bars, one per word, and a `~` on its own is a bar of rest. Pick the bars, then run it.",
         skills: [{ skill: "M07", w: 1 }],
         hints: null,
         tests: [],
@@ -190,14 +191,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it. Then put `_` in front of `vox:` to mute the Rhodes and run it again; then bring it back and mute `mel` instead. Listen to what each part does alone.",
+          "Run it, then hear each part alone: put `_` in front of `vox:` and run it, then remove it and put `_` in front of `mel:`. Find which part ends on degree 1, and how many beats the piano rests after each phrase. Answer both questions below.",
         skills: [{ skill: "M07", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Mute one line at a time and count the beats from the piano's last note to its next one.",
         },
         hints: ladder(
-          "Which part sounds finished on its own, and which one sounds like it is waiting?",
+          "Mute one part at a time. Which part sounds finished on its own, and which one sounds like it is waiting?",
           "Read the last note of each line on the roll. Then count the piano's silence with the drums: the rest at the end of its bar, and the bar after.",
           "The piano stops after beat 3 of bar 1 and starts again on beat 1 of bar 3. The Rhodes' last note is `n` 0.",
         ),
@@ -249,7 +250,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The piano calls in bars 1 and 3; the `vox` line is silent. Write a response in its bars 2 and 4, with chord tones on beats 1 and 3. The chords are in the code: I V vi IV.",
+          "On the `vox` line, write a response in bars 2 and 4, the two highlighted bars. Put chord tones on beats 1 and 3: V (G B D) in bar 2, IV (F A C) in bar 4. Done when `vox` plays in both bars and its notes on beats 1 and 3 are chord tones.",
         skills: [
           { skill: "M07", w: 0.7 },
           { skill: "M03", w: 0.3 },
@@ -260,12 +261,13 @@ export default defineLesson({
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true, showRoll: false },
         feedbackText: {
-          "rubric.unmet": "{label}: not yet. Bar 2 sits on V (G B D), bar 4 on IV (F A C).",
+          "rubric.unmet":
+            "{label}: not yet. Write notes in the two highlighted bars of `vox`: degree 5, 7 or 2 (G B D) on beats 1 and 3 of bar 2, and degree 4, 6 or 1 (F A C) on beats 1 and 3 of bar 4.",
         },
         hints: ladder(
-          "Which chords play under the gaps the piano leaves?",
+          "Your notes go only in bars 2 and 4 of `vox`, where the piano rests. Which chords play under those two bars?",
           "Bar 2 is V, degrees 5, 7 and 2 (G B D); bar 4 is IV, degrees 4, 6 and 1 (F A C). In `n`, subtract 1.",
-          "Bar 2 could start on degree 5, `n` 4. Bar 4 can end on home.",
+          "Bar 2 could start on degree 5, `n` 4, and fall to another note of V on beat 3. Bar 4 can do the same on IV and end on home.",
         ),
         tests: [
           { name: "reference", response: { code: S4_REF }, expect: "pass" },
@@ -302,7 +304,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A part can answer itself. `.off(1/4, x => x.scaleTranspose(2))` plays the call again a beat later, two degrees higher. Change the delay, the step, or both, and listen to how the echo sits.",
+          "`.off(1/4, x => x.scaleTranspose(2))` plays the call again a beat later, two degrees higher. Change the delay (1/4), the step (2), or both, and listen to where the echo lands. Keep `.off()` on the call. Done when the echo still sounds later than the call, not on top of it.",
         skills: [{ skill: "M07", w: 1 }],
         code: { starter: ECHO_STARTER },
         reference: { solutions: [ECHO_REF], bars: 4 },
@@ -311,7 +313,7 @@ export default defineLesson({
           rules: [
             {
               id: "echo",
-              label: "The call echoes itself with `.off()`",
+              label: "`.off()` plays the call again, later than the call and not on top of it",
               required: true,
               skills: ["M07"],
               // Corrections gate (AS-43): an echo you hear, later than the call; `.off(0, …)` and `.off(4, …)` do not.
@@ -327,7 +329,7 @@ export default defineLesson({
           "code.must-use": "Keep `.off()` on the call: change the numbers inside it.",
         },
         hints: ladder(
-          "Which number says when the echo comes, and which says how far it moves?",
+          "There are two numbers to change inside `.off()`. Which one says when the echo comes, and which says how far it moves?",
           "The first number is the delay, in bars: 1/4 is one beat. The 2 inside `scaleTranspose` moves the echo two degrees up.",
           "Try a delay of two beats, so the echo lands in the piano's own rest.",
         ),
@@ -366,14 +368,14 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A new call is in the code. Play the source: a Rhodes replies in bars 2 and 4. Write its reply in the `vox` line, in `n`, in C.",
+          "Listen to the source: the piano calls in bars 1 and 3, and a Rhodes replies in bars 2 and 4, three notes a bar. Write the Rhodes' reply in the highlighted bars of the `vox` line, in `n`, in C major. Done when your reply matches it note for note.",
         skills: [
           { skill: "M07", w: 0.4 },
           { skill: "E07", w: 0.6 },
         ],
         hints: ladder(
           "Sing the reply after the source plays. Where does it end, and does it go up or down to get there?",
-          "Bar 2 starts high on a note of V and falls; bar 4 starts on a note of IV and falls home. Three notes a bar.",
+          "Bar 2 starts high on a note of V and falls through V; bar 4 starts on a note of IV and falls home.",
           "Bar 4 is `[5 ~ … …]`: it starts on degree 6, `n` 5. Bar 2 starts on degree 7.",
         ),
         domain: "melody",
@@ -453,7 +455,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The call leaves bars 2 and 4 empty. Answer it on another sound, in a line of its own: `vox`, on the Rhodes, the organ or the piano. Let the response end somewhere the call did not.",
+          "Add a `vox:` line on the Rhodes, the organ or the piano that answers the call in bars 2 and 4, while `mel` rests. Done when the two lines take turns instead of playing together. End `vox` on degree 1 to bring the four bars home.",
         skills: [{ skill: "M07", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -463,7 +465,8 @@ export default defineLesson({
           // answers nothing (corrections pass, theory-b 3).
           {
             id: "two-parts",
-            label: "Two parts that take turns",
+            label:
+              "`mel` and `vox` both play notes and take turns: they rarely start a note on the same beat",
             required: true,
             skills: ["M07"],
             rule: "custom",
@@ -472,7 +475,7 @@ export default defineLesson({
           },
           {
             id: "home",
-            label: "The response ends at home",
+            label: "The last note of `vox` is degree 1 (C)",
             required: false,
             skills: ["M07"],
             rule: "ends-on-degree",
@@ -481,7 +484,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Where does the call leave room, and who fills it?",
+          "The call plays in bars 1 and 3. Where does it leave room, and which new line fills it?",
           "A second part is a second labelled line: `vox:` with its own `n(…)`, `.scale()` and sound. Rest in bars 1 and 3.",
           "The response's line can start `<~ [ … ] ~ [ … ]>`: a rest bar, a bar of notes, again.",
         ),

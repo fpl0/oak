@@ -146,7 +146,7 @@ const earPart = (
 
 export default defineLesson({
   id: "U15.L02",
-  version: 2,
+  version: 3,
   title: "Five of Five",
   objective: "I can build the V7 of V, hear the bar where it leans, and name it V7/V.",
   key: C_MAJOR,
@@ -171,7 +171,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A four-bar turn, twice. The second time one note of bar 3 is raised a half step, in the chord and in the tune. Listen for the bar that tilts forward, and for how firmly the bar after it lands.",
+          "Listen to a four-bar turn twice. The second time, one note of bar 3 is raised a half step, in the chord and in the tune. Listen for bar 3 tilting forward, and for how much more firmly bar 4 lands.",
         skills: [{ skill: "H12", w: 1 }],
         hints: null,
         tests: [],
@@ -193,7 +193,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`chord("<Dm D>")` plays D minor for a bar, then D major. Dm is D, F and A. Which note has to move to make it D major, and what is the new note in C major?',
+          '`chord("<Dm D>")` plays D minor for a bar, then D major. Dm is D, F and A. Predict which one note moves to make D major, and what the new note is called in C major. Pick one.',
         skills: [{ skill: "H12", w: 1 }],
         hints: null,
         tests: [],
@@ -221,7 +221,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bars 1 and 2: G7 goes home to C. Bars 3 and 4 make the same move, starting on D. Read the note names on the roll, bottom to top, and compare the two pairs.",
+          "Run the two pairs and read the note names on the roll, bottom to top. Bars 1 and 2 are G7 going home to C; bars 3 and 4 make the same move from D. Answer two questions: which chord is D7 the V7 of, and how many of its four notes are outside C major?",
         skills: [{ skill: "H12", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -277,7 +277,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Two loops of four bars, heard and not seen, each in its own key. One bar in each holds a V7 of V: the chord that is a shade too bright for the key and leans into the next bar. Which bar?",
+          "Find the V7 of V by ear in two four-bar loops, one in C major, one in F major. It is the chord a shade too bright for the key, leaning into the next bar. For each loop, pick the number of that bar.",
         skills: [
           { skill: "H12", w: 0.6 },
           { skill: "E12a", w: 0.4 },
@@ -304,7 +304,7 @@ export default defineLesson({
         role: "check",
         key: F_MAJOR,
         prompt:
-          "The same turn in F major: F, Dm, Gm, C7. Bar 3 is the key's own chord on degree 2. Turn it into the V7 of C, so that it leans into bar 4. The bass reads `changes` too, so one edit does it.",
+          "The turn is now in F major: F, Dm, Gm, C7. Change the marked chord of bar 3, `Gm`, into the V7 of C, so it leans into C7 in bar 4. Edit only that chord: the bass reads `changes` too and follows it.",
         skills: [{ skill: "H12", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 4 },
@@ -378,7 +378,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A last line in C major, in chord names: F, D7, G7, C. Write the numeral of each chord, sevenths included. The chord that is not the key's own takes its name from the chord it leads to.",
+          "Write the numeral of each chord of this line in C major: F, D7, G7, C. Include the 7th where a chord has one. Name the chord that is not the key's own as the V7 of the chord it leads to, with a slash.",
         skills: [
           { skill: "H12", w: 0.7 },
           { skill: "N06", w: 0.3 },
@@ -442,7 +442,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Hear it, then sing it: fa, fi, sol, one note a bar while the chords change under you. The numbers stay on screen: 4, ♯4, 5. Sing in your own range.",
+          "Listen, then sing three notes, one a bar, while the chords change under you: fa, fi, sol (4, ♯4, 5). Hold each note until the chord changes. Sing in your own range.",
         skills: [
           { skill: "E12a", w: 0.6 },
           { skill: "V03", w: 0.4 },
@@ -480,7 +480,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "An eight-bar verse on the key's own chords, with a bass and a tune. Its last V arrives politely. Make the verse lean into it: put a V7 of V in front of a V, then fix the one tune note that now rubs against the chord. After that it is yours: move chords, rewrite the tune, try the organ.",
+          "In `changes`, put a V7 of V in the bar right before a V chord. Then change the tune's note in that bar that now rubs against the new chord. Done when a V7 of V moves straight into V. After that the verse is yours: move chords, rewrite the tune, try the organ.",
         skills: [{ skill: "H12", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -488,7 +488,7 @@ export default defineLesson({
         rubric: [
           {
             id: "five-of-five-goes-to-five",
-            label: "A V of V that goes to V",
+            label: "A V7 of V (D7, or D) at least a beat long, moving straight into V (G or G7)",
             required: true,
             skills: ["H12"],
             rule: "contains-rn",
@@ -498,7 +498,7 @@ export default defineLesson({
           },
           {
             id: "tune-takes-the-raised-note",
-            label: "The tune sings ♯4 somewhere",
+            label: "`mel` plays ♯4 (F♯) at least once",
             required: false,
             skills: ["E12a"],
             rule: "degree-set",
@@ -507,7 +507,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root",
+            label: "The bass plays each chord's root on at least 3 of every 4 chord changes",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -519,7 +519,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which chord of the verse is V? The chord you are adding is that chord's own V7, and it sits right before it.",
+          "The new chord is V's own V7, and it goes in the bar right before V. Which chord of the verse is V, and where is it?",
           "V is G7, in bars 4 and 8. The V7 of G is built on D, a 5th above G. Bar 7 is already on D: it only needs to change kind.",
           "Write `D7` where bar 7 has `Dm`. Then listen to the tune in that bar: its F rubs against the chord's F♯. In `n`, ♯4 is `3#`.",
         ),

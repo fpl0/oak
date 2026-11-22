@@ -67,7 +67,7 @@ const GROUP_OPTIONS = [
 ];
 const earHints = (): HintLadder =>
   ladder(
-    "Listen to the Rhodes alone. Does it land with the kick and the snare, or does it slip between them?",
+    "Listen to the Rhodes alone and notice whether it lands with the kick and the snare or slips between them.",
     "The drums mark two big beats in every bar. Count the Rhodes chords from one kick to the next.",
     "Tap your foot with the kick and the snare and count the chords out loud from one kick to the next.",
   );
@@ -141,7 +141,8 @@ const OTHER_EIGHTHS: Rat[] = [
 ];
 const REGROUP_RULE: RubricRule = {
   id: "bar-two-regrouped",
-  label: "Bar 1 in two groups of three, bar 2 in three groups of two",
+  label:
+    "Bar 1 plays chords on eighths 1 and 4 (two groups of three); bar 2 on eighths 1, 3 and 5 (three groups of two)",
   required: true,
   skills: ["R17"],
   rule: "onsets",
@@ -168,7 +169,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R2.L03",
-  version: 2,
+  version: 3,
   title: "Hemiola",
   objective: "I can hear six pulses regroup from two threes into three twos, and write it into a groove.",
   key: { tonic: "A", mode: "minor" },
@@ -193,7 +194,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The drums and the hi-hat sway the same way in both loops; only the Rhodes and the bass change. In the second loop, which bars stop swaying with the drums, and what do they do instead?",
+          "Listen to the Rhodes and the bass against the drums in both loops; the drums do not change. Notice which bars of the second loop stop swaying with the drums, and what they do instead.",
         skills: [{ skill: "R17", w: 1 }],
         hints: null,
         tests: [],
@@ -223,10 +224,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The second groove plays four bars. Tap with every Rhodes chord, not with the drums: two taps in some bars, three in others, ten in all.",
+          "Tap with every Rhodes chord, the soft keyboard chords, and ignore the drums. Bars 1 and 3 have two chords; bars 2 and 4 have three. Four bars, ten taps in all. Done when each tap lands with a chord.",
         skills: [{ skill: "R17", w: 1 }],
         hints: ladder(
-          "Which bars have more chords than the others?",
+          "Follow the Rhodes, not the drums: in some bars it plays one more chord than in others.",
           "Bars 1 and 3 follow the kick and the snare. In bars 2 and 4 the chords stop following them.",
           "Count the six quick hi-hat hits of each bar under your breath, and tap only where a chord sounds.",
         ),
@@ -267,14 +268,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and read two bars on the roll: the hi-hat marks every eighth note, and the Rhodes and the bass sit on some of them.",
+          "Run it and read two bars on the roll: the hi-hat marks every eighth note, and the Rhodes and the bass sit on some of them. Then answer: how many eighths the hi-hat plays in bar 2, and how the chords group them.",
         skills: [{ skill: "R17", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the hi-hat hits in bar 2, then look at which of them the chords land on, and how many hits apart they are.",
         },
         hints: ladder(
-          "Does bar 2 last longer than bar 1, or the same?",
+          "Count the hi-hat hits in bar 1, then in bar 2.",
           "The hi-hat plays the same number of hits in every bar. In each bar, count how many hits lie from one chord to the next.",
           "In bar 1 the chords are three hits apart. Count the gap in bar 2 the same way.",
         ),
@@ -327,7 +328,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four short grooves in 6/8. The drums keep their two big beats every time. Is the Rhodes grouped in threes, with the drums, or in twos, against them?",
+          "Four short grooves in 6/8. The drums keep their two big beats every time. For each, pick whether the Rhodes is grouped in threes, with the drums, or in twos, against them.",
         skills: [{ skill: "R17", w: 1 }],
         hints: earHints(),
         srs: [{ family: "fam.rhy.meter", mode: "review-if-due" }],
@@ -353,7 +354,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Both bars of these chords fall in two groups of three, with the drums. Keep bar 1 as it is. Make bar 2 fall in three groups of two, with the same six eighths and the same tempo.",
+          "Give each bar its own rhythm in the chords' `.struct()`. Keep bar 1 as two groups of three, with the drums. Make bar 2 three groups of two: three chords, evenly spaced over the same six eighths. Keep the tempo. Done when the bars alternate like the target.",
         skills: [{ skill: "R17", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 2 },
@@ -366,7 +367,7 @@ export default defineLesson({
             "{label}: not yet. Listen to the target: bar 1 sways with the drums, and bar 2 has its own number of chords, evenly spaced across the bar.",
         },
         hints: ladder(
-          "How many chords does bar 2 of the target play, and are they evenly spaced?",
+          "Count the chords in bar 2 of the target and the hi-hat hits between them.",
           "The rhythm string is the same for every bar. `< >` gives each bar its own item, and each item can be six steps in `[ ]`.",
           "Put bar 1's six steps in the first `[ ]` of a `< >`, unchanged. Then place bar 2's chords in a second `[ ]` of six steps, an equal distance apart.",
         ),
@@ -451,7 +452,7 @@ export default defineLesson({
         role: "practice",
         title: "Hemiola",
         prompt:
-          "The band's drums mark the two big beats of every bar; the chords and the bass are yours, and they follow the drums. Regroup some bars into three groups of two, then come back. Every other bar, or only the last bar of the phrase, as it lands: your choice.",
+          "Make your chords and bass regroup; the band's drums keep two big beats a bar. Required: some bars of the chords fall in threes, with the drums, and others in three groups of two. Also on the checklist: the bass regroups too and plays beat 1 of every bar. Regroup every other bar, or only the last of the phrase.",
         skills: [{ skill: "R17", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -459,7 +460,7 @@ export default defineLesson({
         rubric: [
           {
             id: "regrouped",
-            label: "Your six pulses regroup: some bars in threes, others in twos",
+            label: "Some bars of the chords fall in two groups of three, others in three groups of two",
             required: true,
             skills: ["R17"],
             rule: "custom",
@@ -468,7 +469,7 @@ export default defineLesson({
           },
           {
             id: "bass-regrouped",
-            label: "The bass regroups too",
+            label: "The bass also has bars in threes and bars in twos",
             required: false,
             skills: ["R17"],
             rule: "custom",
@@ -477,7 +478,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-one",
-            label: "The bass still lands on the first beat of every bar",
+            label: "The bass plays on beat 1 of every bar",
             required: false,
             skills: ["R17"],
             rule: "onsets",
@@ -489,7 +490,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which bars of your groove follow the drums, and which could pull against them?",
+          "Pick which bars stay with the drums and which regroup into twos.",
           "A bar of six eighths can be two groups of three or three groups of two. Give the bars their own rhythms with `< >`.",
           "Keep three bars of the rhythm string as they are, in a `< >`, and give the fourth its own six steps with three chords in it.",
         ),

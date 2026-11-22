@@ -1,6 +1,6 @@
 // The app shell (ux §2.1): NavRail + TopBar around the page in shell routes; a 56 px focus header and no rail
 // in focus routes (lesson, drill, checkpoint, onboarding, coda, calibration). The tutor panel docks on the right.
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import { clsx } from "clsx";
 import {
   AudioWaveform,
@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
 import { useContent } from "../../lib/content.ts";
-import { NAV_ITEMS, type NavId } from "../../lib/nav.ts";
+import { NAV_ITEMS, type NavId, noteReturnTarget, returnTarget } from "../../lib/nav.ts";
 import { useCourseProgress, useDue } from "../../lib/queries.ts";
 import { useShell } from "../../lib/shell-store.ts";
 import { useUnlockedSet } from "../../lib/unlocked.ts";
@@ -177,15 +177,23 @@ function Elapsed({ since }: { since: number }) {
 function FocusBar() {
   const { title, steps, startedAt, position, onVisit } = useFocusHeader();
   const shellTitle = useShell((s) => s.title);
+  const router = useRouter();
+  const back = returnTarget();
   return (
     <header className="flex h-[var(--oak-focusbar-h)] shrink-0 items-center gap-4 border-b border-border bg-bg px-3">
       <Tooltip content="Your place is saved" shortcut="Esc" side="bottom">
-        <Link
-          to="/"
+        <a
+          href={back.href}
+          onClick={(e) => {
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+            e.preventDefault();
+            void router.navigate({ href: back.href });
+          }}
           className="inline-flex h-8 items-center gap-1 rounded-control px-2 text-sm text-text-2 hover:bg-surface-2 hover:text-text"
+          data-testid="focus-back"
         >
-          <ChevronLeft aria-hidden className="size-4" /> Today
-        </Link>
+          <ChevronLeft aria-hidden className="size-4" /> {back.label}
+        </a>
       </Tooltip>
       <p className="min-w-0 flex-1 truncate font-display text-h3 font-semibold" data-testid="page-title">
         {title ?? shellTitle}
@@ -201,7 +209,12 @@ function FocusBar() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const href = useRouterState({ select: (s) => s.location.href });
   const focus = isFocusRoute(path);
+  // The last ordinary page is where a focus page's back button (and Esc) returns.
+  useEffect(() => {
+    if (!focus) noteReturnTarget(path, href);
+  }, [focus, path, href]);
   useTutorBridge();
   return (
     <div className="flex h-dvh w-full overflow-hidden bg-bg text-text" data-mode={focus ? "focus" : "shell"}>

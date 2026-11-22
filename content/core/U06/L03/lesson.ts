@@ -60,7 +60,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U06.L03",
-  version: 2,
+  version: 3,
   title: "Home, Away, Tension",
   objective:
     "I can hear whether a chord sounds like home, away or tension, and write a phrase that goes away and comes home through tension.",
@@ -91,7 +91,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Four chords and a tune that climbs a step each bar. Follow the route: in which bar does the loop leave home, and in which does it arrive back?",
+          "Four chords and a tune that climbs a step each bar. Listen for the bar where the loop leaves home and the bar where it arrives back.",
         skills: [{ skill: "H02", w: 1 }],
         hints: null,
         tests: [],
@@ -111,7 +111,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Picture the loop stopping after one of its bars and holding that chord. After which bar would you most want to hear the next chord?",
+          "Picture the loop stopping after one of its bars and holding that chord. Predict after which bar you would most want to hear the next chord, and pick it.",
         skills: [{ skill: "H02", w: 1 }],
         hints: null,
         tests: [],
@@ -140,14 +140,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The seven triads of C, then home. The coloured band under the roll sorts them into three groups: home, away and tension. Listen to each chord against its group.",
+          "Run the seven triads of C, then home. The coloured band under the roll sorts them into three groups: home, away and tension. Listen to each chord against its group, then answer both questions below.",
         skills: [{ skill: "H02", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Play it again and stop on each bar: home chords could end the loop, tension chords pull towards the next bar.",
         },
         hints: ladder(
-          "Which chord, other than I, could you stop on and feel finished?",
+          "Besides I, one more chord could end the loop and still sound finished. Listen for it.",
           "A home chord shares notes with I. Count how many notes each minor chord shares with C E G.",
           "vi is A C E: two of its three notes are in I. Now count the chords that pull hardest towards home.",
         ),
@@ -199,10 +199,10 @@ export default defineLesson({
         id: "name-the-job",
         version: 1,
         role: "check",
-        prompt: "A numeral in a major key. Is its chord home, away or tension?",
+        prompt: "Oak shows a numeral in a major key. Pick its chord's job: home, away or tension.",
         skills: [{ skill: "H02", w: 1 }],
         hints: ladder(
-          "Could the chord end a song, or does it lead somewhere?",
+          "Decide first whether the chord could end a song or leads somewhere.",
           "Home: I and vi. Away: IV and ii. Tension: V and vii°.",
           "Tension chords sit on degrees 5 and 7. Is this chord's root one of them?",
         ),
@@ -227,7 +227,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Bar 2 stays at home, and the tune rubs against it there. Change its number so bar 2 leads away: either of the two away chords works.",
+          "Bar 2 stays at home on I, and the tune rubs against it there. Change bar 2's number in `.add()` so it plays an away chord: IV or ii, either works. Change only bar 2.",
         skills: [{ skill: "H02", w: 1 }],
         code: { starter: MODIFY_STARTER },
         // IV or ii: both lead away, and both hold the tune's F and A.
@@ -241,7 +241,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}. Bar 2 needs an away chord, IV or ii; `n` counts from 0, so subtract one from the degree.",
         },
         hints: ladder(
-          "Which two chords sat in the away group in Three jobs?",
+          "Bar 2 needs one of the two chords from the away group in Three jobs.",
           "IV and ii lead away. The number in `.add()` is the degree minus one.",
           "Bar 3 shows the idea: V is degree 5, and it adds 4. Do the same for IV or ii.",
         ),
@@ -292,10 +292,11 @@ export default defineLesson({
         id: "mark-the-jobs",
         version: 1,
         role: "check",
-        prompt: "A new loop, one chord a bar. Listen, read the code, and mark the job of each bar.",
+        prompt:
+          "A new loop, one chord a bar. Listen, read the code, and mark each bar's job: home, away or tension.",
         skills: [{ skill: "H02", w: 1 }],
         hints: ladder(
-          "Which bars are home? Start with the first and the last.",
+          "Start with the home bars: the first and the last.",
           "Read each number in `.add()` and add one to get the degree of the root.",
           "Bars 1 and 4 are I, home. Bar 3 adds 4: which chord is that, and what does it do?",
         ),
@@ -341,7 +342,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a four- or eight-bar phrase: start at home, go away, build tension on V, come home. The home and away chords are your choice. A tune that ends on 1 lands with the chords.",
+          "Change the starter into a phrase that starts at home, goes away, builds tension on V, then comes home on I. The home and away chords are your choice. Done when V is followed straight away by I, with an away chord (IV or ii) somewhere before it.",
         skills: [{ skill: "H02", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -349,7 +350,7 @@ export default defineLesson({
         rubric: [
           {
             id: "tension-goes-home",
-            label: "The tension chord goes home: V then I",
+            label: "V followed straight away by I",
             required: true,
             skills: ["H02"],
             rule: "contains-rn",
@@ -359,7 +360,7 @@ export default defineLesson({
           },
           {
             id: "away-first",
-            label: "Something away before the tension: IV or ii",
+            label: "At least one away chord: IV or ii",
             required: false,
             skills: ["H02"],
             rule: "contains-rn",
@@ -368,7 +369,7 @@ export default defineLesson({
           },
           {
             id: "tune-home",
-            label: "A tune that ends on 1",
+            label: "A `mel` line whose last note is 1",
             required: false,
             skills: ["M01"],
             rule: "ends-on-degree",
@@ -377,7 +378,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "The starter goes home, away, home, away. Which job never happens?",
+          "The starter goes home, away, home, away: it never builds tension. That job belongs to V.",
           "Tension is V, degree 5: the number 4 in `.add()`. Put it just before a bar that adds 0.",
           "Bar 3 is the place: home, away, then tension, then home in bar 4. One number changes, maybe two.",
         ),

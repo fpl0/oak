@@ -98,7 +98,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U15.L05",
-  version: 2,
+  version: 4,
   title: "Dominant Chains",
   objective: "I can write a chain of dominant sevenths that falls by 5ths, each the V7 of the next.",
   key: C_MAJOR,
@@ -123,7 +123,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two loops for a 1920s dance band: the opening changes of Five Foot Two, then the chain of Sweet Georgia Brown. Listen for the bar where the music finally comes to rest. Until then, does any chord sound settled?",
+          "Listen to two loops for a 1920s dance band: the opening changes of Five Foot Two, then the chain of Sweet Georgia Brown. Listen for the bar where the music finally comes to rest. Until then, does any chord sound settled?",
         skills: [{ skill: "H12", w: 1 }],
         hints: null,
         tests: [],
@@ -153,7 +153,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "E7 went to A7, and A7 went to D7: each root a 5th below the one before, each chord the V7 of the next. The code stops on D7. Which chord does it want next?",
+          "E7 went to A7, and A7 went to D7: each root a 5th below the one before, each chord the V7 of the next. The code stops on D7. Predict which chord it wants next, then pick it.",
         skills: [{ skill: "H12", w: 1 }],
         hints: null,
         tests: [],
@@ -181,14 +181,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The chain E7, A7, D7, G7 as two notes a chord over the bass, with the circle of fifths open. Watch the two upper notes on the roll at every change, and follow where G♯, the 3rd of E7, goes.",
+          "Run the chain E7, A7, D7, G7, played as two notes a chord over the bass. Watch the two upper notes on the roll at every change. Answer two questions: how far each upper note falls at every change, and which member of A7 the G is that G♯, the 3rd of E7, slides to.",
         skills: [{ skill: "H12", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read the upper line bar by bar, G♯ G F♯ F, and count the keys between neighbours. For the second question, list A7 from its root, A C♯ E G, and find G in it.",
         },
         hints: ladder(
-          "How far is G♯ from G on the keyboard?",
+          "Two answers: a number of half steps, then a member of a chord. How far is G♯ from G on the keyboard?",
           "Each of the two upper notes moves to the key right below it at every change: G♯ G F♯ F above, D C♯ C B under it.",
           "A7 is A, C♯, E, G from the root. Count up from A to G: which member of the chord is that?",
         ),
@@ -241,7 +241,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The chain in C major, in chord names: E7, A7, D7, G7, C. Players call it III7 VI7 II7 V7, by its roots. Write each chord by where it goes instead: the V7 of the chord after it.",
+          "Write the numeral of each chord of this chain in C major: E7, A7, D7, G7, C. Players call it III7 VI7 II7 V7, by its roots. Name each chord by where it goes instead, with a slash where it is the V7 of a chord other than I.",
         skills: [
           { skill: "H12", w: 0.7 },
           { skill: "N06", w: 0.3 },
@@ -301,7 +301,7 @@ export default defineLesson({
         role: "check",
         key: F_MAJOR,
         prompt:
-          "Sweet Georgia Brown's chain in F major, two bars a chord: it starts on D7 and lands on F in bar 7. Write the two links in between, each the V7 of the chord after it.",
+          "Write the two missing links of Sweet Georgia Brown's chain in F major, in the marked bars 3 to 6, two bars each. The chain starts on D7 and lands on F in bar 7. Each link is the V7 of the chord after it.",
         skills: [{ skill: "H12", w: 1 }],
         code: { starter: GEORGIA_STARTER },
         reference: { solutions: [GEORGIA_IN_F], bars: 8 },
@@ -380,7 +380,7 @@ export default defineLesson({
         role: "check",
         key: C_MAJOR,
         prompt:
-          "A chain in C major, heard and not seen, one chord a bar, from home back to home. Enter the bass note of each bar as a degree, in order: six notes.",
+          "Listen to a chain in C major, heard and not seen, one chord a bar, from home back to home. Enter the bass note of each of the six bars as a degree, in order.",
         skills: [
           { skill: "E09", w: 0.6 },
           { skill: "H12", w: 0.4 },
@@ -438,7 +438,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "An eight-bar turn on the key's own chords whose roots already fall by 5ths from E to C. Turn the walk into a chain: at least three dominant sevenths in a row, each the V7 of the next, landing home. Then add horn stabs, and let the trumpet take the notes the chain brings.",
+          "In `changes`, keep every root and change chord kinds so that at least three dominant sevenths in a row, each the V7 of the next, lead through G7 into C. Then add horn stabs: copy the chords line, label it `horns`, sound it with `horns`, and give it a `.struct()` of your own.",
         skills: [{ skill: "H12", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -446,7 +446,7 @@ export default defineLesson({
         rubric: [
           {
             id: "three-in-a-row",
-            label: "Three dominant sevenths in a row, each the V7 of the next, landing home",
+            label: "Three dominant sevenths in a row, A7, D7 and G7, then C, one straight after another",
             required: true,
             skills: ["H12"],
             rule: "contains-rn",
@@ -457,7 +457,7 @@ export default defineLesson({
           },
           {
             id: "the-horns-play",
-            label: "The horns play",
+            label: "A line sounds with `horns`",
             required: false,
             skills: ["H12"],
             rule: "sounds",
@@ -465,7 +465,8 @@ export default defineLesson({
           },
           {
             id: "a-link-earlier",
-            label: "The chain starts a link earlier, on the V7 of vi",
+            label:
+              "The chain starts a link earlier: a V7 of vi (E7), at least a beat long, moving straight into Am",
             required: false,
             skills: ["H12"],
             rule: "contains-rn",
@@ -475,7 +476,7 @@ export default defineLesson({
           },
           {
             id: "trumpet-takes-the-lean",
-            label: "The trumpet takes a note the chain brings",
+            label: "The trumpet (`mel`) plays at least one note the chain brings: G♯, C♯ or F♯",
             required: false,
             skills: ["E12a"],
             rule: "degree-set",

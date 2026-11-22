@@ -411,6 +411,8 @@ function TrialView({
     snap.matches({ trial: "cueing" }) ||
     snap.matches({ trial: "bassAlone" });
   const answering = snap.matches({ trial: "answering" });
+  // A sung trial waits for Start (clarity pass, 2026-11-22): nothing plays and the mic stays closed until then.
+  const ready = snap.matches({ trial: "ready" });
   const singingPart = snap.matches({ trial: "singingPart" });
   const auditioning = snap.matches({ feedback: "auditioning" });
   const resolving = snap.matches({ resolution: "running" });
@@ -876,8 +878,17 @@ function TrialView({
       scope: "answer-pad",
       group: "Drills",
       description: "Skip the sung part (no penalty)",
-      when: () => (isSing && (presenting || answering)) || resolving || imagining || singingPart,
+      when: () => (isSing && (ready || presenting || answering)) || resolving || imagining || singingPart,
       run: () => send({ type: "SKIP_SUNG" }),
+    },
+    {
+      id: "drill-start",
+      keys: "Enter",
+      scope: "answer-pad",
+      group: "Drills",
+      description: "Start the sung trial",
+      when: (k) => !k.onControl && ready,
+      run: () => send({ type: "START" }),
     },
   ];
   // Only keys that work for this trial are registered, so the shortcut sheet lists exactly those.
@@ -1040,7 +1051,9 @@ function TrialView({
                       : "Your turn."
                   : snap.matches({ trial: "bassAlone" })
                     ? "The bass alone…"
-                    : "Getting ready…")}
+                    : ready
+                      ? "Press Start when you are ready: you hear the note, then sing it back."
+                      : "Getting ready…")}
           </span>
         </div>
         {trial.params.showStaff === true && <TrialStaff trial={trial} />}
@@ -1420,6 +1433,16 @@ function TrialView({
             )
           }
         >
+          {ready && (
+            <Button
+              variant="primary"
+              autoFocus
+              onClick={() => send({ type: "START" })}
+              data-testid="drill-start"
+            >
+              Start <Kbd tone="inverse">Enter</Kbd>
+            </Button>
+          )}
           {canReplay && (
             <Button
               onClick={() =>
@@ -1510,7 +1533,7 @@ function TrialView({
               Show me
             </Button>
           )}
-          {((isSing && !quietSing && !micRow && (presenting || answering)) ||
+          {((isSing && !quietSing && !micRow && (ready || presenting || answering)) ||
             resolving ||
             imagining ||
             singingPart) && (

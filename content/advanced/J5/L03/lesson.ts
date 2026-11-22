@@ -94,7 +94,8 @@ const MAKE_STARTER = tuneG("<G^7 Em7 Am7 D7>");
 /** The Make's one idea: a ii–V aimed at a chord of the tune that is not home, heard on the chords line. */
 const SECONDARY: RubricRule = {
   id: "secondary-ii-v",
-  label: "A ii–V aimed at a chord of the tune",
+  label:
+    "A ii–V aims at a chord other than home: a minor seventh, then the dominant seventh a 5th above that chord",
   required: true,
   skills: ["J14"],
   rule: "device-count",
@@ -108,7 +109,7 @@ const SECONDARY: RubricRule = {
  */
 const BASS_FOLLOWS: RubricRule = {
   id: "bass-follows",
-  label: "The bass plays each chord's root as it changes",
+  label: "At every chord change the bass plays the new chord's root",
   required: false,
   skills: ["J14"],
   rule: "bass-line",
@@ -123,7 +124,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J5.L03",
-  version: 2,
+  version: 3,
   title: "Secondary ii–Vs & Diminished Passing Chords",
   objective: "I can aim a ii–V at any chord of a tune, so it sounds like a little home of its own.",
   key: C,
@@ -149,7 +150,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to the move from bar 2 into bar 3. In which take does bar 3 feel like an arrival, rather than just the next chord?",
+          "Listen to the move from bar 2 into bar 3 in both takes. Notice in which take bar 3 feels like an arrival, not just the next chord.",
         skills: [{ skill: "J14", w: 1 }],
         hints: null,
         tests: [],
@@ -179,7 +180,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bar 2 will hold two chords instead of Am7. Which pair makes Dm7 in bar 3 sound like a home of its own?",
+          "Bar 2 will hold two chords instead of Am7. Predict which pair makes Dm7 in bar 3 sound like a home of its own, and pick it.",
         skills: [{ skill: "J14", w: 1 }],
         hints: null,
         tests: [],
@@ -207,14 +208,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and read the bass on the roll from bar 2 into bar 3: E, A, then D. Then find where A7 points.",
+          "Run it and read the bass on the roll from bar 2 into bar 3: E, A, then D. Answer two questions: how each root moves to the next, and in which bar the chord A7 points at sounds.",
         skills: [{ skill: "J14", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Name the note a 5th below E and the note a 5th below A, and compare them with the roots that follow. A dominant seventh points at the chord a 5th below its root.",
         },
         hints: ladder(
-          "How do the roots move in the ii–V–I you know, Dm7 G7 C?",
+          "Compare with the ii–V–I you know, Dm7 G7 C: each root moves the same distance to the next.",
           "Count down the letter names from E to A: E, D, C, B, A. How many letters is that, counting both ends? Then from A to D.",
           "A7 is V7 of D. Find the bar where the D chord sounds.",
         ),
@@ -268,7 +269,7 @@ export default defineLesson({
         role: "check",
         key: Bb,
         prompt:
-          "A turnaround in B♭: B♭maj7, Gm7, Cm7, F7. Replace Gm7 with two chords, a ii and a V, that treat Cm7 in bar 3 as their home.",
+          "A turnaround in B♭: B♭maj7, Gm7, Cm7, F7. Replace Gm7 in bar 2 with two chords, half a bar each: a ii and a V that treat Cm7 in bar 3 as their home. Keep the other bars.",
         skills: [{ skill: "J14", w: 1 }],
         swing: SWUNG,
         code: { starter: AIM_STARTER },
@@ -282,7 +283,7 @@ export default defineLesson({
             "Bar {bar}: other notes than the target's. Listen to bar 2 of the target: its two roots fall by 5ths into the root of bar 3, the way a ii–V falls into home.",
         },
         hints: ladder(
-          "If Cm7 were home, what would its V7 be?",
+          "Treat Cm7 as home: find its V7 first, a 5th above C.",
           "The V7 of C sits a 5th above C. The ii before it sits a 5th above that V, and it is a minor chord.",
           "The second half of bar 2 is the V7 of C: a dominant seventh on the note a 5th above C. The first half is the minor seventh a 5th above that note.",
         ),
@@ -350,10 +351,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two cards: C to Dm7, then G7 and home. In one of them, beat 4 of bar 1 holds a chord between C and Dm7. Which card's bass climbs by half steps into Dm7?",
+          "Two cards: C to Dm7, then G7 and home. In one of them, beat 4 of bar 1 holds a chord between C and Dm7. Pick the card whose bass climbs by half steps into Dm7.",
         skills: [{ skill: "J14", w: 1 }],
         hints: ladder(
-          "Hum the bass of each card from bar 1 into bar 2.",
+          "Hum the bass of each card from bar 1 into bar 2, and count the notes it takes to get from C to D.",
           "C and D are a whole step apart. A bass that climbs by half steps needs a note between them.",
           "Listen to beat 4 of bar 1 only: in one card the bass is still on C there.",
         ),
@@ -397,7 +398,7 @@ export default defineLesson({
         role: "practice",
         key: C,
         prompt:
-          "For the longer session: write card B yourself. Keep Cmaj7 for three beats of bar 1, and give beat 4 the diminished seventh a half step above C, so the bass climbs C, C♯, D.",
+          "For the longer session: rewrite bar 1 of `changes` as two chords. Keep Cmaj7 for beats 1 to 3, and put the diminished seventh a half step above C on beat 4, so the bass climbs C, C♯, D. Keep the other bars.",
         skills: [{ skill: "J14", w: 1 }],
         swing: SWUNG,
         code: { starter: SLIP_STARTER },
@@ -409,7 +410,7 @@ export default defineLesson({
             "Bar {bar}: other notes than the target's. Listen to beat 4 of bar 1 in the target: the bass is a half step above C there, and the chord is darker.",
         },
         hints: ladder(
-          "How do you give one chord three beats and another one beat in the same bar?",
+          "Bar 1 needs two chords of different lengths: three beats, then one.",
           "`@3` makes a step three beats long inside `[ ]`. The new chord is a diminished seventh, written with `o7`.",
           "Bar 1 becomes a bracket: Cmaj7 for three beats, then the diminished seventh on the note between C and D.",
         ),
@@ -470,7 +471,7 @@ export default defineLesson({
         key: G,
         title: "Aimed tune in G",
         prompt:
-          "The loop is Gmaj7, Em7, Am7, D7. Aim a ii–V at one of its chords, or at several, so each one sounds like a little home. The tune can stay as it is; check that its long notes agree with each new chord. A diminished seventh between two chords a whole step apart can come after.",
+          "The loop is Gmaj7, Em7, Am7, D7. Required: aim a ii–V at one of its chords other than home, sharing the bar before it. Also on the checklist: the bass plays each chord's root, and a diminished seventh between two chords a whole step apart. Keep the tune, and check that its long notes agree with each new chord.",
         skills: [{ skill: "J14", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -495,7 +496,7 @@ export default defineLesson({
         // The override serves every rule, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which chord of the loop would you like to arrive at like a small homecoming?",
+          "Pick one chord of the loop, not Gmaj7, to arrive at like a small homecoming. The ii–V goes in the bar before it.",
           "Pick a target that is not Gmaj7. Its V7 sits a 5th above it; the ii sits a 5th above that V and is a minor seventh. Both go in the bar before the target, sharing it.",
           "To aim at Am7, its V7 is E7: put it on the second half of bar 2, and the minor seventh a 4th below E on the first half. Move the bass to both roots.",
         ),

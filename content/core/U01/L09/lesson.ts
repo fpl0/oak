@@ -53,7 +53,7 @@ const DRUM_MATCH = {
 
 export default defineLesson({
   id: "U01.L09",
-  version: 2,
+  version: 4,
   title: "Copy That Groove",
   objective: "I can copy a drum groove by ear and play the same groove at half or double time.",
   key: { tonic: "C", mode: "major" },
@@ -81,7 +81,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Nod along at the same speed through all three loops. Which version feels heavier, and which more urgent?",
+          "Nod along at the same speed through all three loops. Listen for which version feels heavier and which feels more urgent.",
         skills: [{ skill: "R05", w: 1 }],
         hints: null,
         tests: [],
@@ -108,14 +108,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "This is the `.slow(2)` version. Run it, watch the snare lane, and count the beats of each bar.",
+          "This is the `.slow(2)` version of the groove. Count the four beats of each bar and watch where the snare lands on the roll. Then answer the two questions below.",
         skills: [{ skill: "R05", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Watch the snare lane and count the beats of each bar: where does the snare land now, and how often?",
         },
         hints: ladder(
-          "How long does the groove take now before it starts again?",
+          "Find where the snare lands now, and how often. How long does the groove take before it starts again?",
           "`.slow(2)` stretches one bar of pattern over two bars. The tempo line did not change.",
           "The snare that was on beat 2 now lands twice as late in the bar.",
         ),
@@ -168,14 +168,14 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Listen, then write what you hear: a `kick:` line and a `snare:` line under the tempo line `setcpm(96/4)`. Slow it down or loop it as often as you like.",
+          "Write the groove you hear as two lines under `setcpm(96/4)`: a `kick:` line and a `snare:` line, each one bar long. Slow it down or loop it as often as you like. Done when both lines play what you hear.",
         skills: [
           { skill: "E01", w: 0.5 },
           { skill: "R05", w: 0.5 },
         ],
         hints: [
           {
-            text: "Which drum plays on the beats you nod to, and which one answers it?",
+            text: "Copy the snare first, then the kick. Which drum plays on the beats you nod to, and which one answers it?",
             replay: { isolate: "drums" },
           },
           {
@@ -248,14 +248,22 @@ export default defineLesson({
         id: "make-it-heavier",
         version: 1,
         role: "check",
-        prompt: 'Make the groove half-time: add `.slow(2)` to every line, straight after the `s("…")`.',
+        prompt:
+          'Make the groove half-time: add `.slow(2)` to all three lines, straight after each `s("…")`. Done when kick, snare and hats all play at half pace.',
         skills: [{ skill: "R05", w: 1 }],
         code: { starter: HOOK },
         reference: { solutions: [HALF], bars: 2 },
         matcher: DRUM_MATCH,
         target: { audible: true, showRoll: true },
+        // The catalog says "extra hit": this says which lines to check.
+        feedbackText: {
+          "rhythm.extra":
+            "Bar {bar}, {beatLabel}: a hit that should not be there{role}. Every line needs `.slow(2)`: check that each of the three has it, and that none has `.fast(2)`.",
+          "rhythm.missing":
+            "Bar {bar}, {beatLabel}: no hit here yet{role}. Every line needs `.slow(2)`: check that each of the three has it, and that none has `.fast(2)`.",
+        },
         hints: ladder(
-          "How many lines play drums, and how many of them need to slow down?",
+          "All the drum lines need `.slow(2)`. How many lines play drums?",
           "`.slow(2)` goes into each line's chain, before `.bank(…)`.",
           'The kick line becomes `kick: s("bd ~ [~ bd] ~").slow(2).bank("LinnDrum")`. The other two lines follow.',
         ),
@@ -307,10 +315,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Tap your foot and listen to the hats between the taps. In which version do they lean back and roll instead of ticking evenly?",
+          "Tap your foot on the beat and listen to the hats between the taps. Pick the version, A or B, where those hats lean back and roll instead of ticking evenly.",
         skills: [{ skill: "R05", w: 1 }],
         hints: ladder(
-          "Listen to the hats alone. Are the gaps between them all the same?",
+          "Compare the hats in A and B. Are the gaps between them all the same?",
           "In one version every hat sits exactly halfway between two beats. In the other, the hat between two beats arrives late.",
           "Tap your foot on the beat and listen to what happens between two taps.",
         ),
@@ -346,7 +354,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a groove, then flip it with one function: `.slow(2)` for half-time or `.fast(2)` for double-time, on one line or on all of them.",
+          "Write a groove, then change its speed with `.slow(2)` for half-time or `.fast(2)` for double-time, on one line or on all of them. Done when at least one line plays at a new speed.",
         skills: [
           { skill: "R05", w: 0.5 },
           { skill: "E01", w: 0.5 },
@@ -357,7 +365,7 @@ export default defineLesson({
         rubric: [
           {
             id: "slow-or-fast",
-            label: "Changes the speed with `.slow()` or `.fast()`",
+            label: "At least one line that plays changes speed with `.slow()` or `.fast()`",
             required: true,
             skills: ["R05"],
             // The effect, not the call: `.slow(1)` keeps the speed it had.
@@ -366,7 +374,7 @@ export default defineLesson({
           },
           {
             id: "new-kit",
-            label: "A drum machine of your choice with `.bank()`",
+            label: "Picks a drum machine with `.bank()`",
             required: false,
             skills: ["R04"],
             rule: "uses",
@@ -374,7 +382,7 @@ export default defineLesson({
           },
           {
             id: "shaker",
-            label: "A shaker `sh` on top",
+            label: "Uses the shaker `sh`",
             required: false,
             skills: ["R05"],
             rule: "sounds",
@@ -382,7 +390,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which part of the groove would sound good twice as busy, or half as busy?",
+          "Add `.slow(2)` or `.fast(2)` to at least one line. Which part of the groove would sound good half as busy, or twice as busy?",
           '`.slow(2)` and `.fast(2)` go into a line\'s chain, after the `s("…")`.',
           "Try `.fast(2)` on the hats line alone: the kick and snare stay put while the hats double.",
         ),

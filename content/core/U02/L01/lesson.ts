@@ -24,7 +24,7 @@ const HOOK = mel("<[c3 ~ c4 c5] [~ c5 c4 c3]>");
 
 export default defineLesson({
   id: "U02.L01",
-  version: 2,
+  version: 3,
   title: "High & Low",
   objective: "I can hear which of two notes is higher and move a line up or down by an octave in code.",
   key: { tonic: "C", mode: "major" },
@@ -52,7 +52,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Let your hand rise as the piano climbs and sink as it falls. Listen for how many heights it uses.",
+          "Listen for how many different heights the piano uses over the two bars. Let your hand rise as it climbs and sink as it falls.",
         skills: [{ skill: "P01", w: 1 }],
         hints: null,
         tests: [],
@@ -71,7 +71,8 @@ export default defineLesson({
         id: "which-is-higher",
         version: 1,
         role: "practice",
-        prompt: "`c3`, then `c5`. Hum your guess: which of the two will sound higher?",
+        prompt:
+          "Predict which note will sound higher: the first, `c3`, or the second, `c5`. Hum your guess, then pick one answer.",
         skills: [{ skill: "P01", w: 1 }],
         hints: null,
         tests: [],
@@ -98,11 +99,12 @@ export default defineLesson({
         id: "watch-the-roll",
         version: 1,
         role: "practice",
-        prompt: "Run it. Watch where each note lands on the roll and on the keys.",
+        prompt:
+          "Listen to the four notes once through. Watch where each one lands on the roll, where low notes sit at the bottom and high notes at the top, and which key lights up.",
         skills: [{ skill: "P01", w: 1 }],
         hints: ladder(
-          "Which of the four notes sits highest on the roll?",
-          "The roll puts low notes at the bottom and high notes at the top, like a graph.",
+          "Watch the roll while the four notes play: one of them sits above the other three. Which one?",
+          "The roll is drawn like a graph: low notes at the bottom, high notes at the top. Compare the third note with the first.",
           "`c5` is the third note; it sits above the others.",
         ),
         tests: [],
@@ -122,16 +124,17 @@ export default defineLesson({
         id: "number-decides",
         version: 1,
         role: "practice",
-        prompt: "Change the numbers after the `c`s, run after each change, and listen.",
+        prompt:
+          "Change the number after one `c` at a time, and listen after each change. Then answer the two questions below: which change makes a note higher, and how many different heights the line plays.",
         skills: [{ skill: "P01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Change one number at a time and watch the roll. Then count the heights, not the notes: a height that comes back counts once.",
         },
         hints: ladder(
-          "What happened to the sound when a number went up?",
-          "Try `c2` and `c6` in place of `c3` and `c5`.",
-          "`c3` sits low on the roll and `c5` sits high, so the number moves the note up the roll.",
+          "Change one number, listen, and compare with before. When the number went up, did the note go up or down?",
+          "Change the first note, `c3`, to `c2`, then the third note, `c5`, to `c6`. Watch where each one moves on the roll.",
+          "A bigger number puts the note higher on the roll: that answers the first question. For the second, `c4` plays twice but is one height.",
         ),
         code: { starter: mel("c3 c4 c5 c4") },
         mustPlayLoops: 1,
@@ -148,7 +151,8 @@ export default defineLesson({
           },
           {
             q: "number",
-            prompt: "In `c3 c4 c5 c4`, how many different heights do you hear?",
+            prompt:
+              "How many different heights does `c3 c4 c5 c4` play? A height that comes back counts once.",
             correct: 3,
           },
         ],
@@ -180,7 +184,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Play the same line higher: make every number one bigger, so `c2` becomes `c3` and `c3` becomes `c4`.",
+          "Lift the line: make each number after a `c` one bigger, so `c2` becomes `c3` and `c3` becomes `c4`. Keep the letters and the `~` where they are. Done when all three notes play one number higher.",
         skills: [{ skill: "P01", w: 1 }],
         code: { starter: mel("⟪c2 ~ c2 c3⟫") },
         reference: { solutions: [mel("c3 ~ c3 c4")], bars: 1 },
@@ -191,14 +195,16 @@ export default defineLesson({
         feedbackText: {
           "melody.octave":
             "Bar {bar}, {beatLabel}: the right letter, but {dir} than the target. Check the number after the `c`.",
-          "melody.wrong-degree": "Bar {bar}, {beatLabel}: a different note from the one asked for.",
+          "melody.wrong-degree":
+            "Bar {bar}, {beatLabel}: a different note from the one asked for. Keep the letter `c` and change only the number.",
           "melody.missing-note": "Bar {bar}, {beatLabel}: a note is missing here. Did a `~` go missing too?",
-          "melody.extra-note": "Bar {bar}, {beatLabel}: one note too many here.",
+          "melody.extra-note":
+            "Bar {bar}, {beatLabel}: one note too many here. The line keeps three notes and one `~`, in the same places.",
         },
         hints: ladder(
-          "Which part of each note sets how high it sounds?",
-          "Leave the letters and the `~` alone; only the digits change.",
-          "The first note becomes `c3`. Do the same to the other three notes.",
+          "Every note must sound one step higher, and every letter stays `c`. Which part of `c2` sets its height?",
+          "Only the digits change: the one after each `c`, in the first, third and fourth words. The `~` stays second.",
+          "The first note becomes `c3`. Add 1 to the other two numbers the same way.",
         ),
         srs: [{ family: "fam.pit.compare", mode: "evidence-only" }],
         tests: [
@@ -247,11 +253,16 @@ export default defineLesson({
         id: "higher-or-lower",
         version: 1,
         role: "check",
-        prompt: "Two notes, one after the other. Is the second higher, lower or the same?",
+        prompt:
+          "Listen to two notes, one after the other. Pick whether the second note is higher than the first, lower, or the same note. Six pairs in all.",
         skills: [{ skill: "E02", w: 1 }],
         hints: [
-          { text: "Hum the first note, then the second. Did your voice go up or down?" },
-          { text: "A higher note would sit higher on the roll. Picture where each one lands." },
+          {
+            text: "Compare the second note with the first: hum the first, then the second. Did your voice go up, down, or stay?",
+          },
+          {
+            text: "Listen to the end of the first note and the start of the second. A higher note would sit higher on the roll: picture where each one lands.",
+          },
           { text: "Listen again at a slower speed and hum along.", replay: { rate: 0.75 } },
           "auto",
         ],
@@ -281,7 +292,8 @@ export default defineLesson({
         id: "riff-three-heights",
         version: 1,
         role: "practice",
-        prompt: "Write a piano riff that uses `c` at **three or more** different heights.",
+        prompt:
+          "Write a piano riff on the `mel:` line that plays `c` at **three or more** different heights, such as `c3`, `c4` and `c5`. Done when at least three different numbers follow the `c`s.",
         skills: [{ skill: "P01", w: 1 }],
         code: { starter: mel("c3 ~ c4 ~") },
         bars: [1, 4],
@@ -289,7 +301,7 @@ export default defineLesson({
         rubric: [
           {
             id: "three-heights",
-            label: "At least three different pitches",
+            label: "Three or more different pitches on the `mel:` line",
             required: true,
             skills: ["P01"],
             rule: "distinct-pitches",
@@ -298,7 +310,7 @@ export default defineLesson({
           },
           {
             id: "space",
-            label: "Leaves some space with a rest",
+            label: "At least one `~` (a rest) for space",
             required: false,
             skills: ["R06"],
             rule: "uses",
@@ -306,7 +318,7 @@ export default defineLesson({
           },
           {
             id: "comfortable",
-            label: "Stays between `c2` and `c6`",
+            label: "Every note from `c2` to `c6`, both included",
             required: false,
             skills: ["P01"],
             rule: "range",
@@ -315,7 +327,7 @@ export default defineLesson({
           },
           {
             id: "two-bars",
-            label: "Two bars that answer each other, with `< >`",
+            label: "Uses `< >`, so bar 2 can answer bar 1",
             required: false,
             skills: ["R03"],
             rule: "uses",
@@ -323,9 +335,9 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which heights does the starter use, and which one is missing?",
-          "The starter plays `c3` and `c4`. One more number gives you a third height.",
-          "Put `c5` where the last `~` is.",
+          "The riff needs `c` at three different heights, and the starter has two. Which number could you add?",
+          "The starter plays `c3` and `c4`, each followed by a `~`. Replace one `~` with a `c` at a third height.",
+          "A `c` whose number is neither 3 nor 4, in place of the last `~`, gives the third height.",
         ),
         tests: [
           { name: "minimal", response: { code: mel("c3 ~ c4 c5") }, expect: "pass" },

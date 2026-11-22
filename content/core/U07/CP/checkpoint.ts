@@ -53,7 +53,7 @@ const PASS_MATCHER: Matcher = {
   rules: [
     {
       id: "land",
-      label: "Every note on beats 1 and 3 is a note of its chord",
+      label: "Every note on beats 1 and 3 is a chord tone of the `chords:` line",
       required: true,
       skills: ["M03"],
       rule: "chord-tones-strong",
@@ -64,7 +64,7 @@ const PASS_MATCHER: Matcher = {
     },
     {
       id: "pass",
-      label: "Mostly steps: at least three moves in four go to a neighbour",
+      label: "Mostly steps: at least three in four moves go to the next scale note up or down",
       required: true,
       skills: ["M04"],
       rule: "step-ratio",
@@ -90,7 +90,7 @@ const ANSWER_MATCHER: Matcher = {
   rules: [
     {
       id: "home",
-      label: "The answer ends on 1",
+      label: "The last note of the tune is degree 1 (C)",
       required: true,
       skills: ["M06"],
       rule: "ends-on-degree",
@@ -99,7 +99,7 @@ const ANSWER_MATCHER: Matcher = {
     },
     {
       id: "like-it",
-      label: "The answer starts like the question: a two-bar idea comes back",
+      label: "A two-bar group repeats the shape of an earlier one, as the answer's start can repeat bars 1–2",
       required: true,
       skills: ["M02", "F01"],
       rule: "motif-reuse",
@@ -153,7 +153,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["U07"],
   gated: ["M02", "M03", "M04", "M05", "M06", "M07", "M09", "M10", "N07", "F01"],
   levelSetting: ["V04"],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "code-modify",
@@ -161,7 +161,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "A tune over I V vi IV. Two notes on strong beats sit outside their chord. Move them so every note on beats 1 and 3 is a chord tone, and keep the notes between moving by step.",
+        "Two notes on beats 1 and 3 of this tune sit outside the chord of the `chords:` line, I V vi IV. Change the tune so every note on beats 1 and 3 is a chord tone. Done when that holds and at least three in four moves are steps to the next scale note.",
       skills: [
         { skill: "M03", w: 0.6 },
         { skill: "M04", w: 0.4 },
@@ -205,7 +205,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "Bars 1–4 are a question over I IV I V: it pauses on 2. Write bars 5–8, the answer, over I IV V I: start it like the question and end it on 1.",
+        "Bars 1–4 are a question over I IV I V that pauses on degree 2. Write bars 5–8, the highlighted part, as its answer over I IV V I. Start it with the question's first two bars, the same or moved, and end it on degree 1.",
       skills: [
         { skill: "M06", w: 0.5 },
         { skill: "F01", w: 0.3 },
@@ -258,7 +258,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "A tune in 3/4 on the staff, with a one-beat pickup. Its chords, one a bar: C | F | G | C. Write the tune in `n`, in C, with the pickup in bar 0, and the chords as stacks. `n` counts from 0.",
+        "Read the page: a tune in 3/4 with a one-beat pickup, chords C | F | G | C. Write the tune on the `mel` line in `n`, in C major, with the pickup at the end of bar 0. Write the chords on the `chords` line as stacks, one a bar, with a rest in bar 0.",
       skills: [
         { skill: "N07", w: 0.5 },
         { skill: "M10", w: 0.5 },
@@ -328,7 +328,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     role: "checkpoint",
     title: "A hook",
     prompt:
-      "A hook over the band's I V vi IV: a short motif that comes back, so the tune sticks. Land it on chord tones; add a pickup or a response on a second track if you like.",
+      "Turn the starter into a hook over the band's I V vi IV: write a short motif and bring it back in another bar, the same or moved to fit the chord. Done when at least one bar comes back. If you like, land it on chord tones, add a pickup, or answer it on a second track.",
     skills: [{ skill: "M09", w: 1 }],
     hints: null,
     key: { tonic: "C", mode: "major" },
@@ -339,7 +339,8 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     rubric: [
       {
         id: "hook",
-        label: "A motif that comes back",
+        label:
+          "At least one bar repeats the shape of an earlier bar, the same or moved, and not every bar is the same",
         required: true,
         skills: ["M09"],
         rule: "motif-reuse",
@@ -356,7 +357,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       // say "not yet". M03 is measured by `land-and-pass`.
       {
         id: "call-and-response",
-        label: "A response on a second track",
+        label: "A second melody line, such as `vox:`, plays too",
         required: false,
         skills: ["M07"],
         rule: "tracks",
@@ -365,7 +366,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "moved",
-        label: "The motif moved with `.scaleTranspose()`",
+        label: "Uses `.scaleTranspose()`",
         required: false,
         skills: ["M02"],
         rule: "uses",

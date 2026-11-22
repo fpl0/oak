@@ -103,7 +103,7 @@ const make = (form: string, ...lines: string[]) =>
 /** The Make's one idea, heard: the root of the chord sounding in each bar follows a jazz blues. */
 const JAZZ_FORM: RubricRule = {
   id: "jazz-blues",
-  label: "A jazz blues: twelve bars with its jazz chords",
+  label: "The chords play the twelve-bar jazz blues in F, with its jazz chords",
   required: true,
   skills: ["J11"],
   rule: "blues-form",
@@ -118,7 +118,7 @@ const DRUMS = { band: "band.blues-12bar", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J4.L02",
-  version: 2,
+  version: 3,
   title: "Jazz Blues in F",
   objective:
     "I can play and chart a jazz blues: the twelve bars with ii–Vs, a diminished chord and a turnaround in them.",
@@ -145,7 +145,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Both takes follow the same twelve-bar frame in F. Listen for the places where the second take's chords keep moving while the first take's stand still.",
+          "Both takes follow the same twelve-bar frame in F. Listen for the bars where the second take's chords keep moving while the first take's stand still.",
         skills: [{ skill: "J11", w: 1 }],
         hints: null,
         tests: [],
@@ -177,14 +177,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run both charts and read the chord band: bars 1–12 are the plain blues, bars 13–24 the jazz version. Compare them bar by bar.",
+          "Run both charts and read the chord band: bars 1–12 are the plain blues, bars 13–24 the jazz version. Compare them bar by bar and answer two questions: which jazz bar holds a ii–V into bar 5, and how many of the twelve bars differ.",
         skills: [{ skill: "J11", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Lay bar 13 under bar 1, bar 14 under bar 2, and so on: which of the jazz bars hold another chord, or two chords where the plain blues had one?",
         },
         hints: ladder(
-          "Which bar of the jazz chart holds two chords that lead into the B♭7 of the next bar?",
+          "Find the jazz bar that holds two chords leading into the B♭7 of the next bar.",
           "A ii–V into B♭7 is the minor chord a whole step above B♭, then the dominant a 5th above B♭. Then count every jazz bar that differs from the plain blues.",
           "The first two bars and bars 3, 5 and 7 are the same in both charts.",
         ),
@@ -238,10 +238,10 @@ export default defineLesson({
         role: "check",
         key: F,
         prompt:
-          "Chart the jazz blues in F you heard, one chord a bar: the root and the kind of seventh. Bar 1 is given, and so are the three bars that hold two chords (4, 11 and 12).",
+          "Fill in the chart of the jazz blues in F you heard: for each empty bar, write one chord, its root and its kind of seventh. Bar 1 and the three bars that hold two chords (4, 11 and 12) are given.",
         skills: [{ skill: "J11", w: 1 }],
         hints: ladder(
-          "Which bars still hold the plain blues' chords, and which changed?",
+          "Start with the bars that did not change from the plain blues; then listen to the others one at a time.",
           "Bar 6 climbs from B♭7 back to F7 through a chord a half step above B♭; bars 8 to 10 are a dominant, then a ii–V into the last line.",
           "Bar 6's root is B, and all its notes are a minor 3rd apart. Bar 8 leads into bar 9 the way C7 leads into F.",
         ),
@@ -313,7 +313,7 @@ export default defineLesson({
         role: "check",
         key: F,
         prompt:
-          "`changes` holds the plain blues in F. Rewrite it as the jazz blues you charted: bars 4, 6, 8, 9, 10 and 12 change, and bar 11 may keep F7 or move to D7 halfway, as your chart has it.",
+          "Rewrite `changes`, the plain blues in F, as the jazz blues you charted. Change bars 4, 6, 8, 9, 10 and 12; bar 11 may keep F7 or move to D7 halfway. Keep the other bars. Done when every bar matches the target.",
         skills: [{ skill: "J11", w: 1 }],
         swing: SWUNG,
         code: { starter: BLUES_STARTER },
@@ -332,7 +332,7 @@ export default defineLesson({
             "Strudel does not know that chord name, so that bar is silent. Look at how the code of the two charts writes the diminished seventh.",
         },
         hints: ladder(
-          "Which bars of the jazz chart differ from the plain blues?",
+          "Work through the six bars that change, one at a time, using your chart from the last step.",
           "Bar 4 holds two chords in brackets, the ii–V of the next bar's chord. Bar 6 climbs a half step above B♭. Bars 8 to 10 lead into the last line: a dominant, then the ii–V of F.",
           "Bar 4 is `[Cm7 F7]`; bar 12 is two chords too, the ii–V of F.",
         ),
@@ -402,7 +402,7 @@ export default defineLesson({
         key: F,
         title: "Jazz blues in F",
         prompt:
-          "Turn the plain blues into a jazz blues in F: the jazz chords in the twelve bars, the comping and the bass from one `changes`, and a tune of your own on the muted trumpet (`mutetpt`) that you would hum back. The tempo, a walking bass and the comping rhythm are yours.",
+          "Turn the plain blues into a jazz blues in F. Required: `changes` plays the twelve bars with the jazz blues chords. Also on the checklist: a tune of your own on the muted trumpet (`mutetpt`), landing on chord tones on the strong beats. The tempo, a walking bass and the comping rhythm are yours.",
         skills: [{ skill: "J11", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -412,7 +412,7 @@ export default defineLesson({
           JAZZ_FORM,
           {
             id: "muted-head",
-            label: "A tune on the muted trumpet",
+            label: "A tune plays on the muted trumpet (`mutetpt`)",
             required: false,
             skills: ["J11"],
             rule: "sounds",
@@ -420,7 +420,7 @@ export default defineLesson({
           },
           {
             id: "head-on-chord-tones",
-            label: "The tune lands on chord tones on the strong beats",
+            label: "At least 6 in 10 of the tune's notes on strong beats are notes of the chord",
             required: false,
             skills: ["J11"],
             rule: "chord-tones-strong",
@@ -434,7 +434,7 @@ export default defineLesson({
         // blues-form detail names the chord a bar should move to.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which bars of the plain blues does a jazz blues change?",
+          "Start from the chart you wrote two steps ago: the same six bars change from the plain blues.",
           "Bar 4 leads into bar 5 with a ii–V, bar 6 climbs back through a diminished chord, bars 8 to 10 lead into the last line, and bar 12 turns around.",
           "From bar 8: a dominant on D, then the ii–V of F, two bars of it. Bar 12 is that ii–V again, two chords in one bar.",
         ),

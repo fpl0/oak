@@ -53,7 +53,7 @@ const S4_RULES: Matcher = {
   rules: [
     {
       id: "home",
-      label: "The answer ends on 1",
+      label: "The last note of the tune is degree 1 (C)",
       required: true,
       skills: ["M06"],
       rule: "ends-on-degree",
@@ -62,7 +62,7 @@ const S4_RULES: Matcher = {
     },
     {
       id: "on-the-chords",
-      label: "Notes of the chord on beats 1 and 3",
+      label: "Every note on beats 1 and 3, in all eight bars, is a chord tone of the `chords:` line",
       required: true,
       skills: ["M03"],
       rule: "chord-tones-strong",
@@ -108,7 +108,7 @@ const ENDINGS = CADENCE_OPTIONS.filter((o) => ["PAC", "IAC", "HC"].includes(o.id
 
 export default defineLesson({
   id: "U07.L06",
-  version: 2,
+  version: 3,
   title: "Question & Answer",
   objective:
     "I can write a four-bar question that stops open and a four-bar answer that starts the same way and comes home.",
@@ -137,7 +137,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to the ends of bar 4 and bar 8. Which one sounds like the end of the song, and which makes you wait?",
+          "Listen to the last note of bar 4 and the last note of bar 8. One sounds like the end of the song; the other makes you wait for more. Notice which is which.",
         skills: [{ skill: "M06", w: 1 }],
         hints: null,
         tests: [],
@@ -157,7 +157,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Read the last bar, `[1 ~ ~ ~]`: degree 2, one note above home. When the tune gets there, will it sound finished?",
+          "Predict how these four bars end. The last bar, `[1 ~ ~ ~]`, holds degree 2, one note above home. Pick whether the tune will sound finished there or stop and wait for more, then run it.",
         skills: [{ skill: "M06", w: 1 }],
         hints: null,
         tests: [],
@@ -184,17 +184,17 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and follow the degree labels. Bars 1–4 and bars 5–8 start alike. Find where they part, and how each one ends.",
+          "Run it and read the degree labels in the roll. Bars 1–4 and bars 5–8 start alike. Find the degree of the last note in bar 4 and of the last note in bar 8, and answer both questions below.",
         skills: [
           { skill: "M06", w: 0.6 },
           { skill: "F01", w: 0.4 },
         ],
         feedbackText: {
           "investigate.wrong":
-            "Not quite. Play it again and read the label of the last note in bar 4, then in bar 8.",
+            "Not quite. Play it again and read the degree label, not the `n`, of the last note in bar 4, then in bar 8.",
         },
         hints: ladder(
-          "Which of the two endings sounds like the end of the song?",
+          "Look only at the last note of bar 4 and of bar 8. Which of the two sounds like the end of the song?",
           "Bar 4 plays one note and rests; so does bar 8. Read the degree label of each, not the `n`.",
           "Bar 8's note is `n` 0. Bar 4's is one above it.",
         ),
@@ -243,7 +243,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Here bars 5–8 copy bars 1–4, so the tune asks twice and never answers. Rewrite bars 7–8: land on 1, with chord tones on beats 1 and 3.",
+          "Bars 5–8 copy bars 1–4, so the tune never comes home. Rewrite bars 7–8, the highlighted part. Done when the last note is degree 1 and every note on beats 1 and 3 is a chord tone of the `chords:` line: V (G B D) in bar 7, I (C E G) in bar 8.",
         skills: [
           { skill: "M06", w: 0.7 },
           { skill: "M03", w: 0.3 },
@@ -255,12 +255,13 @@ export default defineLesson({
         target: { audible: true, showRoll: false },
         // The catalog detail for chord tones counts notes over the whole tune; the label says where to look.
         feedbackText: {
-          "rubric.unmet": "{label}: not yet. Bar 7 sits on V (G B D), bar 8 on I (C E G).",
+          "rubric.unmet":
+            "{label}: not yet. In bar 7, put degree 5, 7 or 2 (G B D) on beats 1 and 3. End bar 8 on degree 1 (C).",
         },
         hints: ladder(
-          "Which chord plays under bar 7, and which under bar 8?",
+          "Only bars 7 and 8 change. Read the `chords:` line: which chord plays under bar 7, and which under bar 8?",
           "Bar 7 is V: its notes are degrees 5, 7 and 2 (G B D). Bar 8 is I, home. Strong beats go on those notes.",
-          "Bar 8 can be a single note on beat 1. Bar 7 starts on a note of G and steps towards it.",
+          "Bar 8 can be one note, degree 1, on beat 1, the same shape as bar 4's `[1 ~ ~ ~]`. Bar 7 puts a note of V on beats 1 and 3 and steps down towards bar 8.",
         ),
         tests: [
           { name: "reference", response: { code: S4_REF }, expect: "pass" },
@@ -310,7 +311,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The question is written once. `.lastOf(8, x => x.add(n(-1)))` changes the last bar of every eight: each of its notes moves down one degree. Run it for eight bars.",
+          "Run it for eight bars and watch the roll. The four bars are written once; `.lastOf(8, x => x.add(n(-1)))` moves every note of the last bar of each eight down one degree. Find which bar changed and what its last note became, then pick it below.",
         skills: [{ skill: "M06", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -359,7 +360,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four chords and a tune, in one of several keys. Is it a question that stops open, or an answer that comes home? If home, where does the tune land?",
+          "Listen to four chords and a tune, in any key. Pick how the phrase ends: it stops open on V, it comes home with the tune on 1, or it comes home with the tune on 3 or 5.",
         skills: [
           { skill: "H03", w: 0.5 },
           { skill: "M06", w: 0.5 },
@@ -395,7 +396,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "This tune asks twice. Keep its question or write your own, then answer it: start bars 5–8 the way bars 1–4 start, and land on 1.",
+          "Turn bars 5–8 into an answer. Keep the question in bars 1–4 or write your own. Start bars 5–8 the way bars 1–4 start, and change the ending. Done when the last note of the tune is degree 1.",
         skills: [
           { skill: "M06", w: 0.7 },
           { skill: "F01", w: 0.3 },
@@ -408,7 +409,7 @@ export default defineLesson({
         rubric: [
           {
             id: "comes-home",
-            label: "The answer comes home: the last note is degree 1",
+            label: "The last note of the tune is degree 1 (C)",
             required: true,
             skills: ["M06"],
             rule: "ends-on-degree",
@@ -417,7 +418,8 @@ export default defineLesson({
           },
           {
             id: "starts-alike",
-            label: "The answer starts like the question",
+            label:
+              "At least one two-bar group repeats the shape of an earlier one, as bars 5–6 can repeat bars 1–2",
             required: false,
             skills: ["M06", "M02"],
             rule: "motif-reuse",
@@ -427,7 +429,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Play it. Where does the tune stop the second time, and does that sound like an ending?",
+          "Only the ending of bars 5–8 has to change. Play it: where does the tune stop the second time, and on which degree?",
           "Bars 1–6 can stay. Bar 7 sits on V and bar 8 on I: the answer's last note decides how it ends.",
           "Bar 7 can stay on notes of G (degrees 5, 7, 2) and lead down to bar 8.",
         ),

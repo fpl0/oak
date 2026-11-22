@@ -70,7 +70,7 @@ const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L01",
-  version: 2,
+  version: 3,
   title: "Waves & Harmonics",
   objective: "I can see a wave's shape, hear its harmonics, and choose them with `.partials()`.",
   key: { tonic: "C", mode: "major" },
@@ -98,7 +98,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The notes are the same in both loops; only the waves of the bass and the riff change. Listen to the bass line: in which loop is it easier to follow?",
+          "Listen to the bass line in both loops. The notes are the same; only the waves of the bass and the riff change. Listen for the loop where the bass is easier to follow.",
         skills: [{ skill: "D02", w: 1 }],
         hints: null,
         tests: [],
@@ -120,7 +120,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "One note, c3, on each of the four waves in turn, a bar each: sine, triangle, square, sawtooth. Which bar will sound the brightest?",
+          "One note, c3, plays on four waves in turn, one bar each: sine, triangle, square, sawtooth. Predict which bar will sound the brightest, and pick it.",
         skills: [{ skill: "D02", w: 1 }],
         hints: null,
         tests: [],
@@ -149,14 +149,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "`.scope()` at the end of a line opens the scope: a picture of the wave as it plays. Run it and watch each bar.",
+          "Watch the scope through all four bars: it draws each wave as it plays. Then answer both questions: which bar, 1 to 4, draws a round curve, and which wave climbs slowly and drops straight down.",
         skills: [{ skill: "D02", w: 1 }],
         feedbackText: {
           "investigate.wrong":
-            "Not quite. Watch bar 1 and bar 4 again: one draws a round curve, the other climbs slowly and falls straight down.",
+            "Not quite. Watch the four bars again and compare their shapes: one draws a curve with no corners, one climbs slowly and falls straight down.",
         },
         hints: ladder(
-          "Which bar's picture has no corners at all?",
+          "Watch each bar's picture for corners. One of the four has none at all: which bar is it?",
           "The waves are named after their shapes. Which name sounds like a slope and a cliff?",
           "Bar 1, the sine, is the round one. Now find the slope and the cliff.",
         ),
@@ -203,14 +203,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bar 1: a2 on a sawtooth. Bar 2: six notes on a sine, from that same a2 upward. A wave repeats a number of times each second: a2 repeats 110 times. Run it, then answer.",
+          "Bar 1 plays a2 on a sawtooth. Bar 2 plays six notes on a sine, from that same a2 upward. A wave repeats a number of times each second: a2 repeats 110 times. Listen to both bars, then answer both questions: how often a3 repeats, and how the six notes climb.",
         skills: [{ skill: "D02", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. a3 is a2 an octave up: the scope draws twice as many waves in the same space. Then each next note adds another 110.",
         },
         hints: ladder(
-          "What happens to the picture when a note goes up an octave?",
+          "a3 is a2 one octave up. Watch how many waves the scope draws when a note goes up an octave.",
           "An octave up, the wave repeats twice as often. Bar 2 starts at 110, then 220.",
           "110, 220, then 330: what does each next note add?",
         ),
@@ -267,7 +267,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The riff is on a sawtooth, but `.partials()` keeps only the bottom note of its stack, so it sounds like a sine. Switch on the next three.",
+          "The riff is on a sawtooth, but its `.partials()` list keeps only the bottom note of the stack, so it sounds like a sine. Change the list so the bottom four are on. Keep the riff's notes as they are. Done when the riff has its edge back.",
         skills: [{ skill: "D02", w: 1 }],
         code: { starter: BUILD_STARTER },
         reference: { solutions: [BUILD_SOLUTION], bars: 2 },
@@ -293,10 +293,10 @@ export default defineLesson({
           "melody.wrong-degree":
             "Bar {bar}: the riff's notes changed. Change only the list inside `.partials()`.",
           "code.arg-mismatch":
-            "Not yet: the list is {got}. Four notes of the stack on is four 1s; the sawtooth itself makes each one quieter than the last.",
+            "Not yet: the list is {got}. Each 1 switches one note of the stack on, from the bottom; the sawtooth itself makes each one quieter than the last, so do not write smaller numbers.",
         },
         hints: ladder(
-          "How many numbers are in the list, and how many of them are 1?",
+          "Look at the list inside `.partials()`: four of its numbers need to be on. How many of them are 1 now?",
           "The first number is the bottom note of the stack, the second the next one up, and so on. A 0 leaves that one out.",
           "The second one on is `[1, 1, 0, 0]`. Two to go.",
         ),
@@ -348,10 +348,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The bass line over the drums, on one of three waves. Listen to what sits above each low note: which wave is it?",
+          "The bass line plays over the drums on a sine, a square or a sawtooth. Listen above each low note for what it carries, and pick the wave.",
         skills: [{ skill: "D02", w: 1 }],
         hints: [
-          { text: "Is the bass round and soft, or does it buzz?" },
+          { text: "Listen to the bass's colour first: is it round and soft, buzzy, or something between?" },
           {
             text: "A sine has nothing above its first harmonic. A sawtooth has every harmonic and buzzes. A square, with only the odd ones, sounds hollow, like a clarinet.",
           },
@@ -402,7 +402,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Your kind of loop, with the bass and the riff on a sine. Give each a wave with harmonics, and choose the harmonics of at least one with `.partials()`: a full bass under a riff that cuts through. Add `.scope()` to a line to see it.",
+          "The bass and the riff are on a sine. Give each a wave with harmonics: sawtooth, square or triangle. On at least one, add a `.partials([…])` list with two or more harmonics on. Aim for a full bass under a riff that cuts through; balance them with `.gain()`. Done when that part sounds with two or more harmonics.",
         skills: [{ skill: "D02", w: 1 }],
         code: { starter: THIN },
         bars: [2, 8],
@@ -410,7 +410,7 @@ export default defineLesson({
         rubric: [
           {
             id: "harmonics-chosen",
-            label: "One part's harmonics chosen with .partials()",
+            label: "One heard part has a .partials() list with two or more harmonics on",
             required: true,
             skills: ["D02"],
             // Carry f4 (corrections pass): what is heard, not the call. `.partials([1])` or `[1, 0, 0]` is one
@@ -429,7 +429,7 @@ export default defineLesson({
           },
           {
             id: "bass-and-riff",
-            label: "Drums, a bass and a riff",
+            label: "At least three parts: drums, a bass and a riff",
             required: false,
             skills: ["D01"],
             rule: "tracks",
@@ -440,7 +440,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which part sounds the thinnest? What could you give it?",
+          "Start with the part that sounds thinnest, the bass or the riff. It needs a wave with harmonics and a list of which ones to keep.",
           "A sawtooth has every harmonic, a square the odd ones. `.partials([…])` after the wave sets each one: 1 on, 0 off.",
           'Try the bass first: `.s("sawtooth").partials([1, 1, 1, 1, 1, 1])` keeps six harmonics.',
         ),

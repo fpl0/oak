@@ -82,7 +82,7 @@ const keyOptions = (ids: string[]) =>
 
 export default defineLesson({
   id: "U10.L02",
-  version: 2,
+  version: 3,
   title: "Relative & Parallel",
   objective:
     "I can find a major key's relative minor (the same notes, home on degree 6) and its parallel minor (the same home, 3, 6 and 7 lowered).",
@@ -112,7 +112,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A two-chord groove and its tune, two bars in C major, two in A minor, two in C minor. Listen to the low note that starts each pair of bars. Which minor keeps C major's home, and which finds a new one?",
+          "Listen to six bars of one groove: two in C major, two in A minor, two in C minor. Listen for the low bass note that starts each pair of bars. Which minor keeps C major's home note, and which moves home to a new note?",
         skills: [{ skill: "S06", w: 1 }],
         hints: null,
         tests: [],
@@ -138,7 +138,7 @@ export default defineLesson({
         role: "practice",
         key: A_MINOR,
         prompt:
-          'A minor from home to home: `n("0 .. 7").scale("A3:minor")`. Minor lowers degrees 3, 6 and 7 of A. How many black keys will it play?',
+          'Predict how many black keys A minor plays from home to home: `n("0 .. 7").scale("A3:minor")`. Minor lowers degrees 3, 6 and 7 of A. Pick an answer, then hear it.',
         skills: [{ skill: "S06", w: 1 }],
         hints: null,
         tests: [],
@@ -166,14 +166,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it: C major, A minor, C minor, one bar each. Compare the keys each bar plays, the flats in the key-signature panel, and the note each bar starts on.",
+          "Run the code: C major, A minor, C minor, one bar each. For each bar, look at the keys it plays, the flats in the key-signature panel and its first note. Then answer both questions.",
         skills: [{ skill: "S06", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Watch the keyboard and the key-signature panel bar by bar: one minor bar plays only white keys, the other adds flats.",
         },
         hints: ladder(
-          "Which of the two minor bars plays only white keys, like bar 1?",
+          "Find the minor bar that plays only white keys, like bar 1. Is it bar 2 or bar 3?",
           "The key-signature panel shows each bar's sharps and flats. Read it for bar 2, then for bar 3.",
           "Bar 2 starts on A and plays no black keys. In bar 3, which of C's degrees went down a half step?",
         ),
@@ -223,7 +223,7 @@ export default defineLesson({
         role: "check",
         key: C_MINOR,
         prompt:
-          "A loop in C major: chords, bass and tune, all in `n`. Move all three lines to its parallel minor, so home stays on C and the loop turns dark.",
+          "Move the chords, bass and tune to C major's parallel minor, the twin that keeps C as home. Change only the `.scale()` of each line, and keep its octave number. Done when all three lines play in C minor.",
         skills: [{ skill: "S06", w: 1 }],
         code: { starter: PARALLEL_STARTER },
         reference: { solutions: [PARALLEL_SOLUTION], bars: 4 },
@@ -242,7 +242,7 @@ export default defineLesson({
             "Bar {bar}: the right note in the wrong octave. Keep each line's octave number as it was; change only the word.",
         },
         hints: ladder(
-          "Which twin keeps the same home? What is home here?",
+          "The parallel twin keeps home where it is, on C. Look at the word after the colon in each `.scale()`.",
           "Each line has one `.scale()`. The parallel twin keeps its tonic and octave and changes only the word after the colon.",
           'The chords become `.scale("C3:minor")`. Do the same for the bass and the tune.',
         ),
@@ -292,13 +292,13 @@ export default defineLesson({
         id: "find-the-relative",
         version: 1,
         role: "check",
-        prompt: "Two major keys. For each one, which minor key shares its notes?",
+        prompt: "For each of the two major keys, pick the minor key that uses exactly the same notes.",
         skills: [
           { skill: "S06", w: 0.7 },
           { skill: "S04", w: 0.3 },
         ],
         hints: ladder(
-          "The relative minor shares every note. Where does its home sit in the major scale?",
+          "The relative minor uses every note of the major key, with home on another degree. Find that degree first.",
           "Its home is degree 6 of the major key. Count up the major scale from its home to 6.",
           "In C major, degree 6 is A. In F major, count F G A B♭ C, then one more.",
         ),
@@ -310,10 +310,10 @@ export default defineLesson({
             id: "relative-of-f",
             version: 1,
             role: "check",
-            prompt: "F major has one flat, B♭. Which minor key has the same notes?",
+            prompt: "F major has one flat, B♭. Pick the minor key that uses the same notes.",
             skills: [{ skill: "S06", w: 1 }],
             hints: ladder(
-              "Where in the major scale does the relative minor's home sit?",
+              "The relative minor's home is one degree of the major scale: the degree A has in C major. Find it.",
               "Count up F major to its degree 6.",
               "F G A B♭ C: that is degrees 1 to 5. Degree 6 comes next.",
             ),
@@ -340,10 +340,10 @@ export default defineLesson({
             id: "relative-of-g",
             version: 1,
             role: "check",
-            prompt: "G major has one sharp, F♯. Which minor key has the same notes?",
+            prompt: "G major has one sharp, F♯. Pick the minor key that uses the same notes.",
             skills: [{ skill: "S06", w: 1 }],
             hints: ladder(
-              "Where in the major scale does the relative minor's home sit?",
+              "The relative minor's home is one degree of the major scale: the degree A has in C major. Find it.",
               "Count up G major to its degree 6.",
               "G A B C D: that is degrees 1 to 5. Degree 6 comes next.",
             ),
@@ -381,7 +381,8 @@ export default defineLesson({
         version: 1,
         role: "check",
         key: { tonic: "D", mode: "minor" },
-        prompt: "Write the key signature of D minor at the start of the staff.",
+        prompt:
+          "Write D minor's key signature at the start of the staff. A minor key uses the signature of the major key that shares its notes.",
         skills: [
           { skill: "N03", w: 0.5 },
           { skill: "S06", w: 0.5 },
@@ -394,7 +395,7 @@ export default defineLesson({
             "Not yet: you wrote {got}. Find the major key whose degree 6 is D, and write that key's signature.",
         },
         hints: ladder(
-          "Which major key has the same notes as D minor?",
+          "D minor shares all its notes with one major key. Find that major key first.",
           "A minor key writes the signature of its relative major. D is degree 6 of one key from the last step.",
           "D is degree 6 of F major. How many flats does F major have?",
         ),
@@ -443,7 +444,7 @@ export default defineLesson({
         role: "practice",
         key: A_MINOR,
         prompt:
-          "Move chords, bass and tune to C major's relative minor, A minor, so the same notes find a new home and the tune ends there. Then, if you like, let the loop travel: four bars in each key.",
+          "Move the chords, bass and tune to A minor, C major's relative minor: give each `.scale()` the new home and the word `minor`. Done when the tune ends on A. If you like, let the loop travel: four bars in C major, then four in A minor.",
         skills: [{ skill: "S06", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -451,7 +452,7 @@ export default defineLesson({
         rubric: [
           {
             id: "home-on-a",
-            label: "The tune ends on 1 in A minor",
+            label: "The tune's last note is A, home (1) in A minor",
             required: true,
             skills: ["S06"],
             rule: "ends-on-degree",
@@ -460,7 +461,7 @@ export default defineLesson({
           },
           {
             id: "sings-me",
-            label: "The tune sings ♭3",
+            label: "The tune plays ♭3 of A minor, the note C",
             required: false,
             skills: ["S05"],
             rule: "degree-set",
@@ -469,7 +470,7 @@ export default defineLesson({
           },
           {
             id: "on-the-chords",
-            label: "Chord notes on beats 1 and 3",
+            label: "Most of the tune's notes on beats 1 and 3 are notes of the chord under them",
             required: false,
             skills: ["M01"],
             rule: "chord-tones-strong",
@@ -482,7 +483,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which twin keeps the notes and moves home? Where does its home sit in C major?",
+          "The relative twin keeps C major's notes and moves home. Find which degree of C major its home is.",
           "Home moves to degree 6, A. Each `.scale()` takes the new tonic and the word `minor`; the numbers in `n()` stay.",
           'The chords become `.scale("A2:minor")`, one octave number below their old `C3`. Move the bass and the tune the same way.',
         ),

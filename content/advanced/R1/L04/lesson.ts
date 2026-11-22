@@ -91,7 +91,8 @@ const plain = (starter: string) => starter.replace(/[⟪⟫]/g, "");
 
 const CLAV_IN_GAPS: RubricRule = {
   id: "clav-in-gaps",
-  label: "The clav plays in the bass's gaps",
+  label:
+    "Apart from beat 1, the clav shares no place with the bass and has at least 2 places of its own; together they fill 6 or more of the 16 places",
   required: true,
   skills: ["B04", "R14"],
   rule: "custom",
@@ -102,7 +103,7 @@ const CLAV_IN_GAPS: RubricRule = {
 };
 const CLAV_PULLS: RubricRule = {
   id: "clav-pulls",
-  label: "The clav pulls against the beat",
+  label: "At least 4 clav notes pull: each on a light place, with the heavier place after it empty",
   required: true,
   skills: ["R14"],
   rule: "syncopation",
@@ -111,7 +112,8 @@ const CLAV_PULLS: RubricRule = {
 };
 const GTR_IN_GAPS: RubricRule = {
   id: "gtr-in-gaps",
-  label: "The guitar plays where neither the bass nor the clav does",
+  label:
+    "Apart from beat 1, the guitar shares no place with the bass or the clav and has at least 2 places of its own; the three fill 9 or more of the 16 places",
   required: true,
   skills: ["R14"],
   rule: "custom",
@@ -120,7 +122,7 @@ const GTR_IN_GAPS: RubricRule = {
 };
 const GTR_PULLS: RubricRule = {
   id: "gtr-pulls",
-  label: "The guitar pulls against the beat",
+  label: "At least 4 guitar chords pull: each on a light place, with the heavier place after it empty",
   required: true,
   skills: ["R14"],
   rule: "syncopation",
@@ -137,7 +139,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R1.L04",
-  version: 2,
+  version: 3,
   title: "Interlock",
   objective: "I can make bass, clav and guitar fit into each other's gaps, so together they play one rhythm.",
   key: { tonic: "C", mode: "minor" },
@@ -162,7 +164,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Three parts one at a time over a quiet hi-hat, then all three with the drums. Listen for the holes in each part. In the last loop, do you hear three parts or one?",
+          "Listen to the bass, the clav and the guitar one at a time over a quiet hi-hat, then all three with the drums. Notice the holes in each part, and whether the last loop sounds like three parts or one.",
         skills: [{ skill: "R14", w: 1 }],
         hints: null,
         tests: [],
@@ -197,10 +199,11 @@ export default defineLesson({
         id: "tap-the-clav",
         version: 1,
         role: "practice",
-        prompt: "Tap with the clav only, not with the bass: four taps a bar, eight in all.",
+        prompt:
+          "Tap with the clav only: the short, bright, clicking notes above the bass. It plays four times a bar and never on beat 1. Ignore the bass and the drums. Two bars, eight taps in all. Done when each tap lands with a clav note.",
         skills: [{ skill: "R14", w: 1 }],
         hints: ladder(
-          "Listen past the bass. Which short, bright notes fall where the bass is silent?",
+          "Listen past the bass for the short, bright clav notes: they fall where the bass is silent.",
           "The clav never plays on the one. Its first note comes half a beat after it.",
           "Two of the clav's four notes fall in the second half of the bar, close together.",
         ),
@@ -235,14 +238,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the bass, the clav and the guitar without the drums, and read one bar on the roll: sixteen places, four to a beat.",
+          "Run the bass, the clav and the guitar without the drums and read one bar on the roll: sixteen places, four to a beat. Then answer: on how many places at least one part plays, and where two or more parts start a note together.",
         skills: [{ skill: "R14", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Go along the roll one sixteenth at a time and mark each place where any of the three parts starts a note.",
         },
         hints: ladder(
-          "How many notes does each part play in a bar?",
+          "Count each part's notes in one bar first.",
           "Count each part's notes, then look for any place where two of them start at the same moment.",
           "The bass plays three notes, the clav four. Add the guitar's, and check whether any place was counted twice.",
         ),
@@ -295,7 +298,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The clav plays exactly the bass's rhythm, so the two sound like one thick part. Give the clav at least three notes a bar of its own, on light places where the bass is silent; it may share only the one with the bass. The bass and the drums stay as they are.",
+          "Rewrite the clav's `.struct()` string so it stops copying the bass. Give the clav at least three notes a bar on light places where the bass is silent, pulling against the beat. It may share only beat 1 with the bass. Keep the bass and the drums.",
         skills: [
           { skill: "B04", w: 0.5 },
           { skill: "R14", w: 0.5 },
@@ -312,7 +315,7 @@ export default defineLesson({
             "{label}: not yet. Listen to the target: the clav answers in the silences after each bass note, and never on a beat that is already played.",
         },
         hints: ladder(
-          "Where in the bar is the bass silent?",
+          "Find the places where the bass is silent: it plays only three of the sixteen.",
           "The bass plays the first, seventh and eleventh of the sixteen steps. The clav's rhythm is the string in its `.struct()`.",
           "Clear the clav's seventh and eleventh steps, then put its notes on light places just before beats the bass leaves empty.",
         ),
@@ -395,7 +398,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The guitar plays short chords on 2 and 4, on top of the snare and of one clav note. Move them to places neither the bass nor the clav plays, at least two a bar, so that they pull against the beat. The bass, the clav and the drums stay as they are.",
+          "Rewrite the guitar's `.struct()` string: its chords now sit on 2 and 4, on top of the snare and a clav note. Move them to places neither the bass nor the clav plays, at least two a bar, on light places that pull against the beat. Keep the bass, the clav and the drums.",
         skills: [{ skill: "R14", w: 1 }],
         code: { starter: GTR_STARTER },
         reference: { solutions: [GTR_SOLUTION], bars: 4 },
@@ -407,7 +410,7 @@ export default defineLesson({
             "{label}: not yet. Listen to the target: each guitar chord falls in a silence the bass and the clav leave, often just next to a beat.",
         },
         hints: ladder(
-          "Which of the sixteen places are still empty once the bass and the clav have played?",
+          "Mark the places the bass and the clav already play. The guitar can use only the places left over.",
           "Read the bass's and the clav's strings and mark their places. The guitar's chords go only on the places left over.",
           "Off the beats, seven places are still free, and each is the sixteenth just after a beat or the one just before the next.",
         ),
@@ -473,7 +476,7 @@ export default defineLesson({
         role: "practice",
         title: "Funk machine",
         prompt:
-          "The drums are given. Bass, clav and guitar all play the same three places, so they sound like one heavy part. Give each part places of its own, the bass with the kick. When two parts land together off the one, move one of them. Other notes, a second chord or another sound are yours to choose.",
+          "Bass, clav and guitar all play the same three places, like one heavy part. Required: give each part at least two places of its own, share few places apart from beat 1, and fill 8 or more of the 16 places together. Also on the checklist: the bass with the kick, and a clav that pulls against the beat.",
         skills: [
           { skill: "R14", w: 0.5 },
           { skill: "B04", w: 0.5 },
@@ -484,7 +487,8 @@ export default defineLesson({
         rubric: [
           {
             id: "parts-interlock",
-            label: "Bass, clav and guitar fit into each other's gaps",
+            label:
+              "Bass, clav and guitar each have at least 2 places of their own, at most a quarter of the played places are shared (beat 1 aside), and together they fill 8 or more of the 16",
             required: true,
             skills: ["R14", "B04"],
             rule: "custom",
@@ -493,7 +497,7 @@ export default defineLesson({
           },
           {
             id: "bass-with-kick",
-            label: "The bass locks with the kick",
+            label: "The bass and the kick land together most of the time",
             required: false,
             skills: ["B04"],
             rule: "groove-lock",
@@ -503,7 +507,7 @@ export default defineLesson({
           },
           {
             id: "clav-pulls",
-            label: "The clav pulls against the beat",
+            label: "At least 4 clav notes pull: each on a light place, with the heavier place after it empty",
             required: false,
             skills: ["R14"],
             rule: "syncopation",
@@ -514,7 +518,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which places in the bar does each part play, and which do two parts share?",
+          "List the places each part plays in one bar: right now all three share the same three.",
           "Each part's rhythm is the string in its `.struct()` or its note string. Keep the bass with the kick, then give the clav and the guitar the places the bass leaves.",
           "Give the clav three or four light places the bass leaves empty, then the guitar two or three that are still free.",
         ),

@@ -51,7 +51,7 @@ const HARMONY_SEMIS = Array.from({ length: 47 }, (_, i) => i - 23).filter((k) =>
 
 export default defineLesson({
   id: "U04.L02",
-  version: 2,
+  version: 3,
   title: "Major, Minor, Perfect",
   objective:
     'I can tell a major interval from a minor one by its half steps, and move a line by a named interval with .transpose("3M").',
@@ -77,7 +77,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "`vox` plays the riff again, moved up by a name. Listen to the pair together: does the copy blend into one sound with the riff, or stand apart as a second tune?",
+          "`vox` plays the riff again, moved up by a named distance. Listen for whether the copy blends with `mel` into one thicker sound or stands apart as a second tune.",
         skills: [{ skill: "I02", w: 1 }],
         hints: null,
         tests: [],
@@ -98,14 +98,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "C up to E is a 3rd, and so is E up to G. Run it, watch the keyboard, and count the half steps inside each one.",
+          "Bar 1 plays C up to E and bar 2 plays E up to G: both are 3rds. Run the code, watch the keyboard, and count the half steps each 3rd climbs. Then answer both questions below.",
         skills: [{ skill: "I02", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count keys on the keyboard, black ones too: every key you move up is one half step.",
         },
         hints: ladder(
-          "Do the two bars sound the same distance apart, or is one wider?",
+          "Compare the two bars on the keyboard. Count how many keys each 3rd climbs, black keys included.",
           "Count half steps on the keyboard: every key up is one, black or white. Start counting after the lower note.",
           "C up to E passes C♯, D and D♯ on the way: four half steps. Now count from E.",
         ),
@@ -162,7 +162,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "`vox` follows `mel` four half steps higher, written as a number. Write the same move by its name instead: a string in `.transpose()`. The sound must not change.",
+          "`vox` follows `mel` four half steps higher, written as the number in `.transpose(4)`. Replace the 4 with that interval's name, in quotes, as in the table. Done when `vox` plays exactly the same notes as before, moved by a name.",
         skills: [
           { skill: "I02", w: 0.8 },
           { skill: "I01", w: 0.2 },
@@ -182,7 +182,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: four half steps above `mel` is {exp} ({expSyl}), and your note is not it. Check the number and the letter: `M` is major, `m` is minor.",
         },
         hints: ladder(
-          "Four half steps up from C: which letter is that, and which of the two 3rds you counted is it?",
+          "The name must describe four half steps. You counted two 3rds: was the four-half-step one the major or the minor one?",
           'A name in code is the number, then `M` for major, `m` for minor or `P` for perfect, in quotes: `"5P"` is a perfect 5th.',
           "Four half steps is the wider 3rd, C up to E: a major 3rd. Write its number, then the letter for major.",
         ),
@@ -234,10 +234,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Oak names a note and a distance above it. Write the note at the top. Count letters for the number first, then half steps for major or perfect.",
+          "Oak names a bottom note and an interval above it. Type the top note, with its sharp or flat if it has one. Count letters for the number first, then half steps for major, minor or perfect.",
         skills: [{ skill: "I02", w: 1 }],
         hints: ladder(
-          "Which letter does the number land on, counting the bottom letter as 1?",
+          "Find the letter first. Count letters up from the bottom note, the bottom letter as 1, until you reach the interval's number.",
           "The number picks the letter; the half steps pick its sharp or flat. Count the half steps from the bottom note to that letter, then compare with the size you need.",
           "A major 3rd above D: the letter is F, three letters up. D up to F is three half steps, one short of four, so it is F♯.",
         ),
@@ -262,10 +262,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Chords set home. Then one note, and a step or a leap down to home. Enter both degrees: the first note, then 1.",
+          "Chords set home, then you hear one note and then home below it. Enter both degrees: the degree of the first note, then 1.",
         skills: [{ skill: "E06", w: 1 }],
         hints: [
-          { text: "Hum the first note again. Which syllable is it, if the last one is do?" },
+          { text: "The last note is home, do. Hum the first note again and find its syllable." },
           { text: "Sing down from the first note to do on syllables. Each syllable you pass is one degree." },
           { text: "Hear it again, slower, and sing the scale down with it.", replay: { rate: 0.75 } },
           "auto",
@@ -295,7 +295,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Write a riff and a harmony line that follows it a named distance away, with `.transpose("…")`. Try a 3rd, a 6th and a 5th, and keep the one you like. A little `.gain()` sets the harmony under the riff.',
+          "Change the number in `vox`'s `.transpose(7)` to an interval name in quotes. Try a major 3rd, a major 6th and a perfect 5th, and keep the one you like. Done when `vox` follows `mel` by a named interval.",
         skills: [{ skill: "I02", w: 1 }],
         code: { starter: makePair(".transpose(7)") },
         bars: [1, 4],
@@ -303,7 +303,8 @@ export default defineLesson({
         rubric: [
           {
             id: "named",
-            label: "A harmony line moves with the riff, a named interval away",
+            label:
+              "A second line plays every note of the riff at the same time, moved by an interval name in `.transpose()` (not an octave)",
             required: true,
             skills: ["I02"],
             // The effect, then the tool: a second line sounds with the riff, every note moved by one interval (not
@@ -321,7 +322,7 @@ export default defineLesson({
           },
           {
             id: "two-voices",
-            label: "Two melody lines",
+            label: "Two labelled lines that play notes, such as `mel` and `vox`",
             required: false,
             skills: ["I01"],
             rule: "tracks",
@@ -330,7 +331,7 @@ export default defineLesson({
           },
           {
             id: "softer",
-            label: "The harmony a little softer, with `.gain()`",
+            label: "`.gain()` used, for example to set the harmony a little quieter",
             required: false,
             skills: ["I01"],
             rule: "uses",
@@ -338,7 +339,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "How does `vox` say how far it moves now: with a number, or with a name?",
+          "`vox` moves by a number of half steps, `.transpose(7)`. Swap the number for a name.",
           'A name goes in quotes: the number of the interval, then `M`, `m` or `P`. `"3M"` is a major 3rd.',
           'Seven half steps is a perfect 5th. Write that as a name, or try `"6M"`, a major 6th, nine half steps.',
         ),

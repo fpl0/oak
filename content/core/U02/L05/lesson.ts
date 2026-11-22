@@ -52,7 +52,7 @@ const SAME_OR_NOT = [
 
 export default defineLesson({
   id: "U02.L05",
-  version: 2,
+  version: 3,
   title: "Moving Melodies",
   objective: "I can give a note its number and move a whole line up or down by half steps with .transpose().",
   key: { tonic: "C", mode: "major" },
@@ -80,7 +80,8 @@ export default defineLesson({
         id: "same-tune-climbing",
         version: 1,
         role: "practice",
-        prompt: "Hum along with bar 1, then keep humming. Can you sing bars 2 and 3 to the same shape?",
+        prompt:
+          "Listen for the shape of bar 1: how it climbs and falls. Then listen for whether bars 2 and 3 repeat that shape from a higher start. Hum along if it helps.",
         skills: [{ skill: "P06", w: 1 }],
         hints: null,
         tests: [],
@@ -99,13 +100,13 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "`note()` also takes numbers: these three play `c4 d4 e4`. Run it, then try 61, 63 and other numbers in the gap.",
+          "`note()` also takes numbers: 60, 62 and 64 play `c4`, `d4` and `e4`. Put other numbers, such as 61 and 63, in place of the `~` and listen. Then answer the two questions below.",
         skills: [{ skill: "P05", w: 1 }],
         feedbackText: {
           "investigate.wrong": "Not quite. Watch the keyboard: which key does each number light?",
         },
         hints: ladder(
-          "What happens on the keyboard when a number goes up by one?",
+          "Put 61 in place of the `~` and watch the keyboard. Which key lights up, compared with the one for 60?",
           "Each number is one key, black or white. 60 is `c4`, 61 the black key above it, 62 is `d4`.",
           "64 is `e4`. Is there a black key between `e4` and `f4`?",
         ),
@@ -157,13 +158,13 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it, then delete `.transpose(2)` and run it again. Compare the two on the roll and the keys.",
+          "Listen to the riff with `.transpose(2)`, then delete `.transpose(2)` and listen again. Compare the note labels on the roll in the two versions, then answer the two questions below.",
         skills: [{ skill: "P06", w: 1 }],
         feedbackText: {
           "investigate.wrong": "Not quite. Put `.transpose(2)` back and compare the labels on the roll.",
         },
         hints: ladder(
-          "Which notes changed when you removed it: one of them, or all four?",
+          "Compare the four labels on the roll with and without `.transpose(2)`. Did one note change, or all four?",
           "Compare each label on the roll with and without it. `c4` became `d4`: how many half steps is that?",
           "`e4` became `f#4`, two half steps up, not the white key `f4`.",
         ),
@@ -219,7 +220,8 @@ export default defineLesson({
         id: "up-five",
         version: 1,
         role: "check",
-        prompt: "Move the whole riff up five half steps. Use `.transpose()`, not new note names.",
+        prompt:
+          "Move the whole riff up five half steps with `.transpose()`. Keep the four note names as they are.",
         skills: [
           { skill: "P06", w: 0.5 },
           { skill: "P03", w: 0.5 },
@@ -240,13 +242,16 @@ export default defineLesson({
           ...NOTE_FEEDBACK,
           "melody.wrong-degree":
             "Bar {bar}, {beatLabel}: a different note from the one asked for. Count the half steps again.",
-          "melody.transposed": "The right tune, moved by a different number of half steps than five.",
+          "melody.transposed":
+            "The right tune, moved by a different number of half steps than five. Change the number inside `.transpose()`.",
+          "code.must-use":
+            "Move the notes with `.transpose()` and a number of half steps inside it, and keep the note names as they were.",
           // A move of 17 or -7 lands on the right letters an octave out: point at the number in `.transpose()`.
           "melody.octave":
             "Bar {bar}, {beatLabel}: the right letter, but {dir} than asked, an octave out. Twelve half steps make an octave: check the number in `.transpose()`.",
         },
         hints: ladder(
-          "Which method moves every note by the same number of half steps?",
+          "Every note must move up by the same five half steps. Which method from the last step moved the whole riff up by two?",
           '`.transpose()` goes between `note(…)` and `.s("piano")`; the number in it counts half steps.',
           "`.transpose(2)` moved the riff up two half steps. You need a bigger number.",
         ),
@@ -298,7 +303,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Fill the three gaps so the line climbs from `c4` to `b4` one half step at a time, every key in turn.",
+          "Fill the three gaps so the line climbs from `c4` to `b4` one half step at a time, every key in turn. Each gap takes one note name with its number, like `c#4`.",
         skills: [{ skill: "P06", w: 1 }],
         code: { starter: mel("c4 c#4 d4 ⟦1⟧ e4 f4 ⟦2⟧ g4 g#4 a4 ⟦3⟧ b4") },
         blanks: [
@@ -308,9 +313,15 @@ export default defineLesson({
         ],
         reference: { solutions: [mel("c4 c#4 d4 d#4 e4 f4 f#4 g4 g#4 a4 a#4 b4")], bars: 1 },
         matcher: { m: "events", pitch: "absolute", rhythm: "onsets", durations: false },
-        feedbackText: NOTE_FEEDBACK,
+        feedbackText: {
+          ...NOTE_FEEDBACK,
+          "fill.blank-wrong":
+            "Gap {blank} isn't right yet. Each gap is the black key between the white keys on either side of it, named with a `#` or a `b`.",
+          "fill.blank-empty":
+            "Gap {blank} is still empty. Write a note name with its number there, like `c#4`.",
+        },
         hints: ladder(
-          "Which keys are missing between `d4` and `e4`, between `f4` and `g4`, and between `a4` and `b4`?",
+          "Each gap sits between two white keys: `d4` and `e4`, `f4` and `g4`, `a4` and `b4`. Which key lies between each pair?",
           "Each gap is a black key. Name it from the white key below it with a `#`.",
           "The first gap is `d#4`. The other two follow the same way.",
         ),
@@ -349,7 +360,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Each clip plays the riff, then a second line. Is the second the same tune moved up, or a different tune?",
+          "Listen to three clips. Each plays the riff, then a second line. For each, pick whether the second line is the same tune moved up or a different tune.",
         skills: [{ skill: "P06", w: 1 }],
         hints: ladder(
           "Hum the riff, then hum the second line. Did the shape of your humming change?",
@@ -363,10 +374,11 @@ export default defineLesson({
             id: "moved-two",
             version: 1,
             role: "check",
-            prompt: "The riff, then a second line. Same tune moved up, or a different tune?",
+            prompt:
+              "Listen to the riff, then the second line. Pick whether the second is the same tune moved up or a different tune.",
             skills: [{ skill: "P06", w: 1 }],
             hints: ladder(
-              "Does the second line climb and fall back like the first?",
+              "Follow the ups and downs of both lines. Does the second climb and fall back like the riff?",
               "Hum both. Moved tunes keep their shape.",
               "Listen again at a slower speed and hum along.",
             ),
@@ -385,10 +397,11 @@ export default defineLesson({
             id: "new-shape",
             version: 1,
             role: "check",
-            prompt: "The riff, then a second line. Same tune moved up, or a different tune?",
+            prompt:
+              "Listen to the riff, then the second line. Pick whether the second is the same tune moved up or a different tune.",
             skills: [{ skill: "P06", w: 1 }],
             hints: ladder(
-              "Does the second line climb and fall back like the first?",
+              "Follow the ups and downs of both lines. Does the second climb and fall back like the riff?",
               "The riff goes up, up, then down. Does the second line?",
               "Listen again at a slower speed and hum along.",
             ),
@@ -407,10 +420,11 @@ export default defineLesson({
             id: "moved-five",
             version: 1,
             role: "check",
-            prompt: "The riff, then a second line. Same tune moved up, or a different tune?",
+            prompt:
+              "Listen to the riff, then the second line. Pick whether the second is the same tune moved up or a different tune.",
             skills: [{ skill: "P06", w: 1 }],
             hints: ladder(
-              "Does the second line climb and fall back like the first?",
+              "Follow the ups and downs of both lines. Does the second climb and fall back like the riff?",
               "Hum both. Moved tunes keep their shape, however far they move.",
               "Listen again at a slower speed and hum along.",
             ),
@@ -439,7 +453,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a riff, then play it again higher or lower with `.transpose()`, on a second line or in a second bar.",
+          "Play the riff a second time, moved higher or lower with `.transpose()` and a number other than 0: on a second labelled line, or in a second bar with `< >`. Keep the riff itself playing too. Done when the copy keeps the riff's shape at a new height.",
         skills: [{ skill: "P06", w: 1 }],
         code: { starter: riff() },
         bars: [1, 4],
@@ -448,7 +462,7 @@ export default defineLesson({
           {
             id: "moved-copy",
             // The effect, not the call: `.transpose(0)` moves nothing, and the riff must also sound unmoved.
-            label: "Plays the riff again, moved with `.transpose()`",
+            label: "A copy of the riff, every note moved up or down with `.transpose()`",
             required: true,
             skills: ["P06"],
             rule: "custom",
@@ -457,7 +471,7 @@ export default defineLesson({
           },
           {
             id: "two-lines",
-            label: "The riff and its copy on two lines",
+            label: "Two labelled melody lines, such as `mel:` and `vox:`",
             required: false,
             skills: ["P06"],
             rule: "tracks",
@@ -466,7 +480,7 @@ export default defineLesson({
           },
           {
             id: "number-note",
-            label: "A note written as a number",
+            label: "At least one note written as a number, such as 60 for `c4`",
             required: false,
             skills: ["P05"],
             rule: "uses",
@@ -474,7 +488,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Where could a second copy of the riff go?",
+          "The riff must play twice: once as written, once moved. Where could the second copy go?",
           'Copy the `mel` line to a new line labelled `vox` (a second melody line), and put `.transpose()` before its `.s("piano")`.',
           "`.transpose(12)` on the copy doubles the riff an octave up. Other numbers give other colours.",
         ),

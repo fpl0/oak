@@ -59,7 +59,7 @@ const MAKE_STARTER = code(line("mel", "<[c4 e4 g4 e4] [f4 a4 g4 e4]>", "piano"))
 
 export default defineLesson({
   id: "U02.L06",
-  version: 2,
+  version: 4,
   title: "Tones & Timbres",
   objective:
     "I can play the same line on different instruments and synth waves, and double it on a second sound.",
@@ -84,7 +84,8 @@ export default defineLesson({
         id: "one-riff-four-sounds",
         version: 1,
         role: "practice",
-        prompt: "Listen to the character of each sound. Which one is gentlest, and which one buzzes?",
+        prompt:
+          "Listen to the riff on four sounds, one per bar. Listen for which sound is gentlest and which one buzzes most.",
         skills: [{ skill: "D01", w: 1 }],
         hints: null,
         tests: [],
@@ -104,7 +105,8 @@ export default defineLesson({
         id: "same-tune",
         version: 1,
         role: "practice",
-        prompt: "Two bars: the piano, then a synth. Do they play the same tune?",
+        prompt:
+          "Listen to two bars, the piano and then a synth. Follow the notes, not the sound, and pick the answer that describes the two bars.",
         skills: [{ skill: "D01", w: 1 }],
         hints: ladder(
           "Hum along with the first bar. Can you keep humming the same thing through the second?",
@@ -150,14 +152,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Run it. Then replace `"piano"` with `"sine"`, `"square"`, `"sawtooth"` and `"triangle"` in turn, and run after each change.',
+          'Replace `"piano"` with `"sine"`, then `"square"`, `"sawtooth"` and `"triangle"`, and listen after each change. Then answer the question below.',
         skills: [{ skill: "D01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Play `sine`, `square` and `sawtooth` one after the other: which is smoothest, and which buzzes most?",
         },
         hints: ladder(
-          "Which of the synths could you mistake for someone whistling, and which for an angry insect?",
+          "Listen to `sine`, `square` and `sawtooth` one after the other. Which could pass for someone whistling, and which for an angry insect?",
           "Only the word inside `.s(…)` changes. The roll stays the same, so the notes are the same.",
           "The square sits between the two extremes: hollow, a little like a clarinet.",
         ),
@@ -166,7 +168,7 @@ export default defineLesson({
         questions: [
           {
             q: "choice",
-            prompt: "Put three of them in order, from the purest to the buzziest.",
+            prompt: "Pick the order of these three, from the purest sound to the buzziest.",
             options: [
               { id: "sine-first", label: "`sine`, `square`, `sawtooth`" },
               { id: "saw-first", label: "`sawtooth`, `square`, `sine`" },
@@ -193,7 +195,8 @@ export default defineLesson({
         id: "name-the-sound",
         version: 1,
         role: "check",
-        prompt: "Four short lines, each on one sound. Which sound plays: piano, sine, square or sawtooth?",
+        prompt:
+          "Listen to four short lines, each on one sound, and name the sound of each: piano, sine, square or sawtooth.",
         skills: [{ skill: "D01", w: 1 }],
         hints: TRIAL_HINTS,
         tests: [],
@@ -202,7 +205,7 @@ export default defineLesson({
           id: t.id,
           version: 1,
           role: "check" as const,
-          prompt: "Which sound plays?",
+          prompt: "Pick the sound this line plays on.",
           skills: [{ skill: "D01", w: 1 }],
           hints: TRIAL_HINTS,
           stimulus: {
@@ -242,7 +245,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Add a second line labelled `vox`, the label for a second lead line, that plays the same four notes **one octave higher** on a synth wave. Keep the piano line as it is. Waves are loud: `.gain(.4)` keeps the new line under the piano.",
+          "Add a second line labelled `vox` that plays the same four notes **one octave higher** on a synth wave: `sine`, `triangle`, `square` or `sawtooth`. Keep the piano line as it is. Waves are loud, so `.gain(.4)` keeps the new line under the piano.",
         skills: [{ skill: "D01", w: 1 }],
         code: { starter: code(line("mel", RIFF, "piano"), "⟪⟫") },
         reference: {
@@ -274,7 +277,7 @@ export default defineLesson({
         target: { audible: true, showRoll: true },
         feedbackText: LETTER_FEEDBACK,
         hints: ladder(
-          "How do you tell Strudel about a second part that plays at the same time?",
+          "A second part needs a line of its own, starting with the label `vox:`. Which notes does it play, and on which sound?",
           "A new line with its own label plays alongside the first. The octave is the number after each letter.",
           'The new line starts `vox: note("c5 …`. Finish the notes, then pick a synth with `.s(…)`.',
         ),
@@ -344,7 +347,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a line and play it on **two sounds at once**: a second labelled line that doubles it on another sound, at the same height or an octave apart.",
+          "Add a second labelled line, such as `vox:`, that plays the same notes as `mel:` at the same time on **another sound**, at the same height or one or two octaves away. Done when every bar of `mel:` is doubled.",
         skills: [{ skill: "D01", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [1, 4],
@@ -352,7 +355,8 @@ export default defineLesson({
         rubric: [
           {
             id: "two-parts",
-            label: "A second line doubles the first on another sound",
+            label:
+              "In every bar, a second line plays the same notes at the same time on another sound, at the same height or one or two octaves away",
             required: true,
             skills: ["D01"],
             // Corrections pass: the doubling itself. `tracks` counted two pitched lines, so two piano lines, or a
@@ -364,7 +368,7 @@ export default defineLesson({
           },
           {
             id: "space",
-            label: "Leaves some space with a rest",
+            label: "At least one `~` (a rest) for space",
             required: false,
             skills: ["R06"],
             rule: "uses",
@@ -372,7 +376,7 @@ export default defineLesson({
           },
           {
             id: "octave-apart",
-            label: "The copy moved with `.transpose()`",
+            label: "Uses `.transpose()`, for example to move the copy an octave",
             required: false,
             skills: ["P06"],
             rule: "uses",
@@ -380,7 +384,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "How many lines does the starter have, and how many does the brief ask for?",
+          "The brief needs two lines playing the same notes on two sounds, and the starter has one. What must the second line copy?",
           "Copy the `mel` line, label the copy `vox`, and change its sound.",
           '`vox` with the same notes, `.s("sine")` and `.gain(.4)` is already enough. Change the notes after that if you like.',
         ),

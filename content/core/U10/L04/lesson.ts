@@ -63,7 +63,7 @@ const MINOR = { tonic: "A", mode: "minor" } as const;
 
 export default defineLesson({
   id: "U10.L04",
-  version: 2,
+  version: 3,
   title: "Minor-Key Chords",
   objective:
     "I can name the seven chords of a minor key, i ii° III iv v VI VII, and use its three major chords to lift a minor loop.",
@@ -90,7 +90,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A chord on every note of A minor, from home to home, then a groove made from four of them. Listen for the bars where the groove brightens, though the key stays minor.",
+          "Listen to two clips: a chord on every note of A minor, from home to home, then a groove made from four of them. Listen for the bars where the groove sounds brighter, though the key stays minor.",
         skills: [{ skill: "H07", w: 1 }],
         hints: null,
         tests: [],
@@ -116,7 +116,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "In A minor, degree ♭3 is C. Stack a triad on it, skipping a note twice: C, E, G. What kind of chord is it?",
+          "Predict what kind of chord sits on degree ♭3 of A minor. Degree ♭3 is C; a triad on it skips a note twice: C, E, G. Pick an answer, then hear it.",
         skills: [{ skill: "H07", w: 1 }],
         hints: null,
         tests: [],
@@ -144,14 +144,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it: the seven triads of A minor, then home. Read each numeral in the chord band as it plays, and listen for the chords that sound bright.",
+          "Run the code: the seven triads of A minor, then home. Read each numeral in the chord band as it plays, and listen for the chords that sound bright. Then answer both questions.",
         skills: [{ skill: "H07", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read the chord band again: upper-case numerals are major, lower-case ones minor, and ° marks the diminished one.",
         },
         hints: ladder(
-          "Which chords sound bright to you, and on which degrees are they built?",
+          "Listen for the chords that sound bright, then find the degree each one is built on.",
           "The chord band writes major chords in upper case and minor ones in lower case. Count each kind.",
           "The chord on ♭3, C E G, is major: III. Two more upper-case numerals follow it.",
         ),
@@ -200,7 +200,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "This loop is i iv v i: every chord minor. Change the last two numbers so bars 3 and 4 play VII, then III.",
+          "This loop plays i iv v i, every chord minor. Change the last two numbers in `.add()` so bar 3 plays VII and bar 4 plays III. Keep bars 1 and 2 as they are.",
         skills: [{ skill: "H07", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 4 },
@@ -212,7 +212,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}; the target has {exp}. A numeral is a degree, and `n` counts from 0: subtract one.",
         },
         hints: ladder(
-          "On which degrees are VII and III built?",
+          "VII and III are built on two of minor's lowered degrees. Find which two.",
           "A numeral's degree minus one is its number in `.add()`: `n` counts from 0, so degree 4 is `n` 3, as in bar 2.",
           "VII is built on ♭7, so bar 3's number is 6. Now III.",
         ),
@@ -258,13 +258,13 @@ export default defineLesson({
         role: "check",
         key: MINOR,
         prompt:
-          "A loop in A minor, written in chord names: Am F G Am. Write the numeral of each chord, one a bar: upper case for major, lower case for minor.",
+          "Write the numeral of each chord in this A minor loop, Am F G Am, one per bar. Count each root from A. Use upper case for a major chord and lower case for a minor one.",
         skills: [
           { skill: "H07", w: 0.7 },
           { skill: "N06", w: 0.3 },
         ],
         hints: ladder(
-          "Which degree of A minor is each chord's root? Count from A.",
+          "Count each chord's root up from A, home: that gives its degree.",
           "A is 1, so F is ♭6 and G is ♭7. Then decide each chord's case by its quality.",
           "Bar 1 is i: A minor is home, and minor. F is a major chord on ♭6.",
         ),
@@ -310,10 +310,12 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A loop with its bass, in a new key each time, often minor. Enter the bass note of each bar as a degree, in order.",
+          "Enter the bass note of each of the four bars as a degree, in order. Each loop is in a new key, and many are minor.",
         skills: [{ skill: "H07", w: 1 }],
         hints: [
-          { text: "Hum the lowest note of each bar. Where is home?" },
+          {
+            text: "Hum the lowest note of each bar, then hum home, the note the music rests on. Compare each bass note with home.",
+          },
           {
             text: "Sing down from each bass note to do and count the steps. In minor the steps pass me, le and te.",
           },
@@ -348,7 +350,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The loop plays i iv v i, every chord minor. Rewrite it with at least two of the key's major chords, III, VI or VII, and choose where the lift comes. Then put a bass under it.",
+          "Rewrite the loop, now i iv v i, so at least two chords in bars 1–4 are the key's major chords: III, VI or VII. You choose where the lift comes. Then add a `bass:` line on the chord roots.",
         skills: [{ skill: "H07", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -356,7 +358,7 @@ export default defineLesson({
         rubric: [
           {
             id: "two-major-chords",
-            label: "Two of the first four bars on III, VI or VII",
+            label: "At least two chords in bars 1–4 are III, VI or VII",
             required: true,
             skills: ["H07"],
             rule: "contains-rn",
@@ -367,7 +369,7 @@ export default defineLesson({
           },
           {
             id: "a-bass-on-the-roots",
-            label: "A bass on each chord's root when it changes",
+            label: "A `bass:` line plays the chord's root on at least 3 of every 4 chord changes",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -377,7 +379,7 @@ export default defineLesson({
           },
           {
             id: "a-tune-on-the-chords",
-            label: "A tune with chord notes on beats 1 and 3",
+            label: "A tune whose notes on beats 1 and 3 are mostly notes of the chord under them",
             required: false,
             skills: ["M01"],
             rule: "chord-tones-strong",
@@ -390,7 +392,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which three numerals of A minor are major chords, and on which degrees do they sit?",
+          "Find the three upper-case numerals of A minor, the major chords, and the degree each sits on.",
           "III, VI and VII sit on ♭3, ♭6 and ♭7. In `.add()` a chord's number is its degree minus one.",
           "VII is the number 6: `<0 3 6 0>` lifts bar 3. One more major chord to go.",
         ),

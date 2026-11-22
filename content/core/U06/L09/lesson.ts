@@ -76,7 +76,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U06.L09",
-  version: 2,
+  version: 3,
   title: "Chord Dictation Workshop",
   objective:
     "I can take down a chord loop by ear: the bass first, then each chord's quality, then its Roman numeral.",
@@ -103,7 +103,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Four chords over the drums, one a bar, with nothing to read. Hum the lowest note of each, and notice which chords sound bright and which dark.",
+          "Four chords play over the drums, one a bar, with nothing to read. Hum the lowest note of each, and listen for which chords sound bright and which dark.",
         skills: [{ skill: "E09", w: 1 }],
         hints: null,
         tests: [],
@@ -123,10 +123,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Take the loop down in three passes. First the bass: the degree under each chord. Then each chord's colour: major or minor. Then the numerals: the bass gives the degree, the colour the case.",
+          "Take the loop down in three passes. First the bass: the degree under each chord. Then each chord's colour: major or minor. Then the numerals: the bass gives the degree, the colour gives upper or lower case.",
         skills: [{ skill: "E09", w: 1 }],
         hints: [
-          { text: "Sing the lowest note of each chord. Which is home?" },
+          { text: "Sing the lowest note of each chord, and find home first." },
           {
             text: "The bass gives the degree, the colour gives the case: a minor chord on 6 is vi. Hear it slower.",
             replay: { rate: 0.75 },
@@ -187,10 +187,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A new loop, one chord a bar. Write the bass first, in degrees, in any octave. Then the chords above it, as stacks with `.add()` or as chord names.",
+          "A new loop plays, one chord a bar. Write the bass first, one note a bar in degrees, in any octave. Then write the chords above it, as stacks with `.add()` or as chord names. Done when both your bass and your chords match the loop.",
         skills: [{ skill: "E09", w: 1 }],
         hints: ladder(
-          "Start with the bass. Which bars sit on home, and where does the bass climb highest?",
+          "Start with the bass. Find the bars that sit on home, and the bar where the bass climbs highest.",
           "Write the bass degrees, then give each chord the same root: a stack on a root of `n` 4 is V.",
           "The bass starts on 1 and its second note is degree 5, `n` 4. Two more, then copy them into the chords.",
         ),
@@ -261,10 +261,11 @@ export default defineLesson({
         id: "more-loops",
         version: 1,
         role: "check",
-        prompt: "A four-chord loop in a new key each time. Write its numerals, bass first in your head.",
+        prompt:
+          "A four-chord loop plays, in a new key each time. Enter its four numerals, finding the bass first in your head.",
         skills: [{ skill: "E09", w: 1 }],
         hints: ladder(
-          "Which chord is home? Start the count there.",
+          "Find home first and start the count there.",
           "Hum each bass note and find its degree, then hear each chord bright or dark.",
           "Upper case for a major chord, lower case for a minor one: a minor chord on 2 is ii.",
         ),
@@ -288,7 +289,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Play the loop you took down by ear, I V vi iii, in C and in that order. Then make it a track: a rhythm for the chords, a bass, a tune.",
+          "Write the loop you took down by ear, I V vi iii, in C and in that order, one chord a bar; bar 1 is written. Then make it a track if you like: a rhythm for the chords, a bass, a tune. Done when the chords go I V vi iii.",
         skills: [{ skill: "E09", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -296,7 +297,7 @@ export default defineLesson({
         rubric: [
           {
             id: "i-v-vi-iii",
-            label: "The loop you took down: I V vi iii",
+            label: "`chords` plays I V vi iii in C, in that order",
             required: true,
             skills: ["E09"],
             rule: "progression",
@@ -305,7 +306,7 @@ export default defineLesson({
           },
           {
             id: "a-bass",
-            label: "A bass line",
+            label: "A bass line on its own line, such as `bass`",
             required: false,
             skills: ["H01"],
             rule: "tracks",
@@ -314,7 +315,7 @@ export default defineLesson({
           },
           {
             id: "a-tune",
-            label: "A tune on top",
+            label: "A tune on its own line, such as `mel`",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -323,7 +324,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Bar 1 is written. Which three chords did you hear after it?",
+          "Bar 1, I, is written. The three chords after it are V, vi and iii.",
           "Turn each numeral into a number for `.add()`: the degree minus one.",
           "I and V are 0 and 4. vi and iii are on degrees 6 and 3.",
         ),

@@ -54,7 +54,8 @@ const GHOST_STARTER = code(KICK, SNARE, 'hats: ⟪s("hh*16").gain(.5)⟫', FUNK_
 const GHOSTED = funk(hats('.velocity("[1 .3 .6 .3]*4")'));
 const GHOST_RULE: RubricRule = {
   id: "hats-ghosted",
-  label: "The hats whisper on the sixteenths between the eighths, and the beats stay loud",
+  label:
+    "At least 8 hi-hat hits on the “e”s and “a”s are quiet ghost notes, and the hits on the beats stay loud",
   required: true,
   skills: ["R14"],
   rule: "velocity-ghosts",
@@ -88,7 +89,7 @@ const DISPLACE_STARTER = code(
 const DISPLACED = riffPiece("riff.late(1/8)");
 const DISPLACE_RULE: RubricRule = {
   id: "riff-displaced",
-  label: "The riff comes back moved to another place in the bar, every note by the same eighth",
+  label: "The riff comes back in bars 3 and 4 moved one eighth note later, every note by the same amount",
   required: true,
   skills: ["R15"],
   rule: "custom",
@@ -107,7 +108,7 @@ const TWO_THREE = claveOn('perc: s("<[~ ~ rim ~ rim ~ ~ ~] rim(3,8)>").gain(.7)'
 const CLAVE_RULES: RubricRule[] = [
   {
     id: "clave-two-three",
-    label: "The son clave, its two-side first, whole in all four bars",
+    label: "The rimshot plays the son clave 2-3, its two-side first, for all four bars",
     required: true,
     skills: ["R18"],
     rule: "clave",
@@ -118,7 +119,7 @@ const CLAVE_RULES: RubricRule[] = [
   },
   {
     id: "three-side-euclid",
-    label: "The three-side written as three hits spread over eight",
+    label: "The three-side is written as `(3,8)`: three hits spread over eight steps",
     required: true,
     skills: ["R18"],
     rule: "uses",
@@ -153,7 +154,7 @@ const MAKE_RICH = code(
 );
 const GHOSTS_IN_THE_MAKE: RubricRule = {
   id: "hats-ghosted",
-  label: "A sixteenth-note hat line with ghost notes beside loud beats",
+  label: "The hats play sixteenths, with quiet ghost notes on the “e”s and “a”s and loud hits on the beats",
   required: true,
   skills: ["R14"],
   rule: "velocity-ghosts",
@@ -169,7 +170,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["R1", "R2", "R3"],
   gated: ["R14", "R15", "R16", "R17", "R18"],
   levelSetting: ["E14"],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "code-modify",
@@ -178,7 +179,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: { tonic: "D", mode: "minor" },
       prompt:
-        "A funk groove at 100 whose sixteenth hi-hats all hit at one level. Make the hats breathe: the sixteenths between the eighths become ghost notes, quiet enough to feel more than hear, while the hits on the beats stay loud.",
+        "The sixteenth hi-hats of this funk groove all hit at one level. Give the hats a `.velocity()` string: the sixteenths between the eighths, the “e”s and “a”s, become quiet ghost notes, and the hits on the beats stay loud. Keep the other lines.",
       skills: [{ skill: "R14", w: 1 }],
       hints: null,
       code: { starter: GHOST_STARTER },
@@ -242,7 +243,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: C_MAJOR,
       prompt:
-        "A two-bar clav riff over the son clave, played twice. Keep bars 1 and 2 as they are, and bring the riff back in bars 3 and 4 an eighth note later: the same notes, every one moved by the same eighth.",
+        "The two-bar clav riff plays twice over the son clave. Keep bars 1 and 2 as they are. In bars 3 and 4, bring the riff back one eighth note later: the same notes, every one moved by the same eighth. Change only the second `riff` in `arrange()`.",
       skills: [{ skill: "R15", w: 1 }],
       hints: null,
       code: { starter: DISPLACE_STARTER },
@@ -296,7 +297,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: C_MAJOR,
       prompt:
-        "A tune that starts on beats 2 and 3, over a kick and hats. Give it the son clave on the rimshot, facing the tune: the two-side first, then the three-side, written as three hits spread over eight. It plays all four bars.",
+        "Write the son clave on the rimshot line, under a tune that starts on beats 2 and 3. Face the tune: the two-side first, then the three-side written as three hits spread over eight steps. Done when the clave plays 2-3 for all four bars.",
       skills: [{ skill: "R18", w: 1 }],
       hints: null,
       code: { starter: CLAVE_STARTER },
@@ -369,7 +370,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     role: "checkpoint",
     title: "A pocket over the clave",
     prompt:
-      "Four bars of your own over the son clave 3-2 on the rimshot and the band's chords. The hats are yours: sixteenths that lean on the beats with ghost notes between them. Then the rest: a bass that pulls against the beat, a bell, a kick of your own.",
+      "Make four bars of your own over the son clave 3-2 on the rimshot and the band's chords. Required: the hats play sixteenths, loud on the beats with quiet ghost notes between. Also on the checklist: the clave stays whole, and a bass that pulls against the beat. For more, a bell or a kick of your own.",
     skills: [{ skill: "R14", w: 1 }],
     hints: null,
     key: C_MAJOR,
@@ -381,7 +382,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       GHOSTS_IN_THE_MAKE,
       {
         id: "clave-kept",
-        label: "The son clave 3-2 stays whole under the groove",
+        label: "The rimshot keeps the son clave 3-2 for all four bars",
         required: false,
         skills: ["R18"],
         rule: "clave",
@@ -392,7 +393,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "bass-pulls",
-        label: "The bass pulls against the beat",
+        label: "At least 4 bass notes pull: each on a light place, with the heavier place after it silent",
         required: false,
         skills: ["R15"],
         rule: "syncopation",

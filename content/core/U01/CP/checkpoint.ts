@@ -15,7 +15,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["U01"],
   gated: ["R02", "R03", "R04", "R05", "R06", "R07", "R08", "N01"],
   levelSetting: ["R01", "E01"],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "code-modify",
@@ -23,7 +23,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "Make this beat play at **108** beats per minute and leave beat 4 empty. The bar stays four beats long.",
+        "Change the tempo to **108** beats per minute, and make beat 4 silent with a rest. Keep beats 1, 2 and 3 as they are, so the line still has four words.",
       skills: [
         { skill: "R02", w: 0.4 },
         { skill: "R06", w: 0.4 },
@@ -35,6 +35,11 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       matcher: { m: "rhythm", tol: [0, 1], durations: false, perRole: false, displacementCredit: 0.5 },
       constraints: [{ c: "tempo", bpm: 108 }],
       target: { audible: true },
+      // The catalog says "missing hit": this says how to keep the bar four beats long.
+      feedbackText: {
+        "rhythm.missing":
+          "Bar {bar}, {beatLabel}: no hit here yet{role}. Keep beats 1, 2 and 3 where they were: write `~` for beat 4 rather than deleting a word.",
+      },
       tests: [
         { name: "reference", response: { code: `${T(108)}drums: s("bd sd bd ~")` }, expect: "pass" },
         { name: "other sounds", response: { code: `${T(108)}drums: s("bd cp bd ~")` }, expect: "pass" },
@@ -64,7 +69,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "Turn this into a backbeat on three lines: keep the kick, add a `snare:` line on beats 2 and 4, and make the hats play every eighth.",
+        "Make a backbeat on three lines. Keep the `kick:` line as it is, add a `snare:` line with `sd` on beats 2 and 4, and make the hats play two per beat, eight in the bar.",
       skills: [
         { skill: "R04", w: 0.6 },
         { skill: "R05", w: 0.4 },
@@ -75,6 +80,12 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       matcher: { m: "rhythm", tol: [0, 1], durations: false, perRole: true, displacementCredit: 0.5 },
       constraints: [{ c: "labels", min: 3 }],
       target: { audible: true },
+      // The catalog says "labeled parts" and only "check where it starts": these say what goes where.
+      feedbackText: {
+        "code.labels": "Write {min} lines, each starting with its own name: `kick:`, `snare:` and `hats:`.",
+        "rhythm.displaced":
+          "Right rhythm, shifted {shiftLabel}. The snare goes on beats 2 and 4, the kick on 1 and 3.",
+      },
       tests: [
         { name: "reference", response: { code: BEAT("bd ~ bd ~", "~ sd ~ sd", "hh*8") }, expect: "pass" },
         {
@@ -107,7 +118,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       id: "eighths-in-a-whole",
       version: 1,
       role: "checkpoint",
-      prompt: "How many eighth notes last as long as one whole note?",
+      prompt: "Enter how many eighth notes last as long as one whole note.",
       skills: [{ skill: "N01", w: 1 }],
       hints: null,
       answer: { ui: "number" },
@@ -143,7 +154,8 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     id: "checkpoint-groove",
     version: 1,
     role: "checkpoint",
-    prompt: "A two-bar groove with anything from this unit you like. Keep the backbeat.",
+    prompt:
+      "Write a two-bar groove with anything from this unit you like. Keep the snare on beats 2 and 4 in every bar.",
     skills: [{ skill: "R04", w: 1 }],
     hints: null,
     code: { starter: BEAT("bd ~ bd ~", "~ sd ~ sd", "hh*8", 96) },
@@ -152,7 +164,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     rubric: [
       {
         id: "backbeat",
-        label: "Snare on beats 2 and 4",
+        label: "Snare on beats 2 and 4 in every bar",
         required: true,
         skills: ["R04"],
         rule: "onsets",
@@ -166,7 +178,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "two-bars",
-        label: "Two bars that differ, with `< >`",
+        label: "At least two different bars on one line, using `< >`",
         required: false,
         skills: ["R03"],
         // The effect, not the brackets: `<[~ sd ~ sd]>` plays the same bar every time.

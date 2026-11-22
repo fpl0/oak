@@ -99,7 +99,7 @@ const eighths = (bars: number, every: number) =>
 
 export default defineLesson({
   id: "U13.L04",
-  version: 2,
+  version: 3,
   title: "Compound Meter",
   objective:
     "I can write a groove in 6/8 or 12/8, two or four beats a bar with each beat split in three, and set its tempo by the dotted quarter.",
@@ -128,7 +128,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen with your body before you count anything. How many times a bar does the music sway, and which drums mark the sway?",
+          "Listen with your body before you count anything. Notice how many times a bar the music sways, and which two drums mark the sway.",
         skills: [{ skill: "R11", w: 1 }],
         hints: null,
         tests: [],
@@ -153,11 +153,11 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Tap the beat of the ballad: two taps in every bar, one with the kick on 1 and one with the snare. Not every hat, and not three to the bar. Any key works.",
+          "Tap the slow beat: two taps a bar, one with the kick on 1 and one with the snare, a tap every second. Eight taps in four bars. Skip the hats and the second kick, the one just before the next bar. Done when every tap lands on a kick on 1 or a snare.",
         skills: [{ skill: "R11", w: 1 }],
         hints: ladder(
-          "Of the six hats in a bar, which ones are loudest?",
-          "The beat falls on the first hat of each group of three: the kick on 1, then the snare on 2.",
+          "Two taps a bar, no more. Of the six hats in a bar, which ones are loudest?",
+          "The beat falls on the first hat of each group of three: the kick on 1, then the snare on 2. The kick on the last hat of the bar is a lift, not a beat.",
           "Say “1 la li 2 la li” and tap only on the numbers. A tap every second.",
         ),
         mode: "along",
@@ -167,9 +167,10 @@ export default defineLesson({
         target: "beat",
         tol: { windowMs: "auto", tempo: "locked", forgiveOffset: true, passF1: 0.8, passTiming: 0.7 },
         feedbackText: {
-          "tap.missed": "A beat went by without a tap. There are two in every bar: the kick, then the snare.",
+          "tap.missed":
+            "A beat went by without a tap. There are two in every bar: the kick on 1, then the snare.",
           "tap.extra":
-            "A tap landed between the beats. Tap the kick and the snare only, not the hats in between.",
+            "A tap landed between the beats. Tap the kick on 1 and the snare only, not the hats or the kick just before the next bar.",
         },
         srs: [{ family: "fam.rhy.echo", mode: "review-if-due" }],
         tests: [
@@ -192,7 +193,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Six hats in a bar, a kick on the first and a snare on the fourth: `s("hh*6")`, `s("bd ~ ~ ~ ~ ~")`, `s("~ ~ ~ sd ~ ~")`. How many beats will you feel in each bar?',
+          'Six hats in a bar, a kick on the first and a snare on the fourth: `s("hh*6")`, `s("bd ~ ~ ~ ~ ~")`, `s("~ ~ ~ sd ~ ~")`. Predict how many beats you will feel in each bar, then pick your answer.',
         skills: [{ skill: "R11", w: 1 }],
         hints: null,
         tests: [],
@@ -220,7 +221,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Run it, then change the snare to `s("~ ~ sd ~ sd ~")` and run it again. The same six hats, grouped another way.',
+          'Run it, then change the snare to `s("~ ~ sd ~ sd ~")` and run it again: the same six hats, grouped another way. Answer both questions: which version is a waltz bar, and how many eighth notes go by in a minute.',
         skills: [{ skill: "R11", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -280,7 +281,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A 6/8 bar with six hats and a kick on 1 only. Give it its second beat: a snare on the fourth eighth. Then add a kick on the sixth eighth, a lift into the next bar.",
+          "A 6/8 bar with six hats and a kick on 1 only. Add a snare on the fourth eighth, beat 2 of the bar. Then add a second kick on the sixth eighth, a lift into the next bar. Keep the kick on 1.",
         skills: [{ skill: "R11", w: 1 }],
         code: { starter: S5_STARTER },
         reference: { solutions: [S5_SOLUTION], bars: 2 },
@@ -339,7 +340,7 @@ export default defineLesson({
         role: "check",
         meter: "12/8",
         prompt:
-          "Your groove in 12/8: one bar of four beats. The tempo line already counts them, `setcpm(60/4)`, so the six-step drums now crawl. Give each drum string twelve steps: twelve hats, and the kick and snare patterns twice.",
+          "Your groove is now one bar of 12/8, four beats, and the tempo line already counts them: `setcpm(60/4)`. Give each drum string twelve steps: twelve hats, and the kick and snare patterns each written twice. Leave the tempo line as it is. Done when the drums sound as they did in 6/8.",
         skills: [{ skill: "R11", w: 1 }],
         code: { starter: S6_STARTER },
         reference: { solutions: [S6_SOLUTION], bars: 2 },
@@ -401,7 +402,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four bars of drums, a new groove each time. Find the beat, then count how the bar groups it. Which meter is it in?",
+          "Four bars of drums, a new groove each time. Find the beat, count the beats in a bar, and listen whether each beat splits in two or in three. Pick the meter.",
         skills: [{ skill: "R11", w: 1 }],
         hints: [
           { text: "Where does the kick come back? That is the start of each bar." },
@@ -442,7 +443,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A 6/8 ballad that does not sway yet: four held chords, a bass note on 1, six even hats, a kick on 1. Give it its second beat with a snare. Then go further: a kick that lifts into the next bar, hats accented in threes, the chords rolled with `.arp()`, a slow tune on top.",
+          "Add a `snare:` line with one hit a bar, on the fourth eighth: beat 2 of 6/8. Then, if you like, add a kick that lifts into the next bar, hats accented in threes with `.velocity()`, chords rolled with `.arp()`, or a slow tune on top.",
         skills: [{ skill: "R11", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -450,7 +451,7 @@ export default defineLesson({
         rubric: [
           {
             id: "snare-on-two",
-            label: "The snare marks beat 2 of every bar: the fourth eighth note",
+            label: "In every bar, a snare on the fourth eighth (beat 2) and none on the first three eighths",
             required: true,
             skills: ["R11"],
             rule: "onsets",
@@ -467,7 +468,7 @@ export default defineLesson({
           },
           {
             id: "hats-in-threes",
-            label: "The hats are accented in threes: quiet hats between the loud ones",
+            label: "At least four quiet hats: hits whose `.velocity()` times `.gain()` is .4 or less",
             required: false,
             skills: ["R11"],
             rule: "velocity-ghosts",
@@ -477,7 +478,7 @@ export default defineLesson({
           },
           {
             id: "sway-tempo",
-            label: "A tempo that sways, 50–72 beats a minute",
+            label: "A tempo from 50 to 72 beats a minute",
             required: false,
             skills: ["R11"],
             rule: "tempo-bpm",
@@ -486,16 +487,18 @@ export default defineLesson({
           },
           {
             id: "rolled-chords",
-            label: "The chords are rolled with .arp()",
+            label: "The chords use `.arp()`",
             required: false,
             skills: ["R11"],
             rule: "uses",
             tool: "tb.arp",
           },
         ],
-        feedbackText: { "rubric.unmet": "{label}: not yet." },
+        feedbackText: {
+          "rubric.unmet": "{label}: not yet. Check your lines against the item, then run it again.",
+        },
         hints: ladder(
-          "Where is the second beat of a 6/8 bar?",
+          "The snare goes on the second beat of every bar. Where is beat 2 in a bar of six eighths?",
           "The bar is two groups of three eighth notes. Beat 2 is the first eighth of the second group.",
           "Add a snare line with six steps, its only hit on step 4.",
         ),

@@ -75,7 +75,7 @@ const VIBES = 'mel: note("<[a4 ~ c5 d5] [a4 ~ f4 ~] [bb4 d5 f5 d5] [g4 ~ e4 ~]>"
 /** The Make's one required rule: a sixth chord and a sus chord, both heard on the chords line. */
 const BOTH_COLOURS: RubricRule = {
   id: "sixth-and-sus",
-  label: "A sixth chord and a sus chord in your chart",
+  label: "`changes` holds at least one sixth chord (such as F6) and one sus chord (such as C7sus)",
   required: true,
   skills: ["J01", "C09"],
   rule: "chord-qualities",
@@ -88,7 +88,7 @@ const BOTH_COLOURS: RubricRule = {
 /** A suggestion: the chart comes home to F at the end (an F6 there is the warm ending the brief invites). */
 const ENDS_HOME: RubricRule = {
   id: "ends-home",
-  label: "The chart ends home, on F",
+  label: "The last chord of the chart is the home chord, built on F",
   required: false,
   skills: ["J01"],
   rule: "custom",
@@ -136,7 +136,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J1.L02",
-  version: 2,
+  version: 3,
   title: "Reading 7th-Chord Symbols",
   objective:
     "I can read a jazz chart's chord symbols, sixths and sus chords included, and play them in code.",
@@ -166,7 +166,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The two takes differ only in bar 1 and at the start of bar 4. Listen to those two chords: how does each one feel in the first take, next to the second?",
+          "Listen to bar 1 and to the start of bar 4 in both takes; nothing else changes. Notice how each of those two chords feels in the first take compared with the second.",
         skills: [{ skill: "J01", w: 1 }],
         hints: null,
         tests: [],
@@ -197,14 +197,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the chart and watch the chord band name each chord in code as it plays, beside the chart's glyphs.",
+          "Run the chart and watch the chord band: it names each chord in code while the chart shows its glyph. Then answer two questions: which code chord bar 2's D–7 is, and how many different letter names bar 1's F6 plays.",
         skills: [{ skill: "J01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Compare the glyph in bar 2 with the name the chord band gives it, then count the letter names in bar 1 on the roll, each one once.",
         },
         hints: ladder(
-          "Which mark does the chart print where code writes an m?",
+          "For the first question, find the mark the chart prints in bar 2 where code writes an m. For the second, read bar 1 on the roll.",
           "The chord band names bar 2 in code while the chart prints its glyph. For bar 1, read the roll: some letters sound twice.",
           "Bar 1 holds the F major triad, F A C, and one more letter.",
         ),
@@ -252,10 +252,10 @@ export default defineLesson({
         id: "glyphs-into-code",
         version: 1,
         role: "check",
-        prompt: "Four symbols from a jazz chart. For each one, pick the code that plays it.",
+        prompt: "For each of the four jazz chart symbols, pick the code that plays it.",
         skills: [{ skill: "J01", w: 1 }],
         hints: ladder(
-          "Which kind of seventh chord does each glyph stand for?",
+          "Each glyph stands for one kind of seventh chord. Match the glyph first, then the root.",
           "Four glyphs, four kinds: a major seventh, a minor seventh, a half-diminished seventh and a diminished seventh.",
           "The triangle marks the seventh a half step under the root's octave; the dash marks minor, as `m` does in code.",
         ),
@@ -341,10 +341,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "In one card the chord on C leans toward F. In the other it floats, neither bright nor dark, as if waiting. Which card floats?",
+          "Listen to the chord on C in the second bar of each card. In one card it leans toward F; in the other it floats, neither bright nor dark, as if waiting. Pick the card that floats.",
         skills: [{ skill: "C09", w: 1 }],
         hints: ladder(
-          "Listen to the second bar of each card. Which one sounds finished as a question, and which one hangs?",
+          "Listen only to the second bar of each card. One chord wants to move on to F; the other hangs in the air.",
           "Both chords on C have the same root and the same 7th. One note in the middle differs.",
           "In one card the chord has no 3rd at all: a note a half step higher sits in its place.",
         ),
@@ -387,7 +387,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A jazz chart reads G–7 | C7 | F∆7 | F6. The trio plays it as plain triads. Write each bar of `changes` the way the chart has it.",
+          "The chart reads G–7 | C7 | F∆7 | F6, but `changes` plays plain triads. Rewrite each of the four chords in `changes` to match the chart, bar by bar. The roots stay; only the kind of chord changes. Done when all four bars play the chart's chords.",
         skills: [
           { skill: "J01", w: 0.7 },
           { skill: "C09", w: 0.3 },
@@ -406,7 +406,7 @@ export default defineLesson({
             "Bar {bar}: not the chord the page asks for. Read that bar's glyph again: which kind of seventh, or which added note, does it print?",
         },
         hints: ladder(
-          "What does each glyph add to the plain triad under it?",
+          "Compare each glyph with the plain triad in the same bar of `changes`. Each glyph adds one note, a 7th or a 6th, to its triad.",
           "Bar 1 is minor with a 7th; bar 2 a dominant seventh; bar 3 a major seventh; bar 4 the triad with its 6th.",
           "Bar 1 becomes `Gm7`. In code a major seventh needs a sign before the 7, and bar 4 keeps the 6 as the chart prints it.",
         ),
@@ -468,7 +468,7 @@ export default defineLesson({
         role: "practice",
         title: "Chart in F",
         prompt:
-          "Write a four-bar chart in F for the trio: a sus chord that floats before it resolves, and a warm sixth chord, best at the end. For more, add bars, or a swung vibes line whose long notes sit in their chords.",
+          "Write your own four-bar chart in F in `changes`. Required: at least one sixth chord and one sus chord. Also on the checklist: end on the home chord, built on F. For more, add bars, or a swung vibes line whose long notes sit in their chords.",
         skills: [
           { skill: "J01", w: 0.5 },
           { skill: "C09", w: 0.5 },
@@ -481,7 +481,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which two new colours does the brief ask for?",
+          "The required rule asks for the two colours this lesson added: one chord with its 6th added, one with a 4th in place of its 3rd.",
           "One chord gets its 6th added to the triad; another gets the 4th in place of its 3rd. Both are written in `changes`.",
           "Bar 4 could hold the sus chord on C for half the bar, then C7; the last chord could become a sixth chord on F.",
         ),

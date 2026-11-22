@@ -128,7 +128,7 @@ const SHELL_SOLUTION = comp(shellChords(SHELLS));
 const SHELL_RULES: RubricRule[] = [
   {
     id: "shells",
-    label: "Every chord a shell: the root at the bottom, the 3rd and the 7th above it",
+    label: "Every chord is a shell: the root at the bottom, the 3rd and the 7th above it, nothing else",
     required: true,
     skills: ["J08"],
     rule: "custom",
@@ -137,7 +137,7 @@ const SHELL_RULES: RubricRule[] = [
   },
   {
     id: "thread",
-    label: "The top notes move by a step or less at every change",
+    label: "At every change, the turn back to bar 1 included, the top note moves a whole step or less",
     required: true,
     skills: ["J07"],
     rule: "voice-leading",
@@ -174,7 +174,7 @@ const MAKE_RICH = code(
 );
 const TWO_FIVE_ONE_IN_D: RubricRule = {
   id: "two-five-one-in-d",
-  label: "A ii–V–I in D major, heard in your chords",
+  label: "Your chords play ii7, V7 and Imaj7 of D major, in that order",
   required: true,
   skills: ["J04"],
   rule: "contains-rn",
@@ -189,14 +189,14 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["J1", "J2"],
   gated: ["J01", "J02", "J04", "J05", "J06", "J07", "J08", "C09"],
   levelSetting: ["V06"],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "all",
       id: "read-the-chart",
       version: 1,
       role: "checkpoint",
-      prompt: "Four symbols from a jazz chart. For each one, pick the code that plays it.",
+      prompt: "For each of the four jazz chart symbols, pick the code that plays it.",
       skills: [
         { skill: "J01", w: 0.4 },
         { skill: "C09", w: 0.3 },
@@ -246,7 +246,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: { tonic: "E", mode: "major" },
       prompt:
-        "An eight-bar chart still in C. Write its two halves by name: bars 1–4 the ii–V–I of E major, and bars 5–8 the minor ii–V–i of G minor, with its half-diminished ii and its dominant with the flat 9. The tonic chord fills two bars each time.",
+        "Rewrite the eight-bar chart in `changes`, still in C, by name. Bars 1–4: the ii–V–I of E major. Bars 5–8: the minor ii–V–i of G minor, with a half-diminished ii and a dominant with a flat 9. One chord a bar; the home chord fills two bars in each half.",
       skills: [
         { skill: "J05", w: 0.5 },
         { skill: "J06", w: 0.5 },
@@ -332,7 +332,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: { tonic: "Ab", mode: "major" },
       prompt:
-        "A ii–V–I in A♭, B♭m7 E♭7 A♭maj7, over a bass in two and the drums. The Rhodes plays plain triads. Comp it in shells written by hand: the root at the bottom, the 3rd and the 7th above it, each chord ordered so its top note moves by a step or less from the last.",
+        "Replace the Rhodes' plain triads with shells you write as note names, for the ii–V–I in A♭: B♭m7, E♭7, A♭maj7. Each chord: the root at the bottom, its 3rd and 7th above. Order the 3rd and 7th so the top note moves a step or less from the chord before.",
       skills: [
         { skill: "J08", w: 0.6 },
         { skill: "J07", w: 0.4 },
@@ -414,7 +414,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     role: "checkpoint",
     title: "A trio in D",
     prompt:
-      "Your trio, over the band's drums, in D major: four or eight bars around a ii–V–I. Shells by hand, the default voicings or the left hand, a bass on the roots, a vibes line on top if you like. The trio below is still in C.",
+      "Write your own trio in D major over the band's drums: four or eight bars. Required: a ii–V–I in D major in your chords. Also on the checklist: the bass on each chord's root, and a second ii–V–I in another key. Voice the chords as you like. The starter is still in C.",
     skills: [{ skill: "J04", w: 1 }],
     hints: null,
     key: D_MAJOR,
@@ -426,7 +426,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       TWO_FIVE_ONE_IN_D,
       {
         id: "bass-on-roots",
-        label: "The bass plays each chord's root as it changes",
+        label: "At most chord changes, the bass plays the new chord's root",
         required: false,
         skills: ["J04"],
         rule: "bass-line",
@@ -436,7 +436,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "another-key",
-        label: "A second ii–V–I, moved to another key",
+        label: "Four bars of chords come back moved to another key",
         required: false,
         skills: ["J05"],
         rule: "custom",

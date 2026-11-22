@@ -38,7 +38,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["U04"],
   gated: ["I01", "I02", "I03", "I05"],
   levelSetting: ["E06"],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "fact",
@@ -46,7 +46,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "Three pairs of notes on the staff, one pair to a bar. Name each interval with its quality, in order: written like `m3`, `M6` or `P4`. Write the tritone as `TT`.",
+        "The staff shows three pairs of notes, one pair to a bar. Name the interval in each bar, in order, by its quality and number, written like `m3`, `M6` or `P4`. Write the tritone as `TT`.",
       skills: [
         { skill: "I02", w: 0.6 },
         { skill: "I03", w: 0.4 },
@@ -116,7 +116,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "Give every note of this riff a second note a 3rd above it, in the key, sounding at the same time: write each pair with `,`. `n` 0 becomes `[0,2]`.",
+        "Give every note of this riff a second note a 3rd above it, in the key, sounding at the same time. Write each pair in brackets with `,`: `n` 0 becomes `[0,2]`. Keep the rest where it is. Done when every note has its 3rd above.",
       skills: [
         { skill: "I01", w: 0.5 },
         { skill: "I05", w: 0.5 },
@@ -217,7 +217,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "In any major key, how far is it from degree 2 up to degree 6? Count in degrees, both ends included, and give the number: 3 for a 3rd.",
+        "Count the distance from degree 2 up to degree 6 in any major key, in degrees, both ends included. Enter the number: 3 for a 3rd.",
       skills: [{ skill: "I01", w: 1 }],
       hints: null,
       answer: { ui: "number" },
@@ -251,7 +251,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     role: "checkpoint",
     title: "Two voices",
     prompt:
-      "A two-bar riff in two voices over the band, with notes played together: write them with `,`. 3rds and 6ths blend; a 2nd or the tritone adds tension.",
+      "The starter plays two voices on two lines, `mel` and `vox`. Rewrite the riff so notes play together with `,` in one pattern. 3rds and 6ths blend; a 2nd or the tritone adds tension. Done when at least one `,` makes notes sound at once.",
     skills: [{ skill: "I05", w: 1 }],
     hints: null,
     key: { tonic: "C", mode: "major" },
@@ -265,7 +265,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     rubric: [
       {
         id: "together",
-        label: "Notes played together with `,`",
+        label: "`,` used in a pattern, so notes play at once",
         required: true,
         skills: ["I05"],
         rule: "uses",
@@ -273,7 +273,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "named-distance",
-        label: "A voice moved a named distance with `.transpose()`",
+        label: "`.transpose()` used with an interval name in quotes",
         required: false,
         skills: ["I02"],
         rule: "uses",
@@ -281,7 +281,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "five-notes",
-        label: "At least five different notes",
+        label: "At least five different notes across the melody",
         required: false,
         skills: ["I01"],
         rule: "distinct-pitches",

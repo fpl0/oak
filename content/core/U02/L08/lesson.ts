@@ -47,7 +47,7 @@ const MAKE_STARTER = mel(ODE);
 
 export default defineLesson({
   id: "U02.L08",
-  version: 2,
+  version: 4,
   title: "Playing from the Page",
   objective: "I can read a short tune off the treble staff into code and put it in a room with reverb.",
   key: { tonic: "C", mode: "major" },
@@ -72,7 +72,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Follow the notes along the staff as they sound. Does bar 4 end the tune, or leave it waiting?",
+          "Follow the notes along the staff as they sound. Listen for whether bar 4 ends the tune or leaves it waiting.",
         skills: [{ skill: "N02", w: 1 }],
         hints: null,
         tests: [],
@@ -91,14 +91,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it as it is. Then change `.room(0)` to `.room(.6)` and run it again. Listen to the empty second bar.",
+          "Listen to the line as it is, with `.room(0)`. Then change `.room(0)` to `.room(.6)` and listen again, paying attention to the empty second bar. Then answer the question below.",
         skills: [{ skill: "D05", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Listen to the empty second bar in each version: in which one is something still fading away?",
         },
         hints: ladder(
-          "What do you hear after the last note stops, in each version?",
+          "Compare the two versions just after the last note, `c5`, stops. Is the empty bar silent in both?",
           "Listen to the empty bar: is it silent, or is something still fading away?",
           "With `.room(0)` each note stops when the piano stops. Now listen to the other version.",
         ),
@@ -136,7 +136,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The staff shows the first two bars of the tune. Write them in code: four notes in each pair of brackets. The first note, `e4` on the bottom line, is done.",
+          "Write the first two bars on the staff in code: four notes inside each pair of brackets, each with its letter and number. The first note, `e4` on the bottom line, is already written. Done when your notes match the staff.",
         skills: [
           { skill: "N02", w: 0.7 },
           { skill: "P02", w: 0.3 },
@@ -147,7 +147,7 @@ export default defineLesson({
         target: { audible: false, showRoll: false },
         feedbackText: LETTER_FEEDBACK,
         hints: ladder(
-          "Does the line go up, down or stay put from one note to the next?",
+          "Read the notes left to right, starting from `e4` on the bottom line. Does each next note go up, down or stay put?",
           "Bottom line `e4`, the space above it `f4`, the next line `g4`. Each step up the staff is the next letter.",
           "Bar 1 is `e4 e4 f4 g4`: it climbs from the bottom line. Bar 2 walks back down.",
         ),
@@ -196,7 +196,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Bar 1 of When the Saints is written for you. Read bars 2 to 4 from the staff. A whole note fills its bar: write it as `[g4@4]`.",
+          "Read bars 2 to 4 of When the Saints from the staff and write them in place of the three bars of `~`, one pair of brackets per bar. Bar 1 is written for you. A whole note fills its bar: write it with `@4` inside its brackets, like `[c5@4]`.",
         skills: [
           { skill: "N02", w: 0.5 },
           { skill: "N01", w: 0.5 },
@@ -205,9 +205,13 @@ export default defineLesson({
         reference: { solutions: [mel(SAINTS)], bars: 4 },
         matcher: { m: "events", pitch: "absolute", rhythm: "onsets", durations: true },
         target: { audible: false, showRoll: false },
-        feedbackText: LETTER_FEEDBACK,
+        feedbackText: {
+          ...LETTER_FEEDBACK,
+          "rhythm.duration":
+            "Bar {bar}, {beatLabel}: this note lasts {got}; the staff holds it for {expected}. Stretch it with `@` inside its brackets.",
+        },
         hints: ladder(
-          "Which bars look like bar 1, and which hold one long note?",
+          "Compare bars 2, 3 and 4 with bar 1 on the staff. Which bar repeats bar 1, and which bars hold one long note?",
           "An open note head with no stem lasts the whole bar. It sits on the second line: `g4`.",
           "Bar 3 is a copy of bar 1. Bars 2 and 4 are the same whole note.",
         ),
@@ -257,14 +261,15 @@ export default defineLesson({
         id: "short-or-joined",
         version: 1,
         role: "practice",
-        prompt: "Run it with `.clip(.5)`. Then try `.clip(1)` and run it again. Watch the bars on the roll.",
+        prompt:
+          "Listen to the tune with `.clip(.5)`, then change it to `.clip(1)` and listen again. Watch how long each note's bar is on the roll, then answer the question below.",
         skills: [{ skill: "N01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Watch each note's bar on the roll and listen between the notes: is there a gap, and did the tempo change?",
         },
         hints: ladder(
-          "Between two notes, do you hear a gap or none?",
+          "Compare the two versions between one note and the next. With `.clip(.5)`, is there a gap?",
           "On the roll, each note's bar shows how long it sounds. Compare the bar to the space it has.",
           "`.clip(1)` lets each note last until the next one starts.",
         ),
@@ -300,7 +305,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Arrange Ode to Joy or When the Saints. Choose the sound and the note lengths, and put the tune in a room with `.room()`.",
+          "Arrange Ode to Joy, the starter, or When the Saints. Pick its sound with `.s()` and how long its notes ring with `.clip()`, and put it in a room with `.room()` and a number above 0, such as `.room(.4)`. Done when the tune rings in a room you can hear.",
         skills: [{ skill: "D05", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],
@@ -308,7 +313,7 @@ export default defineLesson({
         rubric: [
           {
             id: "in-a-room",
-            label: "Puts the tune in a room with `.room()`",
+            label: "At least half of the tune's notes play with `.room()` above 0, such as `.room(.4)`",
             required: true,
             skills: ["D05"],
             // Corrections pass: a room you can hear. `uses tb.room` passed `.room(0)`, a dry sound.
@@ -319,7 +324,7 @@ export default defineLesson({
           },
           {
             id: "four-bars",
-            label: "Four bars before it repeats",
+            label: "The tune runs four bars or more before it repeats",
             required: false,
             skills: ["N02"],
             rule: "bars",
@@ -327,7 +332,7 @@ export default defineLesson({
           },
           {
             id: "short-notes",
-            label: "Short notes somewhere, with `.clip()`",
+            label: "Uses `.clip()` to set how long notes ring",
             required: false,
             skills: ["N01"],
             rule: "uses",
@@ -335,7 +340,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "What would make this sound as if it were played in a hall?",
+          "The tune needs a room you can hear around it. Which method added the fading tail in the empty bar, two steps back?",
           "`.room()` goes at the end of the line, after `.s(…)`. Between 0 and 1: more gives a louder tail.",
           "Add `.room(.4)` to the end of the `mel` line. Then change the sound or the note lengths.",
         ),

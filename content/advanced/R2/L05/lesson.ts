@@ -81,7 +81,8 @@ const DRIFT_ONSETS: Rat[] = [
 ];
 const KICK_DRIFTS: RubricRule = {
   id: "kick-drifts",
-  label: "The kick comes every three beats, across the bar line, and lands on beat 1 again after three bars",
+  label:
+    "The kick plays every three beats across the bar line: beat 1 of bar 1, then not on beat 1 again until bar 4",
   required: true,
   skills: ["R17"],
   rule: "onsets",
@@ -110,7 +111,8 @@ const make = (kickLine: string, ...rest: string[]) =>
 /** The Make's one rule: the kick's cycle is not a bar long and comes round to the bar again; the snare keeps it. */
 const KICK_CYCLE: RubricRule = {
   id: "kick-cycle",
-  label: "The kick drifts across the bar line and meets beat 1 again, over a snare that keeps the bar",
+  label:
+    "The kick's cycle crosses the bar line and meets beat 1 again a few bars later, while the snare keeps the bar",
   required: true,
   skills: ["R17"],
   rule: "custom",
@@ -126,7 +128,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R2.L05",
-  version: 2,
+  version: 3,
   title: "Polymeter & Implied Metric Modulation",
   objective:
     "I can write a part whose cycle is not a bar long, so it drifts and meets the bar again, and hear a beat seem to change speed while the bar stays the same.",
@@ -155,7 +157,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The snare and the hi-hat mark the same bar in both loops; only the kick and the bass change. Count 1 to 4 under your breath. In the second loop, does the kick land in the same place in every bar, and does it ever come home to beat 1?",
+          "Count 1 to 4 under your breath in both loops; the snare and the hi-hat mark the same bar. Notice whether the second loop's kick lands in the same place in every bar, and whether it comes back to beat 1.",
         skills: [{ skill: "R17", w: 1 }],
         hints: null,
         tests: [],
@@ -181,10 +183,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Six bars of the groove. Tap with the kick, not with the snare: eight taps in all. Count the beats 1 to 4 under your breath and notice where in the bar each tap falls.",
+          "Tap with the kick, the low thud, not with the snare. It comes every three beats, so it lands in a different place in each bar. Six bars, eight taps in all. Done when each tap lands with a kick.",
         skills: [{ skill: "R17", w: 1 }],
         hints: ladder(
-          "How many beats pass between one kick and the next?",
+          "Follow the kick, not the bar: count the beats from one kick to the next.",
           "Count 1-2-3 from each kick. The kick does not wait for the bar line: it comes back after the same number of beats every time.",
           "Your taps are evenly spaced, and slower than the snare. Only every third bar do they fall on beat 1.",
         ),
@@ -220,14 +222,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the groove and read four bars on the roll. The kick's string has three steps inside curly brackets, and `%4` after them. After how many bars is the kick on beat 1 again, and why?",
+          "Run the groove and read four bars on the roll. The kick's string has three steps inside curly brackets, then `%4`. Then answer: after how many bars the kick lands on beat 1 again, and why.",
         skills: [{ skill: "R17", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Follow the kick along the roll from bar 1 and find the next bar that starts with one.",
         },
         hints: ladder(
-          "In which bar after bar 1 does a kick sit right on the bar line?",
+          "Follow the kick along the roll from bar 1 to the next kick that sits on a bar line.",
           "`%4` plays four steps of the brackets in every bar, and the brackets hold three. Bar 2 starts on the cycle's second step.",
           "Count the steps: bar 1 ends after four, bar 2 after eight. Which bar ends on a whole number of three-step cycles?",
         ),
@@ -276,7 +278,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The bass already drifts; the kick still plays once a bar, on beat 1. Rewrite the kick's string so it drifts with the bass: a cycle of three steps, played at four steps a bar.",
+          "Rewrite the kick's string so it drifts with the bass: a cycle of three steps in curly brackets, played at four steps a bar, like the bass's. Keep the other lines. Done when the kick comes every three beats and meets beat 1 again after three bars.",
         skills: [{ skill: "R17", w: 1 }],
         code: { starter: S4_STARTER },
         reference: { solutions: [S4_SOLUTION], bars: 4 },
@@ -291,7 +293,7 @@ export default defineLesson({
             "{label}: not yet. Listen to the target for three bars and count the beats from one kick to the next.",
         },
         hints: ladder(
-          "In the target, how many beats pass between one kick and the next?",
+          "Count the beats between two kicks in the target.",
           "Look at the bass's string: curly brackets around its steps, then `%` and the number of steps played in each bar.",
           "Inside the brackets: one kick, and enough rests to make the cycle as long as the bass's. After the `%`: the steps in one bar.",
         ),
@@ -353,10 +355,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The hi-hat plays twelve even notes a bar the whole time. For one bar the kick groups them in threes, for the next in twos, and round again. When the kick changes, what changed?",
+          "The hi-hat plays twelve even notes a bar the whole time. For one bar the kick groups them in threes, for the next in twos, and round again. When the kick changes, pick what changed.",
         skills: [{ skill: "R17", w: 1 }],
         hints: ladder(
-          "Does the hi-hat speed up when the kick changes?",
+          "Count the hi-hat notes in a bar before the kick changes and after it.",
           "Count the hi-hat notes in a bar before the change and after it.",
           "The kick picks every third hi-hat note, then every second. Which of the three answers is about the kick, and which about the whole loop?",
         ),
@@ -403,7 +405,7 @@ export default defineLesson({
         role: "practice",
         title: "Drift",
         prompt:
-          "Your drift. The snare and the hi-hat keep the bar. Give the kick a cycle in curly brackets that is not a bar long, three or five steps at four a bar, so it crosses the bar line and meets beat 1 again a few bars later. A drifting bass and a line on top are yours to add.",
+          "Make the kick drift; the snare and hi-hat keep the bar. Required: a kick cycle in curly brackets of three or five steps at four a bar, so it crosses the bar line and meets beat 1 again a few bars later. Also on the checklist: a drifting bass, and a tempo of 90 to 130.",
         skills: [{ skill: "R17", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -412,7 +414,7 @@ export default defineLesson({
           KICK_CYCLE,
           {
             id: "bass-drifts",
-            label: "The bass drifts too",
+            label: "The bass runs its own cycle across the bar line too",
             required: false,
             skills: ["R17"],
             rule: "custom",
@@ -421,7 +423,7 @@ export default defineLesson({
           },
           {
             id: "tempo-for-drift",
-            label: "A tempo between 90 and 130",
+            label: "`setcpm` sets a tempo between 90 and 130 beats a minute",
             required: false,
             skills: ["R17"],
             rule: "tempo-bpm",
@@ -432,7 +434,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Does the kick land in the same place in every bar?",
+          "Rewrite the kick's string as a cycle in curly brackets that does not fill a whole bar.",
           "A cycle drifts when it neither fits a whole number of times into a bar nor fills a whole number of bars, as the three steps at four a bar of step 4 do.",
           "Keep `%4`; inside the brackets write one kick and rests, three or five steps in all.",
         ),

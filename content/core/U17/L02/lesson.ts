@@ -177,7 +177,7 @@ const C_MAJOR = { tonic: "C", mode: "major" } as const;
 
 export default defineLesson({
   id: "U17.L02",
-  version: 2,
+  version: 4,
   title: "Truck-Driver & Direct Modulation",
   objective:
     'I can lift a last chorus into a new key: a key plan in .scale("<…>") on every line written in degrees, after arrange(), and new names for the chords.',
@@ -203,7 +203,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A verse, a chorus, then the chorus once more. Listen to bar 9, where the chorus comes back. What does the band do to it, and what does that do to the energy of the song?",
+          "Listen to the song: a verse, a chorus, then the chorus again from bar 9. Listen for what the band does to the chorus at bar 9: higher, lower or the same? Then notice what that does to the energy of the song.",
         skills: [{ skill: "H14", w: 1 }],
         hints: null,
         tests: [],
@@ -228,7 +228,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The chorus tune on its own. Its `.scale()` holds two keys: `C4:major!4` for four bars, then `D4:major!4` for four. The numbers in `n()` are the same all through. What will bars 5 to 8 play?",
+          "Predict what bars 5 to 8 of the chorus tune play, and pick it. Its `.scale()` holds two keys: `C4:major!4` for bars 1 to 4, then `D4:major!4` for bars 5 to 8. The numbers in `n()` stay the same all through.",
         skills: [{ skill: "H14", w: 1 }],
         hints: null,
         tests: [],
@@ -256,14 +256,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Four bars in C, then four in D. Compare bar 7 with bar 3 in the chord band, and read the note names on the roll at bar 5.",
+          "Answer two questions about these four bars in C and four in D. First: bar 3 of the chord band is Am; find the chord in bar 7 and pick it. Second: the tune starts bar 1 on G and bar 5 on A; count the half steps from G up to A on the roll and enter the number.",
         skills: [{ skill: "H14", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Bar 3 is Am: find the chord four bars later in the chord band. For the count, the tune starts bar 1 on G and bar 5 on A: go from G up to A one key at a time.",
         },
         hints: ladder(
-          "From bar 5 on everything sounds higher. By the same distance on every line?",
+          "From bar 5 on, every line sounds higher by the same distance. Compare one chord name, or one tune note, before and after bar 5.",
           "The chords line spells the lift out: C G Am F, then four new names. Each one is the old name moved up by the same step.",
           "C became D, and G became A. From C up to D is two half steps: C♯, then D.",
         ),
@@ -316,7 +316,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The chords and the bass lift at bar 5, but the tune stays in C and rubs against them. Give the tune a key plan like the bass's: four bars of C major, then four of D major, in the tune's own octave.",
+          "The chords and bass lift at bar 5; the tune stays in C and rubs against them. Change the tune's `.scale()` to a key plan shaped like the bass's: C major for bars 1 to 4, then D major for bars 5 to 8, both in octave 4. Done when the tune lifts at bar 5 with the others.",
         skills: [{ skill: "H14", w: 1 }],
         code: { starter: TUNE_STARTER },
         reference: { solutions: [CHORUS_LIFT], bars: 8 },
@@ -325,7 +325,7 @@ export default defineLesson({
         target: { audible: true, showRoll: false, revealRollAfter: 1 },
         feedbackText: { "melody.wrong-degree": offTarget("1–4", "5–8", "four and four") },
         hints: ladder(
-          "Which part of the tune's line says what key it is in, and for how long?",
+          "The tune's key lives in its `.scale()`, which names one key for all eight bars. The bass's `.scale()` already names two.",
           "The bass line has a key plan already: two keys inside `< >`, each held for four bars with `!4`. The tune needs the same shape with its own octave, 4.",
           "Start with `<C4:major!4` and put the second key before the `>`: D, the same octave, the same count.",
         ),
@@ -377,10 +377,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two cards, each two bars of the chorus and then the same two bars lifted. Which card lifts by a half step, the smaller of the two?",
+          "Listen to both cards. Each plays two bars of the chorus, then the same two bars lifted. Pick the card that lifts by a half step, the smaller lift.",
         skills: [{ skill: "H14", w: 1 }],
         hints: ladder(
-          "Sing the first note of the tune before and after each lift. Which jump is smaller?",
+          "Sing the first note of the tune before and after each lift, on each card. The smaller jump is the half step.",
           "One card goes from C to D, the other from C to the black key between them.",
           "The whole step is the lift you just wrote. Which card sounds like it?",
         ),
@@ -424,7 +424,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The song again: verse, chorus, chorus. The chords and the bass lift the last chorus; the tune's key is still inside its two sections. Delete `.scale()` from both, then give the tune one key plan after its `arrange()`, counted in bars of the whole song.",
+          "Lift the tune with the chords and bass at bar 9. Delete the `.scale()` from `melVerse` and from `melChorus`. Then write one key plan after the tune's `arrange()`, counted in bars of the whole song: C major for bars 1 to 8, D major for bars 9 to 12, both in octave 4.",
         skills: [{ skill: "H14", w: 1 }],
         code: { starter: SECTIONS_STARTER },
         reference: { solutions: [SONG], bars: 12 },
@@ -441,8 +441,8 @@ export default defineLesson({
         target: { audible: true, showRoll: false, revealRollAfter: 1 },
         feedbackText: { "melody.wrong-degree": offTarget("1–8", "9–12", "eight and four") },
         hints: ladder(
-          "Inside `arrange()` every section starts again from its own first bar. Where can a plan for the whole song live?",
-          "Look at the bass: its sections are bare `n()` patterns, and one `.scale()` follows `arrange()`. How many bars of the song pass before the last chorus?",
+          "Inside `arrange()` every section starts again from its own first bar, so a plan written in a section never reaches bar 9. The plan for the whole song goes after `arrange()`.",
+          "Copy the bass's shape: bare `n()` patterns in its sections, and one `.scale()` after `arrange()`. Verse and first chorus make 8 bars before the last chorus.",
           "Empty the two boxes in the tune's sections. In the box after `arrange(…)`, start `.scale(\"<C4:major!8` and finish it: four bars of D.",
         ),
         tests: [
@@ -515,7 +515,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The song with everything in C. Lift the last chorus a whole step, to D: a key plan after `arrange()` on the bass and on the tune, and in `chordsChorus2` every chord name a whole step up. After that, take it further: a new chorus tune, strings on a `pad:` line for the lift, a longer song.",
+          "Lift the last chorus, bars 9 to 12, a whole step to D. Bass and tune: after each `arrange()`, write a key plan of 8 bars of C major, then 4 of D major. Chords: in `chordsChorus2`, move every chord name up a whole step. Keep bars 1 to 8 in C. Done when all three lines lift.",
         skills: [{ skill: "H14", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [12, 24],
@@ -523,7 +523,7 @@ export default defineLesson({
         rubric: [
           {
             id: "last-chorus-in-d",
-            label: "The last chorus lifts a whole step, to D, on every line: chords, bass and tune",
+            label: "Bars 9 to 12 are in D major, a whole step up, with the tune and the chords both lifted",
             required: true,
             skills: ["H14"],
             rule: "key-change",
@@ -533,7 +533,7 @@ export default defineLesson({
           },
           {
             id: "before-it-in-c",
-            label: "Everything before it stays in C major",
+            label: "Bars 1 to 8 use only notes of C major",
             required: false,
             skills: ["H14"],
             rule: "in-key",
@@ -543,7 +543,7 @@ export default defineLesson({
           },
           {
             id: "two-key-plans",
-            label: "A key plan on the bass and on the tune",
+            label: 'Two lines use a key plan in `.scale("<…>")`, such as the bass and the tune',
             required: false,
             skills: ["H14"],
             rule: "uses",
@@ -552,7 +552,7 @@ export default defineLesson({
           },
           {
             id: "something-new",
-            label: "Something new comes in: a fourth line",
+            label: "Your code has a fourth line, such as a `pad:`",
             required: false,
             skills: ["F02"],
             rule: "tracks",
@@ -562,7 +562,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which lines of the song know what key they are in, and which only know chord names?",
+          "Sort the lines: the bass and the tune are written in numbers and follow a key plan; the chords are written by name and do not. Each kind lifts its own way.",
           "The bass and the tune are numbers: each needs a key plan after its `arrange()`, eight bars of C major and four of D major. The chords are names: in `chordsChorus2`, move each one up a whole step.",
           'C goes up to D, and G to A; Am and F are yours to move. For the bass, write `.scale("<C2:major!8 …>")` and finish it.',
         ),

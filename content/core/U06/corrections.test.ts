@@ -36,7 +36,7 @@ describe("U06.L04 S7: bar 8 comes home with V, not vii° (theory-d 1)", () => {
   test("the reviewer's vii° → I fails on the required rule", async () => {
     const r = await run(L04, "S7", { code: triads("<0 3 0 4 0 3 6 0>", 88) });
     expect(r.passed).toBe(false);
-    expect(said(r)).toContain("Bar 8 comes home: V to I: not yet.");
+    expect(said(r)).toContain("Bars 7 and 8 go V to I: not yet.");
   });
   test("V → I passes, written as stacks or by name over a bass", async () => {
     for (const code of [
@@ -54,7 +54,7 @@ describe("U06.L05 S6: a note of the chord on beat 1 of EVERY bar (theory-d 2)", 
   test("a bass only in bar 1 fails", async () => {
     const r = await run(L05, "S6", { code: bass("<0 ~ ~ ~>") });
     expect(r.passed).toBe(false);
-    expect(said(r)).toContain("A note of the chord on beat 1 of every bar: not yet.");
+    expect(said(r)).toContain("On beat 1 of every bar, `bass` plays a note of that bar's chord: not yet.");
   });
   test("roots, 5ths, 3rds with a walk, or a rest after each root all pass", async () => {
     for (const p of [

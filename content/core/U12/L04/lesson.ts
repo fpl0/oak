@@ -81,7 +81,7 @@ const LEAD = { roll: false, staff: "lead", keyboard: false } as const;
 
 export default defineLesson({
   id: "U12.L04",
-  version: 2,
+  version: 3,
   title: "Diatonic Sevenths in Major",
   objective:
     "I can name the seventh chord on every degree of a major key, Imaj7 to viiø7, and write them by name.",
@@ -107,7 +107,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Every chord here is built from C major's own notes. Listen to the colour of each step as the chords climb: which steps sound bright, and which sound softer?",
+          "Listen to the chords climb four steps of C major and come back down, one chord a bar, every note from the key. Listen for the colour of each step: which chords sound bright, and which sound softer?",
         skills: [{ skill: "C08", w: 1 }],
         hints: null,
         tests: [],
@@ -126,7 +126,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'The stack from Seventh Colour, `n("[0,2,4,6]")`, plays on degree 1, then `.add()` moves it to degree 5 (`n` counts from 0, so degree 5 is `n` 4): G, B, D and F. Which kind of seventh chord is G B D F?',
+          'Predict which kind of seventh chord G B D F is, then run it. The stack from Seventh Colour, `n("[0,2,4,6]")`, plays on degree 1, then `.add()` moves it to degree 5 (`n` counts from 0, so degree 5 is `n` 4).',
         skills: [{ skill: "C08", w: 1 }],
         hints: null,
         tests: [],
@@ -154,7 +154,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and read the seven names in the chord band, bar by bar. The key has decided each chord's kind.",
+          "Run the code and read the seven chord names in the chord band, bar by bar, degree 1 to degree 7. Then answer both questions: how many of the seven are major seventh chords, and which degree gets the half-diminished seventh.",
         skills: [{ skill: "C08", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -210,13 +210,13 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The loop from Major 7 & Minor 7, in C major: Cmaj7, Am7, Dm7, G7. Write the numeral of each chord with its seventh.",
+          "Fill the four slots, in order, with the numeral of each chord of the loop from Major 7 & Minor 7, in C major: Cmaj7, Am7, Dm7, G7. Give each numeral its seventh ending, such as maj7 or 7.",
         skills: [
           { skill: "C08", w: 0.7 },
           { skill: "N06", w: 0.3 },
         ],
         hints: ladder(
-          "On which degree of C major does each chord stand?",
+          "Each slot needs a numeral for the degree and an ending for the kind of seventh. On which degree of C major does each chord stand?",
           "C is 1, A is 6, D is 2, G is 5. The case of the numeral follows the triad; the ending follows the kind of seventh.",
           "The first chord is Imaj7, a capital I with maj7. A minor seventh chord is lower case with a plain 7.",
         ),
@@ -272,7 +272,7 @@ export default defineLesson({
         role: "check",
         key: G_MAJOR,
         prompt:
-          "The page holds four bars of a tune in G major: one sharp, F♯. Bar 1 is Gmaj7; the numerals of all four bars are Imaj7, ii7, iii7, IVmaj7. Write the four chords by name in `changes`; the starter has Gmaj7 in every bar.",
+          "Write the four chords of the page by name in `changes`, one per bar. The tune is in G major (one sharp, F♯), and the numerals are Imaj7, ii7, iii7, IVmaj7. Bar 1, `G^7`, is already right; the starter repeats it in every bar.",
         skills: [{ skill: "C08", w: 1 }],
         code: { starter: PAGE_STARTER },
         reference: { solutions: [PAGE_SOLUTION], bars: 4 },
@@ -343,7 +343,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Three four-bar loops of a key's own seventh chords, each in a new key. Bass first: find each chord's degree, and the key tells you its kind.",
+          "Fill in the four numerals of each of three loops, each in a new key and built from that key's own seventh chords. For every bar, find the bass note's degree first; the degree tells you the kind of seventh.",
         skills: [{ skill: "E09", w: 1 }],
         hints: ladder(
           "Which chord is home? Hum the bass of each bar and count from there.",
@@ -371,7 +371,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Four bars of Cmaj7 with a tune. Turn them into a loop of the key's own seventh chords, by name: walk by step like the hook, or jump. Use a major seventh chord, a minor seventh chord and the dominant seventh on G. Four or eight bars.",
+          "Change the four bars of Cmaj7 in `changes` into a loop of C major's own seventh chords, by name: walk by step like the hook, or jump. Use at least one major seventh, one minor seventh and the dominant seventh, G7. Four or eight bars.",
         skills: [{ skill: "C08", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -379,7 +379,8 @@ export default defineLesson({
         rubric: [
           {
             id: "three-kinds",
-            label: "A major seventh, a minor seventh and a dominant seventh chord in your loop",
+            label:
+              "On the chords line, at least one major seventh (`^7`), one minor seventh (`m7`) and one dominant seventh (`7`)",
             required: true,
             skills: ["C08"],
             rule: "chord-qualities",
@@ -389,7 +390,7 @@ export default defineLesson({
           },
           {
             id: "all-in-c",
-            label: "Every chord note belongs to C major",
+            label: "Every note on the chords line belongs to C major",
             required: false,
             skills: ["C08"],
             rule: "in-key",
@@ -399,7 +400,7 @@ export default defineLesson({
           },
           {
             id: "v7-goes-home",
-            label: "The dominant seventh goes home",
+            label: "The dominant seventh, G7, goes straight on to a C chord",
             required: false,
             skills: ["H02"],
             rule: "contains-rn",
@@ -409,7 +410,7 @@ export default defineLesson({
           },
           {
             id: "tune-from-the-chords",
-            label: "A tune whose strong beats are chord notes",
+            label: "A `mel` line whose notes on strong beats are mostly notes of the chord under them",
             required: false,
             skills: ["M03"],
             rule: "chord-tones-strong",
@@ -420,9 +421,11 @@ export default defineLesson({
           },
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
-        feedbackText: { "rubric.unmet": "{label}: not yet." },
+        feedbackText: {
+          "rubric.unmet": "{label}: not yet. Change the code until this line of the checklist holds.",
+        },
         hints: ladder(
-          "Which degrees of C major give a major seventh chord, which a minor one, and which the dominant seventh?",
+          "Your loop needs three kinds of seventh chord, all from C major. Which degrees give a major seventh, which a minor seventh, and which the dominant seventh?",
           "All four chords live in `changes`. 1 and 4 are maj7, 2, 3 and 6 are m7, and 5 is the dominant seventh: write each by name.",
           'Try `"<C^7 Am7 ...>"` and keep going: one chord on 4, then the dominant seventh in the last bar so the loop leans home.',
         ),

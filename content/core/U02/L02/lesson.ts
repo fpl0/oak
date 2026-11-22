@@ -38,7 +38,7 @@ const NOTE_FEEDBACK = {
 
 export default defineLesson({
   id: "U02.L02",
-  version: 2,
+  version: 3,
   title: "The White Keys",
   objective: "I can name the white keys a to g, give each its octave number, and find c4, number 60.",
   key: { tonic: "C", mode: "major" },
@@ -62,7 +62,8 @@ export default defineLesson({
         id: "white-key-riff",
         version: 1,
         role: "practice",
-        prompt: "Listen for the note the riff starts on and the note it ends on. Watch the keys as it plays.",
+        prompt:
+          "Listen for the note the riff starts on and the note it ends on. Watch which keys light up as it plays.",
         skills: [{ skill: "P02", w: 1 }],
         hints: null,
         tests: [],
@@ -80,16 +81,23 @@ export default defineLesson({
         id: "find-the-e",
         version: 1,
         role: "practice",
-        prompt: "Run the first bar of the riff. Click the `e4` on the roll and watch which key lights up.",
+        prompt:
+          "Find the note labelled `e4` on the roll and click it. While the line plays, watch which key lights up for it.",
         skills: [{ skill: "P02", w: 1 }],
+        feedbackText: {
+          "investigate.not-here":
+            "Not that note. Find the label that reads `e4` on the roll and click that note.",
+        },
         hints: ladder(
-          "Which label on the roll reads `e4`?",
+          "Every note on the roll carries a label, a letter and a number. Find the one that reads `e4`.",
           "The roll plays left to right: the first note is `c4`, the second is the one you want.",
           "On the keys, `e4` is two white keys up from `c4`.",
         ),
         code: { starter: mel("c4 e4 g4 a4") },
         mustPlayLoops: 1,
-        questions: [{ q: "click-roll", prompt: "Click the `e4`.", target: { track: "mel", beat: 2 } }],
+        questions: [
+          { q: "click-roll", prompt: "Click the note labelled `e4`.", target: { track: "mel", beat: 2 } },
+        ],
         tests: [
           // `${TEMPO}mel: note("c4 ` is 28 characters: the e4 sits at 28–30, the c4 at 25–27.
           { name: "the e4", response: { click: { from: 28, to: 30 } }, expect: "pass" },
@@ -128,13 +136,13 @@ export default defineLesson({
         id: "find-on-the-keys",
         version: 1,
         role: "check",
-        prompt: "Three keys to find on the keyboard: `c4`, then `e4`, then `a3`.",
+        prompt: "Play three keys on the keyboard, one at a time: `c4`, then `e4`, then `a3`.",
         skills: [
           { skill: "P02", w: 0.5 },
           { skill: "P05", w: 0.5 },
         ],
         hints: ladder(
-          "Which group of white keys holds the `c` you need?",
+          "Find each key by its letter and its number: first the right `c`, then count white keys from it. Which `c` is `c4`?",
           "Every `c` sits just left of a pair of black keys. The number says which of them.",
           "`c4` is the c nearest the middle of the keyboard. Count white keys up or down from it.",
         ),
@@ -146,11 +154,11 @@ export default defineLesson({
             id: "key-c4",
             version: 1,
             role: "check",
-            prompt: "Play `c4`.",
+            prompt: "Play `c4` on the keyboard.",
             skills: [{ skill: "P05", w: 1 }],
             hints: ladder(
-              "There are several `c` keys. Which one has the number 4?",
-              "Every `c` sits just left of a pair of black keys.",
+              "Play the `c` with the number 4. The keyboard has several `c` keys: which one is it?",
+              "Every `c` is the white key just left of a pair of black keys. The number 4 picks one of them.",
               "`c4` is the `c` nearest the middle of the keyboard.",
             ),
             answer: { ui: "keyboard", range: ["c3", "c5"], mode: "single" },
@@ -172,10 +180,10 @@ export default defineLesson({
             id: "key-e4",
             version: 1,
             role: "check",
-            prompt: "Play `e4`.",
+            prompt: "Play `e4` on the keyboard.",
             skills: [{ skill: "P02", w: 1 }],
             hints: ladder(
-              "Start from `c4`. Which way is `e`?",
+              "Find `c4` first, then count white keys up to `e`. Which way is up on the keyboard?",
               "The letters go up the keyboard in order: c, d, e.",
               "`d4` is the white key right after `c4`.",
             ),
@@ -198,13 +206,13 @@ export default defineLesson({
             id: "key-a3",
             version: 1,
             role: "check",
-            prompt: "Play `a3`.",
+            prompt: "Play `a3` on the keyboard.",
             skills: [
               { skill: "P02", w: 0.5 },
               { skill: "P05", w: 0.5 },
             ],
             hints: ladder(
-              "Is `a3` above or below `c4`?",
+              "Find `c4` first. `a3` has a smaller number: is it to the left of `c4` or to the right?",
               "The number changes at every c, so `a3` sits a little below `c4`.",
               "Just below `c4` comes `b3`.",
             ),
@@ -243,7 +251,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The roll shows a four-note line. Play it to hear it, then write it in place of the four `c4`s: letter and number for every note.",
+          "Write the four-note line the roll shows in place of the four `c4`s, left to right: a letter and a number for every note. Done when your line matches the roll note for note.",
         skills: [
           { skill: "P02", w: 0.5 },
           { skill: "P05", w: 0.5 },
@@ -254,8 +262,8 @@ export default defineLesson({
         target: { audible: true, showRoll: true },
         feedbackText: NOTE_FEEDBACK,
         hints: ladder(
-          "How many notes does the line have, and which is the lowest?",
-          "Read the labels on the roll from left to right; each one is a letter and a number.",
+          "Replace each `c4` with the note at the same place on the roll, left to right. Which label does the first note carry?",
+          "Each roll label is a letter and a number, like `e4`. Copy the four labels, in order, into the four places.",
           "The first note is `e4`. Read the other three the same way.",
         ),
         srs: [{ family: "fam.pit.keyboard", mode: "evidence-only" }],
@@ -305,10 +313,11 @@ export default defineLesson({
         id: "number-of-c3",
         version: 1,
         role: "check",
-        prompt: "`c4` is number 60 and `c5` is number 72. What number is `c3`?",
+        prompt:
+          "`c4` is number 60 and `c5` is number 72. Work out the number of `c3` and answer with that number.",
         skills: [{ skill: "P05", w: 1 }],
         hints: ladder(
-          "How far apart are the numbers of `c4` and `c5`?",
+          "`c3` is one octave below `c4`. How far apart are the numbers of `c4` and `c5`, one octave apart?",
           "One step up in the octave number adds 12. One step down takes 12 away.",
           "`c6` would be 84: 72 and another 12.",
         ),
@@ -335,7 +344,8 @@ export default defineLesson({
         id: "white-key-riff-make",
         version: 1,
         role: "practice",
-        prompt: "Write a white-key riff with at least **four different notes**.",
+        prompt:
+          "Write a riff on the `mel:` line with at least **four different white-key notes**. The starter has two, `c4` and `e4`. Done when four or more different notes play.",
         skills: [
           { skill: "P02", w: 0.5 },
           { skill: "P05", w: 0.5 },
@@ -346,7 +356,7 @@ export default defineLesson({
         rubric: [
           {
             id: "four-notes",
-            label: "At least four different pitches",
+            label: "Four or more different notes on the `mel:` line",
             required: true,
             skills: ["P02"],
             rule: "distinct-pitches",
@@ -355,7 +365,7 @@ export default defineLesson({
           },
           {
             id: "one-octave",
-            label: "Stays within one octave",
+            label: "Lowest to highest note at most one octave apart, like `c4` to `c5`",
             required: false,
             skills: ["P05"],
             rule: "range",
@@ -366,7 +376,7 @@ export default defineLesson({
           // brief asks for 1", degree numbers the learner meets only in U03.L02 (reported to the grader).
           {
             id: "two-bars",
-            label: "Two bars that answer each other, with `< >`",
+            label: "Uses `< >`, so bar 2 can answer bar 1",
             required: false,
             skills: ["P02"],
             rule: "uses",
@@ -374,9 +384,9 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "How many different notes does the starter play?",
-          "The starter has `c4` and `e4`. Every white key between `c4` and `c5` belongs with the band; try one and listen.",
-          "Put `g4` where the `~` is. One more letter and you are there.",
+          "The riff needs four different notes, and the starter plays two, `c4` and `e4`. Where could new ones go?",
+          "Replace the `~` and the last `c4` with white keys between `c4` and `c5` that the riff does not use yet. All of them fit the band.",
+          "One new letter where the `~` is and another where the last `c4` is makes four different notes.",
         ),
         tests: [
           {

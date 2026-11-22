@@ -57,7 +57,7 @@ const MAKE_STARTER = code(chords("<[0,2,4] ~ ~ ~>"));
 
 export default defineLesson({
   id: "U05.L01",
-  version: 2,
+  version: 3,
   title: "Stacking Thirds",
   objective: 'I can stack a triad on any degree of a key with n("[0,2,4]"): root, 3rd and 5th.',
   key: { tonic: "C", mode: "major" },
@@ -85,7 +85,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Under the tune, the piano plays three notes at once, one stack a bar. Listen to the stacks change from bar to bar: does any bar sound darker than the others?",
+          "Under the tune, the piano plays three notes at once, one stack a bar. Listen for the one bar whose stack sounds darker than the other three.",
         skills: [{ skill: "C01", w: 1 }],
         hints: null,
         tests: [],
@@ -108,7 +108,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Three numbers, two commas, and `n` counts degrees from 0. What will `n("[0,2,4]")` play in C major?',
+          'Predict what `n("[0,2,4]")` plays in C major, then pick that answer. `n` counts degrees from 0, and the commas play the numbers at once.',
         skills: [{ skill: "C01", w: 1 }],
         hints: null,
         tests: [],
@@ -135,7 +135,8 @@ export default defineLesson({
         id: "every-other-note",
         version: 1,
         role: "practice",
-        prompt: "Run the four stacks with the band. Read the degree labels on the roll, bar by bar.",
+        prompt:
+          "Run the four stacks with the band and read the degree labels on the roll, bar by bar. Then answer both questions below.",
         skills: [{ skill: "C01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -195,7 +196,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "In bar 3 the bass plays A, degree 6, and the chord has only that one note. Stack two more on it, the way the other bars do.",
+          "In bar 3 the bass plays A, degree 6, but the stack there has only one note, `n` 5. Add two more notes to it, built the same way as the other bars. Change only bar 3. Done when bar 3 stacks three notes on degree 6.",
         skills: [{ skill: "C01", w: 1 }],
         code: { starter: code(chords(MISSING)) },
         reference: { solutions: [code(chords(LOOP))], bars: 4 },
@@ -209,7 +210,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}; the target has {exp}. Stack from the bass note: skip a degree, then skip another.",
         },
         hints: ladder(
-          "Bar 1 starts on `n` 0 and goes `0, 2, 4`. What do you add each time?",
+          "Bar 1 starts on `n` 0 and goes `0, 2, 4`: the same amount is added each time. Do the same from `n` 5.",
           "Degree 6 is `n` 5. Add 2, then 2 more, inside the brackets, with commas between.",
           "The first two notes are `n` 5 and `n` 7. One more, 2 above the last.",
         ),
@@ -265,10 +266,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Play the triad on F, degree 4 of C major, on the keyboard: F at the bottom, then two more white keys, each a 3rd above the last.",
+          "Play the triad on F, degree 4 of C major: F as the lowest note, then two more white keys above it, each a 3rd above the last, all three at once.",
         skills: [{ skill: "C01", w: 1 }],
         hints: ladder(
-          "Which letters do you skip when you go up in 3rds from F?",
+          "Start on F. Each new note is a 3rd above the last one, so it skips one letter.",
           "On white keys a 3rd skips one key: F, skip G, A.",
           "F and A are the first two. Skip B for the third note.",
         ),
@@ -319,10 +320,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Three notes at once, twice. Which one is stacked in 3rds, and which one is three neighbours squeezed together?",
+          "Each card plays three notes at once. Pick the card stacked in 3rds; the other plays three neighbouring notes squeezed together.",
         skills: [{ skill: "C01", w: 1 }],
         hints: ladder(
-          "Which of the two sounds open and settled, and which one rubs?",
+          "Listen to both cards for the one that sounds open and settled, and the one that rubs.",
           "Neighbours a step apart clash, the way a 2nd did in U04. Notes a 3rd apart sit well together.",
           "Play card 2, then the first stack of the loop from this lesson. Are they the same sound?",
         ),
@@ -364,7 +365,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The band plays drums and a bass line on degrees 1, 5, 6 and 4, one a bar. Stack a triad on every bass note. Then give the chords a rhythm and put a tune on top.",
+          "The band's bass plays degrees 1, 5, 6 and 4, one a bar. In the `chords` line, stack a triad on each bass note, one bar each, in that order. Then give the chords a rhythm or add a tune if you like. Done when the four bars play triads on 1, 5, 6 and 4.",
         skills: [{ skill: "C01", w: 1 }],
         // The catalog's text is "{label}: {detail}", and a progression's detail names the chords in Roman
         // numerals (U06.L02). The same text serves the suggestions, so it says only "not yet".
@@ -375,7 +376,7 @@ export default defineLesson({
         rubric: [
           {
             id: "triads-on-the-bass",
-            label: "A triad on every bass note: 1, 5, 6 and 4",
+            label: "The `chords` line plays triads on 1, 5, 6 and 4, in that order",
             required: true,
             skills: ["C01"],
             rule: "progression",
@@ -384,7 +385,7 @@ export default defineLesson({
           },
           {
             id: "a-tune",
-            label: "A tune on top",
+            label: "A tune on its own line, such as `mel`",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -393,7 +394,7 @@ export default defineLesson({
           },
           {
             id: "middle",
-            label: "Chords in the middle, between the bass and the tune",
+            label: "Every note of `chords` between `c3` and `c5`",
             required: false,
             skills: ["C01"],
             rule: "range",
@@ -402,7 +403,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which degree does the bass play in bar 2, and which `n` is that?",
+          "Bar 1 already has its triad, `[0,2,4]`. Bar 2's bass plays degree 5: start that bar's stack on degree 5's `n`.",
           "Bar 2's bass is degree 5, `n` 4: stack `[4,6,8]` there. Bars 3 and 4 sit on degrees 6 and 4.",
           "`<[0,2,4] [4,6,8] … …>`: two bars done. Stack on `n` 5 and on `n` 3 for the last two.",
         ),

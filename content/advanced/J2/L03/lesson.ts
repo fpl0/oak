@@ -104,7 +104,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J2.L03",
-  version: 2,
+  version: 3,
   title: "Extensions",
   objective: "I can add 9ths, 11ths and 13ths to a chord and know which held notes clash.",
   key: { tonic: "Eb", mode: "major" },
@@ -133,7 +133,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to the tune's long notes. In which take do they sound like part of the chord, and in which do they float above it?",
+          "Listen to the tune's long notes in both takes. Notice in which take they sound like part of the chord, and in which they float above it.",
         skills: [{ skill: "J02", w: 1 }],
         hints: null,
         tests: [],
@@ -164,7 +164,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bar 1 is Fm7, bar 2 is Fm9, over F in the bass. Run it and read the roll: which note does the 9 add, and how far above the root is it?",
+          "Bar 1 is Fm7, bar 2 is Fm9, over F in the bass. Run it, read the roll and answer two questions: which note the 9 adds, and how many half steps it sits above the root F.",
         skills: [
           { skill: "J02", w: 0.6 },
           { skill: "I04", w: 0.4 },
@@ -174,7 +174,7 @@ export default defineLesson({
             "Not quite. Compare the two bars on the roll and find the note that only bar 2 has. Then count up from F: a 2nd, and an octave on top of it.",
         },
         hints: ladder(
-          "Which note is in bar 2 and not in bar 1?",
+          "Compare the two bars on the roll and find the note only bar 2 has.",
           "Count the letters up from F: a 9th is a 2nd above the root, an octave higher.",
           "A 2nd above F is a whole step, two half steps. The octave adds its own half steps on top.",
         ),
@@ -221,10 +221,11 @@ export default defineLesson({
         id: "three-dominants",
         version: 1,
         role: "practice",
-        prompt: "Three cards, each a V going home to the same E♭maj9. Which V sounds brightest?",
+        prompt:
+          "Three cards, each a V going home to the same E♭maj9. Listen to the V in the first bar of each card, and pick the one that sounds brightest.",
         skills: [{ skill: "J02", w: 1 }],
         hints: ladder(
-          "Listen to the first bar of each card. Which V sounds sweet, and which ones sound bent?",
+          "Listen only to the first bar of each card. One V sounds sweet; two sound bent.",
           "Two of the Vs bend a note above the seventh a half step away from where the scale has it.",
           "The bright V keeps its colours inside E♭ major: its 9th and 13th are notes of the key.",
         ),
@@ -274,14 +275,14 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four plain sevenths, each under one long vibes note. Listen, read the roll, and say what each held note is over its chord.",
+          "Four plain sevenths, each under one long vibes note. For each bar, read the roll and pick what the held note is over its chord: a chord tone, a 9th, a 13th, or a clash.",
         skills: [{ skill: "J02", w: 1 }],
         srs: [
           { family: "fam.jzz.extension", mode: "seed" },
           { family: "fam.chd.spell", mode: "review-if-due" },
         ],
         hints: ladder(
-          "Which held note sounds sweet over its chord, and which one rubs?",
+          "Listen to each held note against its chord: a colour sounds sweet, a clash rubs. Then count up from the root to name it.",
           "Count up from each chord's root, in the bass, to the held note: a 2nd up an octave is the 9th, a 6th up an octave the 13th.",
           "Bar 1: G over a chord on F is a 2nd above its root. In bar 3, look for a chord note a half step under the held one.",
         ),
@@ -338,7 +339,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The trio plays the ballad on plain sevenths. The chart wants colour: a 9th on the ii, a 13th on the V, a major 9th at home. Write the four chords that way.",
+          "The trio plays the ballad on plain sevenths. Rewrite the four chords in `changes` with colour: a 9th on the ii, a 13th on the V, a major 9th at home. Keep each root and quality. Done when every bar matches the target.",
         skills: [{ skill: "J02", w: 1 }],
         swing: SWUNG,
         code: { starter: CHART_STARTER },
@@ -352,7 +353,7 @@ export default defineLesson({
             "Not yet: bar {bar} does not sound like the target. Listen to that bar against the target's: is a colour missing, or is there one too many?",
         },
         hints: ladder(
-          "Which number after a chord's letter asks for a note above the seventh?",
+          "Change only the number after each chord's letters. A number above 7 asks for a note above the seventh.",
           "Each chord keeps its root and its quality; only the number after it changes. The V wants the highest of the three colours.",
           "The ii becomes `Fm9`. The V takes the highest of the three colours; home keeps its major seventh under its colour.",
         ),
@@ -424,7 +425,7 @@ export default defineLesson({
         role: "practice",
         title: "E♭ ballad",
         prompt:
-          "The vibes tune sits on chord tones only. Rewrite it so that in every four bars at least two long notes ring on a 9th or a 13th of their chord. Touch a clash in passing if you like, but never hold one. For contrast, let other bars land on a guide tone.",
+          "Rewrite the vibes tune, which sits on chord tones only. Required: in every four bars, at least two long or on-beat notes ring on a 9th or a 13th of their chord. Also on the checklist: no clash held over its chord. A clash may pass quickly. For contrast, let other bars land on a guide tone.",
         skills: [{ skill: "J02", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -433,7 +434,8 @@ export default defineLesson({
         rubric: [
           {
             id: "colours-ring",
-            label: "Long notes sing a 9th or a 13th, two in every four bars",
+            label:
+              "In every four bars, at least two long or on-beat notes ring on a 9th or a 13th of their chord",
             required: true,
             skills: ["J02"],
             rule: "custom",
@@ -442,7 +444,7 @@ export default defineLesson({
           },
           {
             id: "no-clash-held",
-            label: "No clash held over its chord",
+            label: "The tune's long or on-beat notes fit their chord: no clash is held",
             required: false,
             skills: ["J02"],
             rule: "custom",
@@ -454,7 +456,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, the suggestion included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which notes of a chord give it colour, and how long does a note need to ring to be heard as one?",
+          "Put a 9th or a 13th of the chord on a beat, or hold it, so it rings long enough to be heard as a colour.",
           "Over each chord, count up from its root: a 9th is the note a whole step above the root, a 13th the note a 6th above it, in any octave. Put one on a beat and hold it.",
           "Over Fm9, G is the 9th. Over B♭13, find the note a 6th above B♭, and hold it from beat 1.",
         ),

@@ -60,7 +60,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L02",
-  version: 2,
+  version: 3,
   title: "Motif & Variation",
   objective:
     "I can build a tune from one short idea: repeat it, move it to another degree, and play it backwards.",
@@ -109,7 +109,8 @@ export default defineLesson({
         id: "backwards",
         version: 1,
         role: "practice",
-        prompt: "`.rev()` reverses a pattern. In which order will these four notes play?",
+        prompt:
+          "`.rev()` plays a pattern backwards. Read the four numbers in `n`, predict the order the notes will play in, and pick it below.",
         skills: [{ skill: "M02", w: 1 }],
         hints: null,
         tests: [],
@@ -136,7 +137,8 @@ export default defineLesson({
         id: "one-idea-moved",
         version: 1,
         role: "practice",
-        prompt: "Run it and read each bar on the roll, in degrees.",
+        prompt:
+          "Run it and read each bar's four notes on the roll, in degrees. Then answer both questions: how many different shapes the four bars play, and how many degrees bar 2 has moved up from bar 1.",
         skills: [{ skill: "M02", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -196,7 +198,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Add `.scaleTranspose()` after `.scale()` so the motif climbs one degree each bar, starting where it is now. `.scaleTranspose(n)` moves a line up `n` degrees.",
+          "Add `.scaleTranspose()` right after `.scale()`, with one value per bar inside `< >`, so the motif climbs one degree each bar. `.scaleTranspose(n)` moves a line up `n` degrees. Bar 1 stays where it is. Done when the four bars start on degrees 1, 2, 3 and 4.",
         skills: [{ skill: "M02", w: 1 }],
         code: { starter: CLIMB_STARTER },
         reference: { solutions: [CLIMB], bars: 4 },
@@ -209,7 +211,7 @@ export default defineLesson({
           "melody.index-shift": "Every note is one degree {dir}. Bar 1 stays where it is: its value is 0.",
         },
         hints: ladder(
-          "How far up is bar 2 from bar 1 in the target? And bar 3?",
+          "In the target, bar 1 stays put and each bar starts one degree above the bar before. How many degrees up is bar 2 from bar 1? Bar 4?",
           'One value per bar, in `< >`, the way `.add(n("<0 4 5 3>"))` moved a chord bar by bar. Bar 1 does not move.',
           "The first two values are `0` and `1`. Two more to go.",
         ),
@@ -265,7 +267,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Bar 1 climbs 1 3 5 and up to the high home. Rewrite bar 2 so it plays bar 1 backwards, last note first.",
+          "Rewrite bar 2 so it plays bar 1's four notes backwards: last note first, first note last, one note a beat. Bar 1 climbs 1 3 5 and up to the high home; leave it as it is.",
         skills: [{ skill: "M02", w: 1 }],
         code: { starter: ANSWER_STARTER },
         reference: { solutions: [ANSWER("[7 4 2 0]")], bars: 2 },
@@ -317,7 +319,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two four-bar tunes over the same chords, both from the motif. Which one holds your attention to the end?",
+          "Play both cards: two four-bar tunes over the same chords, both built from the motif 1 3 5 3. Pick the one that still holds your attention in bars 3 and 4.",
         skills: [{ skill: "M02", w: 1 }],
         hints: ladder(
           "By bar 3 of each card, do you know what comes next?",
@@ -362,7 +364,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "These four bars fit their chords, but each one is a new idea. Keep a one-bar motif and build the four bars from it: repeat it, move it with `.scaleTranspose()`, turn it round with `.rev()`. Bring the motif back in at least two of bars 2 to 4; four bars all the same are a one-bar loop.",
+          "Pick the starter bar you like best and make it bar 1, your motif. Build bars 2 to 4 from it: repeat it, move it with `.scaleTranspose()`, or turn it round with `.rev()`. Done when at least two of the bars repeat an earlier bar's shape, the same or moved, and not all four bars are identical.",
         skills: [{ skill: "M02", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -372,7 +374,8 @@ export default defineLesson({
         rubric: [
           {
             id: "motif-comes-back",
-            label: "Your bar-1 idea comes back, the same or moved",
+            label:
+              "At least half the bars repeat the shape of an earlier bar, the same or moved to other degrees; four identical bars do not count",
             required: true,
             skills: ["M02"],
             rule: "motif-reuse",
@@ -385,7 +388,7 @@ export default defineLesson({
           },
           {
             id: "moved-or-turned",
-            label: "The motif moved or turned round in code",
+            label: "Uses `.scaleTranspose()` or `.rev()` at least once",
             required: false,
             skills: ["M02"],
             rule: "uses",
@@ -394,7 +397,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Sing bar 1. Could bar 2 be the same shape, starting somewhere else?",
+          "Choose one bar as your motif and put it first. Could bar 2 play that same shape, starting on another degree?",
           "Keep bar 1, then write the other bars as copies of it: moved up or down by the same number of degrees, or backwards.",
           "Bar 1 is `[4 ~ 2 0]`. Bar 2 could be the same shape on the G chord: start it on `n` 8 and step down by skips.",
         ),

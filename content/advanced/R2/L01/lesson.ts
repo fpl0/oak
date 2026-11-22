@@ -78,7 +78,7 @@ const sevenCode = (drums: string, extra: string[] = []) =>
   `${TEMPO_7}${[`drums: s("${drums}")`, 'hats: s("hh*7").gain(.35)', ...extra].join("\n")}`;
 const earHints = (): HintLadder =>
   ladder(
-    "How many hi-hat hits are there between one drum hit and the next?",
+    "Count the hi-hat hits between one drum hit and the next: two or three.",
     "Count the seven hi-hat hits of a bar, 1 to 7. A drum marks the start of each group: two groups are two hits long, one is three.",
     "Find the long group first. Is it at the start of the bar, in the middle, or at the end?",
   );
@@ -146,7 +146,7 @@ const OTHER_EIGHTHS_32: Rat[] = [
 ];
 const KICK_32: RubricRule = {
   id: "kick-three-two",
-  label: "The kick marks 3+2: on each group start and nowhere else",
+  label: "The kick plays only on beats 1 and 4 of the five, where the groups of three and two start",
   required: true,
   skills: ["R16"],
   rule: "onsets",
@@ -183,7 +183,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R2.L01",
-  version: 2,
+  version: 3,
   title: "Five & Seven",
   objective:
     "I can write a groove in 5/4 grouped 3+2, set its tempo line, and hear how a bar of 7/8 is grouped.",
@@ -212,7 +212,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The same notes and sounds twice, placed differently in the bar. Count along with the captions. Does the bar feel even, or does it lean? Listen for where the kick starts each group.",
+          "Listen to both loops and count along with the captions; the notes and sounds are the same, placed differently. Notice whether the bar feels even or leans, and where the kick starts each group.",
         skills: [{ skill: "R16", w: 1 }],
         hints: null,
         tests: [],
@@ -242,10 +242,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The first groove plays four bars. Tap with the kick, where each group starts, counting 1-2-3 1-2: two taps a bar, eight in all.",
+          "Tap with the kick, the low thud, and nothing else. Count 1-2-3 1-2 with the snare: the kick lands on each count of 1, twice a bar. Four bars, eight taps in all. Done when each tap lands with a kick.",
         skills: [{ skill: "R16", w: 1 }],
         hints: ladder(
-          "Does the kick play on every beat, or does it skip some?",
+          "Listen for the kick alone: it does not play on every beat, only twice a bar.",
           "Count 1-2-3 1-2 with the snare. The kick lands on each word one.",
           "Tap on the first count of the bar, then again three beats later.",
         ),
@@ -280,14 +280,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the groove and read one bar on the roll and in the code: the kick's string has one step per beat, and the tempo line divides 150 by something.",
+          "Run the groove and read one bar on the roll and in the code: the kick's string has one step per beat, and the tempo line divides 150 by the beats in a bar. Then answer: how many beats one bar holds, and how the kick and the snare split it.",
         skills: [{ skill: "R16", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the steps of the kick's string, and look where the kick plays among them.",
         },
         hints: ladder(
-          "How many steps does the kick's string have?",
+          "Count the steps of the kick's string: one step is one beat.",
           "One step is one beat. Count from one kick to the next, and from that kick to the end of the bar.",
           "The first group runs from the first kick to just before the second; the other group runs from there to the bar line.",
         ),
@@ -336,7 +336,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four grooves at 240 eighth notes a minute, seven to the bar. The hi-hat plays every eighth; the drums mark each group start. How is each bar grouped?",
+          "Four grooves at 240 eighth notes a minute, seven to the bar. The hi-hat plays every eighth; the drums mark each group start. For each, pick how the bar is grouped.",
         skills: [{ skill: "R16", w: 1 }],
         hints: earHints(),
         srs: [
@@ -372,7 +372,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The tempo line already counts five beats to the bar at 150, but the kick still has the four steps of a 4/4 bar, so its second hit falls between two beats. Give the kick one step per beat and group the bar 3+2: a hit where each group starts, nowhere else.",
+          "Rewrite the kick's string with five steps, one per beat, grouped 3+2: a hit on the first beat of each group and rests everywhere else. The tempo line already counts five beats at 150; the kick still has four steps. Done when the kick plays only where each group starts.",
         skills: [{ skill: "R16", w: 1 }],
         code: { starter: S5_STARTER },
         reference: { solutions: [S5_SOLUTION], bars: 4 },
@@ -386,7 +386,7 @@ export default defineLesson({
             "{label}: not yet. Count 1-2-3 1-2 with the target and listen for which counts the kick takes.",
         },
         hints: ladder(
-          "The tempo line divides 150 by five. How many steps should the kick's string have?",
+          "The tempo line divides 150 by five, so the bar has five beats: the kick's string needs one step for each.",
           "One step per beat: a bar of five needs five. Then a hit only where a group begins: the group of three first, then the group of two.",
           "Five steps; the first is a hit. Count three beats on from it for the second hit, and make every other step a rest.",
         ),
@@ -460,7 +460,7 @@ export default defineLesson({
         role: "practice",
         title: "Groove in five",
         prompt:
-          "Your bar of five. The starter counts five beats, but the kick plays every one of them, so nothing groups. Put the kick on the start of each group of 3+2 and nowhere else. Then add what you like: a snare closing each group, the bass on the group starts, a line on top, a tempo between 120 and 180.",
+          "Group your bar of five 3+2; the starter's kick plays every beat, so nothing groups. Required: the kick plays where each group starts and nowhere else. Also on the checklist: the bass starts each group with the kick, and a tempo of 120 to 180. For more, a snare closing each group or a line on top.",
         skills: [{ skill: "R16", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -469,7 +469,7 @@ export default defineLesson({
           { ...KICK_32, id: "kick-marks-three-two" },
           {
             id: "bass-on-the-groups",
-            label: "The bass starts each group with the kick",
+            label: "The bass plays on beats 1 and 4 of every bar, with the kick",
             required: false,
             skills: ["R16"],
             rule: "onsets",
@@ -479,7 +479,7 @@ export default defineLesson({
           },
           {
             id: "tempo-in-five",
-            label: "A tempo between 120 and 180",
+            label: "`setcpm` sets a tempo between 120 and 180 beats a minute",
             required: false,
             skills: ["R16"],
             rule: "tempo-bpm",
@@ -490,7 +490,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Where does each group of a 3+2 bar begin?",
+          "Mark the first beat of each group in a 3+2 bar of five: the group of three first.",
           "The kick's string has one step per beat. A group of three, then a group of two: the kick plays only on the first beat of each.",
           "Keep five steps in the kick's string and turn three of the hits into rests.",
         ),

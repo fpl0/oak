@@ -75,7 +75,7 @@ const ON_TOP_SOLUTION = onTop(".gain(.2)");
 /** The one rule of S4 and of the Make: the chords under the tune, still heard. */
 const TUNE_ON_TOP: RubricRule = {
   id: "tune-on-top",
-  label: "The tune on top: the chords sit under it, still heard",
+  label: "The tune on top: the chords 3 to 18 dB under it where both play, still heard",
   required: true,
   skills: ["D10"],
   rule: "custom",
@@ -102,7 +102,7 @@ const DRUMS = { band: "band.aeolian-4bar", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "A2.L05",
-  version: 2,
+  version: 3,
   title: "Mix & Dynamics",
   objective: "I can balance a mix: the tune on top, every part with its own level, side and room.",
   key: { tonic: "A", mode: "minor" },
@@ -130,7 +130,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Both loops play the same notes on the same sounds. Listen for the tune: in which loop can you follow it without searching for it?",
+          "Both loops play the same notes on the same sounds. Listen for the loop where you can follow the tune without searching for it.",
         skills: [{ skill: "D10", w: 1 }],
         hints: null,
         tests: [],
@@ -160,7 +160,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The chords play at `.gain(.8)` and the tune at `.gain(.3)`. Which part will be hard to follow?",
+          "The chords play at `.gain(.8)` and the tune at `.gain(.3)`. Predict which part will be hard to follow. Pick it, then listen.",
         skills: [{ skill: "D10", w: 1 }],
         hints: null,
         tests: [],
@@ -188,14 +188,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Loudness is counted in decibels (dB): halve a part's `.gain()` and it drops 6 dB. `.pan()` places a part between left (0) and right (1). Put your headphones on, run the chords and listen to each bar.",
+          "Loudness is counted in decibels (dB): halve a part's `.gain()` and it drops 6 dB. `.pan()` places a part between left (0) and right (1). Listen with headphones to the four bars of chords. Answer two questions: how many dB quieter bars 3 and 4 are, and which bars come from the left.",
         skills: [{ skill: "D10", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the halvings from the level of bars 1 and 2 down to bars 3 and 4, 6 dB for each. Then listen with headphones for the ear each bar arrives in.",
         },
         hints: ladder(
-          "How many times do you halve .8 to reach .2?",
+          "Count the halvings from .8 down to .2, one at a time. How many are there?",
           "Each halving is 6 dB. On `.pan()`, 0 is the far left and 1 the far right; `<0 1>` takes one value a bar.",
           "Halving once gives .4, which is 6 dB down. Go one halving further.",
         ),
@@ -249,7 +249,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The chords cover the tune. Change the levels so the tune sits on top and the chords sit under it, still clearly heard.",
+          "The chords cover the tune. Change the `.gain()` levels so the chords sit 3 to 18 dB under the tune: quieter than it, still clearly heard. Panning does not count. Done when the tune leads and the chords are still there under it.",
         skills: [{ skill: "D10", w: 1 }],
         code: { starter: ON_TOP_STARTER },
         reference: { solutions: [ON_TOP_SOLUTION], bars: 4 },
@@ -257,10 +257,10 @@ export default defineLesson({
         target: { audible: true },
         feedbackText: {
           "rubric.unmet":
-            "{label}: not yet. Listen to the chords against the tune: the tune should lead, and the chords should still be there underneath it.",
+            "Not met yet: {label}. Listen to the chords against the tune: the tune should lead, and the chords should still be there underneath it. Change the levels, not the sides.",
         },
         hints: ladder(
-          "Which line is louder now, the chords or the tune?",
+          "Compare the `.gain()` of the chords line with the tune's. Which line is louder now?",
           "Each line's `.gain()` sets its level. The chords need to sit a few dB under the tune: more than level with it, less than gone.",
           "From .8, one halving brings the chords only level with the tune. They need to go further, but not so far that they vanish.",
         ),
@@ -331,7 +331,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The tune twice, with loud notes on beats 1 and 3 and soft ones on 2 and 4. One card adds `.compressor()`. In which card are the loud and soft notes closer in level, so the line sits steadier?",
+          "Listen to card A and card B: the tune with loud notes on beats 1 and 3 and soft ones on 2 and 4. One card adds `.compressor()`. Pick the card where the loud and soft notes are closer in level, so the line sits steadier.",
         skills: [{ skill: "D10", w: 1 }],
         hints: ladder(
           "Listen to the jump between beat 1 and beat 2 in each card.",
@@ -376,10 +376,12 @@ export default defineLesson({
         id: "what-is-too-loud",
         version: 1,
         role: "check",
-        prompt: "One part of the loop now plays far too loud for its place. Which part is it?",
+        prompt: "Listen to the loop: one part plays far too loud for its place. Pick that part.",
         skills: [{ skill: "D10", w: 1 }],
         hints: [
-          { text: "Which part do you hear before anything else?" },
+          {
+            text: "Listen for the part you hear before anything else, the one that covers the others. Which is it?",
+          },
           {
             text: "The tune is one note at a time, high; the chords and the pad are blocks in the middle; the bass is one note a bar, low.",
           },
@@ -431,7 +433,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The loop with a pad, every part at the same level and in the middle. Mix it: the tune on top, the chords and the pad under it, a side for the parts that share a register, a little room where it helps.",
+          "Every part plays at `.gain(.5)` from the middle. Mix it: set the chords 3 to 18 dB under the tune, still heard. Then put the pad a little under the chords, give the chords a side with `.pan()`, and add room where it helps. Done when the tune leads and the chords sit under it.",
         skills: [{ skill: "D10", w: 1 }],
         code: { starter: LEVEL },
         bars: [4, 8],
@@ -440,7 +442,7 @@ export default defineLesson({
           TUNE_ON_TOP,
           {
             id: "pad-under-chords",
-            label: "The pad under the chords too",
+            label: "The pad 1 to 18 dB under the chords",
             required: false,
             skills: ["D10"],
             rule: "custom",
@@ -449,7 +451,7 @@ export default defineLesson({
           },
           {
             id: "chords-to-a-side",
-            label: "The chords placed off the middle",
+            label: "The chords given a `.pan()` other than .5, off the middle",
             required: false,
             skills: ["D10"],
             rule: "custom",
@@ -460,7 +462,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Play it and follow the tune: does anything sit on top of it?",
+          "Follow the tune as it plays and listen for any part that sits on top of it. Which one is it?",
           "Levels first: each line's `.gain()`. The chords belong a few dB under the tune; the pad a little under the chords.",
           "Start by halving the chords' level, twice if the tune still hides. Then give the chords and the pad a side each with `.pan()`.",
         ),

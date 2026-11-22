@@ -120,7 +120,7 @@ const at = (beats: number[]) => beats.map((b) => Number((b * BEAT_SEC).toFixed(3
 
 export default defineLesson({
   id: "U13.L03",
-  version: 2,
+  version: 3,
   title: "Ties Across the Beat",
   objective:
     "I can read and write dotted and tied rhythms, in code with @ and on the staff, and I know how a push looks on paper.",
@@ -175,10 +175,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The last two bars of the tune, alone over a click. Listen, then tap the rhythm back: four even notes, then long, short, long. Any key works.",
+          "Listen to the tune's last two bars over the click, then tap their rhythm back, one tap per note: seven taps. Bar 1 is four even notes; bar 2 goes long, short, long. Done when each tap starts a note.",
         skills: [{ skill: "R09", w: 1 }],
         hints: ladder(
-          "How many notes are in the second bar, and which one is the shortest?",
+          "One tap per note, seven in all. How many notes are in the second bar, and which one is the shortest?",
           "Count eighths in the second bar, 1 & 2 & 3 & 4 &. The first note lasts three of them; the second only one.",
           "Tap the first bar on the beats. In the second, tap on 1, on the “and” of 2, then on 3, and let the last note ring.",
         ),
@@ -221,7 +221,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`n("1@3 0 0@4")`: three notes share the bar by weight, 3 + 1 + 4, so the bar is cut into eight shares, eighth notes. How long is the first note?',
+          '`n("1@3 0 0@4")`: three notes share the bar by weight, 3 + 1 + 4, so the bar is cut into eight shares, eighth notes. Predict how long the first note lasts, then pick your answer.',
         skills: [{ skill: "R09", w: 1 }],
         hints: null,
         tests: [],
@@ -249,7 +249,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The tune's last two bars on the roll and on the page. Bar 2 starts with the note you just predicted: on the page it is a quarter note with a dot after it.",
+          "Run the tune's last two bars and compare the roll with the page. Bar 2 starts with the note you just predicted, written as a quarter note with a dot after it. Answer both questions: what the dot adds, and how many eighth notes that note lasts.",
         skills: [
           { skill: "R09", w: 0.5 },
           { skill: "N08", w: 0.5 },
@@ -312,7 +312,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Where the phrase begins: the E on beat 4 of the first bar is joined by a curved line to the E on beat 1 of the next. Those two notes are played as one. For how many beats does that E sound?",
+          "Where the phrase begins: the E on beat 4 of the first bar is joined by a curved line to the E on beat 1 of the next. Those two notes are played as one. Count how many beats that E sounds, and answer with that number.",
         skills: [{ skill: "N08", w: 1 }],
         feedbackText: {
           "id.wrong":
@@ -360,7 +360,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The page shows a two-bar soul riff over Fmaj7 and Cmaj7. The starter has its notes, G A, then G E D C, in even values. Give each note the length the page gives it, with `@`.",
+          "The page shows a two-bar soul riff over Fmaj7 and Cmaj7. The starter has its notes, G A, then G E D C, in even lengths. Give each note the length the page shows, with `@` inside each bar's brackets. Keep the notes as they are. Done when every note starts and ends where the page has it.",
         skills: [
           { skill: "N08", w: 0.5 },
           { skill: "R09", w: 0.5 },
@@ -379,7 +379,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: you have {got}; the page has {exp}. The rhythm can be right while the notes are not: keep the numbers of the starter.",
         },
         hints: ladder(
-          "Count eighths in each bar of the page. How many does each note take?",
+          "Only the lengths change. Count eighths in each bar of the page: how many does each note take?",
           "Each bar is eight eighths. A dotted quarter is `@3`; an eighth joined to a half note is one sound of five eighths, `@5`.",
           "Bar 1 is G for three eighths, then A for the rest of the bar. Bar 2 starts the same way.",
         ),
@@ -437,7 +437,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Two bars in code: C and D for a beat each, E for three eighths, then G arrives on the last eighth of the bar and holds into the next one, before E. Write them on the staff.",
+          "Write the code's two bars on the staff, lengths included: C and D a beat each, E for three eighths, then G from the last eighth of bar 1, held through the first half of bar 2, then E. Join the two halves of the G with a tie.",
         skills: [{ skill: "N08", w: 1 }],
         feedbackText: {
           "melody.extra-note":
@@ -508,7 +508,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The rhythm section you pushed in Pushes & Anticipations, with a tune that walks in plain quarter notes. Make the tune lean: give notes more than their beat with `@`, let one start on an “and” and hold across the next beat, let one arrive before the bar line and ring over it. Watch the page as you go.",
+          "Rewrite the rhythm of the `mel:` line with `@` so at least two notes start between beats and ring through the next beat: one could start on an “and”, one just before a bar line. Keep the notes if you like. Watch the dots and ties appear on the page.",
         skills: [{ skill: "R09", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -516,7 +516,7 @@ export default defineLesson({
         rubric: [
           {
             id: "tune-leans",
-            label: "At least two notes of your tune start between the beats and hold across the next one",
+            label: "At least two notes of the `mel:` line start between beats and ring through the next beat",
             required: true,
             skills: ["R09"],
             rule: "syncopation",
@@ -525,7 +525,7 @@ export default defineLesson({
           },
           {
             id: "writes-cleanly",
-            label: "The tune writes cleanly on the page",
+            label: "The `mel:` line can be written on the staff",
             required: false,
             skills: ["N08"],
             rule: "notates",
@@ -534,7 +534,7 @@ export default defineLesson({
           },
           {
             id: "chord-notes-strong",
-            label: "Most strong beats land on a note of the chord",
+            label: "On at least 6 of every 10 strong beats, the tune plays a note of the chord under it",
             required: false,
             skills: ["R09"],
             rule: "chord-tones-strong",
@@ -545,7 +545,7 @@ export default defineLesson({
           },
           {
             id: "ends-home",
-            label: "The tune ends on 1",
+            label: "The tune's last note is degree 1 (C)",
             required: false,
             skills: ["R09"],
             rule: "ends-on-degree",
@@ -554,9 +554,11 @@ export default defineLesson({
           },
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
-        feedbackText: { "rubric.unmet": "{label}: not yet." },
+        feedbackText: {
+          "rubric.unmet": "{label}: not yet. Check the tune against the item, then run it again.",
+        },
         hints: ladder(
-          "Which notes of your tune could ring on past the next beat?",
+          "Two notes need to start between beats and keep ringing past the next beat. Which notes of your tune could do that?",
           "Inside a bar's brackets `@` gives a note a weight: in a bar of eight shares, `@3` is a dotted quarter and a note after it starts on an “and”.",
           "Try one bar as `[4@3 2@5]`: the second note starts on the “and” of 2 and holds over beat 3. Do the same in another bar.",
         ),

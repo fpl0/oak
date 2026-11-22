@@ -903,6 +903,8 @@ describe("the machine: a sung guide-tone line in Quiet mode", () => {
         return [{ midi: 65, cents: 0, credit: 1 }];
       }),
     );
+    await waitFor(actor, (st) => st.matches({ trial: "ready" }));
+    actor.send({ type: "START" });
     await waitFor(actor, (st) => st.matches({ trial: "presenting" }));
     actor.send({ type: "HEARD" });
     expect(actor.getSnapshot().matches({ trial: "presenting" })).toBe(true);
@@ -914,6 +916,8 @@ describe("the machine: a sung guide-tone line in Quiet mode", () => {
 
   test("Quiet mode switched on while the line is sung closes the mic at once and offers the head", async () => {
     const actor = runMachine([guide()], deps());
+    await waitFor(actor, (st) => st.matches({ trial: "ready" }));
+    actor.send({ type: "START" });
     await waitFor(actor, (st) => st.matches({ trial: "presenting" }));
     actor.send({ type: "QUIET", quiet: true });
     await waitFor(actor, (st) => st.matches({ trial: "answering" }));

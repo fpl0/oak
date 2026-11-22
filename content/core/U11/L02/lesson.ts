@@ -74,7 +74,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U11.L02",
-  version: 2,
+  version: 3,
   title: "The Minor Pentatonic Riff",
   objective: "I can write a riff on the minor pentatonic, 1 ♭3 4 5 ♭7, and sing it as do me fa sol te.",
   key: { tonic: "A", mode: "minor pentatonic" },
@@ -100,7 +100,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Six notes on a guitar, round and round, then the same bar doubled by a bass over a rock beat. Listen to the riff's last note before the gap: does it sound finished, or lean into the next bar?",
+          "Listen to the six-note riff alone, then doubled by a bass over a rock beat. Listen for the riff's last note before the gap: does it sound finished, or does it lean into the next bar?",
         skills: [{ skill: "S10", w: 1 }],
         hints: null,
         tests: [],
@@ -122,7 +122,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'The riff\'s scale is `"A2:minor:pentatonic"`. Which five notes does `n("0 1 2 3 4")` play on the minor pentatonic of A?',
+          'Predict which five notes `n("0 1 2 3 4")` plays on `.scale("A2:minor:pentatonic")`, the riff\'s scale. Pick one answer, then listen to check it.',
         skills: [{ skill: "S10", w: 1 }],
         hints: null,
         tests: [],
@@ -150,14 +150,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the scale up and down with the degree labels on the roll. Which two degrees of A natural minor does it leave out? Then compare its letters with C major pentatonic, C D E G A.",
+          "Run the scale up and down and read the degree label on each note in the roll. Then answer two questions: which two degrees of A natural minor it leaves out, and how many of its notes it shares with C major pentatonic, C D E G A.",
         skills: [{ skill: "S10", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Natural minor is 1 2 ♭3 4 5 ♭6 ♭7; cross off each label you see on the roll. Then line up the letters A C D E G against C D E G A.",
         },
         hints: ladder(
-          "Write out the seven degrees of natural minor. Which of them never show on the roll?",
+          "Write out the seven degrees of natural minor, 1 2 ♭3 4 5 ♭6 ♭7, and tick each label you see on the roll. Which are left?",
           "The roll shows 1, ♭3, 4, 5 and ♭7. Natural minor also has a 2 and a ♭6.",
           "A minor pentatonic is A C D E G. Tick off C, D and E in C D E G A, then look for the other two.",
         ),
@@ -210,7 +210,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "This version of the riff ends on D, degree 4, and hangs in the air before it starts again. Change one number so the riff lands on home, degree 1.",
+          "This riff ends on D, degree 4, and hangs in the air before it starts again. Change the highlighted number so the riff's last note is home, A (degree 1). Keep every other note as it is.",
         skills: [{ skill: "S10", w: 1 }],
         code: { starter: LAND_STARTER },
         reference: { solutions: [LAND_SOLUTION], bars: 2 },
@@ -219,10 +219,10 @@ export default defineLesson({
         target: { audible: true, showRoll: false, revealRollAfter: 1 },
         feedbackText: {
           "melody.wrong-degree":
-            "Beat {beatLabel}: the riff plays {got}, the target has {exp}. On this scale `n` counts five notes, A C D E G, so `n` 1 is C, degree ♭3.",
+            "Bar {bar}, {beatLabel}: the riff ends on {got}, the target is {exp}. On this scale `n` counts five notes, A C D E G, so `n` 1 is C, degree ♭3. Write the number that plays A.",
         },
         hints: ladder(
-          "Where does the riff start, and where does it end?",
+          "Find the riff's first note and its last note on the roll. Which note should the last one be?",
           "The riff starts on home, degree 1. The highlighted number decides where it ends.",
           "Make the last note before the rest the same note as the riff's first, or that note an octave up.",
         ),
@@ -267,10 +267,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four short lines, each in its own key, over a low note on its home. Major pentatonic or minor pentatonic? Listen to each line against the low note under it.",
+          "Listen to four short lines, each over a low note on its home. For each line, pick major pentatonic or minor pentatonic. Listen for the note a 3rd above the low note: 3 sounds bright, ♭3 dark.",
         skills: [{ skill: "S10", w: 1 }],
         hints: ladder(
-          "Does the line sound bright or dark against its low note?",
+          "Hold the low note in your ear: it is home. Does the line sound bright or dark against it?",
           "Home is the low note underneath. The major pentatonic has 3 above it; the minor pentatonic has ♭3.",
           "Hum home, then the note a 3rd above it in the line. Do re mi, or do me?",
         ),
@@ -425,7 +425,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Do me fa sol te do, and back down; the numbers 1 ♭3 4 5 ♭7 1 stay on screen. Hear it first, then sing it in your own range.",
+          "Sing the minor pentatonic up and back down, 12 notes: do me fa sol te do, do te sol fa me do. Hear it first, then sing it in your own range. The numbers 1 ♭3 4 5 ♭7 1 stay on screen.",
         skills: [
           { skill: "V02", w: 0.6 },
           { skill: "S10", w: 0.4 },
@@ -466,7 +466,7 @@ export default defineLesson({
         // The starter sits on A natural minor; the rule names its own key.
         key: { tonic: "A", mode: "minor" },
         prompt:
-          "A riff on A natural minor that leans on B and F. Move it onto the minor pentatonic, then rework it: a bar or two, notes and rests. Add a bass that doubles it if you like.",
+          "Your riff is on A natural minor and leans on B and F. Change its scale to the minor pentatonic. Then rework it into one or two bars of your own by changing numbers and rests. Done when every note of the gtr line is on A minor pentatonic.",
         skills: [{ skill: "S10", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],
@@ -474,7 +474,7 @@ export default defineLesson({
         rubric: [
           {
             id: "pentatonic-riff",
-            label: "Every note of the riff from A minor pentatonic",
+            label: "Every note of the gtr line is on A minor pentatonic (A C D E G)",
             required: true,
             skills: ["S10"],
             rule: "in-key",
@@ -484,7 +484,7 @@ export default defineLesson({
           },
           {
             id: "doubled",
-            label: "A bass that doubles the riff",
+            label: "A bass line playing beside the riff",
             required: false,
             skills: ["B01"],
             rule: "tracks",
@@ -493,7 +493,7 @@ export default defineLesson({
           },
           {
             id: "answered",
-            label: "A second bar that answers the first",
+            label: "At least half the bars of the gtr line repeat the shape of an earlier bar",
             required: false,
             skills: ["M01"],
             rule: "motif-reuse",
@@ -505,7 +505,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which two notes of A natural minor are not in the minor pentatonic?",
+          "Look at the scale in the gtr line: it says `A2:minor`. Which two of its notes are not in the minor pentatonic?",
           "The scale word decides which notes the numbers reach. On the minor pentatonic every number lands on A, C, D, E or G.",
           "Write `:pentatonic` after `minor` in the scale. Then change numbers and rests until the riff is yours.",
         ),

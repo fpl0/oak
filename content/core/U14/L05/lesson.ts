@@ -80,7 +80,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U14.L05",
-  version: 2,
+  version: 3,
   title: "Phrygian Edge",
   objective: "I can turn minor into Phrygian by lowering its 2nd, and give a riff its edge over i and ♭II.",
   key: { tonic: "E", mode: "minor" },
@@ -106,7 +106,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Halfway through loop 1 the riff turns, though its numbers stay the same. Listen to what happens to the mood, and to the way the riff comes home.",
+          "Listen for two changes from bar 3 of loop 1, where the scale under the riff changes and its numbers stay the same: what happens to the mood, and how the riff lands on home. Loop 2 plays the new scale on its own.",
         skills: [{ skill: "S13", w: 1 }],
         hints: null,
         tests: [],
@@ -136,7 +136,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight notes from home up to home, twice. Bar 1 is on `E4:minor`; bar 2 has the same numbers on the scale the riff turned to. Which note moves in bar 2, and which way?",
+          "Predict which note of bar 2 differs from bar 1, and which way it moves. Both bars play `n` 0 to 7, home up to home: bar 1 on `E4:minor`, bar 2 on the scale the riff turned to. Pick one answer.",
         skills: [{ skill: "S13", w: 1 }],
         hints: null,
         tests: [],
@@ -164,14 +164,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The chord on degree 2, stacked from its root: E minor in bar 1, the new scale in bar 2. Bar 1 is F♯ A C, the diminished chord. Run it and read bar 2 on the roll.",
+          "Run the code and read the note names of bar 2's chord on the roll. Both bars play the chord on degree 2: bar 1 on E minor (F♯ A C, diminished), bar 2 on the new scale. Then answer both questions: which chord bar 2 is, and how many half steps from E up to F.",
         skills: [{ skill: "S13", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read bar 2 from the bottom: the moved note, then A, then C. Then count the keys from E, home, up to that moved note.",
         },
         hints: ladder(
-          "Which of the three notes has a different name in bar 2?",
+          "Read each chord bottom to top and compare the names. Which of the three notes has a different name in bar 2?",
           "A and C stay. The lowest note is degree 2 of the scale: F♯ in E minor. It is the note that moved in the predict step.",
           "Lowered a half step, F♯ becomes F. A chord of F, A and C: is its 3rd major or minor?",
         ),
@@ -225,11 +225,11 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The loop by name, E minor and F, twice. Write the numeral of each bar in E Phrygian: lower case for a minor chord, upper case for a major one, and a flat where the root is lowered.",
+          "Write the numeral for each of the four bars, Em, F, Em, F, counted from home in E Phrygian. Use lower case for a minor chord, upper case for a major one, and a flat where the root is lowered. Done when all four slots hold a numeral.",
         skills: [{ skill: "S13", w: 1 }],
         srs: [{ family: "fam.key.scale-spell", mode: "review-if-due" }],
         hints: ladder(
-          "Which degree of E Phrygian is F, and is the chord on it major or minor?",
+          "Count each root up from E, home. Which degree of E Phrygian is F, and is the chord on it major or minor?",
           "F is degree 2 of this scale, a half step above home: the lowered 2nd. F A C is a major chord.",
           "Bars 1 and 3 are the home chord, minor: i. Bars 2 and 4 are a major chord on the lowered 2nd.",
         ),
@@ -279,7 +279,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The riff is on `E4:minor` over one chord. Make it Phrygian: change the scale word, and in bar 2 put the major chord a half step above home.",
+          "Make two changes so the riff plays the target, the same riff in E Phrygian. First, change the scale word in the `gtr:` line from `minor` to `phrygian`. Second, change bar 2's chord in `changes`, the second `Em`, to the major chord a half step above home.",
         skills: [{ skill: "S13", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 2 },
@@ -301,7 +301,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: your riff plays {got}; the target has {exp}. The riff needs the new scale word as well.",
         },
         hints: ladder(
-          "Two things changed when the riff turned dark. Which part of the code decides each one?",
+          "Two highlighted places decide the colour: the scale word under the riff, and the second chord. Check that each one is changed.",
           "The scale word in `.scale()` decides the riff's 2nd. The second chord in `changes` is Em, the home chord again.",
           'The riff becomes `.scale("E4:phrygian")`. Now the chord: which major chord sits a half step above E?',
         ),
@@ -352,7 +352,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Short loops in many keys, in any of the six colours you know. Listen in this order: find home, then decide whether its 3rd is major or minor, then listen for the one note that differs.",
+          "Name the colour of each loop: one of the six you know. Listen in three steps. Find home. Decide whether its 3rd is major or minor. Then listen for the one note that differs: the 4th or 7th on the major side, the 6th or 2nd on the minor side.",
         skills: [{ skill: "S13", w: 1 }],
         hints: [
           { text: "Hum home first. Is the chord on it bright or dark: major or minor?" },
@@ -396,7 +396,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A strummed E minor and a riff on E Phrygian that never plays its 2nd: it could be plain E minor. Give it its edge: put the lowered 2nd, F, right next to home, and let the chords move to F and back. Then choose your guitar: `acgtr` for flamenco, or `crunch` with `.distort()`.",
+          "Make the `gtr:` line play the lowered 2nd, F (`n` 1), at least once, right next to home; without it the riff could be plain E minor. Then let the chords move to F and back. Then choose your guitar: `acgtr` for flamenco, or `crunch` with `.distort()`. Done when the riff plays an F.",
         skills: [{ skill: "S13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],
@@ -404,7 +404,7 @@ export default defineLesson({
         rubric: [
           {
             id: "the-lowered-two",
-            label: "Your riff plays the lowered 2nd",
+            label: "The `gtr:` line plays the lowered 2nd (F) at least once",
             required: true,
             skills: ["S13"],
             rule: "degree-set",
@@ -413,7 +413,7 @@ export default defineLesson({
           },
           {
             id: "the-chord-above-home",
-            label: "The ♭II chord in the loop",
+            label: "An F major chord, ♭II, in `changes` at least once",
             required: false,
             skills: ["S13"],
             rule: "contains-rn",
@@ -422,7 +422,7 @@ export default defineLesson({
           },
           {
             id: "comes-home",
-            label: "The riff ends on 1",
+            label: "The `gtr:` line's last note is 1 (E)",
             required: false,
             skills: ["M01"],
             rule: "ends-on-degree",
@@ -431,7 +431,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root",
+            label: "The `bass:` line plays the root where most chords start",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -443,7 +443,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which note makes this scale sound unlike E minor, and does your riff play it?",
+          "One note makes this scale sound unlike E minor. Find it, then check whether your riff plays it.",
           "The lowered 2nd is F. `n` counts from 0, so degree 2 is `n` 1.",
           "In bar 1, change the first `2` to a `1` and hear the riff press on home. Then put F in place of the second Em.",
         ),

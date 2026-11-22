@@ -84,7 +84,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U06.L07",
-  version: 2,
+  version: 3,
   title: "Doo-Wop & Three-Chord Rock",
   objective:
     "I can hear and play doo-wop (I vi IV V) and three-chord rock (I IV V), and end a phrase with IV going home to I.",
@@ -112,7 +112,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A fifties ballad, then a garage band. In each loop, listen for a minor chord: does one ever darken it, and where?",
+          "A fifties ballad, then a garage band. In each loop, listen for whether a minor chord ever darkens it, and in which bar.",
         skills: [{ skill: "H05", w: 1 }],
         hints: null,
         tests: [],
@@ -138,10 +138,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "First the doo-wop hook, then two cards with the same broken chords on the piano. One is doo-wop, the other the four-chord loop. Which card is doo-wop?",
+          "First the doo-wop hook plays, then two cards with the same broken chords on the piano: one is doo-wop, the other the four-chord loop. Pick the doo-wop card.",
         skills: [{ skill: "H05", w: 1 }],
         hints: ladder(
-          "Both cards start on I. Where does each one go next?",
+          "Both cards start on I. Listen to where each one goes next, in bar 2.",
           "Listen to bar 2: does it move to the bright V, or to the darker vi?",
           "Doo-wop goes from I to the minor chord first. Which card's bar 2 sounds minor?",
         ),
@@ -184,14 +184,15 @@ export default defineLesson({
         id: "count-the-chords",
         version: 1,
         role: "practice",
-        prompt: "The rock loop, with the numerals under the roll. Run it and read them as it plays.",
+        prompt:
+          "Run the rock loop and read the numerals under the roll as it plays. Then answer both questions below.",
         skills: [{ skill: "H05", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read the numbers in `.add()`: each one is a chord's root, and some come back.",
         },
         hints: ladder(
-          "Four bars, but does each bar bring a new chord?",
+          "Four bars, but not four different chords: watch for a numeral that comes back.",
           "The numbers in `.add()` are the roots, and `n` counts from 0: add one to get the degree.",
           "Bars 2 and 4 hold the same number. Which degree is it, and which is bar 3?",
         ),
@@ -247,13 +248,13 @@ export default defineLesson({
         id: "name-the-loop",
         version: 1,
         role: "check",
-        prompt: "A loop in a new key each time. Which of the four is it?",
+        prompt: "A loop plays, in a new key each time. Pick which of the four loops it is.",
         skills: [
           { skill: "H05", w: 0.6 },
           { skill: "H04", w: 0.4 },
         ],
         hints: ladder(
-          "Is the first chord home, or the darker minor one?",
+          "Start with the first chord: home, or the darker minor one. Then listen to the second.",
           "Listen to the second chord: V sounds bright and tense, vi dark, IV open. Three-chord rock never has a minor chord.",
           "Doo-wop goes from I straight to the minor vi. The four-chord loop goes I to V first.",
         ),
@@ -278,7 +279,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The rock phrase gets stuck on V. In the target, bar 3 drops to IV and bar 4 settles home on I. Change the last two numbers in `.add()`.",
+          "The rock phrase gets stuck on V. Change the last two numbers in `.add()` so bar 3 drops to IV and bar 4 settles home on I, as in the target.",
         skills: [
           { skill: "H03", w: 0.6 },
           { skill: "H05", w: 0.4 },
@@ -293,7 +294,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}; the target has {exp}. `n` counts from 0, so a numeral's number is its degree minus one.",
         },
         hints: ladder(
-          "Which two chords do bars 3 and 4 need, as numerals?",
+          "Bar 3 needs IV and bar 4 needs I. Turn each numeral into its number in `.add()`.",
           "IV is the triad on degree 4 and I the one on degree 1. In `.add()`, each number is the degree minus one.",
           "Bar 4 is home, the same number as bar 1. Now bar 3.",
         ),
@@ -333,10 +334,11 @@ export default defineLesson({
         id: "which-ending",
         version: 1,
         role: "check",
-        prompt: "A short phrase in a new key each time. How does it end?",
+        prompt:
+          "A short phrase plays, in a new key each time. Pick how it ends, judging by its last two chords.",
         skills: [{ skill: "H03", w: 1 }],
         hints: ladder(
-          "Does the last chord sound like home? If not, is it the bright V or a darker chord?",
+          "Start with the last chord: home, the bright V, or a darker chord.",
           "If it ends home, listen to the chord before: the tension of V, or the softer IV?",
           "IV to I is the amen. V to vi is the swerve. V to I closes; with the tune on 1 it closes completely.",
         ),
@@ -360,7 +362,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Reorder the starter's chords into doo-wop, I vi IV V, starting on any of the four. Then break the chords into a rhythm of your own with `.arp()` after `.voicing()`. A bass or a tune if you like.",
+          "Reorder the starter's four chord names into doo-wop, I vi IV V, starting on any of the four. Then add `.arp()` after `.voicing()` to break the chords into a rhythm of your own. Done when the chords go I vi IV V in order, from any start.",
         skills: [{ skill: "H05", w: 1 }],
         // A default voicing often puts the 3rd lowest, and the rule's detail then prints inversion figures
         // ("I6"), which wait for U06.L11. The same text serves the suggestions, so it says only "not yet".
@@ -371,7 +373,7 @@ export default defineLesson({
         rubric: [
           {
             id: "doo-wop",
-            label: "The doo-wop loop: I vi IV V, in any rotation",
+            label: "`chords` plays I vi IV V in order, started on any of its four chords",
             required: true,
             skills: ["H05"],
             rule: "progression",
@@ -381,7 +383,7 @@ export default defineLesson({
           },
           {
             id: "broken",
-            label: "Broken chords with `.arp()`",
+            label: "`.arp()` used to break the chords",
             required: false,
             skills: ["H05"],
             rule: "uses",
@@ -389,7 +391,7 @@ export default defineLesson({
           },
           {
             id: "home-ending",
-            label: "An ending that goes home: IV to I, or V to I",
+            label: "The last two chords go home: IV to I, or V to I",
             required: false,
             skills: ["H03"],
             rule: "cadence",
@@ -398,7 +400,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Doo-wop and the four-chord loop share their first chord. Which chord comes second in doo-wop?",
+          "Doo-wop and the four-chord loop share their first chord, I. In doo-wop the minor chord comes second.",
           "Doo-wop is I vi IV V. In C, vi is the minor chord on degree 6, IV the chord on F, V the one on G.",
           "I then vi is C then Am. Two chords to go.",
         ),

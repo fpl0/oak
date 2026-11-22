@@ -75,7 +75,7 @@ const AUTHENTIC_OR_HALF = CADENCE_OPTIONS.filter((o) => ["PAC", "IAC", "HC"].inc
 
 export default defineLesson({
   id: "U06.L04",
-  version: 2,
+  version: 3,
   title: "Endings",
   objective:
     "I can hear whether a phrase ends closed, V to I, or open on V, and write an eight-bar phrase that waits halfway and comes home at the end.",
@@ -106,7 +106,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight bars in two halves of four. Listen for the moment the music takes a breath, and the moment it settles.",
+          "Eight bars in two halves of four. Listen for the bar where the music takes a breath and the bar where it settles.",
         skills: [{ skill: "H03", w: 1 }],
         hints: null,
         tests: [],
@@ -125,10 +125,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The hook's two halves on two cards. Which one sounds finished, as if the song could stop there?",
+          "Each card plays one half of the hook. Pick the half that sounds finished, as if the song could stop there.",
         skills: [{ skill: "H03", w: 1 }],
         hints: ladder(
-          "After which card do you want to hear more?",
+          "Listen for the card after which you want to hear more: that one is not finished.",
           "Listen to the last chord of each card. Is it home, or the tension chord?",
           "Bars 1–4 end on V, the tension chord. Where do bars 5–8 end?",
         ),
@@ -172,14 +172,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The hook's last two bars, twice: the same V to I each time, but the tune lands on a different note. Run it and compare the two endings.",
+          "The hook's last two bars play twice: the same V to I each time, but the tune lands on a different note. Run it, compare the two endings, then answer both questions below.",
         skills: [{ skill: "H03", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Play it again and stop after bar 2, then after bar 4: which stop sounds like the very end?",
         },
         hints: ladder(
-          "Which of the two endings could close the whole song?",
+          "Listen for the ending that could close the whole song.",
           "The chords are the same both times. Only the tune's last note differs: read its degree label on the roll.",
           "In bar 4 the tune lands on 3, E. Read the label of its last note in bar 2.",
         ),
@@ -232,10 +232,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four chords and a tune, in one of several keys. Does the phrase end closed, V to I with the tune on 1, or open on V?",
+          "Four chords and a tune, in one of several keys. Pick how the phrase ends: closed, V to I with the tune on 1, or open on V.",
         skills: [{ skill: "H03", w: 1 }],
         hints: [
-          { text: "After the last chord, do you want the phrase to go on?" },
+          { text: "Listen after the last chord and notice whether you want the phrase to go on." },
           {
             text: "A phrase that stops on V waits for more. One that goes V to I with the tune on 1 is closed.",
           },
@@ -266,10 +266,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Two four-bar phrases, eight bars in all. Listen, read the code, and mark how each phrase ends.",
+          "Two four-bar phrases, eight bars in all. Listen, read the code, and mark the cadence that ends each phrase.",
         skills: [{ skill: "H03", w: 1 }],
         hints: ladder(
-          "Which phrase stops and waits, and which one comes home?",
+          "One phrase stops and waits; the other comes home. Start with the last chord of each.",
           "Read the last two numbers of each phrase in `.add()`, then the tune's last note on that phrase's last bar.",
           "Phrase 1 ends on the chord that adds 4: V. Phrase 2 ends V to I; on which degree does its tune land?",
         ),
@@ -319,7 +319,8 @@ export default defineLesson({
         id: "close-the-phrase",
         version: 1,
         role: "check",
-        prompt: "This phrase stops on V and waits. Change bars 3 and 4 so it closes instead: V, then home.",
+        prompt:
+          "This phrase stops on V and waits. Change the numbers for bars 3 and 4 in `.add()` so it closes instead: V in bar 3, then I in bar 4.",
         skills: [{ skill: "H03", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [code(triads("<0 3 4 0>"))], bars: 4 },
@@ -331,7 +332,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}; the target has {exp}. A closed ending is V, then I; `n` counts from 0.",
         },
         hints: ladder(
-          "Which chord ends the phrase now, and which chord should end it?",
+          "The phrase now ends on V. A closed ending needs V and then I.",
           "A closed ending is V then I: the tension chord, then home. In `.add()`, V is 4 and I is 0.",
           "Bar 4 must be home. What comes just before it?",
         ),
@@ -380,7 +381,8 @@ export default defineLesson({
         id: "wait-then-land",
         version: 1,
         role: "practice",
-        prompt: "Write eight bars of chords: let bar 4 wait on V, and bring bar 8 home with V to I.",
+        prompt:
+          "The starter asks its question twice and never answers. Keep bar 4 waiting on V, and change bars 7 and 8 so the phrase lands V to I. Done when bar 4 ends on V and bars 7 and 8 go V to I.",
         skills: [{ skill: "H03", w: 1 }],
         // The rule's detail names cadences by their abbreviations (PAC, HC, PC), which the prose never uses, and
         // PC is U06.L07's. The same text serves the suggestions, so it says only "not yet".
@@ -391,7 +393,7 @@ export default defineLesson({
         rubric: [
           {
             id: "bar-8-home",
-            label: "Bar 8 comes home: V to I",
+            label: "Bars 7 and 8 go V to I",
             required: true,
             skills: ["H03"],
             rule: "cadence",
@@ -403,7 +405,7 @@ export default defineLesson({
           },
           {
             id: "bar-4-waits",
-            label: "Bar 4 waits on V",
+            label: "Bar 4 ends on V, a half cadence",
             required: false,
             skills: ["H03"],
             rule: "cadence",
@@ -412,7 +414,7 @@ export default defineLesson({
           },
           {
             id: "tune-on-1",
-            label: "A tune that ends on 1",
+            label: "A `mel` line whose last note is 1",
             required: false,
             skills: ["M01"],
             rule: "ends-on-degree",
@@ -421,7 +423,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "The starter's bar 8 is a copy of bar 4. How should the two endings differ?",
+          "The starter's bar 8 is a copy of bar 4. Bar 8 must come home instead of waiting.",
           "Bar 8 must be I, and bar 7 must be V: the numbers 0 and 4 in `.add()`.",
           "Bars 1–6 can stay as they are. Two numbers at the end change.",
         ),

@@ -102,7 +102,7 @@ const ROLL_GRAND = { roll: true, staff: "grand", keyboard: false } as const;
 
 export default defineLesson({
   id: "U05.L07",
-  version: 2,
+  version: 3,
   title: "Voice Leading by Hand",
   objective:
     "I can voice a progression by hand so each note moves as little as possible: shared notes stay, the rest move a short way, and every chord keeps all its notes.",
@@ -131,7 +131,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The same four chords twice, C F G C, over the same bass. Listen to how each version gets from one chord to the next: does it lurch or flow?",
+          "Two versions of the same four chords, C F G C, over the same bass. Listen for whether each version lurches or flows as it moves from one chord to the next.",
         skills: [{ skill: "C05", w: 1 }],
         hints: null,
         tests: [],
@@ -153,10 +153,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Follow the highest note of each chord. In which card does it stay close to where it started, like one hand gliding over the keys?",
+          "Follow the highest note of each chord in both cards. Pick the card where it stays close to where it started, like one hand gliding over the keys.",
         skills: [{ skill: "C05", w: 1 }],
         hints: ladder(
-          "In which version does the top of the chords stay in one place?",
+          "Listen only to the top of the chords in each card, and notice which one stays in one place.",
           "Follow the highest note of each chord. In one card it climbs and falls a long way; in the other it hardly moves.",
           "Card B starts each chord from its root. Is that the one that glides?",
         ),
@@ -200,7 +200,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the first change: C `[c4,e4,g4]`, then F `[c4,f4,a4]`. Compare the two lists note by note.",
+          "Run the first change: C `[c4,e4,g4]`, then F `[c4,f4,a4]`. Compare the two lists note by note, then answer both questions below.",
         skills: [{ skill: "C05", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -260,7 +260,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Bar 2 plays G B D, the chord on degree 5, stacked from its root: every note leaps up. Rewrite it so each note of C moves to the nearest note of G, and G stays where it is.",
+          "Bar 2 plays G B D stacked from its root, so every note leaps up from C E G. Rewrite bar 2 with the same three letters so G stays where it is and each other note of C moves to the nearest note of G. Done when no note moves more than a whole step.",
         skills: [{ skill: "C05", w: 1 }],
         code: { starter: TWO_STARTER },
         reference: { solutions: [TWO("[b3,d4,g4]")], bars: 2 },
@@ -293,7 +293,7 @@ export default defineLesson({
             "A note still leaps. Write the new chord in the order of the old one, lowest first, each note close to the one above it in the list.",
         },
         hints: ladder(
-          "C E G and G B D: which letter is in both?",
+          "C E G and G B D share one letter. Find it and keep that note exactly where it is.",
           "G stays as `g4`. C goes to the nearest of B and D; E goes to the other. Write them lowest first.",
           "The top note stays `g4`, and E moves down a whole step. Where does C go?",
         ),
@@ -346,7 +346,7 @@ export default defineLesson({
         role: "check",
         pass: 0.9,
         prompt:
-          "Now all four: C F G C, three notes each, over the bass. Hold every note two neighbouring chords share, move each other note as little as you can (three half steps at most), and keep the three in order, lowest to highest. The loop repeats: the last C leads back into the first too.",
+          "Rewrite all four chords, C F G C, three notes each, over the given bass. Keep every note two neighbouring chords share in the same place in the list. Move every other note three half steps at most, and keep each list lowest to highest. The last C leads back into the first too.",
         skills: [{ skill: "C05", w: 1 }],
         code: { starter: GATE_STARTER },
         reference: { solutions: [HOOK], bars: 4 },
@@ -366,7 +366,7 @@ export default defineLesson({
           "harmony.voice-count": "Bar {bar}: {notes} is {got} notes; write {exp}, one for each voice.",
         },
         hints: ladder(
-          "Which note do C and F share? Which do G and C share?",
+          "Find the shared notes first: one note is in both C and F, one is in both G and C. Those stay put.",
           "Hold the shared note in its place in the list. F and G share none, so there every note moves: find a near note of G for each, and use all three letters.",
           "Bar 2 keeps C at the bottom and steps E and G up. Into G, C goes down a half step to B and A down a whole step. Which letter of G is left for F?",
         ),
@@ -435,7 +435,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The band plays drums and a bass on C, G, A and F. The chords start from their roots and leap. Rewrite them so every note moves by a step or stays. A tune on top can then sit over chords that hold still.",
+          "The chords start from their roots, so every change leaps. Rewrite them, keeping each bar's three letters, so every note stays or moves by a step, the last chord leading back into the first. Done when no note of `chords` moves more than a whole step.",
         skills: [{ skill: "C05", w: 1 }],
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         code: { starter: MAKE_STARTER },
@@ -444,7 +444,8 @@ export default defineLesson({
         rubric: [
           {
             id: "smooth",
-            label: "Every note of the chords moves by a step or stays",
+            label:
+              "Every note of `chords` stays or moves by a step, two half steps at most, into the next chord and from the last back to the first",
             required: true,
             skills: ["C05"],
             rule: "voice-leading",
@@ -455,7 +456,7 @@ export default defineLesson({
           },
           {
             id: "a-tune",
-            label: "A tune on top",
+            label: "A tune on its own line, such as `mel`",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -464,7 +465,7 @@ export default defineLesson({
           },
           {
             id: "middle",
-            label: "Chords in the middle, between the bass and the tune",
+            label: "Every note of `chords` between `c3` and `c5`",
             required: false,
             skills: ["C05"],
             rule: "range",
@@ -473,7 +474,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which note do C and G share? Which do A minor and F share?",
+          "Start with the notes neighbouring chords share: C and G share one, and so do A minor and F. Keep those in place.",
           "Keep the first chord as it is. From C E G, the nearest notes of G are B, D and G itself: write them in the same order.",
           "Bars 1 and 2 are C E G, then B D G. From B D G, B steps up to C and D up to E. What does G move to?",
         ),

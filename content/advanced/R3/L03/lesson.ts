@@ -72,7 +72,7 @@ const BOSSA_ONSETS: Rat[] = [
 ];
 const BOSSA_RIM: RubricRule = {
   id: "bossa-rim",
-  label: "The rim plays 3+3+4+3+3 from beat 1, in every bar",
+  label: "The rim plays sixteenths 1, 4, 7, 11 and 14 of every bar: gaps of 3+3+4+3+3 from beat 1",
   required: true,
   skills: ["R18"],
   rule: "onsets",
@@ -82,7 +82,7 @@ const BOSSA_RIM: RubricRule = {
 };
 const WITH_ROTATION: RubricRule = {
   id: "with-rotation",
-  label: "Written with a third number",
+  label: "The rim is written with a third number in its brackets, or with `.euclidRot()`",
   required: true,
   skills: ["R18"],
   rule: "uses",
@@ -94,7 +94,7 @@ const WITH_ROTATION: RubricRule = {
 const quizCode = (pattern: string) => code('hats: s("hh*8").gain(.25)', `perc: s("${pattern}").gain(.7)`);
 const quizHints = (): HintLadder =>
   ladder(
-    "How many cowbell hits in one bar?",
+    "Count the cowbell hits in one bar first.",
     "Count the hats, 1 to 8, then decide: do the hits land only on eighths, or also between them? That sets the steps, 8 or 16.",
     "With the hits and the steps set, listen for the first hit: if it is not on beat 1, a third number says how many steps later the rhythm starts.",
   );
@@ -201,7 +201,7 @@ const s7 = (percLine: string) => code(KICK, HATS, BASS, CHORDS, percLine);
 const S7_SOLUTION = s7('perc: s("cb").euclid("<3 5>", 8).gain(.6)');
 const WITH_METHOD: RubricRule = {
   id: "with-method",
-  label: "Written with the method",
+  label: "The cowbell is written with the `.euclid()` method",
   required: true,
   skills: ["R18"],
   rule: "uses",
@@ -222,7 +222,7 @@ const MAKE_STARTER = code(
 const make = (...lines: string[]) => code(...lines);
 const FIVE_OVER_SIXTEEN: RubricRule = {
   id: "bell-five-sixteen",
-  label: "Five hits over sixteen steps on the bell, in any rotation",
+  label: "The bell line plays five hits spread over sixteen steps, started on any step",
   required: true,
   skills: ["R18"],
   rule: "euclid",
@@ -241,7 +241,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R3.L03",
-  version: 2,
+  version: 3,
   title: "Euclidean Rhythms & Rotation",
   objective:
     "I can write a rhythm from two numbers, start it from another step, and hear which numbers made it.",
@@ -270,7 +270,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Only the rimshot changes between the two loops. Which one sways like bossa nova, and which just ticks along? Listen for where the longest gap between rimshots falls in the bar.",
+          "Listen to the rimshot in both loops; nothing else changes. Notice which loop sways like bossa nova and which just ticks along, and where the longest gap between rimshots falls in the bar.",
         skills: [{ skill: "R18", w: 1 }],
         hints: null,
         tests: [],
@@ -300,10 +300,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The first groove plays four bars. Tap with the rimshot: five taps in every bar, twenty in all.",
+          "Tap with the rimshot, the dry click, and ignore the kick and the bass. It plays five times a bar, with one gap longer than the others. Four bars, twenty taps in all. Done when each tap lands with a rimshot.",
         skills: [{ skill: "R18", w: 1 }],
         hints: ladder(
-          "Are the five rimshots evenly spaced, or is one gap longer?",
+          "Listen for the rimshot's dry click: four of its gaps are short, one is longer.",
           "Three short gaps, one long one, and a short one to the bar line. The long gap comes after the third hit.",
           "Say three quick counts between hits, but four after the third: 1-2-3, 1-2-3, 1-2-3-4, 1-2-3, 1-2-3.",
         ),
@@ -347,14 +347,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Three cowbell lines, each from two numbers. Run them one at a time, the other two muted, and read each on the roll.",
+          "Three cowbell lines, each from two numbers. Run them one at a time, muting the other two, and read each on the roll. Then answer: which line plays plain quarter notes, and how many sixteenths apart most hits of (5,16) are.",
         skills: [{ skill: "R18", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Hear each line alone, and count sixteenths between its hits: four of them make a beat.",
         },
         hints: ladder(
-          "Which of the three lines sounds like a plain count of four?",
+          "Play each line alone and listen for the one that sounds like a plain count of four.",
           "The second number is the steps: 16 is sixteenths, four to a beat. Read the gaps of the five-hit line on the roll in sixteenths.",
           "Four of the five gaps in the five-hit line have the same size; one is a step longer.",
         ),
@@ -406,7 +406,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bar 1 plays `cb(3,8)`, the tresillo, 3+3+2. Bar 2 plays `cb(3,8,2)`: a third number, 2. What will bar 2 sound like?",
+          "Bar 1 plays `cb(3,8)`, the tresillo, 3+3+2. Bar 2 plays `cb(3,8,2)`: a third number, 2. Predict what bar 2 will sound like, and pick it.",
         skills: [{ skill: "R18", w: 1 }],
         hints: null,
         tests: [],
@@ -437,7 +437,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The rimshot plays plain `(5,16)` under the bossa groove: the long gap ends the bar. Add a third number so the same rhythm starts from another step and plays the target, with a hit on beat 1.",
+          "Add a third number to the rimshot's `(5,16)` so the same rhythm starts from another step and matches the target: a hit on beat 1, and the long gap after the third hit. Now the long gap ends the bar. Done when the rim plays the target's rhythm.",
         skills: [{ skill: "R18", w: 1 }],
         code: { starter: S5_STARTER },
         reference: { solutions: [S5_SOLUTION], bars: 4 },
@@ -450,7 +450,7 @@ export default defineLesson({
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         srs: [{ family: "fam.code.mini", mode: "review-if-due" }],
         hints: ladder(
-          "Where does the long gap fall in the target, and where in yours?",
+          "Find the long gap in the target and in yours: in yours it ends the bar.",
           "A third number starts the rhythm that many sixteenth steps later and wraps the end round to the start. Count steps on the roll.",
           "Your long gap has to move from the end of the bar to just after the third hit, and a hit has to stay on beat 1.",
         ),
@@ -513,7 +513,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Two cowbell rhythms over the hats. Give each its numbers: the hits, the steps, and a third number if it does not start on beat 1.",
+          "For each of the two cowbell rhythms over the hats, give its numbers: the hits, the steps (8 or 16), and a third number if it does not start on beat 1.",
         skills: [{ skill: "R18", w: 1 }],
         hints: quizHints(),
         srs: [
@@ -540,7 +540,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "`.euclid(3, 8)` is `(3,8)` written as a method, and its numbers may be patterns. The cowbell plays the tresillo in every bar. Make bar 2 the cinquillo, with one change inside the method.",
+          "`.euclid(3, 8)` is `(3,8)` written as a method, and its numbers may be patterns. Change the hits number inside `.euclid()` so bar 1 keeps the tresillo and bar 2 plays the cinquillo. Keep the 8. Done when the bars alternate like the target.",
         skills: [{ skill: "R18", w: 1 }],
         code: { starter: S7_STARTER },
         reference: { solutions: [S7_SOLUTION], bars: 4 },
@@ -570,7 +570,7 @@ export default defineLesson({
             "Bar {bar}: your cowbell plays a hit the target's does not. Count its hits in that bar.",
         },
         hints: ladder(
-          "Which of the two numbers says how many hits?",
+          "Find which of the two numbers counts the hits: that one changes from bar to bar.",
           "A number inside the method can be a pattern in quotes, like any mini-notation: `< >` plays one value per bar.",
           "The steps stay 8 in both bars; only the hits change, three in one bar and five in the next.",
         ),
@@ -635,7 +635,7 @@ export default defineLesson({
         role: "practice",
         title: "Bell section",
         prompt:
-          "The band plays bass and two chords, C then G7. The percussion is yours. Put five hits over sixteen steps on the bell line, started wherever it grooves best for you. Then build round it: a kick, a shaker, a second bell, each with its own two or three numbers.",
+          "Build your bell section; the band plays bass and C then G7. Required: the bell line, `perc`, plays five hits over sixteen steps, started on any step. Also on the checklist: a second line, `perc2`, that skips beat 1, and the bossa rim on the bell. For more, a kick or a shaker with its own numbers.",
         skills: [{ skill: "R18", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],
@@ -644,7 +644,7 @@ export default defineLesson({
           FIVE_OVER_SIXTEEN,
           {
             id: "layer-off-one",
-            label: "A second percussion line that does not start on beat 1",
+            label: "The `perc2` line never plays on beat 1",
             required: false,
             skills: ["R18"],
             rule: "onsets",
@@ -652,12 +652,17 @@ export default defineLesson({
             excludes: [[0, 1]],
             perBar: true,
           },
-          { ...BOSSA_RIM, id: "bossa-rim", label: "The bossa nova rim, 3+3+4+3+3", required: false },
+          {
+            ...BOSSA_RIM,
+            id: "bossa-rim",
+            label: "The bell line plays the bossa rim: sixteenths 1, 4, 7, 11 and 14",
+            required: false,
+          },
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "How many hits does the bell play in a bar now, and on how many steps?",
+          "Start with the bell line: give it five hits over sixteen steps, with two numbers in brackets.",
           "Two numbers in brackets after the sound give the hits and the steps; a third starts the rhythm later.",
           "Try each third number from 0 upwards on the bell and keep the one you like over the band.",
         ),

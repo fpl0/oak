@@ -8,7 +8,7 @@ import { useMemo } from "react";
 import type { Command } from "../../lib/commands.ts";
 import { useCommandSource } from "../../lib/commands.ts";
 import { useContent } from "../../lib/content.ts";
-import { NAV_ITEMS, SETTINGS_SECTIONS } from "../../lib/nav.ts";
+import { NAV_ITEMS, returnTarget, SETTINGS_SECTIONS } from "../../lib/nav.ts";
 import { stopAllAudio } from "../../lib/oak.ts";
 import { apiQuery, useCourseProgress } from "../../lib/queries.ts";
 import { useShell } from "../../lib/shell-store.ts";
@@ -111,7 +111,7 @@ export function GlobalKeys() {
       group: "Global",
       description: "Close overlay / leave focus mode (place saved)",
       when: (ctx) => ctx.focusRoute && !anyDialogOpen(),
-      run: () => void navigate({ to: "/" }),
+      run: () => void navigate({ href: returnTarget().href }),
     },
     {
       id: "go-lesson",

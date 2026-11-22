@@ -78,7 +78,7 @@ const BAND = { band: "band.aeolian-4bar", tracks: ["bass", "chords"] } as const;
 
 export default defineLesson({
   id: "A2.L04",
-  version: 2,
+  version: 3,
   title: "Sampling",
   objective: "I can cut a drum recording into pieces and play them back in an order of my own.",
   key: { tonic: "A", mode: "minor" },
@@ -106,7 +106,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Loop 2 plays the same recording, cut into four and put back together in new orders. Count along from bar to bar: does it still sound like one drummer playing?",
+          "Count along with both loops. Loop 2 plays the same recording, cut into four and put back together in a new order each bar. Listen for whether loop 2 still sounds like one drummer playing.",
         skills: [{ skill: "D11", w: 1 }],
         hints: null,
         tests: [],
@@ -132,7 +132,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`.slice(4, …)` cuts the recording into four equal pieces, one a beat, numbered from 0 as `n` is. This line plays them "3 2 1 0". What will you hear?',
+          '`.slice(4, …)` cuts the recording into four equal pieces, one a beat, numbered from 0 as `n` is. This line plays them "3 2 1 0". Predict what you will hear. Pick your answer, then listen.',
         skills: [{ skill: "D11", w: 1 }],
         hints: null,
         tests: [],
@@ -160,14 +160,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bar 1 plays the four pieces in their own order, so you hear the bar as recorded. Bar 2 changes one number. Run it, count the beats, and listen.",
+          "Count the beats as it plays. Bar 1 plays the four pieces in their own order, the bar as recorded; bar 2 changes one number. Answer two questions: on which beat of bar 1 the first loud snare lands, and what plays on beat 3 of bar 2.",
         skills: [{ skill: "D11", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count one, two, three, four along with bar 1 and listen for the first loud snare. Then listen to beat 3 of bar 2: which beat of bar 1 does it sound like?",
         },
         hints: ladder(
-          "In bar 1, which beat brings the first loud snare: before or after the first kick?",
+          "Count one, two, three, four along with bar 1 and listen for the first loud snare. Does it come before or after the first kick?",
           "Each piece is one beat of the recording. Piece 0 is beat 1, so a number in the pattern names the beat it was cut from, minus one.",
           "Bar 2's pattern has one number twice. Find which beat plays it the second time.",
         ),
@@ -216,7 +216,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The break plays its four pieces in their own order. In the target, beat 2 plays the piece recorded on beat 3, and beat 3 the piece recorded on beat 2. Beats 1 and 4 stay as they are.",
+          "The break plays its four pieces in their own order. Change the pattern in `.slice()` so beat 2 plays the piece recorded on beat 3, and beat 3 plays the piece recorded on beat 2. Keep beats 1 and 4 as they are.",
         skills: [{ skill: "D11", w: 1 }],
         code: { starter: SWAP_STARTER },
         reference: { solutions: [SWAP_SOLUTION], bars: 1 },
@@ -227,7 +227,7 @@ export default defineLesson({
             "Not yet: the pieces play in another order than the target's. Listen for where the first loud snare lands, and where the kick comes back.",
         },
         hints: ladder(
-          "Which numbers in the pattern choose what plays on beats 2 and 3?",
+          "Only two numbers in the pattern need to change: the ones that choose what plays on beats 2 and 3. Which are they?",
           "The pattern names one piece a beat, counted from 0: its first number plays on beat 1, its second on beat 2.",
           "The first and last numbers stay. The piece recorded on beat 2 is numbered 1.",
         ),
@@ -298,7 +298,8 @@ export default defineLesson({
         id: "which-order",
         version: 1,
         role: "check",
-        prompt: "The break alone, cut into four and played back in one order. Which order is it?",
+        prompt:
+          "Listen to the break alone, cut into four and played back in one order. Count the beats and pick the order you hear.",
         skills: [{ skill: "D11", w: 1 }],
         hints: [
           {
@@ -354,7 +355,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The tune over Oak's break, played as recorded, with the band on bass and chords. Make the drums your own: cut the break into four, eight or sixteen pieces and play them in an order of your own. Repeat a kick, move a snare, stutter the last beat.",
+          "On the `drums` line, cut the break into four, eight or sixteen pieces with `.slice()` and play them in an order other than the recording's. Try repeating a kick, moving a snare or stuttering the last beat. Keep the tune. Done when the pieces play in a new order.",
         skills: [{ skill: "D11", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -362,7 +363,7 @@ export default defineLesson({
         rubric: [
           {
             id: "break-flipped",
-            label: "The break cut into pieces and played in a new order",
+            label: "The break cut into 4 or more pieces that play in an order other than the recording's",
             required: true,
             skills: ["D11"],
             rule: "custom",
@@ -373,7 +374,7 @@ export default defineLesson({
           },
           {
             id: "tune-on-top",
-            label: "The tune keeps playing over the drums",
+            label: "The drums and the tune both still play",
             required: false,
             skills: ["D11"],
             rule: "tracks",
@@ -384,7 +385,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, the suggestion included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "What would make the drums sound like a new drummer playing the same kit?",
+          "A new drummer on the same kit plays the same pieces in a different order. Which line decides the order?",
           "Cut the break with `.slice()`: the first number is how many pieces, the pattern is the order they play in.",
           'With four pieces, "0 1 2 3" is the recording as it was. Change one number and listen.',
         ),

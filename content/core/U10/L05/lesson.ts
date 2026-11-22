@@ -87,10 +87,10 @@ const pair = (n: number, a: string, b: string, home: "a" | "b"): IdentifyEx => (
   id: `pair-${n}`,
   version: 1,
   role: "check",
-  prompt: `Pair ${n}. Which card is home on A?`,
+  prompt: `Pair ${n}. Pick the card that is home on A.`,
   skills: [{ skill: "H08", w: 1 }],
   hints: ladder(
-    "Hum the note each tune comes to rest on. Is it A or C?",
+    "Hum the note each tune comes to rest on, and decide whether it is A or C.",
     "Listen for the chord each card starts on, and where the tune lands at the end of bar 1 and of bar 3.",
     "A tune that keeps landing on C over the C chord makes C home. Which card does that?",
   ),
@@ -119,7 +119,7 @@ const pair = (n: number, a: string, b: string, home: "a" | "b"): IdentifyEx => (
 
 export default defineLesson({
   id: "U10.L05",
-  version: 2,
+  version: 3,
   title: "The Aeolian Loop",
   objective: "I can write the Aeolian loop i–VI–III–VII and tell it from vi–IV–I–V by where it comes home.",
   key: MINOR,
@@ -145,7 +145,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The same four chords twice, with two different tunes. Listen for the note each tune keeps coming back to, and for how settled the loop feels under it.",
+          "Listen to two clips: the same four chords, each with a different tune. Listen for the note each tune keeps coming back to, and for how settled the loop feels under it.",
         skills: [{ skill: "H08", w: 1 }],
         hints: null,
         tests: [],
@@ -167,7 +167,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Both loops play Am F C G. One tune keeps landing on A, the other on C. In which one does the loop feel like it is in a minor key?",
+          "Predict which loop sounds like it is in a minor key. Both play Am F C G; one tune keeps landing on A, the other on C. Pick an answer, then hear it.",
         skills: [{ skill: "H08", w: 1 }],
         hints: null,
         tests: [],
@@ -195,14 +195,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the first loop. The chord band reads it in A minor, home on A: follow the numerals as they pass.",
+          "Run the first loop and follow the numerals in the chord band, which reads it in A minor, home on A. Then answer both questions.",
         skills: [{ skill: "H08", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read the chord band again: it counts from A, so C, a major chord on ♭3, is III.",
         },
         hints: ladder(
-          "Which chord is home, and where does it sit in the loop?",
+          "Find home, Am, in the loop first. Then count each other root up from A.",
           "Count each root from A: F is ♭6 and G is ♭7. Major chords take upper case.",
           "Bar 1 is i and bar 2 is VI. The chord on ♭3 comes next.",
         ),
@@ -251,7 +251,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "These stacks play i iv v i in A minor. Change the four numbers so they play the loop you just numbered: i VI III VII.",
+          "These stacks play i iv v i in A minor. Change the four numbers in `.add()` so they play i VI III VII, one chord per bar. Each number is the chord's degree minus one, counted from A.",
         skills: [{ skill: "H08", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 4 },
@@ -263,7 +263,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}; the target has {exp}. Count each root from A, then subtract one: `n` counts from 0.",
         },
         hints: ladder(
-          "On which degree of A minor is each of i, VI, III and VII built?",
+          "Find the degree of A minor that each of i, VI, III and VII is built on.",
           "The numbers in `.add()` are those degrees minus one, counted from A: `n` counts from 0.",
           "i is 0 and VI, on ♭6, is 5. Two numbers to go.",
         ),
@@ -317,10 +317,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four pairs of cards, each built from Am, F, C and G. In each pair one card is home on A, the other on C. Which one is home on A?",
+          "In each of the four pairs, pick the card that is home on A. Both cards of a pair use Am, F, C and G; on the other card, home is C.",
         skills: [{ skill: "H08", w: 1 }],
         hints: ladder(
-          "Hum the note each tune comes to rest on. Is it A or C?",
+          "Hum the note each tune comes to rest on, and decide whether it is A or C.",
           "Listen for the chord each card starts on, and where the tune lands at the end of each phrase.",
           "A loop that starts on Am with a tune that lands on A is home on A. Check the start of each card first.",
         ),
@@ -346,7 +346,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Hear it, then sing the loop's roots, one a bar: do, down to le, up to me, down to te. Sing in your own range.",
+          "Listen, then sing the loop's four roots, one per bar: do, down to le, up to me, down to te. Sing in your own range.",
         skills: [
           { skill: "V02", w: 0.6 },
           { skill: "H08", w: 0.4 },
@@ -381,7 +381,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Make the groove the Aeolian loop, i VI III VII, one chord a bar. Then arrange it: a bass that drives, a sound and a room for the chords, a tune that comes home on A.",
+          "Change the chords to the Aeolian loop, i VI III VII, one chord per bar, starting on i. Give the bass the same roots. Done when the `chords:` line plays i VI III VII in that order. Then arrange it: a sound for the chords, a tune that comes home on A.",
         skills: [{ skill: "H08", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -389,7 +389,7 @@ export default defineLesson({
         rubric: [
           {
             id: "the-aeolian-loop",
-            label: "The loop is i–VI–III–VII",
+            label: "The `chords:` line plays i VI III VII in that order, starting on i",
             required: true,
             skills: ["H08"],
             rule: "progression",
@@ -399,7 +399,7 @@ export default defineLesson({
           },
           {
             id: "comes-home",
-            label: "The tune ends on 1",
+            label: "The tune's last note is 1 (A)",
             required: false,
             skills: ["M01"],
             rule: "ends-on-degree",
@@ -408,7 +408,7 @@ export default defineLesson({
           },
           {
             id: "a-bass-on-the-roots",
-            label: "A bass on each chord's root when it changes",
+            label: "A `bass:` line plays the chord's root on at least 3 of every 4 chord changes",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -418,7 +418,7 @@ export default defineLesson({
           },
           {
             id: "three-parts",
-            label: "Three parts or more",
+            label: "Three or more parts, such as chords, bass and tune",
             required: false,
             skills: ["H08"],
             rule: "tracks",
@@ -428,7 +428,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which chords does i VI III VII name in A minor? Start from home.",
+          "Start from home: i is Am. Count up from A to find the roots of VI, III and VII.",
           "Count from A: VI sits on ♭6, III on ♭3, VII on ♭7. Write them as chord names, and give the bass the same roots.",
           'The chords start `chord("<Am F …>")`, and the bass numbers start `<0 5 …>`. Two to go in each.',
         ),

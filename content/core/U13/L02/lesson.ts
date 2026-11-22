@@ -76,7 +76,8 @@ const S5_STARTER = s5(`snare: ⟪s("${SNARE_HITS}").velocity("${FLAT_VEL}")⟫`)
 const S5_SOLUTION = s5(snare(SNARE_VEL));
 const GHOSTS_RULE: RubricRule = {
   id: "snare-ghosts",
-  label: "Three ghost notes between the beats, and the backbeat at full strength",
+  label:
+    "At least three snare hits at .4 or less on an “e” or an “a”, and at least two snare hits at full strength",
   required: true,
   skills: ["R10"],
   rule: "velocity-ghosts",
@@ -105,7 +106,7 @@ const at = (sixteenths: number[]) => sixteenths.map((s) => Number(((s * BAR_SEC)
 
 export default defineLesson({
   id: "U13.L02",
-  version: 2,
+  version: 3,
   title: "Sixteenth Grooves & Ghost Notes",
   objective:
     "I can give every hit of a groove its own strength with .velocity(), and write a sixteenth-note groove with ghost notes.",
@@ -131,7 +132,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to the snare first, then the hats. Which loop sounds like a drum machine, and which like a band playing? What changes inside each part?",
+          "Listen to the snare first, then the hats. Notice which loop sounds like a drum machine and which like a band playing, and what changes inside the snare from hit to hit.",
         skills: [{ skill: "R10", w: 1 }],
         hints: null,
         tests: [],
@@ -161,10 +162,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Tap with the kick for two bars: three taps a bar, on 1, the “and” of 2 and the “and” of 3. Let the quiet snare hits go by. Any key works.",
+          "Tap with the kick for two bars: three taps a bar, on 1, the “and” of 2 and the “and” of 3. Six taps in all. Do not tap the snare or beat 4. Done when every tap lands with a kick.",
         skills: [{ skill: "R10", w: 1 }],
         hints: ladder(
-          "Which of the three kicks falls on a beat, and which two fall between beats?",
+          "Tap the kick only, three times a bar. Which of its three hits falls on a beat, and which two fall between beats?",
           "Count eighths with the hats, 1 & 2 & 3 & 4 &. The kick hits on 1, then on the “&” after 2 and the “&” after 3. Beat 4 has no kick.",
           "Say “ONE and two AND three AND four and” and tap on the words in capitals.",
         ),
@@ -200,7 +201,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "`.velocity()` sets how hard each hit is played, from 0 to 1. Here eight snare hits get two numbers, `1` and `.3`. What will you hear?",
+          "`.velocity()` sets how hard each hit is played, from 0 to 1. Here eight snare hits get two numbers, `1` and `.3`. Predict how loud each of the eight hits will be, then pick your answer.",
         skills: [{ skill: "R10", w: 1 }],
         hints: null,
         tests: [],
@@ -228,7 +229,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the groove and look at the snare line. Its rhythm string and its `.velocity()` string line up step by step. Which hits are quiet?",
+          "Run the groove and read the snare line: its rhythm string and its `.velocity()` string line up step by step. Answer both questions: which snare hits are quiet, and how many numbers the `.velocity()` string holds.",
         skills: [{ skill: "R10", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -291,7 +292,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The groove again, with every snare hit at 1. Turn the three small hits into ghost notes, .4 or less, and keep beats 2 and 4 at full strength. The hits stay where they are.",
+          "Every snare hit is at 1. In the snare's `.velocity()` string, set the three hits between the backbeats (the “a” of 2, the “e” of 3, the “a” of 4) to .4 or less. Keep beats 2 and 4 at 1, and every hit where it is.",
         skills: [{ skill: "R10", w: 1 }],
         code: { starter: S5_STARTER },
         reference: { solutions: [S5_SOLUTION], bars: 2 },
@@ -317,7 +318,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: a snare hit went missing. A `~` or a 0 in the velocity string silences the hit under it; a ghost note is quiet but heard, so write a small number there, such as .3.",
         },
         hints: ladder(
-          "Which snare hits carry the backbeat, and which ones only fill the gaps?",
+          "Three snare hits should whisper and two stay loud. Which hits carry the backbeat, and which only fill the gaps?",
           "The velocity string has one number per sixteenth, in the same order as the rhythm string. A ghost note is .4 or less; an accent stays at 1.",
           "The first small hit is the eighth step, the “a” of 2: its number becomes .3. Two more small hits to go.",
         ),
@@ -400,7 +401,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A two-bar drum groove, a new one each time. One kick falls on a sixteenth between the eighths, the “e” or the “a” of a beat. Where does it land?",
+          "A two-bar drum groove, a new one each time. One kick lands on a sixteenth between the eighths, the “e” or the “a” of a beat. Pick the spot where it lands.",
         skills: [{ skill: "R10", w: 1 }],
         hints: [
           { text: "The hats play the eighths. Which kick does not land with a hat?" },
@@ -435,7 +436,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The vamp, stiff: every hit at the same strength, the Rhodes holding each chord. Make it breathe. Ghost the small snare hits and keep 2 and 4 loud, accent the hats inside each beat, then trade the Rhodes for a clean guitar in sixteenths with accents of its own.",
+          "Add `.velocity()` to the snare: ghost notes (.4 or less) on at least three “e” or “a” hits, with 2 and 4 at 1. Then, if you like, accent the hats inside each beat and trade the Rhodes for a clean guitar in sixteenths with accents of its own.",
         skills: [{ skill: "R10", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],
@@ -444,7 +445,7 @@ export default defineLesson({
           GHOSTS_RULE,
           {
             id: "hats-breathe",
-            label: "The hats are accented inside the beat: quiet ones between the loud ones",
+            label: "At least eight quiet hats: hits whose `.velocity()` times `.gain()` is .4 or less",
             required: false,
             skills: ["R10"],
             rule: "velocity-ghosts",
@@ -454,7 +455,7 @@ export default defineLesson({
           },
           {
             id: "clean-guitar",
-            label: "The clean guitar plays",
+            label: "The clean guitar (`cleangtr`) plays",
             required: false,
             skills: ["R10"],
             rule: "sounds",
@@ -462,9 +463,11 @@ export default defineLesson({
           },
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
-        feedbackText: { "rubric.unmet": "{label}: not yet." },
+        feedbackText: {
+          "rubric.unmet": "{label}: not yet. Check that line against the item, then run it again.",
+        },
         hints: ladder(
-          "Which drum carries the backbeat, and which of its hits could whisper?",
+          "The snare needs whispers between its loud backbeats. Which of its hits could whisper?",
           "`.velocity()` after the snare's `s(…)`, one number per sixteenth step: 1 for beats 2 and 4, .4 or less for the hits in between.",
           'For the hats, one cell repeated four times gives every beat the same shape: `.velocity("[1 .4 .7 .4]*4")`. The snare still needs its own numbers.',
         ),

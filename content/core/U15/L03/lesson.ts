@@ -150,7 +150,7 @@ const earPart = (n: number, form: string, target: Target, other: Target): Identi
 
 export default defineLesson({
   id: "U15.L03",
-  version: 2,
+  version: 3,
   title: "Visiting Other Chords",
   objective:
     "I can aim a secondary dominant at vi, ii or IV (V7/vi, V7/ii, V7/IV), hear where it lands, and name it.",
@@ -176,7 +176,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "An eight-bar ballad turn, twice. The second time some of its chords become dominant sevenths on the same roots. Listen for each place where the harmony tilts toward the next chord and lands on it.",
+          "Listen to an eight-bar ballad turn twice. The second time, the chords of bars 2, 4 and 6 become dominant sevenths on the same roots. Listen for each place where the harmony tilts toward the next chord and lands on it.",
         skills: [{ skill: "H12", w: 1 }],
         hints: null,
         tests: [],
@@ -202,7 +202,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "E7 is E, G♯, B and D. A dominant seventh leans to the chord a 5th below its root. In C major, which chord will E7 land on?",
+          "E7 is E, G♯, B and D. A dominant seventh leans to the chord a 5th below its root. Predict which chord E7 lands on in C major, then pick it.",
         skills: [{ skill: "H12", w: 1 }],
         hints: null,
         tests: [],
@@ -230,14 +230,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The chord band names each visitor by where it goes, with a slash. Read A7 in bar 6 on the roll, then count the bars whose chord C major does not own.",
+          "Run the turn and read the notes on the roll. Answer two questions. First, which note from outside the key does A7, in bar 6, bring? Second, how many of the eight bars hold a chord C major does not own? The chord band writes each of those with a slash.",
         skills: [{ skill: "H12", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. A7 is A, C♯, E and G: one of those is a black key. For the count, G7 in bar 8 is the key's own V7; only the chords the band writes with a slash are visitors.",
         },
         hints: ladder(
-          "A7 leans into D minor. Which note of A7 is a half step below D?",
+          "The first answer is one note of A7, the second a count of bars. A7 leans into D minor: which of its notes sits a half step below D?",
           "Read bar 6 on the roll from the bottom. Three of A7's notes are white keys. For the count, look for the slashes on the chord band.",
           "A7's outside note is the leading tone of D. The band writes three numerals with a slash; G7 in bar 8 is plain V7.",
         ),
@@ -291,10 +291,10 @@ export default defineLesson({
         role: "check",
         key: C_MAJOR,
         prompt:
-          "Build V7/vi of C major on the keyboard, root lowest: the dominant seventh that leans into A minor.",
+          "Build V7/vi of C major on the keyboard: the dominant seventh that leans into A minor. Play its four notes with the root lowest.",
         skills: [{ skill: "H12", w: 1 }],
         hints: ladder(
-          "A dominant seventh sits a 5th above the chord it leans into. What is a 5th above A?",
+          "Find the root first. A dominant seventh sits a 5th above the chord it leans into. What is a 5th above A?",
           "A 5th above A is E. E minor is the key's own chord there; the visitor is a major triad on E with a ♭7 on top.",
           "Start from E, G, B, D, the key's own seventh on E. One of those notes has to rise a half step to become A's leading tone.",
         ),
@@ -351,7 +351,7 @@ export default defineLesson({
         role: "check",
         key: G_MAJOR,
         prompt:
-          "Eight bars of a tune in G major. Only bar 1 has its chord symbol. The numerals of all eight are I, V7/vi, vi, V7/IV, IV, V7/ii, ii, V7. Write the eight chords by name in `changes`, where the starter has G in every bar.",
+          "Write the eight chords of this G major tune by name in `changes`, replacing the eight `G`s, one chord a bar. Their numerals are I, V7/vi, vi, V7/IV, IV, V7/ii, ii, V7. Bar 1 is G. Done when each bar plays the chord its numeral names.",
         skills: [{ skill: "H12", w: 1 }],
         code: { starter: PAGE_STARTER },
         reference: { solutions: [PAGE_SOLUTION], bars: 8 },
@@ -366,7 +366,7 @@ export default defineLesson({
         },
         srs: [{ family: "fam.har.rn", mode: "review-if-due" }],
         hints: ladder(
-          "Each visitor is named by where it goes. In G major, which chords are vi, IV and ii?",
+          "Each visitor is named by where it goes, so find the targets first. In G major, which chords are vi, IV and ii?",
           "vi is Em, IV is C, ii is Am, and V7 is D7. A V7 aimed at a chord is the dominant seventh built a 5th above that chord's root.",
           "Bars 1 to 3 are `G B7 Em`: B is a 5th above E. Bars 4 to 8 follow the same rule.",
         ),
@@ -423,7 +423,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Three loops of four bars, heard and not seen, each in C major with one visitor in bar 2. Which chord is it aimed at: A minor, D minor or F?",
+          "Name where the visitor goes in three four-bar loops in C major, heard and not seen. In each loop bar 2 is the visitor. Pick the chord it is aimed at: A minor, D minor or F.",
         skills: [
           { skill: "H12", w: 0.6 },
           { skill: "E12a", w: 0.4 },
@@ -454,7 +454,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The ballad turn on the key's own chords, with a bass and a tune. Em, C and Am sit a 5th above the chord after them. Open at least one door: turn one into the V7 of the chord that follows, and let the tune take the note the visitor brings. Open all three if they sound right to you.",
+          "In `changes`, turn at least one of Em (bar 2), C (bar 4) or Am (bar 6) into the V7 of the chord right after it. Then give the tune in that bar the note the visitor brings. Done when a visitor moves straight into its target. Change all three if they sound right to you.",
         skills: [{ skill: "H12", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -462,7 +462,8 @@ export default defineLesson({
         rubric: [
           {
             id: "a-visitor-that-lands",
-            label: "A V7 aimed at vi, ii or IV that lands there",
+            label:
+              "A V7 of vi, ii or IV (E7, A7 or C7) at least a beat long, moving straight into its target (Am, Dm or F)",
             required: true,
             skills: ["H12"],
             rule: "contains-rn",
@@ -472,7 +473,7 @@ export default defineLesson({
           },
           {
             id: "tune-takes-the-note",
-            label: "The tune takes a note a visitor brings: si, di or te",
+            label: "`mel` plays at least one note a visitor brings: si (G♯), di (C♯) or te (B♭)",
             required: false,
             skills: ["E12a"],
             rule: "degree-set",
@@ -483,7 +484,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root",
+            label: "The bass plays each chord's root on at least 3 of every 4 chord changes",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -496,7 +497,7 @@ export default defineLesson({
         // detail the rule gives for a visitor that does not land says "not home to I", wrong for a V of vi.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which chords of the turn sit right before A minor, F and D minor?",
+          "A visitor replaces the chord right before its target. Find the chords that sit right before A minor, F and D minor. Which bars are they in?",
           "Em comes before Am, C before F, Am before Dm. To aim one at the chord after it, keep its root and make it a dominant seventh.",
           "Bar 2 can become `E7`, and it lands on Am in bar 3. Then the tune's G in that bar rubs: in `n`, si is `4#`.",
         ),

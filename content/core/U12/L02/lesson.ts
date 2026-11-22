@@ -100,7 +100,7 @@ const earPart = (n: number): IdentifyEx => ({
   id: `seventh-${n}`,
   version: 1,
   role: "check",
-  prompt: `Chord ${n}. Major seventh or dominant seventh?`,
+  prompt: `Chord ${n}: pick major seventh if it rests, dominant seventh if it leans on.`,
   skills: [{ skill: "E11", w: 1 }],
   hints: ladder(
     "Does this chord sound settled on its own, or does it seem to want another chord after it?",
@@ -149,7 +149,7 @@ const singPart = (
 
 export default defineLesson({
   id: "U12.L02",
-  version: 2,
+  version: 3,
   title: "Dominant vs Major 7",
   objective:
     "I can hear a major seventh chord from a dominant seventh on the same root: one half step apart, one rests and the other leans.",
@@ -176,7 +176,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The same two roots in both loops. Listen to whether each chord is content to stay or wants to move on. Which loop could sit there all night?",
+          "Listen to both loops: the same two roots, C and F, as two kinds of seventh chord. Listen for whether each chord is content to stay or wants to move on. Which loop could sit there all night?",
         skills: [{ skill: "E11", w: 1 }],
         hints: null,
         tests: [],
@@ -202,7 +202,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`chord("<C^7 C7>")` plays Cmaj7 for a bar, then C7. Three of the four notes stay where they are. Which one changes?',
+          'Predict which one of the four notes changes from Cmaj7 to C7, then run it. `chord("<C^7 C7>")` plays Cmaj7 for one bar, then C7 for one bar; three notes stay where they are.',
         skills: [{ skill: "C07", w: 1 }],
         hints: null,
         tests: [],
@@ -230,7 +230,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it. Watch the top note of bars 1 and 2 on the roll, and listen for the bar that wants to move on.",
+          "Run the code. Watch the top note of bars 1 and 2 on the roll, and listen for the bar that wants to move on. Then answer both questions: which bar leans into the next, and how many half steps lie between B and B♭.",
         skills: [
           { skill: "E11", w: 0.6 },
           { skill: "C07", w: 0.4 },
@@ -289,7 +289,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "One chord of the soul loop has changed, and it now holds a note from outside C major: on the roll its label carries a ♯. Find that bar, then fix the chord's name so all four of its notes belong to the key.",
+          "Find the one chord in `changes` that holds a note from outside C major: on the roll, its label carries a ♯. Rename that chord so all four of its notes belong to C major. Leave the other three chords as they are.",
         skills: [
           { skill: "C07", w: 0.6 },
           { skill: "C06", w: 0.4 },
@@ -362,7 +362,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Six seventh chords, one at a time, on roots that keep changing. Every one is a major triad with a 7th on top. Does it rest or does it lean: major seventh, or dominant seventh?",
+          "Name the kind of each of six seventh chords, played one at a time on changing roots. Each is a major triad with a 7th on top. Pick major seventh when the chord rests, dominant seventh when it leans on toward another chord.",
         skills: [{ skill: "E11", w: 1 }],
         hints: ladder(
           "Does this chord sound settled on its own, or does it seem to want another chord after it?",
@@ -386,7 +386,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two short lines against a held C. First do, ti, do: the 7th of Cmaj7, a half step under do. Then do, te, do: the ♭7 you sang in the blues, a whole step under. The numbers stay on screen. Sing in your own range.",
+          "Sing two short lines against a held C, three notes each, in your own range. First do, ti, do (1, 7, 1): ti is a half step under do. Then do, te, do (1, ♭7, 1): te, the ♭7 you sang in the blues, is a whole step under.",
         skills: [
           { skill: "V03", w: 0.6 },
           { skill: "E11", w: 0.4 },
@@ -444,7 +444,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A ballad turn in plain triads, C, C, F, G, with a tune. Colour it: a major seventh chord where the music should rest, a dominant seventh where it should lean on (C7 in bar 2 tips into F, G7 in bar 4 leans home). Then let the tune hold a 7th where a chord leans: B♭ is `bb4`.",
+          "Colour the four triads in `changes`: make at least one a major seventh (`^7`) where the music should rest, and at least one a dominant seventh (`7` straight after the letter) where it should lean on. C7 in bar 2 tips into F; G7 in bar 4 leans home. Then let the tune hold a 7th over a leaning chord.",
         skills: [
           { skill: "C07", w: 0.6 },
           { skill: "E11", w: 0.4 },
@@ -455,7 +455,8 @@ export default defineLesson({
         rubric: [
           {
             id: "rest-and-lean",
-            label: "A major seventh chord that rests and a dominant seventh that leans",
+            label:
+              "On the chords line, at least one major seventh chord (`^7`) and at least one dominant seventh chord (`7`)",
             required: true,
             // Choosing where the music rests and where it leans is the lesson's ear skill put to use.
             skills: ["E11", "C07"],
@@ -468,7 +469,7 @@ export default defineLesson({
             // `contains-rn` reads the triad core, so `V7` would be met by the starter's plain G before C. The
             // applied numeral is not: a plain C before F is I, and only C7 counts as the V7 of IV.
             id: "c7-into-f",
-            label: "C7 goes to an F chord, a 5th below",
+            label: "A C7 with an F chord right after it",
             required: false,
             skills: ["C06"],
             rule: "contains-rn",
@@ -478,7 +479,8 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root",
+            label:
+              "The bass plays the chord's root where the chord changes, at three changes in four or more",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -488,9 +490,11 @@ export default defineLesson({
           },
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
-        feedbackText: { "rubric.unmet": "{label}: not yet." },
+        feedbackText: {
+          "rubric.unmet": "{label}: not yet. Change the code until this line of the checklist holds.",
+        },
         hints: ladder(
-          "Which bars should rest, and which should lean? Each wants its own kind of seventh chord.",
+          "Decide which bars should rest and which should lean on: each takes its own kind of seventh chord. Which bar comes right before the loop goes home to C?",
           "All four chords are in `changes`. A major seventh chord is the letter with `^7`; a dominant seventh is the letter with a 7 and nothing between them.",
           'Write `"<C^7 C7 F G>"`: bar 1 rests and bar 2 tips into F. Now decide what F and G should do.',
         ),

@@ -62,7 +62,7 @@ const ROOT_BASS = {
 
 export default defineLesson({
   id: "U08.L01",
-  version: 2,
+  version: 3,
   title: "Roots Down Low",
   objective:
     "I can write a bass line that plays each chord's root on its downbeat, in degrees or from chord names.",
@@ -89,7 +89,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to the bottom of the sound in both loops. What does the added low line do to the chords above it?",
+          "Listen to both loops. The second adds one low line under the chords. Listen for what that low line changes in how the chords sound.",
         skills: [{ skill: "B01", w: 1 }],
         hints: null,
         tests: [],
@@ -111,7 +111,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'The bass line is `n("<0 4 5 3>")`, the same numbers as the chords\' `.add()`, over `.scale("C2:major")`: only the octave differs. Which note of each chord will it play?',
+          'Predict which note of each chord the bass plays, then pick it. The bass is `n("<0 4 5 3>")` over `.scale("C2:major")`: the same numbers as the chords\' `.add()`, in a lower octave.',
         skills: [{ skill: "B01", w: 1 }],
         hints: null,
         tests: [],
@@ -138,14 +138,15 @@ export default defineLesson({
         id: "on-the-one",
         version: 1,
         role: "practice",
-        prompt: "Run the loop with its bass and watch the lowest line on the roll.",
+        prompt:
+          "Run the loop and watch the lowest line on the roll, the bass. Answer both questions below: when the bass moves to a new note, and which degree it plays under Am in bar 3.",
         skills: [{ skill: "B01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Stop on each bar: the bass note starts with the chord, and its degree is the chord's own number plus one.",
         },
         hints: ladder(
-          "Where does the lowest line change, and where does each chord change?",
+          "Compare the lowest line with the chord stacks above it on the roll. Where does each one change?",
           "Look at bar 3 on the roll: the chord is Am, stacked on degree 6. Which degree is the bass?",
           "The bass moves with the chord, on beat 1. In bar 1 it is degree 1 under C.",
         ),
@@ -198,7 +199,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Now the doo-wop order, I vi IV V. The bass has its first root and then sits on C. Change the last three numbers so each chord has its root underneath.",
+          "The chords now play the doo-wop order, I vi IV V. The bass plays 0 in bar 1, then stays on 0. Change the three highlighted numbers so the bass plays each chord's root. Done when the bass numbers match the chords' `.add()` numbers.",
         skills: [{ skill: "B01", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 4 },
@@ -216,7 +217,7 @@ export default defineLesson({
             "Bar {bar}: the bass plays degree {got} ({gotSyl}); the chord's root is degree {exp} ({expSyl}). Read the chord's number in `.add()`: the bass takes the same `n` number, one less than the degree.",
         },
         hints: ladder(
-          "The chords' `.add()` already says where each chord is stacked. What could the bass copy?",
+          "The chords' `.add()` already says which number each chord is stacked on. The bass needs the same four numbers.",
           "Each bass number is the same as the chord's number in `.add()`: both count from 0.",
           "Bar 2 is vi, stacked on 5 in `.add()`, so the bass plays 5 too. Two to go.",
         ),
@@ -261,7 +262,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          'Here the chords are names. Replace the bass in the box with `chord("<C G Am F>").rootNotes(2)`: it takes the root of each name and plays it in octave 2.',
+          'Replace the highlighted bass with `chord("<C G Am F>").rootNotes(2)`. It plays the root of each chord name in octave 2. Keep the chords line as it is.',
         skills: [{ skill: "B01", w: 1 }],
         code: { starter: NAMES_STARTER },
         reference: { solutions: [NAMES_SOLUTION], bars: 4 },
@@ -283,7 +284,7 @@ export default defineLesson({
             "Bar {bar}: the bass plays {got}, the chord's root is {exp}. Copy the chord names in the same order.",
         },
         hints: ladder(
-          "The chords already have names. Which part of each name is its root?",
+          "The chords line already has the names C, G, Am and F. The bass needs the same names, in the same order.",
           "`.rootNotes(2)` goes after a `chord(…)` with the same names as the chords line.",
           'Start the box with `chord("<C G Am F>")` and add `.rootNotes(2)` after it.',
         ),
@@ -327,7 +328,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Hear the doo-wop loop with its roots. Then sing the bass, one syllable a bar: do, la, fa, sol. Sing in your own range: your voice does not need to reach the bass.",
+          "Listen to the doo-wop loop with its bass. Then sing its four roots, one note a bar: do, la, fa, sol. Sing in your own range; your voice does not need to reach the bass.",
         skills: [
           { skill: "V05", w: 0.6 },
           { skill: "B01", w: 0.4 },
@@ -361,7 +362,8 @@ export default defineLesson({
         id: "a-floor-for-the-loop",
         version: 1,
         role: "practice",
-        prompt: "Give each chord of the loop its root in the bass, on beat 1. Then choose a rhythm for it.",
+        prompt:
+          "Change the bass so it plays each chord's root on beat 1 of that chord's bar, all four bars. Then give the bass any rhythm you like. Keep the chords as they are.",
         skills: [{ skill: "B01", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -369,7 +371,7 @@ export default defineLesson({
         rubric: [
           {
             id: "roots-on-the-one",
-            label: "Each chord's root in the bass on its beat 1",
+            label: "The bass plays each chord's root on beat 1 of its bar, in every bar",
             required: true,
             skills: ["B01"],
             rule: "matches",
@@ -380,7 +382,7 @@ export default defineLesson({
           },
           {
             id: "low-down",
-            label: "The bass between C1 and C3",
+            label: "Every bass note between C1 and C3",
             required: false,
             skills: ["B01"],
             rule: "range",
@@ -389,7 +391,7 @@ export default defineLesson({
           },
           {
             id: "a-tune",
-            label: "A tune on top",
+            label: "A melody line on top of the chords",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -400,7 +402,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which note is each chord stacked on? Find it in the chords' `.add()`.",
+          "Each chord is stacked on one number in the chords' `.add()`. The bass needs that number in each bar.",
           "The bass can take the chords' numbers: the same `<…>` of four, one a bar.",
           'Bar 1 already has its root, 0. Write `n("<0 4 … …>")` for the bass: two numbers to go.',
         ),

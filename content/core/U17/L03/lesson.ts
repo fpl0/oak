@@ -93,7 +93,9 @@ const HOW: Choice[] = [
 ];
 
 const howHints = (): HintLadder => [
-  { text: "At the very end, is the first chord of the piece still home?" },
+  {
+    text: "Hum the first bass note of the piece over its last bar. If it still sounds like home, the key did not change.",
+  },
   {
     text: "If home has moved, listen to the bar before the first new note. A chord that fits both keys there is a door; no such bar means a lift.",
   },
@@ -216,7 +218,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U17.L03",
-  version: 2,
+  version: 3,
   title: "Hearing Key Changes",
   objective:
     "I can hear whether a song has changed key, find the bar where the new key begins, and tell a move through a pivot chord from a lift.",
@@ -247,7 +249,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two pieces, eight bars each. Hum the first bass note of each, C, the home note they start from, and keep it in your ear. When the piece ends, hum it again: does it still sound like home?",
+          "Listen to both pieces. As each starts, hum its first bass note, C, the home note, and keep it in your ear. When the piece ends, hum C again. Listen for whether C still sounds like home, or like a stranger.",
         skills: [{ skill: "E13", w: 1 }],
         hints: null,
         tests: [],
@@ -277,10 +279,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two cards that start with the same four bars. One verse comes back home to C at the end; the other has moved. Which card ends in a new home? Listen for the bar where the two part ways.",
+          "Listen to both cards. Each starts with the same four bars; one verse comes back home to C, the other moves to a new home. Pick the card that ends in a new home.",
         skills: [{ skill: "E13", w: 1 }],
         hints: ladder(
-          "After each card, sing the first chord's root, C. Does it settle the music or pull against it?",
+          "After each card ends, sing C, the first chord's root. On one card it settles the music; on the other it pulls against it.",
           "The card that moved ends on a chord that is not C, and C sounds like a stranger after it.",
           "Listen to bar 7 of each card: one brings in F♯, the other stays on the key's own chords.",
         ),
@@ -323,7 +325,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two short tasks, one note each. First sing do before the verse sets out from C. Then hear the whole verse and sing do again where it ends: home has moved, so do has too. The numbers stay on screen. Sing in your own range.",
+          "Sing do twice, one held note each time, in your own range. First: listen to the opening of the verse in C, then sing do. Second: listen to the whole verse, which moves home, then sing the new do where it ends.",
         skills: [
           { skill: "E13", w: 0.6 },
           { skill: "V03", w: 0.4 },
@@ -341,7 +343,7 @@ export default defineLesson({
         parts: [
           singDo(
             "do-in-c",
-            "The verse's opening in C. Then sing do, held, in your own range. In numbers: 1.",
+            "Listen to the opening of the verse, in C. Then sing do, 1, held, in your own range.",
             C_MAJOR,
             FOUR_BARS,
             4,
@@ -354,7 +356,7 @@ export default defineLesson({
           ),
           singDo(
             "do-in-g",
-            "The whole verse, through its door into G. Then sing the new do, held: G is home now, so it is 1.",
+            "Listen to the whole verse, through its door into G. Then sing the new do, held: G is home now, so G is 1.",
             G_MAJOR,
             PIVOT_TO_G,
             8,
@@ -381,7 +383,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Pieces of eight bars, heard one at a time: chords over a bass, each in a key of its own. Some lift by a half or a whole step; some stay home. If the key changes, mark the bar where the new key begins.",
+          "For each eight-bar piece, decide whether the key changes. If it does, mark the bar where the new key begins. If it does not, mark no key change. Some pieces lift by a half or a whole step; some stay home.",
         skills: [{ skill: "E13", w: 1 }],
         hints: [
           { text: "Hum the first bass note. At the end, is it still home?" },
@@ -416,7 +418,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Three pieces, eight bars each, heard one at a time. For each: did the key change and, if it did, through a pivot chord or with no door at all?",
+          "For each of the three pieces, pick one answer: no key change, through a pivot chord, or direct. Ask in order: is the first bass note still home at the end? If not, was there a chord both keys own just before the first new note, or nothing?",
         skills: [
           { skill: "E13", w: 0.7 },
           { skill: "H14", w: 0.3 },
@@ -444,7 +446,7 @@ export default defineLesson({
         role: "practice",
         key: C_MAJOR,
         prompt:
-          "A verse in C and a bridge that starts on Am but never leaves C. Move the bridge to A minor: bring in A minor's own V, E7, before an Am, and give the tune a key plan after `arrange()` so its bridge numbers mean A harmonic minor. The loop takes you back to C.",
+          "Move the bridge, bars 5 to 8, to A minor. In `chordsBridge` and `bassBridge`, put A minor's V, E7, right before an Am. Then give the tune a key plan after its `arrange()`: 4 bars of C major, then 4 of A harmonic minor in octave 3. Done when the bridge ends on Am, reached from E7.",
         skills: [{ skill: "H14", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [8, 16],
@@ -452,7 +454,7 @@ export default defineLesson({
         rubric: [
           {
             id: "bridge-in-a-minor",
-            label: "The bridge moves to A minor, the relative minor: its V, then Am",
+            label: "The bridge ends in A minor, chords and tune: A minor's V (E or E7), then Am",
             required: true,
             // Writing the move practises H14; hearing your own bridge arrive somewhere else is this lesson's E13.
             skills: ["E13", "H14"],
@@ -464,7 +466,7 @@ export default defineLesson({
             // Read in the key in force: in the starter's bridge G→C is a V going home, so a numeral rule would be
             // met before the learner starts. A dominant seventh in the bridge is not.
             id: "a-v7-in-the-bridge",
-            label: "A dominant seventh in the bridge, like A minor's own E7",
+            label: "The bridge has a dominant seventh chord, such as E7",
             required: false,
             skills: ["H14"],
             rule: "chord-qualities",
@@ -475,7 +477,8 @@ export default defineLesson({
           },
           {
             id: "a-different-place",
-            label: "The bridge differs from the verse in two ways",
+            label:
+              "The bridge differs from the verse in at least two ways: notes, chords, register, how busy or how loud",
             required: false,
             skills: ["F03"],
             rule: "contrast",
@@ -488,7 +491,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which chord of A minor pulls hardest into Am, the way G7 pulls into C?",
+          "The bridge needs the chord that pulls hardest into Am, the way G7 pulls into C. Which chord is that in A minor?",
           "A minor's V is built a 5th above A, and in harmonic minor it is major, with G♯. Put it in `chordsBridge` and `bassBridge` before an Am. The tune's `.scale()` needs a key plan: four bars of C major, then four of A minor.",
           'The bridge chords can go Am, Dm, E7, Am. For the tune, start `.scale("<C4:major!4` and finish it with A harmonic minor in the octave below.',
         ),

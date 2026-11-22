@@ -62,7 +62,7 @@ const plain = (starter: string) => starter.replace(/[⟪⟫]/g, "");
 /** S4's rule: the son clave 2-3 on the rimshot, whole, in every two-bar window of the four bars. */
 const CLAVE_23: RubricRule = {
   id: "clave-two-three",
-  label: "The rimshot plays the son clave with its two-side first, all four bars",
+  label: "The rimshot plays the son clave 2-3, its two-side first, for all four bars",
   required: true,
   skills: ["R18"],
   rule: "clave",
@@ -93,7 +93,7 @@ const earCode = (pattern: string) =>
   );
 const earHints = (): HintLadder =>
   ladder(
-    "Which bar of the two has more rimshots?",
+    "Count the rimshots in each of the two bars: one bar has three.",
     "The bass plays C in the first bar and the G below it in the second. Count the rimshots in the bar on C.",
     "Three in the first bar is one direction, two in the first bar the other: the name says which side comes first.",
   );
@@ -135,7 +135,8 @@ const MAKE_MEL = 'mel: note("<[e4 ~ ~ g4 ~ ~ c5 ~] [~ ~ b4 ~ g4 ~ ~ ~]>").s("pia
 /** The Make's one rule: the tune meets the clave as written, more than it would meet the clave turned round. */
 const FACES_CLAVE: RubricRule = {
   id: "tune-faces-clave",
-  label: "Your tune faces the clave",
+  label:
+    "In every two bars the tune's two bars differ, and at least 3 of its notes land with a rimshot, more than land between them",
   required: true,
   skills: ["R18"],
   rule: "custom",
@@ -151,7 +152,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R3.L02",
-  version: 2,
+  version: 3,
   title: "Clave Direction",
   objective: "I can hear which way a clave runs and write a tune that faces it.",
   key: { tonic: "C", mode: "major" },
@@ -176,7 +177,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Only the rimshot changes between the two loops. In which loop do the tune and the rimshot speak together, and in which do they talk past each other? Listen to each tune note against the rimshot.",
+          "Listen to each tune note against the rimshot in both loops; only the rimshot changes. Notice in which loop the tune and the rimshot speak together, and in which they talk past each other.",
         skills: [{ skill: "R18", w: 1 }],
         hints: null,
         tests: [],
@@ -206,10 +207,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The first groove plays four bars. Tap with the rimshot: three taps in the first bar, two in the second, and again, ten in all.",
+          "Tap with the rimshot, the dry click, and ignore the kick and the bass. It plays three times in bar 1 and twice in bar 2, then the same again. Four bars, ten taps in all. Done when each tap lands with a rimshot.",
         skills: [{ skill: "R18", w: 1 }],
         hints: ladder(
-          "Does the rimshot play the same thing in both bars?",
+          "Listen for the rimshot's dry click: bar 1 and bar 2 hold different numbers of hits.",
           "The first bar is a rhythm you wrote in the last lesson: three, three and two eighths. The second bar has two hits.",
           "In the second bar, tap on beats 2 and 3 and nowhere else.",
         ),
@@ -256,14 +257,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the rimshot over the hats and read two bars on the roll. Each bar has eight eighth-note slots.",
+          "Run the rimshot over the hats and read two bars on the roll; each bar has eight eighth-note slots. Then answer: how many rimshots the two bars hold together, and what the first bar is.",
         skills: [{ skill: "R18", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the rimshots of each bar on the roll separately, then add them.",
         },
         hints: ladder(
-          "Do the two bars hold the same number of rimshots?",
+          "Count the rimshots of bar 1 and of bar 2 separately.",
           "The pattern inside `< >` plays its first bracket in bar 1 and its second in bar 2. Count the hits in each.",
           "The second bar has two hits. Compare the first bar with the bass you wrote last lesson.",
         ),
@@ -312,7 +313,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A new tune: it opens with two notes on beats 2 and 3, then answers with three. The clave under it starts with its three-side, and the two cross. Turn the clave round so it faces the tune.",
+          "The tune opens with two notes on beats 2 and 3, then answers with three, but the clave starts with its three-side. Turn the clave round so its two-side plays under the tune's two-note bar. Keep every hit where it is inside its bar. Done when the two-side comes first.",
         skills: [{ skill: "R18", w: 1 }],
         code: { starter: S4_STARTER },
         reference: { solutions: [S4_SOLUTION], bars: 4 },
@@ -326,7 +327,7 @@ export default defineLesson({
             "{label}: not yet. Listen to the first bar of the target: how many rimshots, and do they meet the tune's first two notes?",
         },
         hints: ladder(
-          "Which bar of the tune has two notes, the first or the second?",
+          "Find the tune's two-note bar: the clave's two-side belongs under it.",
           "The clave's two bars are the two brackets inside `< >`. Its two-side has to sound under the tune's two-note bar.",
           "Nothing inside either bracket has to change: every hit already sits in the right place within its bar.",
         ),
@@ -392,10 +393,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Four bars of rimshot over the hats: the son clave 3-2 in bars 1 and 2, then another clave in bars 3 and 4. What changed?",
+          "Four bars of rimshot over the hats: the son clave 3-2 in bars 1 and 2, then another clave in bars 3 and 4. Pick what changed in bars 3 and 4.",
         skills: [{ skill: "R18", w: 1 }],
         hints: ladder(
-          "Is the change in the bar with three hits or the bar with two?",
+          "Compare bar 3 with bar 1 and bar 4 with bar 2: only one pair differs.",
           "Count the hats in bar 3, 1 to 8, and say where each rimshot lands. Then do the same for bar 1.",
           "The first two hits of the three-side do not move.",
         ),
@@ -444,7 +445,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four grooves, two bars each, after a one-bar count. The kick, the hats and the bass never change; only the rimshot does. Is each clave 3-2 or 2-3?",
+          "Four grooves, two bars each, after a one-bar count. The kick, the hats and the bass never change; only the rimshot does. For each, pick 3-2 or 2-3.",
         skills: [{ skill: "R18", w: 1 }],
         hints: earHints(),
         srs: [
@@ -481,7 +482,7 @@ export default defineLesson({
         role: "practice",
         title: "Tune on the clave",
         prompt:
-          "The band plays drums, bass and two chords, C then G7. Choose your clave on the rimshot: son or rumba, 3-2 or 2-3. Then write a two-bar piano tune whose notes meet its hits, at least three of them, with a different rhythm in each bar.",
+          "Write a two-bar piano tune that faces your clave; the band plays drums, bass, and C then G7. Pick the rimshot's clave: son or rumba, 3-2 or 2-3. Required: at least three tune notes land with rimshots in every two bars, and the tune's two bars differ. Also on the checklist: a tempo of 90 to 120.",
         skills: [{ skill: "R18", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],
@@ -490,7 +491,7 @@ export default defineLesson({
           FACES_CLAVE,
           {
             id: "groove-tempo",
-            label: "A tempo between 90 and 120",
+            label: "`setcpm` sets a tempo between 90 and 120 beats a minute",
             required: false,
             skills: ["R18"],
             rule: "tempo-bpm",
@@ -501,7 +502,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Where are the rimshots in each of your clave's two bars? Your tune's notes want to land there.",
+          "Mark where the rimshots fall in each of your clave's two bars: those are the places for your tune's notes.",
           "Write the tune on eight slots a bar, like the clave, one bracket per bar inside `< >`. Put notes in the slots where the clave plays.",
           "Bar 1 is over C and bar 2 over G7: notes of each chord on the clave's slots sound at home. A note or two between them is yours.",
         ),

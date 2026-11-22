@@ -96,7 +96,8 @@ const DRUMS = { band: "band.aeolian-4bar", tracks: ["drums"] } as const;
 /** Bar 4 of the counter-line: notes that start in the tune's gaps (beats 2 and 4), never with its notes. */
 const IN_THE_GAPS: RubricRule = {
   id: "in-the-gaps",
-  label: "Bar 4: the strings start their notes while the tune is silent",
+  label:
+    "Bar 4: the strings start notes on beats 2 and 4, where the tune is silent, and none on beats 1 and 3",
   required: true,
   skills: ["D09", "M07"],
   rule: "onsets",
@@ -115,7 +116,7 @@ const IN_THE_GAPS: RubricRule = {
 /** Bar 4 of the counter-line: notes of its chord, G (G B D: degrees ♭7, 2 and 4 of A minor). */
 const NOTES_OF_G: RubricRule = {
   id: "notes-of-g",
-  label: "Bar 4: notes of the G chord",
+  label: "Bar 4: every strings note is G, B or D, a note of the G chord",
   required: true,
   skills: ["D09"],
   rule: "degree-set",
@@ -126,7 +127,7 @@ const NOTES_OF_G: RubricRule = {
 
 export default defineLesson({
   id: "A2.L03",
-  version: 2,
+  version: 3,
   title: "Counter-Melody & Re-Voicing per Section",
   objective: "I can write a second line that answers the tune instead of copying it.",
   key: { tonic: "A", mode: "minor" },
@@ -151,7 +152,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Loop 1 has a strings line under the tune; loop 2 leaves it out. Follow the strings in loop 1, then listen to loop 2: what does the loop lose without them?",
+          "Follow the strings line under the tune in loop 1. Then listen to loop 2, the same loop without the strings, for what goes missing in the tune's pauses.",
         skills: [{ skill: "D09", w: 1 }],
         hints: null,
         tests: [],
@@ -173,7 +174,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The same two tune notes three times, with a strings line under them. Bar 1 plays between the tune's notes, bar 2 starts each note with the tune's, bar 3 copies the tune an octave down. In which bar will the strings be easiest to hear as a tune of their own?",
+          "Two tune notes play three times over a strings line. Bar 1: the strings play between the tune's notes. Bar 2: they start each note with the tune's. Bar 3: they copy the tune an octave down. Predict the bar where the strings will be easiest to hear as a tune of their own. Pick it, then listen.",
         skills: [{ skill: "D09", w: 1 }],
         hints: null,
         tests: [],
@@ -201,7 +202,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the loop and watch the tune and the strings on the roll, bar by bar. Look at where each line starts its notes, and which way each one goes.",
+          "Watch the tune (top) and the strings (under it) on the roll, bar by bar. Answer two questions: in how many bars a strings note starts on a beat where the tune starts none, and which way the strings go in bar 1 while the tune steps down.",
         skills: [
           { skill: "D09", w: 0.5 },
           { skill: "M07", w: 0.5 },
@@ -211,7 +212,7 @@ export default defineLesson({
             "Not quite. On the roll, find the beats where the tune starts nothing and see whether a strings note starts there, bar by bar. In bar 1, compare the strings' last two notes with the tune's.",
         },
         hints: ladder(
-          "In which bars do the strings play while the tune is silent?",
+          "Go bar by bar and look for a strings note that starts on a beat where the tune starts nothing. In which bars do you find one?",
           "Go one bar at a time: a strings note that starts on an empty beat of the tune counts. Bar 1's strings notes both start with tune notes.",
           "Bars 2 and 4 each have one. In bar 1 the tune steps down from C to A: look at the strings on the same two beats.",
         ),
@@ -265,7 +266,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Bar 4 of the strings line is empty. The tune plays B on beat 1 and G on beat 3, and is silent after each. Answer it: two strings notes, one in each of those silences, on notes of the G chord (G, B or D). Leave the tune as it is.",
+          "Bar 4 of the `vox` line is empty. The tune plays B on beat 1 and G on beat 3 and is silent after each. Write two strings notes in bar 4, one in each silence, each a note of the G chord (G, B or D). Leave the tune and bars 1 to 3 as they are.",
         skills: [
           { skill: "D09", w: 0.6 },
           { skill: "M07", w: 0.4 },
@@ -283,7 +284,7 @@ export default defineLesson({
         // The override serves both rules of the rubric, so it stays neutral and names no notes.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "On which beats of bar 4 is the tune silent?",
+          "Find the beats of bar 4 where the tune is silent: those are where the strings answer. Which beats are they?",
           "The bracket for bar 4 holds four steps, one per beat; `~` is a beat where the strings rest. `n` counts from 0, so degree 5 is `n` 4.",
           "The tune is silent on beats 2 and 4. Of G, B and D, B is degree 2 of A minor; find the other two the same way.",
         ),
@@ -353,10 +354,12 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A different strings line under the tune this time. Is it a second tune of its own, or the tune again, lower down?",
+          "Listen to a new strings line under the tune. Pick what it is: a second tune of its own, or the tune again, lower down.",
         skills: [{ skill: "D09", w: 1 }],
         hints: [
-          { text: "Does each strings note start on its own, or together with a note of the tune?" },
+          {
+            text: "Listen for when each strings note starts: on its own, or together with a note of the tune?",
+          },
           { text: "Follow the strings' shape: up where the tune goes up, down where it goes down?" },
           { text: "Hear it again, slower, and listen to the strings alone.", replay: { rate: 0.75 } },
           "auto",
@@ -400,7 +403,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight bars, a verse and a chorus, the chords packed close in both. Spread the chorus's chords: drop each root an octave and lift each 3rd an octave, so the middle, where the strings play, opens up.",
+          "Spread the chorus chords in `chordsChorus`: in each of the four stacks, move the root down an octave and the 3rd up an octave. Leave `chordsVerse` as it is. Done when no two notes of a chorus chord are closer than a 4th.",
         skills: [{ skill: "D09", w: 1 }],
         code: { starter: SPREAD_STARTER },
         reference: { solutions: [sections(SPREAD)], bars: 8 },
@@ -409,7 +412,8 @@ export default defineLesson({
           rules: [
             {
               id: "spread-chorus",
-              label: "The chorus's chords spread: no two of their notes closer than a 4th",
+              label:
+                "Chorus chords spread: neighbouring notes in each chord at least a 4th (5 half steps) apart",
               required: true,
               skills: ["D09"],
               rule: "custom",
@@ -426,7 +430,7 @@ export default defineLesson({
         target: { audible: true, showRoll: false },
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "In the chorus's stacks, which two notes sit closest together?",
+          "Look at the stacks in `chordsChorus` and find the two notes that sit closest together. Which are they?",
           "In each stack the lowest number is the root and the next one up the 3rd. Seven steps of `n` make an octave in this scale.",
           "For the first chord, the root 0 becomes -7. Do the same to the 3rd, upward.",
         ),
@@ -480,7 +484,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The loop with its tune and an empty strings line. Write a counter-melody: let it move when the tune holds, go the other way when both move, and keep to its own register, under or over the tune. Any sound you like; strings, a pad or a soft synth work well.",
+          "Write a counter-melody in the empty `vox` line. Start notes where the tune holds or rests, move the other way when both move, and never copy the tune. Keep it in its own register, under the tune. Any sound works. Done when the `vox` line moves on its own at least half the time.",
         skills: [
           { skill: "D09", w: 0.6 },
           { skill: "M07", w: 0.4 },
@@ -491,7 +495,8 @@ export default defineLesson({
         rubric: [
           {
             id: "answers-the-tune",
-            label: "A second line that answers the tune",
+            label:
+              "The `vox` line moves on its own (while the tune holds, or the other way) at least half the time, and never doubles the tune for more than two beats",
             required: true,
             skills: ["D09", "M07"],
             rule: "custom",
@@ -500,7 +505,7 @@ export default defineLesson({
           },
           {
             id: "own-register",
-            label: "The second line in its own register, under the tune",
+            label: "Every `vox` note from C3 up to G4, under the tune",
             required: false,
             skills: ["D09"],
             rule: "range",
@@ -509,7 +514,7 @@ export default defineLesson({
           },
           {
             id: "chord-tones-on-beats",
-            label: "Notes of the chord on the beats",
+            label: "At least 6 in 10 of the `vox` notes on beats are notes of the chord",
             required: false,
             skills: ["M07"],
             rule: "chord-tones-strong",
@@ -522,7 +527,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Where does the tune leave room for another line to speak?",
+          "Find the places where the tune leaves room: beats where it starts nothing. Where are they?",
           "On the roll, find the beats where the tune starts nothing, and the places where it steps down. A second line can start a note on the first and step up against the second.",
           "Start with one bar: two notes of its chord, both on beats where the tune is silent.",
         ),

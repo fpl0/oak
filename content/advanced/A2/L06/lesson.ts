@@ -116,7 +116,7 @@ const KICK_SOLUTION = HOOK;
 /** The one rule of S4's kick: a kick on every beat of every bar of the drive. */
 const FOUR_ON_THE_FLOOR: RubricRule = {
   id: "four-on-the-floor",
-  label: "The drive's kick on every beat",
+  label: "Bars 5 to 8: a kick on all four beats of every bar",
   required: true,
   skills: ["F06"],
   rule: "onsets",
@@ -162,7 +162,7 @@ const BAND_CHORDS = { band: "band.aeolian-4bar", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A2.L06",
-  version: 2,
+  version: 3,
   title: "Genre Translation",
   objective: "I can arrange one tune in two styles: a ballad and a driving version.",
   key: { tonic: "A", mode: "minor" },
@@ -186,7 +186,8 @@ export default defineLesson({
         id: "one-tune-two-ways",
         version: 1,
         role: "practice",
-        prompt: "Eight bars in two halves. Which half would you dance to, and which part tells you so first?",
+        prompt:
+          "Listen to eight bars in two halves. Listen for the half you would dance to, and for the part that tells you so first.",
         skills: [{ skill: "D09", w: 1 }],
         hints: null,
         tests: [],
@@ -211,7 +212,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Between the two halves you just heard, what stayed the same? Pick one, then run it to check.",
+          "Predict what stayed the same between the two halves you just heard. Pick one, then listen to check.",
         skills: [{ skill: "D09", w: 1 }],
         hints: null,
         tests: [],
@@ -239,14 +240,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The form map shows the two sections. Each part has one const per section, and the tune is written once, as `tune`. Run it, read the consts and follow the roll.",
+          "Read the consts and follow the roll as it plays. Each part has one const per section, and the tune is written once, as `tune`. Answer two questions: how many bass notes play in one bar of the second half, and which part plays the same notes in the same rhythm in both halves.",
         skills: [{ skill: "D09", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the bass notes in one bar of the second half on the roll. Then compare each part's two consts: which one plays the same pitches at the same moments in both?",
         },
         hints: ladder(
-          "Which consts are new in the second half, and which part is written only once?",
+          "Compare each part's two consts, one for each half, and find the part written only once. Which is it?",
           "`*8` plays a note eight times in its bar. The chords and the bass keep their pitches but change their rhythm.",
           "The bass plays one note a bar in the first half. In the second, each of those notes is repeated.",
         ),
@@ -295,7 +296,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "In this version the drive's kick still plays the ballad's one hit a bar. Give the drive a kick on every beat, and leave the ballad and the tune as they are.",
+          "The drive's kick, `kickDrive`, still plays the ballad's one hit a bar. Change it so the kick lands on all four beats of every bar in bars 5 to 8. Leave the ballad's consts and the tune as they are.",
         skills: [{ skill: "F06", w: 1 }],
         code: { starter: KICK_STARTER },
         reference: { solutions: [KICK_SOLUTION], bars: 8 },
@@ -315,10 +316,10 @@ export default defineLesson({
         target: { audible: true, showRoll: false },
         feedbackText: {
           "rubric.unmet":
-            "{label}: not yet. Count along with bars 5 to 8: the kick should land on all four beats of each of them.",
+            "Not met yet: {label}. Count along with bars 5 to 8 and listen for a kick on each beat. Change the drive's kick, not the ballad's.",
         },
         hints: ladder(
-          "Which const plays the kick in bars 5 to 8?",
+          "Only the kick of bars 5 to 8 changes. Which const plays it?",
           "`kickDrive` is the second section of the kick's `arrange()`. Its pattern has one hit and three rests.",
           "Four equal steps in a bar land on the four beats. Fill the rests with kicks, or repeat one kick four times.",
         ),
@@ -385,10 +386,12 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A ballad, then a driving version. Through all the new habits, is the second half still the same tune?",
+          "Listen to a ballad, then a driving version, and follow the top line through both. Pick what the second half does with the tune.",
         skills: [{ skill: "D09", w: 1 }],
         hints: [
-          { text: "Hum the first bar of the ballad's tune. Does the drive start the same way?" },
+          {
+            text: "Hum the first bar of the ballad's tune, then compare it with bar 5. Does the drive start the same way?",
+          },
           {
             text: "Leave the drums and the bass aside and follow only the highest line, bar by bar.",
           },
@@ -440,7 +443,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight bars: the tune in a `ballad` section and a `drive` section, arranged the same way. Make them two styles you can hear: change the drums, how busy the bass is, the sounds, how long the notes are, the register. Keep the tune's notes and rhythm.",
+          "The tune plays in a `ballad` section and a `drive` section, arranged the same way. Make them two styles: change at least two of the drums, how busy the bass is, the sounds and the register, in one section's consts. Keep the tune's notes and rhythm in both. Done when the two halves sound like two styles.",
         skills: [
           { skill: "D09", w: 0.5 },
           { skill: "F06", w: 0.5 },
@@ -451,7 +454,8 @@ export default defineLesson({
         rubric: [
           {
             id: "two-styles",
-            label: "The same tune in two styles you can hear",
+            label:
+              "The tune keeps its rhythm and its steps in both sections, and the sections differ in at least two of: sounds, density, groove, register",
             required: true,
             skills: ["D09", "F06"],
             rule: "custom",
@@ -460,7 +464,8 @@ export default defineLesson({
           },
           {
             id: "a-part-of-its-own",
-            label: "A part that only one style has",
+            label:
+              "A part silent for a whole bar or more that plays elsewhere, such as one only the drive has",
             required: false,
             skills: ["D09"],
             rule: "custom",
@@ -469,7 +474,7 @@ export default defineLesson({
           },
           {
             id: "drive-denser",
-            label: "The drive fuller than the ballad",
+            label: "Ballad and drive at least a quarter apart in notes heard per bar",
             required: false,
             skills: ["D09"],
             rule: "contrast",
@@ -482,7 +487,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Listen to the two halves: what tells you they are two styles, apart from the tune?",
+          "Right now the two halves sound alike. Pick one section and decide what it should sound like. Which of its consts would you change first?",
           "Each part has a `Ballad` and a `Drive` const. Change two or more habits in one of them: the drums' pattern, the bass's rhythm, the sounds, the length of the notes.",
           "Start with the drive's kick and bass: more hits a bar, and the 909. Then give its tune a shorter, brighter sound.",
         ),

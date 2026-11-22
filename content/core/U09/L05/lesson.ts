@@ -185,7 +185,7 @@ const BASS_MATCH: Matcher = {
 
 export default defineLesson({
   id: "U09.L05",
-  version: 2,
+  version: 3,
   title: "Arranging in Code",
   objective:
     "I can bring parts in and out of an arrangement by bar with .mask(): an intro that builds, a part that steps out before the chorus.",
@@ -212,7 +212,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to the first four bars of loop 2, before the verse. How does the song start there, compared with loop 1?",
+          "Listen to both loops. Listen for how the first four bars of loop 2, before the verse, start the song differently from loop 1.",
         skills: [{ skill: "F06", w: 1 }],
         hints: null,
         tests: [],
@@ -234,7 +234,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`.mask()` lets a part play where its pattern says 1 and silences it where it says 0. The intro\'s bass is `bassIntro = n("<0 5 3 4>").scale("C2:major").mask("<0 1 1 1>")`. When does the bass play in the four bars of the intro?',
+          'Predict when the bass plays in the four bars of the intro, then pick it. The intro\'s bass is `n("<0 5 3 4>").scale("C2:major").mask("<0 1 1 1>")`. `.mask()` lets a part play where its pattern says 1 and silences it where it says 0.',
         skills: [{ skill: "F06", w: 1 }],
         hints: null,
         tests: [],
@@ -261,14 +261,15 @@ export default defineLesson({
         id: "who-comes-in-when",
         version: 1,
         role: "practice",
-        prompt: "Run the intro and verse. On the roll, find the bar where each line first plays.",
+        prompt:
+          "Run the intro and verse. On the roll, find the bar where each line first plays. Answer both questions below: which part comes in last, and in which bar the chords come in.",
         skills: [{ skill: "F06", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read the `.mask()` patterns in the intro consts, one item a bar, and match them to the roll. The tune has no mask: its rests do the waiting.",
         },
         hints: ladder(
-          "Which line is still empty on the roll when every other line has started?",
+          "Find the line that is still empty on the roll when every other line has started.",
           "Each intro const that ends in `.mask()` has one 0 or 1 per bar. Count the 0s before the first 1.",
           "The bass's mask starts with one 0, so it enters at bar 2. Read the chords' mask the same way.",
         ),
@@ -321,7 +322,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "In this version the chords play from the first bar of the intro, so the drums and bass have no room of their own. Keep the chords silent for the intro's first two bars and let them in at bar 3.",
+          "The chords play from bar 1 of the intro, so the drums and bass have no room of their own. Add a `.mask()` in the highlighted place, at the end of `chordsIntro`, so the chords stay silent in bars 1 and 2 and play in bars 3 and 4.",
         skills: [{ skill: "F06", w: 1 }],
         code: { starter: CHORDS_STARTER },
         reference: { solutions: [HOOK], bars: 8 },
@@ -333,7 +334,7 @@ export default defineLesson({
             "Bar {bar}: the chords play {got} here, and the target has {exp}. Read your mask one item a bar.",
         },
         hints: ladder(
-          "Which method silences a part in some bars and not others?",
+          "You need the method that silences a part in some bars and lets it play in others.",
           "The bass's intro const shows it: a `.mask()` at the end, one 0 or 1 for each of the four bars.",
           "The bass's mask is `<0 1 1 1>`: one silent bar. The chords need two.",
         ),
@@ -383,7 +384,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The verse runs straight into the chorus. Make the bass stop for the last bar of the verse, so the chorus lands with it.",
+          "The verse runs straight into the chorus. Add a `.mask()` in the highlighted place, at the end of `bassVerse`, so the bass rests in bar 4 of the verse, the bar before the chorus. Done when the bass plays in bars 1 to 3 and is silent in bar 4.",
         skills: [{ skill: "F06", w: 1 }],
         code: { starter: DROP_STARTER },
         reference: { solutions: [drop(DROP)], bars: 8 },
@@ -391,11 +392,12 @@ export default defineLesson({
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true, showRoll: false, revealRollAfter: 1 },
         feedbackText: {
-          "melody.missing-note": "Bar {bar}: the bass should play here. Which item of your mask is that bar?",
+          "melody.missing-note":
+            "Bar {bar}: the bass should play here. Give this bar a 1 in your mask; only the verse's last bar gets a 0.",
           "melody.extra-note": "Bar {bar}: the bass should rest here, just before the chorus.",
         },
         hints: ladder(
-          "Which bar of the verse comes right before the chorus?",
+          "The verse has four bars and the chorus starts right after the last one. Find that last bar.",
           "A `.mask()` on the verse's bass, one item for each of its four bars.",
           "In the intro, `<0 1 1 1>` silenced the first bar. Here it is a different bar.",
         ),
@@ -434,10 +436,11 @@ export default defineLesson({
         id: "hear-the-bass-arrive",
         version: 1,
         role: "check",
-        prompt: "A different intro, eight bars, no code and no roll. Click the bar where the bass comes in.",
+        prompt:
+          "Listen to a new eight-bar intro, with no code and no roll. Pick the bar where the bass comes in.",
         skills: [{ skill: "F06", w: 1 }],
         hints: [
-          { text: "Listen low, under the piano. In which bar does something deep start?" },
+          { text: "Listen low, under the piano, for the first deep note, and count the bars as they go by." },
           {
             text: "Count the bars aloud. Two things arrive in this intro, at different bars: the bass and then the kick and snare.",
           },
@@ -484,7 +487,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Verse and chorus are arranged, and every part plays from bar 1. Add a four-bar intro that brings the parts in one at a time. For more, make one part drop out for the bar before a chorus.",
+          "Add a four-bar intro before the verse: an intro section in each `arrange()`, with `.mask()` so the parts come in one at a time. Done when, at least twice, a part stays silent for a whole bar while another plays. For more, drop one part out for the bar before a chorus.",
         skills: [{ skill: "F06", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [12, 32],
@@ -492,7 +495,8 @@ export default defineLesson({
         rubric: [
           {
             id: "mask-twice",
-            label: "Parts come in or drop out, twice or more, with .mask()",
+            label:
+              "`.mask()` used, and twice or more a part is silent for a whole bar while another part plays",
             required: true,
             skills: ["F06"],
             // Corrections pass: the effect, not the count of `.mask()` calls (two `.mask("1")` silence nothing and
@@ -503,7 +507,7 @@ export default defineLesson({
           },
           {
             id: "four-tracks",
-            label: "A fourth part of your own, such as hats that wait for bar 2",
+            label: "Four parts or more in your code, such as hats that wait for bar 2",
             required: false,
             skills: ["F06"],
             rule: "tracks",
@@ -511,7 +515,7 @@ export default defineLesson({
           },
           {
             id: "sixteen-bars",
-            label: "Sixteen bars or more: intro, verse, chorus and one more section",
+            label: "The song lasts 16 bars or more, such as intro, verse, chorus and one more section",
             required: false,
             skills: ["F06"],
             rule: "bars",
@@ -521,7 +525,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "In the song you heard, what came first, and what waited?",
+          "In the song at the start of the lesson the drums came first, then the bass, then the chords, then the tune.",
           "Each arranged line needs an intro section before its verse. Inside an intro const, a `.mask()` decides the bars that part waits.",
           "Start with `const bassIntro`: the verse's bass with a mask that keeps bar 1 silent. A part can also wait the whole intro with `silence`.",
         ),

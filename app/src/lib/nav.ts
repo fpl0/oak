@@ -57,3 +57,43 @@ export function usePageTitle(title: string): void {
     document.title = title === "Oak" ? "Oak" : `${title} · Oak`;
   }, [title, setTitle]);
 }
+
+// Where "back" goes from a focus page (a lesson, a checkpoint, a drill, a session): the last ordinary page the
+// learner was on, not always Today. The owner found the in-app back button "doesn't go back to where we were
+// before" (2026-11-22). Kept for the tab (sessionStorage) so a reload inside a lesson still returns there.
+export interface ReturnTarget {
+  href: string;
+  label: string;
+}
+const RETURN_KEY = "oak.returnTo";
+let returnTo: ReturnTarget | null = null;
+
+/** The page's name as the back button says it: its NavRail item ("Toolbox", "The Oak"), else "Today". */
+export function returnLabelOf(path: string): string {
+  return NAV_ITEMS.find((n) => n.match(path))?.label ?? "Today";
+}
+
+/** Records an ordinary (non-focus) page as the place to return to. */
+export function noteReturnTarget(path: string, href: string): void {
+  returnTo = { href, label: returnLabelOf(path) };
+  try {
+    sessionStorage.setItem(RETURN_KEY, JSON.stringify(returnTo));
+  } catch {
+    // storage blocked: the in-memory value still serves this tab
+  }
+}
+
+export function returnTarget(): ReturnTarget {
+  if (returnTo) return returnTo;
+  try {
+    const raw = sessionStorage.getItem(RETURN_KEY);
+    const v = raw ? (JSON.parse(raw) as Partial<ReturnTarget>) : null;
+    if (v && typeof v.href === "string" && v.href.startsWith("/") && typeof v.label === "string") {
+      returnTo = { href: v.href, label: v.label };
+      return returnTo;
+    }
+  } catch {
+    // fall through to Today
+  }
+  return { href: "/", label: "Today" };
+}

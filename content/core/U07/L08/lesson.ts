@@ -85,7 +85,7 @@ const STAFF = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L08",
-  version: 2,
+  version: 3,
   title: "Pickups",
   objective:
     "I can start a tune with a pickup: rests at the start of bar 0, so its first notes lead into bar 1.",
@@ -111,7 +111,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Loop 1 starts on the real first note, loop 2 the way you wrote it. Which start draws you into the tune, and which drops you straight onto it?",
+          "Listen to how each loop begins. Loop 1 starts with the tune's real first note; loop 2 starts the way you wrote it before, on beat 1. Which start draws you into the tune, and which drops you straight onto it?",
         skills: [{ skill: "M10", w: 1 }],
         hints: null,
         tests: [],
@@ -134,7 +134,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The tune's first bar is `[~ ~ ~ -3]`: three rests, then a note below home. When will you hear that note?",
+          "Predict when you will hear the tune's first note. Its first bar is `[~ ~ ~ -3]`: three rests, then a note below home. Pick the beat, then run it.",
         skills: [{ skill: "M10", w: 1 }],
         hints: null,
         tests: [],
@@ -162,7 +162,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and count along with the drums: 1, 2, 3, 4. Watch where the first note sits on the roll.",
+          "Run it and count 1, 2, 3, 4 with the drums from the very start. Find how many beats of rest come before the first note, and which note lands on beat 1 of the first full bar. Answer both questions below.",
         skills: [{ skill: "M10", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -221,7 +221,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "In the target, two notes climb into the tune before the chords start. Write them in the empty bar 0, where you hear them.",
+          "Listen to the target: two notes climb into the tune before the chords start. Write those two notes in bar 0, the highlighted bar, on the beats where you hear them, with rests on the beats before them. Done when your bar 0 sounds like the target's.",
         skills: [{ skill: "M10", w: 1 }],
         pickup: { units: [2, 1] },
         code: { starter: STEP("⟪[~ ~ ~ ~]⟫") },
@@ -236,8 +236,12 @@ export default defineLesson({
         },
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true, showRoll: false, revealRollAfter: 1 },
+        feedbackText: {
+          "melody.rhythm-only":
+            "The notes are right, but on the wrong beats of bar 0. Count the target's bar 0 again: the two notes come just before the next beat 1, with rests before them.",
+        },
         hints: ladder(
-          "Count the target's bar 0: on which beats do you hear the two notes?",
+          "Only bar 0 changes. Count the target's bar 0 with the drums: on which beats do you hear the two notes?",
           "They are the last two beats of bar 0, and they climb by step to degree 5 (`n` 4) on the next beat 1.",
           "Two rests, then two notes: `[~ ~ … …]`. The second note is degree 4, `n` 3.",
         ),
@@ -288,7 +292,7 @@ export default defineLesson({
         version: 2,
         role: "check",
         prompt:
-          "A chord sets home and the count-in gives the beat. Then a short tune: write it in `n`, in C. Bar 0 is there for anything before the first full bar.",
+          "Write the tune you hear in `n`, in C major, one bar per word of the `mel` line. Count along from the count-in. If a note comes before beat 1 of the first full bar, write it at the end of bar 0. Done when your tune matches the source note for note.",
         skills: [
           { skill: "M10", w: 0.6 },
           { skill: "E07", w: 0.4 },
@@ -381,7 +385,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The note in bar 0 comes on beat 1 and just sits there. Move it, or write two, so it leads into bar 1. The tune after it is yours to rework.",
+          "Turn bar 0 into a pickup. Its note now plays on beat 1 and just sits there. Move it, or write two or three notes, so bar 0 starts with rests and a note sounds on its beat 4, leading into bar 1. Rework the tune after it if you like.",
         skills: [{ skill: "M10", w: 1 }],
         pickup: { units: [1, 1] },
         code: { starter: MAKE_STARTER },
@@ -393,7 +397,7 @@ export default defineLesson({
           // is a bar of its own (corrections pass, theory-b 4).
           {
             id: "a-pickup",
-            label: "A pickup that leads into bar 1",
+            label: "Bar 0 starts with a rest, a note sounds on its beat 4, and bar 1 starts on beat 1",
             required: true,
             skills: ["M10"],
             rule: "pickup",
@@ -402,7 +406,8 @@ export default defineLesson({
           },
           {
             id: "chord-tones",
-            label: "Chord notes on beats 1 and 3",
+            label:
+              "At least 3 in 5 of the tune's notes on beats 1 and 3 are chord tones of the `chords:` line",
             required: false,
             skills: ["M03"],
             rule: "chord-tones-strong",
@@ -413,7 +418,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Count bar 0 with the drums. Where would the low G have to be to lead into home?",
+          "Only bar 0 has to change. Count it with the drums: on which beat would the low G have to be to lead into home?",
           "A lead-in ends on the last beat of bar 0, right before the tune's first beat 1. Rests fill the beats before it.",
           "Three rests, then the note: `[~ ~ ~ …]`.",
         ),

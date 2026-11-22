@@ -79,7 +79,7 @@ const MINOR = { tonic: "A", mode: "minor" } as const;
 
 export default defineLesson({
   id: "U10.L07",
-  version: 2,
+  version: 3,
   title: "The Andalusian Cadence",
   objective:
     "I can hear and write the Andalusian cadence, i–VII–VI–V: a minor key walking down to its major V.",
@@ -108,7 +108,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The loop twice round, then its bass alone. Listen to which way the bass walks, and to how the last chord feels just before the loop starts again.",
+          "Listen to two clips: the loop twice round, then its bass alone. Listen for which way the bass walks, and for how the last chord feels just before the loop starts again.",
         skills: [{ skill: "H09", w: 1 }],
         hints: null,
         tests: [],
@@ -138,7 +138,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The bass steps down a note a bar: A, G, F, E. When the loop goes round, where does it go after E, and how does that move feel?",
+          "Predict where the bass goes after E when the loop goes round, and how that move feels. The bass steps down one note a bar: A, G, F, E. Pick an answer, then hear it.",
         skills: [{ skill: "H09", w: 1 }],
         hints: null,
         tests: [],
@@ -166,14 +166,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it. Read each chord's numeral in the chord band as it plays, and find the one bar where G is raised to G♯.",
+          "Run the code. Read each chord's numeral in the chord band as it plays, and find the one bar where G is raised to G♯. Then answer both questions.",
         skills: [{ skill: "H09", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read the chord band again: upper case is major, lower case minor. Then look for G♯ in the chord notes, bar by bar.",
         },
         hints: ladder(
-          "Which chords sound bright, and which one sounds dark?",
+          "Listen for the chords that sound bright and the one that sounds dark, then read their numerals.",
           "Count each chord's root from A: G is ♭7, F is ♭6, E is 5. Then read its quality on the chord band.",
           "Bar 2 is G B D, a major chord on ♭7: VII. Only one chord has the raised 7 of the last lesson.",
         ),
@@ -223,7 +223,7 @@ export default defineLesson({
         role: "check",
         key: MINOR,
         prompt:
-          "The same walk down, but it ends on Em, the minor v, and the loop goes round without a pull. Make the last chord the major V and keep the rest of the descent as it is.",
+          "This walk ends on Em, the minor v, so the loop goes round without a pull. Change the last chord to the major V, the major chord on E. Keep Am, G and F as they are.",
         skills: [{ skill: "H09", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 4 },
@@ -231,7 +231,7 @@ export default defineLesson({
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true, showRoll: false, revealRollAfter: 1 },
         hints: ladder(
-          "Which chord comes right before the loop goes home, and is it minor or major?",
+          "Look at the chord just before the loop goes home. Is it minor or major?",
           "The last chord is built on E, degree 5. Raise only its middle note; VII in bar 2 keeps its G.",
           "G and F stay as they are. The change is in the last chord's name.",
         ),
@@ -272,7 +272,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A loop in a new key each time, with its bass and drums. Which loop is it? Six are on offer now, two of them minor.",
+          "Name each loop you hear: pick it from the six on offer, two of them minor. Each loop plays in a new key, with its bass and drums.",
         skills: [
           { skill: "H09", w: 0.6 },
           { skill: "H08", w: 0.4 },
@@ -302,7 +302,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The bass line's four roots, one a bar: do, te, le, sol, each a step below the last. Hear them, then sing them in your own range.",
+          "Listen, then sing the bass line's four roots, one per bar: do, te, le, sol, each a step below the last. Sing in your own range.",
         skills: [
           { skill: "V02", w: 0.6 },
           { skill: "H09", w: 0.4 },
@@ -338,7 +338,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The bass walks down A G F E, but the guitar strums Am over every note. Give each bass note its chord, i VII VI V. Then shape the descent: one chord a bar or two (`<[Am G] [F E]>`, the bass to match), a tune that hangs on the V, a sound, a room.",
+          "The bass walks down A G F E, but the guitar plays Am over every note. In the `chords:` line, give each bass note its chord so the loop plays i VII VI V. Then shape it: two chords a bar if you like (`<[Am G] [F E]>`, the bass to match), a tune that hangs on the V.",
         skills: [{ skill: "H09", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -346,7 +346,7 @@ export default defineLesson({
         rubric: [
           {
             id: "the-descent",
-            label: "The loop is i VII VI V",
+            label: "The `chords:` line plays i VII VI V in that order, starting on i",
             required: true,
             skills: ["H09"],
             rule: "progression",
@@ -355,7 +355,7 @@ export default defineLesson({
           },
           {
             id: "bass-walks-down",
-            label: "A bass on each chord's root: A G F E, walking down",
+            label: "A `bass:` line plays the chord's root on at least 3 of every 4 chord changes",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -365,7 +365,7 @@ export default defineLesson({
           },
           {
             id: "tune-on-the-v",
-            label: "A tune with chord notes on the downbeats",
+            label: "A tune whose notes on beat 1 are mostly notes of the chord under them",
             required: false,
             skills: ["M01"],
             rule: "chord-tones-strong",

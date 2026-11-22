@@ -63,7 +63,7 @@ const BASS_KEYS = { roll: false, staff: "bass", keyboard: true } as const;
 
 export default defineLesson({
   id: "U05.L06",
-  version: 2,
+  version: 3,
   title: "Bass Clef & Grand Staff",
   objective:
     "I can read and write low notes on the bass clef, and read a bass line under chords on the grand staff.",
@@ -92,7 +92,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "An upright bass plays under the piano's chords. Listen for the notes it keeps coming back to in each bar. Then watch the page: the bass has a staff of its own.",
+          "An upright bass plays under the piano's chords. Listen for the note it keeps coming back to in each bar. Then watch the page: the bass has a staff of its own.",
         skills: [{ skill: "N04", w: 1 }],
         hints: null,
         tests: [],
@@ -119,14 +119,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the loop and watch both staves. Find the bass line, then its first note, `c2`, and count the short lines between it and its staff.",
+          "Run the loop and watch both staves. Find the staff that holds the bass line, then its first note, `c2`, and count the short lines between that note and the staff. Answer both questions below.",
         skills: [{ skill: "N04", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. The bass plays the lowest notes; find them on the page, then count the short lines down from the bottom line of their staff.",
         },
         hints: ladder(
-          "Which part plays the lowest notes, and where on the page are the lowest notes drawn?",
+          "The bass plays the lowest notes. Look for the staff where the lowest notes are drawn.",
           "Ledger lines go down one for every two letters, as they did under the treble staff. The bottom line of the lower staff is `g2`.",
           "Below `g2` comes `f2` in the space, then `e2` on the first short line. Keep counting down to `c2`.",
         ),
@@ -181,14 +181,14 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four notes on the bass clef, one on each line from the bottom up. Name them left to right, by letter.",
+          "The bass clef shows four notes, one on each line from the bottom up. Type their letters, left to right.",
         skills: [{ skill: "N04", w: 1 }],
         feedbackText: {
           "spell.wrong":
             "Not {got}. These lines are not the treble staff's. Find the line between the clef's two dots, name it, and count the other lines from it, a letter skipped each time.",
         },
         hints: ladder(
-          "The clef's two dots sit either side of one line. Which note does that line hold?",
+          "Start from the clef's two dots. They sit either side of one line, and that line's note is your anchor.",
           "The dots mark F3, the fourth line from the bottom. From one line to the next you skip a letter.",
           "Going down from the fourth line: F, then D. Two lines to go.",
         ),
@@ -236,7 +236,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The bass clef shows a two-bar bass line, four notes a bar. Write it in code in place of the `c2`s, letter and number.",
+          "The bass clef shows a two-bar bass line, four notes a bar. Replace the `c2`s with the notes on the page, letter and number, in order. Done when your line plays exactly what the page shows.",
         skills: [{ skill: "N04", w: 1 }],
         code: { starter: code(bassNotes(`⟪${PAGE_STARTER}⟫`)) },
         reference: { solutions: [code(bassNotes(PAGE))], bars: 2 },
@@ -251,7 +251,7 @@ export default defineLesson({
           "melody.extra-note": "Bar {bar}, {beatLabel}: one note too many here. The page shows four a bar.",
         },
         hints: ladder(
-          "Which notes sit on short lines below the staff, and which on the staff itself?",
+          "Sort the notes first: some sit on short lines below the staff, the rest on the staff itself.",
           "The bottom line is `g2` and the space above it `a2`. Below the staff, the first short line is `e2` and the second `c2`.",
           "Bar 1 climbs from the second short line below the staff to the bottom line and back: `c2 e2 g2 e2`. Read bar 2 the same way.",
         ),
@@ -296,14 +296,14 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The opening bass starts each bar on the root of its chord: `c2`, `g2`, `a2`, `f2`. Write those four on the bass clef, one per beat.",
+          "Write four notes on the bass clef, one per beat, in this order: `c2`, `g2`, `a2`, `f2`. They are the roots the opening bass starts each bar on.",
         skills: [{ skill: "N04", w: 1 }],
         feedbackText: {
           "spell.wrong":
             "{got} → {exp}. On the bass clef the bottom line is `g2` and the space above it `a2`; count from there.",
         },
         hints: ladder(
-          "Which of the four sits below the staff, and which on it?",
+          "Two of the four notes sit below the staff and two on it. Start from the bottom line of the bass clef.",
           "`c2` is on the second short line below the staff. The bottom line of the bass clef is `g2`.",
           "`c2` on the second short line below, `g2` on the bottom line. `a2` is the next step up.",
         ),
@@ -343,7 +343,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write the bass line under the band's C, G, Am and F, a bar each, on `upright` or `ebass`. Put the root on beat 1 of each bar and anything you like between. Keep it on the bass clef, at `c3` or below.",
+          "The starter's bass line sits an octave too high, among the band's chords. Move it down so every note is at `c3` or below, then reshape it: the root of each chord on beat 1, anything you like between. Done when every bass note is at `c3` or below.",
         skills: [{ skill: "N04", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],
@@ -351,7 +351,7 @@ export default defineLesson({
         rubric: [
           {
             id: "low",
-            label: "The bass line stays low, on the bass staff",
+            label: "Every note of `bass` between `c1` and `c3`",
             required: true,
             skills: ["N04"],
             rule: "range",
@@ -360,7 +360,7 @@ export default defineLesson({
           },
           {
             id: "three-notes",
-            label: "At least three different notes",
+            label: "At least three different notes in `bass`",
             required: false,
             skills: ["N04"],
             rule: "distinct-pitches",
@@ -369,7 +369,7 @@ export default defineLesson({
           },
           {
             id: "downbeats",
-            label: "A note on beat 1 of every bar",
+            label: "`bass` plays a note on beat 1 of every bar",
             required: false,
             skills: ["R01"],
             rule: "onsets",
@@ -379,7 +379,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Look at the lower staff while the starter plays. Where do its notes sit, and where do the band's chords sit?",
+          "Look at the lower staff while the starter plays: its notes sit as high as the band's chords. The whole line has to move lower.",
           "The starter plays `c3` to `g3`, right where the chords are. The number after each letter sets the octave.",
           "`c3` becomes `c2` and `g3` becomes `g2`: the same line, one octave down. Do the same for the rest, then reshape the line.",
         ),

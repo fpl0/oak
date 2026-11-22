@@ -126,7 +126,7 @@ const HARMONIC = { tonic: "A", mode: "harmonic minor" } as const;
 
 export default defineLesson({
   id: "U10.L09",
-  version: 2,
+  version: 3,
   title: "Minor Melodies",
   objective:
     "I can take a minor spiritual down by ear, sing it from the lead sheet, and arrange it as a ballad with strings and an echo.",
@@ -154,7 +154,7 @@ export default defineLesson({
         role: "practice",
         key: HARMONIC,
         prompt:
-          "Strings, an upright bass and a slow piano line, then the opening of Go Down Moses, an African American spiritual, over the same chords. Listen for what follows each piano note, and for the note the spiritual comes home to.",
+          "Listen to two clips: strings, an upright bass and a slow piano line, then the opening of Go Down Moses, an African American spiritual, over the same chords. Listen for what follows each piano note, and for the note the spiritual comes home to.",
         skills: [{ skill: "E07", w: 1 }],
         pickup: PICKUP,
         hints: null,
@@ -187,7 +187,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The opening of the tune is hidden: one note before bar 1, then two bars. The starter has its rhythm and its first note, 5 below home (`n` −3); the rest sit on home. Write the notes. Switch between it and yours at the same bar, slower if you like. Any octave passes.",
+          "Write the hidden opening in the `mel:` line: one note before bar 1, then two bars. The starter already has its rhythm and its first note, 5 below home (`n` −3). Replace each home note (`n` 0) with the note you hear. Any octave passes.",
         skills: [{ skill: "E07", w: 1 }],
         pickup: PICKUP,
         hints: ladder(
@@ -262,7 +262,7 @@ export default defineLesson({
         role: "practice",
         key: HARMONIC,
         prompt:
-          'The verse\'s second line, "Oppressed so hard they could not stand, let my people go", on the lead sheet. It starts like the line you took down, without the note before bar 1. A chord sets home and one bar counts you in; sing it on syllables. Oak plays it after you.',
+          'Sing the verse\'s second line from the lead sheet, four bars on syllables: "Oppressed so hard they could not stand, let my people go". It starts like the line you took down, without the note before bar 1. A chord sets home and one bar counts you in.',
         skills: [
           { skill: "V04", w: 0.8 },
           { skill: "E07", w: 0.2 },
@@ -308,7 +308,7 @@ export default defineLesson({
         role: "check",
         key: HARMONIC,
         prompt:
-          'The page shows the line\'s answer, "Let my people go": two bars over E and Am. Write it in `n` over `A4:harmonic:minor`, the scale of Raise the Seventh: home is `n` 0, and below it `n` counts down, G♯ −1, F −2, E −3. The starter holds home on every note; replace them with the notes on the page.',
+          'Write the answer shown on the page, "Let my people go", in the `mel:` line: two bars over E and Am. Replace each home note (`n` 0) in the starter with the note on the page; keep the rhythm. Below home, `n` counts down: G♯ is −1, F −2, E −3.',
         skills: [
           { skill: "V04", w: 0.5 },
           { skill: "E07", w: 0.5 },
@@ -329,7 +329,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: you have {got}; the page has {exp}. Count down from A on the staff, space, line, space: G♯ is `n` −1, F −2, E −3.",
         },
         hints: ladder(
-          "Is the first note above home or below it, and which way does the tune move after two beats?",
+          "Compare the first note on the page with home, A: above or below? Then follow which way the tune moves after two beats.",
           "Home is A, `n` 0. Below it, `n` counts down the scale: G♯ is −1, F is −2, E is −3. The sharp on the page is the raised 7 of harmonic minor.",
           "Bar 1 starts on E, the 5 below home, so `n` −3. The last note, held for the whole bar, is home.",
         ),
@@ -380,7 +380,7 @@ export default defineLesson({
         role: "practice",
         key: HARMONIC,
         prompt:
-          "The tune only sits on home. Put the whole line back from your two halves, then make it a ballad: an echo on the tune with `.delay()`, your choice of sounds, and a reply of your own if you like.",
+          "In the `mel:` line, which only sits on home, rebuild the whole line from your two halves: the opening you took down, then the answer from the page. Keep the starter's rhythm. Then make it a ballad: an echo with `.delay()`, your choice of sounds, a reply if you like.",
         skills: [
           { skill: "E07", w: 0.5 },
           { skill: "V04", w: 0.5 },
@@ -392,7 +392,7 @@ export default defineLesson({
         rubric: [
           {
             id: "the-spiritual",
-            label: "The tune is the spiritual's line",
+            label: "The tune plays the spiritual's whole line, notes and rhythm, in any octave",
             required: true,
             skills: ["E07"],
             rule: "matches",
@@ -411,7 +411,7 @@ export default defineLesson({
           },
           {
             id: "an-echo",
-            label: "An echo on the tune",
+            label: "An echo with `.delay()`",
             required: false,
             skills: ["E07"],
             rule: "uses",
@@ -419,7 +419,7 @@ export default defineLesson({
           },
           {
             id: "warm-under",
-            label: "Strings or a Rhodes under the tune",
+            label: "Strings or a Rhodes plays in the piece",
             required: false,
             skills: ["E07"],
             rule: "sounds",
@@ -427,7 +427,7 @@ export default defineLesson({
           },
           {
             id: "four-parts",
-            label: "Four parts or more",
+            label: "Four or more parts, such as pad, bass, tune and a reply",
             required: false,
             skills: ["E07"],
             rule: "tracks",
@@ -437,7 +437,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which two lines have you written today, and where does each sit in the five bars?",
+          "You wrote two halves of the line today: the opening by ear and the answer from the page. Put them in order across the five bars.",
           "Bar 0 holds the pickup, bars 1 and 2 the opening you took down, bars 3 and 4 the answer you read from the page.",
           "The tune starts `<[~ ~ ~ -3] [2 2 1 1] …`. Add the answer's two bars after the opening's.",
         ),

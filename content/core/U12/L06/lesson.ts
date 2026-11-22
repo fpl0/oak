@@ -150,7 +150,7 @@ const earPart = (n: number): IdentifyEx => ({
   id: `seventh-${n}`,
   version: 1,
   role: "check",
-  prompt: `Chord ${n}. Any of the five kinds.`,
+  prompt: `Chord ${n}: any of the five kinds.`,
   skills: [{ skill: "E11", w: 1 }],
   hints: earHints(),
   stimulus: { src: "generator", family: "fam.chd.quality-7th", level: 4 },
@@ -162,7 +162,7 @@ const earPart = (n: number): IdentifyEx => ({
 
 export default defineLesson({
   id: "U12.L06",
-  version: 2,
+  version: 3,
   title: "Seventh Ear Lab & Left-Hand Voicings",
   objective:
     'I can voice seventh chords the way a pianist\'s left hand does with .dict("lefthand"), name the 9th on top as a 2nd an octave up, turn an interval upside down, and hear all five sevenths.',
@@ -192,7 +192,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Watch the roll and follow the chords, not the band: where do they sit the second time, and how far do they jump from one chord to the next?",
+          "Listen to both loops and follow the chords on the roll, not the band. In loop 2, listen and look for two things: where the chords sit on the keyboard, and how far their notes move from one chord to the next.",
         skills: [{ skill: "C07", w: 1 }],
         hints: null,
         tests: [],
@@ -219,7 +219,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Cmaj7 is C E G B. With `.dict("lefthand")` the chord plays B, D, E and G, and the bass plays a low C. Which of the chord\'s own notes is not in the hand?',
+          'Predict which of Cmaj7\'s own notes, C E G B, is not in the hand, then run it. With `.dict("lefthand")` the chord plays B, D, E and G, and the bass plays a low C.',
         skills: [{ skill: "C07", w: 1 }],
         hints: null,
         tests: [],
@@ -247,7 +247,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and compare the two bars on the roll. One note of bar 2 is not in the stack: D, above the octave from C. Counted from C, that D is a 9th.",
+          "Run the code and compare the two bars on the roll. One note of bar 2 is not in the stack: D, just above the octave from C, a 9th counted from C. Then answer both questions: a 9th is an octave plus which interval, and how many half steps lie from the low C up to that D.",
         skills: [{ skill: "I04", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -307,7 +307,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Three intervals, each played as two notes, low then high. Type each name with its quality, like `M3`, `m6` or `P4`; a 10th is `M10` or `m10`.",
+          "Name three intervals, each played as two notes, low then high. Type each name as a quality and a number, like `M3`, `m6` or `P4`; a 10th is `M10` or `m10`.",
         skills: [{ skill: "I04", w: 1 }],
         hints: ladder(
           "Count the letter names from the lower note, both ends included. Then count the half steps.",
@@ -378,7 +378,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Voice the chords for a pianist's left hand: tell the chords line which dictionary to read. The bass and the guitar stay as they are.",
+          "Voice the chords for a pianist's left hand: on the chords line, add a `.dict()` that names the left hand's dictionary, before `.voicing()`. Keep the bass and the guitar as they are.",
         skills: [
           { skill: "C07", w: 0.5 },
           { skill: "I04", w: 0.5 },
@@ -397,7 +397,7 @@ export default defineLesson({
             "The chords line needs the left hand's dictionary: `.dict()` with its name, before `.voicing()`.",
         },
         hints: ladder(
-          "Which part of the chords line decides where the notes of each chord go?",
+          "Only the chords line changes. Which part of it decides where the notes of each chord go?",
           '`.voicing()` reads a dictionary, the way it read `.dict("triads")` for plain triads. This one is named for the hand a pianist comps with.',
           "Write `.dict()` between `chord(changes)` and `.voicing()`, with the hand's name in the quotes, all lower case.",
         ),
@@ -469,7 +469,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Five seventh chords, one at a time, on roots that keep changing. Any of the five kinds: major seventh, dominant seventh, minor seventh, half-diminished or diminished seventh.",
+          "Name the kind of each of five seventh chords, played one at a time on changing roots. Any of the five kinds can come: major seventh, dominant seventh, minor seventh, half-diminished or diminished seventh.",
         skills: [{ skill: "E11", w: 1 }],
         hints: earHints(),
         srs: [{ family: "fam.chd.quality-7th", mode: "review-if-due" }],
@@ -490,7 +490,7 @@ export default defineLesson({
         role: "practice",
         title: "Your trio",
         prompt:
-          "Cmaj7, Am7, Dm7, G7 in the plain voicing, the bass on the roots, a line on top. Comp the chords for the left hand on the Rhodes or the jazz guitar, give the comping a rhythm with `.struct()`, and keep the bass on the roots. Or bring a loop of your own from this unit.",
+          "Voice the chords line for the left hand, with the same dictionary as the trio you fixed. Then give the comping a rhythm with `.struct()`, on the Rhodes or the jazz guitar, and keep the bass on the roots. You may swap in a loop of your own from this unit.",
         skills: [
           { skill: "C07", w: 0.5 },
           { skill: "I04", w: 0.5 },
@@ -501,7 +501,8 @@ export default defineLesson({
         rubric: [
           {
             id: "voiced-for-the-left-hand",
-            label: "The chords are voiced for the left hand",
+            label:
+              'The chords line reads the left hand\'s dictionary, `.dict("lefthand")`, before `.voicing()`',
             required: true,
             skills: ["C07", "I04"],
             rule: "custom",
@@ -510,7 +511,8 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root, since the hand leaves it out",
+            label:
+              "The bass plays the chord's root where the chord changes, at three changes in four or more, since the hand leaves it out",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -520,7 +522,7 @@ export default defineLesson({
           },
           {
             id: "jazz-guitar",
-            label: "The jazz guitar somewhere",
+            label: "The jazz guitar (`jazzgtr`) plays somewhere",
             required: false,
             skills: ["C07"],
             rule: "sounds",
@@ -528,7 +530,8 @@ export default defineLesson({
           },
           {
             id: "line-on-guide-tones",
-            label: "A line that meets each chord on its 3rd or 7th",
+            label:
+              "The `mel` line plays the chord's 3rd or 7th where the chord changes, at three changes in four or more",
             required: false,
             skills: ["C08"],
             rule: "guide-tones",
@@ -539,9 +542,11 @@ export default defineLesson({
           },
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
-        feedbackText: { "rubric.unmet": "{label}: not yet." },
+        feedbackText: {
+          "rubric.unmet": "{label}: not yet. Change the code until this line of the checklist holds.",
+        },
         hints: ladder(
-          "Which line decides how the chords are voiced?",
+          "The first line of the checklist is about how the chords are voiced. Which line of the code decides that?",
           "The chords line reads the default dictionary. The left hand's dictionary goes before `.voicing()`, as in the trio you fixed.",
           'Add `.struct("~ x ~ ~ x ~ ~ ~")` after `.voicing()` for a rhythm, then name the dictionary for the hand.',
         ),

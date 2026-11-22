@@ -60,7 +60,7 @@ const NUMERALS = {
 
 export default defineLesson({
   id: "U11.L05",
-  version: 2,
+  version: 3,
   title: "Twelve Bars",
   objective: "I can play and write the 12-bar blues: I, IV and V in their twelve-bar order.",
   key: { tonic: "C", mode: "blues" },
@@ -86,7 +86,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A blues in C, twelve bars long, first chords and bass alone, then with a riff on top. Listen for the stretch where the music feels furthest from home, and for the bar that sends it round again.",
+          "Listen to a twelve-bar blues in C twice: chords and bass alone, then with a riff on top. Listen for the stretch where the music feels furthest from home, and for the bar that sends it round again.",
         skills: [{ skill: "H10", w: 1 }],
         hints: null,
         tests: [],
@@ -112,7 +112,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'The whole form is one string: `const changes = "<C7!4 F7!2 C7!2 G7 F7 C7 G7>"`. Inside `< >` each entry lasts a bar. How long does the first C7 last?',
+          'The whole form is one string: `const changes = "<C7!4 F7!2 C7!2 G7 F7 C7 G7>"`. Inside `< >` each entry lasts one bar. Predict how long the first entry, `C7!4`, plays. Pick one answer, then listen to check it.',
         skills: [{ skill: "F04", w: 1 }],
         hints: null,
         tests: [],
@@ -139,7 +139,8 @@ export default defineLesson({
         id: "three-chords-twelve-bars",
         version: 1,
         role: "practice",
-        prompt: "Run the blues and follow the chord band: the numerals under each bar.",
+        prompt:
+          "Run the blues and read the chord band, the numerals under each bar. Then answer two questions: which three chords make the twelve bars, and in which bar V7 first sounds.",
         skills: [
           { skill: "H10", w: 0.5 },
           { skill: "F04", w: 0.5 },
@@ -149,7 +150,7 @@ export default defineLesson({
             "Not quite. Stop the loop and read the chord band bar by bar: C7 is I7, F7 is IV7, G7 is V7.",
         },
         hints: ladder(
-          "How many different chord names are there in `changes`?",
+          "Read the `changes` string from left to right. How many different chord names does it use?",
           "C7 is built on 1, F7 on 4 and G7 on 5 of C. Where does G7 first appear in the string?",
           "Count the bars: four of C7, two of F7, two of C7. The next bar is the one.",
         ),
@@ -202,7 +203,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Bars 1–8 are written. Bars 9–12 still sit on C7. Write the last line of the blues, one chord a bar: V, IV, I, then V to send it round again.",
+          "Bars 1–8 are written; bars 9–12 still sit on C7. Replace the four highlighted chords with the last line of the blues, one chord a bar: V, IV, I, then V. Write each as a chord name with a 7, like the bars before.",
         skills: [{ skill: "H10", w: 1 }],
         code: { starter: LAST_LINE_STARTER },
         reference: { solutions: [LAST_LINE], bars: 12 },
@@ -214,7 +215,7 @@ export default defineLesson({
             "Bar {bar}: you have {got}, the blues has {exp} there. The last line is V IV I V: G7 F7 C7 G7 in C.",
         },
         hints: ladder(
-          "The last line uses all three chords. Which one has not been heard yet?",
+          "The last line uses all three chords, and one of them has not sounded yet. Which chord is V in C?",
           "V in C is G7. The line runs down from V to IV, lands on I, then V again.",
           "Write `G7 F7` for bars 9 and 10. Two to go: home, then V.",
         ),
@@ -260,7 +261,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A 12-bar blues in C or another key, with a bar counter. Which chord plays in the marked bar: I, IV or V?",
+          "Listen to a 12-bar blues, in C or another key, while the bar counter runs. Pick the chord that plays in the marked bar: I, IV or V.",
         skills: [{ skill: "F04", w: 1 }],
         hints: [
           { text: "Is the marked bar still home, or has the music moved away?" },
@@ -300,7 +301,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Hear the twelve bars with their bass. Then sing the bass, one syllable a bar: do four times, fa twice, do twice, then sol, fa, do, sol. Sing in your own range.",
+          "Sing the bass of the twelve bars, one syllable a bar, 12 notes: do four times, fa twice, do twice, then sol, fa, do, sol. Hear the bars with their bass first, then sing in your own range.",
         skills: [
           { skill: "V05", w: 0.6 },
           { skill: "H10", w: 0.4 },
@@ -335,7 +336,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Turn the changes into a 12-bar blues: I, IV and V in their order. Then make the riff yours: change its notes, its rhythm or its sound.",
+          "Change the `changes` string so the twelve bars follow the blues: four bars of I, two of IV, two of I, then V, IV, I, V. Then make the riff yours: change its notes, its rhythm or its sound. Done when at least 11 of the 12 bars match the blues.",
         skills: [{ skill: "H10", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [12, 24],
@@ -343,7 +344,7 @@ export default defineLesson({
         rubric: [
           {
             id: "twelve-bar-changes",
-            label: "The changes follow the twelve bars: I, IV and V in order",
+            label: "At least 11 of the 12 bars play the blues chord for that bar: I, IV or V",
             required: true,
             skills: ["H10", "F04"],
             rule: "matches",
@@ -353,7 +354,7 @@ export default defineLesson({
           },
           {
             id: "a-riff",
-            label: "A riff on top",
+            label: "A melody line, such as the riff, plays on top",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -362,7 +363,7 @@ export default defineLesson({
           },
           {
             id: "blue-note",
-            label: "The blue third, ♭3, in the riff",
+            label: "The gtr line plays the blue 3rd, ♭3 (E♭), at least once",
             required: false,
             skills: ["S11"],
             rule: "degree-set",
@@ -373,7 +374,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which bars of a blues are not on I?",
+          "The starter plays I for all twelve bars. Which bars of a blues are not on I?",
           "Bars 5–6 are IV (F7), bars 9 and 10 are V and IV (G7 F7), bar 12 is V (G7).",
           'Write it as `"<C7!4 F7!2 C7!2 G7 F7 C7 G7>"`: twelve bars in one string.',
         ),

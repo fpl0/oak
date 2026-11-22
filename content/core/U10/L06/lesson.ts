@@ -89,7 +89,7 @@ const SIDE_WRONG = {
     "Listen to the chord before the last, and to the note below home inside it. The tune leaves that note out; the chord does not.",
 };
 const ladderV = ladder(
-  "Does the last change pull home, or arrive without a push?",
+  "Listen to the last change, from the chord on 5 to home. A strong pull home means V; arriving without a push means v.",
   "In the chord before the last, listen for the note below home. A half step below, it leans in; a whole step, it does not.",
   "Hum home, then the note a half step below it, then home again. Does the chord before the last hold that note?",
 );
@@ -106,7 +106,7 @@ const part = (
   version: 1,
   role: "check",
   key: { tonic, mode: "minor" },
-  prompt: `Cadence ${n}. Is the chord before the last v or V?`,
+  prompt: `Cadence ${n}. Pick v or V for the chord before the last.`,
   skills: [{ skill: "H09", w: 1 }],
   hints: ladderV,
   stimulus: { src: "code", code: cadence(changes, scale), bars: 4, showCode: false },
@@ -150,7 +150,7 @@ const HARMONIC = { tonic: "A", mode: "harmonic minor" } as const;
 
 export default defineLesson({
   id: "U10.L06",
-  version: 3,
+  version: 4,
   title: "Raise the Seventh",
   objective: "I can raise degree 7 of a minor key to make its v a major V that pulls home to i.",
   key: MINOR,
@@ -177,7 +177,7 @@ export default defineLesson({
         role: "practice",
         key: HARMONIC,
         prompt:
-          "A minor ballad loop, four bars, then the same four bars with one chord changed. Listen to the arrival home in bar 4: which version lands, and which only stops?",
+          "Listen to two versions of a four-bar minor loop; version 2 changes one chord in bar 3. Listen to the arrival home in bar 4: which version lands, and which only stops?",
         skills: [{ skill: "H09", w: 1 }],
         hints: null,
         tests: [],
@@ -204,7 +204,7 @@ export default defineLesson({
         role: "practice",
         key: HARMONIC,
         prompt:
-          "In bar 3 the second loop plays E where the first played Em. Em is E, G, B. One note of it changes to make E. Which one?",
+          "Predict which note of Em (E, G, B) changes to make E, the chord the second loop plays in bar 3. Pick an answer, then hear both loops.",
         skills: [{ skill: "H09", w: 1 }],
         hints: null,
         tests: [],
@@ -233,14 +233,14 @@ export default defineLesson({
         role: "practice",
         key: HARMONIC,
         prompt:
-          "Run it: A minor from home to home, then the same scale with one note changed, then a chord. Compare bars 1 and 2 on the roll, degree by degree.",
+          "Run the code: A minor home to home, then the same scale with one note changed, then a chord. Compare bars 1 and 2 on the roll, degree by degree. Then answer both questions.",
         skills: [{ skill: "S07", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Put bar 1 and bar 2 side by side on the roll: one note near the top sits higher in bar 2, by the smallest step on the keyboard.",
         },
         hints: ladder(
-          "Which note of bar 2 is not where it was in bar 1?",
+          "Find the one note of bar 2 that sits at a different height from bar 1.",
           "Read the degree labels near the top of each bar, below the last A.",
           "Bar 1 has ♭7, G. Count the keys from bar 2's note up to A.",
         ),
@@ -290,7 +290,7 @@ export default defineLesson({
         role: "check",
         key: HARMONIC,
         prompt:
-          "The tune already climbs through G♯ in bar 3, but the chord under it is still Em, with a G: hear them rub. Make bar 3 the major V.",
+          "In bar 3 the tune plays G♯, but the chord under it is still Em, with a G: hear them rub. Change bar 3's chord to the major V, the major chord on E. Keep the other chords as they are.",
         skills: [
           { skill: "H09", w: 0.7 },
           { skill: "S07", w: 0.3 },
@@ -301,7 +301,7 @@ export default defineLesson({
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true, showRoll: false, revealRollAfter: 1 },
         hints: ladder(
-          "Which chord in the loop holds a G while the tune plays G♯?",
+          "Find the chord that holds a G while the tune plays G♯.",
           "Bar 3's chord is built on E, degree 5. Its middle note decides minor or major.",
           "A minor chord name ends in `m`. The chord you want has E, G♯ and B.",
         ),
@@ -342,7 +342,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four short loops in four minor keys, each i iv, then the chord on 5, then home. The tune never sings degree 7, so listen inside the chords: is the chord on 5 the minor v or the major V?",
+          "For each of the four short loops, pick whether the chord on 5 is the minor v or the major V. Each loop plays i, iv, the chord on 5, then home, in a new minor key. The tune never sings degree 7, so listen inside the chords.",
         skills: [{ skill: "H09", w: 1 }],
         hints: ladderV,
         srs: [
@@ -371,7 +371,7 @@ export default defineLesson({
         role: "practice",
         key: HARMONIC,
         prompt:
-          "Over the last two chords: sol and ti on the V, do on home. Listen once, then sing along in your own range.",
+          "Listen once, then sing three notes over the last two chords: sol and ti on the V, then do on home. Sing in your own range.",
         skills: [
           { skill: "V02", w: 0.6 },
           { skill: "S07", w: 0.4 },
@@ -407,7 +407,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Am F C G circles: G steps up to home without a pull. Give it a landing, a major V that goes home to i: E in place of G, or four more bars that end E Am. Then shape the tune around that landing; a climb through G♯ helps.",
+          "Am F C G circles: G steps up to home without a pull. In the `const changes` line, give it a major V (E) that goes straight home to i (Am): E in place of G, or four more bars that end E Am. Then shape the tune around that landing; a climb through G♯ helps.",
         skills: [{ skill: "H09", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -418,7 +418,7 @@ export default defineLesson({
         rubric: [
           {
             id: "v-goes-home",
-            label: "A major V that goes home to i",
+            label: "The chords play a major V (E) followed by i (Am)",
             required: true,
             skills: ["H09"],
             rule: "contains-rn",
@@ -428,7 +428,7 @@ export default defineLesson({
           },
           {
             id: "ti-to-do",
-            label: "The tune climbs through ti, the raised 7",
+            label: "The tune plays ti, the raised 7 (G♯)",
             required: false,
             skills: ["S07"],
             rule: "degree-set",
@@ -437,7 +437,7 @@ export default defineLesson({
           },
           {
             id: "comes-home",
-            label: "The tune ends on 1",
+            label: "The tune's last note is 1 (A)",
             required: false,
             skills: ["M01"],
             rule: "ends-on-degree",

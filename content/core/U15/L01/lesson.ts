@@ -124,7 +124,7 @@ const earPart = (n: number): IdentifyEx => ({
 
 export default defineLesson({
   id: "U15.L01",
-  version: 2,
+  version: 3,
   title: "Chromatic Degrees",
   objective:
     "I can hear a note from outside the key, name it by the degree it bends (♯4 fi, ♭7 te), and write it in code.",
@@ -150,7 +150,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "One tune over a soul turn, twice: first on the key's own notes, then with four notes bent a half step. Listen to where each bent note goes next. Does it hang in the air, or slide straight into its neighbour?",
+          "Listen to one tune twice: first on the key's own notes only, then with four notes bent a half step. In the second loop, listen for where each bent note goes next. Does it hang in the air, or slide straight into the note beside it?",
         skills: [{ skill: "E12a", w: 1 }],
         hints: null,
         tests: [],
@@ -176,7 +176,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`n("4 3# 4")` in C major: sol, something, sol. `n` counts from 0, so `4` is degree 5 and `3` is degree 4. The `#` raises a note a half step. Which note is `3#`?',
+          'Predict which note `3#` plays in `n("4 3# 4")` in C major, then pick it. `n` counts from 0, so `4` is degree 5 (sol) and `3` is degree 4 (F). The `#` raises a note a half step.',
         skills: [{ skill: "P06", w: 1 }],
         hints: null,
         tests: [],
@@ -204,7 +204,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the hook with degrees on the roll. Four notes are not the key's own: the roll names them ♯4, ♯5, ♯1 and ♭7 (fi, si, di, te). Follow each one to the note after it.",
+          "Run the hook and read the degrees on the roll. Answer two questions. First, where does te (♭7), the first note of bar 6, go next? Second, which number written before a `#` plays ♯5? The roll names the four bent notes ♯4, ♯5, ♯1 and ♭7.",
         skills: [
           { skill: "P06", w: 0.5 },
           { skill: "E12a", w: 0.5 },
@@ -214,7 +214,7 @@ export default defineLesson({
             "Not quite. Look at bar 6: te is the first note, and the next note is a half step away. For the number, remember that `n` counts from 0: the number is the step, one less than the degree.",
         },
         hints: ladder(
-          "A raised note leans up and a lowered one leans down. Which way does ♭7 lean?",
+          "Two answers: where te goes, and one number. A raised note leans up and a lowered one leans down. Which way does ♭7 lean?",
           "Te is B♭, the first note of bar 6. Read the next note on the roll. For the code, find a `#` in the tune and compare its number with the degree the roll shows.",
           "Te falls a half step. In bar 1, `3#` shows as ♯4: the number is one less than the degree. Do the same for degree 5.",
         ),
@@ -263,7 +263,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four bars of the plain tune over C, C7, F and G7. Bend two notes. In bar 1, make fa into fi, so it climbs back to sol. In bar 2, make ti into te, so it falls to la.",
+          "Bend two notes of the tune. In bar 1, change the second note, fa (degree 4), into fi (♯4) so it climbs back to sol. In bar 2, change the first note, ti (degree 7), into te (♭7) so it falls to la. Leave the other notes as they are.",
         skills: [
           { skill: "P06", w: 0.6 },
           { skill: "E12a", w: 0.4 },
@@ -280,7 +280,7 @@ export default defineLesson({
         },
         srs: [{ family: "fam.deg.index", mode: "review-if-due" }],
         hints: ladder(
-          "Which way does each note have to move: fa up to fi, ti down to te?",
+          "Two notes move a half step each: fa up to fi, ti down to te. Which sign raises a note, and which lowers it?",
           "Degree 4 is step 3 in `n`, and degree 7 is step 6. A `#` after the number raises it a half step; a `b` lowers it.",
           "Bar 1 becomes `[4 3# 4 7]`. Bar 2 needs the same idea on degree 7, with the other sign.",
         ),
@@ -344,10 +344,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Six times: a few chords set home, then one note sounds. Which degree is it? The pad offers 4, ♯4, 5, 6, ♭7, 7 and 1, with their syllables.",
+          "Name six notes by degree. Each time, a few chords set home, then one note sounds. Pick its degree on the pad: 4, ♯4, 5, 6, ♭7, 7 or 1.",
         skills: [{ skill: "E12a", w: 1 }],
         hints: ladder(
-          "Sing the note, then let it go where it wants. Does it want to move at all?",
+          "Sing the note back, then let it go where it wants. If it slides a half step to a neighbour, it is a bent note. Does it want to move at all?",
           "A note that climbs a half step to sol was fi. A note that falls a half step to la was te.",
           "Sing do re mi fa sol la ti do from home and stop where the note sits, or between two of them.",
         ),
@@ -368,7 +368,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Hear it, then sing it: sol fi sol, then do te la, with the do up high. The numbers stay on screen: 5 ♯4 5, 1 ♭7 6. Sing in your own range.",
+          "Listen, then sing two short phrases, one note a beat: sol fi sol (5 ♯4 5), then do te la (1 ♭7 6). The second do is the high one, above sol. Sing in your own range.",
         skills: [
           { skill: "E12a", w: 0.6 },
           { skill: "V03", w: 0.4 },
@@ -411,7 +411,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A soul turn, C Am Dm G7, with a bass and a plain tune. Move at least two notes a half step so each leans into the note after it: try `3#` before a 4, `4#` before a 5, `6b` before a 5. After that the tune is yours: more bends, a new rhythm, an octave up.",
+          "Bend at least two notes of the `mel:` line a half step, each one next to the note it leans into: try `3#` before a 4, `4#` before a 5, `6b` before a 5. Done when the tune holds two notes from outside the key. Then make the rest yours: more bends, a new rhythm, an octave up.",
         skills: [
           { skill: "E12a", w: 0.5 },
           { skill: "P06", w: 0.5 },
@@ -422,7 +422,7 @@ export default defineLesson({
         rubric: [
           {
             id: "two-bent-notes",
-            label: "Two notes from outside the key in your tune",
+            label: "At least two notes from outside the key in `mel`",
             required: true,
             skills: ["E12a", "P06"],
             rule: "degree-set",
@@ -432,7 +432,7 @@ export default defineLesson({
           },
           {
             id: "bends-resolve-by-step",
-            label: "Most of the tune moves by step, so the bent notes land",
+            label: "At least half the moves in `mel` are steps, so the bent notes land",
             required: false,
             skills: ["M01"],
             rule: "step-ratio",
@@ -441,7 +441,7 @@ export default defineLesson({
           },
           {
             id: "ends-on-home",
-            label: "The tune ends on 1",
+            label: "The last note of `mel` is degree 1",
             required: false,
             skills: ["M01"],
             rule: "ends-on-degree",
@@ -450,7 +450,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root",
+            label: "The bass plays each chord's root on at least 3 of every 4 chord changes",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -462,7 +462,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which notes of the tune sit right next to the note after them? Those are the ones that can lean.",
+          "Look for notes in `mel` that sit one step from the note after them. Those can lean. Which of them would you bend?",
           "Bar 1 has B before A; bar 2 climbs E, F, G, A; bar 3 has C before D. A `#` after the number raises a note; a `b` lowers it.",
           "Bar 2 can become `[2 3# 4 5]`, one bent note. One more anywhere else and the tune has two.",
         ),

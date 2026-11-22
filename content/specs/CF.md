@@ -21,7 +21,7 @@ This spec has no lessons. `bun test content/validate/specs.test.ts` checks that 
 
 Author: **finale**. The last track of Side A (sessions 182–185 of the default order) and the learner's own song from the first bar: at least two minutes, a verse, a chorus and a bridge, and four or more of six devices (secondary dominant, borrowed chord, modulation, suspension, syncopated bass, modal colour). Session 1 fixes the plan at full length and lays the groove; session 2 writes the harmony and brings in the devices; session 3 writes the tunes and the bridge; session 4 arranges the energy, masters by ear, records the take and releases. The brief gives a frame and leaves the song to the learner; the workspace shows which of their own earlier tracks used which device, and the checklist counts devices as they appear. Nothing new is taught.
 
-Opens after: {"capstones":["C7"]}. Meter 4/4, 60–160 BPM. Brief: "Your single, the last track of Side A: a song of your own, two minutes or longer, with a verse, a chorus and a bridge, and four or more of the six devices on the card. Most are on your record; the card plays them back. Key, tempo, groove, sounds, form and what the song is about are yours."
+Opens after: {"capstones":["C7"]}. Meter 4/4, 60–160 BPM. Brief: "Write your single, the last track of Side A: a song of your own, two minutes or longer, with a verse, a chorus and a bridge. Use four or more of the six devices on the devices card; most are already on your record, and the card plays them back. Key, tempo, groove, sounds and form are yours."
 
 Starter:
 

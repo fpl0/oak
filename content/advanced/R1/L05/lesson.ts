@@ -74,7 +74,7 @@ const plain = (starter: string) => starter.replace(/[⟪⟫]/g, "");
 /** Bar 1 as written; bar 2 a beat later: on beat 2, beat 3 and the "and" of 3, and not where it was. */
 const BELL_RULE: RubricRule = {
   id: "bell-displaced",
-  label: "The cowbell's figure starts on beat 2 in bar 2",
+  label: "Bar 1 hits on 1, 2 and the “and” after 2; bar 2 hits a beat later, on 2, 3 and the “and” after 3",
   required: true,
   skills: ["R15"],
   rule: "onsets",
@@ -106,7 +106,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R1.L05",
-  version: 2,
+  version: 3,
   title: "Displacement & Laid-Back Feel",
   objective:
     "I can move a figure to another place in the bar, and tell a moved rhythm from a groove that leans back.",
@@ -135,7 +135,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The drums and the bass hold still; only the clav's three short chords change, and only in some bars. In which bars does the clav sound like a new rhythm? Listen for where its first chord lands against the kick.",
+          "Listen to the clav's three short chords against the kick; the drums and the bass hold still. Notice in which bars the clav sounds like a new rhythm, and where its first chord lands in those bars.",
         skills: [{ skill: "R15", w: 1 }],
         hints: null,
         tests: [],
@@ -164,10 +164,11 @@ export default defineLesson({
         id: "tap-the-figure",
         version: 1,
         role: "practice",
-        prompt: "Tap with the clav's three chords for four bars, wherever they fall: twelve taps in all.",
+        prompt:
+          "Tap with the clav, the short clicking chords: three a bar. In some bars the figure starts later, so follow the clav, not the kick. Four bars, twelve taps in all. Done when each tap lands with a clav chord.",
         skills: [{ skill: "R15", w: 1 }],
         hints: ladder(
-          "Does the clav start in the same place in every bar?",
+          "Follow the clav, not the kick: its first chord does not land in the same place in every bar.",
           "In bars 1 and 3 its first chord lands with the kick. In bars 2 and 4 it comes a little later.",
           "In bars 2 and 4 the whole figure is half a beat late, with the same gaps between its three chords.",
         ),
@@ -221,14 +222,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the groove and read bars 1 and 2 of the clav on the roll. The `.late()` at the end of its line takes one amount per bar from the `< >`, in fractions of a bar.",
+          "Run the groove and read bars 1 and 2 of the clav on the roll. The `.late()` on its line takes one amount per bar from the `< >`, in fractions of a bar. Then answer: where bar 2's first chord lands, and how many of its three chords fall on a beat.",
         skills: [{ skill: "R15", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Find the first chord of bar 2 on the roll and count in eighths from the bar line: 1 & 2 & 3 & 4 &.",
         },
         hints: ladder(
-          "How far does bar 2's figure move, as a fraction of the bar?",
+          "Read the second amount in `.late()`: it is bar 2's move, as a fraction of the bar.",
           "An eighth of a bar is half a beat. Count bar 2 in eighths, 1 & 2 & 3 & 4 &, and find each chord.",
           "In bar 1 the chords fall on 1, 2 and the “and” after 2. Move each one half a beat later.",
         ),
@@ -281,7 +282,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A cowbell plays the clav's figure: 1, 2 and the “and” after 2, the same in every bar. Keep bar 1 as it is, and in bar 2 move the whole figure one beat later, so it starts on beat 2.",
+          "The cowbell plays the clav's figure: 1, 2 and the “and” after 2, every bar. Add one call to the cowbell line so bar 1 stays as it is and bar 2 plays the whole figure one beat later. Keep the rhythm string. Done when bar 2 hits on 2, 3 and the “and” after 3.",
         skills: [{ skill: "R15", w: 1 }],
         code: { starter: BELL_STARTER },
         reference: { solutions: [BELL_SOLUTION], bars: 2 },
@@ -294,7 +295,7 @@ export default defineLesson({
             "{label}: not yet. Listen to the target: bar 1 starts with the kick, and bar 2 starts a beat later, with the same gaps between the three hits.",
         },
         hints: ladder(
-          "Which call moves a whole line later, and how could bar 1 and bar 2 get different amounts?",
+          "Use the call that moved the clav in the last step, with one amount per bar.",
           "The call that pushed lines in the core also moves them later, by a fraction of a bar; amounts written inside `< >` change bar by bar.",
           "Bar 1 moves by nothing. A beat is a quarter of a bar, and amounts in a string are written as decimals.",
         ),
@@ -360,10 +361,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Four bars. In bars 1 and 2 the snare lands exactly with the hi-hat on 2 and 4. In bars 3 and 4 it moves by a few milliseconds. Where does it sit there?",
+          "Four bars. In bars 1 and 2 the snare lands exactly with the hi-hat on 2 and 4. In bars 3 and 4 it moves by a few milliseconds. Pick where it sits there.",
         skills: [{ skill: "R15", w: 1 }],
         hints: ladder(
-          "Listen to beats 2 and 4 of bars 3 and 4: do you hear one hit or two very close together?",
+          "Listen to beats 2 and 4 of bars 3 and 4: the snare and the hi-hat no longer sound as one hit.",
           "Two hits very close together: the hi-hat and the snare no longer start at the same moment. Which comes first?",
           "The hi-hat stays on the grid. Listen for which of the two you hear first on beat 2.",
         ),
@@ -406,7 +407,7 @@ export default defineLesson({
         role: "practice",
         title: "Figure, moved",
         prompt:
-          "The drums and the bass keep the bar steady. Write a short figure of your own, two to four hits, on the clav or a percussion line, and make it come back moved to another place in the bar: an eighth, a beat or a dotted eighth later. If you like, let the snare lean back by a few milliseconds.",
+          "Write a short figure of your own, two to four hits, on the clav or a percussion line. Required: it comes back in another bar moved to another place in the bar, an eighth, a beat or a dotted eighth later. Also on the checklist: the snare leans back a few milliseconds, and the bass stays on beat 1.",
         skills: [{ skill: "R15", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -414,7 +415,7 @@ export default defineLesson({
         rubric: [
           {
             id: "figure-displaced",
-            label: "Your figure comes back moved to another place in the bar",
+            label: "A figure comes back in another bar, moved to another place in the bar",
             required: true,
             skills: ["R15"],
             rule: "custom",
@@ -423,7 +424,7 @@ export default defineLesson({
           },
           {
             id: "snare-leans",
-            label: "The snare leans back by a few milliseconds",
+            label: "The snare lands a few milliseconds behind the beat",
             required: false,
             skills: ["R15"],
             rule: "custom",
@@ -432,7 +433,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-one",
-            label: "The bass still lands on beat 1",
+            label: "The bass plays on beat 1 of every bar",
             required: false,
             skills: ["R15"],
             rule: "onsets",
@@ -444,7 +445,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which bar of your loop plays the figure somewhere new?",
+          "Give the figure's line a different `.late()` amount in some bars, so it moves while its rhythm stays.",
           "Give the figure's line an amount per bar inside `< >`: nothing in some bars, a move in others. The rhythm itself stays as written.",
           "An eighth of a bar is half a beat, a quarter is a beat; keep the move a sixteenth or more, and less than a whole bar.",
         ),

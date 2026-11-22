@@ -79,7 +79,7 @@ const make = (...lines: string[]) => code(...lines);
 /** Drop-2 voicings of the changes, heard in the written octaves (a `voicing()` line is not graded by shape). */
 const DROP_TWO_HEARD: RubricRule = {
   id: "drop-2",
-  label: "Your chords are drop-2 voicings",
+  label: "At least 3 of every 4 chords are drop-2 voicings of Dm7, G7, Cmaj7, Cmaj7",
   required: true,
   skills: ["J09"],
   rule: "custom",
@@ -93,7 +93,7 @@ const NONE = { roll: false, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "J3.L02",
-  version: 2,
+  version: 3,
   title: "Drop-2 & Spread",
   objective: "I can open a close voicing into a drop-2 voicing and carry a tune on its top note.",
   key: { tonic: "C", mode: "major" },
@@ -122,7 +122,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The tune, the bass and the drums do not change. Listen to the space between the Rhodes and the vibes: which take sounds thicker, and which one breathes?",
+          "The tune, the bass and the drums do not change. Listen to the space between the Rhodes and the vibes in both takes. Notice which take sounds thicker and which one breathes.",
         skills: [{ skill: "J09", w: 1 }],
         hints: null,
         tests: [],
@@ -153,14 +153,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it: Cmaj7 held for a bar, then the same chord opened. Read the two bars on the roll. Which note moved, and how far?",
+          "Run it: Cmaj7 held for a bar, then the same chord opened. Read the two bars on the roll and answer two questions: which note of the first chord moved, and how many half steps down it went.",
         skills: [{ skill: "J09", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Put the two chords side by side on the roll: three notes stay exactly where they were. Find the one that does not, and count the half steps between its two places.",
         },
         hints: ladder(
-          "Which notes of bar 1 are still in the same place in bar 2?",
+          "Put the two bars side by side on the roll and find the three notes that stay in the same place.",
           "Count the notes of bar 1 from the top down: first, second, third, fourth. The one that moved is one of the inner two.",
           "It is the second from the top. Count from where it was down to where it is now: the same letter, lower.",
         ),
@@ -216,7 +216,7 @@ export default defineLesson({
           "Dm7 in close position is D4 F4 A4 C5. Play its drop-2 voicing on the keyboard, all four notes at once.",
         skills: [{ skill: "J09", w: 1 }],
         hints: ladder(
-          "Which note is second from the top of D4 F4 A4 C5?",
+          "Count D4 F4 A4 C5 from the top down and find the second note.",
           "That note goes down an octave, to the same letter lower; the other three stay where they are.",
           "The top stays C5, and D4 and F4 stay too. The fourth note is now the lowest of the four.",
         ),
@@ -279,7 +279,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The Rhodes harmonises the tune in close position. Turn each of its four chords into a drop-2 voicing, so the tune stays on top.",
+          "The Rhodes harmonises the tune in close position. Turn each of its four chords into a drop-2 voicing: move the note second from the top down an octave. Keep the other three notes and the vibes line. Done when all four bars match the target.",
         skills: [{ skill: "J09", w: 1 }],
         swing: SWUNG,
         code: { starter: S4_STARTER },
@@ -298,7 +298,7 @@ export default defineLesson({
             "Bar {bar}: a note too many. A drop-2 keeps the same four notes as the close chord.",
         },
         hints: ladder(
-          "In each chord, which note is second from the top?",
+          "Count each chord from its top note down. The second note is the one that moves.",
           "That note moves down an octave, to the same letter lower. The top note stays, so the tune stays on top.",
           "Bar 1 becomes `[a3,d4,f4,c5]`: A came down from A4. Do the same to the other three bars.",
         ),
@@ -365,10 +365,11 @@ export default defineLesson({
         id: "where-it-sits",
         version: 1,
         role: "practice",
-        prompt: "Three ways to play Cmaj7 under the ride. Two of them ring clearly. Which one turns to mud?",
+        prompt:
+          "Three ways to play Cmaj7 under the ride. Two of them ring clearly. Pick the one that turns to mud.",
         skills: [{ skill: "J09", w: 1 }],
         hints: ladder(
-          "Which card sounds lowest? Can you still pick out four notes in it?",
+          "Find the card that sounds lowest, and try to pick out its four notes.",
           "Low notes close together blur into one rumble; the same gaps higher up stay clear.",
           "One card is the drop-2 you just wrote, played two octaves lower.",
         ),
@@ -416,7 +417,7 @@ export default defineLesson({
         role: "practice",
         title: "Drop-2 ii–V–I",
         prompt:
-          "Keep C B B E or write your own vibes tune over Dm7 G7 Cmaj7 Cmaj7, one or two notes a bar. Voice the Rhodes under it in drop-2: build each chord close under the tune's note, then drop its second note from the top. A tune note on a 3rd or a 7th makes each change clear.",
+          "Voice the Rhodes in drop-2 under the vibes, over Dm7 G7 Cmaj7 Cmaj7. Required: build each chord close under the tune's note, then drop its second note from the top an octave. Also on the checklist: the vibes tune plays, and a tempo of 100 to 160. Keep C B B E or write your own tune.",
         skills: [{ skill: "J09", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -426,7 +427,7 @@ export default defineLesson({
           DROP_TWO_HEARD,
           {
             id: "tune-on-top",
-            label: "A vibes tune on top of the chords",
+            label: "A vibes tune plays with the chords",
             required: false,
             skills: ["J09"],
             rule: "sounds",
@@ -434,7 +435,7 @@ export default defineLesson({
           },
           {
             id: "swing-tempo",
-            label: "A medium-swing tempo, 100–160",
+            label: "`setcpm` sets a tempo between 100 and 160 beats a minute",
             required: false,
             skills: ["R13"],
             rule: "tempo-bpm",
@@ -443,7 +444,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Under each tune note, which four notes of the bar's chord fit inside one octave with the tune note on top?",
+          "Work one bar at a time. Under the tune's note, stack the bar's chord inside one octave with the tune note on top.",
           "Build the chord close under the tune note first. Then take its second note from the top down an octave.",
           "Under C5 on Dm7 the close chord is D4 F4 A4 C5; the A goes down. Do the same under each note of your tune.",
         ),

@@ -107,7 +107,7 @@ const GRAND_KEYS = { roll: false, staff: "grand", keyboard: true } as const;
 
 export default defineLesson({
   id: "U05.L08",
-  version: 2,
+  version: 3,
   title: "Let Strudel Voice It",
   objective:
     'I can write chords as symbols, chord("<C G Am F>"), and let .voicing() place their notes, close to how I would by hand.',
@@ -139,7 +139,7 @@ export default defineLesson({
         key: { tonic: "G", mode: "major" },
         pass: 0.9,
         prompt:
-          "The last check of Voice Leading by Hand, in G: G C D G, three notes each, over the bass. Hold every note two neighbouring chords share, move each other note three half steps at most, and keep the three in order, lowest to highest. The loop repeats: the last G leads back into the first too.",
+          "Rewrite all four chords, G C D G, three notes each, over the given bass. Keep every note two neighbouring chords share in the same place in the list. Move every other note three half steps at most, and keep each list lowest to highest. The last G leads back into the first too.",
         skills: [{ skill: "C05", w: 1 }],
         code: { starter: GATE_STARTER },
         reference: { solutions: [gate(G_SMOOTH)], bars: 4 },
@@ -159,7 +159,7 @@ export default defineLesson({
           "harmony.voice-count": "Bar {bar}: {notes} is {got} notes; write {exp}, one for each voice.",
         },
         hints: ladder(
-          "Which note do G and C share? Which do D and G share?",
+          "Find the shared notes first: one note is in both G and C, one is in both D and G. Those stay put.",
           "Hold the shared note in its place in the list. C and D share none, so there every note moves: find a near note of D for each, and use all three letters.",
           "Bar 2 keeps G at the bottom and steps B and D up to C and E. Into D, G goes down a half step to F♯ and E down a whole step to D. Which letter of D is left for C?",
         ),
@@ -222,7 +222,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Four chords on an electric piano, written only by name: C, G, Am, F. Listen to the top of the chords: do they leap from bar to bar, as your first stacks did, or glide?",
+          "Four chords on an electric piano, written only by name: C, G, Am, F. Listen for whether the top note of the chords leaps from bar to bar, as your first stacks did, or glides.",
         skills: [{ skill: "N05", w: 1 }],
         hints: null,
         tests: [],
@@ -241,10 +241,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'C F G C over the same bass, twice. One card is your hand path from Voice Leading by Hand; the other is `chord("<C F G C>")` placed by Strudel. Which one is Strudel\'s?',
+          'Both cards play C F G C over the same bass. One is your hand path from Voice Leading by Hand; the other is `chord("<C F G C>")` placed by Strudel. Pick the card that is Strudel\'s.',
         skills: [{ skill: "C05", w: 1 }],
         hints: ladder(
-          "Which card sounds like the line you wrote in the last lesson?",
+          "Listen for the card that sounds like the line you wrote in the last lesson: that one is not Strudel's.",
           "Your path had exactly three notes in every chord, with C held at the bottom from the first chord into the second.",
           "Card A keeps C at the bottom through the first two chords, then dips to B. Is that the path you wrote?",
         ),
@@ -287,7 +287,8 @@ export default defineLesson({
         id: "what-c-plays",
         version: 1,
         role: "practice",
-        prompt: 'Run `chord("C")` placed by Strudel and read its notes on the staff and the keyboard.',
+        prompt:
+          'Run `chord("C")` placed by Strudel and read its notes on the staff and the keyboard, from the lowest up. Count each letter once, then answer both questions below.',
         skills: [{ skill: "N05", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -347,7 +348,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          'The chords line spells out your hand path note by note. Replace the `note(…)` with the four chord names, C F G C, inside `chord("< >")`, followed by `.voicing()`, so Strudel places the notes.',
+          'The chords line spells out your hand path note by note. Replace the `note(…)` with the four chord names, C F G C, inside `chord("< >")`, then add `.voicing()` right after it so Strudel places the notes. Keep `.s("piano")`.',
         skills: [
           { skill: "N05", w: 0.6 },
           { skill: "C05", w: 0.4 },
@@ -368,7 +369,7 @@ export default defineLesson({
           "code.must-use": "Add `.voicing()` after `chord(…)`: without it a chord name has no notes to play.",
         },
         hints: ladder(
-          "What are the names of the four chords in your note lists?",
+          "Two changes: the note lists become four names inside `chord()`, and `.voicing()` follows it.",
           'Chord names go inside `chord("…")` the way notes go inside `note("…")`, with `< >` for one a bar.',
           'Start with `chord("<C …>")`, then add the call that turns names into notes.',
         ),
@@ -431,7 +432,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Strudel chooses where the chords sit, and `.anchor()` steers it: a higher anchor, higher chords. Add `.anchor("g5")` between `chord(…)` and `.voicing()` and hear the chords brighten.',
+          'Strudel chooses where the chords sit, and `.anchor()` steers it: a higher anchor, higher chords. Add `.anchor("g5")` between `chord(…)` and `.voicing()`. Done when the same four chords play higher.',
         skills: [{ skill: "N05", w: 1 }],
         code: { starter: S6_STARTER },
         reference: { solutions: [s6(named("<C F G C>", '.anchor("g5")', "rhodes"))], bars: 4 },
@@ -460,7 +461,7 @@ export default defineLesson({
             "Bar {bar}: that chord has {got}; it should have {exp}. Keep the four names as they were.",
         },
         hints: ladder(
-          "Where in the line does Strudel decide where the notes go?",
+          "Strudel decides where the notes go at `.voicing()`. The new setting goes just before it.",
           "Settings for the placement go between `chord(…)` and `.voicing()`.",
           'The new call is `.anchor()`, with a note name and an octave inside the quotes: try `"g5"`.',
         ),
@@ -526,7 +527,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Here is your hand-led loop from the last lesson. Write four bars of chords by name, any you like, let `.voicing()` place them on a Rhodes or an organ, and give them a bass line of roots.",
+          "The starter is your hand-led loop from the last lesson. Rewrite it as four bars of chord names, any you like, placed by `.voicing()` on a Rhodes or an organ. A bass line of roots can go under them. Done when `.voicing()` places the chords.",
         skills: [
           { skill: "N05", w: 0.6 },
           { skill: "C05", w: 0.4 },
@@ -538,7 +539,7 @@ export default defineLesson({
         rubric: [
           {
             id: "voiced-by-strudel",
-            label: "The chords are placed by `.voicing()`",
+            label: "`.voicing()` used to place the chords",
             required: true,
             skills: ["N05"],
             rule: "uses",
@@ -548,7 +549,7 @@ export default defineLesson({
           // tools, not sounds), and a suggestion for one would mark the other "not yet": the prompt asks.
           {
             id: "a-tune",
-            label: "A tune on top",
+            label: "A tune on its own line, such as `mel`",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -557,7 +558,7 @@ export default defineLesson({
           },
           {
             id: "bass-line",
-            label: "A bass line under the chords",
+            label: "A bass line on its own line, such as `bass`",
             required: false,
             skills: ["C05"],
             rule: "tracks",
@@ -566,7 +567,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "What are the names of the four chords in the starter?",
+          "Name the starter's four chords bar by bar: those names go inside `chord()`.",
           'Write them inside `chord("< >")`, one a bar, and end the chain with `.voicing()` and a sound.',
           "The bass can play each chord's root, one note a bar, the way the bass did in Voice Leading by Hand.",
         ),

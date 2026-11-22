@@ -83,7 +83,7 @@ const LEAD_SHEET = { melody: "mel", chords: "chords", title: "Aura Lee" } as con
 
 export default defineLesson({
   id: "U16.L05",
-  version: 2,
+  version: 3,
   title: "Mixture Lab",
   objective:
     "I can put new chords under a tune without changing it, and tell a borrowed chord from a secondary dominant by ear.",
@@ -109,7 +109,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Aura Lee's verse twice, first over its plain chords, then over new ones. Follow the sax: does the tune change at all? Then listen under it, and find the bars where the light changes.",
+          "Aura Lee's verse twice, first over its plain chords, then over new ones. Follow the sax: does the tune change at all? Then listen under it to bars 2 and 4: which chords change the colour?",
         skills: [{ skill: "E12b", w: 1 }],
         hints: null,
         tests: [],
@@ -135,7 +135,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bar 6 of the tune is three Ds. Which of these borrowed chords has D in it and could go under that bar? Then run it: the Ds play over all three.",
+          "Bar 6 of the tune is three Ds. Predict which of these three borrowed chords has D in it, so it can go under that bar. Pick your answer, then run it: the Ds play over all three chords.",
         skills: [{ skill: "H13", w: 1 }],
         hints: null,
         tests: [],
@@ -163,7 +163,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the new version and read the lead sheet: the tune with its new chords above it. Some chords lean toward the next one; some only change the light.",
+          "Run the new version and read the lead sheet: the tune with its new chords above it. Some chords lean toward the next one; some only change the light. Then answer both questions: what the D7 of bar 2 is, and how many chords come from C minor.",
         skills: [{ skill: "E12b", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -224,7 +224,7 @@ export default defineLesson({
         role: "check",
         key: C,
         prompt:
-          "The verse's second phrase over its plain chords: C, Dm, G, C. The target plays the same tune with two borrowed chords in bars 2 and 4. Find them by ear, bass first, and write them. Bar 4 holds two chords.",
+          "The verse's second phrase over its plain chords: C, Dm, G, C. The target keeps the tune and changes bars 2 and 4. Find the target's chords by ear, bass first, and write them in `changes`: one chord in bar 2, two chords in bar 4, the first of them C.",
         skills: [
           { skill: "H13", w: 0.6 },
           { skill: "E12b", w: 0.4 },
@@ -304,7 +304,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Five short loops of four bars, each with one chord from outside the key: the sad IV, ♭VI or ♭VII. Some ask in which bar it sits; some mark the bar and ask which chord it is.",
+          "Five loops of four bars. Each has one chord from outside the key: the sad IV, ♭VI or ♭VII. Answer the question each loop shows: pick the bar that holds that chord, or, where the bar is marked, pick which chord it is.",
         skills: [
           { skill: "E12b", w: 0.7 },
           { skill: "H13", w: 0.3 },
@@ -340,7 +340,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Aura Lee's verse with its plain chords and the tune on a tenor sax. Leave the tune exactly as it is and change the chords under it: at least two from outside the key, borrowed chords or secondary dominants. Check each against the tune's long notes, then listen: does it still sound like itself, in a new light?",
+          "Aura Lee's verse with its plain chords and the tune on a tenor sax. Keep every note of the `mel` line. In `changes`, put at least two chords from outside the key: borrowed chords or secondary dominants. Pick each one so it holds the tune's long note in its bar.",
         skills: [
           { skill: "E12b", w: 0.4 },
           { skill: "H13", w: 0.3 },
@@ -352,7 +352,7 @@ export default defineLesson({
         rubric: [
           {
             id: "same-tune-new-chords",
-            label: "The same tune over at least two chords from outside the key",
+            label: "The mel line unchanged, over at least two borrowed chords or secondary dominants",
             required: true,
             // The lab's own idea: outside chords chosen by their colour under a tune (E12b), from the two kinds.
             skills: ["E12b", "H13", "H12"],
@@ -364,7 +364,7 @@ export default defineLesson({
           },
           {
             id: "visitor-goes-home",
-            label: "A secondary dominant that goes to its chord",
+            label: "A secondary dominant followed by the chord it leans into",
             required: false,
             skills: ["H12"],
             rule: "contains-rn",
@@ -375,7 +375,7 @@ export default defineLesson({
           },
           {
             id: "climb-from-below",
-            label: "The climb ♭VI, ♭VII, I",
+            label: "♭VI, then ♭VII, then I, in that order",
             required: false,
             skills: ["H13"],
             rule: "contains-rn",
@@ -385,7 +385,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root",
+            label: "On most chord changes, the bass plays the new chord's root",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -395,7 +395,7 @@ export default defineLesson({
           },
           {
             id: "tenor-on-the-tune",
-            label: "The tenor sax on the tune",
+            label: "The tenor sax plays somewhere in the piece",
             required: false,
             skills: ["D01"],
             rule: "sounds",
@@ -405,7 +405,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which bars hold one long note? Those are the easiest places to try a new chord.",
+          "Two chords must come from outside the key. Which bars hold one long note? Those are the easiest places to try one.",
           "Bar 4 and bar 8 hold C, bars 2 and 6 lean on D. Find chords from C minor, or a V7 of the next chord, that contain those notes.",
           "In the modify step, B♭ went under the Ds of bar 6 and F minor shared bar 8 with C: those two are already enough. Then try one more in the first phrase.",
         ),

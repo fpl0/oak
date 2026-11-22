@@ -138,7 +138,7 @@ const WHERE: IdentifyEx = {
   id: "where-home-moves",
   version: 1,
   role: "check",
-  prompt: "Where: the first bar in the new key.",
+  prompt: "Mark the first bar in the new key.",
   skills: [{ skill: "E13", w: 1 }],
   hints: ladder(
     "Hum do along with bar 1. In which bar does your hum stop belonging to the music?",
@@ -174,7 +174,7 @@ const HOW_FAR: IdentifyEx = {
   id: "how-far-it-lifts",
   version: 1,
   role: "check",
-  prompt: "How far: the size of the lift.",
+  prompt: "Pick the size of the lift at the key change.",
   skills: [{ skill: "E13", w: 1 }],
   hints: ladder(
     "Sing the first note of the chorus, then the first note of the chorus after the change. How far apart are they?",
@@ -210,7 +210,7 @@ const HOW_FAR: IdentifyEx = {
 
 export default defineLesson({
   id: "U17.L04",
-  version: 2,
+  version: 3,
   title: "Transcribing Through a Key Change",
   objective:
     "I can write a tune down through its key change: find the bar where home moves and the new do, then write the degrees once and give them a key plan.",
@@ -237,7 +237,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A pop chorus, eight bars, with nothing to read. Once the first bar has settled, hum do softly and keep it going under the tune. Notice the bar where your do stops fitting.",
+          "Listen to this eight-bar pop chorus, with nothing to read. Once bar 1 has settled, hum do softly and keep humming it under the tune. Listen for the bar where your do stops fitting.",
         skills: [{ skill: "E13", w: 1 }],
         hints: null,
         tests: [],
@@ -263,7 +263,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The same eight bars, heard and not seen. In which bar does the new key begin, and by how much does the music lift there?",
+          "Answer two questions about the same eight bars, by ear. First: mark the first bar in the new key. Second: pick how far the music lifts there.",
         skills: [{ skill: "E13", w: 1 }],
         hints: ladder(
           "Hum do along with bar 1. Where does your hum stop belonging to the music?",
@@ -288,13 +288,13 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Write the chorus tune in `n`. Bars 1 to 4 first: the first note is given, degree 3 (`n` 2). Then make the line eight bars long without writing more notes: give `.scale()` a key plan with the new do you heard. Any octave passes.",
+          "Write the chorus tune in `n`, bars 1 to 4 only; the first note is given, degree 3 (`n` 2). Then change `.scale()` to a key plan: F major for 4 bars, then the key of the new do you heard for 4 bars. Done when your line matches all 8 bars of the source. Any octave passes.",
         skills: [
           { skill: "E13", w: 0.5 },
           { skill: "E07", w: 0.5 },
         ],
         hints: ladder(
-          "When the chorus starts again at bar 5, is it a new tune, or the same tune from another note?",
+          "Compare bar 5 with bar 1: the chorus starts again there. Is it a new tune, or the same tune from another note?",
           "Bars 5 to 8 sing the same degrees as bars 1 to 4, from a new do. So the numbers are written once, inside `< >`, and the key plan in `.scale()` does the rest. `n` counts from 0: degree 3 is `n` 2.",
           "Bar 1 is degrees 3, 5, 3: `[2 ~ 4 2]`. The key plan holds F major for four bars, then the key a whole step above F for four.",
         ),
@@ -373,7 +373,7 @@ export default defineLesson({
         key: D_FLAT_MAJOR,
         bpm: BALLAD_BPM,
         prompt:
-          "Six bars of a slow ballad for Rhodes, upright bass and tenor sax, in the manner of the standards of 1930. It starts in D♭ major, and home moves once. Listen for the bar where it moves, and whether home goes up or down.",
+          "Listen to six bars of a slow ballad for Rhodes, upright bass and tenor sax, in the manner of the standards of 1930. It starts in D♭ major, and home moves once. Listen for the bar where it moves, and whether home goes up or down.",
         skills: [{ skill: "E13", w: 1 }],
         hints: null,
         tests: [],
@@ -395,13 +395,13 @@ export default defineLesson({
         key: D_FLAT_MAJOR,
         bpm: BALLAD_BPM,
         prompt:
-          "Take the ballad's bass down, one or two notes a bar. It starts on degree 2 of D♭ major (`n` 1, given). Home moves at bar 3: find the new do, give `.scale()` a key plan, and write each root as a degree of the key in force. Any octave passes.",
+          "Write the ballad's bass roots in `n`, each a degree of the key in force; it starts on degree 2 of D♭ major (`n` 1, given). Home moves at bar 3: change `.scale()` to a key plan, D♭ major for bars 1 and 2, then the new key for bars 3 to 6. Any octave passes.",
         skills: [
           { skill: "E13", w: 0.5 },
           { skill: "E09", w: 0.5 },
         ],
         hints: ladder(
-          "From bar 3 on, is the new do above the old one or below it, and by how much?",
+          "Find the new do first: sing the bass note where bar 4 settles. Is it above D♭ or below it, and by how much?",
           "Sing the bass note under bar 4's chord, where the music settles, against D♭: that is the new do. The plan holds D♭ major for two bars, then the new key for four.",
           "Bar 1 is degrees 2 and 5 of D♭: `[1 4]`. Bars 3 and 4 do the same as bars 1 and 2, a half step higher.",
         ),
@@ -468,7 +468,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The chorus you took down, its chords and its tune, in F and then in G. It has no bass. Write one: roots where the chords change, then 5ths, approach notes or a rhythm that locks to the kick. Write it once in degrees with a key plan, so it follows the song up. Then make the second chorus bigger.",
+          "Add a `bass:` line under the chorus that plays the root of every chord: F Dm B♭ C, then G Em C D. Write it once in degrees with a key plan, as the tune has, so it follows the song up to G. Done when it lands on each root in both keys. Then try 5ths or approach notes.",
         skills: [
           { skill: "E13", w: 0.5 },
           { skill: "B01", w: 0.5 },
@@ -479,7 +479,7 @@ export default defineLesson({
         rubric: [
           {
             id: "roots-in-both-keys",
-            label: "The bass plays each chord's root where the chords change, in both keys",
+            label: "The bass plays the chord's root on at least 3 of every 4 chord changes, across both keys",
             required: true,
             skills: ["E13", "B01"],
             rule: "bass-line",
@@ -489,7 +489,7 @@ export default defineLesson({
           },
           {
             id: "still-the-song",
-            label: "The tune is still the song's, in both keys",
+            label: "The tune still plays the song's notes, in both keys",
             required: false,
             skills: ["E13"],
             rule: "matches",
@@ -506,7 +506,7 @@ export default defineLesson({
           },
           {
             id: "something-new",
-            label: "Something new comes in: a fourth line",
+            label: "Your code has a fourth line, such as a `pad:`",
             required: false,
             skills: ["F02"],
             rule: "tracks",
@@ -516,7 +516,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which note has a bass played on each new chord since Roots Down Low?",
+          "Start with the note a bass has played on each new chord since Roots Down Low. Which note of the chord is that?",
           "Add a `bass:` line in degrees on octave 2, one root a bar to start. The chords go F Dm B♭ C, then the same four a whole step up: the bass needs the same key plan as the tune.",
           "Bar 1's root is F, degree 1, `n` 0; bar 2's is D, degree 6, `n` 5. The plan starts `<F2:major!4` and holds the second key for four bars.",
         ),

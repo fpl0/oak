@@ -76,7 +76,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L05",
-  version: 2,
+  version: 3,
   title: "Leaning & Holding",
   objective:
     "I can make a tune lean: a note outside the chord on the strong beat, held over or leapt to, that falls a step into the chord.",
@@ -105,7 +105,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to the start of bars 3 and 4. How does the tune sit against the new chord there, and what changes when it moves on?",
+          "Listen to beat 1 of bars 3 and 4, where the chord changes. Does the tune's note there rest on the new chord or rub against it, and what happens when the tune moves on?",
         skills: [{ skill: "M05", w: 1 }],
         hints: null,
         tests: [],
@@ -124,7 +124,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two bars, IV then V. Over V one tune goes to B at once; the other keeps the C a little longer before it falls to B. Which one makes the G chord wait?",
+          "Play both cards: two bars, IV then V. Over V, one tune goes to B at once; the other holds the C into the new bar before it falls to B. Pick the card that makes the G chord wait.",
         skills: [{ skill: "M05", w: 1 }],
         hints: ladder(
           "In which card does the second chord sound settled the moment it arrives?",
@@ -171,7 +171,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it with the chord-tone lens on and watch bars 2 and 3. The chord changes from IV (F) to V (G) on beat 1 of bar 3.",
+          "Run it with the chord-tone lens on and watch bars 2 and 3. The chord changes from IV (F) to V (G) on beat 1 of bar 3. Then answer both questions: which note sounds there, and on which beat the tune steps down to B.",
         skills: [{ skill: "M05", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -235,7 +235,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Change the lengths so the C from bar 2 holds over into bar 3 and falls to B on beat 3, as it does in the target.",
+          "Change only the `@` lengths, not the notes. Make the C that starts on beat 3 of bar 2 last into bar 3, so B arrives on beat 3 of bar 3, as in the target. The last C still starts bar 4.",
         skills: [{ skill: "M05", w: 1 }],
         code: { starter: STEP_STARTER },
         reference: { solutions: [STEP_REF], bars: 4 },
@@ -248,8 +248,14 @@ export default defineLesson({
         },
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true, showRoll: false, revealRollAfter: 1 },
+        feedbackText: {
+          "melody.missing-note":
+            "Bar {bar}, {beatLabel}: note {exp} missing. After the long C, the tune still falls to B on beat 3 of bar 3.",
+          "melody.extra-note":
+            "Bar {bar}, {beatLabel}: extra note {got}. Hold the C as one long note, `7@4`, instead of playing it again.",
+        },
         hints: ladder(
-          "Which note needs to last longer, and which one shorter?",
+          "Two `@` numbers change: the C in bar 2 and the B after it. Which one needs to last longer, and which one shorter?",
           "Each `@` number is a length in beats. The C, `7@2`, starts on beat 3 of bar 2; to reach beat 3 of bar 3 it needs two beats more.",
           "The C becomes `7@4`. The bar still has four beats, so the B after it gives two of its own back.",
         ),
@@ -300,7 +306,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bar 4: over the last C chord the tune plays D on beat 1, then falls to C. D is not in the chord. How did the tune get to it?",
+          "Run it and look at bar 4: over the last C chord the tune plays D on beat 1, then falls to C. D is not in the chord. Find the note just before the D, and pick how the tune reaches it.",
         skills: [{ skill: "M05", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -349,7 +355,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "One bar, two chords, a short tune with one marked note outside its chord. Is it a passing tone, a neighbour tone, an appoggiatura or a suspension?",
+          "Listen to a one-bar tune over two chords. One note, marked on the staff, is not in its chord. Pick its kind from how the tune reaches it and leaves it: passing tone, neighbour tone, appoggiatura or suspension.",
         skills: [
           { skill: "M05", w: 0.7 },
           { skill: "M04", w: 0.3 },
@@ -395,7 +401,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Make this tune lean at least once: hold a note into the next chord, or leap to a note that rubs on beat 1, and let it fall a step into the chord.",
+          "Make the tune lean at least once. Either hold a note from one bar into the next chord, where it is not a chord tone, or leap to a note outside the chord on beat 1. Then move that note one step down into the chord.",
         skills: [{ skill: "M05", w: 1 }],
         // The rule's own detail ends "step into a note outside the chord and step on", which describes a
         // passing tone, not a lean; the same text serves the suggestions, so it says only "not yet".
@@ -406,7 +412,8 @@ export default defineLesson({
         rubric: [
           {
             id: "a-lean",
-            label: "A lean that falls a step into the chord",
+            label:
+              "At least 1 note outside the chord, held over from the chord before or leapt to on a beat, that then moves one step",
             required: true,
             skills: ["M05"],
             rule: "non-chord-tones",
@@ -417,7 +424,7 @@ export default defineLesson({
           },
           {
             id: "strong-beats",
-            label: "Chord tones on most of beats 1 and 3",
+            label: "At least 6 in 10 notes on beats 1 and 3 are notes of the chord under them",
             required: false,
             skills: ["M03"],
             rule: "chord-tones-strong",
@@ -428,7 +435,7 @@ export default defineLesson({
           },
           {
             id: "home",
-            label: "Ends on home, degree 1",
+            label: "The last note is home, degree 1",
             required: false,
             skills: ["M01"],
             rule: "ends-on-degree",

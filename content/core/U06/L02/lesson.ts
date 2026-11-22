@@ -61,7 +61,7 @@ const STAFF = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U06.L02",
-  version: 2,
+  version: 3,
   title: "Roman Numerals",
   objective:
     "I can name the chords of a major key with Roman numerals, I ii iii IV V vi vii°, and play a loop from them in any key.",
@@ -87,7 +87,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Four chords and a tune. Listen for the bar where the loop sounds most at home, then find which degree its chord stands on.",
+          "Four chords and a tune. Listen for the bar where the loop sounds most at home. Then find on the roll which degree that bar's chord stands on.",
         skills: [{ skill: "H01", w: 1 }],
         hints: null,
         tests: [],
@@ -110,7 +110,8 @@ export default defineLesson({
         version: 1,
         role: "practice",
         key: G,
-        prompt: 'The same `.add(n("<0 4 5 3>"))`, but over `.scale("G3:major")`. What will you hear?',
+        prompt:
+          'The code keeps `.add(n("<0 4 5 3>"))` but uses `.scale("G3:major")`. Predict what you will hear, and pick it.',
         skills: [{ skill: "N06", w: 1 }],
         hints: null,
         tests: [],
@@ -138,14 +139,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The seven triads of C, one a bar, then home. Listen for bright, dark and tense, and read the degree of each root on the roll.",
+          "Run the seven triads of C, one a bar, then home. Listen for which sound bright, dark or tense, and read each root's degree on the roll. Then answer both questions below.",
         skills: [{ skill: "H01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Play it again and stop on each bar: the bright chords have a major 3rd at the bottom, four half steps.",
         },
         hints: ladder(
-          "Which bars sound bright, and which darker? Which one sounds tense?",
+          "Listen bar by bar and sort the chords into bright, dark and tense.",
           "Count the half steps of the bottom 3rd on the keyboard, as in Major & Minor: 4 is major, 3 is minor.",
           "Bar 1 (degree 1) is major and bar 2 (degree 2) is minor. Check bars 4 and 5 next.",
         ),
@@ -210,13 +211,13 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Here are the hook's chords again. Write the Roman numeral of each, one a bar: upper case for major, lower case for minor.",
+          "The hook's chords play again, with their code shown. Enter the Roman numeral of each chord, one a bar: upper case for major, lower case for minor.",
         skills: [
           { skill: "N06", w: 0.7 },
           { skill: "H01", w: 0.3 },
         ],
         hints: ladder(
-          "Which degree is the root of each chord? The numbers in `.add()` count from 0.",
+          "Find the degree of each chord's root first. The numbers in `.add()` count from 0.",
           "Add one to each number in `.add()` to get the root's degree, then write that degree as a numeral.",
           "Bar 1 is I and bar 2 is V. Bar 3 sits on degree 6: is a triad there bright or dark?",
         ),
@@ -260,10 +261,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         key: G,
-        prompt: "G major runs G A B C D E F♯. Which chord is ii in G? Type its chord symbol.",
+        prompt: "G major runs G A B C D E F♯. Type the chord symbol of ii in G.",
         skills: [{ skill: "N06", w: 1 }],
         hints: ladder(
-          "Which degree does ii stand for, and which note of G major is that?",
+          "Find the degree ii stands for, then the note of G major on that degree.",
           "ii is the triad on degree 2, and the lower case says it is minor.",
           "Degree 2 of G major is A. Stack A, C, E: which quality is it?",
         ),
@@ -308,7 +309,7 @@ export default defineLesson({
         role: "check",
         key: G,
         prompt:
-          "The loop should go I vi ii V in G. Bars 1 and 2 are written. Change the last two numbers in `.add()` so bars 3 and 4 play ii and V.",
+          "The loop should go I vi ii V in G. Bars 1 and 2 are written. Change the last two numbers in `.add()` so bar 3 plays ii and bar 4 plays V.",
         skills: [
           { skill: "N06", w: 0.6 },
           { skill: "H01", w: 0.4 },
@@ -323,7 +324,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}; the target has {exp}. A numeral is a degree, and `n` counts from 0: subtract one.",
         },
         hints: ladder(
-          "Bar 2 is vi and its number is 5. How do you get from the numeral to the number?",
+          "Bar 2 is vi and its number is 5. Compare the numeral's degree with the number.",
           "`n` counts from 0, so the number for a numeral is its degree minus one.",
           "ii is degree 2, so its number is 1. Now V.",
         ),
@@ -368,7 +369,7 @@ export default defineLesson({
         role: "practice",
         key: G,
         prompt:
-          "Many songs open on this loop: vi IV I V. Play it in G. Then give the chords a rhythm and put a tune on top.",
+          "Many songs open on the loop vi IV I V. Write it in G in the `chords` line, one chord a bar; bar 1, vi, is written. Then give the chords a rhythm or add a tune if you like. Done when the four bars go vi IV I V in G.",
         skills: [
           { skill: "N06", w: 0.5 },
           { skill: "H01", w: 0.5 },
@@ -379,7 +380,7 @@ export default defineLesson({
         rubric: [
           {
             id: "vi-iv-i-v",
-            label: "The chords go vi IV I V in G",
+            label: "The `chords` line plays vi IV I V in G, in that order",
             required: true,
             skills: ["N06"],
             rule: "progression",
@@ -388,7 +389,7 @@ export default defineLesson({
           },
           {
             id: "a-tune",
-            label: "A tune on top",
+            label: "A tune on its own line, such as `mel`",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -397,7 +398,7 @@ export default defineLesson({
           },
           {
             id: "middle",
-            label: "Chords in the middle, between C3 and C5",
+            label: "Every note of `chords` between `c3` and `c5`",
             required: false,
             skills: ["H01"],
             rule: "range",
@@ -406,7 +407,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which degree is the root of vi in G, and which note is that?",
+          "Bar 1, vi, is written as `[5,7,9]`. Bars 2 to 4 need IV, I and V: find each one's degree.",
           "Subtract one from each numeral's degree: vi IV I V are the numbers 5, 3, 0 and 4.",
           'Bar 1 is written. `n("[0,2,4]").add(n("<5 3 … …>"))` gives bars 1 and 2; two numbers to go.',
         ),

@@ -95,7 +95,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U08.L05",
-  version: 2,
+  version: 3,
   title: "Bass Dictation & Tone",
   objective: "I can take a bass line down by ear, and give a bass its tone.",
   key: { tonic: "C", mode: "major" },
@@ -124,7 +124,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Only the sound of the bass changes. Listen to how each note starts and how much it buzzes: which one sits best under these chords for you?",
+          "Listen to one bass line in three sounds; the notes stay the same. Listen for how each note starts and how much it buzzes, and decide which sits best under these chords for you.",
         skills: [{ skill: "B01", w: 1 }],
         hints: null,
         tests: [],
@@ -152,13 +152,13 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The bass is hidden. Write it in `n`, in any octave: two notes a bar. Switch between the source and your code at the same bar to check.",
+          "Write the hidden bass line in `n`, in any octave. Replace each of the four numbers with a cell of two notes, one on beat 1 and one on beat 3, like `[0 ~ 0 ~]`. Done when all eight notes match the source.",
         skills: [
           { skill: "E09", w: 0.6 },
           { skill: "B01", w: 0.4 },
         ],
         hints: ladder(
-          "Which note does the bass land on with each new chord?",
+          "Start with beat 1 of each bar, where the chord changes. Which note of the chord does the bass land on?",
           "Beat 1 of each bar is the chord's root: write those first. Then find the note on beat 3: is it the root again, or another note of the chord?",
           "Bar 1 starts on 0, the root of I, and its second note is the 5th of that chord, above or below. The other bars do the same from their own root.",
         ),
@@ -174,7 +174,7 @@ export default defineLesson({
         byEar: { ab: true, rates: [1, 0.75, 0.5], accepts: "any-octave" },
         feedbackText: {
           "melody.wrong-degree":
-            "Bar {bar}: your bass plays {got} where the source plays {exp}. Is it a note of the chord above?",
+            "Bar {bar}, {beatLabel}: your bass plays {got} where the source plays {exp}. Play that bar of the source again; the note belongs to the chord above it.",
         },
         tests: [
           { name: "reference", response: { code: DICTATION_SOLUTION }, expect: "pass" },
@@ -224,10 +224,12 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A chord loop with its bass, in a new key each time, sometimes two chords a bar. Enter the bass note under each chord as a degree, in order.",
+          "Listen to a chord loop with its bass, in a new key each time, sometimes two chords a bar. Enter the bass degree under each chord, in order: four degrees.",
         skills: [{ skill: "E09", w: 1 }],
         hints: [
-          { text: "Hum the lowest note under each chord. Where is home?" },
+          {
+            text: "Hum the lowest note under each chord. Then find home, the note the opening chords settle on.",
+          },
           {
             text: "Sing down from each bass note to do and count the steps, both ends included: that is its degree.",
           },
@@ -260,7 +262,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Hear the bass line from the dictation, then sing it back, one syllable a note: do sol, fa do, la mi, sol re. Sing in your own range: your voice does not need to reach the bass.",
+          "Listen to the bass line from the dictation, then sing it back, one syllable a note, eight notes: do sol, fa do, la mi, sol re. Sing in your own range; your voice does not need to reach the bass.",
         skills: [
           { skill: "V05", w: 0.6 },
           { skill: "E09", w: 0.4 },
@@ -301,7 +303,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Give the line you took down a new tone: `.s("fingerbass")` or the synth bass, `.s("sawtooth")`. Then move the number in `.lpf()` down for darker, up for brighter, until the bass sits under the chords without covering them.',
+          'Change the bass sound in the highlighted part to `.s("fingerbass")` or the synth bass, `.s("sawtooth")`. Then try lower numbers in `.lpf()` for darker and higher for brighter. Keep the one that sits under the chords without covering them.',
         skills: [{ skill: "B01", w: 1 }],
         code: { starter: TONE_STARTER },
         reference: { solutions: [TONE_SOLUTION], bars: 4 },
@@ -328,7 +330,7 @@ export default defineLesson({
           "code.must-use": 'This step is for a new tone: `.s("fingerbass")` or `.s("sawtooth")`.',
         },
         hints: ladder(
-          "Which part of the bass line says what it sounds like, and which part says what it plays?",
+          "The bass line has a part that says what it plays and a part that says what it sounds like. Find the second.",
           '`.s()` picks the sound. Today adds two: `"fingerbass"` and `"sawtooth"`.',
           "Change the sound first and listen. Then try `.lpf()` at half the number, then at twice it, and keep what sits best.",
         ),
@@ -372,7 +374,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The bass is a bar late: each chord gets the root of the one before. Put every root on its own beat 1, then build the line out with this unit's tools and choose its tone.",
+          "The bass is a bar late: each bar plays the root of the chord before. Change it so every bar plays its own chord's root on beat 1. Then add 5ths, octaves or approach tones, and pick a bass sound. Keep the chords as they are.",
         skills: [{ skill: "B01", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -380,7 +382,7 @@ export default defineLesson({
         rubric: [
           {
             id: "roots-on-the-one",
-            label: "Each chord's root in the bass on its beat 1",
+            label: "The bass plays each chord's root on beat 1 of its bar, in every bar",
             required: true,
             skills: ["B01"],
             rule: "matches",
@@ -391,7 +393,7 @@ export default defineLesson({
           },
           {
             id: "a-tone-from-today",
-            label: "A tone from today: `fingerbass` or the synth bass",
+            label: "A bass sound from today: `fingerbass` or `sawtooth`",
             required: false,
             skills: ["B01"],
             rule: "sounds",
@@ -399,7 +401,7 @@ export default defineLesson({
           },
           {
             id: "more-than-roots",
-            label: "More than roots: 5ths or octaves",
+            label: "At least 1 in 5 bass notes is a 5th or an octave",
             required: false,
             skills: ["B02"],
             rule: "bass-line",
@@ -411,7 +413,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Under the first chord, Am, which note does the bass play? Which note is Am stacked on?",
+          "Bar 1's chord is Am, stacked on 5 in `.add()`. Compare that with the bass's first number.",
           "The bass can take the chords' own numbers from `.add()`, one a bar, in the same order.",
           "Bar 1 is vi, stacked on 5, so the bass's first number is 5. Then a 5th on top of each root is the root plus 4.",
         ),

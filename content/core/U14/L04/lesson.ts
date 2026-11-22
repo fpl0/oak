@@ -123,7 +123,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U14.L04",
-  version: 2,
+  version: 3,
   title: "Lydian Glow",
   objective: "I can turn a major scale into Lydian by raising its 4th, and make it float over I and II.",
   key: { tonic: "F", mode: "major" },
@@ -149,7 +149,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Halfway through loop 1, one note of the scale changes. Listen for the moment the music leaves the ground. Once it has, does it ever settle back down?",
+          "Listen for the moment in loop 1 when the music lifts off the ground: one note of the scale changes at bar 3. Then listen through loop 2, all on the new scale: does the music ever settle back down?",
         skills: [{ skill: "S13", w: 1 }],
         hints: null,
         tests: [],
@@ -179,7 +179,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight notes from home up to home, twice. Bar 1 is on `F4:major`; bar 2 has the same numbers on the scale the second half of the music used. Which note moves in bar 2, and which way?",
+          "Predict which note of bar 2 differs from bar 1, and which way it moves. Both bars play `n` 0 to 7, home up to home: bar 1 on `F4:major`, bar 2 on the scale of the music's second half. Pick one answer.",
         skills: [{ skill: "S13", w: 1 }],
         hints: null,
         tests: [],
@@ -207,14 +207,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The chord on degree 2, stacked from its root: F major in bar 1, the new scale in bar 2. Run it and read the note names on the roll.",
+          "Run the code and read the note names of the two chords on the roll. Both are the chord on degree 2, stacked from its root: bar 1 on F major, bar 2 on the new scale. Then answer both questions: which chord bar 2 is, and how many half steps from B up to C.",
         skills: [{ skill: "S13", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read bar 2 from the bottom: G, then the moved note, then D. Then count the keys from that moved note up to C, degree 5.",
         },
         hints: ladder(
-          "Which of the three notes has a different name in bar 2?",
+          "Read each chord bottom to top and compare the names. Which of the three notes has a different name in bar 2?",
           "G and D stay. The middle note is degree 4 of the scale: B♭ in F major. It is the note that moved in the predict step.",
           "Raised a half step, B♭ becomes B. A chord of G, B and D: is its 3rd major or minor?",
         ),
@@ -267,11 +267,12 @@ export default defineLesson({
         key: F_LYD,
         version: 1,
         role: "check",
-        prompt: "The pad holds F major. Make it F Lydian: untick one degree and tick another.",
+        prompt:
+          "Build F Lydian on the pad. It opens holding F major: untick the one degree Lydian changes and tick its raised form. Done when the pad holds the seven degrees of F Lydian.",
         skills: [{ skill: "S13", w: 1 }],
         srs: [{ family: "fam.key.scale-spell", mode: "review-if-due" }],
         hints: ladder(
-          "Which one note of F major moved when the music lifted?",
+          "Only one degree differs from F major. Which note moved when the music lifted?",
           "Degrees 1, 2, 3, 5, 6 and 7 stay as they are in major. Degree 4 does not: its raised form is next to it on the pad.",
           "The 7th stays: that was Mixolydian's change, not this one. The note to change sits in the middle of the scale.",
         ),
@@ -332,7 +333,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The pad piece is in F major: F, then G minor, with the line on `F4:major`. Make it Lydian: change the scale word, and turn the second chord major.",
+          "Make two changes so the piece plays the target, the same piece in F Lydian. First, change the scale word in the `mel:` line from `major` to `lydian`. Second, change the second chord in `changes`, `Gm`, to G major. Keep the held F in the bass.",
         skills: [{ skill: "S13", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 2 },
@@ -354,7 +355,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: your line plays {got}; the target has {exp}. The line needs the new scale word as well.",
         },
         hints: ladder(
-          "Two things changed when the music lifted. Which part of the code decides each one?",
+          "Two highlighted places decide the colour: the scale word under the line, and the second chord. Check that each one is changed.",
           "The scale word in `.scale()` decides the line's 4th. The second chord in `changes` is G minor, with B♭ in it.",
           'The line becomes `.scale("F4:lydian")`. Now the chord: G minor with its B♭ raised to B is which chord?',
         ),
@@ -405,7 +406,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four short phrases in other keys, each over its held home note. Major, Lydian or Mixolydian? Listen to the 4th, in the middle of the scale, and to the note just under home.",
+          "Name the scale of each of the four phrases: major, Lydian or Mixolydian. Each plays over its held home note. Listen to the 4th: raised, a half step under 5, means Lydian. Then listen to the note under home: a whole step below means Mixolydian. Neither change means major.",
         skills: [{ skill: "S13", w: 1 }],
         hints: earHints(),
         srs: [{ family: "fam.key.mode", mode: "review-if-due" }],
@@ -431,7 +432,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A pad on F over a held F, and a slow line on F Lydian that never plays its 4th: it could be plain F major. Make it float: put the raised 4th where the ear catches it, on a long note or a beat, and let the pad move to G and back. The bass stays.",
+          "Make the `mel:` line play the raised 4th, B (`n` 3), at least once; without it the line could be plain F major. Put it on a long note or a beat. Then let the pad move to G and back. Keep the held F in the bass. Done when the line plays a B.",
         skills: [{ skill: "S13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],
@@ -439,7 +440,7 @@ export default defineLesson({
         rubric: [
           {
             id: "the-raised-four",
-            label: "Your line plays the raised 4th",
+            label: "The `mel:` line plays the raised 4th (B) at least once",
             required: true,
             skills: ["S13"],
             rule: "degree-set",
@@ -448,7 +449,7 @@ export default defineLesson({
           },
           {
             id: "the-chord-on-two",
-            label: "The major chord on degree 2 in the pad",
+            label: "A G major chord, II, in `changes` at least once",
             required: false,
             skills: ["S13"],
             rule: "contains-rn",
@@ -457,7 +458,7 @@ export default defineLesson({
           },
           {
             id: "all-in-the-mode",
-            label: "Every note from F Lydian",
+            label: "Every note is in F Lydian: F G A B C D E, no B♭",
             required: false,
             skills: ["S13"],
             rule: "in-key",
@@ -468,7 +469,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which note makes this scale sound unlike F major, and does your line play it?",
+          "One note makes this scale sound unlike F major. Find it, then check whether your line plays it.",
           "The raised 4th is B. `n` counts from 0, so degree 4 is `n` 3.",
           "In bar 3, change the `2` to a `3` and hear the line hang above home. Then try G in place of an F in `changes`.",
         ),

@@ -49,7 +49,7 @@ const NUMBERS = {
 
 export default defineLesson({
   id: "U03.L04",
-  version: 2,
+  version: 4,
   title: "Leading Tone & Six",
   objective: "I can hear degrees 6 and 7, feel 7 pull up to home, and write a run of the scale with `..`.",
   key: { tonic: "C", mode: "major" },
@@ -74,7 +74,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Watch the labels as the line climbs past 5 to home. Where does the pull towards 1 feel strongest?",
+          "Watch the labels as the line climbs from 5 to the high 1. Listen for the note where the pull towards 1 feels strongest.",
         skills: [{ skill: "E05", w: 1 }],
         hints: null,
         tests: [],
@@ -94,7 +94,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`n("4 5 6 ~")` plays degrees 5, 6 and 7, then rests. Will it sound finished? Hum your guess.',
+          '`n("4 5 6 ~")` plays degrees 5, 6 and 7, then rests. Predict whether it sounds finished, and pick your answer below. Hum your guess before you hear it.',
         skills: [{ skill: "E05", w: 1 }],
         hints: null,
         tests: [],
@@ -122,10 +122,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it. `0 .. 7` is every number from 0 to 7, both ends included, squeezed into the place of one note.",
+          "Run the line and count the notes you hear. `0 .. 7` means every number from 0 to 7, both ends included, played in the place of one note.",
         skills: [{ skill: "S02", w: 1 }],
         hints: ladder(
-          "How many notes do you hear, and which labels do they have?",
+          "Count the notes as they play and read their labels on the roll. How many are there?",
           "The range counts every whole number from its first end to its last: 0 1 2 3 4 5 6 7.",
           "Eight notes in one bar: 1 to 7, then 1 again an octave up.",
         ),
@@ -150,7 +150,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Two runs: up the scale to home an octave higher, then back down. Write each bar as one range with `..` instead of eight numbers.",
+          "Rewrite each bar as one range with `..`, with a space on each side of it. Bar 1 climbs from home to the home an octave higher; bar 2 comes back down. Keep the same sixteen notes. Done when each bar is a single range.",
         skills: [{ skill: "S02", w: 1 }],
         code: { starter: `${TEMPO}mel: n("⟪${UP_DOWN}⟫").scale("C4:major").s("piano")` },
         reference: { solutions: [deg(UP_DOWN_RANGE)], bars: 2 },
@@ -162,7 +162,7 @@ export default defineLesson({
           "code.must-use": "Write both runs with `..`: one range per bar.",
         },
         hints: ladder(
-          "Which numbers does each bar start and end on?",
+          "Each bar becomes one range from its first number to its last. Which numbers does bar 1 start and end on? And bar 2?",
           "A range is the first number, a space, `..`, a space, the last number. It counts down as well as up.",
           "Bar 1 becomes `[0 .. 7]`. Bar 2 starts where bar 1 ended.",
         ),
@@ -218,10 +218,10 @@ export default defineLesson({
         id: "six-or-seven",
         version: 1,
         role: "check",
-        prompt: "Chords set home, then one note. Which degree is it? 6 and 7 join the five you know.",
+        prompt: "Listen to the chords that set home, then to one note. Pick its degree, from 1 to 7.",
         skills: [{ skill: "E05", w: 1 }],
         hints: [
-          { text: "Does the note want to go up or down? Hum where it wants to go." },
+          { text: "Decide which way the note wants to move. Hum where it wants to go: up or down?" },
           { text: "7 leans up, one half step, to home. 6 tends to fall back to 5." },
           {
             text: "Hear it again, slower, then sing up the scale from 1 until you meet it.",
@@ -249,13 +249,13 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "After the chords, three pairs, two beats a note: seven up to one, six down to five, two down to one. Sing on numbers or on any vowel.",
+          "After the chords set home, sing three pairs, two beats a note: seven up to the high one, six down to five, two down to one. Sing on numbers or on any vowel.",
         skills: [
           { skill: "V03", w: 0.6 },
           { skill: "E05", w: 0.4 },
         ],
         hints: [
-          { text: "Hum home first, the note the chords end on. Every pair lands on 1 or on 5." },
+          { text: "Start from home: hum the note the chords end on. Every pair lands on 1 or on 5." },
           { text: "7 is the note just under the high 1: almost there already. 6 sits one step above 5." },
           { text: "Hear the three pairs on the piano once, then sing them back.", replay: { rate: 0.75 } },
           "auto",
@@ -295,7 +295,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a two-bar line that uses **degrees 6 and 7** (`n` 5 and 6), and let 7 lead somewhere. The starter stops short of them.",
+          "Change the starter so the line plays degree 6 (`n` 5) and degree 7 (`n` 6), each at least once; the starter has neither. Put 7 just before a 1 so it leads home. Done when both degrees play.",
         skills: [{ skill: "E05", w: 1 }],
         code: { starter: deg("<[0 1 2 4] [3 2 1 ~]>") },
         bars: [1, 4],
@@ -303,7 +303,7 @@ export default defineLesson({
         rubric: [
           {
             id: "six-seven",
-            label: "Uses degrees 6 and 7",
+            label: "The line plays degree 6 and degree 7, each at least once",
             required: true,
             skills: ["E05"],
             rule: "degree-set",
@@ -312,7 +312,7 @@ export default defineLesson({
           },
           {
             id: "ends-home",
-            label: "Ends on 1, home",
+            label: "The line's last note is degree 1, home",
             required: false,
             skills: ["E05"],
             rule: "ends-on-degree",
@@ -321,7 +321,7 @@ export default defineLesson({
           },
           {
             id: "run",
-            label: "A run with `..`",
+            label: "At least one range written with `..`",
             required: false,
             skills: ["S02"],
             rule: "uses",
@@ -331,9 +331,9 @@ export default defineLesson({
         // The catalog's detail for an unused tool names its ID ("tb.mini.range used 0×").
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which degrees does the starter play? Which two are missing?",
+          "The line must play degrees 6 and 7. Which degrees does the starter play, and which two are missing?",
           "`n` counts from 0, so degree 6 is `n` 5 and degree 7 is `n` 6. 7 sounds best just before a 1.",
-          "Replace bar 2 with a climb that passes 6 and 7: `n` 5, then 6, then home an octave up.",
+          "Bar 2 can become a climb that passes through 6 and 7 on its way up to the high home.",
         ),
         tests: [
           {

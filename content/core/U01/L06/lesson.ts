@@ -51,7 +51,7 @@ const SOUND_MATCH = {
 
 export default defineLesson({
   id: "U01.L06",
-  version: 2,
+  version: 3,
   title: "Sixteenths & 1-e-&-a",
   objective: "I can count a beat as 1-e-&-a and write four sounds to a beat.",
   key: { tonic: "C", mode: "major" },
@@ -76,7 +76,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Nod on the beat, not on the hats. Does the groove feel faster than your last ones, or only busier?",
+          "Nod on the beat, not on the hats. Listen for whether the groove feels faster than your last ones, or only busier.",
         skills: [{ skill: "R07", w: 1 }],
         hints: null,
         tests: [],
@@ -95,7 +95,8 @@ export default defineLesson({
         id: "count-the-hats",
         version: 1,
         role: "practice",
-        prompt: "The hats line says `hh*16`, and the bar has four beats. How many hats land in each beat?",
+        prompt:
+          "The hats line says `hh*16`, and the bar has four beats. Predict how many hats land in each beat, and enter that number.",
         skills: [{ skill: "R07", w: 1 }],
         hints: null,
         tests: [],
@@ -118,10 +119,15 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and count along: 1 e & a, 2 e & a, 3 e & a, 4 e & a. Then click the hat on the e of 3.",
+          "Count along with the hats: 1 e & a, 2 e & a, 3 e & a, 4 e & a. Then click the hat on the e of 3 on the roll.",
         skills: [{ skill: "R07", w: 1 }],
+        // The catalog line says only "Listen again and compare": this one says where to look.
+        feedbackText: {
+          "investigate.not-here":
+            "Not that one. Beat 3 starts with the second kick. Count its four hats, 3 e & a: the e is the second.",
+        },
         hints: ladder(
-          "Which hat starts beat 3, and which one comes straight after it?",
+          "Find beat 3 first, then the hat straight after it. Which hat starts beat 3?",
           "Beat 3 is where the second kick lands. Its four hats are counted 3, e, &, a.",
           "The hat on beat 3 itself sits under the kick; the e is the next hat to its right.",
         ),
@@ -164,14 +170,21 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The hats play once per beat. Make them play four times per beat, sixteen in the bar. Leave the kick and snare as they are.",
+          "Make the hats play four times per beat, sixteen in the bar. Now they play once per beat. Leave the kick and snare as they are.",
         skills: [{ skill: "R07", w: 1 }],
         code: { starter: code(KICK, BACKBEAT, 'hats: s("⟪hh*4⟫").gain(.5)') },
         reference: { solutions: [withHats("hh*16"), withHats("[hh hh hh hh]*4")], bars: 1 },
         matcher: DRUM_MATCH,
         target: { audible: true, showRoll: true },
+        // The catalog says "missing hit" and "extra hit": these say how many hats each beat needs.
+        feedbackText: {
+          "rhythm.missing":
+            "Bar {bar}, {beatLabel}: the {track} line has no hit here yet. Every beat needs four hats, sixteen in the bar.",
+          "rhythm.extra":
+            "Bar {bar}: one hit too many on the {track} line. Every beat gets four hats, no more.",
+        },
         hints: ladder(
-          "How many hats does a bar of four beats need if each beat gets four?",
+          "Each beat gets four hats. How many hats does a bar of four beats need then?",
           "The number after `*` says how many times the sound plays in the bar.",
           "`hh*8` would give two per beat. You need twice that.",
         ),
@@ -220,16 +233,22 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Put four toms into beat 4: the high tom `ht` twice, then the mid tom `mt` twice. Write each pair with `!`.",
+          "Put four toms into beat 4, in place of the last `~` of the `perc` line: the high tom `ht` twice, then the mid tom `mt` twice. Write each pair with `!`. Done when all four toms play inside beat 4.",
         skills: [{ skill: "R07", w: 1 }],
         code: { starter: code(KICK, SNARE_TWO, hats("hh*16"), 'perc: s("~ ~ ~ ⟪~⟫")') },
         reference: { solutions: [withToms("[ht!2 mt!2]")], bars: 1 },
         matcher: SOUND_MATCH,
         constraints: [{ c: "must-use", tool: "tb.mini.replicate", feedback: "code.must-use" }],
         target: { audible: true, showRoll: true },
-        feedbackText: { "code.must-use": "Write each pair with `!`: `mt!2` stands for `mt mt`." },
+        feedbackText: {
+          "code.must-use": "Write each pair with `!`: `mt!2` stands for `mt mt`.",
+          "rhythm.extra":
+            "Bar {bar}, {beatLabel}: a hit that should not be there{role}. All four toms belong inside beat 4: put them in square brackets.",
+          "rhythm.missing":
+            "Bar {bar}, {beatLabel}: no hit here yet{role}. Beat 4 holds four toms: `ht` twice, then `mt` twice.",
+        },
         hints: ladder(
-          "How do you fit four sounds into the space of one beat?",
+          "All four toms must fit into beat 4. How do you fit four sounds into the space of one beat?",
           "Square brackets squeeze what is inside them into one beat. The last `~` is beat 4.",
           "`[ht!2 …]` plays two high toms in the first half of the beat. The mid toms take the second half.",
         ),
@@ -269,13 +288,14 @@ export default defineLesson({
         id: "echo-sixteenths",
         version: 1,
         role: "practice",
-        prompt: "Listen to one bar, then tap it back. Count 1-e-&-a under your breath while it plays.",
+        prompt:
+          "Listen to one bar of rhythm, then tap it back: one tap for every sound you heard, in the same places. Count 1-e-&-a under your breath while it plays.",
         skills: [
           { skill: "E01", w: 0.5 },
           { skill: "R07", w: 0.5 },
         ],
         hints: ladder(
-          "Which beat of the bar was the busiest?",
+          "Tap every sound of the bar in its place. Which beat of the bar was the busiest?",
           "Say the count while it plays and notice the words that got a sound.",
           "Tap the beats first, then add the quick sounds inside the busy beat.",
         ),
@@ -301,7 +321,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a groove with four sounds in at least one beat. Beat 1 must be counted out in full: a sound on 1, e, & and a.",
+          "Write a groove where beat 1 is counted out in full: a drum sound starts on 1, on e, on & and on a, on any lines. The starter's hats play only two per beat.",
         skills: [{ skill: "R07", w: 1 }],
         code: { starter: code(KICK, BACKBEAT, hats("hh*8")) },
         bars: [1, 2],
@@ -309,7 +329,7 @@ export default defineLesson({
         rubric: [
           {
             id: "beat-one-in-four",
-            label: "Beat 1 split into four sounds (1-e-&-a)",
+            label: "Beat 1 of every bar has a drum sound on 1, e, & and a",
             required: true,
             skills: ["R07"],
             rule: "onsets",
@@ -324,7 +344,7 @@ export default defineLesson({
           },
           {
             id: "toms",
-            label: "A tom run with the low tom `lt`",
+            label: "Uses the low tom `lt`",
             required: false,
             skills: ["R07"],
             rule: "sounds",
@@ -340,7 +360,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which line could play four times as often as the beat?",
+          "Beat 1 needs a sound on each of its four counts: 1, e, & and a. Which line could play four times as often as the beat?",
           "The hats play eight times in the bar now: two per beat. Beat 1 needs four.",
           "`hh*16` covers every beat. `[hh hh hh hh] hh hh hh` covers beat 1 alone.",
         ),

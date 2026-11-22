@@ -40,7 +40,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["U03"],
   gated: ["S01", "S02", "S03", "S04", "N03", "M01"],
   levelSetting: ["E03", "E04", "E05", "E07", "V02", "V03", "V04"],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "staff-write",
@@ -48,7 +48,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "Write the key signature of E♭ major: place its flats at the start of the staff, in the order they are always written.",
+        "Write the key signature of E♭ major: its flats at the start of the staff, from the left, in the order flats are always written. Write only the flats E♭ major needs.",
       skills: [
         { skill: "N03", w: 0.6 },
         { skill: "S04", w: 0.4 },
@@ -92,7 +92,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "A tune in degrees: **1 3 5 3 | 4 2 1**, then a rest. Write it with `n()` in D major, home on `D4`. `n` counts from 0, so degree 5 is `n` 4.",
+        "Write the tune **1 3 5 3 | 4 2 1**, then a rest, in D major with home on `D4`. Replace the zeros with the tune's numbers and change the key in `.scale()`. `n` counts from 0, so degree 5 is `n` 4.",
       skills: [
         { skill: "S02", w: 0.6 },
         { skill: "S03", w: 0.4 },
@@ -106,6 +106,8 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       feedbackText: {
         "melody.index-shift":
           "Every note is one step off the tune in D ({dir}). Check that `.scale()` names D, and that each `n` is its degree minus one.",
+        "melody.octave":
+          "Bar {bar}, {beatLabel}: right note, an octave {dir}. Home is `D4`: check the number after the D.",
       },
       target: { audible: false, showRoll: false },
       tests: [
@@ -152,7 +154,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "Two short lines in C. Which one moves mostly by step, each note to its neighbour in the scale?",
+        "Listen to the two short lines in C and read their staffs. Pick the one that moves mostly by step: each note to its neighbour in the scale.",
       skills: [{ skill: "M01", w: 1 }],
       hints: null,
       answer: {
@@ -202,7 +204,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     role: "checkpoint",
     title: "Eight bars home",
     prompt:
-      "An eight-bar melody in C over the band. Let bar 4 pause on an open degree, and bring bar 8 home to 1. Mostly steps, a leap where it helps.",
+      "Change bar 8 so the melody's last note is degree 1, home; the starter's bar 8 stops on 2. Keep bar 4's pause on 5 and keep most moves to the next note of the scale. Done when the last note is 1.",
     skills: [{ skill: "M01", w: 1 }],
     hints: null,
     key: { tonic: "C", mode: "major" },
@@ -213,7 +215,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     rubric: [
       {
         id: "home-on-1",
-        label: "Ends on 1, home",
+        label: "The melody's last note is degree 1, home",
         required: true,
         skills: ["M01"],
         rule: "ends-on-degree",
@@ -222,7 +224,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "mostly-steps",
-        label: "Mostly steps: at least 6 moves in 10 go to a neighbour",
+        label: "At least 6 in 10 moves to a new note go to the next note of the scale",
         required: false,
         skills: ["M01"],
         rule: "step-ratio",
@@ -231,7 +233,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "eight-bars",
-        label: "Eight bars long",
+        label: "At least eight bars long",
         required: false,
         skills: ["M01"],
         rule: "bars",

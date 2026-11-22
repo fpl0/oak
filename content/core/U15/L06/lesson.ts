@@ -127,7 +127,7 @@ const VISITORS = [
   { id: "v-of-iv", label: "The V7 of IV: te falls to la" },
 ];
 const nameHints = (): HintLadder => [
-  { text: "Bar 2 has one note the key does not own. Does it pull up, or does it sag down?" },
+  { text: "Listen to bar 2 for the one note the key does not own. Does it pull up, or does it sag down?" },
   {
     text: "Follow that note into bar 3. A raised note rises a half step into the next chord; a lowered one falls a half step. The degree it lands on names the target.",
   },
@@ -191,7 +191,7 @@ const RIGHT = { bass: ["1", "6", "2", "5"], rn: ["I", "V7/ii", "ii", "V7"] };
 
 export default defineLesson({
   id: "U15.L06",
-  version: 2,
+  version: 3,
   title: "Hearing Secondaries",
   objective: "I can find a secondary dominant by ear and name the chord it points at.",
   key: C_MAJOR,
@@ -217,7 +217,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight bars of a soul ballad in C major, the trumpet on the tune, with nothing to read. Twice the harmony leans out of the key and comes straight back. Listen twice, count the bars, and raise a finger at each lean: which bars are they?",
+          "Listen to eight bars of a soul ballad in C major, with nothing to read, and count the bars from 1 to 8. Twice the harmony leans out of the key for one bar and comes straight back. Listen for which two bars those are.",
         skills: [{ skill: "E12a", w: 1 }],
         hints: null,
         tests: [],
@@ -243,7 +243,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Five loops of four bars, each in its own major key, each with one secondary dominant. Answer what each loop asks: the bar it sits in, or which chord it is. Listen for the note that does not belong.",
+          "Five loops of four bars, each in its own major key, each with one secondary dominant. Each loop asks one question: which bar the visitor sits in, or which chord it is. Listen for the note that does not belong, then answer.",
         skills: [
           { skill: "H12", w: 0.6 },
           { skill: "E12a", w: 0.4 },
@@ -271,7 +271,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Three loops in three keys. Each starts on I, and bar 2 holds a visitor that leans into bar 3. Which secondary dominant is it? The note it brings, and where that note goes, tell you.",
+          "Name the visitor in three loops, each in its own key. Each loop starts on I, and bar 2 holds a secondary dominant that leans into bar 3. Pick which one it is from the note it brings and where that note goes.",
         skills: [
           { skill: "H12", w: 0.6 },
           { skill: "E12a", w: 0.4 },
@@ -322,13 +322,15 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The first four bars of the ballad, in two passes. First the bass: the degree under each chord. Then the numerals, sevenths included. The bass gives each root; the outside note tells you where the visitor is aimed.",
+          "Write down the first four bars of the ballad in two passes. First the bass: pick the degree under each chord, four in all. Then write the numeral of each chord, with the 7th where it has one. The bass gives each root; the outside note tells you where the visitor is aimed.",
         skills: [
           { skill: "H12", w: 0.6 },
           { skill: "E12a", w: 0.4 },
         ],
         hints: [
-          { text: "Sing the lowest note of each bar. Which bars sit on degrees the key's own chords use?" },
+          {
+            text: "For the bass, sing the lowest note of each bar down to do. Which bars sit on degrees the key's own chords use?",
+          },
           {
             text: "Bar 2's root is the one under the key's own minor chord on 6, but the chord above it is major with a 7th. Where does it lean?",
             replay: { rate: 0.75 },
@@ -396,7 +398,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Hear it, then sing it: the two outside notes of the ballad and where they go. Di, re over A7 into D minor; then te, la over C7 into F. The numbers stay on screen: ♯1, 2, ♭7, 6. Sing in your own range.",
+          "Listen, then sing the ballad's two outside notes, each with the note it goes to, two notes a bar. First di re (♯1 2), over A7 into D minor. Then te la (♭7 6), over C7 into F, below home. Sing in your own range.",
         skills: [
           { skill: "E12a", w: 0.6 },
           { skill: "V03", w: 0.4 },
@@ -440,7 +442,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Your staircase of sevenths, every chord the key's own. Open two doors: turn the chord in front of a target into the target's V7. Try a door before each chord in turn, keep the two that land best, and let the tune take the notes they bring.",
+          "Open two doors in your staircase. In `changes`, pick two target chords and turn the chord in front of each into the target's V7. Try a door before each chord in turn and keep the two that land best. Done when two secondary dominants each move straight into their target.",
         skills: [{ skill: "H12", w: 1 }],
         fromSketch: "U12.L04",
         code: { starter: MAKE_STARTER },
@@ -449,7 +451,8 @@ export default defineLesson({
         rubric: [
           {
             id: "two-doors-that-land",
-            label: "Two secondary dominants, each landing on its chord",
+            label:
+              "Within the 8 bars, two secondary dominants, each at least a beat long and moving straight into its target",
             required: true,
             skills: ["H12"],
             rule: "contains-rn",
@@ -463,7 +466,7 @@ export default defineLesson({
           },
           {
             id: "tune-takes-the-visitor",
-            label: "The tune sings a note a visitor brings: ♯4, ♯5, ♯1 or ♭7",
+            label: "`mel` plays at least one note a visitor brings: ♯4, ♯5, ♯1 or ♭7",
             required: false,
             skills: ["E12a"],
             rule: "degree-set",
@@ -473,7 +476,8 @@ export default defineLesson({
           },
           {
             id: "a-leading-tone-chord",
-            label: "A leading-tone chord that lands on its chord",
+            label:
+              "A leading-tone chord (a diminished seventh) at least a beat long, moving straight into the chord whose root is a half step above its own",
             required: false,
             skills: ["H12"],
             rule: "contains-rn",
@@ -483,7 +487,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root",
+            label: "The bass plays each chord's root on at least 3 of every 4 chord changes",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -495,7 +499,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Pick a chord of the staircase you would like to arrive on. Which chord would lean into it?",
+          "A door sits right before the chord it leads to. Pick a chord of the staircase you would like to arrive on. Which chord would lean into it?",
           "A door is the V7 of the next chord: built a 5th above it, major with a ♭7. It replaces the chord in front, so the bar count stays the same.",
           "In Oak's copy, Fmaj7 in bar 5 has Fmaj7 in front of it. The V7 of F is built on C. Then look for a second target: Dm7 or Em7.",
         ),

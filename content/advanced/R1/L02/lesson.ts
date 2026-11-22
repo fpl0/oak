@@ -82,7 +82,7 @@ const earGroove = (bpm: number, amount: string, slices: 4 | 8) =>
   ].join("\n")}`;
 const earHints = (): HintLadder =>
   ladder(
-    "Listen to the hi-hat alone. In each pair of hits, how much longer is the first than the second?",
+    "Listen to the hi-hat alone and compare the two hits of each pair: the first is longer by some amount.",
     "Even pairs are straight. A first note one and a half times the second is a light lean; twice as long is the triplet feel of the blues; three times as long is hard.",
     "Count “1 trip let” silently with each beat: if the short hit lands on “let”, the long note is twice the short one.",
   );
@@ -126,7 +126,7 @@ const s5 = (hatsLine: string) => code(S5_KICK, SNARE, hatsLine, chords(), S5_BAS
 const S5_SOLUTION = s5(hats(LEAN));
 const SIXTEENTHS_LEAN: RubricRule = {
   id: "sixteenths-lean",
-  label: "The hi-hat's sixteenths lean",
+  label: "The hi-hat's sixteenth pairs are long-short, between a light lean and about 2:1",
   required: true,
   skills: ["R13"],
   rule: "swing",
@@ -146,7 +146,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R1.L02",
-  version: 2,
+  version: 3,
   title: "Swing Ratios",
   objective:
     "I can set how hard a groove swings, from straight to hard swing, on the eighths or the sixteenths.",
@@ -172,7 +172,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Three loops of one groove; only the spacing of the sixteenths changes. Which loop sits back and leans, and which feels stiff? In the third, listen for the bar where the lean starts to bounce.",
+          "Listen to the hi-hat's pairs of sixteenths in the three loops; only their spacing changes. Notice which loop sits back and leans and which feels stiff. In the third loop, listen for the bar where the lean starts to bounce.",
         skills: [{ skill: "R13", w: 1 }],
         hints: null,
         tests: [],
@@ -207,10 +207,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The hi-hat plays swung eighths: long, short, long, short. Tap with every hit for two bars, sixteen taps in all.",
+          "Tap with every hi-hat hit, the short ticking sound on top. It plays two hits a beat, long then short: the second comes late, just before the next beat. Two bars, sixteen taps in all. Done when your taps land with the hi-hat.",
         skills: [{ skill: "R13", w: 1 }],
         hints: ladder(
-          "Is the hi-hat's second hit in each beat closer to the beat before it or to the beat after it?",
+          "Listen to the hi-hat alone: the second hit in each beat sits nearer the next beat than the one before.",
           "Each beat holds two hits: one on the beat, one late in the beat, just before the next.",
           "Say “1 trip let” for each beat and tap on “1” and on “let”.",
         ),
@@ -241,14 +241,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the hi-hat and read one beat on the roll. Then change the amount, the first number in the swing call, to `1/3`, then to `.5`, and run it each time.",
+          "Run the hi-hat and read one beat on the roll. Change the swing amount, the first number in the swing call, to `1/3`, then to `.5`, running it each time. Then answer: where the second hit starts at `.2`, and how many times longer the long hit is at `1/3`.",
         skills: [{ skill: "R13", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read one beat on the roll at each amount: where the second hit starts, and how long the first hit is against the second.",
         },
         hints: ladder(
-          "At `.2`, is the second hit of a beat exactly halfway, or later than halfway?",
+          "At `.2`, read on the roll where the second hit of a beat starts: halfway, or later.",
           "The call moves the second hit of each pair later by half the amount, measured in beats: `.2` moves it a tenth of a beat.",
           "At `1/3` the second hit starts two thirds of the way through the beat, so the long hit lasts two thirds and the short one third.",
         ),
@@ -301,7 +301,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four grooves, each at its own tempo. In the first three the eighth notes swing; in the last one the sixteenths do. How hard does each one swing?",
+          "Four grooves, each at its own tempo. In the first three the eighth notes swing; in the last one the sixteenths do. For each, pick how hard it swings.",
         skills: [{ skill: "R13", w: 1 }],
         hints: earHints(),
         srs: [{ family: "fam.rhy.swing", mode: "review-if-due" }],
@@ -351,7 +351,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The hi-hat plays sixteenths, but its swing call works on the eighths: the second half of each beat moves late as a block, and each pair of sixteenths stays even. Make the sixteenths themselves lean, from a light swing up to the triplet feel.",
+          "Change the hi-hat's swing call so each pair of sixteenths is long-short, from a light swing up to the triplet feel. Now the call swings the eighths: each half beat moves late as a block, and the sixteenth pairs stay even. Keep the other lines.",
         skills: [{ skill: "R13", w: 1 }],
         swing: { subdivision: 16, amount: 0.2 },
         code: { starter: S5_STARTER },
@@ -386,7 +386,7 @@ export default defineLesson({
             "A fraction inside quotes gives no swing: write the amount as a plain number, outside the quotes.",
         },
         hints: ladder(
-          "The swing call has two numbers. Which one decides which notes are paired?",
+          "The swing call has two numbers. Look at the second one: it decides which notes are paired.",
           "The second number is how many slices of the bar swing. Four slices pair the eighths of each beat; to pair the sixteenths, each slice must be half a beat.",
           "Keep the call where it is and change only its second number. The first number then sets how hard: from a light lean up to the triplet's 2:1.",
         ),
@@ -453,7 +453,7 @@ export default defineLesson({
         role: "practice",
         title: "Neo-soul lean",
         prompt:
-          "The band plays the chords; the drums and the bass are yours, straight. Give the sixteenths a lean you like, from a light 3:2 to the triplet's 2:1, on the hi-hat and on every line that plays sixteenths with it. Let the lean grow across the bars if you like, and find a slow neo-soul tempo.",
+          "Swing your sixteenths; the band plays the chords. Required: the hi-hat's sixteenth pairs lean long-short, from a light 3:2 to the triplet's 2:1. Put the same swing on every line that plays sixteenths with it. Also on the checklist: the swing changes from bar to bar, and a tempo of 76 to 96.",
         skills: [{ skill: "R13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -461,7 +461,7 @@ export default defineLesson({
         rubric: [
           {
             id: "sixteenths-lean",
-            label: "The sixteenths lean",
+            label: "The hi-hat's sixteenth pairs are long-short, between a light 3:2 and about 2:1",
             required: true,
             skills: ["R13"],
             rule: "swing",
@@ -471,7 +471,7 @@ export default defineLesson({
           },
           {
             id: "swing-grows",
-            label: "The swing changes from bar to bar",
+            label: "The swing amount changes from bar to bar, with amounts written in `< >`",
             required: false,
             skills: ["R13"],
             rule: "uses",
@@ -479,7 +479,7 @@ export default defineLesson({
           },
           {
             id: "slow-tempo",
-            label: "A slow neo-soul tempo, 76–96",
+            label: "`setcpm` sets a tempo between 76 and 96 beats a minute",
             required: false,
             skills: ["R13"],
             rule: "tempo-bpm",
@@ -498,7 +498,7 @@ export default defineLesson({
             "A fraction inside quotes gives no swing: write the amount as a plain number, outside the quotes.",
         },
         hints: ladder(
-          "Which notes should lean: the eighths or the sixteenths?",
+          "The sixteenths should lean, not the eighths. Start with the hi-hat line.",
           "The swing call goes on every line that plays sixteenths, the hi-hat first. Its second number decides which notes are paired.",
           "Eight slices a bar pair the sixteenths. The first number sets the lean: about a fifth is light, a third is the triplet feel.",
         ),

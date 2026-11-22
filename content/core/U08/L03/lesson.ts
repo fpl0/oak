@@ -91,7 +91,7 @@ const ROOT_BASS = {
 
 export default defineLesson({
   id: "U08.L03",
-  version: 2,
+  version: 3,
   title: "Walking Up to It",
   objective:
     "I can lead a bass line into a chord change with an approach note a step or a half step from the next root.",
@@ -118,7 +118,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Loop 2 changes one bass note in every bar. Listen at the end of each bar: where does the bass seem to be heading?",
+          "Listen to both loops. Loop 2 changes one bass note in every bar. Listen at the end of each bar for where the bass seems to be heading.",
         skills: [{ skill: "B03", w: 1 }],
         hints: null,
         tests: [],
@@ -140,7 +140,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bar 1 is C with the bass on `c2`, and its last beat is now `b1`. Bar 2 starts on `a1`, the root of Am. How does the bass get from B to A?",
+          "Predict how the bass moves from `b1`, the last note of bar 1, to `a1`, the root of Am that starts bar 2. Pick one answer.",
         skills: [{ skill: "B03", w: 1 }],
         hints: null,
         tests: [],
@@ -168,14 +168,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the loop and follow the bass on the roll. Find the four notes that are not the root of the chord they sound under.",
+          "Run the loop and follow the bass on the roll. Find the four bass notes that are not the root of the chord above them. Answer both questions below: where they sit in the bar, and how many half steps `f#1` is from `g1`.",
         skills: [{ skill: "B03", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Stop on bar 3: F on beats 1 and 3, then a note just under G. Where does it sit, and how far is it from the G that follows?",
         },
         hints: ladder(
-          "On which beat of each bar does the bass leave the root?",
+          "Watch where in each bar the bass leaves the root. Which beat is it?",
           "Each odd note sits right before a new chord. A half step is one key to the very next on the keyboard, black keys included.",
           "Bar 1's odd note is B, on beat 4, a step above the A that follows. Look at bar 3 the same way.",
         ),
@@ -228,7 +228,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Bar 4 stays on G to the end. Change its beat 4 to an approach note into C from the half step below.",
+          "Bar 4 plays `g1` on beats 1, 3 and 4. Change its beat 4 to an approach tone into C: the note one half step below `c2`. Keep `g1` on beats 1 and 3.",
         skills: [{ skill: "B03", w: 1 }],
         code: { starter: LEAD_STARTER },
         reference: { solutions: [LEAD_SOLUTION], bars: 4 },
@@ -248,7 +248,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: the target has a note here. Keep G on beats 1 and 3 and change only beat 4.",
         },
         hints: ladder(
-          "The loop starts again on `c2`. Which note sits one half step below it?",
+          "The loop starts again on `c2`. Find the note one half step below it on the keyboard.",
           "A half step is the very next key on the keyboard. Below C there is no black key, so the next key down is a white one, in the key of C.",
           "Bar 4 keeps `g1` on beats 1 and 3; only its last note changes, to a note in octave 1.",
         ),
@@ -293,7 +293,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four short examples, two bars each: a chord with its root, an approach note on beat 4, then the next root. Where does each approach come from?",
+          "Listen to four short examples, two bars each: a root, an approach tone on beat 4, then the next root. For each, pick where the approach tone comes from: a step above, a step below in the key, or a half step below from outside the key.",
         skills: [
           { skill: "B03", w: 0.7 },
           { skill: "I02", w: 0.3 },
@@ -311,10 +311,10 @@ export default defineLesson({
             id: "side-b-into-a",
             version: 1,
             role: "check",
-            prompt: "Example 1. Where does the approach come from?",
+            prompt: "Example 1. Pick where the approach tone comes from.",
             skills: [{ skill: "B03", w: 1 }],
             hints: ladder(
-              "Does the line go up or down into the new root?",
+              "Hum beat 4 and the next beat 1. Does the line go up or down into the new root?",
               "Down into the root means the approach note is above it.",
               "Hum beat 4, then beat 1 of bar 2: the second note is lower.",
             ),
@@ -338,10 +338,10 @@ export default defineLesson({
             id: "side-f-sharp-into-g",
             version: 1,
             role: "check",
-            prompt: "Example 2. Where does the approach come from?",
+            prompt: "Example 2. Pick where the approach tone comes from.",
             skills: [{ skill: "B03", w: 1 }],
             hints: ladder(
-              "Does the line go up or down into the new root?",
+              "Hum beat 4 and the next beat 1. Does the line go up or down into the new root?",
               "It goes up. Now the size of that last move: one half step, or two?",
               "Hum the last two notes slowly. Do they almost touch, or is there room for a note between them?",
             ),
@@ -365,10 +365,10 @@ export default defineLesson({
             id: "side-g-into-a",
             version: 1,
             role: "check",
-            prompt: "Example 3. Where does the approach come from?",
+            prompt: "Example 3. Pick where the approach tone comes from.",
             skills: [{ skill: "B03", w: 1 }],
             hints: ladder(
-              "Does the line go up or down into the new root?",
+              "Hum beat 4 and the next beat 1. Does the line go up or down into the new root?",
               "It goes up. Now the size of that last move: one half step, or two?",
               "Hum the last two notes slowly. Is there room for one more note between them?",
             ),
@@ -392,10 +392,10 @@ export default defineLesson({
             id: "side-d-into-c",
             version: 1,
             role: "check",
-            prompt: "Example 4. Where does the approach come from?",
+            prompt: "Example 4. Pick where the approach tone comes from.",
             skills: [{ skill: "B03", w: 1 }],
             hints: ladder(
-              "Does the line go up or down into the new root?",
+              "Hum beat 4 and the next beat 1. Does the line go up or down into the new root?",
               "Down into the root means the approach note is above it.",
               "Hum beat 4, then beat 1 of bar 2: which one is higher?",
             ),
@@ -429,7 +429,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Lead the bass into at least two of the changes: on beat 4, a note a step or a half step from the next root, above or below. Keep every new root on beat 1.",
+          "On beat 4 of at least two bars, add an approach tone: a note a step or a half step from the next chord's root, above or below it. Keep every root on beat 1. Keep the chords as they are.",
         skills: [{ skill: "B03", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -437,7 +437,7 @@ export default defineLesson({
         rubric: [
           {
             id: "approaches",
-            label: "Approach notes lead into two changes or more",
+            label: "An approach tone just before two chord changes or more",
             required: true,
             skills: ["B03"],
             rule: "bass-line",
@@ -447,7 +447,7 @@ export default defineLesson({
           },
           {
             id: "roots-on-the-one",
-            label: "Every chord still on its root on beat 1",
+            label: "The bass plays each chord's root on beat 1 of its bar, in every bar",
             required: false,
             skills: ["B01"],
             rule: "matches",
@@ -461,7 +461,7 @@ export default defineLesson({
           },
           {
             id: "outside-the-key",
-            label: "One approach from a half step away",
+            label: "At least one approach tone a half step from the next root",
             required: false,
             skills: ["B03"],
             rule: "bass-line",
@@ -473,7 +473,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which chord comes next after each bar? Its root is where the bass is heading.",
+          "Find the chord that comes after each bar. Its root is where the bass is heading.",
           "Beat 4 is empty in every bar. A note there one or two half steps from the next root leads into it.",
           "Bar 1 heads for F: `e1` sits a half step below it, `g1` a step above. Pick one, then do the same in another bar.",
         ),

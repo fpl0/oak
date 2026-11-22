@@ -79,7 +79,7 @@ const NUMERALS = {
 
 export default defineLesson({
   id: "U11.L06",
-  version: 2,
+  version: 3,
   title: "Quick Change & Turnaround",
   objective: "I can add a quick change and a turnaround to a 12-bar blues.",
   key: { tonic: "C", mode: "blues" },
@@ -108,7 +108,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The 12-bar blues you wrote last lesson, then the same blues changed in two places. Listen for where the second one leaves home sooner, and for how its last bars throw it back to the top.",
+          "Listen to the 12-bar blues you wrote last lesson, then the same blues changed in two places. Listen for where the second one leaves home sooner, and for how its last two bars lead back to the top.",
         skills: [{ skill: "H10", w: 1 }],
         hints: null,
         tests: [],
@@ -134,7 +134,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The new `changes` ends with `[C7 F7] [C7 G7]`. Inside `< >` each entry lasts a bar. What plays in the bar written `[C7 F7]`?",
+          "The new `changes` ends with `[C7 F7] [C7 G7]`, and inside `< >` each entry lasts one bar. Predict what plays in the bar written `[C7 F7]`. Pick one answer, then listen to check it.",
         skills: [{ skill: "H10", w: 1 }],
         hints: null,
         tests: [],
@@ -161,7 +161,8 @@ export default defineLesson({
         id: "where-it-moves",
         version: 1,
         role: "practice",
-        prompt: "Run the new blues and follow the numerals in the chord band, bar by bar.",
+        prompt:
+          "Run the new blues and read the numerals in the chord band, bar by bar. Then answer two questions: in which bar IV first arrives, and how many chords sound in bars 11 and 12 together.",
         skills: [{ skill: "H10", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -221,7 +222,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The 12-bar blues from last lesson, with its first line marked. Give it a quick change: IV in bar 2, then home to I in bar 3 for two bars.",
+          "Change the highlighted first line, bars 1–4, to: I in bar 1, IV in bar 2, then I in bars 3 and 4. Write chord names, as in the rest of the string. Keep bars 5–12 as they are.",
         skills: [{ skill: "H10", w: 1 }],
         code: { starter: QUICK_STARTER },
         reference: { solutions: [QUICK_SOLUTION], bars: 12 },
@@ -233,7 +234,7 @@ export default defineLesson({
             "Bar {bar}: you have {got}, the quick change has {exp} there. IV visits for bar 2 only; bars 1, 3 and 4 are I.",
         },
         hints: ladder(
-          "Which bar of the first line moves away from home?",
+          "Only bar 2 changes. Which chord is IV in C?",
           "IV in C is F7. It takes bar 2 alone; bars 3 and 4 are C7 again.",
           "The first entry stays `C7`. The second becomes the IV chord.",
         ),
@@ -284,7 +285,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Now the end. Rewrite bars 11 and 12 with two chords each: I then IV in bar 11, I then V in bar 12. Two chords in one bar go inside `[ ]`.",
+          "Rewrite the highlighted bars 11 and 12 with two chords each: I then IV in bar 11, I then V in bar 12. Put each pair inside `[ ]` so the two chords share the bar.",
         skills: [{ skill: "H10", w: 1 }],
         code: { starter: TURN_STARTER },
         reference: { solutions: [TURN_SOLUTION], bars: 12 },
@@ -296,7 +297,7 @@ export default defineLesson({
             "Bar {bar}: you have {got}, the target has {exp} there. Bar 11 is I then IV, bar 12 is I then V, each pair in `[ ]`.",
         },
         hints: ladder(
-          "How many chords does each of the last two bars need?",
+          "Each of the last two bars needs two chords, written as one pair. Which chords are I, IV and V in C?",
           "A pair in `[ ]` splits its bar in half. Bar 11 is home, then F7; bar 12 is home, then G7.",
           "Bar 11 is `[C7 F7]`. Bar 12 starts on C7 too.",
         ),
@@ -352,7 +353,8 @@ export default defineLesson({
         id: "quick-or-standard",
         version: 1,
         role: "check",
-        prompt: "The first six bars of a blues, in C or another key. Quick change, or the standard form?",
+        prompt:
+          "Listen to the first six bars of a blues, in C or another key. Pick quick change or standard form. Listen closely to bars 1 and 2.",
         skills: [{ skill: "F04", w: 1 }],
         hints: [
           { text: "Listen to the first two bars only. Does the chord stay put?" },
@@ -394,7 +396,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "In G, I, IV and V are G7, C7 and D7. Give the blues a quick change in bar 2 and a turnaround in bars 11–12. Then play with the turnaround: I–IV then I–V, or I then V, or your own way back that ends on V.",
+          "Your blues is in G, where I, IV and V are G7, C7 and D7. Give it a quick change: IV in bar 2, I in bars 3 and 4. Then end bars 11–12 on V: I–IV then I–V, I then V, or your own. Done when bar 2 is IV and the rest follows the twelve bars.",
         skills: [{ skill: "H10", w: 1 }],
         key: { tonic: "G", mode: "blues" },
         code: { starter: MAKE_STARTER },
@@ -403,7 +405,7 @@ export default defineLesson({
         rubric: [
           {
             id: "quick-change-blues",
-            label: "A quick-change blues: IV in bar 2, then the twelve bars in order",
+            label: "IV in bar 2, I in bars 3–4, and the rest of the twelve bars in order",
             required: true,
             skills: ["H10", "F04"],
             rule: "blues-form",
@@ -411,7 +413,7 @@ export default defineLesson({
           },
           {
             id: "v-in-bar-12",
-            label: "Bar 12 reaches V to send it round again",
+            label: "Bar 12 plays V (D7)",
             required: false,
             skills: ["H10"],
             rule: "contains-rn",
@@ -421,7 +423,7 @@ export default defineLesson({
           },
           {
             id: "blue-note",
-            label: "The blue third, ♭3, in the riff",
+            label: "The gtr line plays the blue 3rd, ♭3 (B♭ in G), at least once",
             required: false,
             skills: ["S11"],
             rule: "degree-set",
@@ -433,7 +435,7 @@ export default defineLesson({
         // hides the grader's detail for the standard form, which today names choruses instead of bar 2.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "In G, which chord is IV, and which bar does the quick change give it?",
+          "Start with bar 2: it should be IV. In G, which chord is IV?",
           "Bar 2 becomes C7, IV in G. For the turnaround, bars 11 and 12 each hold two chords in `[ ]`, the second one ending on D7, V.",
           'Start the string `"<G7 C7 G7!2 C7!2 …"`. The last two entries can be `[G7 C7]` and one more pair.',
         ),

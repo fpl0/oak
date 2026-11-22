@@ -125,7 +125,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U14.L01",
-  version: 2,
+  version: 3,
   title: "Modes as Colours",
   objective:
     "I can turn a major scale into Mixolydian by lowering its 7th, and hear the colour that one note gives.",
@@ -156,7 +156,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The numbers in the code stay the same throughout; only the scale under them changes, halfway through loop 1. Listen to the colour: what does the second half do to the riff's mood?",
+          "Listen for the change of mood halfway through loop 1. The numbers stay the same all the way; only the scale under them changes after bar 2. Then hear loop 2, the new scale on its own.",
         skills: [{ skill: "S12", w: 1 }],
         hints: null,
         tests: [],
@@ -186,7 +186,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight notes from home up to home, twice. Bar 1 is on `G4:major`; bar 2 has the same numbers on the scale the second riff used. How many of the eight notes will be different in bar 2?",
+          "Predict how many of the eight notes in bar 2 differ from bar 1. Bar 1 plays `n` 0 to 7 on `G4:major`; bar 2 plays the same numbers on the scale of the riff's second half. Pick one answer.",
         skills: [{ skill: "S12", w: 1 }],
         hints: null,
         tests: [],
@@ -220,14 +220,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and read the note names on the roll: bar 1 is G major, bar 2 the new scale. Seven of the eight notes are the same. The staff shows both bars in G major's signature.",
+          "Run the code and compare the note names on the roll, bar 1 (G major) against bar 2 (the new scale). Find the one note that differs. Then answer both questions: which degree changed, and how many half steps from it up to the top G.",
         skills: [{ skill: "S12", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Compare the two bars note by note from the left: only the seventh differs, F♯ in bar 1 and F in bar 2. Then count the keys from F up to G.",
         },
         hints: ladder(
-          "Which note of bar 2 has a different name from the note above it in bar 1?",
+          "Read the roll bar by bar, note by note from the left. Which note of bar 2 has a different name from the same note in bar 1?",
           "The first six notes match: G A B C D E. Look at the seventh note of each bar, just before the top G.",
           "Bar 1 has F♯ there and bar 2 has F. From F♯ up to G is one half step; F is one more below.",
         ),
@@ -285,11 +285,11 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Build G Mixolydian on the pad. It opens holding G major: six of those degrees stay, and one has to change.",
+          "Build G Mixolydian on the pad. The pad opens holding G major: keep the six degrees the two scales share and change the one they do not. Done when the pad holds the seven degrees of G Mixolydian.",
         skills: [{ skill: "S12", w: 1 }],
         srs: [{ family: "fam.key.scale-spell", mode: "review-if-due" }],
         hints: ladder(
-          "Which one note did the riff lose when it left G major, and what took its place?",
+          "Only one degree differs from G major. Think back to the riff: which note changed, and what took its place?",
           "Degrees 1 to 6 stay as they are in major. Degree 7 does not: its lowered form is on the pad, next to it.",
           "Leave 1 to 6 as they are. Then choose between 7 and ♭7: the riff's F is a whole step under home.",
         ),
@@ -351,7 +351,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The riff and the bass are on G major; the target plays the same numbers on G Mixolydian. Change one word in each line. The numbers stay as they are.",
+          "Change the scale word from `major` to `mixolydian` in both lines, `gtr:` and `bass:`. Leave every number as it is. Done when both lines play the target's notes, the same numbers on G Mixolydian.",
         skills: [{ skill: "S12", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 2 },
@@ -370,9 +370,9 @@ export default defineLesson({
         },
         srs: [{ family: "fam.deg.index", mode: "review-if-due" }],
         hints: ladder(
-          "Which part of each line decides what notes the numbers play?",
-          "The word after the colon in `.scale()` names the scale. Both lines say `major`.",
-          'The riff becomes `.scale("G3:mixolydian")`. The bass needs the same word after `G1:`.',
+          "Look inside `.scale()` on each line: the word after the colon names the scale. Does each line name the new one?",
+          "Both lines say `major` after the colon: `G3:major` on the riff, `G1:major` on the bass. Each needs the new scale's name there.",
+          'The riff becomes `.scale("G3:mixolydian")`. The bass keeps `G1:` and takes the same word after it.',
         ),
         tests: [
           { name: "reference", response: { code: MODIFY_SOLUTION }, expect: "pass" },
@@ -434,7 +434,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four short phrases in other keys, each over its held home note. Which scale is each on? Listen for the note under home: a half step below, or a whole step.",
+          "Name the scale of each of the four phrases: major or Mixolydian. Each plays over its held home note. Listen for the note just under home: a half step below means major, a whole step below means Mixolydian.",
         skills: [{ skill: "S12", w: 1 }],
         hints: earHints(),
         tests: [],
@@ -459,7 +459,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A riff on G Mixolydian that never plays the 7th, so nobody can hear which scale it is. Give it its colour: land on the ♭7, `n` 6 above the 5th or `n` -1 just under home, and lean on it. Then go further: new numbers, new rhythm, more grit with `.distort()`.",
+          "The riff is on G Mixolydian but never plays degree 7, so its scale cannot be heard. Make the `gtr:` line play the ♭7 (F) at least once: `n` 6 above the 5th or `n` -1 just under home. Then shape it freely: new numbers, new rhythm, `.distort()`. Done when the riff plays an F.",
         skills: [{ skill: "S12", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],
@@ -467,7 +467,7 @@ export default defineLesson({
         rubric: [
           {
             id: "the-colour-note",
-            label: "Your riff plays the ♭7",
+            label: "The `gtr:` line plays the ♭7 (F) at least once",
             required: true,
             skills: ["S12"],
             rule: "degree-set",
@@ -476,7 +476,7 @@ export default defineLesson({
           },
           {
             id: "all-in-the-mode",
-            label: "Every note from G Mixolydian",
+            label: "Every note is in G Mixolydian: G A B C D E F, no F♯",
             required: false,
             skills: ["S12"],
             rule: "in-key",
@@ -485,7 +485,7 @@ export default defineLesson({
           },
           {
             id: "comes-home",
-            label: "The riff ends on 1",
+            label: "The `gtr:` line's last note is 1 (G)",
             required: false,
             skills: ["M01"],
             rule: "ends-on-degree",
@@ -496,7 +496,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which note makes this scale sound unlike G major, and does your riff play it?",
+          "One note makes this scale sound unlike G major. Find it in the scale, then check whether your riff plays it.",
           "The ♭7 is F. `n` counts from 0, so degree 7 is `n` 6; the F under home is `n` -1.",
           "In bar 2, change a `2` to a `6` and hear the riff lean back. Then try a `-1` just before a `0`.",
         ),

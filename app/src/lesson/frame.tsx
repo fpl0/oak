@@ -14,10 +14,12 @@ import type {
   StepState,
   Trial,
 } from "@oak/api";
+import { METERS } from "@oak/theory";
 import { clsx } from "clsx";
 import { createContext, type ReactNode, use, useEffect, useRef } from "react";
 import type { WorkbenchProps } from "../workbench/Workbench.tsx";
 import type { GradeEnv } from "./grading.ts";
+import { howTo } from "./how-to.ts";
 import { STEP_KIND_LABEL } from "./model.ts";
 
 export interface StepHost {
@@ -149,6 +151,10 @@ export function StepLayout({ stage, answer, actions, hidePrompt, answerFirst }: 
     if (el && !el.contains(document.activeElement)) el.focus({ preventScroll: true });
   }, [stepKey]);
   const prompt = h.exercise?.prompt;
+  const how =
+    h.mode === "lesson"
+      ? howTo(h.exercise, { beatsPerBar: METERS[h.exercise?.meter ?? h.env.meter].unitsPerBar })
+      : null;
   const kindLabel = h.mode === "checkpoint" ? "Checkpoint" : STEP_KIND_LABEL[h.step.kind];
   const wide = stage !== undefined && stage !== null;
   const prose = h.prose ? <div className="oak-lesson-prose mt-3">{h.prose}</div> : null;
@@ -191,9 +197,22 @@ export function StepLayout({ stage, answer, actions, hidePrompt, answerFirst }: 
           {h.banner}
           {answerFirst ? null : prose}
           {prompt && !hidePrompt ? (
-            <p className="mt-3 max-w-[60ch] rounded-control border-l-2 border-accent bg-lane-in px-3 py-2 leading-relaxed">
-              <InlineMd text={prompt} />
-            </p>
+            <section
+              aria-label="Your task"
+              data-testid="step-task"
+              className="mt-3 max-w-[60ch] rounded-control border-l-2 border-accent bg-lane-in px-3 py-2"
+            >
+              <p className="text-xs font-semibold tracking-wide text-text-2 uppercase">Your task</p>
+              <p className="mt-1 leading-relaxed">
+                <InlineMd text={prompt} />
+              </p>
+              {how ? (
+                <p className="mt-2 text-sm leading-relaxed text-text-2" data-testid="step-how">
+                  <span className="font-medium text-text">How: </span>
+                  <InlineMd text={how} />
+                </p>
+              ) : null}
+            </section>
           ) : null}
           {answer ? (
             <div className="mt-4 flex flex-col gap-4" data-answer-area>

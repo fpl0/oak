@@ -86,7 +86,7 @@ const KEYS = { roll: false, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "U11.L01",
-  version: 2,
+  version: 3,
   title: "Five Notes, No Wrong Ones",
   objective: "I can write a melody on the major pentatonic, the major scale without 4 and 7.",
   key: { tonic: "C", mode: "major" },
@@ -113,7 +113,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The four-chord loop with a tune on top, then the same rhythm on other notes. Listen for the moments where the tune grinds against the chords. Does the second tune have any?",
+          "Listen to tune 1, then tune 2: the same rhythm over the four-chord loop, on different notes. In each, listen for the moments where the tune grinds against the chords. Notice whether tune 2 has any.",
         skills: [{ skill: "S09", w: 1 }],
         hints: null,
         tests: [],
@@ -140,7 +140,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'The second tune used `.scale("C4:major:pentatonic")`. Which five notes does `n("0 1 2 3 4")` play on that scale?',
+          'Predict which five notes `n("0 1 2 3 4")` plays on `.scale("C4:major:pentatonic")`, the second tune\'s scale. Pick one answer, then listen to check it.',
         skills: [{ skill: "S09", w: 1 }],
         hints: null,
         tests: [],
@@ -169,14 +169,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the tune with the degree labels on the roll. Which degrees of the major scale never appear? Then match a number in `n()` to its label.",
+          "Run the tune and read the degree label on each note in the roll. Then answer two questions: which two degrees of the major scale never appear, and which degree `n` 3 plays on this scale.",
         skills: [{ skill: "S09", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read the labels on the roll: 1, 2, 3, 5 and 6 come round again and again. Two of the seven never do.",
         },
         hints: ladder(
-          "Count the different labels on the roll. How many of the seven degrees do you see?",
+          "Count the different labels on the roll, not the notes. How many of the seven degrees do you see?",
           "List 1 to 7 and cross off each label you find. The two left over are the missing ones.",
           "`n` 0, 1 and 2 are degrees 1, 2 and 3 as always. Find the note `n` 3 plays on the roll and read its label.",
         ),
@@ -226,7 +226,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "This line was written on the major scale: C D E G, then A G E. Its scale is now the major pentatonic, and some of its numbers play other notes. Change the numbers so it plays the same notes as before.",
+          "This line was written on the major scale to play C D E G, then A G E. Its scale is now the major pentatonic, so some numbers play other notes. Change the numbers in the highlighted part. Done when the line plays C D E G, then A G E again.",
         skills: [{ skill: "S09", w: 1 }],
         code: { starter: MOVE_STARTER },
         reference: { solutions: [MOVE_SOLUTION], bars: 4 },
@@ -238,7 +238,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: the line plays {got}, the target has {exp}. On the pentatonic `n` counts its five notes, so a number past 2 no longer means degree − 1.",
         },
         hints: ladder(
-          "Which notes of the line are not among the first three of the scale?",
+          "The first three numbers, 0 1 2, still play C D E. Look at the notes after those: which ones are G or A?",
           "On this scale `n` 0, 1 and 2 are C, D and E, as before. The fourth note of the scale is G, the fifth is A.",
           "G is degree 5, and on the pentatonic it is `n` 3. Find every G and every A in the line.",
         ),
@@ -290,10 +290,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four short runs over a C chord. Does each one use five notes or seven? Listen for the smallest steps, and for any jumps.",
+          "Listen to four short runs over a C chord. For each run, pick five notes or seven. Seven notes move only in small steps; five notes take two bigger jumps.",
         skills: [{ skill: "S09", w: 1 }],
         hints: ladder(
-          "Some steps in a run are bigger than others. Can you hear a jump?",
+          "Follow each run note by note and listen for a step that sounds wider than the rest. Can you hear one?",
           "Seven notes means every step is small, with two half steps among them. Five notes leaves two bigger gaps.",
           "In the major scale E steps to F by a half step. Listen to the middle of each run for it.",
         ),
@@ -425,11 +425,11 @@ export default defineLesson({
         version: 2,
         role: "check",
         prompt:
-          "Build G major pentatonic on the keyboard: home on G, then degrees 2, 3, 5 and 6 of G major above it. Five keys.",
+          "Build G major pentatonic on the keyboard: G as home, then degrees 2, 3, 5 and 6 of G major above it. Leave out degrees 4 and 7. Done when exactly those five keys are down.",
         skills: [{ skill: "S09", w: 1 }],
         srs: [{ family: "fam.key.scale-spell", mode: "review-if-due" }],
         hints: ladder(
-          "Which two degrees of a major scale does the pentatonic leave out?",
+          "Start from G major, all seven notes, and take two of them away. Which degrees go?",
           "G major has one black key, F♯, which is its degree 7. Degree 4 is C, the white key a half step above degree 3, B.",
           "Home is G and degree 2 is A. Three more: degree 3, degree 5 and degree 6.",
         ),
@@ -441,7 +441,7 @@ export default defineLesson({
         order: "set",
         feedbackText: {
           "id.scale-extra":
-            "{note} doesn't belong. Five notes: leave out the two that sit a half step from a neighbour.",
+            "{note} doesn't belong. Remove it: G major pentatonic leaves out degree 4 (C) and degree 7 (F♯).",
         },
         tests: [
           { name: "G A B D E", response: { answer: { midi: [55, 57, 59, 62, 64] } }, expect: "pass" },
@@ -477,7 +477,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Your tune is on the major scale, and F and B rub as they pass over the Band's four-chord loop. Move it onto the major pentatonic, then play: change numbers, rests and rhythm, and keep what you like.",
+          "Your tune is on the major scale, and its F and B rub against the Band's four-chord loop. Change its scale to the major pentatonic so every note fits. Then change numbers, rests and rhythm, and keep what you like. Done when every note is on C major pentatonic.",
         skills: [{ skill: "S09", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -485,7 +485,7 @@ export default defineLesson({
         rubric: [
           {
             id: "pentatonic-tune",
-            label: "Every note of the tune from C major pentatonic",
+            label: "Every note of the mel line is on C major pentatonic (C D E G A)",
             required: true,
             skills: ["S09"],
             rule: "in-key",
@@ -495,7 +495,7 @@ export default defineLesson({
           },
           {
             id: "comes-home",
-            label: "The tune ends on 1",
+            label: "The last note of the mel line is degree 1 (C)",
             required: false,
             skills: ["M01"],
             rule: "ends-on-degree",
@@ -504,7 +504,7 @@ export default defineLesson({
           },
           {
             id: "an-idea-returns",
-            label: "An idea that comes back",
+            label: "At least half the bars of the mel line repeat the shape of an earlier bar",
             required: false,
             skills: ["M01"],
             rule: "motif-reuse",
@@ -515,7 +515,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which two notes of the starter's scale are not in the pentatonic?",
+          "Look at the scale in the mel line: it still says major. Which two of its notes are not in the pentatonic?",
           "The scale word decides which notes the numbers can reach. Change it, and every number lands on one of five notes.",
           "Write `:major:pentatonic` after `C4` in the scale. Then change any number you like and listen.",
         ),

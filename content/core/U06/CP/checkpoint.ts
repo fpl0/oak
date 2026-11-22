@@ -86,7 +86,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["U06"],
   gated: ["H01", "H02", "H03", "H04", "H05", "H06", "H15", "N06", "C10"],
   levelSetting: ["E09", "V05"],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "code-modify",
@@ -94,7 +94,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "In F major, play I vi ii7 V7, one chord a bar, each stacked in 3rds from its root: a 7th chord has one more 3rd on top. Bar 1, I, is there. `n` counts from 0, so degree 2 is `n` 1.",
+        "In F major, write I vi ii7 V7, one chord a bar, each stacked in 3rds from its root: a 7th chord has one more 3rd on top. Bar 1, I, is written. `n` counts from 0, so degree 2 is `n` 1.",
       skills: [
         { skill: "H01", w: 0.4 },
         { skill: "N06", w: 0.3 },
@@ -154,7 +154,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "Under C, G, Am, Am the bass plays C C A A. Make it walk down by step instead, one note a bar, so that G stands on its 3rd and the last bar has a new note under A minor.",
+        "Under C, G, Am, Am the bass plays C C A A. Change it to walk down by step from C, one note a bar, so that G stands on its 3rd and the last bar has a new note under A minor.",
       skills: [{ skill: "H15", w: 1 }],
       hints: null,
       code: { starter: WALK_STARTER },
@@ -199,7 +199,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "I V vi IV, a chord a bar, held. Change chords twice as often in bars 3 and 4, so they go vi IV, then ii V. Then strike every chord on beats 2 and 4, with the snare.",
+        "The loop plays I V vi IV, one held chord a bar. Make bars 3 and 4 hold two chords each, half a bar each: vi IV in bar 3, ii V in bar 4. Then make every chord strike only on beats 2 and 4, with the snare.",
       skills: [{ skill: "H06", w: 1 }],
       hints: null,
       code: { starter: PACE_STARTER },
@@ -273,7 +273,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     role: "checkpoint",
     title: "The loop, your way",
     prompt:
-      "Over the drums, make the four-chord loop your own: start it on any of its chords, comp it or break it into a rhythm, and end the phrase with a cadence if you like. The starter plays a different loop, doo-wop.",
+      "The starter plays doo-wop. Rewrite it as the four-chord loop, I V vi IV, started on any of its chords. Comp it or break it into a rhythm, and end the phrase with a cadence if you like. Done when the chords go I V vi IV in order, from any start.",
     skills: [{ skill: "H04", w: 1 }],
     hints: null,
     key: { tonic: "C", mode: "major" },
@@ -284,7 +284,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     rubric: [
       {
         id: "the-four-chord-loop",
-        label: "The four-chord loop, I V vi IV, in any rotation",
+        label: "`chords` plays I V vi IV in order, started on any of its four chords",
         required: true,
         skills: ["H04"],
         rule: "progression",
@@ -294,7 +294,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "pace",
-        label: "The chords comped in a rhythm with `.struct()`",
+        label: "`.struct()` sets the rhythm of the chords",
         required: false,
         skills: ["H06"],
         rule: "uses",
@@ -302,7 +302,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "a-tune",
-        label: "A tune on top",
+        label: "A tune on its own line, such as `mel`",
         required: false,
         skills: ["M01"],
         rule: "tracks",

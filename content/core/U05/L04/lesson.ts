@@ -49,7 +49,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U05.L04",
-  version: 3,
+  version: 4,
   title: "Arpeggios",
   objective: "I can play a chord one note at a time with .arp().",
   key: { tonic: "C", mode: "major" },
@@ -101,7 +101,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'This stack is written lowest first, so position 0 is C. In what order will `n("[0,2,4]").arp("0 2 1")` play C, E and G?',
+          'Predict the order in which `n("[0,2,4]").arp("0 2 1")` plays C, E and G, and pick it. The stack is written lowest first, so position 0 is C.',
         skills: [{ skill: "C01", w: 1 }],
         hints: null,
         tests: [],
@@ -129,14 +129,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Run the loop and count the notes in one bar on the roll. Then try other patterns inside `.arp("…")`, such as `2 1 0` or `0 2 1`, and watch the roll.',
+          'Run the loop and count the notes in one bar on the roll. Then change the pattern inside `.arp("…")` to `0 1 2`, `2 1 0` and `0 2 1` in turn, run each, and watch the roll. Answer both questions below.',
         skills: [{ skill: "C01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. In `.arp()` each number is a position in the stack, in the order its notes are written: here 0 is the lowest note, 2 the highest.",
         },
         hints: ladder(
-          "How many numbers are inside the quotes of `.arp()`?",
+          "Look inside the quotes of `.arp()` and count the numbers: each one plays one note.",
           "Each number plays one note, and the numbers share the bar equally, as in any pattern string.",
           "A line that climbs straight up starts on the lowest note and ends on the highest: which position is the lowest?",
         ),
@@ -189,7 +189,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "In the target, every chord goes up and back down twice in a bar, eight notes instead of four. Change the pattern inside `.arp()` to match it.",
+          "The target plays every chord up and back down twice in a bar: eight notes instead of four. Change the pattern inside `.arp()` to match it. Done when each bar plays the same up-and-down shape twice.",
         skills: [{ skill: "C01", w: 1 }],
         code: { starter: code(broken(LOOP, "⟪0 1 2 1⟫")) },
         reference: { solutions: [EIGHTHS], bars: 4 },
@@ -204,7 +204,7 @@ export default defineLesson({
           "melody.missing-note": "Bar {bar}, {beatLabel}: the target plays {exp} here, and you have nothing.",
         },
         hints: ladder(
-          "How many numbers does the pattern need for eight notes a bar?",
+          "The pattern needs one number for each note the target plays in a bar. Count them on the roll or by ear.",
           "The four positions you have go up and back down once. The target does exactly that, then does it again.",
           "Each half of the bar is the old pattern: lowest, middle, highest, middle. Write that, then once more.",
         ),
@@ -248,7 +248,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Your four triads play as blocks over the band's drums and bass. Break them up with `.arp()` in a pattern of your own: up, down, skipping, with gaps.",
+          "Your four triads play as blocks. Add `.arp()` to the `chords` line, after the stacks and before `.scale()`, with a pattern of your own: up, down, skipping, with gaps. Done when the chords play one note at a time.",
         skills: [{ skill: "C01", w: 1 }],
         // The catalog's text is "{label}: {detail}", and a progression's detail names the chords in Roman
         // numerals (U06.L02). The same text serves every rule, so it says only "not yet".
@@ -259,7 +259,7 @@ export default defineLesson({
         rubric: [
           {
             id: "broken-with-arp",
-            label: "The chords are broken with `.arp()`",
+            label: "The `chords` line plays its stacks one note at a time, with `.arp()`",
             required: true,
             skills: ["C01"],
             // Corrections gate (AS-41): the chords really sound one note at a time (`.arp("0")` and
@@ -270,7 +270,7 @@ export default defineLesson({
           },
           {
             id: "gaps",
-            label: "A rhythm with gaps, not an even stream of notes",
+            label: "A `~` somewhere, for a gap in the rhythm",
             required: false,
             skills: ["R06"],
             rule: "uses",
@@ -278,7 +278,7 @@ export default defineLesson({
           },
           {
             id: "a-tune",
-            label: "A tune on top",
+            label: "A tune on its own line, such as `mel`",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -287,7 +287,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Where in the chord line do you choose which note of the stack plays when?",
+          "The `chords` line needs one new method that picks which note of each stack plays when, as in the hook.",
           "`.arp()` goes after the stacks and before `.scale()`, with a pattern of positions in the stack as written: 0 the first note, here the lowest, 2 the last, here the highest.",
           'Start from `.arp("0 1 2 1")`, then change one number, or put a `~` where a note was.',
         ),

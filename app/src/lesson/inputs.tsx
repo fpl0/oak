@@ -52,6 +52,7 @@ import { lessonWidgetFor } from "./answers.tsx";
 import { type Playing, playLead, playStimulus } from "./audio.ts";
 import { InlineMd, useStepHost } from "./frame.tsx";
 import { drawnTapTargets, type TakeLookup } from "./grading.ts";
+import { padStepsFor } from "./how-to.ts";
 import { LeadSheetView, leadSheetOf } from "./lead-sheet.tsx";
 import {
   answerSpecOf,
@@ -667,6 +668,11 @@ export function useAnswerEnvFor(
       beatsPerBar: METERS[meter].unitsPerBar,
       // Wave 6 (U13.L04): in 6/8, 9/8 and 12/8 the beat is the dotted quarter; the pad draws each beat in three.
       meter: METERS[meter],
+      // Clarity pass (2026-11-22): the pad counts only what the learner has been taught. Before U01.L04 a beat is
+      // one cell ("1 2 3 4"); until U01.L06 two ("1 & 2 &"); "1 e & a" only once sixteenths are taught.
+      ...(padStepsFor(h.lesson.id, meter) !== null
+        ? { stepsPerBeat: padStepsFor(h.lesson.id, meter) as number }
+        : {}),
       countInBars: ex.cue.countInBars,
       // Wave 7 (`tap.lanes`): two lanes, F for the first and J for the second; the pad says which lane each tap
       // came on, kept for the response (`lanesResponse`).

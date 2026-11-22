@@ -84,7 +84,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U16.L01",
-  version: 2,
+  version: 3,
   title: "The Sad IV",
   objective: "I can turn IV into the minor iv in a major key, name it, and hear the note that falls.",
   key: C,
@@ -109,7 +109,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The last line of a piano ballad, twice: C, F, F, C. The second time one note of bar 3 changes. Listen for the moment the light changes. Does it brighten or darken?",
+          "Listen to the last line of a piano ballad twice: C, F, F, C. The second time, one note of bar 3 changes. Listen for that bar: does it sound brighter or darker than the first time?",
         skills: [{ skill: "H13", w: 1 }],
         hints: null,
         tests: [],
@@ -139,7 +139,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`chord("<F Fm>")` plays F for a bar, then F minor. F is F, A and C. Which note moves, and where?',
+          '`chord("<F Fm>")` plays F for a bar, then F minor. F is F, A and C. Predict which one of those three notes moves in bar 2, and in which direction. Pick your answer, then run it.',
         skills: [{ skill: "H13", w: 1 }],
         hints: null,
         tests: [],
@@ -167,14 +167,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "F, then F minor, each stacked from its root. Compare the two bars on the roll, note by note.",
+          "Bar 1 plays F, bar 2 plays F minor, each stacked from its root. Compare the two bars on the roll, note by note. Then answer both questions: which key builds F minor on degree 4, and how many of its notes changed.",
         skills: [{ skill: "H13", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the notes that sit at a different height in bar 2. For the key: which scale on C has an A♭ in it?",
         },
         hints: ladder(
-          "Which notes of the first chord are still there in the second?",
+          "Look at the three notes of bar 1 and the three of bar 2 on the roll. Which ones sit at the same height in both bars?",
           "F and C stay where they are. C major has no A♭; the minor key that starts on the same note does.",
           "C minor runs C D E♭ F G A♭ B♭. Stack a triad on its degree 4.",
         ),
@@ -224,7 +224,7 @@ export default defineLesson({
         role: "check",
         key: G,
         prompt:
-          "The same ballad in G major: G, then C for two bars, then G. Turn the second C into the sad IV: the same chord with its 3rd lowered a half step. The bass reads `changes` too, so one edit does it.",
+          "The same ballad in G major: G, C, C, G. Change the C in bar 3 into the sad IV: the same chord with its 3rd lowered a half step. Edit only that chord in `changes`; the bass follows it. Done when bar 3 plays C, E♭ and G.",
         skills: [{ skill: "H13", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 4 },
@@ -240,7 +240,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}, which is not the target's chord. Only the second C changes, into the sad IV: the same root and 5th, and one note lowered, its 3rd.",
         },
         hints: ladder(
-          "In C major you turned F into F minor. What is the same move on a C chord?",
+          "Bar 3 is the only chord to change. In C major, F became F minor. Which chord is the same move on C?",
           "A major chord with its 3rd lowered a half step is the minor chord on the same root. In code that is one letter after the root.",
           "C major is `C`. C minor is written with an m after the letter.",
         ),
@@ -345,7 +345,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Hear the three long notes over F, F minor and C, then sing them: la, le, sol. Le is the lowered 6, a half step under la and a half step over sol. Sing in your own range.",
+          "Listen to the three long notes over F, F minor and C, then sing them, one a bar: la, le, sol. Le is the lowered 6, a half step under la and a half step over sol. Sing in your own range.",
         skills: [
           { skill: "V03", w: 0.6 },
           { skill: "E12a", w: 0.4 },
@@ -380,7 +380,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A ballad loop, C, A minor, then F for two bars, with a tune. Put the sad IV where you want the ache: in place of an F, or somewhere new. After that the loop is yours: let the tune touch A♭ over that chord (`5b`), reorder the bars, change the sounds.",
+          "The loop plays C, A minor, F, F. Put the sad IV, F minor, in at least one bar of `changes`: in place of an F, or in a bar you add. Done when the loop holds F minor. Then, if you like, let the tune touch A♭ (`5b`) over it, reorder the bars or change the sounds.",
         skills: [{ skill: "H13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -388,7 +388,7 @@ export default defineLesson({
         rubric: [
           {
             id: "the-sad-four",
-            label: "The minor iv somewhere in your loop",
+            label: "At least one bar plays F minor, the sad iv",
             required: true,
             skills: ["H13"],
             rule: "contains-rn",
@@ -397,7 +397,7 @@ export default defineLesson({
           },
           {
             id: "tune-sings-le",
-            label: "The tune touches ♭6 (A♭)",
+            label: "The mel line plays ♭6 (A♭) at least once",
             required: false,
             skills: ["P06"],
             rule: "degree-set",
@@ -406,7 +406,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root",
+            label: "On most chord changes, the bass plays the new chord's root",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -418,7 +418,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which chord of the loop is IV? The sad IV is the same chord with one note lowered.",
+          "The sad IV is the IV chord with one note lowered. Which chord of this loop is IV in C major?",
           "All four chords live in `changes`. F is IV in C major; F minor is written with an m after the letter.",
           "In G major you wrote `Cm` after `C`. Here IV is F: put its minor chord in the last bar, just before the loop comes home.",
         ),

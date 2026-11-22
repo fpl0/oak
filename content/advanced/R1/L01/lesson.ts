@@ -71,7 +71,7 @@ const PUSH_SOLUTION = pushAnswer(bass(PUSH_INTO_THREE));
 /** Beat 1 sounds, the sixteenth before beat 3 sounds, and beat 3 itself is silent, in every bar. */
 const PUSH_RULE: RubricRule = {
   id: "push-into-three",
-  label: "The bass leans into beat 3 and leaves it empty",
+  label: "In every bar the bass plays beat 1 and the sixteenth just before beat 3, and nothing on beat 3",
   required: true,
   skills: ["R10"],
   rule: "onsets",
@@ -96,7 +96,7 @@ const PAIR_OPTIONS = [
 ];
 const earHints = (): HintLadder =>
   ladder(
-    "Count 1 e & a 2 e & a with the quiet beat. Where does the bass land, and which beat does it leave empty?",
+    "Count 1 e & a 2 e & a with the quiet beat, and notice which heavy place each version of the bass leaves empty.",
     "A note pulls hardest when it sits on a light place and the next heavy place stays silent. A note on an off-beat that is followed by a note on the beat does not pull at all.",
     "Find the empty place after each bass note. An empty beat 1 or beat 3 pulls harder than an empty “and”.",
   );
@@ -145,7 +145,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R1.L01",
-  version: 2,
+  version: 3,
   title: "Metric Weight",
   objective:
     "I can hear which places in a bar are strong, and make a line pull against them by leaving a strong place empty.",
@@ -171,7 +171,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Everything but the hi-hat stays put. Which loop sounds like a drummer, and which like a machine? Listen for the hi-hat hits that stand out in the second loop, and where in the bar they fall.",
+          "Listen to the hi-hat in both loops; nothing else changes. Notice which loop sounds like a drummer and which like a machine, and where in the bar the louder hi-hat hits of the second loop fall.",
         skills: [{ skill: "R10", w: 1 }],
         hints: null,
         tests: [],
@@ -201,10 +201,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The shaped groove plays four bars. Tap on the two heaviest places of every bar, where the kick lands: eight taps in all.",
+          "Tap with the kick, the low thud under the hi-hat, and nothing else. It lands twice a bar, on the two heaviest places. The groove plays four bars: eight taps in all. Done when each tap lands with a kick.",
         skills: [{ skill: "R10", w: 1 }],
         hints: ladder(
-          "Which hits of the hi-hat sound strongest?",
+          "Listen for the kick, the lowest drum: it plays twice in every bar, where the hi-hat also sounds strongest.",
           "The two strongest are half a bar apart, and the kick plays on both of them.",
           "Count 1, 2, 3, 4 and tap on the first word and the third.",
         ),
@@ -241,14 +241,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the hi-hat with the kick and read one bar: the `.velocity()` string gives each of the sixteen hits its strength, in order.",
+          "Run the hi-hat with the kick and read one bar: the `.velocity()` string gives each of the sixteen hits its strength, in order. Then answer two questions: how many different strengths the bar holds, and which is stronger, beat 2 or the “and” after beat 1.",
         skills: [{ skill: "R10", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read the velocity string four numbers at a time, one beat each: the first number of each group is its beat, the third is its “and”.",
         },
         hints: ladder(
-          "How many different numbers does the velocity string use?",
+          "Read the velocity string from left to right and write down each number the first time it appears.",
           "Each beat is four sixteenths: 1 e & a. Compare the first number of beat 2 with the third number of beat 1.",
           "Write the different numbers down once each, from loudest to quietest, and count them.",
         ),
@@ -300,7 +300,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The bass plays on beats 1 and 3. Its second note moves one sixteenth earlier, and beat 3 is left empty (the kick stays on beat 1 only). What will you hear?",
+          "The bass plays on beats 1 and 3. Its second note moves one sixteenth earlier, and beat 3 is left empty (the kick stays on beat 1 only). Predict what you will hear, and pick it.",
         skills: [{ skill: "R10", w: 1 }],
         hints: null,
         tests: [],
@@ -328,7 +328,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The bass plays on 1 and 3, square with the beat. Keep beat 1. Move the second note to the lightest place just before beat 3, and leave beat 3 itself empty.",
+          "Change the bass's `.struct()` string. Keep the `x` on beat 1. Move the second `x` from beat 3 to the sixteenth just before beat 3, and leave beat 3 empty. Done when every bar plays beat 1 and the sixteenth before beat 3, and nothing on beat 3.",
         skills: [{ skill: "R10", w: 1 }],
         code: { starter: PUSH_STARTER },
         reference: { solutions: [PUSH_SOLUTION], bars: 4 },
@@ -341,7 +341,7 @@ export default defineLesson({
             "{label}: not yet. Listen to the middle of the bar in the target: one bass note just before it, then nothing where beat 3 falls. Beat 1 stays where it was.",
         },
         hints: ladder(
-          "Which of the sixteen steps is the last one before beat 3?",
+          "Find beat 3 in the bass's `.struct()` string, then the step just before it.",
           "The rhythm string has sixteen steps, four per beat. Beat 3 is the ninth step; the lightest place before it is the step just ahead of it.",
           "Only one `x` moves, by one step, and the ninth step becomes a rest.",
         ),
@@ -408,7 +408,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four pairs. In each, the bass plays two bars one way, then two bars another, over a quiet beat. Which two bars pull harder against the beat?",
+          "Four pairs. In each, the bass plays two bars one way, then two bars another, over a quiet beat. For each pair, pick the two bars that pull harder against the beat.",
         skills: [{ skill: "R10", w: 1 }],
         hints: earHints(),
         srs: [{ family: "fam.rhy.syncopation", mode: "review-if-due" }],
@@ -466,7 +466,7 @@ export default defineLesson({
         role: "practice",
         title: "Bass that pulls",
         prompt:
-          "The band plays the chords; the drums and the bass are yours, and the bass sits square on 1 and 3. Make it pull: notes on light places, the heavy places after them left empty. Try the hardest pull too, the last sixteenth into an empty downbeat, and other notes of the chord.",
+          "Make the bass pull against the beat; the band plays the chords. Required: at least four bass notes on light places, each with the heavier place after it silent. Also on the checklist: the bass still plays beat 1, and the hi-hat's “e”s and “a”s whisper. Try other notes of the chord too.",
         skills: [{ skill: "R10", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -474,7 +474,8 @@ export default defineLesson({
         rubric: [
           {
             id: "bass-pulls",
-            label: "The bass pulls against the beat",
+            label:
+              "At least 4 bass notes pull: each on a light place, with the heavier place after it silent",
             required: true,
             skills: ["R10"],
             rule: "syncopation",
@@ -483,7 +484,7 @@ export default defineLesson({
           },
           {
             id: "hats-shaped",
-            label: "The hi-hat's sixteenths have a shape: the “e”s and “a”s whisper",
+            label: "At least 8 hi-hat hits on the “e”s and “a”s are quiet, with louder hits around them",
             required: false,
             skills: ["R10"],
             rule: "velocity-ghosts",
@@ -494,7 +495,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-one",
-            label: "The bass still lands on beat 1",
+            label: "The bass plays on beat 1 of every bar",
             required: false,
             skills: ["R10"],
             rule: "onsets",
@@ -506,7 +507,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which places in the bar are heavy, and which are light?",
+          "Start from the bass's `.struct()` string: pick a heavy place to leave empty, and put a note on the light place just before it.",
           "A bass note pulls when it sits on a light place and the heavier place after it stays silent.",
           "The bass's rhythm is the sixteen-step string in `.struct()`. One `x` moved one step earlier, with a rest where it was, is a pull.",
         ),

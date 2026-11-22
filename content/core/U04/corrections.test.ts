@@ -76,7 +76,7 @@ describe("U04.L04 S7: bar 2 is bar 1 moved, every distance kept (theory-c A2)", 
   const ex = step(L04, "S7");
   const mel = (p: string, link = "") => `${T(96)}mel: note("${p}")${link}.s("piano")`;
   // The corrections gate removed the "{label}: not yet." override: the rule's own detail reaches the learner.
-  const label = "Bar 2 is bar 1 moved: every distance the same in half steps: ";
+  const label = "Bar 2 plays bar 1's notes, all moved up or down by the same number of half steps: ";
   test("the reviewer's answer, its last note bent home (−2 becomes +1), fails", async () => {
     const r = await run(ex, L04, mel("<[c4 e4 g4 [e4 d4]] [g4 b4 d5 [b4 c5]]>"));
     expect(r.passed).toBe(false);

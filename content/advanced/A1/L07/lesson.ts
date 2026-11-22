@@ -105,7 +105,7 @@ const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L07",
-  version: 2,
+  version: 3,
   title: "FM & Supersaw",
   objective: "I can build a bright or bell-like sound with FM, and hear what makes a supersaw wide.",
   key: { tonic: "C", mode: "major" },
@@ -133,7 +133,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Loop 2 keeps the drums and the bass and changes two sounds. Listen to the riff: what does it sound as if it is made of now?",
+          "Loop 2 keeps the drums and the bass and changes two sounds. Listen to the riff, and listen for what it now sounds as if it is made of.",
         skills: [{ skill: "D07", w: 1 }],
         hints: null,
         tests: [],
@@ -155,7 +155,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "One c4 a bar on a sine. `.fm()` lets a second, fast sine bend the note's pitch, by 0, 1, 2, then 4. What happens from bar to bar?",
+          "One c4 a bar on a sine. `.fm()` lets a second, fast sine bend the note's pitch, by 0, 1, 2, then 4. Predict what happens from bar to bar, and pick it.",
         skills: [{ skill: "D07", w: 1 }],
         hints: null,
         tests: [],
@@ -183,14 +183,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "`.fmh()` sets how fast the second sine runs, as a multiple of the note: 1, 2, then 3.5. Bar 1 has no bend at all. Run it, watch the scope and listen to each bar.",
+          "`.fmh()` sets how fast the second sine runs, as a multiple of the note: 1, 2, then 3.5. Bar 1 has no bend at all. Watch the scope and listen to each bar. Then answer both questions: which bar draws a plain, round wave, and which rings like a bell.",
         skills: [{ skill: "D07", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Watch the scope in each bar, then listen for the bar that stops sounding like one clear note and starts to clang.",
         },
         hints: ladder(
-          "Which bar sounds like one clear note, and which like something struck?",
+          "Listen for the difference between one clear note and something struck. Which bar sounds struck?",
           "Bar 1 bends by 0. In bars 2 and 3 the bend is the same; only the speed of the second sine changes, as a multiple of the note.",
           "A whole-number multiple adds tones that are harmonics of the note. Which bar's multiple is not a whole number?",
         ),
@@ -242,7 +242,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The target's riff rings like a struck bell, bright and a little clangy. Yours is a plain sine. Give it the target's sound with FM, how far to bend and how fast, and keep the notes.",
+          "Your riff is a plain sine; the target's rings like a struck bell, bright and a little clangy. Add `.fm()` (how far to bend) and `.fmh()` (how fast) to the mel line, and set both by ear. Keep the notes. Done when your riff rings like the target.",
         skills: [{ skill: "D07", w: 1 }],
         code: { starter: BELL_STARTER },
         reference: { solutions: [BELL_SOLUTION], bars: 2 },
@@ -259,7 +259,7 @@ export default defineLesson({
               rules: [
                 {
                   id: "rings",
-                  label: "The riff bent as far as the target",
+                  label: "The riff bent about as far as the target, with .fm()",
                   required: true,
                   skills: ["D07"],
                   rule: "custom",
@@ -281,7 +281,7 @@ export default defineLesson({
           "melody.wrong-degree": "Bar {bar}: the riff's notes changed. Change its sound and leave the notes.",
         },
         hints: ladder(
-          "Which two things set an FM sound: how far the note is bent, and what else?",
+          "An FM sound needs two settings: how far the note is bent, and one more. Listen to the target's ring: what else could shape it?",
           "`.fm()` is how far the second sine bends the note; `.fmh()` is how fast it runs, as a multiple of the note. A whole-number multiple keeps the tones on the harmonics.",
           "The target bends about as far as bar 2 or 3 of the scope step did, and its multiple sits halfway between two whole numbers.",
         ),
@@ -379,10 +379,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The same chords on the supersaw. In one card its five saws play at exactly one pitch; in the other they are pulled a little apart. Which card sounds wider?",
+          "The same chords on the supersaw. In one card its five saws play at exactly one pitch; in the other they are pulled a little apart. Listen to the space each one fills, and pick the card that sounds wider.",
         skills: [{ skill: "D07", w: 1 }],
         hints: ladder(
-          "In which card does the chord seem to fill more space between your ears?",
+          "Listen to how much space each chord fills between your ears. Which card fills more?",
           "Waves a little out of tune with each other drift in and out of step, so the sound shimmers and spreads.",
           "Listen for the shimmer: one card holds perfectly still.",
         ),
@@ -424,10 +424,12 @@ export default defineLesson({
         id: "which-source",
         version: 1,
         role: "check",
-        prompt: "A riff over kick and hats. What is it played on?",
+        prompt: "A riff plays over kick and hats. Listen to each note, and pick what the riff is played on.",
         skills: [{ skill: "D07", w: 1 }],
         hints: [
-          { text: "Is each note one pure tone, or does it ring with something extra?" },
+          {
+            text: "Listen to one note at a time. Is it one pure tone, or does it ring with something extra?",
+          },
           {
             text: "A plain sine is pure and soft. A supersaw is a buzzing, wide block. FM keeps one note but adds tones that clang.",
           },
@@ -480,7 +482,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The pad behind your bell riff, on a supersaw with its voices and detune written out at their defaults. Make it wider: pull the saws further apart, and add voices if you like, until it fills the space behind the riff. Keep the chords.",
+          "The pad is on a supersaw, with `.unison()` and `.detune()` written out at their defaults. Raise the `.detune()` number on the pad line so the saws pull further apart. Add voices with `.unison()` if you like, but keep more than two. Keep the chords. Done when the pad fills the space behind the riff.",
         skills: [{ skill: "D07", w: 1 }],
         code: { starter: THICK_STARTER },
         reference: { solutions: [THICK_SOLUTION], bars: 2 },
@@ -493,7 +495,7 @@ export default defineLesson({
               rules: [
                 {
                   id: "pulled-apart",
-                  label: "The saws pulled further apart than the default",
+                  label: "The pad's saws pulled further apart than the default .detune()",
                   required: true,
                   skills: ["D07"],
                   rule: "custom",
@@ -502,7 +504,7 @@ export default defineLesson({
                 },
                 {
                   id: "voices-to-detune",
-                  label: "More than one voice, so there is something to pull apart",
+                  label: "More than two voices on the pad, so there is something to pull apart",
                   required: true,
                   skills: ["D07"],
                   rule: "custom",
@@ -519,7 +521,7 @@ export default defineLesson({
           "melody.wrong-degree": "Bar {bar}: the pad's notes changed. Change its width and leave the chords.",
         },
         hints: ladder(
-          "What makes five saws sound like one wide sound rather than one plain one?",
+          "The pad needs to sound wider. What makes five saws sound like one wide sound rather than one plain one?",
           "`.detune()` sets how far apart the voices are tuned; `.unison()` sets how many voices play each note.",
           "Try a detune about twice the default, and keep at least five voices.",
         ),
@@ -561,7 +563,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The loop with its riff on a plain sine and a still pad. Give a part an FM sound: a bright lead, a hollow bass, a bell over the chords. Choose how far and how fast by ear. Then, if you like, put the pad on a wide supersaw.",
+          "The riff is on a plain sine and the pad is still. Give at least one part an FM sound you can hear: a bright lead, a hollow bass, a bell over the chords. Set how far with `.fm()` and how fast with `.fmh()`, by ear. Then, if you like, put the pad on a wide supersaw.",
         skills: [{ skill: "D07", w: 1 }],
         code: { starter: PLAIN },
         bars: [2, 8],
@@ -569,7 +571,7 @@ export default defineLesson({
         rubric: [
           {
             id: "fm-you-can-hear",
-            label: "A part with FM you can hear",
+            label: "A heard part bent with .fm() above 0.5",
             required: true,
             skills: ["D07"],
             rule: "custom",
@@ -578,7 +580,7 @@ export default defineLesson({
           },
           {
             id: "wide-pad",
-            label: "A supersaw part",
+            label: "A part on the supersaw",
             required: false,
             skills: ["D07"],
             rule: "sounds",
@@ -586,7 +588,7 @@ export default defineLesson({
           },
           {
             id: "off-the-series",
-            label: "FM at a speed other than the note's own",
+            label: "An .fmh() speed other than 1, the note's own",
             required: false,
             skills: ["D07"],
             rule: "custom",
@@ -597,7 +599,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which part would you like to sound richer: the riff, the bass or the pad?",
+          "Choose the part that should sound richer first: the riff, the bass or the pad. Which one?",
           "`.fm()` sets how far a second sine bends the note, `.fmh()` how fast; both work on the synth waves, not on recorded instruments.",
           "Start with the riff: bend it by about 2 and listen, then try a speed between two whole numbers for a bell.",
         ),

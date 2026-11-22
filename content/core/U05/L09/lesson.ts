@@ -68,7 +68,7 @@ const KEYS = { roll: false, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "U05.L09",
-  version: 2,
+  version: 3,
   title: "Chord Names",
   objective: "I can read a chord's name (C, Cm, C°, C+), play the chord it asks for and name a chord I see.",
   key: { tonic: "C", mode: "major" },
@@ -93,7 +93,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "As each bar arrives, say its name under your breath: C, G, A minor, F. Which name needs an extra word, and can you hear why?",
+          "As each bar arrives, say its name under your breath: C, G, A minor, F. Listen for why one name needs an extra word.",
         skills: [{ skill: "N05", w: 1 }],
         hints: null,
         tests: [],
@@ -111,7 +111,7 @@ export default defineLesson({
         id: "a-minor",
         version: 1,
         role: "practice",
-        prompt: "A page says A minor. Which three notes will you hear?",
+        prompt: "A page says A minor. Predict the three notes you will hear, and pick them.",
         skills: [{ skill: "N05", w: 1 }],
         hints: null,
         tests: [],
@@ -147,10 +147,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A triad from the key of C, on the staff and played. Type its name: the root's letter, then the sign for its quality.",
+          "A triad from the key of C plays and shows on the staff. Type its name: the root's letter, then the sign for its kind, as in Cm or C°. You can type ° as `o`.",
         skills: [{ skill: "N05", w: 1 }],
         hints: ladder(
-          "Which of the three notes is the root, the one the others stack on in 3rds?",
+          "Find the root first: the note the other two stack on in 3rds. Then measure the two 3rds above it.",
           "Count the half steps of each 3rd, from the bottom note up: 4 then 3 is major, 3 then 4 minor, 3 and 3 diminished, 4 and 4 augmented.",
           "B up to D is three half steps. Count D up to F the same way.",
         ),
@@ -194,10 +194,10 @@ export default defineLesson({
         id: "play-d-minor",
         version: 1,
         role: "check",
-        prompt: "The page says Dm. Play it on the keyboard, D at the bottom.",
+        prompt: "The page says Dm. Play D minor on the keyboard: three notes at once, with D as the lowest.",
         skills: [{ skill: "N05", w: 1 }],
         hints: ladder(
-          "The letter is the root. What does the m after it say about the 3rd?",
+          "The letter D is the root and goes at the bottom. The m after it says which size the first 3rd is.",
           "A minor triad stacks a small 3rd, three half steps, then a large one, four half steps.",
           "D, then the key three half steps above it, then the one four half steps above that. All three are white keys.",
         ),
@@ -241,7 +241,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The chart reads C, Am, Dm, G, one chord a bar. Bar 1 is stacked for you; bars 2 to 4 are only their roots. Finish each stack so the loop plays the chart.",
+          "The chart reads C, Am, Dm, G, one chord a bar. Bar 1 is stacked for you; bars 2 to 4 hold only their roots. Add two notes to each of those stacks so the loop plays the chart. Done when every bar is a full triad on its root.",
         skills: [
           { skill: "N05", w: 0.6 },
           { skill: "C01", w: 0.4 },
@@ -258,7 +258,7 @@ export default defineLesson({
           "harmony.bass": "Bar {bar}: the lowest note is {got}; the chart's chord stands on {exp}.",
         },
         hints: ladder(
-          "A name's letter is the root. How do you stack a triad on a root you already have?",
+          "A name's letter is the root, and each bare number is already that root. Stack the other two notes on it the way bar 1 does.",
           "Each bare number is the root's `n`. Add the two notes above it: skip a degree, twice, as in bar 1.",
           "Bar 2 is A minor: `[5,7,9]`. In the key of C the stack on A comes out minor by itself. Do the same on 1 and on 4.",
         ),
@@ -308,7 +308,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a four-bar chart of your own. Bars 1 and 2 are C and F. Choose bars 3 and 4 from Dm, Em, G and Am, with at least one minor name, and stack them. Say the four names out loud as the loop plays.",
+          "Bars 1 and 2 are C and F. Replace the bare roots of bars 3 and 4 with stacks for two chords from Dm, Em, G and Am, at least one of them minor. Say the four names out loud as the loop plays. Done when the chart has a minor chord.",
         skills: [{ skill: "N05", w: 1 }],
         // The catalog's text is "{label}: {detail}", and a chord rule's detail may name the chords in words
         // this lesson has not taught. The same text serves every rule, so it says only "not yet".
@@ -319,7 +319,7 @@ export default defineLesson({
         rubric: [
           {
             id: "a-minor-name",
-            label: "A minor chord in your chart: a name with an m",
+            label: "At least one minor chord in `chords`: a name with an m",
             required: true,
             skills: ["N05"],
             rule: "chord-qualities",
@@ -328,7 +328,7 @@ export default defineLesson({
           },
           {
             id: "four-triads",
-            label: "Four bars, each a full triad",
+            label: "At least four full triads in `chords`",
             required: false,
             skills: ["C01"],
             rule: "chord-qualities",
@@ -337,7 +337,7 @@ export default defineLesson({
           },
           {
             id: "a-tune",
-            label: "A tune on top",
+            label: "A tune on its own line, such as `mel`",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -346,7 +346,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which of the four names you may choose from are minor, and what does that say about their 3rds?",
+          "Three of the names to choose from are minor: Dm, Em and Am. Pick one and find the degree of C it stands on.",
           "Dm stands on degree 2, Em on 3, G on 5, Am on 6. A root's `n` is its degree minus 1; stack two more notes on it, skipping a degree each time.",
           "Try Am then G: `[5,7,9]` and `[4,6,8]` in place of the two bare roots.",
         ),

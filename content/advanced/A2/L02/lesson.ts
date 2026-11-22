@@ -133,7 +133,7 @@ const thinAgainstThick = (label: string): RubricRule => ({
 
 export default defineLesson({
   id: "A2.L02",
-  version: 2,
+  version: 3,
   title: "Texture & Density",
   objective: "I can thin a section out and fill another, so the full one lands.",
   key: { tonic: "A", mode: "minor" },
@@ -161,7 +161,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The tune stays the same from verse to chorus. Listen around it: when the chorus arrives at bar 5, what do you hear more of?",
+          "Listen to the parts around the tune, which stays the same all eight bars. Listen for what you hear more of when the chorus starts at bar 5.",
         skills: [{ skill: "D09", w: 1 }],
         hints: null,
         tests: [],
@@ -182,7 +182,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "One bar of A minor, twice. In bar 2 the bass plays eight notes instead of one, the chords play four times, and a strings pad comes in. The tempo stays the same. How will bar 2 sound next to bar 1?",
+          "One bar of A minor plays twice. In bar 2 the bass plays eight notes instead of one, the chords strike four times, and a strings pad comes in, at the same tempo. Predict how bar 2 will sound next to bar 1. Pick your answer, then listen.",
         skills: [{ skill: "D09", w: 1 }],
         hints: null,
         tests: [],
@@ -210,14 +210,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The form map shows the verse and the chorus; the roll shows every note. Run the eight bars, then answer from what you hear and see.",
+          "Play the eight bars and watch the form map (the two sections) and the roll (every note). Answer two questions: how many parts play in the chorus, counting the tune, and what changed between the verse and the chorus.",
         skills: [{ skill: "D09", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the labelled lines that play in bars 5 to 8, and compare the roll's notes in a verse bar with a chorus bar. The tune and the tempo stay where they were.",
         },
         hints: ladder(
-          "Which lines play in the chorus that were quiet in the verse, and which play more often?",
+          "Compare bars 5 to 8 with bars 1 to 4, one labelled line at a time. Which lines start playing, and which play more often?",
           "Each labelled line is one part. A line that waits through the verse is `silence` there.",
           "A line whose verse is `silence` waits for the chorus. Count every line that plays in bars 5 to 8, the tune included.",
         ),
@@ -264,10 +264,11 @@ export default defineLesson({
         id: "louder-or-fuller",
         version: 1,
         role: "practice",
-        prompt: "One bar of A minor, played two ways. Which card fills the bar with more notes?",
+        prompt:
+          "Listen to card A and card B: one bar of A minor, played two ways. Pick the card that fills the bar with more notes, whatever its loudness.",
         skills: [{ skill: "D09", w: 1 }],
         hints: ladder(
-          "Are you hearing how loud each card is, or how many notes it plays?",
+          "Ignore how loud each card is and listen for how many notes it plays. Which one plays more?",
           "Count the times the piano starts a sound in each card, and how many notes sound each time.",
           "One card strikes once and lets it ring. The other strikes on every beat.",
         ),
@@ -310,7 +311,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Here the verse plays exactly what the chorus plays. Thin it out: change its three section consts so it plays far fewer notes, and leave the tune alone.",
+          "The verse plays exactly what the chorus plays. Thin the verse: change its three consts, `bassVerse`, `chordsVerse` and `padVerse`, so it plays far fewer notes in each bar. Turning parts down does not count. Leave the chorus consts and the tune as they are.",
         skills: [
           { skill: "D09", w: 0.7 },
           { skill: "F05", w: 0.3 },
@@ -319,15 +320,15 @@ export default defineLesson({
         reference: { solutions: [HOOK], bars: 8 },
         matcher: {
           m: "rubric",
-          rules: [thinAgainstThick("The verse much thinner than the chorus: far fewer notes in each bar")],
+          rules: [thinAgainstThick("Verse and chorus at least a quarter apart in notes heard per bar")],
         },
         target: { audible: true, showRoll: false },
         feedbackText: {
           "rubric.unmet":
-            "{label}: not yet. Count the notes in one bar of each section: the verse still plays nearly as many as the chorus.",
+            "Not met yet: {label}. Count the notes in one bar of each section: the verse still plays nearly as many as the chorus. Give the verse parts fewer notes, not less volume.",
         },
         hints: ladder(
-          "Which parts of the verse play most often, and which could wait?",
+          "Look at the three verse consts and find the part that strikes most often. Which ones could play less, or wait for the chorus?",
           "Each verse const is one part's whole verse. A pattern with fewer steps, or fewer notes in a stack, plays fewer notes; `silence` plays none.",
           "Start with the part that strikes most often in the verse, and give it fewer strikes a bar.",
         ),
@@ -411,10 +412,12 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The loop twice: the second time round it is thinner. Did a part drop out, or did the same parts play fewer notes?",
+          "Listen to the loop twice; the second time it is thinner. Pick how it got thinner: a part dropped out, or the same parts played fewer notes.",
         skills: [{ skill: "D09", w: 1 }],
         hints: [
-          { text: "In the second half, follow one part at a time: is each one still there?" },
+          {
+            text: "In the second half, follow one part at a time and check that each one is still there. Is any missing?",
+          },
           { text: "Listen to the bottom of the sound first, then to the piano in the middle." },
           {
             text: "Hear it again, slower, and count the bass notes in one bar of each half.",
@@ -460,7 +463,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight bars, a verse and a chorus, both as thin as the verse you heard. Make the chorus land: fill it with more notes and parts, or thin the verse even further. Keep the tune the same in both.",
+          "Eight bars: a verse and a chorus, both thin. Make the chorus land: give the chorus consts more notes per bar, or a part that plays only there, or thin the verse further. Keep the tune as it is. Done when the verse and the chorus clearly differ in how many notes play per bar.",
         skills: [
           { skill: "D09", w: 0.7 },
           { skill: "F05", w: 0.3 },
@@ -469,10 +472,11 @@ export default defineLesson({
         bars: [8, 8],
         saveAs: "sketch",
         rubric: [
-          thinAgainstThick("One section thin and the other thick"),
+          thinAgainstThick("Verse and chorus at least a quarter apart in notes heard per bar"),
           {
             id: "a-part-enters",
-            label: "A part that waits for the chorus",
+            label:
+              "A part silent for a whole bar or more that plays elsewhere, such as one that waits for the chorus",
             required: false,
             skills: ["D09"],
             rule: "custom",
@@ -481,7 +485,7 @@ export default defineLesson({
           },
           {
             id: "the-tune-kept",
-            label: "The tune the same in both sections",
+            label: "The tune (`mel`) the same as in the starter",
             required: false,
             skills: ["F05"],
             rule: "matches",
@@ -500,7 +504,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which section should feel bigger, and what could it play that the other does not?",
+          "Decide which section should feel bigger, then look at its consts. What could it play that the other section does not?",
           "The chorus consts decide the chorus. More steps in a pattern, more notes in a stack or a part that only plays there all add notes; louder adds none.",
           "Pick one chorus part and give it more strikes in every bar; the bass is a good place to start.",
         ),

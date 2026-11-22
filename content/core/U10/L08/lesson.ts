@@ -87,7 +87,7 @@ const which = (
   id: `which-minor-${n}`,
   version: 1,
   role: "check",
-  prompt: `Climb ${n}. Which minor?`,
+  prompt: `Climb ${n}. Pick its form of minor.`,
   skills: [{ skill: "S08", w: 1 }],
   hints: ladder(
     "Hum the climb back. Does it move by even steps all the way home?",
@@ -126,7 +126,7 @@ const MELODIC = { tonic: "A", mode: "melodic minor" } as const;
 
 export default defineLesson({
   id: "U10.L08",
-  version: 2,
+  version: 3,
   title: "Melodic Minor",
   objective:
     "I can tell natural, harmonic and melodic minor apart, and write a tune that climbs home through raised 6 and 7 and comes down in natural minor.",
@@ -153,7 +153,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two versions of the same loop. Listen to the tune's climb in bar 3: which one walks up evenly, and which one stretches somewhere on the way?",
+          "Listen to two versions of the same loop; only bar 3 differs. Listen to the tune's climb in bar 3: which version walks up evenly, and which stretches somewhere on the way?",
         skills: [{ skill: "S08", w: 1 }],
         hints: null,
         tests: [],
@@ -179,7 +179,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Over the E chord the tune climbs E, F, G♯, A. F to G♯ is a wide step. To climb from E to A by even steps, what must F become?",
+          "Predict what F must become so the tune climbs from E to A by even steps. Over the E chord it climbs E, F, G♯, A, and F to G♯ is a wide step. Pick an answer, then hear it.",
         skills: [{ skill: "S08", w: 1 }],
         hints: null,
         tests: [],
@@ -207,14 +207,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it: A to A three times, in natural minor, in harmonic minor, then with the new scale word `melodic:minor`. Compare the top of each bar on the roll.",
+          "Run the code: A to A three times, in natural minor, harmonic minor, then the new scale word `melodic:minor`. Compare the top of each bar on the roll, from 5 up to home. Then answer both questions.",
         skills: [{ skill: "S08", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Put bar 1 and bar 3 side by side on the roll: read the degree labels from 5 up to home.",
         },
         hints: ladder(
-          "Which bar changes only one note against bar 1, and which changes two?",
+          "Compare bars 2 and 3 with bar 1, and find the notes that moved in each.",
           "Read the degree labels in bar 3 from 5 up. Where a ♭ has gone, the note was raised.",
           "In bar 2, ♭6 is F and 7 is G♯. Count the keys from F up to G♯.",
         ),
@@ -268,7 +268,7 @@ export default defineLesson({
         role: "check",
         key: MELODIC,
         prompt:
-          "Bar 1 climbs from 5 to home over E; bar 2 comes back down over Am. Both bars are in natural minor. Change bar 1's scale name so the climb goes through raised 6 and 7, and leave the way down natural.",
+          "Bar 1 climbs from 5 to home over E; bar 2 comes back down over Am, both in natural minor. Change the first scale name in the pattern, bar 1's, so the climb goes through raised 6 and 7. Keep bar 2's `A3:minor`. Done when bar 1 plays E F♯ G♯ A.",
         skills: [{ skill: "S08", w: 1 }],
         code: { starter: S4_STARTER },
         reference: { solutions: [S4_SOLUTION], bars: 2 },
@@ -286,7 +286,7 @@ export default defineLesson({
             "Bar {bar}: the tune plays {got}; the target has {exp}. Going up, raise 6 and 7; coming down, natural minor. Raised both ways is a jazz sound, not today's.",
         },
         hints: ladder(
-          "Which of the three scale words raises both notes just below home?",
+          "One of the three scale words raises both notes just below home. Find it.",
           "The pattern `<… …>` gives one scale per bar. Only the first one needs a new word.",
           "Harmonic minor fixes G♯ but leaves F, so the gap stays. One more word raises F too.",
         ),
@@ -339,7 +339,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Three climbs from 5 up to home over a held A. Is each one natural, harmonic or melodic minor? Listen hardest to the two notes before home.",
+          "For each of the three climbs from 5 up to home, over a held A, pick natural, harmonic or melodic minor. Listen hardest to the two notes just before home.",
         skills: [{ skill: "S08", w: 1 }],
         hints: ladder(
           "Hum each climb. Does it move by even steps, or is there a wide one?",
@@ -368,7 +368,7 @@ export default defineLesson({
         role: "practice",
         key: MELODIC,
         prompt:
-          "Hear it, then sing it: sol la ti do up into home, then do te le sol back down. Sing in your own range.",
+          "Listen, then sing eight notes: sol la ti do up into home, then do te le sol back down. Sing in your own range.",
         skills: [
           { skill: "V02", w: 0.6 },
           { skill: "S08", w: 0.4 },
@@ -409,7 +409,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The tune holds E over the E chord, then leaps up to home. Rewrite its end so it climbs home by steps through raised 6 and 7 over the E chord. Wherever it falls, let it fall in natural minor.",
+          "In bar 3 the tune holds E over the E chord, then leaps up to home. Rewrite the end so it climbs home by steps through raised 6 and 7 (F♯ and G♯) over the E chord. Wherever the tune falls, keep natural minor. Done when the tune plays both F♯ and G♯.",
         skills: [{ skill: "S08", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -417,7 +417,7 @@ export default defineLesson({
         rubric: [
           {
             id: "raised-6-and-7",
-            label: "The tune climbs through raised 6 and 7",
+            label: "The tune plays raised 6 and 7 (F♯ and G♯)",
             required: true,
             skills: ["S08"],
             rule: "degree-set",
@@ -426,7 +426,7 @@ export default defineLesson({
           },
           {
             id: "comes-home",
-            label: "The tune ends on 1",
+            label: "The tune's last note is 1 (A)",
             required: false,
             skills: ["S08"],
             rule: "ends-on-degree",
@@ -435,7 +435,7 @@ export default defineLesson({
           },
           {
             id: "falls-natural",
-            label: "The tune also uses ♭6 on a way down",
+            label: "The tune also plays ♭6 (F), as a fall in natural minor does",
             required: false,
             skills: ["S05"],
             rule: "degree-set",
@@ -446,7 +446,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which bar has the E chord, and which notes would climb from E up to A?",
+          "Find the bar with the E chord. The tune needs notes there that climb by steps from E up to A.",
           "A patterned `.scale()` gives each bar its own form of minor: `<A3:minor!2 … A3:minor>`. Bar 3 needs the one that raises 6 and 7.",
           "Try bar 3 as `[4 5 6 ~]` with its scale set to melodic minor, and bar 4 on `n` 7, home.",
         ),

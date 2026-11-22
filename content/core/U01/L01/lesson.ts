@@ -42,7 +42,7 @@ const TAP_FEEDBACK = {
 
 export default defineLesson({
   id: "U01.L01",
-  version: 2,
+  version: 3,
   title: "Heartbeat",
   objective: "I can find the beat, set a tempo with setcpm, and write a one-bar beat on one line.",
   key: { tonic: "C", mode: "major" },
@@ -70,7 +70,8 @@ export default defineLesson({
         id: "find-the-beat",
         version: 1,
         role: "practice",
-        prompt: "Nod along with the groove. Which sounds does your nod land with?",
+        prompt:
+          "Nod your head along with the groove. Listen for which drums your nod lands with: the low thump of the kick, the crisp crack of the snare, or the fast ticks of the hats.",
         skills: [{ skill: "R01", w: 1 }],
         hints: null,
         tests: [],
@@ -88,13 +89,14 @@ export default defineLesson({
         id: "tap-the-pulse",
         version: 1,
         role: "practice",
-        prompt: "Tap along: one tap with every kick and every snare, eight taps in all. Any key works.",
+        prompt:
+          "Tap once on every kick and every snare: the kick is the low thump, the snare the crisp crack. Do not tap the hats, the fast ticks in between. That makes eight taps in all, evenly spaced.",
         skills: [
           { skill: "R01", w: 0.5 },
           { skill: "E01", w: 0.5 },
         ],
         hints: ladder(
-          "Which sound keeps coming back at the same distance?",
+          "Tap only the kick and the snare, eight taps in all. Which sound keeps coming back at the same distance?",
           "Kick, snare, kick, snare: one tap on each of them, none on the hats in between.",
           "Count four with the drums before you start: 1, 2, 3, 4, then tap on the next 1.",
         ),
@@ -126,7 +128,8 @@ export default defineLesson({
         id: "bigger-number",
         version: 1,
         role: "practice",
-        prompt: "Now it says 132 where it said 96, and nothing else has changed. What will you hear?",
+        prompt:
+          "The first line now says 132 where it said 96, and nothing else has changed. Predict what you will hear, and pick one answer.",
         skills: [{ skill: "R02", w: 1 }],
         hints: null,
         tests: [],
@@ -152,14 +155,15 @@ export default defineLesson({
         id: "turn-the-dial",
         version: 1,
         role: "practice",
-        prompt: "Run it. Then try 70 and 160 in place of 132, and run after each change.",
+        prompt:
+          "Listen at 132 first. Then change 132 in the first line to 70 and listen, then to 160 and listen again. Answer the question below.",
         skills: [{ skill: "R02", w: 1 }],
         feedbackText: {
           "investigate.wrong":
-            "Not quite. Only the first number changed between your runs: listen again to what changed with it.",
+            "Not quite. Only the first number changed between your tries. Listen at 70 and at 160 again and notice what changed with it.",
         },
         hints: ladder(
-          "Which part of the code did you change, and what did you hear change?",
+          "Compare what you heard at 70 and at 160. You changed one number: what changed in the sound?",
           "Only the first line changed, and only the speed changed with it.",
           "At 60 the kick and snare land once a second; at 120, twice a second.",
         ),
@@ -195,14 +199,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and count the sounds from one kick up to the next, the kick itself included. Then add two more `hh` to the line and run it again.",
+          "Count the sounds from one kick up to the next, the kick itself included. Then add two more `hh` to the end of the line inside the quotes and listen again. Answer the two questions below.",
         skills: [{ skill: "R03", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count from one kick, the kick included, up to the next kick, and watch whether the loop on the roll gets any wider.",
         },
         hints: ladder(
-          "Where does the loop start again?",
+          "First count from one kick to the next, the kick included. Where does the loop start again?",
           "The kick `bd` is the first word, so every kick starts the loop again.",
           "Count the words inside the quotes: each word is one sound.",
         ),
@@ -257,7 +261,8 @@ export default defineLesson({
         id: "set-120",
         version: 1,
         role: "check",
-        prompt: "Make it play at **120** beats per minute without changing the drums.",
+        prompt:
+          "Change the number in the first line so the groove plays at **120** beats per minute. Keep the `/4`, and leave the drum lines as they are.",
         skills: [{ skill: "R02", w: 1 }],
         code: { starter: `setcpm(⟪80⟫/4)\n\n${GROOVE_LINES}` },
         reference: { solutions: [groove(120)], bars: 1 },
@@ -270,7 +275,7 @@ export default defineLesson({
             "Write the tempo as beats per minute over the beats in a bar, as the starter does: `setcpm(80/4)`.",
         },
         hints: ladder(
-          "Which line sets the speed?",
+          "Only the speed should change, from 80 to 120 beats per minute. Which line sets the speed?",
           "The first number in `setcpm(…/4)` is the tempo in beats per minute.",
           "For 100 beats per minute the line would read `setcpm(100/4)`.",
         ),
@@ -315,7 +320,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Change the line so the kick `bd` plays four times, once on every beat, and nothing else plays.",
+          "Change the `drums` line so it plays the kick `bd` four times, once on each beat, and no other sound. Done when you hear four kicks and nothing else.",
         skills: [
           { skill: "R01", w: 0.5 },
           { skill: "R03", w: 0.5 },
@@ -324,8 +329,15 @@ export default defineLesson({
         reference: { solutions: [kickLine("bd bd bd bd")], bars: 1 },
         matcher: DRUM_ONSETS,
         target: { audible: true },
+        // The catalog says "missing hit" and "extra hit": these say what goes where.
+        feedbackText: {
+          "rhythm.missing":
+            "Bar {bar}, {beatLabel}: no hit here yet{role}. Each of the four beats needs one `bd`.",
+          "rhythm.extra":
+            "Bar {bar}, {beatLabel}: one hit too many{role}. The line should hold four `bd`, one per beat, and nothing else.",
+        },
         hints: ladder(
-          "How many words does a bar of four beats need?",
+          "The bar needs four kicks, one on each beat. How many words does a bar of four beats need?",
           "Each word inside the quotes is one beat here. Two of the four are `sd`.",
           "`hh*8` played eight hats; the same trick repeats a kick.",
         ),
@@ -366,7 +378,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a one-bar beat at a tempo you choose. The starter has one kick a bar; give every one of the four beats a sound.",
+          "Write a one-bar drum beat at a tempo you choose. The starter plays one kick per bar: give each of the four beats its own sound. Done when a sound starts on every beat.",
         skills: [
           { skill: "R01", w: 0.5 },
           { skill: "R02", w: 0.25 },
@@ -379,7 +391,7 @@ export default defineLesson({
         rubric: [
           {
             id: "every-beat",
-            label: "A sound on each of the four beats",
+            label: "A drum sound starts on each of the four beats, in every bar",
             required: true,
             skills: ["R01", "R03"],
             rule: "onsets",
@@ -403,7 +415,7 @@ export default defineLesson({
           },
           {
             id: "two-lines",
-            label: "Two drum lines, one under the other",
+            label: "At least two drum lines, each with its own name",
             required: false,
             skills: ["R01"],
             rule: "tracks",
@@ -420,7 +432,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "What should a listener nod to?",
+          "Each of the four beats needs a sound starting on it. What should a listener nod to?",
           "One word takes the whole bar. Four words share it out, one per beat.",
           "`bd sd bd sd` gives every beat a sound. Now make the sounds yours: `cp`, `rim`, `hh`, `sd` and `bd` all work.",
         ),

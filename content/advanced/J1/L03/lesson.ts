@@ -109,7 +109,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J1.L03",
-  version: 2,
+  version: 3,
   title: "The Major ii–V–I",
   objective: "I can hear a ii–V–I as one gesture and write one in a major key.",
   key: C_MAJOR,
@@ -135,7 +135,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen for the bar where each take comes to rest. How do the two bars before it feel: settled, or on their way?",
+          "Listen for the bar where each take comes to rest. Then notice how the two bars before it feel: settled, or on their way somewhere.",
         skills: [{ skill: "J04", w: 1 }],
         hints: null,
         tests: [],
@@ -165,7 +165,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The trio plays Dm7 for a bar, then G7. Hum where the next chord should go before you run it. Which chord does the ear expect?",
+          "The trio plays Dm7 for a bar, then G7. Hum where the next chord should go, then pick the chord your ear expects. Run it to check.",
         skills: [{ skill: "J04", w: 1 }],
         hints: null,
         tests: [],
@@ -193,14 +193,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the trio. The chord band shows each chord's numeral in C major: read them, then follow the bass from bar 1 into bar 2.",
+          "Run the trio and answer two questions. First, read the numerals the chord band shows for bars 1 to 3, in C major. Second, count the half steps the bass falls from its first note in bar 1 to its first note in bar 2.",
         skills: [{ skill: "J04", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read the numerals under bars 1 to 3 one more time, then count the half steps from the bass's first note in bar 1 down to its first note in bar 2.",
         },
         hints: ladder(
-          "On which degree of C major does each chord stand, and which kind of seventh is it?",
+          "Find the degree of C major each chord stands on, and which kind of seventh it is. The numeral shows both.",
           "D is degree 2, G is 5, C is 1. A minor seventh is lower case with a 7, a dominant seventh capital with a 7, a major seventh capital with maj7.",
           "The bass starts bar 1 on D and bar 2 on the G below it. Count the half steps down, D to C♯ is one.",
         ),
@@ -258,10 +258,10 @@ export default defineLesson({
         role: "check",
         key: B_FLAT_MAJOR,
         prompt:
-          "The trio plays the gesture in B♭ major: Cm7, F7, then B♭maj7 for two bars. Write the numeral of each of the first three chords, with its seventh.",
+          "The trio plays the gesture in B♭ major: Cm7, F7, then B♭maj7 for two bars. Write the numeral of each of the first three chords in B♭ major, with its seventh: the case shows the kind of chord, and the ending shows the seventh.",
         skills: [{ skill: "J04", w: 1 }],
         hints: ladder(
-          "On which degree of B♭ major does each chord stand?",
+          "Find the degree of B♭ major each chord stands on: count up the scale from B♭.",
           "Count up B♭ major from B♭: B♭ is 1, C is 2, D is 3, and so on. The case and the ending follow the kind of seventh.",
           "Cm7 stands on 2 and is a minor seventh: lower case with a 7. Do the same for the next two.",
         ),
@@ -318,7 +318,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The trio plays the ii–V–I in C. Move it so that home is F: the same three kinds of chord, on F's degrees 2, 5 and 1. The bass reads `changes` too.",
+          "The trio plays the ii–V–I in C. Rewrite `changes` so home is F: the same three kinds of chord, built on degrees 2, 5 and 1 of F major. The bass reads `changes` too, so change only that string. Done when the four bars match the target.",
         skills: [{ skill: "J04", w: 1 }],
         swing: SWUNG,
         code: { starter: MOVE_STARTER },
@@ -333,7 +333,7 @@ export default defineLesson({
             "Bar {bar}: not the chord the target plays there. Count F major up from F to find degrees 2 and 5, and check which kind of seventh each degree takes.",
         },
         hints: ladder(
-          "Which letters stand on degrees 2, 5 and 1 of F major?",
+          "Count F major up from F to find the letters on degrees 2, 5 and 1. Each becomes the root of one chord.",
           "F major counts F, G, A, B♭, C, D, E. The chord on 2 is a minor seventh, the one on 5 a dominant seventh, home a major seventh.",
           "Bar 1 becomes `Gm7`; bars 3 and 4 are home, written with `^7`.",
         ),
@@ -393,10 +393,12 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four-bar phrases in different keys, one at a time. Each starts at home. Does it end with a ii–V–I, or with something close to one?",
+          "Four-bar phrases in different keys, one at a time. Each starts at home. For each, pick whether it ends with a ii–V–I or with something close to one.",
         skills: [{ skill: "J04", w: 1 }],
         hints: [
-          { text: "Listen to the last two bars. Does the phrase come home, and how does it get there?" },
+          {
+            text: "Listen to the last three chords. Check that the phrase comes home, and which chord comes just before the V.",
+          },
           {
             text: "A ii–V–I ends on the chord of bar 1. The near misses either land somewhere else after the V, or reach home from another chord than ii.",
           },
@@ -434,7 +436,7 @@ export default defineLesson({
         role: "practice",
         title: "Two landings",
         prompt:
-          "Your trio's loop never makes the gesture. Write eight bars: a ii–V–I into C, then one into a second key you choose (F is close). Last lesson's sixth chord makes a warm home; a vibes line or another tempo can come after.",
+          "Rewrite `changes` as eight bars. Required: at least one ii–V–I, a minor seventh, then the dominant seventh a 4th above it, then home. Also on the checklist: a second ii–V–I into another key (F is close). For more, a sixth chord as home, a vibes line or another tempo.",
         skills: [{ skill: "J04", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -444,7 +446,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which three chords make the gesture into C?",
+          "Start with the gesture into C: three chords, each in its own bar or longer.",
           "A minor seventh on degree 2, a dominant seventh on 5, then home as a major seventh, each in its own bar or longer.",
           "The first four bars could be the S1 trio's chords; the next four the same gesture with F as home, as in S5.",
         ),

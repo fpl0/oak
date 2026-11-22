@@ -53,7 +53,7 @@ const FILL_LAST: string[][] = GROOVES.flatMap((a) =>
 
 export default defineLesson({
   id: "U01.L07",
-  version: 2,
+  version: 3,
   title: "Four-Bar Phrases & Fills",
   objective: "I can write a four-bar drum phrase with < > and end it with a fill.",
   key: { tonic: "C", mode: "major" },
@@ -78,7 +78,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Count the bars with the bar counter: 1, 2, 3, 4, and round again. Which bar sounds different, and what does it do to the bar after it?",
+          "Count the bars along with the bar counter: 1, 2, 3, 4, and round again. Listen for the bar that sounds different, and for what it does to the bar after it.",
         skills: [{ skill: "R04", w: 1 }],
         hints: null,
         tests: [],
@@ -97,7 +97,8 @@ export default defineLesson({
         id: "one-per-bar",
         version: 1,
         role: "practice",
-        prompt: "Here `bd sd` sits inside `< >`. What will you hear?",
+        prompt:
+          'The drum line reads `s("<bd sd>")`: `bd sd` inside `< >`. Predict what you will hear, and pick one answer.',
         skills: [{ skill: "R04", w: 1 }],
         hints: null,
         tests: [],
@@ -123,7 +124,8 @@ export default defineLesson({
         id: "which-bar-breaks",
         version: 1,
         role: "practice",
-        prompt: "Run the hook and watch the snare lane while you count the bars. Then read the snare line.",
+        prompt:
+          "Count the bars while the groove plays, and watch the snare lane on the roll. Then read the snare line in the code and answer the two questions below.",
         skills: [
           { skill: "R04", w: 0.5 },
           { skill: "R07", w: 0.5 },
@@ -133,7 +135,7 @@ export default defineLesson({
             "Not quite. On the snare line, each `[ ]` inside `< >` is one item and one bar. Count them, then watch which bar the snare lane changes in.",
         },
         hints: ladder(
-          "Where does the snare stop playing on 2 and 4?",
+          "In most bars the snare plays on 2 and 4. Find the bar where it stops: which one is it?",
           "`< >` plays one of its items per bar, in order, then starts again.",
           "The first three items inside `< >` are the same backbeat.",
         ),
@@ -174,13 +176,13 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Here are four bars for the snare line. Put them in order so the phrase ends on the fill. Play any block to hear it.",
+          "Put the four snare bars in order so the phrase ends on the fill, the bar with the toms. The other three can go in any order. You can hear each block before you place it.",
         skills: [
           { skill: "R04", w: 0.5 },
           { skill: "R07", w: 0.5 },
         ],
         hints: ladder(
-          "Where in the phrase does a fill belong?",
+          "The fill has one right place in the phrase. Where in the phrase does a fill belong?",
           "A fill leads into bar 1 of the next phrase, so it plays just before it.",
           "The block with the toms goes in the last slot. The other three can go in any order.",
         ),
@@ -219,7 +221,7 @@ export default defineLesson({
         id: "close-the-phrase",
         version: 1,
         role: "check",
-        prompt: `The snare plays the same bar forever. Use \`< >\` to make a four-bar phrase: \`${GROOVE_BAR}\` in bars 1 to 3, and the fill \`${FILL_BAR}\` in bar 4.`,
+        prompt: `Turn the snare line into a four-bar phrase with \`< >\`: \`${GROOVE_BAR}\` in bars 1 to 3, and the fill \`${FILL_BAR}\` in bar 4. Wrap each bar in \`[ ]\` so it counts as one item.`,
         skills: [
           { skill: "R04", w: 0.5 },
           { skill: "R07", w: 0.5 },
@@ -230,9 +232,13 @@ export default defineLesson({
         matcher: { m: "events", pitch: "absolute", rhythm: "onsets", durations: false, sound: "drum-role" },
         constraints: [{ c: "must-use", tool: "tb.mini.alt", feedback: "code.must-use" }],
         target: { audible: true, showRoll: true },
-        feedbackText: { "code.must-use": "Write the four bars inside `< >`, one item per bar." },
+        feedbackText: {
+          "code.must-use": "Write the four bars inside `< >`, one item per bar.",
+          "rhythm.missing": `Bar {bar}, {beatLabel}: no hit here yet{role}. Bars 1 to 3 play \`${GROOVE_BAR}\`, and bar 4 plays the fill.`,
+          "rhythm.extra": `Bar {bar}, {beatLabel}: a hit that should not be there{role}. Bars 1 to 3 play \`${GROOVE_BAR}\`, and only bar 4 plays the fill.`,
+        },
         hints: ladder(
-          "How many items does `< >` need for a four-bar phrase?",
+          "The phrase needs four bars, each one item inside `< >`. How many items does `< >` need?",
           "Each item is one bar. Wrap a bar of several sounds in `[ ]` so it counts as one item.",
           `Bar 1 is \`[${GROOVE_BAR}]\`. Bars 2 and 3 are the same, and the fill comes last.`,
         ),
@@ -282,10 +288,11 @@ export default defineLesson({
         id: "echo-two-bars",
         version: 1,
         role: "practice",
-        prompt: "Listen to two bars, then tap them back. Bar 2 is where the rhythm changes.",
+        prompt:
+          "Listen to two bars of rhythm, then tap them back: one tap for every sound, in the same places. Bar 2 is different from bar 1.",
         skills: [{ skill: "E01", w: 1 }],
         hints: ladder(
-          "Does bar 2 copy bar 1, or answer it?",
+          "Tap both bars, every sound in its place. Does bar 2 copy bar 1, or answer it?",
           "Tap bar 1 alone a few times first, then add bar 2.",
           "Count 1-e-&-a in the busy beats and tap only on the words that got a sound.",
         ),
@@ -310,7 +317,8 @@ export default defineLesson({
         id: "four-bar-phrase",
         version: 1,
         role: "practice",
-        prompt: "Write a four-bar drum phrase that ends with a fill in bar 4. Change bars with `< >`.",
+        prompt:
+          "Write a four-bar drum phrase with `< >`, so that at least one line plays two or more different bars before it repeats. End the phrase with a fill in bar 4.",
         skills: [
           { skill: "R04", w: 0.5 },
           { skill: "R07", w: 0.5 },
@@ -321,7 +329,7 @@ export default defineLesson({
         rubric: [
           {
             id: "alt",
-            label: "Changes a bar with `< >`",
+            label: "One line plays at least two different bars, using `< >`",
             required: true,
             skills: ["R04"],
             // The effect, not the brackets: `<[~ sd ~ sd]>` holds one choice and plays the same bar every time.
@@ -331,7 +339,7 @@ export default defineLesson({
           },
           {
             id: "four-bars",
-            label: "Four bars or more before it repeats",
+            label: "The loop runs four bars or more before it repeats",
             required: false,
             skills: ["R04"],
             rule: "bars",
@@ -339,7 +347,7 @@ export default defineLesson({
           },
           {
             id: "toms",
-            label: "Toms in the fill, down to the low tom `lt`",
+            label: "Uses the low tom `lt`",
             required: false,
             skills: ["R07"],
             rule: "sounds",
@@ -347,7 +355,7 @@ export default defineLesson({
           },
           {
             id: "backbeat",
-            label: "Snare on 2 and 4 in bars 1 to 3",
+            label: "Snare on beats 2 and 4 in bars 1 to 3",
             required: false,
             skills: ["R04"],
             rule: "onsets",
@@ -365,7 +373,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which line should change in bar 4, and which can stay the same?",
+          "Make bar 4 different from bars 1 to 3 on at least one line. Which line should change in bar 4?",
           "Put that line's bar inside `< >` four times, then change the last item.",
           `\`<[${GROOVE_BAR}]!3 [~ sd ~ ~]>\` is a phrase whose bar 4 drops a snare. Make that last bar busier.`,
         ),

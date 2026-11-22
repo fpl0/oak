@@ -76,7 +76,7 @@ const DRUMS = { band: "band.aeolian-4bar", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "A2.L01",
-  version: 2,
+  version: 3,
   title: "Roles & Registers",
   objective: "I can give each part its own height, so the low end stays clear, and see it on the spectrum.",
   key: { tonic: "A", mode: "minor" },
@@ -104,7 +104,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Both loops play the same notes, but two parts move between them. Listen to the bottom of the sound: in which loop can you tell the bass from the chords?",
+          "Listen to the lowest sounds in both loops. The notes are the same; in loop 1 the chords and the tune sit an octave lower. Listen for the loop where you can follow the bass as its own line under the chords.",
         skills: [{ skill: "D08", w: 1 }],
         hints: null,
         tests: [],
@@ -134,7 +134,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "One A minor chord, A C E, close together, at three heights: a bar low, a bar in the middle, a bar higher. Which bar will sound the least clear?",
+          "One A minor chord, A C E, plays close together at three heights: low in bar 1, in the middle in bar 2, higher in bar 3. Predict which bar will sound the least clear. Pick it, then listen.",
         skills: [{ skill: "D08", w: 1 }],
         hints: null,
         tests: [],
@@ -162,14 +162,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "`.fscope()` opens a panel that draws the sound by how fast it shakes: slow on the left, fast on the right. Bar 1 plays the bass alone, bar 2 the chords, bar 3 the tune. Run it and watch.",
+          "Watch the panel `.fscope()` opens: it draws each sound by how fast it shakes, slow (low) on the left, fast (high) on the right. Bar 1 plays the bass alone, bar 2 the chords, bar 3 the tune. Answer two questions: whose peaks start furthest left, and how many times a second the chords' lowest note repeats.",
         skills: [{ skill: "D08", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Watch where each bar's peaks start: the lower a part plays, the further left they begin. a3 is two octaves above a1.",
         },
         hints: ladder(
-          "Which side of the panel is low, and which part plays lowest?",
+          "Find the low side of the panel first: slow shaking is drawn on the left. Which part plays lowest?",
           "Low notes shake slowly, so they are drawn on the left. An octave up doubles the number.",
           "a2 is twice 55. Go up one more octave.",
         ),
@@ -223,14 +223,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two notes, A and C, in each bar: low, in the middle, higher. Run it, listen, and watch the two peaks in each bar.",
+          "A and C play together in three bars: low in bar 1, in the middle in bar 2, higher in bar 3. Listen and watch the two peaks in each bar. Answer two questions: in which bar the two notes blur into one rough sound, and how many half steps apart they are.",
         skills: [{ skill: "D08", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the keys from A up to C, the black ones too. Then listen for the bar where you can no longer hear two notes, only one rough sound.",
         },
         hints: ladder(
-          "In which bar is it hardest to hear that two notes are playing?",
+          "Listen for the bar where you can no longer pick out two separate notes. Which bar is it?",
           "Count the half steps from A to C on the keyboard: A to A♯ is one.",
           "A, A♯, B, C. In bar 1 the two peaks crowd together at the left.",
         ),
@@ -279,7 +279,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The chords now sit in the middle, but the tune plays right on top of them, at the same height. Move the whole tune up one octave, so it rides above the chords. Keep its notes.",
+          "Move the whole tune, the `mel` line, up one octave so it plays above the chords. Keep its notes and rhythm, and leave the bass and chords lines as they are. Done when every tune note sounds one octave higher than now.",
         skills: [{ skill: "D08", w: 1 }],
         code: { starter: LIFT_STARTER },
         reference: { solutions: [LIFT_SOLUTION], bars: 4 },
@@ -296,7 +296,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: the right note, {dir} than the target. The tune moves up by one octave, the whole line at once.",
         },
         hints: ladder(
-          "Which number in the tune's line says how high it plays?",
+          "The tune's height is set in the `mel` line, not in its notes. Which number there says how high it plays?",
           "In `.scale()` the letter is home and the number after it is the octave: the higher the number, the higher the line.",
           'The chords sit at A3 and the tune starts there too. One octave is one step of that number; the bass\'s "a1" is two below the chords.',
         ),
@@ -371,10 +371,12 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The loop again, with one part moved down until it plays where the bass plays. Which part is it?",
+          "Listen to the loop: one part has moved down until it plays where the bass plays. Pick the part that crowds the bass.",
         skills: [{ skill: "D08", w: 1 }],
         hints: [
-          { text: "Listen to the bottom of the sound: is it one line, or two tangled together?" },
+          {
+            text: "Listen only to the lowest sounds. Is one line playing down there, or two tangled together?",
+          },
           {
             text: "The chords move together as a block of three notes; the tune is one note at a time and moves more often.",
           },
@@ -426,7 +428,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The loop with the chords and the tune an octave too low: the chords sit on the bass and the low end blurs. Give each part its own height: the bass low, the chords from C3 up, the tune above them. Then make it yours with a fourth part: an FM bell above the tune, or a wide supersaw pad.",
+          "The chords and the tune play an octave too low. Move the chords up so no chord note is below C3. Put the tune from C4 up and keep the bass below C3. Then make it yours with a fourth line, such as an FM bell or a supersaw pad. Done when the chords sit from C3 up.",
         skills: [{ skill: "D08", w: 1 }],
         code: { starter: CROWDED },
         bars: [4, 8],
@@ -434,7 +436,7 @@ export default defineLesson({
         rubric: [
           {
             id: "chords-off-the-bass",
-            label: "The chords out of the bass's octave: no chord note below C3",
+            label: "Every chord note from C3 up to C6, out of the bass's octave",
             required: true,
             skills: ["D08"],
             rule: "range",
@@ -443,7 +445,7 @@ export default defineLesson({
           },
           {
             id: "tune-on-top",
-            label: "The tune from C4 up",
+            label: "Every tune note from C4 up to C7",
             required: false,
             skills: ["D08"],
             rule: "range",
@@ -452,7 +454,7 @@ export default defineLesson({
           },
           {
             id: "bass-low",
-            label: "The bass below C3",
+            label: "Every bass note below C3",
             required: false,
             skills: ["D08"],
             rule: "range",
@@ -461,7 +463,7 @@ export default defineLesson({
           },
           {
             id: "a-fourth-part",
-            label: "A fourth part of your own",
+            label: "At least four lines in your code",
             required: false,
             skills: ["D08"],
             rule: "tracks",
@@ -471,7 +473,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which part is playing in the same octave as the bass?",
+          "Find the lines that play in the same octave as the bass. Which ones are they?",
           "The number in each `.scale()` is that line's octave. The chords and the tune are both one too low.",
           "Start with the chords: one octave up puts their lowest note at C3.",
         ),

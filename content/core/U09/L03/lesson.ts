@@ -113,7 +113,7 @@ const LEAD = { roll: false, staff: "lead", keyboard: false } as const;
 
 export default defineLesson({
   id: "U09.L03",
-  version: 2,
+  version: 3,
   title: "AABA & Strophic",
   objective:
     "I can name a song's form by ear, verse–chorus, AABA or strophic, and arrange a song A A B A with a bridge of my own.",
@@ -143,7 +143,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen for the moment the song leaves its first music, and for the moment it comes back. How does the return feel?",
+          "Listen for the bar where the song leaves its first music, and the bar where that music comes back. Notice how the return feels.",
         skills: [{ skill: "F03", w: 1 }],
         hints: null,
         tests: [],
@@ -162,7 +162,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The tune's line is `mel: arrange([4, melA], [4, melA], [4, melB], [4, melA])`. How many times does `melA` play before the song starts over?",
+          "Predict how many times `melA` plays before the song starts over, then enter the number. The tune's line is `mel: arrange([4, melA], [4, melA], [4, melB], [4, melA])`.",
         skills: [{ skill: "F03", w: 1 }],
         hints: null,
         tests: [],
@@ -185,14 +185,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the song and watch the roll from bar 9, where `melB` and `chordsB` take over, until A comes back.",
+          "Run the song and watch the roll from bar 9, where `melB` and `chordsB` take over. Answer both questions below: what the third section does, and in which bar A comes back.",
         skills: [{ skill: "F03", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Listen from bar 9: which chords play, where does the tune stop at bar 12, and when do you hear the opening again?",
         },
         hints: ladder(
-          "At bar 9, does the music sound at home, or has it gone somewhere?",
+          "Compare bars 9 to 12 with bars 1 to 4. The chords and the tune both change at bar 9.",
           "Read `chordsB`: does it start on the home chord? Then listen to how bar 12 ends.",
           "The third section starts on F and stops on G, waiting. Count four bars after bar 9 starts.",
         ),
@@ -244,7 +244,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The page shows the song: four sections of four bars, marked A, A, B, A. The chords and the bass already follow it; the tune plays `melA` all the way through. Give the tune the arrange() the page asks for.",
+          "Replace the highlighted `melA` with an `arrange()` that follows the page: four sections of four bars, A, A, B, A. Use `melA` for A and `melB` for B. The chords and the bass already follow the page. Done when the tune matches the page in all 16 bars.",
         skills: [{ skill: "F03", w: 1 }],
         code: { starter: PAGE_STARTER },
         reference: { solutions: [PAGE_SOLUTION], bars: 16 },
@@ -256,7 +256,7 @@ export default defineLesson({
             "Bar {bar}: the tune plays {got}, the page has {exp}. Check the order and the lengths of your sections against the page.",
         },
         hints: ladder(
-          "Which section label sits over bars 9 to 12 on the page?",
+          "Read the section labels on the page in order. Each one covers four bars.",
           "The chords and bass lines already list four sections. The tune needs the same list, with `melA` and `melB`.",
           "The first two sections are both A: `arrange([4, melA], [4, melA], …`. Two to go.",
         ),
@@ -305,10 +305,12 @@ export default defineLesson({
         version: 2,
         role: "check",
         prompt:
-          "A song in three sections of eight bars. Name its form with letters: A for the first music you hear, B for the next new music, and so on.",
+          "Listen to a song in three sections of eight bars. Give each section a letter: A for the first music you hear, B for the next new music, and so on. Judge by the tune, not the instrument.",
         skills: [{ skill: "F03", w: 1 }],
         hints: [
-          { text: "When the second section starts, is the tune new, or is it the first tune again?" },
+          {
+            text: "Compare the tune that opens section 2 with the tune that opens section 1. Same tune, or a new one?",
+          },
           {
             text: "A letter names the music, not the sound it is played on. Hum the first two bars of each section.",
           },
@@ -326,7 +328,7 @@ export default defineLesson({
         correct: { sections: ["A", "A", "A"] },
         feedbackText: {
           "form.section":
-            "The sound changed, but did the tune? A letter names the music, not the instrument.",
+            "Section {slot}: a letter names the tune, not the instrument. Give a section a new letter only when its tune is new.",
         },
         tests: [
           { name: "A A A", response: { answer: { sections: ["A", "A", "A"] } }, expect: "pass" },
@@ -358,13 +360,13 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Short songs in different keys. Does each one play a section twice, go somewhere new once and come back, or do two sections take turns?",
+          "Listen to each short song, in a new key each time. Pick AABA if one section plays twice, new music comes once and the first returns. Pick verse and chorus if two sections take turns.",
         skills: [
           { skill: "F03", w: 0.6 },
           { skill: "F02", w: 0.4 },
         ],
         hints: [
-          { text: "How many times does the new music come?" },
+          { text: "Count how many times the new music comes: once, or again and again." },
           {
             text: "AABA's new section comes once, after the first section has played twice. In verse and chorus the two take turns: A B A B.",
           },
@@ -400,7 +402,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A loops on its own, and the bridge, B, is a first sketch. Make B your own: start away from home, on F or Am, and end on G so A can come back. Then arrange the song A A B A, one `arrange()` per track.",
+          "Rewrite the bridge in `chordsB` and `melB`: start away from home, on F or Am, and end on G so A can come back. Then give the chords and the tune each an `arrange()`: A, A, B, A, four bars each. Done when the song runs A A B A.",
         skills: [{ skill: "F03", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [16, 32],
@@ -408,7 +410,7 @@ export default defineLesson({
         rubric: [
           {
             id: "aaba",
-            label: "The song runs A A B A",
+            label: "The sections play A, A, B, A, in that order",
             required: true,
             skills: ["F03"],
             rule: "form",
@@ -416,7 +418,7 @@ export default defineLesson({
           },
           {
             id: "ends-open",
-            label: "The bridge ends on V",
+            label: "A half cadence on V at bar 12, the end of the bridge",
             required: false,
             skills: ["F03"],
             rule: "cadence",
@@ -425,7 +427,7 @@ export default defineLesson({
           },
           {
             id: "every-part",
-            label: "Chords and tune each have their own arrange()",
+            label: "`arrange()` used at least twice, for the chords and the tune",
             required: false,
             skills: ["F03"],
             rule: "uses",
@@ -436,7 +438,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which section plays twice before the bridge, and which comes back at the end?",
+          "A plays twice before the bridge and once after it.",
           "Each track that changes gets one `arrange()` listing four sections of four bars: A, A, B, A.",
           'For the chords: `arrange([4, chordsA], [4, chordsA], [4, chordsB], [4, chordsA]).s("piano")`. The tune needs the same plan.',
         ),

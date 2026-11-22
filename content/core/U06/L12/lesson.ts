@@ -76,7 +76,7 @@ const RHYTHM: Matcher = {
 
 export default defineLesson({
   id: "U06.L12",
-  version: 2,
+  version: 3,
   title: "Comping Patterns",
   objective: 'I can give a chord loop a rhythm that locks with the drums, with .struct("~ x ~ x").',
   key: { tonic: "C", mode: "major" },
@@ -101,7 +101,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Keep your ear on the piano, through the drums and bass. Where in the bar does it play, and where does it leave space?",
+          "Keep your ear on the piano, through the drums and bass. Listen for where in the bar it plays and where it leaves space.",
         skills: [{ skill: "H06", w: 1 }],
         hints: null,
         tests: [],
@@ -121,7 +121,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'A C chord, `n("[0,2,4]")`, followed by `.struct("x ~ x ~")`. Every `x` is a hit, every `~` a gap. How many times does the chord sound in one bar?',
+          'A C chord, `n("[0,2,4]")`, is followed by `.struct("x ~ x ~")`: every `x` is a hit, every `~` a gap. Predict how many times the chord sounds in one bar, and enter the number.',
         skills: [{ skill: "H06", w: 1 }],
         hints: null,
         tests: [],
@@ -144,14 +144,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Change the rhythm inside `.struct()` and run each: `"x ~ x ~"`, `"~ x ~ x"`, `"x x x x"`. Listen to the chords against the kick and the snare.',
+          'Change the rhythm inside `.struct()` to `"x ~ x ~"`, `"~ x ~ x"` and `"x x x x"` in turn, and run each. Listen to the chords against the kick and the snare, then answer both questions below.',
         skills: [{ skill: "H06", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Look at the drums line: the snare is the second and fourth word, `sd`; a rhythm that also hits on beats 1 and 3 plays between the snares too. Count the `x`s in the hook's rhythm, inside the brackets too.",
         },
         hints: ladder(
-          'Which beats does the snare play in `s("bd sd [~ bd] sd")`?',
+          'Find the snare in the drums line, `s("bd sd [~ bd] sd")`, and note which beats its `sd` words fall on.',
           "The four words of a `.struct()` rhythm are the four beats. An `x` on the same beat as `sd` hits with the snare.",
           "The snare is on beats 2 and 4. In the hook's rhythm, `[~ x]` splits beat 4 in two and hits on its second half.",
         ),
@@ -215,7 +215,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The chords hit on every beat. Change the rhythm in `.struct()` so they hit only with the snare, on beats 2 and 4.",
+          "The chords hit on every beat. Change the rhythm in `.struct()` so they hit only with the snare, on beats 2 and 4, and stay silent on beats 1 and 3.",
         skills: [{ skill: "H06", w: 1 }],
         code: { starter: S4_STARTER },
         reference: { solutions: [S4_SOLUTION], bars: 4 },
@@ -227,7 +227,7 @@ export default defineLesson({
             "The right number of hits, shifted {shiftLabel}. The snare plays on beats 2 and 4: put the `x`s there.",
         },
         hints: ladder(
-          "On which beats does the snare play? Which words of the rhythm stand for those beats?",
+          "The snare plays on beats 2 and 4. Find the words of the rhythm that stand for those beats.",
           "The rhythm has four words, one per beat. A `~` keeps a beat silent; an `x` plays the chord.",
           "Beat 1 becomes a gap and beat 2 stays a hit. Do the same for beats 3 and 4.",
         ),
@@ -271,10 +271,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The same tune twice, over the same chords. Once the chords hit every beat; once they hit only with the snare. In which one is the tune easier to follow?",
+          "Both cards play the same tune over the same chords: in one the chords hit every beat, in the other only with the snare. Pick the card where the tune is easier to follow.",
         skills: [{ skill: "H06", w: 1 }],
         hints: ladder(
-          "In which card do the tune and the chords keep landing on the same moments?",
+          "Listen for the card where the tune and the chords keep landing on the same moments: that one crowds the tune.",
           "When the chords hit on every beat, they start together with most of the tune's notes.",
           "Most of the tune's notes start on beats 1 and 3. Which card leaves those beats to it?",
         ),
@@ -318,7 +318,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          'Keep the hit on beat 2. Move the second hit half a beat later, onto the "and" of 4, as in the hook. Change only the last word of the rhythm.',
+          'Keep the hit on beat 2. Move the second hit half a beat later, onto the "and" of 4, the second half of beat 4, as in the hook. Change only the last word of the rhythm.',
         skills: [{ skill: "H06", w: 1 }],
         code: { starter: S6_STARTER },
         reference: { solutions: [S6_SOLUTION], bars: 4 },
@@ -335,7 +335,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: one hit too many. The bar keeps two hits; only the second one moves.",
         },
         hints: ladder(
-          "How do you fit two things into one beat in mini-notation?",
+          "Two things fit into one beat with brackets, as in your drum lines.",
           '`[a b]` splits one word\'s time in two. A gap in the first half and a hit in the second puts the hit on the "and".',
           "The last word becomes a pair in brackets: a `~` first, then the hit.",
         ),
@@ -379,7 +379,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The band plays drums and the bass on 1, 5, 6 and 4. Your chords hold each bar. Comp them with `.struct()`: a rhythm that locks with the band's kick and snare and leaves room for a tune.",
+          "Your chords hold each bar over the band's drums and bass. Add `.struct()` to the `chords` line with a rhythm that locks with the band's kick and snare and leaves room for a tune. Done when the chords play a rhythm set with `.struct()`.",
         skills: [{ skill: "H06", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -387,7 +387,7 @@ export default defineLesson({
         rubric: [
           {
             id: "struct",
-            label: "The chords play a rhythm set with .struct()",
+            label: "`.struct()` sets the rhythm of the chords",
             required: true,
             skills: ["H06"],
             rule: "uses",
@@ -395,7 +395,7 @@ export default defineLesson({
           },
           {
             id: "on-the-bass",
-            label: "The chords sit on the bass: I V vi IV",
+            label: "`chords` plays I V vi IV, over the band's bass",
             required: false,
             skills: ["H01"],
             rule: "progression",
@@ -404,7 +404,7 @@ export default defineLesson({
           },
           {
             id: "a-tune",
-            label: "A tune on top",
+            label: "A tune on its own line, such as `mel`",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -413,7 +413,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Where do the band's kick and snare land? Would your chords hit with them, or in the gaps?",
+          "Listen first for where the band's kick and snare land. Your chords can hit with them or in the gaps.",
           "`.struct()` goes after `.scale()`, before `.s()`. Its rhythm has one word a beat: `x` to hit, `~` to rest.",
           'One rhythm to start from: `"~ x ~ x"`. Then try a push, or split a beat in two.',
         ),

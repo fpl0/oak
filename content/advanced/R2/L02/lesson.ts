@@ -108,7 +108,7 @@ const NINE_OPTIONS = [
 ];
 const earHints = (): HintLadder =>
   ladder(
-    "How many hi-hat hits are there in one bar: seven or nine?",
+    "Count the hi-hat hits in one bar first: seven or nine.",
     "Count the hi-hat hits of a bar from 1. A drum marks the start of each group: a short group is two hits of the hi-hat, a long one three.",
     "Find the long groups first. How many are there, and do they come at the start of the bar or at its end?",
   );
@@ -182,7 +182,7 @@ const STARTS_2223: Rat[] = [
 ];
 const KICK_NINE: RubricRule = {
   id: "kick-two-two-two-three",
-  label: "The kick marks 2+2+2+3: on each group start and nowhere else",
+  label: "The kick plays only on eighths 1, 3, 5 and 7 of the nine, where each group of 2+2+2+3 starts",
   required: true,
   skills: ["R16"],
   rule: "onsets",
@@ -208,7 +208,8 @@ const MAKE_STARTER = code('kick: s("bd ~ bd ~ bd ~ bd")', MAKE_HATS, MAKE_BASS, 
 const make = (...drums: string[]) => code(...drums, MAKE_HATS, MAKE_BASS, MAKE_CHORDS);
 const GROUPS_2_2_3: RubricRule = {
   id: "accents-two-two-three",
-  label: "The accents group the seven 2+2+3: a kick or snare on each group start, none inside a group",
+  label:
+    "A kick or snare on eighths 1, 3 and 5 of every bar, where the groups of 2+2+3 start, and no kick or snare inside a group",
   required: true,
   skills: ["R16"],
   rule: "custom",
@@ -221,7 +222,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R2.L02",
-  version: 2,
+  version: 3,
   title: "Odd Grooves",
   objective:
     "I can hear how a groove in 7/8 or 9/8 is grouped, and write grooves in both with the long group last.",
@@ -247,7 +248,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A groove in seven at 240 eighth notes a minute, then the same groove with a clav riff on top. Count along with the captions. Does each bar march, or does its end tip you forward into the next?",
+          "A groove in seven at 240 eighth notes a minute, then the same groove with a clav riff on top. Count along with the captions. Notice whether each bar marches, or whether its end tips you forward into the next.",
         skills: [{ skill: "R16", w: 1 }],
         hints: null,
         tests: [],
@@ -277,10 +278,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Four bars, with a rimshot on every group start. Tap with it, three taps a bar, saying “short, short, long”: twelve taps in all.",
+          "Tap with the rimshot, the dry click that marks each group start, and ignore the kick and the snare. It plays three times a bar: short, short, long. Four bars, twelve taps in all. Done when each tap lands with a rimshot.",
         skills: [{ skill: "R16", w: 1 }],
         hints: ladder(
-          "Are the three taps of a bar evenly spaced?",
+          "Listen for the rimshot's dry click: its three hits are not evenly spaced, and the last gap is longer.",
           "Count the hi-hat 1 to 7. The rimshot plays on 1, on 3 and on 5, and then waits a little longer.",
           "Tap, wait one hi-hat, tap, wait one, tap, wait two.",
         ),
@@ -320,14 +321,14 @@ export default defineLesson({
         role: "practice",
         meter: "9/8i",
         prompt:
-          "Now nine, at the same 240 eighth notes a minute. Run it and read one bar on the roll and in the code: the drum string has one step per eighth note, and the tempo line divides 240 by the eighths in a bar.",
+          "Now nine, at the same 240 eighth notes a minute. Run it and read one bar on the roll and in the code: the drum string has one step per eighth note, and the tempo line divides 240 by the eighths in a bar. Then answer: how many eighths one bar holds, and how the drums group them.",
         skills: [{ skill: "R16", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the steps of the drum string, then count the steps from each drum hit to the next.",
         },
         hints: ladder(
-          "How many steps does the drum string have?",
+          "Count the steps of the drum string: one step is one eighth.",
           "One step is one eighth note. A group runs from one drum hit to the step before the next.",
           "Write the gaps between the hits as numbers, the last one up to the bar line, and read them in order.",
         ),
@@ -376,7 +377,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four grooves at 240 eighth notes a minute: two in seven, two in nine. The hi-hat plays every eighth; the drums mark where each group starts. How is each bar grouped?",
+          "Four grooves at 240 eighth notes a minute: two in seven, two in nine. The hi-hat plays every eighth; the drums mark where each group starts. For each, pick how the bar is grouped.",
         skills: [{ skill: "R16", w: 1 }],
         hints: earHints(),
         srs: [{ family: "fam.rhy.odd-grouping", mode: "review-if-due" }],
@@ -412,7 +413,7 @@ export default defineLesson({
         role: "check",
         meter: "9/8i",
         prompt:
-          "The tempo line already counts nine eighths to the bar at 240, but the kick still has the seven steps of a bar of seven, so it slides off the hi-hat. Give the kick one step per eighth and group the bar 2+2+2+3: a hit where each group starts, nowhere else.",
+          "Rewrite the kick's string with nine steps, one per eighth, grouped 2+2+2+3: a hit on the first eighth of each group and rests everywhere else. The tempo line already counts nine eighths at 240; the kick still has seven steps. Done when the kick plays only where each group starts.",
         skills: [{ skill: "R16", w: 1 }],
         code: { starter: S5_STARTER },
         reference: { solutions: [S5_SOLUTION], bars: 4 },
@@ -426,7 +427,7 @@ export default defineLesson({
             "{label}: not yet. Count the nine hi-hat hits with the target and listen for which of them the kick takes.",
         },
         hints: ladder(
-          "The tempo line divides 240 by nine. How many steps should the kick's string have?",
+          "The tempo line divides 240 by nine, so the bar has nine eighths: the kick's string needs one step for each.",
           "One step per eighth: nine. Then a hit only where a group begins: three short groups of two, then one of three.",
           "Nine steps; the first is a hit. Count two steps on for each of the next hits, and leave the long group's last steps as rests.",
         ),
@@ -499,7 +500,7 @@ export default defineLesson({
         role: "practice",
         title: "Groove in seven",
         prompt:
-          "Your groove in seven: 2+2+3, short, short, long. The starter's kick hits every other eighth, so its bar ends on a group of one. Put a kick or a snare on each group start and no loud hit inside a group; quiet hi-hats are free. Then build on it: the bass on the group starts, a clav riff on top.",
+          "Group your bar of seven 2+2+3: short, short, long. The starter's kick hits every other eighth, so the bar ends on a group of one. Required: a kick or snare on each group start, and none inside a group; quiet hi-hats are free. Also on the checklist: the bass on the group starts, and a clav riff on top.",
         skills: [{ skill: "R16", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -508,7 +509,7 @@ export default defineLesson({
           GROUPS_2_2_3,
           {
             id: "bass-on-the-groups",
-            label: "The bass starts each group",
+            label: "The bass plays on eighths 1, 3 and 5 of every bar",
             required: false,
             skills: ["R16"],
             rule: "onsets",
@@ -522,7 +523,7 @@ export default defineLesson({
           },
           {
             id: "a-riff-on-top",
-            label: "A clav riff on top",
+            label: "A clav plays",
             required: false,
             skills: ["R16"],
             rule: "sounds",
@@ -532,7 +533,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Where does each group of a 2+2+3 bar begin, counting the hi-hat from 1?",
+          "Count the hi-hat from 1 and mark where each group of 2+2+3 begins.",
           "The drum strings have seven steps, one per eighth. A kick or a snare goes on the first step of each group; every other loud hit has to go.",
           "Of the starter's four kicks, three already sit where a group starts. One of them is inside the long group.",
         ),

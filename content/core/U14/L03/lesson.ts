@@ -114,7 +114,7 @@ const LEAD = { roll: false, staff: "lead", keyboard: false } as const;
 
 export default defineLesson({
   id: "U14.L03",
-  version: 2,
+  version: 3,
   title: "Dorian ♮6",
   objective: "I can turn minor into Dorian by raising its 6th, and write a groove over i and the major IV.",
   key: { tonic: "D", mode: "minor" },
@@ -140,7 +140,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A two-chord groove with a piano line on top. Loop 1 starts in D minor; halfway through, one note of the scale changes and the numbers stay. Listen to the mood: does the second half sound darker or lighter?",
+          "Listen for the change of mood after bar 2 of loop 1: does the second half sound darker or lighter? Loop 1 starts in D minor; then one note of the scale changes, and the numbers in `n` stay the same. Loop 2 plays the new groove on its own.",
         skills: [{ skill: "S12", w: 1 }],
         hints: null,
         tests: [],
@@ -170,7 +170,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight notes from home up to home. Bar 1 is on `D4:minor`; bar 2 has the same numbers on the scale of the second groove. Which note moves in bar 2, and which way?",
+          "Predict which note of bar 2 differs from bar 1, and which way it moves. Both bars play `n` 0 to 7, home up to home: bar 1 on `D4:minor`, bar 2 on the scale of the second groove. Pick one answer.",
         skills: [{ skill: "S12", w: 1 }],
         hints: null,
         tests: [],
@@ -198,7 +198,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The triad on degree 4: bar 1 on D minor, bar 2 on the new scale. Run it and compare the two bars on the roll.",
+          "Run the code and compare the note names of the two chords on the roll. Both are the triad on degree 4: bar 1 on D minor, bar 2 on the new scale. Then answer both questions: which chord bar 2 is, and how many half steps from A up to its 6th.",
         skills: [
           { skill: "S12", w: 0.5 },
           { skill: "H11", w: 0.5 },
@@ -208,7 +208,7 @@ export default defineLesson({
             "Not quite. Read the middle note of each chord: B♭ in bar 1, B in bar 2. Then count the keys from A, degree 5, up to that B.",
         },
         hints: ladder(
-          "Which note of the bar 1 chord is not in the bar 2 chord?",
+          "Read the three note names of each chord, bottom to top. Which note of the bar 1 chord is not in the bar 2 chord?",
           "G and D stay. The middle note is degree 6 of the scale, the note that moved in the last step.",
           "B♭ became B. A chord with a B♭ on G is G minor; with the B it is the other quality.",
         ),
@@ -266,7 +266,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The target is the same groove in D Dorian. Change the scale word, and the second chord to the key's own seventh chord on degree 4, `G7`.",
+          "Make two changes so the groove plays the target, the same groove in D Dorian. First, change the scale word in the `mel:` line from `minor` to `dorian`. Second, change the second chord in `changes` from `Gm7` to `G7`.",
         skills: [
           { skill: "S12", w: 0.5 },
           { skill: "H11", w: 0.5 },
@@ -287,7 +287,7 @@ export default defineLesson({
           { family: "fam.key.scale-spell", mode: "review-if-due" },
         ],
         hints: ladder(
-          "Two things decide the colour here: the scale under the tune, and the notes of the second chord. Which of them still says minor?",
+          "Two highlighted places decide the colour: the scale word under the tune, and the second chord. Check that each one is changed.",
           "The word after the colon in `.scale()` names the scale. The second chord has B♭; in the new scale degree 6 is B.",
           'The tune becomes `.scale("D4:dorian")`. The second chord keeps its root and its 7th and loses the m.',
         ),
@@ -342,7 +342,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Drunken Sailor, an old sea shanty in D Dorian: eight bars on the page, with its chords above. The code plays bars 1 to 5 and rests after them. Write bars 6, 7 and 8 in `n`.",
+          "Write bars 6, 7 and 8 of Drunken Sailor in `n`, reading them from the page. The code already plays bars 1 to 5 and rests after them. Done when your three bars match the page in notes and lengths: quarter notes in bars 6 and 7, two half notes in bar 8.",
         skills: [
           { skill: "N08", w: 0.6 },
           { skill: "S12", w: 0.4 },
@@ -360,7 +360,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: the page has a note starting here. Bar 8 is two half notes, each two beats long.",
         },
         hints: ladder(
-          "Read bar 6 on the page. Where does it start, and which way does it move?",
+          "Start with bar 6 on the page: find its first note, then see which way the next three move.",
           "Bar 6 starts on A, the note of bar 5, and climbs by step in quarter notes. `n` counts from 0: A is degree 5, `n` 4.",
           "Bar 6 is `[4 5 6 7]`. Bar 7 comes back down from C, and bar 8 is two half notes on home.",
         ),
@@ -406,7 +406,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The climb of bar 6 over a held D: sol, la, te, do. Hear it, then sing it on syllables. La is the raised 6th, a whole step above sol. Sing in your own range.",
+          "Sing the four notes of bar 6's climb on syllables: sol, la, te, do, one note each, ending on the held D. Listen to it first. La is the raised 6th, a whole step above sol. Sing in your own range.",
         skills: [
           { skill: "V03", w: 0.6 },
           { skill: "S12", w: 0.4 },
@@ -443,7 +443,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A groove that sits on one chord, Dm7, on Rhodes and finger bass, with a short line on D Dorian. It is minor and nothing more. Give it its second chord, the major IV (G or G7), and let your line touch the raised 6, B. Then work on the groove: push a chord, give the bass its own rhythm.",
+          "Put the major IV, `G` or `G7`, into `changes` at least once; the groove sits on `Dm7` alone now. Then make the `mel:` line play the raised 6, B. Then work on the groove: push a chord, give the bass its own rhythm. Done when the loop has a G major chord.",
         skills: [{ skill: "H11", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],
@@ -451,7 +451,7 @@ export default defineLesson({
         rubric: [
           {
             id: "the-major-four",
-            label: "The major IV chord in your groove",
+            label: "A G major chord, IV, in the loop at least once",
             required: true,
             skills: ["H11"],
             rule: "contains-rn",
@@ -460,7 +460,7 @@ export default defineLesson({
           },
           {
             id: "line-sings-la",
-            label: "Your line plays the raised 6",
+            label: "The `mel:` line plays the raised 6 (B) at least once",
             required: false,
             skills: ["S12"],
             rule: "degree-set",
@@ -469,7 +469,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root",
+            label: "The `bass:` line plays the root where most chords start",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -479,7 +479,8 @@ export default defineLesson({
           },
           {
             id: "bass-off-the-beat",
-            label: "Bass notes between the beats",
+            label:
+              "At least 2 syncopated `bass:` notes: each off the beat, with no new bass note on the stronger beat after it",
             required: false,
             skills: ["R09"],
             rule: "syncopation",
@@ -490,7 +491,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which chord does Dorian have that D minor does not, and is it in your groove?",
+          "Your loop needs the one chord D Dorian has and D minor does not. Is it in `changes` yet?",
           "The chord on degree 4 of D Dorian is G major, with B. Both chords live in `changes`.",
           "Turn the second Dm7 into the chord you wrote in the modify step.",
         ),

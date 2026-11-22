@@ -73,7 +73,7 @@ const KEYS = { roll: false, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "U06.L10",
-  version: 3,
+  version: 4,
   title: "Seventh Colour (preview)",
   objective: 'I can stack one more 3rd on a triad, n("[0,2,4,6]"), and colour a chord loop with it.',
   key: { tonic: "C", mode: "major" },
@@ -98,7 +98,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The same four roots twice, on the Rhodes over an upright bass. Listen to the colour of the chords: which version sounds richer, and which more settled?",
+          "The same four roots twice, on the Rhodes over an upright bass. Listen for which version's chords sound richer and which sound more settled.",
         skills: [{ skill: "C10", w: 1 }],
         hints: null,
         tests: [],
@@ -129,7 +129,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`n("[0,2,4]")` is the triad on 1. What will `n("[0,2,4,6]")` play in C major? `n` counts from 0, so `n` 6 is degree 7.',
+          'Predict what `n("[0,2,4,6]")` plays in C major, and pick it. `n("[0,2,4]")` is the triad on 1, and `n` counts from 0, so `n` 6 is degree 7.',
         skills: [{ skill: "C10", w: 1 }],
         hints: null,
         tests: [],
@@ -157,14 +157,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the four stacks over the drums. Read the degree labels on the roll, chord by chord, from the bottom up.",
+          "Run the four stacks over the drums and read the degree labels on the roll, chord by chord, from the bottom up. Then answer both questions below.",
         skills: [{ skill: "C10", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Stop on bar 1 and read its labels from the bottom: 1, 3, 5, and one more above the 5.",
         },
         hints: ladder(
-          "Bar 1 has the labels 1, 3 and 5 at the bottom. What sits above them?",
+          "Bar 1 has the labels 1, 3 and 5 at the bottom. Look for one more label above them.",
           "Every stack in this loop is the same shape, moved by `.add()`: count the numbers inside `[0,2,4,6]`.",
           "The top note of bar 1 is degree 7, B. How far is it above G, and how far below the next C?",
         ),
@@ -221,7 +221,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The loop plays triads. Change the stack so every chord gets one more 3rd on top, the way the hook sounds.",
+          "The loop plays triads from the stack `[0,2,4]`. Add one more number to that stack so every chord gets one more 3rd on top, as in the hook. Done when every chord plays four notes stacked in 3rds.",
         skills: [{ skill: "C10", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 4 },
@@ -236,7 +236,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}; the target has {exp}. Keep stacking in 3rds: skip a degree each time.",
         },
         hints: ladder(
-          "The stack goes 0, 2, 4. What do you add from one number to the next?",
+          "The stack goes 0, 2, 4: each number is 2 more than the one before. Continue the pattern.",
           "A 3rd is every other degree, 2 more in `n`. One more 3rd goes on top of the 4.",
           "The new number goes after the 4, inside the brackets, with a comma before it.",
         ),
@@ -285,10 +285,11 @@ export default defineLesson({
         id: "three-notes-or-four",
         version: 1,
         role: "practice",
-        prompt: "The same loop twice, both on the Rhodes. In which one does every chord have the extra 3rd?",
+        prompt:
+          "Both cards play the same loop on the Rhodes. Pick the card where every chord has the extra 3rd on top.",
         skills: [{ skill: "C10", w: 1 }],
         hints: ladder(
-          "Which of the two sounds plainer, and which one sounds richer, a little blurred at the top?",
+          "Listen for which card sounds plainer and which sounds richer, a little blurred at the top.",
           "The extra 3rd sits a step under the root's octave, so it keeps a little of a 2nd's rub.",
           "Play the hook of this lesson, then each card. Which card shares its soft rub?",
         ),
@@ -332,10 +333,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Play the chord of bar 3 on the keyboard: the four-note stack on degree 2 of C major, D at the bottom, then three more white keys, each a 3rd above the last.",
+          "Play the chord of bar 3 on the keyboard: the four-note stack on degree 2 of C major. Put D at the bottom, then three more white keys, each a 3rd above the last, all four at once.",
         skills: [{ skill: "C10", w: 1 }],
         hints: ladder(
-          "Which letters do you skip when you go up in 3rds from D?",
+          "Start on D. Each new note is a 3rd above the last, so it skips one letter.",
           "On white keys a 3rd skips one key: D, skip E, F. Keep going the same way.",
           "D, F and A are the triad. One more white key, a 3rd above A.",
         ),
@@ -378,7 +379,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Here is I V vi IV in plain triads, with its tune. Give at least two of its chords the extra 3rd, the ones you choose, and hear the loop change colour. The Rhodes suits it; so does a slow tempo.",
+          "Here is I V vi IV in plain triads, with its bass and tune. Give at least two of its chords one more 3rd on top, whichever you choose. The Rhodes suits it; so does a slow tempo. Done when at least two chords have a 7th on top.",
         skills: [{ skill: "C10", w: 1 }],
         // The catalog's text is "{label}: {detail}", and this rule's detail names the kinds of four-note
         // chord (major 7th, dominant 7th), which wait for U12. The same text serves the suggestions.
@@ -392,7 +393,7 @@ export default defineLesson({
         rubric: [
           {
             id: "two-sevenths",
-            label: "At least two chords with a 7th on top",
+            label: "At least two chords with a 7th on top: four notes stacked in 3rds",
             required: true,
             skills: ["C10"],
             rule: "chord-qualities",
@@ -402,7 +403,7 @@ export default defineLesson({
           },
           {
             id: "rhodes",
-            label: "The chords on the Rhodes",
+            label: "The `rhodes` sound used",
             required: false,
             skills: ["C10"],
             rule: "sounds",
@@ -410,7 +411,7 @@ export default defineLesson({
           },
           {
             id: "a-bass",
-            label: "A bass under the chords",
+            label: "A bass line on its own line, such as `bass`",
             required: false,
             skills: ["H01"],
             rule: "tracks",
@@ -419,7 +420,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which number in the stack would you add to give a chord one more 3rd?",
+          "One more number in the stack gives a chord one more 3rd. Find the stack in the `chords` line.",
           "A stack of four, `[0,2,4,6]`, is a triad with one more 3rd. It only needs to reach two of the chords.",
           'Change the stack in `n("[0,2,4]")` and every chord the loop moves it to gets the new note.',
         ),

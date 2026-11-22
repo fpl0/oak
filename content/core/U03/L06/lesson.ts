@@ -51,7 +51,7 @@ const STAFF_ONLY = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U03.L06",
-  version: 2,
+  version: 3,
   title: "Sharp Keys",
   objective:
     "I can write the sharps of G, D and A major as a key signature, in order, and read a tune in G from the staff.",
@@ -77,7 +77,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Find the sharp at the very start of the staff, on the top line. Then listen for the note that sits on that line: where does it want to go?",
+          "Find the sharp at the very start of the staff, on the top line. Then listen for the note that sits on that line in bar 1: where does it want to go next?",
         skills: [{ skill: "S04", w: 1 }],
         hints: null,
         tests: [],
@@ -97,14 +97,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run G major and watch the keys. Then build D major in your head: whole, whole, half, whole, whole, whole, half from D.",
+          "Run G major and watch the keyboard for the one note on a black key. Then spell D major in your head from D (whole, whole, half, whole, whole, whole, half) and count its sharps. Answer both questions below.",
         skills: [{ skill: "S04", w: 1 }],
         feedbackText: {
           "investigate.wrong":
-            "Not quite. Watch the keyboard: only one note of G major lands on a black key. For D major, spell it from D with the pattern.",
+            "Not yet. Watch the keyboard: only one note of G major lands on a black key. For D major, spell it from D with the pattern and count the letters that need a sharp.",
         },
         hints: ladder(
-          "Which note of G major is the only one on a black key?",
+          "Watch the keyboard as G major plays: exactly one note lands on a black key. Which one?",
           "From D: whole step to E, whole step to the next letter, then a half step. Which letters need a sharp to make the steps fit?",
           "D major begins D, E, F♯, G, A. Keep going to D and count every sharp.",
         ),
@@ -113,7 +113,7 @@ export default defineLesson({
         questions: [
           {
             q: "choice",
-            prompt: "Which note of G major is a black key?",
+            prompt: "Pick the note of G major that is a black key.",
             options: [
               { id: "f-sharp", label: "F♯, degree 7" },
               { id: "c-sharp", label: "C♯, degree 4" },
@@ -121,7 +121,7 @@ export default defineLesson({
             ],
             correct: ["f-sharp"],
           },
-          { q: "number", prompt: "How many sharps does D major have?", correct: 2 },
+          { q: "number", prompt: "Type how many sharps D major has.", correct: 2 },
         ],
         tests: [
           { name: "both right", response: { answer: { choice: ["f-sharp"], number: 2 } }, expect: "pass" },
@@ -162,7 +162,7 @@ export default defineLesson({
         role: "check",
         key: { tonic: "D", mode: "major" },
         prompt:
-          "Write the sharps of D major at the start of the staff, in the order musicians always write them.",
+          "Write D major's sharps at the start of the staff, from the left, in the order musicians always use: F C G D A E B. Write only the sharps D major needs.",
         skills: [
           { skill: "N03", w: 0.6 },
           { skill: "S04", w: 0.4 },
@@ -176,7 +176,7 @@ export default defineLesson({
           "keysig.type": "D major is a sharp key: its signature has sharps only.",
         },
         hints: ladder(
-          "How many sharps does D major have, and which letters are they?",
+          "Write only D major's sharps, in order. How many sharps does D major have, and which letters are they?",
           "Sharps are always written in the order F C G D A E B, as many as the key needs, from the left.",
           "The first sharp of every sharp key is F♯, on the top line. D major needs one more.",
         ),
@@ -231,7 +231,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The staff shows two bars in G major. Write them as degrees in `n`, in place of the zeros. Home is G, `n` 0.",
+          "Read the two bars on the staff and write them as degrees in `n`, in place of the zeros. Home is `g4`, `n` 0, on the second line: count one number per line or space up from it. Keep the `@2` on the last note.",
         skills: [
           { skill: "N03", w: 0.6 },
           { skill: "S02", w: 0.4 },
@@ -255,7 +255,7 @@ export default defineLesson({
             "Every note is one step {dir}. Home, `g4`, is `n` 0: count lines and spaces up from it starting at 0.",
         },
         hints: ladder(
-          "Where on the staff is home, `g4`, and how far above it does the first note sit?",
+          "Each note's `n` is how many lines and spaces it sits above home, `g4`. How far above `g4` does the first note sit?",
           "Count one step per line or space up from `g4`, the second line: that count is the `n`. Home, `g4`, is `n` 0.",
           "The first bar starts on the fourth line, `d5`: `n` 4. Its next note is on the top line, F♯ because of the sharp at the start.",
         ),
@@ -319,14 +319,14 @@ export default defineLesson({
         version: 1,
         role: "check",
         key: { tonic: "A", mode: "major" },
-        prompt: "How many sharps does A major have?",
+        prompt: "Type how many sharps A major has, as a number.",
         skills: [{ skill: "S04", w: 1 }],
         feedbackText: {
           "id.wrong":
             "Not {got}. G has one sharp and D two; each new sharp key adds the next sharp in the order.",
         },
         hints: ladder(
-          "How many sharps do G major and D major have?",
+          "Count from the keys you know: how many sharps do G major and D major have?",
           "Sharp keys add one sharp at a time, in the order F C G D A E B: G has F♯, D adds C♯.",
           "D major has F♯ and C♯. A major keeps both and adds the next one in the order.",
         ),
@@ -368,7 +368,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a two-bar line in G major in note names: **every note in G major**. Fix the starter first, then change its notes and rhythm until the line is yours.",
+          "Fix the one F in the starter that is missing its sharp: in G major every `f` is `f#`. Then change the notes and rhythm until the line is yours, still in note names. Done when every note is in G major.",
         skills: [
           { skill: "S04", w: 0.6 },
           { skill: "N03", w: 0.4 },
@@ -381,7 +381,7 @@ export default defineLesson({
         rubric: [
           {
             id: "in-g",
-            label: "Every note is in G major",
+            label: "Every note of the line is in G major: every F is `f#`, and no other sharps or flats",
             required: true,
             skills: ["S04"],
             rule: "in-key",
@@ -391,7 +391,7 @@ export default defineLesson({
           },
           {
             id: "ends-home",
-            label: "Ends on g, home",
+            label: "The line's last note is a `g`, home",
             required: false,
             skills: ["S02"],
             rule: "ends-on-degree",
@@ -400,7 +400,7 @@ export default defineLesson({
           },
           {
             id: "uses-f-sharp",
-            label: "Uses F♯, degree 7",
+            label: "The line plays F♯ (`f#`), degree 7, at least once",
             required: false,
             skills: ["S04"],
             rule: "degree-set",
@@ -409,9 +409,9 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which letter carries the sharp in G major's key signature?",
+          "Every note must be in G major. Which letter carries the sharp in G major's key signature?",
           "Every F in G major is F♯: in code, `f#4` or `f#5`. Look for an F without its sharp.",
-          "The starter's first bar ends on `f4`. In G major it is `f#4`, and it leads up to home.",
+          "Look at the last note of bar 1: keep its letter and octave, and give it the key's sharp.",
         ),
         tests: [
           {

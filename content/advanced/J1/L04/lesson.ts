@@ -96,7 +96,7 @@ const plain = (starter: string) => starter.replace(/[⟪⟫]/g, "");
 /** The Rhodes plays the guide-tone dictionary (`.dict("guidetones")` before `.voicing()`, really in force). */
 const GUIDETONES_IN_FORCE: RubricRule = {
   id: "guidetones",
-  label: "The Rhodes is voiced from the guide-tone dictionary",
+  label: "The chords line takes its notes from the guide-tone dictionary",
   required: true,
   skills: ["J07"],
   rule: "custom",
@@ -110,7 +110,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J1.L04",
-  version: 2,
+  version: 3,
   title: "Guide-Tone Lines",
   objective:
     "I can sing and write the guide-tone lines of a ii–V–I, play them with the guide-tone dictionary, and land a tune on them.",
@@ -136,7 +136,8 @@ export default defineLesson({
         id: "two-notes-a-chord",
         version: 1,
         role: "practice",
-        prompt: "Listen to the Rhodes' top note. While the chords change under it, how often does it move?",
+        prompt:
+          "Listen to the Rhodes' top note while the chords change under it. Count how often it moves, and by how far.",
         skills: [{ skill: "J07", w: 1 }],
         hints: null,
         tests: [],
@@ -167,14 +168,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Run it. `.dict("guidetones")` gives each chord two notes, and the chord-tone lens names them. Which two members are they, and how far does the top one move from Cm7 to F7?',
+          'Run it. `.dict("guidetones")` gives each chord two notes, and the chord-tone lens names them. Answer two questions: which two members of each chord they are, and how many half steps the top note falls from Cm7 to F7.',
         skills: [{ skill: "J07", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count up from each chord's root to the two notes the lens marks, and count the keys between B♭ and the next top note.",
         },
         hints: ladder(
-          "Cm7 is C E♭ G B♭. Which two of those does the Rhodes play?",
+          "Cm7 is C E♭ G B♭. Read the lens in bar 1 to see which two of those the Rhodes plays.",
           "The chord-tone lens names the member of the chord each note is. Read it for bar 1, then read the top note of bar 2 against F7: F A C E♭.",
           "In bar 1 the notes are E♭ and B♭: count C, E♭ (the 3rd) and on to B♭. For the move, look for the key right under B♭.",
         ),
@@ -267,7 +268,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The vibes start the lower thread on E♭, the 3rd of Cm7. Finish it: one note a bar, each the 3rd or the 7th of its chord, staying put or moving by a half step.",
+          "Finish the lower thread in the vibes line. It starts on E♭, the 3rd of Cm7. Write the notes for bars 2, 3 and 4: one note a bar, each the 3rd or the 7th of its chord, staying put or moving a half step from the note before.",
         skills: [{ skill: "J07", w: 1 }],
         swing: SWUNG,
         code: { starter: LOWER_STARTER },
@@ -287,7 +288,7 @@ export default defineLesson({
             "Bar {bar}: more than one note. The thread is one long note a bar, struck on beat 1.",
         },
         hints: ladder(
-          "Is E♭ a note of F7? If it is, the thread can stay.",
+          "Check each new chord for the note before it. If the note is in the chord, the thread stays; if not, it moves.",
           "F7 is F A C E♭, so E♭ is its 7th. B♭maj7 is B♭ D F A: which of its 3rd and 7th is a half step from E♭?",
           "Bar 2 keeps E♭. In bar 3 the thread falls a half step to the 3rd of B♭maj7, and bar 4 repeats bar 3.",
         ),
@@ -367,7 +368,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Give the chords line the guide-tone dictionary, so the Rhodes plays only the two threads under the vibes.",
+          "Change the chords line so the Rhodes takes its notes from the guide-tone dictionary and plays only the two threads under the vibes. Keep the other lines as they are. Done when the Rhodes plays two notes a chord, like the target.",
         skills: [{ skill: "J07", w: 1 }],
         swing: SWUNG,
         code: { starter: DICT_STARTER },
@@ -391,7 +392,7 @@ export default defineLesson({
             "The dictionary call comes after `.voicing()`, so the notes are already chosen when it arrives: it changes nothing.",
         },
         hints: ladder(
-          "Which call in the chain picks the notes of each chord?",
+          "Look at the chords line: one call in its chain decides which notes each chord plays. That is the place to change.",
           "A dictionary is chosen before `.voicing()`, as you did with the left-hand voicings.",
           'The call goes between `chord(changes)` and `.voicing()`, with the dictionary\'s name in quotes, the way `.dict("lefthand")` does.',
         ),
@@ -454,7 +455,7 @@ export default defineLesson({
         role: "practice",
         title: "Guide-tone tune",
         prompt:
-          "Rewrite the vibes tune: land on a 3rd or a 7th at every chord change, moving at most a whole step from one landing to the next. Between the changes, go anywhere, and swing the line the way the ride swings.",
+          "Rewrite the vibes tune. Required: on the first beat of each bar, where the chord changes, land on that chord's 3rd or 7th, at most a whole step from the last landing. Between the changes, go anywhere. Also on the checklist: swing the vibes the way the ride swings.",
         skills: [{ skill: "J07", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -463,7 +464,8 @@ export default defineLesson({
         rubric: [
           {
             id: "lands-on-the-thread",
-            label: "Your tune meets every change on a 3rd or a 7th, moving by a step",
+            label:
+              "At 3 of every 4 chord changes or more, the vibes land on the chord's 3rd or 7th, a whole step or less from the last landing",
             required: true,
             skills: ["J07"],
             rule: "guide-tones",
@@ -477,7 +479,7 @@ export default defineLesson({
           },
           {
             id: "tune-swings",
-            label: "The vibes swing",
+            label: "The vibes' eighths swing long-short, not even",
             required: false,
             skills: ["R13"],
             rule: "swing",
@@ -489,7 +491,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "When the chord changes, which two of its notes can your tune land on?",
+          "Look at the note your tune plays on beat 1 of each bar. It must be one of two notes of that bar's chord.",
           "Over Cm7 the 3rd and 7th are E♭ and B♭; over F7, A and E♭; over B♭maj7, D and A. The chord-tone lens marks them. From one landing to the next, stay or move a step.",
           "Start from the thread you sang, one note a bar, then give each bar more notes after its first: bar 1 can begin on B♭ and fall through the chord.",
         ),

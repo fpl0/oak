@@ -92,7 +92,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["U05"],
   gated: ["C01", "C02", "C03", "C04", "C05", "N04", "N05"],
   levelSetting: ["E08"],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "staff-write",
@@ -100,7 +100,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "Write four triads on the staff, one a bar, each as its three notes from the root up: D minor, E diminished (E°), F major, C augmented (C+). Spell every note with its own letter.",
+        "Write four triads on the staff, one a bar, each as its three notes from the root up: D minor, E diminished (E°), F major, C augmented (C+). Spell every note with its own letter, adding a sharp or flat where the 3rds need one.",
       skills: [
         { skill: "C02", w: 0.5 },
         { skill: "C03", w: 0.5 },
@@ -161,7 +161,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "C, Am, F and G over a bass on their roots, every chord in root position, so the notes jump. Voice the chords again with the same letters, so that at every change, G back to C included, no note moves more than three half steps. Inversions are welcome.",
+        "C, Am, F and G play in root position over their roots, so the notes jump. Rewrite the chords with the same letters so that at every change, G back to C included, no note moves more than three half steps. Inversions are welcome.",
       skills: [
         { skill: "C01", w: 0.3 },
         { skill: "C04", w: 0.2 },
@@ -225,7 +225,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "A chord on the grand staff: one note on the bass staff, three on the treble staff. Write its chord symbol, with its lowest note after a slash if that is not the root.",
+        "A chord shows on the grand staff: one note on the bass staff, three on the treble staff. Type its chord symbol. If the lowest note is not the root, add a slash and that note.",
       skills: [
         { skill: "N04", w: 0.4 },
         { skill: "N05", w: 0.6 },
@@ -270,7 +270,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     role: "checkpoint",
     title: "Chords that glide",
     prompt:
-      "A four-chord loop over the drums, voiced by hand: at every change keep the notes two chords share and move the rest as little as you can. Start from these four, or choose your own.",
+      "The starter's chords, Am F C G, stand in root position, so every change jumps. Rewrite them by hand, or choose your own four: keep the notes two chords share and move the rest as little as you can. Done when no note moves more than three half steps at any change.",
     skills: [{ skill: "C05", w: 1 }],
     hints: null,
     key: { tonic: "C", mode: "major" },
@@ -283,7 +283,8 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     rubric: [
       {
         id: "glide",
-        label: "No note moves more than three half steps at a change",
+        label:
+          "At every change, the last chord back to the first included, no note of `chords` moves more than three half steps",
         required: true,
         skills: ["C05"],
         rule: "voice-leading",
@@ -294,7 +295,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "an-inversion",
-        label: "At least one chord in inversion over the bass",
+        label: "At least one chord in inversion, its 3rd or 5th lowest",
         required: false,
         skills: ["C04"],
         rule: "chord-inversions",
@@ -302,7 +303,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "a-tune",
-        label: "A tune on top",
+        label: "A tune on its own line, such as `mel`",
         required: false,
         skills: ["M01"],
         rule: "tracks",

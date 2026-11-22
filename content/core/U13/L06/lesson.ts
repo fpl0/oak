@@ -202,7 +202,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U13.L06",
-  version: 2,
+  version: 3,
   title: "Rhythm Dictation II",
   objective:
     "I can write down a syncopated, swung or three-to-the-beat rhythm by ear: beat, division, then the hits.",
@@ -228,7 +228,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "One two-bar groove, three times, the kick and the bass on the same hits. Listen to the hats: one version walks, one shuffles, one rolls. Which is which?",
+          "One two-bar groove, three times, the kick and the bass on the same hits. Listen to the hats: one version walks, one shuffles, one rolls. Count the hats in each beat to tell which loop is which.",
         skills: [{ skill: "E14", w: 1 }],
         hints: null,
         tests: [],
@@ -255,7 +255,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Step one of the method, on three new grooves. Find the beat with the snare, then listen to the hats: does each beat split in two, in two long–short, or in three?",
+          "Three new grooves. Find the beat with the snare, then listen to the hats inside one beat. For each groove, pick even (two to the beat), swung (two, long–short) or three to the beat.",
         skills: [{ skill: "E14", w: 1 }],
         hints: divisionHints(),
         srs: [{ family: "fam.rhy.swing", mode: "review-if-due" }],
@@ -279,7 +279,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A two-bar rhythm plays over a click: listen, then tap it back. Some hits fall between the beats. Any key works.",
+          "Listen to a two-bar rhythm over the click, then tap it back, one tap per hit. Some hits fall on the clicks and some between them, on an “&”. Done when every hit has its tap.",
         skills: [{ skill: "R10", w: 1 }],
         hints: ladder(
           "Which hits land with the click, and which fall between two clicks?",
@@ -309,7 +309,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A two-bar funk groove. The snare, the hats and the chords are in the code; the kick is hidden. Each bar of the `kick:` line has eight slots, one per eighth note: put `bd` where the kick plays. Switch between the source and your code to check.",
+          "Write down the hidden kick of this two-bar funk groove; the snare, hats and chords are already in the code. Each bar of the `kick:` line has eight slots, one per eighth note. Change a `~` to `bd` wherever the kick plays: three kicks in each bar.",
         skills: [
           { skill: "E14", w: 0.7 },
           { skill: "R10", w: 0.3 },
@@ -369,7 +369,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A two-bar shuffle: the beat divides long–short. Write the kick in plain eighths, eight slots a bar, as if it were straight. Then swing the lines that need it: in the starter the hats are still even.",
+          "Write down the kick of this two-bar shuffle in plain eighths, eight slots a bar, as if it were straight: three kicks in each bar. Then swing the kick and the hats: add `.swingBy(1/3, 4)` after the pattern of each line. Done when the kick's hits match and both lines play long–short.",
         skills: [
           { skill: "E14", w: 0.7 },
           { skill: "R13", w: 0.3 },
@@ -396,7 +396,7 @@ export default defineLesson({
               rules: [
                 {
                   id: "hats-swing",
-                  label: "The hats swing",
+                  label: "The hats play long–short: swung eighths",
                   required: true,
                   skills: ["R13"],
                   rule: "swing",
@@ -406,7 +406,7 @@ export default defineLesson({
                 },
                 {
                   id: "kick-shuffles",
-                  label: "The kick shuffles too",
+                  label: "The kick's hits on an “&” sit late, long–short, like the hats",
                   required: true,
                   skills: ["R13"],
                   rule: "custom",
@@ -490,7 +490,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "One bar with every beat split in three: twelve steps, in four groups of three. Place the kick and the snare on the grid. The hats play all twelve and are not part of the answer.",
+          "One bar with every beat split in three: twelve steps, one group of three per beat. Mark every kick and every snare hit on the grid, in its own row. Leave the hats out: they play all twelve steps.",
         skills: [
           { skill: "E14", w: 0.7 },
           { skill: "R12", w: 0.3 },
@@ -544,7 +544,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bars 1 and 2 are the funk groove you took down: the call. Bars 3 and 4 put a plain kick on 1 and 3. Write your answer there: kicks between the beats, each leaving the next beat open, the bass on the same hits, and more from this unit: a push, ghost notes, a roll into the repeat.",
+          "Bars 1 and 2 of the `kick:` line are the funk groove you took down: the call. Rewrite bars 3 and 4 as your answer: at least two kicks on an “&”, with no kick on the beat after. Then, if you like, move the bass to the same hits, or add a push, ghost notes or a roll.",
         skills: [
           { skill: "R10", w: 0.6 },
           { skill: "E14", w: 0.4 },
@@ -556,7 +556,7 @@ export default defineLesson({
           {
             id: "answer-off-the-beat",
             label:
-              "Your answer has at least two kicks between the beats, each with no kick on the beat after it",
+              "In bars 3–4, at least two kicks start between the beats, each with no kick on the beat after it",
             required: true,
             skills: ["E14", "R10"],
             rule: "syncopation",
@@ -566,7 +566,7 @@ export default defineLesson({
           },
           {
             id: "bass-with-the-kick",
-            label: "The bass hits with the kick",
+            label: "At least 3 of every 4 bass notes land with a kick",
             required: false,
             skills: ["R10"],
             rule: "groove-lock",
@@ -576,7 +576,7 @@ export default defineLesson({
           },
           {
             id: "snare-ghosts",
-            label: "Ghost notes on the snare",
+            label: "At least two quiet snare hits: `.velocity()` times `.gain()` of .4 or less",
             required: false,
             skills: ["R10"],
             rule: "velocity-ghosts",
@@ -586,7 +586,7 @@ export default defineLesson({
           },
           {
             id: "four-or-eight",
-            label: "Four bars or eight",
+            label: "The piece is 4 to 8 bars long",
             required: false,
             skills: ["R10"],
             rule: "bars",
@@ -595,9 +595,11 @@ export default defineLesson({
           },
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
-        feedbackText: { "rubric.unmet": "{label}: not yet." },
+        feedbackText: {
+          "rubric.unmet": "{label}: not yet. Check your lines against the item, then run it again.",
+        },
         hints: ladder(
-          "Which bars are yours, and where does their kick land now?",
+          "Only bars 3 and 4 of the kick change: two of their kicks should move off the beat. Where do those kicks land now?",
           "The `kick:` line has four bars inside `< >`: the last two are the answer. Move some of their hits to the “&” slots, and give the bass the same slots.",
           "An answer can turn the call around: beat 1, beat 2, then the “and” of 3, `[bd ~ bd ~ ~ bd ~ ~]`. Give the other bar a kick on an “and” too.",
         ),

@@ -82,7 +82,8 @@ const LANDINGS = 'note("<f4 g4 g4 a4 g#4 f4 e4 e4>")';
 /** The Make's one idea: the line meets every new chord on its 3rd or 7th, through all three keys. */
 const GUIDE_TONES: RubricRule = {
   id: "guide-tones-through",
-  label: "Your line meets every change on a 3rd or a 7th",
+  label:
+    "At 3 of every 4 chord changes or more, the line lands on the new chord's 3rd or 7th, within four half steps of the last landing",
   required: true,
   skills: ["J14"],
   rule: "guide-tones",
@@ -100,7 +101,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J5.L05",
-  version: 2,
+  version: 3,
   title: "Coltrane Changes",
   objective: "I can take a ii–V–I through three keys a major 3rd apart and play a line through them.",
   key: C,
@@ -126,7 +127,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen for each moment the ground shifts to a new home. How often does one arrive, and does the tenor leap to follow it, or step?",
+          "Listen for each moment the ground shifts to a new home. Count how many homes arrive in the eight bars, and notice whether the tenor leaps or steps to follow.",
         skills: [{ skill: "J14", w: 1 }],
         hints: null,
         tests: [],
@@ -157,14 +158,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The three homes alone, a bar each, then B again. Run it and read the bass on the roll: how far does each home sit below the last?",
+          "The three homes alone, a bar each, then B again. Run it, read the bass on the roll and answer two questions: how many half steps from B down to G, and where three such steps down from B land.",
         skills: [{ skill: "J14", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the half steps on the roll from the first bass note down to the second, then follow the same distance on down.",
         },
         hints: ladder(
-          "Is the distance from each bass note to the next always the same?",
+          "Count the half steps from each bass note to the next on the roll.",
           "Count down from B one half step at a time until you reach G. Then do the same from G.",
           "B to G and G to E♭ are the same size. Twelve half steps make an octave: how many of those steps fit in it?",
         ),
@@ -214,7 +215,7 @@ export default defineLesson({
         role: "check",
         key: C,
         prompt:
-          "A ii–V–I in C with a detour: Dm7, then E♭7 into A♭maj7. Bars 4 and 5 still hold A♭maj7. Make them the V7 and the home of the key a major 3rd below A♭, so that G7 can take the line home to C.",
+          "A ii–V–I in C with a detour: Dm7, then E♭7 into A♭maj7. Bars 4 and 5 still hold A♭maj7. Rewrite bars 4 and 5 in `changes` as the V7 and the home of the key a major 3rd below A♭, so that G7 can take the line home to C. Keep the other bars.",
         skills: [{ skill: "J14", w: 1 }],
         swing: SWUNG,
         code: { starter: MODIFY_STARTER },
@@ -227,7 +228,7 @@ export default defineLesson({
             "Bar {bar}: other notes than the target's. Listen to the target's bass in bars 3 to 6: each home is a major 3rd below the last, and the root of the chord before each home is a 5th above it.",
         },
         hints: ladder(
-          "A♭ is home in bar 3, and C is home in bar 7. Which note sits a major 3rd below A♭ and a major 3rd above C?",
+          "A♭ is home in bar 3 and C in bar 7. The new home sits a major 3rd below A♭ and a major 3rd above C.",
           "Bar 5 is the home of that key, a major seventh chord. Bar 4 leads into it the way E♭7 leads into A♭maj7: its V7, a 5th above it.",
           "The new home is E, a major seventh like A♭maj7. The chord before it leads in the way E♭7 leads into A♭maj7.",
         ),
@@ -294,7 +295,7 @@ export default defineLesson({
         key: C,
         title: "Through three keys",
         prompt:
-          "The tenor only plays each chord's root. Write it a line that meets every change on the new chord's 3rd or 7th. Between changes, go anywhere; keep each landing within a few half steps of the last, and swing it.",
+          "Rewrite the tenor line, which only plays roots. Required: at each chord change, land on the new chord's 3rd or 7th, within four half steps of the last landing. Between changes, go anywhere. Also on the checklist: swing it, and a tempo of 160 to 220.",
         skills: [{ skill: "J14", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -304,7 +305,7 @@ export default defineLesson({
           GUIDE_TONES,
           {
             id: "it-swings",
-            label: "The line swings",
+            label: "The line's eighths swing long-short, not even",
             required: false,
             skills: ["J14"],
             rule: "swing",
@@ -314,7 +315,7 @@ export default defineLesson({
           },
           {
             id: "faster",
-            label: "A faster tempo, as the records take it",
+            label: "`setcpm` sets a tempo between 160 and 220 beats a minute",
             required: false,
             skills: ["J14"],
             rule: "tempo-bpm",
@@ -325,7 +326,7 @@ export default defineLesson({
         // The override serves every rule, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which two notes of each chord carry its colour?",
+          "Land on the two notes that carry each chord's colour, its 3rd and its 7th.",
           "Write out the 3rd and the 7th of all seven chords first. Then, bar by bar, pick the one closest to the note you just played.",
           "Dm7 can start on its 3rd, F; E♭7's 3rd is a whole step above it, and A♭maj7's 7th is that same note held.",
         ),

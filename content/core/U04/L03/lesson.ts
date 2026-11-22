@@ -37,7 +37,7 @@ const STAFF_ONLY = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U04.L03",
-  version: 2,
+  version: 3,
   title: "Together Now",
   objective:
     "I can play two notes together with `,` and hear whether a pair is at rest or clashes, the tritone included.",
@@ -68,7 +68,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Four pairs, one per bar, each pair played at once. Listen for the pair you would not want the music to stop on.",
+          "Each bar plays one pair of notes, both at once. Listen for the one pair of the four you would not want the music to stop on, the one that sounds as if it must move on.",
         skills: [{ skill: "I05", w: 1 }],
         hints: null,
         tests: [],
@@ -89,7 +89,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Inside brackets, a comma plays notes together: `[c4,e4]` is C and E at once. Run the same four pairs, written in letters, and watch the keyboard.",
+          "These are the same four pairs in letters. A comma inside brackets plays notes together: `[c4,e4]` is C and E at once. Run the code, watch the keyboard, then answer both questions below.",
         skills: [
           { skill: "I05", w: 0.5 },
           { skill: "I03", w: 0.5 },
@@ -99,7 +99,7 @@ export default defineLesson({
             "Not quite. Play bar 3 against bar 4, and count every key from B up to F, black ones too.",
         },
         hints: ladder(
-          "Which pair would you not want to stop on?",
+          "For the first question, listen for the pair that sounds unfinished, as if it must move on. For the count, use the keyboard.",
           "Listen to what happens after it: the next pair sounds like a relief. To count, start after the lower note and count every key up, black ones too.",
           "From B, the next key up is C, then C♯. Keep counting until you reach F.",
         ),
@@ -147,10 +147,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two pairs, each played at once: C with E, then C with D♭. Play both cards. Which one could end a song?",
+          "Listen to both cards: C with E, then C with D♭, each pair played at once. Pick the pair that could end a song, the one that sounds settled when the music stops on it.",
         skills: [{ skill: "I05", w: 1 }],
         hints: ladder(
-          "Imagine the music stopping on each card. Which silence after it feels finished?",
+          "Imagine the music stopping on each card. Pick the one whose silence after it feels finished.",
           "One pair blends into a single sound; the other buzzes, as if the two notes rub against each other.",
           "C and D♭ are only a half step apart. C and E are a major 3rd apart.",
         ),
@@ -195,7 +195,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The page shows four pairs, each stacked on one stem. Your code plays each pair one note after the other. Make it play what the page shows.",
+          "Your code plays each pair one note after the other. The page stacks each pair on one stem: both notes at once. Change the code so all four pairs sound at once, keeping the same notes. Done when it plays what the page shows.",
         skills: [
           { skill: "I05", w: 0.7 },
           { skill: "I03", w: 0.3 },
@@ -215,7 +215,7 @@ export default defineLesson({
           "code.must-use": "Play each pair at once with a comma between the two notes inside its brackets.",
         },
         hints: ladder(
-          "Two notes stacked on one stem: what goes between them in code so they sound at the same moment?",
+          "Two notes on one stem start at the same moment. Something must go between the two notes of each pair, inside their brackets.",
           "A comma inside brackets: `[c4,e4]` plays both at once. Every pair keeps its own brackets.",
           "The first pair becomes `[c4,e4]`. Do the same to the other three.",
         ),
@@ -275,10 +275,10 @@ export default defineLesson({
         id: "two-at-once",
         version: 1,
         role: "check",
-        prompt: "Chords set home. Then two notes at once. Enter both degrees, the lower one first.",
+        prompt: "Chords set home, then you hear two notes at once. Enter both degrees, the lower note first.",
         skills: [{ skill: "E06", w: 1 }],
         hints: [
-          { text: "Hum the lower note. Then the higher one: can you hear it on top?" },
+          { text: "Hum the lower note first, then the higher one on top of it. Name each by its syllable." },
           { text: "Sing each note down to do on syllables. The syllables name the degrees." },
           { text: "Hear it again, slower, one note at a time.", replay: { rate: 0.75 } },
           "auto",
@@ -308,14 +308,15 @@ export default defineLesson({
         id: "where-the-pull-lives",
         version: 1,
         role: "check",
-        prompt: "In any major key, which two degrees make the tritone?",
+        prompt:
+          "Pick the two degrees that make the tritone in any major key: the only pair in the key six half steps apart.",
         skills: [{ skill: "I03", w: 1 }],
         feedbackText: {
           "id.wrong":
             "Not those two. Find the tritone of the hook in C major, then name its two notes as degrees.",
         },
         hints: ladder(
-          "Which two notes of the hook were six half steps apart?",
+          "Start from the hook in C major. Find its pair that was six half steps apart, then name both notes as degrees.",
           "B and F. Name each one as a degree of C major, counting C as 1.",
           "B is degree 7, the note just below home. Now count up from C to F.",
         ),
@@ -356,7 +357,7 @@ export default defineLesson({
         // The catalog's text for a `uses` rule names the tool ID; the label says it in words.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         prompt:
-          "Write a two-bar riff that plays two notes together with `,`. Let one pair clash for a moment, then move to a pair at rest.",
+          "The riff plays its pairs one note after the other. Change it so each pair's two notes play together, with `,`. Keep B with F as the clash and let it move to a pair at rest. Done when the riff plays notes together with `,`.",
         skills: [{ skill: "I05", w: 1 }],
         code: { starter: keys(MAKE_APART) },
         bars: [1, 4],
@@ -364,7 +365,7 @@ export default defineLesson({
         rubric: [
           {
             id: "together",
-            label: "Plays notes together with `,`",
+            label: "`,` used in a pattern, so notes play at once",
             required: true,
             skills: ["I05"],
             rule: "uses",
@@ -372,7 +373,7 @@ export default defineLesson({
           },
           {
             id: "answer",
-            label: "Two bars that answer each other, with `< >`",
+            label: "`< >` used, so bar 2 can answer bar 1",
             required: false,
             skills: ["R03"],
             rule: "uses",
@@ -380,7 +381,7 @@ export default defineLesson({
           },
           {
             id: "hold",
-            label: "A pair at rest held longer, with `@`",
+            label: "`@` used, for example to hold a pair at rest longer",
             required: false,
             skills: ["R03"],
             rule: "uses",
@@ -388,7 +389,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "The starter has pairs, but you hear them one note at a time. What makes two notes sound at once?",
+          "The starter's pairs play one note at a time. Make the two notes of each pair start at the same moment.",
           "A comma inside brackets: `[c4,e4]`. Each pair needs its own brackets, inside the bar's brackets.",
           "Bar 1 becomes `[[c4,e4] [c4,g4]]`: two pairs, each half a bar. Do the same in bar 2, and keep B with F for the clash.",
         ),

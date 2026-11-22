@@ -116,7 +116,7 @@ const CHOP_STARTER = at(BRK_BPM, 'drums: s("brk").slice(⟪4, "0 1 2 3"⟫)', A2
 const CHOPPED = chopped('drums: s("brk").slice(4, "0 1 2 [1 1]")');
 const CHOP_RULE: RubricRule = {
   id: "slices-reordered",
-  label: "The break cut into slices that play in a new order",
+  label: "The break cut into 4 or more slices that play in an order other than the recording's",
   required: true,
   skills: ["D11"],
   rule: "custom",
@@ -142,7 +142,7 @@ const BALANCE_STARTER = at(A2_BPM, A2_BASS, A2_PAD("⟪.gain(.6)⟫"), A2_TUNE("
 const BALANCED = balanced(".gain(.12)");
 const BALANCE_RULE: RubricRule = {
   id: "tune-on-top",
-  label: "The tune on top: the pad sits under it, still heard",
+  label: "The tune on top: the pad 3 to 18 dB under it where both play, still heard",
   required: true,
   skills: ["D10"],
   rule: "custom",
@@ -187,7 +187,7 @@ const MAKE_STARTER = song(SAME, SAME);
 const MAKE_MINIMAL = song(THIN, SAME);
 const DENSITY: RubricRule = {
   id: "thin-and-thick",
-  label: "One section thin and the other thick: more notes heard in each bar of one",
+  label: "Verse and chorus at least a quarter apart in notes heard per bar",
   required: true,
   skills: ["D09"],
   rule: "contrast",
@@ -203,14 +203,15 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["A1", "A2"],
   gated: ["D02", "D03", "D04", "D05", "D06", "D07", "D08", "D09", "D10", "D11"],
   levelSetting: [],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "all",
       id: "name-the-sound",
       version: 1,
       role: "checkpoint",
-      prompt: "Three short sounds from the A1 loop, one question each. Listen as often as you like.",
+      prompt:
+        "Answer three questions, one for each short sound from the A1 loop. Replay each sound as often as you like.",
       skills: [
         { skill: "D02", w: 0.34 },
         { skill: "D06", w: 0.33 },
@@ -222,7 +223,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
         soundPart(
           "which-wave",
           "D02",
-          "The riff on one wave, nothing shaped. Which wave is it?",
+          "Listen to the riff, played on one plain wave with nothing shaped. Pick the wave.",
           WAVE,
           2,
           [
@@ -236,7 +237,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
         soundPart(
           "which-grit",
           "D06",
-          "The bass under the drums, twice. The second time it sounds different and nothing else does. What happened to it?",
+          "Listen to the bass under the drums twice. The second time only the bass sounds different. Pick what was done to it.",
           GRIT,
           4,
           [
@@ -250,7 +251,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
         soundPart(
           "what-moves",
           "D07",
-          "A held strings chord. Something in it moves while the notes stay. What moves?",
+          "Listen to a held strings chord: something in it moves while the notes stay. Pick what moves.",
           MOVES,
           2,
           [
@@ -270,7 +271,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: A_MINOR,
       prompt:
-        "Oak's break under the A2 loop, cut into four slices that play as recorded. Flip it: make the slices play in an order of your own, a beat repeated, a stutter, two swapped, so the same drummer plays a new groove.",
+        "Oak's break under the A2 loop plays its four slices as recorded. Change the `.slice()` call so the slices play in an order of your own: repeat a beat, stutter one, or swap two. Done when the break no longer plays in the recorded order.",
       skills: [{ skill: "D11", w: 1 }],
       hints: null,
       code: { starter: CHOP_STARTER },
@@ -280,7 +281,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       target: { audible: false },
       feedbackText: {
         "rubric.unmet":
-          "{label}: not yet. Listen to the break: the same four beats come round in the order they were played. A flip moves at least one of them somewhere else.",
+          "Not met yet: {label}. Listen to the break: the same four beats come round in the order they were played. Move at least one of them somewhere else.",
       },
       tests: [
         { name: "reference: beat 4 stutters beat 2's snare", response: { code: CHOPPED }, expect: "pass" },
@@ -326,7 +327,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: A_MINOR,
       prompt:
-        "The A2 loop with a strings pad held in the tune's register, the pad louder than the tune. Put the tune on top: set the pad's level so it sits under the tune and can still be heard.",
+        "A strings pad plays in the tune's register, louder than the tune. Change the pad's `.gain()` so it sits 3 to 18 dB under the tune and can still be heard. Moving it to one side does not count. Done when the tune leads and the pad is a cushion under it.",
       skills: [{ skill: "D10", w: 1 }],
       hints: null,
       code: { starter: BALANCE_STARTER },
@@ -336,7 +337,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       target: { audible: true, showRoll: false, revealRollAfter: 1 },
       feedbackText: {
         "rubric.unmet":
-          "{label}: not yet. In the target the tune is the first thing you hear, and the pad is a cushion under it: there if you listen for it, never in front.",
+          "Not met yet: {label}. In the target the tune is the first thing you hear, and the pad is a cushion under it: there if you listen for it, never in front.",
       },
       tests: [
         { name: "reference", response: { code: BALANCED }, expect: "pass" },
@@ -391,7 +392,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     role: "checkpoint",
     title: "Arrange the loop",
     prompt:
-      "The A2 loop in a verse and a chorus over the band's drums, every part the same in both. Arrange it: make one section thin and the other thick, so the full one lands. Then give each part its height, and one part a sound of your own: grit, movement or FM.",
+      "The A2 loop plays in a verse and a chorus, every part the same in both. Make one section thin and the other thick by changing its consts: fewer or more notes per bar, not less volume. Then keep the chords from C3 up, and give one part grit, movement or FM. Done when one section sounds clearly fuller.",
     skills: [{ skill: "D09", w: 1 }],
     hints: null,
     key: A_MINOR,
@@ -403,7 +404,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       DENSITY,
       {
         id: "chords-in-their-register",
-        label: "The chords in their register, from C3 up",
+        label: "Every chord note from C3 up to C6",
         required: false,
         skills: ["D08"],
         rule: "range",
@@ -412,7 +413,8 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "a-sound-of-your-own",
-        label: "A part with grit, movement or FM you can hear",
+        label:
+          "A part with `.distort()` above 0.5, `.crush()` under 7, `.vib()`, `.tremolosync()`, or `.fmi()` above 0.5",
         required: false,
         skills: ["D06", "D07"],
         rule: "custom",

@@ -89,7 +89,7 @@ const NOT_THREE: Rat[] = [
 ];
 const PERC_THREE: RubricRule = {
   id: "cowbell-three",
-  label: "The cowbell plays three even notes in every bar",
+  label: "The cowbell plays three even notes in every bar, none on beats 2, 3 or 4",
   required: true,
   skills: ["R17"],
   rule: "onsets",
@@ -100,7 +100,7 @@ const PERC_THREE: RubricRule = {
 };
 const KICK_TWO: RubricRule = {
   id: "kick-two",
-  label: "The kick keeps its two in every bar",
+  label: "The kick still plays twice a bar, on beats 1 and 3",
   required: true,
   skills: ["R17"],
   rule: "onsets",
@@ -131,7 +131,7 @@ const CONFUSED: Record<EarAnswer, EarAnswer> = {
 const earCode = (high: number, low: number) => code(`kick: s("bd*${low}")`, `perc: s("cb*${high}").gain(.7)`);
 const earHints = (): HintLadder =>
   ladder(
-    "Listen to one sound at a time. How many cowbell notes are there in a bar, and how many kicks?",
+    "Listen to one sound at a time and count its notes in one bar, starting at the downbeat.",
     "Count the kicks first, against the downbeat where everything meets. Then count the cowbell in the same bar.",
     "Two pulses that divide the bar into halves and quarters always land together on the halves; two that do not meet only on the downbeat.",
   );
@@ -169,7 +169,7 @@ const make = (...lines: string[]) => code(...lines);
 /** The Make's one rule: three against two, evenly spaced and heard, in the same bars, four bars or more. */
 const THREE_AGAINST_TWO: RubricRule = {
   id: "three-against-two",
-  label: "Three against two, both at once: the three on the cowbell, the two on the kick",
+  label: "For 4 bars or more, the cowbell plays three even notes a bar while the kick plays two",
   required: true,
   skills: ["R17"],
   rule: "polyrhythm",
@@ -186,7 +186,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R2.L04",
-  version: 2,
+  version: 3,
   title: "Polyrhythm 3:2, 4:3",
   objective: "I can play three even notes against two in the same bar, and hear four against three.",
   key: { tonic: "C", mode: "minor" },
@@ -211,7 +211,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Three loops at one tempo: the two, the three, then both. In the last loop, does the bar march or roll? Listen for the one place where the two pulses land together.",
+          "Listen to the two, the three, then both at once, at one tempo. In the last loop, notice whether the bar marches or rolls, and the one place where the two pulses land together.",
         skills: [{ skill: "R17", w: 1 }],
         hints: null,
         tests: [],
@@ -239,10 +239,10 @@ export default defineLesson({
         role: "practice",
         bpm: TAP_BPM,
         prompt:
-          'Slower now, with both hands. The left hand (F) taps the two with the kick; the right hand (J) taps the three with the cowbell, four bars. Say "nice cup of tea" with it: both hands on nice, the right on cup and tea, the left on of.',
+          "Tap two pulses at once, one hand per lane, for four bars. Left lane: tap with the kick, the low thud, twice a bar. Right lane: tap with the cowbell, the high clank, three times a bar. Both hands tap together on beat 1. Say “nice cup of tea”: both on nice, right on cup and tea, left on of.",
         skills: [{ skill: "R17", w: 1 }],
         hints: ladder(
-          "Where in the bar do the kick and the cowbell land together?",
+          "Find the one place in the bar where the kick and the cowbell land together: both hands tap there.",
           "The left hand splits the bar in half; the right hand splits it in three. They meet only on the first beat.",
           "Say the words with the loop: nice is both hands, cup the right, of the left, tea the right.",
         ),
@@ -303,14 +303,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the loop and read one bar on the roll: the kick's two notes and the cowbell's three. Where do they land together, and how many places in the bar hold a note of either?",
+          "Run the loop and read one bar on the roll: the kick's two notes and the cowbell's three. Then answer: where they land together, and on how many places in the bar either one plays.",
         skills: [{ skill: "R17", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Put a finger on each kick in the roll, then on each cowbell note, and count the places, counting a shared one once.",
         },
         hints: ladder(
-          "On the roll, which notes of the kick and the cowbell sit in the same column?",
+          "Look for notes of the kick and the cowbell in the same column of the roll.",
           "The kick splits the bar in half; the cowbell splits it in three. Only the start of the bar is a place both share.",
           "Count the cowbell's three places, then add every kick that does not share one.",
         ),
@@ -359,7 +359,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The kick and the bass keep the two; the cowbell doubles them. Change only the cowbell's line so it plays three even notes in every bar, against the two.",
+          "Change only the cowbell's string so it plays three even notes in every bar, against the kick's two. It now doubles the kick. Keep the kick, the bass and the chords. Done when every bar has three evenly spaced cowbell notes.",
         skills: [{ skill: "R17", w: 1 }],
         code: { starter: S4_STARTER },
         reference: { solutions: [S4_SOLUTION], bars: 4 },
@@ -373,7 +373,7 @@ export default defineLesson({
             "{label}: not yet. Listen to the target and count the cowbell notes of one bar against the kick's two.",
         },
         hints: ladder(
-          "How many cowbell notes does the target play in one bar, and how far apart are they?",
+          "Count the target's cowbell notes in one bar, and listen for whether they are evenly spaced.",
           "The cowbell's string divides the bar into equal steps, one for each word in it. Every bar needs the same number.",
           "The kick's string has two words, so each takes half the bar. Give the cowbell's string as many words as the notes you want.",
         ),
@@ -446,7 +446,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four loops, two bars each, a kick under a cowbell. Count each layer: how many notes a bar does the cowbell play, and how many the kick? One loop has four against three, the same idea with one more note in each layer.",
+          "Four loops, two bars each, a kick under a cowbell. For each, count the cowbell notes and the kicks in one bar, and pick the ratio. One loop has four against three: one more note in each layer.",
         skills: [{ skill: "R17", w: 1 }],
         hints: earHints(),
         srs: [{ family: "fam.rhy.polyrhythm", mode: "seed" }],
@@ -472,7 +472,7 @@ export default defineLesson({
         role: "practice",
         title: "Three against two",
         prompt:
-          "Your three against two. In the starter every part plays the two. Give the cowbell three even notes a bar against the kick's two, in the same bars, four bars or more. Then build it out: the Rhodes on the three, another tempo, other sounds, a third part that plays four against the three.",
+          "Play three against two; every part of the starter plays the two. Required: the cowbell plays three even notes a bar against the kick's two, in the same bars, for four bars or more. Also on the checklist: the bass on the kick's two, and a hi-hat playing four against the cowbell's three.",
         skills: [{ skill: "R17", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -481,7 +481,7 @@ export default defineLesson({
           THREE_AGAINST_TWO,
           {
             id: "four-against-three",
-            label: "A third part, the hi-hat, plays four against the three",
+            label: "The hi-hat plays four even notes a bar against the cowbell's three, for 2 bars or more",
             required: false,
             skills: ["R17"],
             rule: "polyrhythm",
@@ -492,7 +492,7 @@ export default defineLesson({
           },
           {
             id: "bass-with-the-two",
-            label: "The bass plays the two with the kick",
+            label: "The bass plays on beats 1 and 3 of every bar, with the kick",
             required: false,
             skills: ["R17"],
             rule: "onsets",
@@ -507,7 +507,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "How many notes a bar does the cowbell play now, and how many should it?",
+          "Start with the cowbell's string: it plays two notes a bar now, like the kick.",
           "The cowbell's string divides the bar into equal steps; it needs a number of them that the kick's two does not share, in every bar.",
           "You wrote the same thing in step 4: the kick's line stays as it is, and only the cowbell's string changes.",
         ),

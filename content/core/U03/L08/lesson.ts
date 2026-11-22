@@ -48,7 +48,7 @@ const MAKE_STARTER = deg("<[0 4 7 9] [7 4 2 0]>");
 
 export default defineLesson({
   id: "U03.L08",
-  version: 2,
+  version: 3,
   title: "Solfège",
   objective: "I can sing degrees on syllables, do for home in any key, and write a line I can sing.",
   key: { tonic: "C", mode: "major" },
@@ -72,7 +72,8 @@ export default defineLesson({
         id: "names-to-sing",
         version: 1,
         role: "practice",
-        prompt: "Say or sing the words under the numbers as the line plays. Which word does the line end on?",
+        prompt:
+          "Say or sing the word under each number as the line plays. Listen for the word the line ends on, at the end of bar 2.",
         skills: [{ skill: "V03", w: 1 }],
         hints: null,
         tests: [],
@@ -98,14 +99,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the line in C and read the syllables. Then change `C4:major` to `A3:major` and run it again. Watch which word sits on home each time.",
+          "Run the line in C and read the word under each number. Then change `C4:major` to `A3:major`, run it again, and watch which word sits on home, the note labelled 1. Answer both questions below.",
         skills: [{ skill: "V03", w: 1 }],
         feedbackText: {
           "investigate.wrong":
-            "Not quite. Look at the note labelled 1 in each key, then at the word under it. Then find the word under 5.",
+            "Not yet. Look at the note labelled 1 in each key and read the word under it. Then find the note labelled 5 and read its word.",
         },
         hints: ladder(
-          "The line moved to a new home. Did the words move with it, or stay on the same letters?",
+          "Compare the word under 1 in C with the word under 1 in A. Did the words move with home, or stay on the same letters?",
           "Home is the note labelled 1. Read the word under it in C, then in A.",
           "In C the word under 1 sits on `c4`; in A it sits on `a3`. Now read the word under 5.",
         ),
@@ -114,7 +115,7 @@ export default defineLesson({
         questions: [
           {
             q: "choice",
-            prompt: "Which word sits on home, degree 1, in both keys?",
+            prompt: "Pick the word that sits on home, degree 1, in both keys.",
             options: [
               { id: "do", label: "do, in both keys" },
               { id: "la", label: "do in C, la in A: the words stay on their letters" },
@@ -122,7 +123,7 @@ export default defineLesson({
             ],
             correct: ["do"],
           },
-          { q: "number", prompt: "Sol is which degree?", correct: 5 },
+          { q: "number", prompt: "Type the degree that sol sits on.", correct: 5 },
         ],
         tests: [
           { name: "both right", response: { answer: { choice: ["do"], number: 5 } }, expect: "pass" },
@@ -161,13 +162,15 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Chords set home. Then sing do mi sol mi, do ti do re, do: one syllable to a beat. Ti is just below do. Numbers work too.",
+          "After the chords set home, sing do mi sol mi, do ti do re, do: one syllable to a beat, the last do held. Do is home, the note the chords end on; ti is the note just below do. Numbers work too.",
         skills: [
           { skill: "V03", w: 0.7 },
           { skill: "E05", w: 0.3 },
         ],
         hints: [
-          { text: "Hum home first, the note the chords end on. That note is do." },
+          {
+            text: "Start on do: hum home, the note the chords end on. That note is do, and the pattern starts there.",
+          },
           {
             text: "Mi and sol are the 3 and the 5 you sang before. Ti is the note just under do, and leans up into it.",
           },
@@ -208,10 +211,12 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Chords set home, then one note. Which degree is it? The pad shows each syllable under its number.",
+          "Listen to the chords that set home, then to one note. Pick its degree on the pad, where each syllable sits under its number.",
         skills: [{ skill: "E05", w: 1 }],
         hints: [
-          { text: "Hum the note, then sing down or up to do. Which syllables did you pass?" },
+          {
+            text: "Find the note's place above do. Hum it, then sing down or up to do: which syllables did you pass?",
+          },
           {
             text: "Do, mi and sol sound at rest. Re, fa, la and ti lean: ti up to do, fa down to mi, re down to do.",
           },
@@ -244,7 +249,8 @@ export default defineLesson({
         id: "write-what-you-sing",
         version: 1,
         role: "check",
-        prompt: "The target plays do re mi re, then do held for a bar. Write it with `n`.",
+        prompt:
+          "Write the target's first bar, do re mi re, in `n`, in place of the four zeros. Bar 2, do held for the whole bar, is already written. `n` counts from 0, so do is `n` 0.",
         skills: [
           { skill: "V03", w: 0.5 },
           { skill: "S02", w: 0.5 },
@@ -260,7 +266,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: you have {got} ({gotSyl}); the line has {exp} ({expSyl}). In `n`, every degree is one less.",
         },
         hints: ladder(
-          "Sing the target on syllables. Which numbers do do, re and mi stand for?",
+          "Bar 1 must play do re mi re. Which degree numbers do do, re and mi stand for?",
           "Do is degree 1, re 2, mi 3. `n` counts from 0, so each one is a number less.",
           "Do is `n` 0 and re is `n` 1. Mi follows the same rule.",
         ),
@@ -311,7 +317,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a two-bar line you can sing: no wider than from do up to la, 1 to 6. Then sing it on syllables.",
+          "Change the starter so the whole line spans no more than do up to la, 9 half steps from its lowest note to its highest; the starter climbs past the high do. Then sing your line on syllables. Done when the span fits.",
         skills: [{ skill: "V03", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [1, 4],
@@ -323,7 +329,7 @@ export default defineLesson({
           {
             id: "within-a-sixth",
             // Not "a sixth": interval names arrive in U04.L01.
-            label: "Spans no more than do up to la (9 half steps)",
+            label: "From its lowest note to its highest, the line spans at most 9 half steps: do up to la",
             required: true,
             skills: ["V03"],
             rule: "range",
@@ -332,7 +338,7 @@ export default defineLesson({
           },
           {
             id: "ends-on-do",
-            label: "Ends on do",
+            label: "The line's last note is do, home",
             required: false,
             skills: ["E05"],
             rule: "ends-on-degree",
@@ -341,7 +347,7 @@ export default defineLesson({
           },
           {
             id: "mostly-steps",
-            label: "Moves mostly to the next note of the scale",
+            label: "Most moves to a new note, 6 in 10 or more, go to the next note of the scale",
             required: false,
             skills: ["V03"],
             rule: "step-ratio",
@@ -350,7 +356,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Sing the starter. Which notes are too high or too low for one comfortable breath?",
+          "The whole line must fit between a do and the la above it. Sing the starter: which notes are too high for one comfortable breath?",
           "The span is from the lowest note to the highest. The starter climbs from do to the mi above the next do.",
           "Keep every `n` between 0 and 5, or between -1 and 4: then no two notes are further apart than do and la.",
         ),

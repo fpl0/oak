@@ -108,7 +108,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U14.L02",
-  version: 2,
+  version: 3,
   title: "Mixolydian Rock",
   objective:
     "I can find the major chord on Mixolydian's ♭7, write it as ♭VII, and use it in the loop I–♭VII–IV.",
@@ -135,7 +135,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Loop 1 is a three-chord loop you have written before. In loop 2 one chord changes and a guitar riff joins. Which bar changed, and does the loop still pull back home as hard?",
+          "Listen for the one bar whose chord changes between loop 1 and loop 2, and for how hard each loop pulls back to G. Loop 1 is a three-chord loop you have written before; loop 2 swaps one chord and adds a guitar riff.",
         skills: [{ skill: "H11", w: 1 }],
         hints: null,
         tests: [],
@@ -165,7 +165,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`n("[6,8,10]")` stacks a triad on degree 7. On G major that is F♯ A C, the diminished chord. Bar 2 plays the same numbers on G Mixolydian. What does the stack become there?',
+          'Predict what kind of chord bar 2 plays. `n("[6,8,10]")` stacks a triad on degree 7: on G major (bar 1) that is F♯ A C, the diminished chord. Bar 2 plays the same numbers on G Mixolydian. Pick one answer.',
         skills: [{ skill: "H11", w: 1 }],
         hints: null,
         tests: [],
@@ -194,14 +194,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Roots on degrees 1, 7, 4 and 1 of G Mixolydian. Run it and read what the chord band writes under each bar.",
+          "Run the code and read the numeral the chord band writes under each bar. The roots are degrees 1, ♭7, 4 and 1 of G Mixolydian. Then answer both questions: which numeral bar 2's F chord gets, and how many half steps its root is below home.",
         skills: [{ skill: "H11", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read the numeral under bar 2: its flat sign says the root is a lowered degree 7. Then count the keys from F up to G.",
         },
         hints: ladder(
-          "Bar 2's chord is built on the note the scale lowered. What does the band write for it?",
+          "Look at the numeral under bar 2: its chord is built on the note the scale lowered. What does the band write there?",
           "A numeral counts from home. Upper case means a major chord; a flat sign means the degree is lowered.",
           "F is the root. From F up to G is the same distance as from home down to the ♭7.",
         ),
@@ -259,13 +259,13 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The hook's chords by name: G, F, C, G. Write the numeral of each bar in G Mixolydian: upper case for a major chord, and a flat sign where the root is a lowered degree.",
+          "Write the numeral for each of the hook's four chords, G, F, C, G, counted from home in G Mixolydian. Use upper case for a major chord and a flat sign where the root is a lowered degree. Done when all four slots hold a numeral.",
         skills: [
           { skill: "H11", w: 0.7 },
           { skill: "N06", w: 0.3 },
         ],
         hints: ladder(
-          "Which chords sit on home, and which degree of G Mixolydian is C?",
+          "Count each chord's root up from G. Which chords sit on home, and which degree is C?",
           "Count from G: C is degree 4, and F is the lowered 7th. All four chords are major.",
           "Bars 1 and 4 are I and bar 3 is IV. Bar 2 is on the ♭7.",
         ),
@@ -316,7 +316,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "In bar 2 the riff plays G, te, while the E chord holds G♯ against it. Swap that chord for the major chord a whole step below home.",
+          "Change bar 2's chord in `changes`, the `E`, to the major chord a whole step below A, home. In that bar the riff plays G, te, and the E chord's G♯ rubs against it. Keep the other three chords as they are.",
         skills: [{ skill: "H11", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 4 },
@@ -330,7 +330,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}; the target has {exp}. In A Mixolydian the chord on the ♭7 is major, built on G natural.",
         },
         hints: ladder(
-          "Which note is a whole step below A, and which chord is built on it?",
+          "Only bar 2's chord changes. Which note is a whole step below A, and which chord is built on it?",
           "Te in A Mixolydian is G natural. The chord on it is major, like F was in G.",
           "Bar 2 needs a G major chord: G, B and D. In `changes` that is one letter.",
         ),
@@ -390,13 +390,13 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "An old fiddle tune in A Mixolydian, four bars over a strummed A chord. Write its `mel:` line in `n`. The first note is given: sol, `n` 4. Bars 3 and 4 begin like bar 1. Any octave passes.",
+          "Write the fiddle tune's four bars by ear in the `mel:` line, in `n` on A Mixolydian. The first note is given: sol, `n` 4. Bars 3 and 4 begin like bar 1. Any octave passes. Done when your notes and their lengths match the tune.",
         skills: [
           { skill: "E07", w: 0.6 },
           { skill: "S12", w: 0.4 },
         ],
         hints: ladder(
-          "Hum bar 1. How far does it climb from sol before it turns back?",
+          "Start with bar 1 alone: hum it and count its steps. How far does it climb from sol before it turns back?",
           "Bar 1 steps up twice and back down once. `n` counts from 0, so te, degree ♭7, is `n` 6.",
           "Bar 1 is `[4 5 6 5]`. Bar 2 steps down from sol and holds its last note for two beats.",
         ),
@@ -464,7 +464,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A loop in G Mixolydian on organ and a pumping bass: G, G, C, G, with a riff on home. It has no chord on the ♭7 yet. Put F in: I–♭VII–IV–I, or your own order, as long as home comes back. Then rewrite the riff so it leans on te over the F.",
+          "Put an F chord, ♭VII, into `changes` at least once. The loop is G, G, C, G now, with no chord on the ♭7; I–♭VII–IV–I works, or your own order with home coming back. Then rewrite the riff so it plays te (F) over the F chord. Done when the loop has an F chord.",
         skills: [{ skill: "H11", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -472,7 +472,7 @@ export default defineLesson({
         rubric: [
           {
             id: "the-flat-seven-chord",
-            label: "The ♭VII chord in your loop",
+            label: "An F chord, ♭VII, in the loop at least once",
             required: true,
             skills: ["H11"],
             rule: "contains-rn",
@@ -481,7 +481,7 @@ export default defineLesson({
           },
           {
             id: "four-too",
-            label: "IV in the loop too",
+            label: "A C chord, IV, in the loop at least once",
             required: false,
             skills: ["H11"],
             rule: "contains-rn",
@@ -490,7 +490,7 @@ export default defineLesson({
           },
           {
             id: "riff-sings-te",
-            label: "The riff plays te, the ♭7",
+            label: "The `gtr:` line plays te (F) at least once",
             required: false,
             skills: ["S12"],
             rule: "degree-set",
@@ -499,7 +499,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root",
+            label: "The `bass:` line plays the root where most chords start",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -511,7 +511,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which chord does Mixolydian have that G major does not, and is it in your loop?",
+          "Your loop needs the one chord G Mixolydian has and G major does not. Is it in `changes` yet?",
           "The chord on the ♭7 is F major, a whole step below home. All four chords live in `changes`.",
           "Replace one of the G chords in the middle of the loop. Keep the first bar on home.",
         ),

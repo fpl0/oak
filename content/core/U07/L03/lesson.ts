@@ -95,7 +95,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L03",
-  version: 2,
+  version: 3,
   title: "Landing on Chord Tones",
   objective:
     "I can write a tune that lands on a note of the chord on beats 1 and 3, and moves freely between.",
@@ -120,7 +120,8 @@ export default defineLesson({
         id: "a-tune-that-sits",
         version: 1,
         role: "practice",
-        prompt: "Does the tune sound settled on its chords, or does it rub against them?",
+        prompt:
+          "Listen for how the tune sits on its chords: does it sound settled, or does it rub against them?",
         skills: [{ skill: "M03", w: 1 }],
         hints: null,
         tests: [],
@@ -139,7 +140,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Which tune sits on the chords? Listen hardest at the start of each bar, where the chord changes.",
+          "Play both cards. Listen hardest to beat 1 of each bar, where the chord changes, and pick the tune that sounds settled on the chords.",
         skills: [{ skill: "M03", w: 1 }],
         hints: ladder(
           "In which card does the tune sound at rest with the chords on beat 1?",
@@ -185,7 +186,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the tune. For each note on beat 1 or beat 3, find the chord under it in the `chords` line and check whether the note is one of its three.",
+          "Run the tune. For each note on beat 1 or beat 3, find that bar's chord in the `chords` line and check whether the note is one of its three notes. Then answer both questions.",
         skills: [{ skill: "M03", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -244,7 +245,8 @@ export default defineLesson({
         id: "in-the-chord-or-not",
         version: 1,
         role: "check",
-        prompt: "A new tune over the same four chords. Four of its notes, one at a time: chord tone or not?",
+        prompt:
+          "A new tune over the same four chords. For each of four marked notes, one at a time, pick whether it is a chord tone of the chord under it or not.",
         skills: [{ skill: "M03", w: 1 }],
         hints: ladder(
           "What are the three notes of each chord in the loop?",
@@ -360,7 +362,8 @@ export default defineLesson({
         id: "fix-the-landings",
         version: 1,
         role: "check",
-        prompt: "Change only the first note of bars 2 and 4, so every note on beats 1 and 3 is a chord tone.",
+        prompt:
+          "Change the first note of bar 2 to a note of the G chord, and the first note of bar 4 to a note of the F chord. Leave every other note as it is. Done when every note on beats 1 and 3 is a chord tone.",
         skills: [{ skill: "M03", w: 1 }],
         code: { starter: LANDING_STARTER },
         reference: { solutions: [LANDING("6", "3")], bars: 4 },
@@ -370,7 +373,7 @@ export default defineLesson({
           rules: [
             {
               id: "landings",
-              label: "Chord tones on beats 1 and 3",
+              label: "Every note on beats 1 and 3 is a note of the chord under it",
               required: true,
               skills: ["M03"],
               rule: "chord-tones-strong",
@@ -383,8 +386,12 @@ export default defineLesson({
         },
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true, showRoll: false },
+        feedbackText: {
+          "rubric.unmet":
+            "{label}: not yet ({detail}). Check the first note of bars 2 and 4 against the three notes of that bar's chord.",
+        },
         hints: ladder(
-          "Which chord plays in bar 2, and which notes is it made of?",
+          "The bumps are on beat 1 of bars 2 and 4. Which chord plays in each of those bars, and which three notes make it?",
           "Bar 2's chord is `[4,6,8]` and bar 4's is `[3,5,7]`. Any of those numbers, or the same note an octave away, is a chord tone.",
           "Bar 2 is the G chord, G B D. The note there now is `n` 5, one step from B.",
         ),
@@ -425,13 +432,13 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Two bars of tune over C, then G and C. The chords are in the code already; write the tune in `n`, in C.",
+          "Write the tune you hear in the `mel` line, as degrees of C in `n`: five notes over two bars. The chords, C and then G and C, are already in the code. Done when each note's degree and beat match what you hear.",
         skills: [
           { skill: "M03", w: 0.5 },
           { skill: "E07", w: 0.5 },
         ],
         hints: ladder(
-          "How many notes do you hear, and which one is the lowest?",
+          "Write five numbers in `n`, one per note, each on its beat. Which bar has the lowest note, and does it sit below home?",
           "On beats 1 and 3 the note is in the chord: start from those, then fill in the one between.",
           "Bar 1 is `[4 ~ 2 ~]`: degree 5, then 3, both in the C chord. Bar 2 has three notes and ends on home.",
         ),
@@ -488,7 +495,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Every note on beats 1 and 3 of this tune is a step away from its chord. Rewrite it so it lands on a chord tone on beats 1 and 3; between them, go where you like.",
+          "Rewrite the tune so its notes on beats 1 and 3 are chord tones of the chord in their bar. Between them, go where you like. Done when at least 6 in 10 of the notes on beats 1 and 3 are chord tones.",
         skills: [{ skill: "M03", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -496,7 +503,7 @@ export default defineLesson({
         rubric: [
           {
             id: "chord-tones",
-            label: "Chord notes on beats 1 and 3",
+            label: "At least 6 in 10 notes on beats 1 and 3 are notes of the chord under them",
             required: true,
             skills: ["M03"],
             rule: "chord-tones-strong",
@@ -507,7 +514,8 @@ export default defineLesson({
           },
           {
             id: "motif",
-            label: "Your bar-1 idea comes back",
+            label:
+              "At least half the bars repeat the shape of an earlier bar, the same or moved to other degrees",
             required: false,
             skills: ["M02"],
             rule: "motif-reuse",
@@ -517,7 +525,7 @@ export default defineLesson({
           },
           {
             id: "home",
-            label: "Ends on home",
+            label: "The last note is home, degree 1",
             required: false,
             skills: ["M01"],
             rule: "ends-on-degree",
@@ -526,7 +534,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which notes are in the chord of bar 1? Is the tune's first note one of them?",
+          "Start with bar 1: its chord is C, made of C E G. Is the tune's note on beat 1 one of them? The one on beat 3?",
           "Each number in the `chords` line is a note you can land on: the same number in the tune, or that number plus or minus 7.",
           "Bar 1's chord is `[0,2,4]`. The tune starts on `n` 1 there: move it one step, to 0 or 2.",
         ),

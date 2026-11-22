@@ -41,7 +41,7 @@ const ROLL_STAFF = { roll: true, staff: "treble", keyboard: false } as const;
 /** The catalog's `melody.wrong-degree` reads "you have 5 (sol)": syllables wait for U03.L08. */
 const NUMBERS = {
   "melody.wrong-degree":
-    "Bar {bar}, {beatLabel}: you have degree {got}; the line has degree {exp}, an octave down. Seven numbers make one octave.",
+    "Bar {bar}, {beatLabel}: you have degree {got}; the line has degree {exp}, an octave down. Seven numbers make one octave: take 7 from each number of the starter.",
 } as const;
 
 /** Sung drift, in numbers: the catalog's text says "re-anchor on do". */
@@ -56,7 +56,9 @@ const SING_TOL = {
   passHitRate: 0.8,
 } as const;
 const SING_HINTS: HintLadder = [
-  { text: "Hum home first, the note the chords end on. Each pattern ends there or an octave away." },
+  {
+    text: "Start from home: hum the note the chords end on. Each pattern starts or ends on it, or on the home an octave above.",
+  },
   {
     text: "2 is the next note of the scale above home, and 4 is three notes above it. Sing up the scale from 1 to find them.",
   },
@@ -66,7 +68,7 @@ const SING_HINTS: HintLadder = [
 
 export default defineLesson({
   id: "U03.L03",
-  version: 2,
+  version: 3,
   title: "Restless Neighbours",
   objective: "I can hear degrees 2 and 4 lean home, sing them there, and reach below or above home with `n`.",
   key: { tonic: "C", mode: "major" },
@@ -91,7 +93,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Watch the labels. Some notes sound like they are waiting; others let the line rest. Which numbers do the waiting?",
+          "Watch the degree labels as the line plays. Some notes sound like they are waiting; others let the line rest. Listen for which numbers do the waiting.",
         skills: [{ skill: "E05", w: 1 }],
         hints: null,
         tests: [],
@@ -116,7 +118,8 @@ export default defineLesson({
         id: "below-zero",
         version: 1,
         role: "practice",
-        prompt: '`n` 0 is home. Where will the first note of `n("-3 0 ~ ~")` sound? Hum your guess.',
+        prompt:
+          '`n` 0 is home. Predict where the first note of `n("-3 0 ~ ~")` sounds, and pick your answer below. Hum your guess before you hear it.',
         skills: [{ skill: "S02", w: 1 }],
         hints: null,
         tests: [],
@@ -144,14 +147,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it. The numbers go below 0 and past 6. Watch where each note lands on the staff and which label it gets.",
+          "Run the line and watch where each note lands on the staff and which label it gets: the numbers in the code go below 0 and past 6. Then answer both questions below.",
         skills: [{ skill: "S02", w: 1 }],
         feedbackText: {
           "investigate.wrong":
-            "Not quite. Line the code up with the labels again: one number in the code, one note on the staff.",
+            "Not yet. Line the code up with the labels again, in order: one number in the code, one note on the staff, one label.",
         },
         hints: ladder(
-          "Find home, the note labelled 1 that `n` 0 plays. Which notes sit below it on the staff?",
+          "Find home first: the note labelled 1, played by `n` 0. Which notes sit below it on the staff, and which labels do they get?",
           "The scale has seven notes, so the labels repeat every seven numbers: `n` 7 is 1 again, an octave up.",
           "`n` -1 plays the 7 just below home. Count down two more labels from there.",
         ),
@@ -160,7 +163,7 @@ export default defineLesson({
         questions: [
           {
             q: "choice",
-            prompt: "Which degree does `n` -3 play?",
+            prompt: "Pick the degree that `n` -3 plays.",
             options: [
               { id: "five-below", label: "5, below home" },
               { id: "three", label: "3, above home" },
@@ -168,7 +171,7 @@ export default defineLesson({
             ],
             correct: ["five-below"],
           },
-          { q: "number", prompt: "Which `n` plays 1, an octave above home?", correct: 7 },
+          { q: "number", prompt: "Type the `n` that plays 1, an octave above home.", correct: 7 },
         ],
         srs: [{ family: "fam.deg.index", mode: "review-if-due" }],
         tests: [
@@ -201,7 +204,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Play this line an octave lower: the same degrees, one home further down. Change only the numbers; leave `.scale()` as it is.",
+          "Move this line one octave lower: the same four degrees, one home further down. Change only the four numbers in `n`; leave `.scale()` as it is.",
         skills: [{ skill: "S02", w: 1 }],
         code: { starter: `${TEMPO}mel: n("⟪${LINE}⟫").scale("C4:major").s("piano")` },
         reference: { solutions: [deg(LINE_LOW)], bars: 1 },
@@ -214,7 +217,7 @@ export default defineLesson({
             "Every note lands one degree {dir}. One octave is seven numbers in `n`: take 7 from each.",
         },
         hints: ladder(
-          "How many numbers does it take to get from home to the next home?",
+          "Each note must play the same degree, one octave lower. How many numbers in `n` does it take to get from home to the next home?",
           "`n` 7 is home an octave up, so every number moves by 7 for one octave. Down means taking away.",
           "The first note, 5 (`n` 4), becomes `n` -3. Do the same to the other three.",
         ),
@@ -265,12 +268,12 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A few chords set home, then two endings of the same line: A ends 2 1, B ends 1 2. Play the cards. Which one settles?",
+          "Listen to the chords that set home, then to two endings of the same line: A ends 2 1, B ends 1 2. Pick the ending that settles, the one after which the music could stop.",
         skills: [{ skill: "E05", w: 1 }],
         hints: ladder(
-          "Hum the last note of each card. After which one could the music stop?",
+          "Pick the ending that sounds finished. Hum the last note of each card: after which one could the music stop?",
           "1 is home. A line that ends on home sounds finished; one that steps off it keeps you waiting.",
-          "B leaves home for 2 at the very end. Play A once more.",
+          "B leaves home for 2 at the very end. Listen to A once more.",
         ),
         stimulus: { src: "code", code: deg(`<[${SETTLES}] [${HANGS}]>`), bars: 2, showCode: false },
         cue: { context: "cadence", countInBars: 0, click: false, replays: -1 },
@@ -305,10 +308,12 @@ export default defineLesson({
         id: "two-or-four",
         version: 1,
         role: "check",
-        prompt: "Chords set home, then one note. Which degree is it? 2 and 4 join 1, 3 and 5.",
+        prompt: "Listen to the chords that set home, then to one note. Pick its degree: 1, 2, 3, 4 or 5.",
         skills: [{ skill: "E05", w: 1 }],
         hints: [
-          { text: "Is the note at rest, or does it lean? If it leans, which way does it want to go?" },
+          {
+            text: "Decide first whether the note is at rest or leans. If it leans, which way does it want to go?",
+          },
           {
             text: "2 leans down to 1, one step away. 4 leans down to 3. Sing down from the note until you reach home.",
           },
@@ -334,7 +339,8 @@ export default defineLesson({
         id: "sing-them-home",
         version: 1,
         role: "practice",
-        prompt: "Two short patterns after the chords. Sing each one on numbers, or on any vowel.",
+        prompt:
+          "Sing two short patterns after the chords set home, on numbers or on any vowel. Each one starts or ends on home, the note the chords end on.",
         skills: [
           { skill: "V03", w: 0.6 },
           { skill: "E05", w: 0.4 },
@@ -349,7 +355,8 @@ export default defineLesson({
             id: "sing-two-one-four-three",
             version: 1,
             role: "practice",
-            prompt: "Sing two, one; four, three; two, one. Each restless note steps down and settles.",
+            prompt:
+              "Sing two, one; four, three; two, one: six notes, two beats each. Each restless note steps down to the note it settles on.",
             skills: [
               { skill: "V03", w: 0.6 },
               { skill: "E05", w: 0.4 },
@@ -373,7 +380,8 @@ export default defineLesson({
             id: "sing-one-five-one",
             version: 1,
             role: "practice",
-            prompt: "Now one, five, and one again an octave up: the same home, higher.",
+            prompt:
+              "Sing one, five, then one again an octave higher: three notes, one to a beat, then a beat of rest. The last note is home, higher.",
             skills: [{ skill: "V03", w: 1 }],
             hints: SING_HINTS,
             fallback: "skip",
@@ -403,7 +411,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a two-bar line that **reaches below home or above it** at least once (an `n` below 0 or above 6), then let it settle.",
+          "Change at least one note so the line reaches under home or past 7: an `n` below 0 or above 6. Then let the line settle on 1, home. Done when one `n` sits outside 0 to 6.",
         skills: [{ skill: "S02", w: 1 }],
         code: { starter: deg("<[0 2 4 2] [3 1 0 ~]>") },
         bars: [1, 4],
@@ -411,7 +419,7 @@ export default defineLesson({
         rubric: [
           {
             id: "reach",
-            label: "Reaches below home or above it",
+            label: "At least one `n` below 0 or above 6: a note under home or past 7",
             required: true,
             skills: ["S02"],
             rule: "uses",
@@ -419,7 +427,7 @@ export default defineLesson({
           },
           {
             id: "ends-home",
-            label: "Ends on 1, home",
+            label: "The line's last note is degree 1, home",
             required: false,
             skills: ["E05"],
             rule: "ends-on-degree",
@@ -428,7 +436,7 @@ export default defineLesson({
           },
           {
             id: "neighbour",
-            label: "Lets a 2 lean somewhere",
+            label: "The line plays degree 2 at least once",
             required: false,
             skills: ["E05"],
             rule: "degree-set",
@@ -439,9 +447,9 @@ export default defineLesson({
         // The catalog's detail names the tool ID ("tb.n.range used 0×"); the label says it in words.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which note of the starter could go higher or lower than the rest?",
-          "`n` 7 is 1 an octave up, and `n` -3 is the 5 below home. Swap one of them in.",
-          "Make the top of bar 1 reach the octave: change its third note, `n` 4, to `n` 7.",
+          "One `n` must end up below 0 or above 6. Which note of the starter could go higher or lower than the rest?",
+          "`n` 7 is 1 an octave up, and `n` -3 is the 5 below home. Swap one of them in, in bar 1 or bar 2.",
+          "Add 7 to one note's number: it plays the same degree an octave up. The top of bar 1 is a good place.",
         ),
         tests: [
           {

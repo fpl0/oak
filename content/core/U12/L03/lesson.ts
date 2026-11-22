@@ -123,7 +123,7 @@ const drillPart = (n: number): IdentifyEx => ({
   id: `seventh-${n}`,
   version: 1,
   role: "check",
-  prompt: `Chord ${n}. Any of the four kinds now.`,
+  prompt: `Chord ${n}: any of the four kinds now.`,
   skills: [{ skill: "E11", w: 1 }],
   hints: earHints(),
   stimulus: { src: "generator", family: "fam.chd.quality-7th", level: 3 },
@@ -135,7 +135,7 @@ const drillPart = (n: number): IdentifyEx => ({
 
 export default defineLesson({
   id: "U12.L03",
-  version: 2,
+  version: 3,
   title: "Half-Diminished & Diminished 7",
   objective:
     "I can build, write and hear the two sevenths on the diminished triad: Bm7♭5 (Bm7b5) and B°7 (Bo7), one half step apart.",
@@ -165,7 +165,7 @@ export default defineLesson({
         role: "practice",
         key: HARMONIC,
         prompt:
-          "Each loop has one new chord: the first chord of loop 1, the second of loop 2. Listen to where each goes. Does it settle, or does it pull the music on into the next bar?",
+          "Listen to both loops. Each has one new chord: the first chord of loop 1, the second chord of loop 2. Listen for where each new chord goes: does it settle, or does it pull the music on into the next bar?",
         skills: [{ skill: "C07", w: 1 }],
         hints: null,
         tests: [],
@@ -191,7 +191,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`chord("<Bm7 Bm7b5>")` plays Bm7 for a bar, then the first chord of the turn you just heard. The `b5` lowers one note of Bm7 by a half step. Which one?',
+          'Predict which note of Bm7 the `b5` lowers by a half step, then run it. `chord("<Bm7 Bm7b5>")` plays Bm7 for one bar, then the first chord of the turn you just heard.',
         skills: [{ skill: "C07", w: 1 }],
         hints: null,
         tests: [],
@@ -219,7 +219,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Both bars stand on the same three notes, B, D and F: the diminished triad. Run it and read the note names on the roll, bottom to top.",
+          "Run the code and read the note names on the roll, bottom to top. Both bars start on B, D and F, the diminished triad. Then answer both questions: which bar is Bm7 with only its 5th lowered, and how many half steps lie between neighbouring notes in bar 2.",
         skills: [{ skill: "C07", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -279,7 +279,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Play Bm7♭5 on the keyboard, B at the bottom: the diminished triad on B, and on top the note a whole step below the next B.",
+          "Play Bm7♭5 on the keyboard: the diminished triad on B, plus the note a whole step below the next B. Done when those four notes sound together with B as the lowest.",
         skills: [{ skill: "C07", w: 1 }],
         hints: ladder(
           "Start with the diminished triad on B. Which three notes is it?",
@@ -344,7 +344,7 @@ export default defineLesson({
         role: "check",
         key: HARMONIC,
         prompt:
-          "Bar 1 is Bm7, which has F♯. A minor has F, and the tune sings F right against the chord. Change one symbol so bar 1 is the seventh chord the key builds on B.",
+          "Change the first chord in `changes`, Bm7, into the seventh chord A minor builds on B: the same chord with its 5th, F♯, lowered to F, the note the tune sings over it. Leave the other chords as they are.",
         skills: [{ skill: "C07", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 4 },
@@ -362,7 +362,7 @@ export default defineLesson({
         },
         srs: [{ deck: "deck.chd.symbols", cards: ["fact.chord.Cm7b5", "fact.chord.Cdim7"], mode: "seed" }],
         hints: ladder(
-          "Which note of Bm7 is not in A minor, and which member of the chord is it?",
+          "Bar 1 must use only notes of A minor. Bm7 is B D F♯ A: which of its notes is outside the key, and which member of the chord is it?",
           "F♯ is the 5th of Bm7. The symbol that lowers it adds two characters after `m7`: a flat as Strudel writes it, then the number of that chord member.",
           "In code a flat is the letter `b`, written before the number of the note it lowers. Keep `Bm7` as it is and add to its end.",
         ),
@@ -422,7 +422,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Five seventh chords, one at a time. The half-diminished seventh joins the pad beside the major seventh, minor seventh and dominant seventh chords. Which kind is each?",
+          "Name the kind of each of five seventh chords, played one at a time. The pad now has four kinds: major seventh, minor seventh, dominant seventh and half-diminished seventh. Listen to the triad inside first.",
         skills: [{ skill: "E11", w: 1 }],
         hints: earHints(),
         srs: [{ family: "fam.chd.quality-7th", mode: "review-if-due" }],
@@ -449,7 +449,7 @@ export default defineLesson({
         role: "practice",
         key: HARMONIC,
         prompt:
-          "A torch song in A minor, Am7, Fmaj7, Dm7, E7: the piano on every beat, the tune on strings. Darken it with one of today's chords: `Bm7b5` in place of Dm7 leads into E7; `G#o7` in the last bar pulls up a half step into home. Then shape the tune around the new chord's notes.",
+          "Darken the torch song with one of today's chords in `changes`: put `Bm7b5` in place of Dm7, where it leads into E7, or `G#o7` in place of E7 in the last bar, where it pulls up a half step into Am7. Then shape the tune around the new chord's notes.",
         skills: [{ skill: "C07", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -457,7 +457,8 @@ export default defineLesson({
         rubric: [
           {
             id: "one-dark-seventh",
-            label: "A half-diminished or a diminished seventh chord in your loop",
+            label:
+              "On the chords line, at least one half-diminished seventh (`m7b5`) or diminished seventh (`o7`)",
             required: true,
             skills: ["C07"],
             rule: "chord-qualities",
@@ -468,7 +469,8 @@ export default defineLesson({
           },
           {
             id: "the-ache-leads-on",
-            label: "The dark chord leads on: into E7, or a half step up into home",
+            label:
+              "The dark chord goes straight on to its target: Bm7♭5 into E7, or G♯°7 up a half step into Am7",
             required: false,
             skills: ["C07"],
             rule: "contains-rn",
@@ -478,7 +480,7 @@ export default defineLesson({
           },
           {
             id: "raised-seven-in-the-tune",
-            label: "The raised 7, G♯, somewhere in the tune",
+            label: "G♯, the raised 7, at least once on the `mel` line",
             required: false,
             skills: ["S07"],
             rule: "degree-set",
@@ -487,7 +489,8 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root",
+            label:
+              "The bass plays the chord's root where the chord changes, at three changes in four or more",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -497,9 +500,11 @@ export default defineLesson({
           },
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
-        feedbackText: { "rubric.unmet": "{label}: not yet." },
+        feedbackText: {
+          "rubric.unmet": "{label}: not yet. Change the code until this line of the checklist holds.",
+        },
         hints: ladder(
-          "Where should the ache go: just before E7, or in the last bar on its way home?",
+          "Pick one place for the dark chord in `changes`: the third bar, just before E7, or the last bar, on the way home to Am7. Which do you want?",
           "All four chords live in `changes`. The half-diminished seventh on B can stand where Dm7 is: they share D, F and A. The diminished seventh on G♯ can take the last bar.",
           "Swap the third symbol for the first chord of today's hook and listen to what the bass does under it. For the other chord, `o7` goes straight after the root's name.",
         ),

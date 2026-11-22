@@ -129,7 +129,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["U15", "U16", "U17"],
   gated: ["H12", "H13", "H14"],
   levelSetting: ["E12a", "E12b", "E13"],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "fact",
@@ -138,7 +138,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: G_MAJOR,
       prompt:
-        "Eight bars in G major, one chord a bar, named in the code: G, E7, Am, Cm, G, E♭, F, G. Write the numeral of each chord. A chord from outside the key takes its name from where it goes, or from the key it is borrowed from.",
+        "Write the numeral of each of the eight chords, one a bar, in G major: G, E7, Am, Cm, G, E♭, F, G. Name a chord from outside the key either as the V7 of the chord it leads to, or as a chord borrowed from G minor.",
       skills: [
         { skill: "H12", w: 0.4 },
         { skill: "H13", w: 0.6 },
@@ -186,7 +186,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: G_MAJOR,
       prompt:
-        "A song in G: verse, chorus, chorus. Lift the last chorus a whole step, to A: a key plan after `arrange()` on the bass and on the tune, counted in bars of the whole song, and every chord name of `chordsChorus2` a whole step up.",
+        "Lift the last chorus, bars 9 to 12, a whole step from G to A. Bass and tune: change each `.scale()` to a key plan counted in bars of the whole song, G major for 8 bars, then A major for 4. Chords: move every name in `chordsChorus2` up a whole step.",
       skills: [{ skill: "H14", w: 1 }],
       hints: null,
       code: { starter: LIFT_STARTER },
@@ -253,7 +253,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: { tonic: "F", mode: "major" },
       prompt:
-        "A phrase that moves from F major to C major: F, Dm, G7, C. Dm is the door between the two keys. Write its numeral twice: in F major, then in C major.",
+        "Dm is the pivot chord of F, Dm, G7, C, a move from F major to C major. Write its numeral twice: in the first slot its numeral in F major, in the second its numeral in C major.",
       skills: [{ skill: "H14", w: 1 }],
       hints: null,
       stimulus: { src: "code", code: PIVOT, bars: 4, showCode: true },
@@ -304,7 +304,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     role: "checkpoint",
     title: "The last chorus lifts",
     prompt:
-      "The song in G, yours to make over the band's drums: twelve bars or more in sections. Put one chord from outside the key where you want its colour, applied or borrowed; bar 3 of the verse is a good place. Then lift the last chorus a whole step, to A, on every line.",
+      "Lift the last chorus, bars 9 to 12, a whole step from G to A. Bass and tune: a key plan after each `arrange()`, 8 bars of G major, then 4 of A major. Chords: move every name in `chordsChorus2` up a whole step. Then add one applied or borrowed chord; bar 3 of the verse is a good place.",
     skills: [{ skill: "H14", w: 1 }],
     hints: null,
     key: G_MAJOR,
@@ -315,7 +315,8 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     rubric: [
       {
         id: "last-chorus-in-a",
-        label: "The last chorus lifts a whole step, to A, on every line: chords, bass and tune",
+        label:
+          "The last chorus is a whole step above the chorus before it, in A, on chords, bass and tune, for 4 bars or more",
         required: true,
         skills: ["H14"],
         rule: "key-change",
@@ -325,7 +326,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "applied",
-        label: "A secondary dominant that goes where it leans",
+        label: "A secondary dominant that moves to the chord it leans into",
         required: false,
         skills: ["H12"],
         rule: "contains-rn",
@@ -336,7 +337,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "borrowed",
-        label: "A chord borrowed from G minor",
+        label: "A chord borrowed from G minor, such as Cm or E♭",
         required: false,
         skills: ["H13"],
         rule: "contains-rn",
@@ -346,7 +347,8 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "same-tune-higher",
-        label: "The same tune, a step higher, for four bars or more",
+        label:
+          "The last chorus plays the same tune as the chorus before it, a half or whole step higher, for 4 bars or more",
         required: false,
         skills: ["H14"],
         rule: "key-change",

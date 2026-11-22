@@ -157,7 +157,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["U14"],
   gated: ["S12", "S13", "H11"],
   levelSetting: ["E10"],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "code-modify",
@@ -166,7 +166,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: E_MIX,
       prompt:
-        "A call on the guitar and an answer on the Rhodes, both at home on E, on E major and E minor. Change one word in each `.scale()`: put the call in E Mixolydian and the answer in E Dorian.",
+        "Change one word in each `.scale()`. Put the call, the `mel:` line on E major, in E Mixolydian. Put the answer, the `vox:` line on E minor, in E Dorian. Leave the numbers as they are. Done when both lines play the target's notes.",
       skills: [{ skill: "S12", w: 1 }],
       hints: null,
       code: { starter: COLOURS_STARTER },
@@ -214,7 +214,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       version: 1,
       role: "checkpoint",
       prompt:
-        "Two scales on the degree pad, one at a time. Each opens on the scale it comes from: change one degree.",
+        "Build two scales on the degree pad, one at a time. Each pad opens on the scale it comes from; change one degree to make the mode. Done when each pad holds its mode's seven degrees.",
       skills: [{ skill: "S13", w: 1 }],
       hints: null,
       tests: [],
@@ -222,7 +222,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
         buildPart(
           "b-flat-lydian",
           "B♭ Lydian",
-          "B♭ Lydian, from B♭ major: raise one degree a half step.",
+          "Build B♭ Lydian. The pad holds B♭ major: raise one degree a half step.",
           "Bb",
           "major",
           LYDIAN,
@@ -245,7 +245,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
         buildPart(
           "a-phrygian",
           "A Phrygian",
-          "A Phrygian, from A minor: lower one degree a half step.",
+          "Build A Phrygian. The pad holds A minor: lower one degree a half step.",
           "A",
           "minor",
           PHRYGIAN,
@@ -272,14 +272,15 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       id: "number-the-modal-loops",
       version: 1,
       role: "checkpoint",
-      prompt: "Two loops by name, each in its own mode. Number every chord, counted from that mode's home.",
+      prompt:
+        "Write the numeral of every chord in two loops, each counted from the home of its own mode. Use upper case for major, lower case for minor, and a flat where the root is a lowered degree.",
       skills: [{ skill: "H11", w: 1 }],
       hints: null,
       tests: [],
       parts: [
         numberPart(
           "a-mixolydian-loop",
-          "A loop in A Mixolydian: A, G, D, A. Write the numeral of each chord.",
+          "Write the four numerals of this loop in A Mixolydian: A, G, D, A.",
           { tonic: "A", mode: "mixolydian" },
           "A G D A",
           MIX_RN,
@@ -301,7 +302,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
         ),
         numberPart(
           "e-dorian-loop",
-          "A loop in E Dorian: Em, A, Em, A. Write the numeral of each chord.",
+          "Write the four numerals of this loop in E Dorian: Em, A, Em, A.",
           { tonic: "E", mode: "dorian" },
           "Em A Em A",
           DOR_RN,
@@ -338,7 +339,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     role: "checkpoint",
     title: "D Mixolydian",
     prompt:
-      "A rock loop of your own in D Mixolydian over the band's drums, four to eight bars: home, the major chord a whole step below it, and IV, in your order. Let the riff play te, the note that keeps it from sounding major.",
+      "Write a rock loop of four to eight bars in D Mixolydian over the band's drums. Put a C chord, ♭VII, into `changes` at least once, with D (home) and G (IV) in your order. Let the riff play te, C, the note that keeps it from sounding major. Done when the loop has a C chord.",
     skills: [{ skill: "H11", w: 1 }],
     hints: null,
     key: D_MIX,
@@ -349,7 +350,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     rubric: [
       {
         id: "flat-seven",
-        label: "The loop has ♭VII, the major chord a whole step below home",
+        label: "A C major chord, ♭VII, in the loop at least once",
         required: true,
         skills: ["H11"],
         rule: "contains-rn",
@@ -358,7 +359,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "te",
-        label: "The riff plays te (♭7)",
+        label: "The `gtr:` line plays te (C) at least once",
         required: false,
         skills: ["S12"],
         rule: "degree-set",
@@ -367,7 +368,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "four",
-        label: "IV is in the loop too",
+        label: "A G chord, IV, in the loop at least once",
         required: false,
         skills: ["H11"],
         rule: "contains-rn",

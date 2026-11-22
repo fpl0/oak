@@ -122,7 +122,7 @@ const PERC_MATCH: Matcher = {
 
 export default defineLesson({
   id: "U09.L02",
-  version: 2,
+  version: 3,
   title: "Verse & Chorus",
   objective:
     "I can build a song from two contrasting sections, verse and chorus, with one arrange() per track.",
@@ -153,7 +153,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "In loop 2 a second block of four bars takes over from the first. What happens to the feel of the song when it arrives?",
+          "Listen to both loops. In loop 2, a second block of four bars takes over from the first at bar 5. Listen for how the feel of the song changes when it arrives.",
         skills: [{ skill: "F02", w: 1 }],
         hints: null,
         tests: [],
@@ -175,7 +175,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Each part's music is in a `const`. The chords line plays them with `arrange([4, chordsVerse], [4, chordsChorus], [4, chordsVerse], [4, chordsChorus])`. What do you hear?",
+          "Predict what the chords play over the 16 bars, then pick it. Each part's music is in a `const`, and the chords line plays them with `arrange([4, chordsVerse], [4, chordsChorus], [4, chordsVerse], [4, chordsChorus])`.",
         skills: [{ skill: "F02", w: 1 }],
         hints: null,
         tests: [],
@@ -202,14 +202,15 @@ export default defineLesson({
         id: "what-changes",
         version: 1,
         role: "practice",
-        prompt: "Run the song and watch the roll at bar 5, where the second section starts.",
+        prompt:
+          "Run the song and compare bar 4 with bar 5 on the roll, where the second section starts. Answer both questions below: what changes at bar 5, and how many bars the whole song lasts before it starts over.",
         skills: [{ skill: "F02", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Compare bar 4 with bar 5 on the roll: the chords, the height of the tune, the lines that play. Then count the bars before it starts over.",
         },
         hints: ladder(
-          "At bar 5, which lines on the roll move, and which way?",
+          "At bar 5, watch which lines on the roll move, and which way.",
           "Look at the top line: where does the tune sit in bars 1–4, and where in bars 5–8?",
           "The chords change to F G C C and the tune climbs. Now count: four sections of four bars.",
         ),
@@ -266,7 +267,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The bass plays `bassVerse` all through, so in the chorus it fights the chords. Give the bass its own `arrange()` with the same four sections as the other tracks.",
+          "The bass plays `bassVerse` all through, so in the chorus it fights the chords. Replace the highlighted `bassVerse` with an `arrange()`: verse, chorus, verse, chorus, four bars each, like the chords line. Done when the bass plays each chord's root in all 16 bars.",
         skills: [{ skill: "F02", w: 1 }],
         code: { starter: BASS_STARTER },
         reference: { solutions: [BASS_SOLUTION], bars: 16 },
@@ -278,7 +279,7 @@ export default defineLesson({
             "Bar {bar}: the bass plays {got}, the chord's root is {exp}. Check the order and the lengths of your sections against the chords line.",
         },
         hints: ladder(
-          "The chords line already says which section plays when. What could the bass copy?",
+          "The chords line already says which section plays when. The bass can copy that plan.",
           "Every arranged track lists the same sections in the same order, four bars each.",
           "Start the box with `arrange([4, bassVerse], [4, bassChorus], …`. Two sections to go.",
         ),
@@ -329,7 +330,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The tambourine plays all the way through, so the chorus brings nothing new. Give it an `arrange()` of its own: `silence` in the verses, `percChorus` in the choruses.",
+          "The tambourine plays all the way through, so the chorus brings nothing new. Replace the highlighted `percChorus` with an `arrange()`: `silence` in the verses, `percChorus` in the choruses, four bars each. Done when the tambourine plays only in bars 5–8 and 13–16.",
         skills: [{ skill: "F02", w: 1 }],
         code: { starter: PERC_STARTER },
         reference: { solutions: [PERC_SOLUTION], bars: 16 },
@@ -337,7 +338,7 @@ export default defineLesson({
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true, showRoll: false, revealRollAfter: 1 },
         hints: ladder(
-          "Where should the tambourine play, and where should it rest?",
+          "The tambourine should arrive with the chorus. List the sections where it plays and where it rests.",
           "`silence` can be a section too: it fills its bars with nothing.",
           "`arrange([4, silence], [4, percChorus], …`: the same four sections as the chords.",
         ),
@@ -385,7 +386,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Arrange the song verse, chorus, verse, chorus, four bars each, one `arrange()` per track. Then make the chorus lift: a higher tune, something new coming in.",
+          "Give the chords and the bass each an `arrange()`: verse, chorus, verse, chorus, four bars each. Then make the chorus lift: a higher tune in `melChorus`, or a fourth track. Done when the chords play in that order over 16 bars.",
         skills: [{ skill: "F02", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [16, 32],
@@ -393,7 +394,7 @@ export default defineLesson({
         rubric: [
           {
             id: "verse-chorus",
-            label: "Verse, chorus, verse, chorus: the chords in that order",
+            label: "The chords play verse, chorus, verse, chorus, four bars each",
             required: true,
             skills: ["F02"],
             rule: "matches",
@@ -403,7 +404,7 @@ export default defineLesson({
           },
           {
             id: "every-part",
-            label: "Chords, bass and tune each have their own arrange()",
+            label: "`arrange()` used at least three times, for example by chords, bass and tune",
             required: false,
             skills: ["F02"],
             rule: "uses",
@@ -412,7 +413,7 @@ export default defineLesson({
           },
           {
             id: "something-new",
-            label: "Something new comes in: a fourth track",
+            label: "Four tracks or more",
             required: false,
             skills: ["F02"],
             rule: "tracks",
@@ -422,7 +423,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which lines change when the chorus comes in?",
+          "List the lines that change when the chorus comes in: the chords and the bass at least.",
           "Each of those lines needs one `arrange()` with the same four sections, like the chords line in the song you heard.",
           'Write `chords: arrange([4, chordsVerse], [4, chordsChorus], [4, chordsVerse], [4, chordsChorus]).s("piano")`, then the bass the same way.',
         ),

@@ -91,7 +91,7 @@ const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L04",
-  version: 2,
+  version: 3,
   title: "Space",
   objective: "I can put my loop in a room and give a part echoes in time, each part in its own space.",
   key: { tonic: "C", mode: "major" },
@@ -119,7 +119,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Loop 2 adds space to two parts and leaves the others dry. Which two parts now sound further away from you?",
+          "Loop 2 adds space to two parts and leaves the others dry. Listen for the two parts that now sound further away from you.",
         skills: [{ skill: "D05", w: 1 }],
         hints: null,
         tests: [],
@@ -141,7 +141,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The riff with an echo, `.delaytime(.6)`: each echo comes 0.6 seconds after its note. At 100 BPM a beat lasts 60 ÷ 100 = 0.6 seconds. Where does each echo land?",
+          "The riff with an echo, `.delaytime(.6)`: each echo comes 0.6 seconds after its note. At 100 BPM a beat lasts 60 ÷ 100 = 0.6 seconds. Predict where each echo lands, and pick it.",
         skills: [{ skill: "D05", w: 1 }],
         hints: null,
         tests: [],
@@ -169,14 +169,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The echo now comes 0.3 seconds after each note, and `.delayfeedback()` changes between the two bars. Run it, listen to how long the echoes go on in each bar, then answer.",
+          "The echo now comes 0.3 seconds after each note, and the `.delayfeedback()` number changes between the two bars. Listen to how long the echoes go on in each bar. Then answer both questions: which bar's echoes last longer, and which `.delaytime()` lands half a beat late.",
         skills: [{ skill: "D05", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Listen to the gaps in each bar: in one the echoes die at once, in the other they keep coming. A beat is 0.6 seconds here.",
         },
         hints: ladder(
-          "In which bar do you still hear echoes when the riff rests?",
+          "Listen to the riff's rests in each bar. In which bar do echoes still sound there?",
           "The bars differ only in the `.delayfeedback()` number: 0.2, then 0.7. A beat at 100 BPM lasts 0.6 seconds.",
           "A whole beat is 0.6 seconds. What is half of it?",
         ),
@@ -233,7 +233,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The target echoes half a beat after each note and dies out after two or three repeats. Yours echoes a beat later and keeps going. Change the two numbers to match.",
+          "Yours echoes a beat after each note and keeps going. The target echoes half a beat after each note and dies out after two or three repeats. Change the `.delaytime()` and `.delayfeedback()` numbers on the mel line to match. Done when both are close to the target's.",
         skills: [{ skill: "D05", w: 1 }],
         code: { starter: ECHO_STARTER },
         reference: { solutions: [ECHO_SOLUTION], bars: 2 },
@@ -248,7 +248,7 @@ export default defineLesson({
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true, showRoll: false },
         hints: ladder(
-          "Which number sets when the echo comes, and which sets how long it keeps repeating?",
+          "Two numbers need to change: one sets when the echo comes, the other how long it keeps repeating. Which is which?",
           "`.delaytime()` is in seconds: a beat at 100 BPM is 0.6. `.delayfeedback()` runs from 0 (one echo) towards 1 (endless).",
           "Half a beat is half of 0.6. For the repeats, try something well under the 0.7 you have.",
         ),
@@ -300,7 +300,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The snare wants a big room and the riff a small one, but both share one reverb, so it keeps switching size and cuts its own tails. `.orbit(2)` at the end of a line gives that part a reverb and an echo of its own. Give one of them its own.",
+          "The snare wants a big room and the riff a small one, but both share one reverb, which cuts their tails. Add `.orbit()` with a number from 2 to 9 to the end of the snare line or the mel line. Keep the notes as they are. Done when the two parts are on different orbits.",
         skills: [{ skill: "D05", w: 1 }],
         code: { starter: ROOMS_STARTER },
         reference: { solutions: [ROOMS_RIFF_MOVED, ROOMS_SNARE_MOVED], bars: 2 },
@@ -315,7 +315,7 @@ export default defineLesson({
               rules: [
                 {
                   id: "two-rooms",
-                  label: "The snare and the riff in two rooms",
+                  label: "The snare and the riff on different orbits",
                   required: true,
                   skills: [],
                   rule: "custom",
@@ -347,7 +347,7 @@ export default defineLesson({
             "Bar {bar}: the riff's notes changed. Add `.orbit()` and leave the notes as they are.",
         },
         hints: ladder(
-          "How many reverbs can one orbit have?",
+          "The snare and the riff share one reverb now. How many reverbs can one orbit have?",
           "Every part starts on orbit 1. A part on another orbit gets its own reverb, with its own room size.",
           "Pick either line, the snare or the riff, and send it to orbit 2.",
         ),
@@ -424,7 +424,8 @@ export default defineLesson({
         id: "room-or-echoes",
         version: 1,
         role: "check",
-        prompt: "Bar 2 repeats the phrase of bar 1 and adds a space around it. More room, or echoes?",
+        prompt:
+          "Bar 2 repeats the phrase of bar 1 with a space added around it. Listen to what follows each note in bar 2, and pick: more room or echoes.",
         skills: [{ skill: "D05", w: 1 }],
         hints: [
           { text: "After each note in bar 2, do you hear a wash or a repeat?" },
@@ -460,7 +461,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The loop from Envelopes, dry. Put it somewhere: a room for the drums or the riff, echoes timed to the beat (60 ÷ BPM seconds a beat), and an orbit of its own for any part that needs a different space.",
+          "This loop is dry. Give at least one part a space you set: a room bigger than the default with `.room()` and `.roomsize()`, or echoes with `.delay()` and `.delaytime()` timed to the beat (60 ÷ BPM seconds a beat). Give a part its own orbit if it needs a different space.",
         skills: [{ skill: "D05", w: 1 }],
         code: { starter: DRY },
         bars: [2, 8],
@@ -468,7 +469,8 @@ export default defineLesson({
         rubric: [
           {
             id: "a-space-you-set",
-            label: "A space you set: a room size or an echo time",
+            label:
+              "A heard part in a room bigger than the default (.roomsize() above 2.5) or with echoes timed by .delaytime()",
             required: true,
             skills: ["D05"],
             // Carry f4 (corrections pass): what is heard, not the call. A room bigger than the one you get without
@@ -485,7 +487,7 @@ export default defineLesson({
           },
           {
             id: "echoes",
-            label: "Echoes on a part",
+            label: "Echoes, .delay(), on a part",
             required: false,
             skills: ["D05"],
             rule: "uses",
@@ -493,7 +495,7 @@ export default defineLesson({
           },
           {
             id: "own-orbit",
-            label: "A part on an orbit of its own",
+            label: "A part on an orbit of its own, with .orbit()",
             required: false,
             skills: ["D05"],
             rule: "uses",
@@ -503,7 +505,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which part would sound best further away: the snare, the riff, or both?",
+          "Pick the part that would sound best further away, the snare or the riff, and give it a room or echoes. Which one?",
           "`.room()` sends a part to the reverb and `.roomsize()` sets how big the room is. `.delay()` sends it to the echo and `.delaytime()` sets when, in seconds.",
           "Try the snare first: a room of half and a size bigger than the default of about 2.",
         ),

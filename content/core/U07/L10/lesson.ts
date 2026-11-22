@@ -56,7 +56,7 @@ const S4_MATCHER: Matcher = {
   rules: [
     {
       id: "comes-back",
-      label: "Bars 2 to 4 bring bar 1 back",
+      label: "At least two of bars 2 to 4 repeat the shape of an earlier bar, the same or moved",
       required: true,
       skills: ["M09"],
       rule: "motif-reuse",
@@ -69,7 +69,7 @@ const S4_MATCHER: Matcher = {
     },
     {
       id: "singable",
-      label: "Within an octave",
+      label: "The lowest and highest notes are at most an octave apart",
       required: true,
       skills: ["M09"],
       rule: "range",
@@ -109,7 +109,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L10",
-  version: 2,
+  version: 3,
   title: "Hook Lab",
   objective:
     "I can write a short hook that comes back and is easy to sing, and let chance change a few of its repeats.",
@@ -135,7 +135,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Four times round: hum along as soon as you can. Then listen to the end of each bar 4. Does every repeat end the same way?",
+          "The hook plays four times round. Hum along as soon as you can. Then listen for the end of each bar 4: does every repeat end the same way?",
         skills: [{ skill: "M09", w: 1 }],
         hints: null,
         tests: [],
@@ -159,7 +159,8 @@ export default defineLesson({
         id: "which-one-sticks",
         version: 1,
         role: "practice",
-        prompt: "Which one could you sing back after one hearing?",
+        prompt:
+          "Listen to both cards, two tunes over the same chords. Pick the one you could sing back after one hearing.",
         skills: [{ skill: "M09", w: 1 }],
         hints: ladder(
           "After which card can you hum the first bar again?",
@@ -206,7 +207,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it for four loops and watch bar 4 on the roll. Its last note is written `3?`: a question mark after a note.",
+          "Run it for four loops and watch bar 4 on the roll. Its last note is written `3?`, with a question mark. Count the loops in which that note plays, and pick what the `?` does. Answer both questions below.",
         skills: [{ skill: "M09", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -266,7 +267,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Bar 1 is a hook; bars 2 to 4 wander off and never come back. Keep bar 1, and make bars 2 to 4 bring it back: the same, or moved up or down to fit the chord. Keep it within an octave.",
+          "Rewrite bars 2 to 4, the highlighted part, so they bring bar 1 back: its rhythm and its ups and downs, as it is or moved up or down to fit the chord. Done when at least two of bars 2 to 4 repeat bar 1's shape and the whole tune stays within an octave.",
         skills: [{ skill: "M09", w: 1 }],
         code: { starter: s4(`⟪${S4_REST}⟫`) },
         reference: { solutions: [S4_REFERENCE], bars: 4 },
@@ -276,7 +277,7 @@ export default defineLesson({
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         target: { audible: true, showRoll: false, revealRollAfter: 1 },
         hints: ladder(
-          "Which bars sound like bar 1 now? Which would you like to?",
+          "Only bars 2 to 4 change. Which of them sounds like bar 1 now, and which would you like to?",
           "A bar brings the hook back if it keeps bar 1's rhythm and its ups and downs. Moving every note by the same number of degrees is still the hook, the way a sequence moves a motif.",
           "Bar 3 sits over the vi chord, whose notes include C and A: bar 1 as it is fits there. Bar 2 is over V: move bar 1 down three degrees.",
         ),
@@ -330,7 +331,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The hook comes back four times, exactly. Add a little chance after `.scale()`: `.degradeBy(.2)` leaves out about one note in five, `.sometimesBy(.25, x => x.scaleTranspose(2))` moves about one in four up a 3rd. Run four loops and hear which repeats change.",
+          "Add one chance tool to the `mel` line, after `.scale()`: `.degradeBy(.2)` leaves out about one note in five; `.sometimesBy(.25, x => x.scaleTranspose(2))` moves about one in four up a 3rd. A `?` after one note also works. Done when at least one repeat of the hook sounds different from the first.",
         skills: [{ skill: "M09", w: 1 }],
         code: { starter: s5() },
         // Twelve bars: the four-bar hook three times, so a repeat can be heard to change (corrections gate, AS-44).
@@ -340,7 +341,7 @@ export default defineLesson({
           rules: [
             {
               id: "chance",
-              label: "Chance changes a repeat",
+              label: "Chance makes at least one four-bar repeat differ from the first",
               required: true,
               skills: ["M09"],
               // Corrections gate (AS-44): a repeat really changes; a chance tool that changes nothing does not count.
@@ -356,7 +357,7 @@ export default defineLesson({
         },
         target: { audible: false },
         hints: ladder(
-          "Which of the three chance tools would you try first?",
+          "The hook repeats exactly. Which of the three chance tools would you try first: `?`, `.degradeBy()` or `.sometimesBy()`?",
           "The chance call goes in the chain after `.scale()` and before `.s()`. Its first number is how often it acts, from 0 to 1.",
           "With `.degradeBy()` the number is the share of notes left out: a fifth is .2.",
         ),
@@ -395,7 +396,7 @@ export default defineLesson({
         version: 2,
         role: "check",
         prompt:
-          "A chord sets home and the count-in gives the beat. Then a two-bar hook: write it in `n`. Bar 0 is there in case it starts before the first full bar. Any key passes.",
+          "Write the two-bar hook you hear in `n`, one bar per word of the `mel` line. Any key passes. Count along from the count-in. If a note comes before beat 1 of the first full bar, write it at the end of bar 0. Done when your hook matches the source note for note.",
         skills: [
           { skill: "E07", w: 0.7 },
           { skill: "M09", w: 0.3 },
@@ -508,7 +509,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "These four bars never repeat. Turn them into a hook: one or two bars that come back, simple enough to sing. Then let chance change a few of the repeats.",
+          "Turn these four bars, which never repeat, into a hook. Pick one or two bars and bring them back in other bars, the same or moved to fit the chord. Done when at least one bar comes back. Then, if you like, add `?`, `.degradeBy()` or `.sometimesBy()` so chance changes a few repeats.",
         skills: [{ skill: "M09", w: 1 }],
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         code: { starter: MAKE_STARTER },
@@ -517,7 +518,8 @@ export default defineLesson({
         rubric: [
           {
             id: "comes-back",
-            label: "The hook comes back",
+            label:
+              "At least one bar repeats the shape of an earlier bar, the same or moved, and not every bar is the same",
             required: true,
             skills: ["M09"],
             rule: "motif-reuse",
@@ -531,7 +533,7 @@ export default defineLesson({
           },
           {
             id: "chance",
-            label: "Chance changes a repeat",
+            label: "Uses `?`, `.degradeBy()` or `.sometimesBy()`",
             required: false,
             skills: ["M09"],
             rule: "uses",
@@ -539,7 +541,7 @@ export default defineLesson({
           },
           {
             id: "singable",
-            label: "Singable: within an octave",
+            label: "Singable: the lowest and highest notes are at most an octave apart",
             required: false,
             skills: ["M09"],
             rule: "range",
@@ -548,7 +550,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which bar of the starter would you most like to hear again?",
+          "A hook is a bar that comes back. Which bar of the starter would you most like to hear again?",
           "Pick one bar and bring it back in another bar, the same or moved by a few degrees to fit the chord.",
           "Bar 1 over C fits again over the vi chord in bar 3. Copy it there and listen.",
         ),

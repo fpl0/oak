@@ -42,7 +42,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U00.L02",
-  version: 3,
+  version: 4,
   title: "Set Up & First Sing",
   objective:
     "I can sing back a note I hear, and Oak knows my headphones, my microphone, my timing and my range.",
@@ -98,10 +98,12 @@ export default defineLesson({
         version: 2,
         role: "practice",
         prompt:
-          "A piano note plays over soft keys. Hum or sing the piano's note back on any vowel and hold it steady for a moment. Higher or lower than the piano is fine.",
+          "Listen to the piano note that plays over soft keys. Then sing or hum that note back on any vowel, as one steady sound. Singing it in a lower or higher voice than the piano is fine. Done when you hold the piano's note.",
         skills: [{ skill: "V01", w: 1 }],
         hints: [
-          { text: "Hum it quietly first, with your mouth closed. Does it feel like the same note?" },
+          {
+            text: "Match the piano's one note and hold it. Hum it quietly first, with your mouth closed: does it feel like the same note?",
+          },
           {
             text: "Hold one steady sound. If the trace sits above the lane, ease down; below it, lift a little.",
           },
@@ -147,7 +149,7 @@ export default defineLesson({
         title: "Sketch 002",
         role: "practice",
         prompt:
-          "The loop is back, and this time the band ends on its home chord. Change the highlighted number so the tune ends on the note that feels like home too, then save.",
+          "Change the highlighted number in the `mel` line so the tune's last note is the home note you just sang. The band already ends on its home chord. Save the loop when it ends on home.",
         skills: [
           { skill: "V01", w: 0.5 },
           { skill: "D01", w: 0.5 },
@@ -158,7 +160,7 @@ export default defineLesson({
         rubric: [
           {
             id: "ends-home",
-            label: "The tune ends on the home note",
+            label: "The last note of the `mel` line is the home note",
             required: true,
             skills: ["V01"],
             rule: "ends-on-degree",
@@ -167,7 +169,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Play the loop and hum its last note. Does the tune sound finished, or does it want to go on?",
+          "The tune's last note should be the note you sang in the last step. Hum the last note of the loop: does the tune sound finished, or does it want to go on?",
           "The highlighted number is the last note of the tune. Other numbers in the same line already play the home note.",
           "Home is where the second stretch of the tune starts: look at the first number after the second `[`.",
         ),

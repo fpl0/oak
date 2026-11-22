@@ -190,6 +190,8 @@ export type DrillEvent =
   | { type: "BASS_ALONE" }
   | { type: "AUDITION_DONE" }
   | { type: "NEXT" }
+  /** A sung trial waits in `ready` until the learner presses Start (clarity pass, 2026-11-22). */
+  | { type: "START" }
   /**
    * In `failed`/`finishFailed`: try the request again. In `feedback` or `resolution.done` (docs/design/retry.md
    * §3.3): "Try again" — a practice take of the same trial (or of its sung resolution).
@@ -543,6 +545,8 @@ export const drillMachine = setup({
     capturesResponse: ({ context }) => capturesResponse(context.current?.trial),
     sing: ({ context }) => isSing(context.current?.trial),
     quietSing: ({ context }) => quietSing(context),
+    // The owner found sung trials that start on their own "annoying": the cue and the mic wait for Start.
+    waitsForStart: ({ context }) => isSing(context.current?.trial) && !context.input.quiet,
     needsResolution: ({ context }) =>
       context.current?.trial.params.sungResolution === true &&
       context.outcomes[context.index]?.revealed !== true &&
@@ -664,7 +668,7 @@ export const drillMachine = setup({
           }),
         },
       ],
-      initial: "presenting",
+      initial: "entering",
       on: {
         STAGE: {
           actions: assign({
@@ -674,6 +678,20 @@ export const drillMachine = setup({
         },
       },
       states: {
+        entering: {
+          always: [{ guard: "waitsForStart", target: "ready" }, { target: "presenting" }],
+        },
+        ready: {
+          on: {
+            START: { target: "presenting" },
+            SKIP_SUNG: { guard: "capturesResponse", target: "#drill.feedback", actions: "gradeSkipped" },
+            QUIET: {
+              guard: ({ event }) => event.quiet,
+              target: "presenting",
+              actions: assign({ input: ({ context }) => ({ ...context.input, quiet: true }) }),
+            },
+          },
+        },
         presenting: {
           invoke: {
             src: "present",

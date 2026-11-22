@@ -52,7 +52,7 @@ const NUMBERS = {
 
 export default defineLesson({
   id: "U03.L02",
-  version: 2,
+  version: 3,
   title: "Degrees in Code",
   objective:
     "I can write a melody as scale degrees with n() and .scale(), and move it to another key with one word.",
@@ -77,7 +77,8 @@ export default defineLesson({
         id: "numbers-not-letters",
         version: 1,
         role: "practice",
-        prompt: "Watch the numbers on the roll. The note marked 1 is home: does the line end there?",
+        prompt:
+          "Watch the numbers on the roll as the line plays. The note marked 1 is home. Listen for the last note of bar 2: is it 1, or a different number?",
         skills: [{ skill: "S02", w: 1 }],
         hints: null,
         tests: [],
@@ -98,7 +99,8 @@ export default defineLesson({
         id: "which-three-notes",
         version: 1,
         role: "practice",
-        prompt: 'Which notes will `n("0 2 4 ~")` play in C major? Hum your guess first.',
+        prompt:
+          'Predict which three notes `n("0 2 4 ~")` plays in C major, and pick your answer below. `n` counts the notes of the scale from 0 at home. Hum your guess before you hear it.',
         skills: [{ skill: "S02", w: 1 }],
         hints: null,
         tests: [],
@@ -127,14 +129,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it. Each note of the scale has a number under it on the staff and beside it on the roll.",
+          "Run the scale and compare each `n` in the code with the number beside its note on the roll (and under it on the staff). Then answer both questions below.",
         skills: [{ skill: "S02", w: 1 }],
         feedbackText: {
           "investigate.wrong":
-            "Not quite. Put the number in the code next to the label on the roll: `n` 0 sits beside the label for home.",
+            "Not yet. Line up each number in the code with the label on the roll, in order: the first `n`, 0, plays the note labelled for home.",
         },
         hints: ladder(
-          "Which note sounds like home, and what is written beside it on the roll?",
+          "Match the first number in the code with the first label on the roll. That note is home: what label does it have?",
           "Line the code up with the labels: the first number in the code is the first label, then the second.",
           "`n` 0 plays the note labelled 1. Count up from there to the label 5.",
         ),
@@ -143,7 +145,7 @@ export default defineLesson({
         questions: [
           {
             q: "choice",
-            prompt: "What is the label beside the note `n` 0 plays?",
+            prompt: "Pick the label shown beside the note that `n` 0 plays.",
             options: [
               { id: "one", label: "1: home" },
               { id: "zero", label: "0, the same as the code" },
@@ -151,7 +153,7 @@ export default defineLesson({
             ],
             correct: ["one"],
           },
-          { q: "number", prompt: "Which `n` plays the note labelled 5?", correct: 4 },
+          { q: "number", prompt: "Type the `n` that plays the note labelled 5.", correct: 4 },
         ],
         srs: [{ family: "fam.deg.index", mode: "seed" }],
         tests: [
@@ -183,7 +185,8 @@ export default defineLesson({
         id: "tune-by-numbers",
         version: 1,
         role: "check",
-        prompt: "The start of Ode to Joy, by degrees: 3 3 4 5, then 5 4 3 2. Write it with `n`.",
+        prompt:
+          "Write the start of Ode to Joy with `n`: degrees 3 3 4 5 in bar 1, then 5 4 3 2 in bar 2. `n` counts from 0, so each number in the code is the degree minus one. Keep the `< >` and four notes per bar.",
         skills: [
           { skill: "S02", w: 0.7 },
           { skill: "E04", w: 0.3 },
@@ -198,7 +201,7 @@ export default defineLesson({
         target: { audible: true, showRoll: false, revealRollAfter: 1 },
         feedbackText: NUMBERS,
         hints: ladder(
-          "Sing the target on numbers. Which degree does it start on, and which does it end on?",
+          "Your code must play degrees 3 3 4 5, then 5 4 3 2. Each `n` is the degree minus one: which `n` gives degree 3?",
           "`n` counts from 0, so every degree becomes one less: degree 3 is `n` 2.",
           "Degree 4 is `n` 3 and degree 5 is `n` 4. The second bar comes back down the same way.",
         ),
@@ -257,7 +260,8 @@ export default defineLesson({
         role: "check",
         // The answer is in G major; the starter stays in the lesson's C (content check 13 allows a starter that).
         key: { tonic: "G", mode: "major" },
-        prompt: "Play the same tune with G as home. Change one word and nothing else.",
+        prompt:
+          "Change one word in `.scale()` so G is home. Keep the numbers in `n`, the octave number and `:major` as they are. Done when the same tune plays in G major.",
         skills: [
           { skill: "S02", w: 0.8 },
           { skill: "E04", w: 0.2 },
@@ -276,8 +280,8 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: the tune has degree {exp} of G major here, and your note is not it. Is G home in your `.scale()`?",
         },
         hints: ladder(
-          "Which part of the line says where home is?",
-          "`.scale()` names home: its letter, its octave number, then the kind of scale.",
+          "The tune stays the same; only home moves, from C to G. Which part of the line says where home is?",
+          '`.scale("C4:major")` names home: its letter, its octave number, then the kind of scale.',
           "Keep the octave number and `:major`; only the letter changes.",
         ),
         srs: [{ family: "fam.code.functions", mode: "seed" }],
@@ -317,12 +321,12 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A few chords set home, then one note. Play the two cards to compare. Is the note 1, at rest, or 5, open?",
+          "Listen to the chords that set home, then to one note. Pick what that note is: 1, which sounds at rest, or 5, which is steady but wants to go on.",
         skills: [{ skill: "E04", w: 1 }],
         hints: ladder(
-          "Hum the note after the chords. Could the music stop there?",
+          "Decide whether the note after the chords sounds finished. Hum it: could the music stop there?",
           "1 sounds finished. 5 sounds stable too, but leaves the door open: it wants to go on.",
-          "Play card 1, then the note again. Are they the same note?",
+          "Listen to the card marked 1, then to the note again. Are they the same note?",
         ),
         // The chords that set home come from the cue (the drills' cadence); the stimulus is the one note.
         stimulus: { src: "code", code: deg("4@4"), bars: 1, showCode: false },
@@ -354,10 +358,12 @@ export default defineLesson({
         id: "one-three-five",
         version: 1,
         role: "check",
-        prompt: "Chords set home, then one note. Is it 1, 3 or 5?",
+        prompt: "Listen to the chords that set home, then to one note. Pick that note's degree: 1, 3 or 5.",
         skills: [{ skill: "E04", w: 1 }],
         hints: [
-          { text: "Hum the note, then sing down to home on numbers. How many steps did it take?" },
+          {
+            text: "Name the note by its place above home. Hum it, then sing down to home on numbers: how many numbers did you pass?",
+          },
           { text: "1 is at rest. 5 is open. 3 sits between them and sounds warm." },
           { text: "Hear it again, slower, then sing 1 3 5 against it.", replay: { rate: 0.75 } },
           "auto",
@@ -382,13 +388,15 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Chords set home. Then sing one, three, five, three, one: one number to a beat, on any vowel or on the numbers.",
+          "After the chords set home, sing one, three, five, three, one: five notes, one to a beat, on any vowel or on the numbers. One is home, the note the chords end on.",
         skills: [
           { skill: "V02", w: 0.6 },
           { skill: "E04", w: 0.4 },
         ],
         hints: [
-          { text: "Hum home first, the note the chords end on. Then climb from it." },
+          {
+            text: "Start on one, home: hum the note the chords end on, then climb from it to three and five.",
+          },
           // Not "two steps": 3 to 5 is a step and a half, so a count in whole steps would mislead.
           { text: "Three is two notes of the scale above one; five is two more above three." },
           { text: "Hear the pattern on the piano once, then sing it back.", replay: { rate: 0.75 } },
@@ -426,7 +434,7 @@ export default defineLesson({
         // The catalog's text for a `uses` rule names the tool ID; the label says it in words.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         prompt:
-          "Write a two-bar line in degrees. Use degrees **1, 3 and 5** somewhere in it: `n` 0, 2 and 4.",
+          "Change the starter so the line plays degrees 1, 3 and 5 (`n` 0, 2 and 4), each at least once. The starter has no degree 3 yet. Ending on 1 is a bonus.",
         skills: [{ skill: "S02", w: 1 }],
         code: { starter: deg("<[0 1 0 ~] [4 [5 4] 1 ~]>") },
         bars: [1, 4],
@@ -434,7 +442,7 @@ export default defineLesson({
         rubric: [
           {
             id: "one-three-five",
-            label: "Uses degrees 1, 3 and 5",
+            label: "The line plays degrees 1, 3 and 5 (`n` 0, 2 and 4), each at least once",
             required: true,
             skills: ["S02"],
             rule: "degree-set",
@@ -443,7 +451,7 @@ export default defineLesson({
           },
           {
             id: "ends-home",
-            label: "Ends on 1, home",
+            label: "The line's last note is degree 1, home (`n` 0)",
             required: false,
             skills: ["E04"],
             rule: "ends-on-degree",
@@ -452,7 +460,7 @@ export default defineLesson({
           },
           {
             id: "answer",
-            label: "Two bars that answer each other, with `< >`",
+            label: "Uses `< >`, so bar 2 plays different notes from bar 1",
             required: false,
             skills: ["R03"],
             rule: "uses",
@@ -460,7 +468,7 @@ export default defineLesson({
           },
           {
             id: "space",
-            label: "Leaves some space with a rest",
+            label: "At least one rest, `~`, somewhere in the line",
             required: false,
             skills: ["R06"],
             rule: "uses",
@@ -468,9 +476,9 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which of 1, 3 and 5 does the starter already play, and which one is missing?",
-          "Degree 3 is `n` 2. Put it where it sounds good, in the first bar or the second.",
-          "Change the `1` in the first bar to a `2`: that note becomes degree 3.",
+          "The line must play degrees 1, 3 and 5. The starter plays `n` 0 and `n` 4: which of the three degrees is missing?",
+          "Degree 3 is `n` 2, and the starter has none. Put one where it sounds good, in the first bar or the second.",
+          "Change one number in the starter to `n` 2. A note in the first bar, between home and 5, fits well.",
         ),
         tests: [
           {

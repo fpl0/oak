@@ -62,7 +62,7 @@ const ROLL_KEYS = { roll: true, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "U05.L02",
-  version: 2,
+  version: 3,
   title: "Major & Minor",
   objective:
     "I can tell a major triad from a minor one by ear and by its 3rds, and turn one into the other by moving its middle note a half step.",
@@ -91,7 +91,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "One chord on A for two bars, then nearly the same chord for two more. Listen for the moment the mood changes, and which way it goes.",
+          "A chord on A plays for two bars, then nearly the same chord for two more. Listen for the bar where the mood changes, and whether it turns brighter or darker.",
         skills: [{ skill: "C02", w: 1 }],
         hints: null,
         tests: [],
@@ -118,7 +118,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Read the code: bars 1 and 2 play `[a3,c4,e4]`, bars 3 and 4 `[a3,c#4,e4]`. Which bars will sound brighter, and why?",
+          "Bars 1 and 2 play `[a3,c4,e4]`; bars 3 and 4 play `[a3,c#4,e4]`. Predict which bars sound brighter, and pick the answer that also gives the right reason.",
         skills: [{ skill: "C02", w: 1 }],
         hints: null,
         tests: [],
@@ -146,14 +146,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the two chords and find their notes on the keyboard. Count the half steps from the bottom note up to the middle one, every key counted, black or white.",
+          "Run the two chords and find their notes on the keyboard. Count the half steps from the bottom note up to the middle one, one for every key, black or white. Then answer both questions below.",
         skills: [{ skill: "C02", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count keys on the keyboard, black ones too: one half step for every key you move.",
         },
         hints: ladder(
-          "In bars 1 and 2 the bottom note is A. How many keys up is the middle note?",
+          "In bars 1 and 2 the bottom note is A and the middle note is C. Count the keys from A up to C.",
           "One half step is one key, black or white. A 3rd of three half steps is minor, of four half steps major (Major, Minor, Perfect).",
           "From A: B♭ is one, B is two. Keep going to C, then on to C♯ for bars 3 and 4.",
         ),
@@ -207,7 +207,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The tune sings D major, but the chord under it is D minor, and the two rub. Move one note of the chord a half step so it becomes D major.",
+          "The tune sings D major, but the chord under it is D minor, D F A, and the two rub. Move one of the chord's three notes up a half step so the chord becomes D major. Change only the chord. Done when it is D major with D still at the bottom.",
         skills: [{ skill: "C02", w: 1 }],
         code: { starter: D_STARTER },
         reference: { solutions: [D_MAJOR], bars: 2 },
@@ -223,7 +223,7 @@ export default defineLesson({
             "Bar {bar}: D is no longer the lowest note. Keep D at the bottom; only the middle note changes.",
         },
         hints: ladder(
-          "Which of the three notes is the 3rd above D: the bottom, the middle or the top one?",
+          "Only the 3rd above D decides major or minor. Find which of the three notes is that 3rd.",
           "D up to F is three half steps, a minor 3rd. A major triad needs four there, so the middle note goes up.",
           "Up a half step means one key to the right on the keyboard. The new key is a black one, and its name keeps the letter F.",
         ),
@@ -284,10 +284,10 @@ export default defineLesson({
         id: "bright-or-dark",
         version: 1,
         role: "check",
-        prompt: "Oak plays one chord at a time, on a new note each time. Major or minor?",
+        prompt: "Oak plays one chord at a time, each on a new note. Pick major or minor for each chord.",
         skills: [{ skill: "E08", w: 1 }],
         hints: [
-          { text: "Does the chord sound open and bright, or darker and more inward?" },
+          { text: "Listen for the colour: open and bright is major, darker and more inward is minor." },
           {
             text: "Hum the chord's lowest note, then the next note up. A small step up to it is minor; a wider one is major.",
           },
@@ -315,10 +315,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Oak names a triad by its root, with m after it when it is minor. Write its three notes from the root up: skip a letter, twice, then count half steps for each 3rd.",
+          "Oak names a triad by its root, with m after it when it is minor. Type its three notes from the root up, with any sharps or flats. Skip a letter twice to find the letters, then count half steps for each 3rd.",
         skills: [{ skill: "C02", w: 1 }],
         hints: ladder(
-          "Which letters do you land on when you skip one letter, twice, from the root?",
+          "Start with the letters: from the root, skip one letter, then skip one more.",
           "The letters come first; the half steps decide any sharp or flat. Major: four half steps, then three. Minor: three, then four.",
           "E minor: the letters are E, G, B. E up to G is three half steps, G up to B four, so no sharps are needed.",
         ),
@@ -342,7 +342,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a four-bar loop of stacked triads with at least one minor chord in it, a stack on degree 2, 3 or 6. Try it in different places: first, last, in the middle.",
+          "Replace at least one of the four stacks with a minor triad, a stack on degree 2, 3 or 6. Try it in different bars, first, middle or last, and keep the place you like. Done when the loop has at least one minor triad.",
         skills: [{ skill: "C02", w: 1 }],
         // The catalog's text is "{label}: {detail}", and a contains-rn detail names the chords in Roman
         // numerals (U06.L02). The same text serves the suggestions, so it says only "not yet".
@@ -353,7 +353,7 @@ export default defineLesson({
         rubric: [
           {
             id: "a-minor-triad",
-            label: "At least one minor triad",
+            label: "At least one minor triad: a stack on degree 2, 3 or 6",
             required: true,
             skills: ["C02"],
             rule: "contains-rn",
@@ -362,7 +362,7 @@ export default defineLesson({
           },
           {
             id: "a-bass",
-            label: "A bass line under the chords",
+            label: "A bass line on its own line, such as `bass`",
             required: false,
             skills: ["C01"],
             rule: "tracks",
@@ -371,7 +371,7 @@ export default defineLesson({
           },
           {
             id: "a-tune",
-            label: "A tune on top",
+            label: "A tune on its own line, such as `mel`",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -380,7 +380,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which degrees of C carry a minor triad: count the half steps of the bottom 3rd on 2, 3 and 6.",
+          "Pick one of the four bars and replace its stack with one built on degree 2, 3 or 6.",
           "Stack on `n` 1, 2 or 5 (degrees 2, 3 and 6, since `n` counts from 0). Put it in place of one of the four bars.",
           "Degree 6 is `n` 5, so its stack starts `[5,7,…]`. Swap it in for bar 2 or bar 4 and listen.",
         ),

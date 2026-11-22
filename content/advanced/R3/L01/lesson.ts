@@ -88,7 +88,7 @@ const TRESILLO_GAPS: Rat[] = [
 /** The bass plays the tresillo in every bar, and nothing else. */
 const BASS_TRESILLO: RubricRule = {
   id: "bass-tresillo",
-  label: "The bass plays 3+3+2 in every bar",
+  label: "The bass plays on eighths 1, 4 and 7 of every bar (3+3+2), and nowhere else",
   required: true,
   skills: ["R18"],
   rule: "onsets",
@@ -99,7 +99,8 @@ const BASS_TRESILLO: RubricRule = {
 /** The cowbell plays the cinquillo in every bar, and nothing else. */
 const BELL_CINQUILLO: RubricRule = {
   id: "bell-cinquillo",
-  label: "The cowbell plays five hits in every bar, the three of the bass and two between them",
+  label:
+    "The cowbell plays five hits in every bar, on eighths 1, 3, 4, 6 and 7: the bass's three and two between them",
   required: true,
   skills: ["R18"],
   rule: "onsets",
@@ -110,7 +111,7 @@ const BELL_CINQUILLO: RubricRule = {
 /** The lesson's notation: the rhythm comes from `(k,n)`, not from eight written slots. */
 const WITH_K_N: RubricRule = {
   id: "with-k-n",
-  label: "Written with (k,n)",
+  label: "The cowbell is written with `(k,n)`, two numbers in brackets",
   required: true,
   skills: ["R18"],
   rule: "uses",
@@ -169,7 +170,7 @@ const make = (...lines: string[]) => code(...lines);
 /** The Make's one rule: three heard bass attacks on the tresillo's places, none on the places it skips. */
 const MAKE_TRESILLO: RubricRule = {
   id: "bass-tresillo",
-  label: "The bass plays the tresillo in every bar",
+  label: "The bass plays on eighths 1, 4 and 7 of every bar, and not on eighths 2, 3, 5 or 6",
   required: true,
   skills: ["R18"],
   rule: "onsets",
@@ -188,7 +189,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R3.L01",
-  version: 2,
+  version: 3,
   title: "Tresillo & Cinquillo",
   objective: "I can write the tresillo and the cinquillo, by hand and with (k,n), and hear which is which.",
   key: { tonic: "C", mode: "major" },
@@ -216,7 +217,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Only the bass changes between the two loops. Which one leans forward into the next bar, and which stands still? Listen for where the bass's second note falls against the beat.",
+          "Listen to the bass in both loops; nothing else changes. Notice which loop leans forward into the next bar and which stands still, and where the bass's second note falls against the beat.",
         skills: [{ skill: "R18", w: 1 }],
         hints: null,
         tests: [],
@@ -245,10 +246,11 @@ export default defineLesson({
         id: "tap-the-bass",
         version: 1,
         role: "practice",
-        prompt: "The groove plays four bars. Tap with the bass: three taps in every bar, twelve in all.",
+        prompt:
+          "Tap with the bass, the low plucked notes, and ignore the kick and the snare. It plays three times a bar, and its second note falls between two beats. Four bars, twelve taps in all. Done when each tap lands with a bass note.",
         skills: [{ skill: "R18", w: 1 }],
         hints: ladder(
-          "Does the bass play on every beat, or does it skip some?",
+          "Listen for the bass alone: it plays three notes a bar, not one on every beat.",
           "Count eighth notes with the hats, 1 to 8. The bass takes three of them, and the second falls between two beats.",
           "Say the count out loud and tap on the words one, four and seven.",
         ),
@@ -284,7 +286,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The bass plays on beats 1 and 3. Its `struct` has eight slots, one per eighth note. Give it the rhythm you tapped: three notes a bar, three slots apart, then three, then two to the bar line.",
+          "Rewrite the bass's `struct` string, now on beats 1 and 3, with the rhythm you tapped. It has eight slots, one per eighth note. Put three notes in each bar: the gaps are three slots, three slots, then two to the bar line. Done when the bass matches the target.",
         skills: [{ skill: "R18", w: 1 }],
         code: { starter: S3_STARTER },
         reference: { solutions: [S3_SOLUTION], bars: 4 },
@@ -297,7 +299,7 @@ export default defineLesson({
             "{label}: not yet. Count the eighth notes of one bar with the hats and listen for which ones the bass takes in the target.",
         },
         hints: ladder(
-          "How many eighth notes apart are the first and the second bass note in the target?",
+          "Count the eighths between the first and the second bass note in the target, with the hats.",
           "The gaps between the notes are three eighths, three eighths, then two to the next bar line. Slot 1 is the first note.",
           "Say the eight slots of one bar aloud: a note, two rests, and again; the last group is one slot shorter.",
         ),
@@ -361,7 +363,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`s("cb(3,8)")` asks for 3 hits spread as evenly as 8 steps allow, the steps being the eighth notes of a bar. 8 does not divide by 3. What will you hear?',
+          '`s("cb(3,8)")` asks for 3 hits spread as evenly as 8 steps allow, the steps being the eighth notes of a bar. 8 does not divide by 3. Predict what you will hear, and pick it.',
         skills: [{ skill: "R18", w: 1 }],
         hints: null,
         tests: [],
@@ -389,7 +391,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The cowbell plays the tresillo with `(3,8)`. Keep the eight steps and spread five hits over them instead.",
+          "Change the cowbell's `(3,8)` so it spreads five hits over the same eight steps instead of three. Keep the other lines. Done when the cowbell plays five hits a bar, like the target.",
         skills: [{ skill: "R18", w: 1 }],
         code: { starter: S5_STARTER },
         reference: { solutions: [S5_SOLUTION], bars: 4 },
@@ -456,7 +458,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Three grooves, two bars each. The kick and the hats never change; only the rimshot does. Tresillo, cinquillo, or straight on the beat?",
+          "Three grooves, two bars each. The kick and the hats never change; only the rimshot does. For each, pick tresillo, cinquillo, or straight on the beat.",
         skills: [{ skill: "R18", w: 1 }],
         hints: earHints(),
         srs: [{ family: "fam.rhy.clave", mode: "seed" }],
@@ -485,17 +487,22 @@ export default defineLesson({
         role: "practice",
         title: "Tresillo groove",
         prompt:
-          "The band plays drums and two chords, C then G7. The bass and the cowbell are yours. Put the bass on the tresillo, on C in one bar and G in the next. After that, try a cinquillo bell, a note on the last eighth, another sound, a tempo you like.",
+          "Put the bass on the tresillo; the band plays drums and two chords, C then G7. Required: the bass plays the tresillo in every bar, on C in one bar and G in the next. Also on the checklist: a cinquillo on the cowbell, and a tempo of 90 to 120.",
         skills: [{ skill: "R18", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],
         saveAs: "sketch",
         rubric: [
           MAKE_TRESILLO,
-          { ...BELL_CINQUILLO, id: "bell-cinquillo", label: "A cinquillo on the cowbell", required: false },
+          {
+            ...BELL_CINQUILLO,
+            id: "bell-cinquillo",
+            label: "The cowbell plays the cinquillo: eighths 1, 3, 4, 6 and 7 of every bar",
+            required: false,
+          },
           {
             id: "groove-tempo",
-            label: "A tempo between 90 and 120",
+            label: "`setcpm` sets a tempo between 90 and 120 beats a minute",
             required: false,
             skills: ["R18"],
             rule: "tempo-bpm",
@@ -506,7 +513,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "How many notes does the bass play in each bar of the tresillo?",
+          "Start with the bass's rhythm: three notes a bar, on the tresillo's places.",
           "Three notes on eight eighth-note steps: you can write the slots, or ask Strudel to spread them.",
           'The bass keeps `note("<c2 g1>")`; its rhythm can come from `(k,n)` right after the notes.',
         ),

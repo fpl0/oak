@@ -83,7 +83,7 @@ const KEYS = { roll: false, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "U16.L02",
-  version: 2,
+  version: 3,
   title: "♭VI & ♭VII",
   objective: "I can write the ♭VI–♭VII–I ending, two borrowed major chords climbing home from below.",
   key: C,
@@ -108,7 +108,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The same tune twice, climbing do re mi at the end. First the chords come home the usual way, then from below. Listen to bar 3: which way into home sounds bigger?",
+          "The same tune twice, climbing do re mi at the end. The first time, bar 3 comes home through F and G; the second time, through A♭ and B♭, from below. Listen to bar 3 both times: which way into home sounds bigger?",
         skills: [{ skill: "H13", w: 1 }],
         hints: null,
         tests: [],
@@ -138,7 +138,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`chord("<Fm Ab>")` plays the sad IV, then A♭ major. F minor is F, A♭ and C; A♭ major is A♭, C and E♭. How many notes change?',
+          '`chord("<Fm Ab>")` plays the sad IV, then A♭ major. F minor is F, A♭ and C; A♭ major is A♭, C and E♭. Predict how many notes change from bar 1 to bar 2. Pick your answer, then run it.',
         skills: [{ skill: "H13", w: 1 }],
         hints: null,
         tests: [],
@@ -166,7 +166,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A♭, B♭ and C, one chord a bar, each root in the bass. Read the roots on the roll and the numerals on the chord band.",
+          "A♭, B♭ and C play one chord a bar, each root in the bass. Read the three roots on the roll. Then answer both questions: how far apart the roots are, and how many notes change from B D F to B♭ major.",
         skills: [{ skill: "H13", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -228,7 +228,7 @@ export default defineLesson({
         role: "check",
         key: G,
         prompt:
-          "The same ending in G major, arriving the usual way: G, C, then C and D, and home. Rebuild bar 3 so it climbs home from below: ♭VI, then ♭VII, two beats each.",
+          "The same ending in G major: G, C, then C and D in bar 3, and home. Replace the two chords of bar 3 with ♭VI, then ♭VII of G major, two beats each. Keep bars 1, 2 and 4 as they are. Done when bar 3 climbs home from below.",
         skills: [{ skill: "H13", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 4 },
@@ -306,7 +306,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "D major runs D E F♯ G A B C♯. Build its ♭VI on the keyboard, root lowest: a major chord on degree 6 lowered a half step.",
+          "D major runs D E F♯ G A B C♯. Build its ♭VI on the keyboard, three notes, root lowest. ♭VI is the major chord whose root is degree 6 lowered a half step.",
         skills: [{ skill: "H13", w: 1 }],
         hints: ladder(
           "Which note is degree 6 of D major? Where does it go when it is lowered?",
@@ -359,7 +359,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Hear the bass of the climb under the three chords, then sing it: le, te, do. Le and te are the lowered 6 and 7, each a whole step below the next. Sing in your own range.",
+          "Listen to the bass of the climb under its three chords, then sing it, one note a bar: le, te, do. Le and te are the lowered 6 and 7, each a whole step below the next. Sing in your own range.",
         skills: [
           { skill: "V03", w: 0.6 },
           { skill: "E12a", w: 0.4 },
@@ -396,7 +396,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight bars of an anthem with a pumping bass and a tune that ends do re mi. Bar 7 walks home through F. Rebuild it so the ending climbs home from below: A♭ then B♭, two beats each, into C. After that, try it your way: move the climb, give each chord a bar, rewrite the tune.",
+          "Eight bars of an anthem whose bar 7 walks home through F. Replace the F of bar 7 with A♭ then B♭, two beats each, so bar 8's C arrives from below. Done when ♭VI, ♭VII and I play in that order. Then, if you like, move the climb, give each chord a bar or rewrite the tune.",
         skills: [{ skill: "H13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -404,7 +404,7 @@ export default defineLesson({
         rubric: [
           {
             id: "the-climb",
-            label: "♭VI, then ♭VII, then I: the climb home from below",
+            label: "♭VI, then ♭VII, then I, in that order, somewhere in the piece",
             required: true,
             skills: ["H13"],
             rule: "contains-rn",
@@ -414,7 +414,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root, so it sings le te do",
+            label: "On most chord changes, the bass plays the new chord's root",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -424,7 +424,7 @@ export default defineLesson({
           },
           {
             id: "tune-from-the-chords",
-            label: "A tune whose strong beats are chord notes",
+            label: "On most strong beats, the mel line plays a note of the chord under it",
             required: false,
             skills: ["M03"],
             rule: "chord-tones-strong",
@@ -435,7 +435,7 @@ export default defineLesson({
           },
           {
             id: "eight-bars",
-            label: "Eight bars, so the ending has something to end",
+            label: "At least eight bars",
             required: false,
             skills: ["H13"],
             rule: "bars",
@@ -445,7 +445,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which bar comes home through the key's own chords? That is the one to rebuild.",
+          "Bar 7 comes home through the key's own F. Which two chords climb into C from below?",
           "All eight chords live in `changes`. Bar 7 is F; the climb puts two chords in that bar, two beats each, in square brackets.",
           "In G major you wrote `[Eb F]` before G. Here home is C: the two chords a whole step and two whole steps below it.",
         ),

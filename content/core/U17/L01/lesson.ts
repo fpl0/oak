@@ -108,7 +108,7 @@ const LEAD = { roll: false, staff: "lead", keyboard: false } as const;
 
 export default defineLesson({
   id: "U17.L01",
-  version: 2,
+  version: 4,
   title: "Pivot Chords",
   objective:
     "I can change key through a chord that both keys share: Am is vi in C and ii in G, then D7 brings G home.",
@@ -142,7 +142,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "An eight-bar verse, twice. Both versions stop on the same G; the second changes bar 7, chord and tune. Listen to that last G each time. Is it a pause, or an arrival?",
+          "Listen to both versions of the eight-bar verse. Both end on G in bar 8; the second changes bar 7, chord and tune. Listen for the last G each time: does it sound like a pause that wants to go on, or like home?",
         skills: [{ skill: "H14", w: 1 }],
         hints: null,
         tests: [],
@@ -168,7 +168,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`chord("<C Am D7 G>")`: three chords that C major owns, and D7. D7 is D, F♯, A and C. Which of its notes does C major not have?',
+          '`chord("<C Am D7 G>")` plays three chords that C major owns, then D7. D7 is D, F♯, A and C. Predict which one of those four notes C major does not have, and pick it.',
         skills: [{ skill: "H14", w: 1 }],
         hints: null,
         tests: [],
@@ -196,14 +196,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Watch bars 5 to 8. Bar 6 is Am, right before D7. Spell Am, then check it against both scales: C major, and G major with its F♯. Then find the first note from outside C major on the roll.",
+          "Answer two questions about bars 5 to 8. First: spell Am, the chord in bar 6, and check each note against C major (no sharps) and G major (one sharp, F♯); pick the keys that own all three. Second: find the bar where the first note from outside C major sounds on the roll, and enter its number.",
         skills: [{ skill: "H14", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Am is A, C and E: check each one against C major (no sharps) and G major (F♯). For the bar, find the first F♯ on the roll.",
         },
         hints: ladder(
-          "Which notes make Am, and does either key need a sharp to play them?",
+          "Start with the three notes of Am. Does either key need a sharp to play them?",
           "C major has no sharps. G major has one, F♯. Am is A, C and E.",
           "None of A, C or E is an F, so both scales hold all three. For the bar, look for the first F♯ in the chords or the tune.",
         ),
@@ -253,13 +253,13 @@ export default defineLesson({
         role: "check",
         key: C_MAJOR,
         prompt:
-          "One chord, two names. Am is the pivot chord of C, Am, D7, G. Write its numeral in C major, then in G major.",
+          "Am is the pivot chord of C, Am, D7, G. Name it twice: in the first slot, its numeral in C major; in the second slot, its numeral in G major. Done when each slot holds the numeral Am has in that slot's key.",
         skills: [
           { skill: "H14", w: 0.7 },
           { skill: "N06", w: 0.3 },
         ],
         hints: ladder(
-          "Where does A sit in each key? Count up from that key's home.",
+          "A numeral counts from the key's home note. Count up to A from C for the first slot, and from G for the second.",
           "Count C D E F G A in C major, and G A in G major. Am is a minor chord, so both numerals are lower case.",
           "In C major A is the sixth note up, so the first slot is the minor chord on 6. Now count from G.",
         ),
@@ -316,7 +316,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The tune already moves: its key plan puts bars 7 and 8 in G. The chords do not, and bar 7 rubs. Keep Am in bar 6 as the door and rewrite bars 7 and 8 so the verse lands in G through G's own V7.",
+          "The tune already moves to G in bars 7 and 8; the chords do not. Rewrite the last two chords of `changes`. Bar 7: G's own V7, the dominant seventh built on the note a 5th above G. Bar 8: G. Keep Am in bar 6 and the tune. Done when the chords land in G with the tune.",
         skills: [{ skill: "H14", w: 1 }],
         code: { starter: DOOR_STARTER },
         reference: { solutions: [HOOK], bars: 8 },
@@ -331,7 +331,7 @@ export default defineLesson({
         },
         srs: [{ family: "fam.key.circle", mode: "review-if-due" }],
         hints: ladder(
-          "Which chord pulls hardest into G? Think of what G7 does for C.",
+          "Bar 7 needs the chord that pulls hardest into G, the way G7 pulls into C. Bar 8 is G itself.",
           "In C, G7 is V7 and pulls home. G's own V7 is the dominant seventh built on the note a 5th above G, and the bar after it is G itself.",
           "A 5th above G is D: bar 7 is the dominant seventh on D. Bar 8 is the new home.",
         ),
@@ -393,7 +393,7 @@ export default defineLesson({
         role: "check",
         key: F_MAJOR,
         prompt:
-          "The page holds four bars that start in F major and end in C major. Read the chord symbols and write them in `changes`; the bass reads the same string. Bar 2 is the door: Dm is vi in F and ii in C.",
+          "Write the four chord symbols from the lead sheet into `changes`, one per bar, in order. The bass reads the same string, so change nothing else. The four bars start in F major and end in C major; Dm in bar 2 is the pivot chord. Done when every bar plays the chord written above it.",
         skills: [
           { skill: "H14", w: 0.6 },
           { skill: "N06", w: 0.4 },
@@ -409,7 +409,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}; the page has {exp}. Read the symbol above that bar: the letter is the root, and a 7 adds the dominant seventh.",
         },
         hints: ladder(
-          "Where on the page are the chords written?",
+          "The chords are written on the page, not in the code. Look above the staff, one symbol per bar.",
           "Each bar has a symbol above the staff. Write the four in order, one a bar, inside `< >`.",
           "Bars 1 and 2 are F and Dm. Bar 3 is the new key's V7, the chord with B♮ in it.",
         ),
@@ -464,7 +464,7 @@ export default defineLesson({
         role: "practice",
         key: C_MAJOR,
         prompt:
-          "The verse from the start of the lesson, round twice in C. Make the second time leave home: a chord both keys own as the door, then G's own V7, then G, and a key plan that puts the tune's last two bars in G. After that, try another door, a new tune, other sounds.",
+          "Make the verse end in G major the second time round. Bar 6: a chord both C and G major own. Bar 7: G's V7. Bar 8: G. Then give the tune's `.scale()` a key plan: six bars of C major, then two of G major. Done when chords and tune both end in G.",
         skills: [{ skill: "H14", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [8, 16],
@@ -472,7 +472,7 @@ export default defineLesson({
         rubric: [
           {
             id: "ends-in-g-through-a-pivot",
-            label: "The verse ends in G major, reached through a chord both keys share",
+            label: "The verse ends in G major, reached by a chord both C and G major own, then G's V, then G",
             required: true,
             skills: ["H14"],
             rule: "modulation",
@@ -481,7 +481,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root",
+            label: "The bass plays the chord's root on most chord changes",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -493,7 +493,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which chord of bars 5 and 6 already belongs to G major as well as to C?",
+          "Keep bars 1 to 6 and change the end. Bar 6 is the door: which chord there already belongs to G major as well as to C?",
           "Am is vi in C and ii in G: keep it as the door. After it, G's own V7 pulls into G. The tune's `.scale()` needs a key plan: six bars of C major, then two of G.",
           'Bar 7 is the dominant seventh on D, bar 8 is G. For the tune, start `.scale("<C4:major!6` and finish it with G in the octave that keeps the tune where it is.',
         ),

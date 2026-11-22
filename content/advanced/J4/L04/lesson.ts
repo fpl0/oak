@@ -135,7 +135,7 @@ const plain = (starter: string) => starter.replace(/[⟪⟫]/g, "");
 /** The Make's one required rule: the melody of the page, note for note, in pitch and in time. */
 const THE_PAGE: RubricRule = {
   id: "the-page",
-  label: "The melody as the page writes it, note for note",
+  label: "The melody plays all eight bars as the page writes them, note for note",
   required: true,
   skills: ["N07"],
   rule: "matches",
@@ -153,7 +153,7 @@ const THE_PAGE: RubricRule = {
 /** A suggestion: a tempo the trio can swing at (the brief leaves the tempo to the learner). */
 const SWING_TEMPO: RubricRule = {
   id: "swing-tempo",
-  label: "A tempo the trio can swing at, 120–220",
+  label: "`setcpm` sets a tempo between 120 and 220 beats a minute",
   required: false,
   skills: ["J12"],
   rule: "tempo-bpm",
@@ -168,7 +168,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J4.L04",
-  version: 2,
+  version: 3,
   title: "Reading a Standard",
   objective: "I can play a standard's melody and changes from its lead sheet.",
   key: B_FLAT,
@@ -197,7 +197,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Follow the page as it plays. In the second loop the melody drops out: where have you heard these chords before?",
+          "Follow the page as it plays. In the second loop the melody drops out: listen to the chords alone and notice where you have heard them before.",
         skills: [{ skill: "N07", w: 1 }],
         hints: null,
         tests: [],
@@ -228,14 +228,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and read along. Find where the first phrase stops for breath, then compare the note on each beat 1 with the chord named above it.",
+          "Run it, read along and answer two questions: in which bar the first phrase ends, and what the melody plays on beat 1 of each bar against the chord named above it.",
         skills: [{ skill: "N07", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Look for the first rest on the staff after a run of notes, and spell the chord above three or four of the bars: is the first note one of its letters?",
         },
         hints: ladder(
-          "Where does the line first stop moving and leave a gap?",
+          "For the phrase, find the first rest on the staff after a run of notes.",
           "Count bars from the left. For beat 1, spell the chord above the bar (Cm7 is C E♭ G B♭) and look for the melody's first note in it.",
           "Bar 2 starts on E♭ under Cm7: the chord's 3rd, not its root. For the phrase, find the first rest the staff shows.",
         ),
@@ -286,7 +286,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The page shows the first two bars. Write the melody on `mel` in note names, as written: the right notes in the right octave, and each one as long as the page says. The starter holds a placeholder B♭ on each beat 1.",
+          "The page shows the first two bars. Write those two bars of melody on `mel` in note names: the right notes in the right octave, each as long as the page says. Replace the placeholder B♭s. Done when both bars match the page.",
         skills: [{ skill: "N07", w: 1 }],
         swing: SWUNG,
         code: { starter: S3_STARTER },
@@ -309,7 +309,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: not the note the page writes there. Count its line or space again.",
         },
         hints: ladder(
-          "How many notes does each bar hold, and which of them are long?",
+          "Read one bar at a time: count its notes, and mark which have hollow heads and last longer.",
           "A hollow note head is a half note, two beats: write it with `@2`. Read each note's line or space from the treble clef, with the key's flats.",
           "Bar 1 starts on the D in the fourth line, held for two beats. B♭ comes next.",
         ),
@@ -374,7 +374,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The melody is right, but two of the chords in `changes` are not the ones printed above the staff. Read the symbols and fix the code so the trio plays what the page says.",
+          "The melody is right, but two of the chords in `changes` are not the ones printed above the staff. Compare each symbol in `changes` with the one printed on the page, and fix the two that differ. Keep the melody. Done when the trio plays the page's chords.",
         skills: [{ skill: "J12", w: 1 }],
         swing: SWUNG,
         code: { starter: S4_STARTER },
@@ -387,7 +387,7 @@ export default defineLesson({
             "Bar {bar}: the trio plays another chord than the one printed above it. Compare the code's symbol with the page's, letter and ending.",
         },
         hints: ladder(
-          "Read the symbols above bars 1 and 2. Does each one match the code letter for letter?",
+          "Read the symbols above bars 1 and 2 on the page and compare them with `changes`, letter and ending.",
           "The roots are right everywhere. Two chords have the wrong kind of seventh: a minor seventh is written `m7`, a dominant seventh plain `7`.",
           "Bar 1's second chord on the page is G minor with its seventh. Check bar 2 the same way.",
         ),
@@ -454,7 +454,7 @@ export default defineLesson({
         role: "practice",
         title: "The A section",
         prompt:
-          "Your trio plays the changes. The melody has the two bars you read; play the rest of the head from the page, all eight bars, note for note. The arrangement is yours: the tempo, Charleston or pushed comping, a walk or a two-feel, the sound of the head.",
+          "Finish the melody on `mel`: it has the two bars you read, so write bars 3 to 8 from the page, note for note. Required: the page's melody, all eight bars. Also on the checklist: a tempo of 120 to 220. The arrangement is yours: comping rhythm, a walk or a two-feel, the sound of the head.",
         skills: [{ skill: "N07", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -474,7 +474,7 @@ export default defineLesson({
             "Every note sits higher or lower than the page writes it. Read the lines and spaces again.",
         },
         hints: ladder(
-          "Which bars of the page are still silent in your code?",
+          "Bars 3 to 8 are still rests in your code. Read them from the page one bar at a time.",
           "Read bars 3 to 8 the way you read bars 1 and 2: the note names in their octave, `@2` for a half note, two eighths in a bracket, `~` for a rest.",
           "Bar 3 is bar 1 with its last note moved down to G. Bar 4 has two eighths on beat 2 and a rest on beat 4.",
         ),

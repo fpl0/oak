@@ -31,7 +31,7 @@ Bar 2 hides something about bar 1. Listen to the sawtooth's single note, then to
 </Step>
 
 <Step id="S5">
-`.partials()` takes a list, one number per note in that stack, from the bottom. On a sawtooth, a square or a triangle it keeps each one at the wave's own level (1), leaves it out (0), or anything between. On a sine it does nothing: a sine has only the bottom one. <CodeRef fn="partials" />
+`.partials()` takes a list, one number per note in that stack, from the bottom. On a sawtooth, a square or a triangle, 1 keeps that note at the wave's own level, 0 leaves it out, and anything between turns it down. On a sine it does nothing, because a sine has only the bottom one. <CodeRef fn="partials" />
 
 <Editor exercise="build-a-sawtooth" />
 
@@ -47,7 +47,7 @@ Each wave is a recipe of harmonics, and the ear can learn to tell the recipes ap
 </Step>
 
 <Step id="S7">
-At the start of this lesson a wave was a name in `.s()`. Now you can open it and choose what it keeps. A bass with harmonics carries on headphones and on small speakers alike, because the ear hears its low note through the harmonics above it. Give the bass and the riff their colours, then balance the two with `.gain()`.
+At the start of this lesson a wave was a name in `.s()`. Now you can open it and choose what it keeps. A bass with harmonics carries on headphones and small speakers alike, because the ear hears its low note through the harmonics above it.
 
 <Make exercise="voice-your-loop" />
 

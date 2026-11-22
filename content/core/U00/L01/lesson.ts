@@ -38,7 +38,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U00.L01",
-  version: 3,
+  version: 4,
   title: "Hello, Loop",
   objective: "I can start, stop and change a loop in code, and hear what each of its lines plays.",
   key: { tonic: "C", mode: "major" },
@@ -67,7 +67,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The players come in one at a time. Let each one play until you hear the music come back to where it started.",
+          "Listen to the four parts in order: the players come in one at a time. Let each part play until the music comes back to where it started, then go on to the next.",
         skills: [{ skill: "D01", w: 1 }],
         hints: null,
         tests: [],
@@ -91,15 +91,15 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it, then mute one line at a time with the button beside it. The code stays as it is. Listen to what goes missing.",
+          "Mute one line at a time with the button beside it and listen to what goes missing. Leave the code as it is. Then answer the two questions below.",
         skills: [{ skill: "D01", w: 1 }],
         feedbackText: {
           "investigate.wrong":
-            "Not quite. Mute every line but one, listen, then move on to the next: which one sits lowest, and how many notes does it play before it repeats?",
+            "Not quite. Mute every line but one and listen, then do the same for the next line. Find the line that sits lowest, then count the notes it plays before it repeats.",
         },
         hints: ladder(
-          "When you muted a line, what disappeared from the sound?",
-          "Mute everything except one line, then swap. The names at the start of each line say who plays.",
+          "You are looking for the line with the deepest notes. Mute lines one at a time: what disappears each time?",
+          "Mute everything except one line, then swap. The name at the start of each line says who plays.",
           "Listen to `bass` and `mel` alone, one after the other: one sits far below the other.",
         ),
         code: { starter: LOOP },
@@ -149,7 +149,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The highlighted number is the tune's last note. Change it to any number from 0 to 7, run, and listen to the end of the tune.",
+          "Change the highlighted number in the `mel` line to any other number from 0 to 7. It is the tune's last note. Listen to how the end of the tune changes. Done when the new number plays.",
         skills: [{ skill: "D01", w: 1 }],
         code: { starter: LOOP_ONE_NUMBER },
         reference: { solutions: [loopOf(DRUMS, BASS, CHORDS, mel("2"))], bars: 4 },
@@ -160,7 +160,7 @@ export default defineLesson({
           rules: [
             {
               id: "still-plays",
-              label: "The loop still plays",
+              label: "All four lines still play",
               required: true,
               skills: ["D01"],
               rule: "tracks",
@@ -171,7 +171,7 @@ export default defineLesson({
         constraints: [{ c: "edit-only-regions" }, { c: "max-changed-tokens", n: 1 }],
         target: { audible: true, showRoll: true },
         hints: ladder(
-          "Which part of the tune do you want to hear differently?",
+          "Change only the highlighted number to a different one. Which way do you want the last note to go, higher or lower?",
           "Only the highlighted number can change. It sits in the last pair of square brackets of the `mel` line.",
           "Bigger numbers play higher notes, smaller numbers lower ones. Try one far from the number there now.",
         ),
@@ -212,7 +212,7 @@ export default defineLesson({
         title: "Sketch 001",
         role: "practice",
         prompt:
-          "Change any of the numbers in the `mel` line, run it after each change, and save it when it sounds like yours.",
+          "Change any numbers you like in the `mel` line and listen after each change. Save it when it sounds like yours. Keep at least two lines playing.",
         skills: [{ skill: "D01", w: 1 }],
         code: { starter: LOOP_MELODY_OPEN },
         bars: [4, 4],
@@ -221,7 +221,7 @@ export default defineLesson({
         rubric: [
           {
             id: "still-plays",
-            label: "The loop still plays (at least two lines)",
+            label: "At least two lines still play",
             required: true,
             skills: ["D01"],
             rule: "tracks",
@@ -229,7 +229,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which part of the tune would you like to sound different: the start, the middle or the end?",
+          "Change one or more numbers in the `mel` line. Pick a part of the tune to change first: the start, the middle or the end.",
           "Each pair of square brackets in the `mel` line is one stretch of the tune. Each number in it is one note.",
           "Swap two numbers inside one pair of brackets, or put a `~` where a number was to leave a gap.",
         ),

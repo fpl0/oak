@@ -41,7 +41,7 @@ const ON_ONE = HOOK.indexOf("[hh hh]") + 1;
 
 export default defineLesson({
   id: "U01.L04",
-  version: 2,
+  version: 3,
   title: "Two per Beat",
   objective: "I can split a beat in two with [ ] and write hats that play twice on every beat.",
   key: { tonic: "C", mode: "major" },
@@ -65,7 +65,8 @@ export default defineLesson({
         id: "the-hats-double",
         version: 1,
         role: "practice",
-        prompt: "Play Loop 1, then Loop 2. No counting yet: what does Loop 2 do to the feel of the groove?",
+        prompt:
+          "Listen to Loop 1, then Loop 2. No counting yet: listen for what Loop 2 does to the feel of the groove.",
         skills: [{ skill: "R05", w: 1 }],
         hints: null,
         tests: [],
@@ -86,10 +87,10 @@ export default defineLesson({
         id: "which-one-moves",
         version: 1,
         role: "practice",
-        prompt: "Count 1, 2, 3, 4 along with each version. In which one do two hats fit into every beat?",
+        prompt: "Count 1, 2, 3, 4 along with each version. Pick the one where two hats fit into every beat.",
         skills: [{ skill: "R05", w: 1 }],
         hints: ladder(
-          "While you say one number, how many hats go by?",
+          "Count the hats in one beat of each version. While you say one number, how many hats go by?",
           "Listen to the hats only, against the kick and snare: one hat each, or two?",
           "In one version every hat lands together with a kick or a snare. That is the one-per-beat version.",
         ),
@@ -128,7 +129,8 @@ export default defineLesson({
         id: "count-the-hats",
         version: 1,
         role: "practice",
-        prompt: 'The hats line reads `s("[hh hh] hh hh hh")`. How many hats play in one bar?',
+        prompt:
+          'The hats line reads `s("[hh hh] hh hh hh")`. Predict how many hats play in one bar, and enter that number.',
         skills: [{ skill: "R05", w: 1 }],
         hints: null,
         tests: [],
@@ -150,10 +152,15 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it and count along with the hats until you can say the and of every beat. Then answer on the roll.",
+          "Count along with the hats, 1 and 2 and 3 and 4 and, until you can say the and of every beat. Then click the hat on the and of 1 on the roll.",
         skills: [{ skill: "R05", w: 1 }],
+        // The catalog line says only "Listen again and compare": this one says where to look.
+        feedbackText: {
+          "investigate.not-here":
+            "Not that one. The first pair in brackets takes up beat 1, and the and is halfway through it.",
+        },
         hints: ladder(
-          "Which hats share beat 1 with the kick?",
+          "The and of 1 is halfway between beat 1 and beat 2. Which hats share beat 1 with the kick?",
           "Each pair in brackets takes up one beat: the first hat is on the number, the second on the and.",
           "The first pair belongs to beat 1. The hat on 1 itself plays with the kick.",
         ),
@@ -193,7 +200,8 @@ export default defineLesson({
         id: "eighth-hats",
         version: 1,
         role: "check",
-        prompt: "Make the hats play two per beat, all through the bar. Leave the kick and snare alone.",
+        prompt:
+          "Make the hats play two per beat in all four beats, eight in the bar. Leave the kick and snare as they are.",
         skills: [{ skill: "R05", w: 1 }],
         code: { starter: `${TEMPO}${KICK}\n${SNARE}\nhats: s("⟪hh hh hh hh⟫")` },
         reference: { solutions: [HOOK], bars: 1 },
@@ -207,7 +215,7 @@ export default defineLesson({
             "Bar {bar}: one hit too many on the {track} line. Every beat gets two hats, no more.",
         },
         hints: ladder(
-          "How many hats does a bar need if every beat gets two?",
+          "Every beat gets two hats. How many hats does the bar need then?",
           "Each of the four words is one beat. Brackets turn one beat into two sounds.",
           "The first beat becomes `[hh hh]`. The other three need the same.",
         ),
@@ -329,7 +337,8 @@ export default defineLesson({
         id: "count-the-clap",
         version: 1,
         role: "check",
-        prompt: "The hats count 1 and 2 and 3 and 4 and. A single clap lands in bar 2. On which count?",
+        prompt:
+          "The hats count 1 and 2 and 3 and 4 and. A single clap lands in bar 2: pick the count it lands on.",
         skills: [{ skill: "R05", w: 1 }],
         hints: [
           { text: "Count out loud with the hats through bar 1, then keep counting into bar 2." },
@@ -368,7 +377,8 @@ export default defineLesson({
         id: "your-eighth-groove",
         version: 1,
         role: "practice",
-        prompt: "Write a groove where at least one line splits a beat in two with `[ ]`.",
+        prompt:
+          "Write a groove where at least one line splits a beat in two with `[ ]`: two sounds in one beat, or one sound on the second half of a beat.",
         skills: [{ skill: "R05", w: 1 }],
         code: { starter: QUARTER_GROOVE },
         bars: [1, 2],
@@ -376,7 +386,7 @@ export default defineLesson({
         rubric: [
           {
             id: "brackets",
-            label: "Splits a beat with `[ ]`",
+            label: "At least one beat split in two on any line, with `[ ]`",
             required: true,
             skills: ["R05"],
             // The effect, not the brackets: `[hh hh hh hh]` over the whole bar is four quarter notes.
@@ -386,7 +396,7 @@ export default defineLesson({
           },
           {
             id: "backbeat",
-            label: "Snare on beats 2 and 4",
+            label: "Snare on beats 2 and 4 in every bar",
             required: false,
             skills: ["R04"],
             rule: "onsets",
@@ -400,7 +410,7 @@ export default defineLesson({
           },
           {
             id: "kick-on-an-and",
-            label: "A kick on the and of 2",
+            label: "A kick on the and of 2 in every bar",
             required: false,
             skills: ["R05"],
             rule: "onsets",
@@ -411,7 +421,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which line would sound busier with two sounds in a beat?",
+          "Pick one beat of one line and put two sounds in it. Which line would sound busier that way?",
           "Pick one beat of one line and put two words in brackets there.",
           "The hats are the usual place: `[hh hh]` on every beat. A kick in `[~ bd]` pushes the groove.",
         ),

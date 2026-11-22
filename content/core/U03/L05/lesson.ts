@@ -37,12 +37,12 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 /** The catalog's `melody.wrong-degree` names syllables, which wait for U03.L08: numbers only. */
 const NUMBERS = {
   "melody.wrong-degree":
-    "Bar {bar}, {beatLabel}: you have degree {got} where the tune has degree {exp}. Which key is playing in this bar?",
+    "Bar {bar}, {beatLabel}: you have degree {got} where the tune has degree {exp}. Check which key `.scale()` plays in this bar: C in bars 1 and 2, G in bars 3 and 4.",
 } as const;
 
 export default defineLesson({
   id: "U03.L05",
-  version: 2,
+  version: 4,
   title: "Same Song, Any Key",
   objective:
     "I can play the same tune in any major key by changing one word, and change key bar by bar with a pattern in .scale().",
@@ -69,7 +69,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bars 3 and 4 play the tune again from a new home. Does it still sound finished when it ends? Watch the numbers on the roll.",
+          "Bars 1 and 2 play the tune in C; bars 3 and 4 play it again from a new home. Listen for whether it still sounds finished at the end of bar 4, and watch whether the numbers on the roll change.",
         skills: [{ skill: "S03", w: 1 }],
         hints: null,
         tests: [],
@@ -90,7 +90,7 @@ export default defineLesson({
         role: "practice",
         key: { tonic: "F", mode: "major" },
         prompt:
-          'The numbers stay as they are, and `.scale("C4:major")` becomes `.scale("F4:major")`. What will you hear?',
+          'The numbers in `n` stay as they are, and `.scale("C4:major")` becomes `.scale("F4:major")`. Predict what you will hear, and pick your answer below.',
         skills: [{ skill: "S03", w: 1 }],
         hints: null,
         tests: [],
@@ -118,14 +118,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it: the tune in C, then in D, then in F. Watch the roll's numbers and the heights of the notes.",
+          "Run the tune in C, then in D, then in F, two bars each. Watch the numbers on the roll and how high the notes sit. Then answer both questions below.",
         skills: [{ skill: "S03", w: 1 }],
         feedbackText: {
           "investigate.wrong":
-            "Not quite. Compare the first note in C with the first note in D: the label on the roll, and how far up it moved.",
+            "Not yet. Compare the first note in C with the first note in D: its label on the roll, and how many half steps up it moved.",
         },
         hints: ladder(
-          "When the key changes, what on the roll changes, and what stays put?",
+          "Compare the C bars with the D bars on the roll. When the key changes, what changes, and what stays put?",
           "The labels are degrees: they say what each note does in its key. The heights are the notes themselves.",
           "From `c4` to `d4` is one whole step. Every note of the tune moves by the same amount.",
         ),
@@ -134,7 +134,7 @@ export default defineLesson({
         questions: [
           {
             q: "choice",
-            prompt: "What is the same in all three keys?",
+            prompt: "Pick what stays the same in all three keys.",
             options: [
               { id: "numbers", label: "The numbers in `n`, and the labels on the roll" },
               { id: "letters", label: "The letters of the notes" },
@@ -142,7 +142,11 @@ export default defineLesson({
             ],
             correct: ["numbers"],
           },
-          { q: "number", prompt: "From C to D, how many half steps did every note move?", correct: 2 },
+          {
+            q: "number",
+            prompt: "Type how many half steps every note moved from C to D.",
+            correct: 2,
+          },
         ],
         tests: [
           { name: "both right", response: { answer: { choice: ["numbers"], number: 2 } }, expect: "pass" },
@@ -174,16 +178,20 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Play the whole tune in C, then the whole tune again with G above middle C as home. Change only what is inside `.scale()`.",
+          "Change only what is inside `.scale()`: the whole two-bar tune in C, then the whole tune again with G above middle C as home. Use `< >` for one key per bar and `!2` to hold a key for two bars. Done when four bars play, two in each key.",
         skills: [{ skill: "S03", w: 1 }],
         code: { starter: `${TEMPO}mel: n("${TUNE}").scale("⟪C4:major⟫").s("piano")` },
         reference: { solutions: [deg(TUNE, C_THEN_G)], bars: 4 },
         matcher: { m: "events", pitch: "absolute", rhythm: "onsets", durations: false },
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true, showRoll: false, revealRollAfter: 1 },
-        feedbackText: NUMBERS,
+        feedbackText: {
+          ...NUMBERS,
+          "melody.octave":
+            "Bar {bar}, {beatLabel}: right note, an octave {dir}. G above middle C is `G4`: check the number after the G.",
+        },
         hints: ladder(
-          "The tune is two bars long. For how many bars should each key last?",
+          "Each key must play the whole tune, and the tune is two bars long. For how many bars should each key last?",
           "Inside `.scale()`, `< >` plays one key per bar, and `!2` repeats a key for two bars, as in the hook.",
           "The first key is `C4:major!2`. The second is G, with the octave number of middle C.",
         ),
@@ -236,7 +244,7 @@ export default defineLesson({
         role: "check",
         key: { tonic: "D", mode: "major" },
         prompt:
-          'Which note does `n("2")` play over `.scale("D4:major")`? Write its letter, with a sharp if it has one.',
+          'Name the note that `n("2")` plays over `.scale("D4:major")`. Type its letter, with a sharp if it has one.',
         skills: [
           { skill: "S03", w: 0.6 },
           { skill: "S02", w: 0.4 },
@@ -246,7 +254,7 @@ export default defineLesson({
             "Not {got}. Spell D major from D, whole, whole, half: which letter is third, and does it need a sharp?",
         },
         hints: ladder(
-          "Which degree is `n` 2?",
+          "Find the degree first, then its note in D major. Which degree is `n` 2?",
           "`n` counts from 0, so `n` 2 is degree 3. Spell D major up to its third note.",
           "D major starts D, E, … The step from E to the next note is a whole step.",
         ),
@@ -292,10 +300,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Chords set home, which may change from one note to the next. Then one note: which degree is it, 1 to 5?",
+          "Listen to the chords that set home (home may change from one note to the next), then to one note. Pick its degree, from 1 to 5.",
         skills: [{ skill: "E05", w: 1 }],
         hints: [
-          { text: "Hum home, the note the chords end on. Is the note above it, or is it home?" },
+          { text: "Find home first: hum the note the chords end on. Is the note home, or above it?" },
           { text: "Sing up from home on numbers, one, two, three, until you reach the note." },
           { text: "Hear it again, slower, and sing from 1 up to it.", replay: { rate: 0.75 } },
           "auto",
@@ -322,13 +330,15 @@ export default defineLesson({
         // The chords set A as home: the numbers sung are the ones sung in C.
         key: { tonic: "A", mode: "major" },
         prompt:
-          "The chords set a new home, A. Sing one, two, three, two, one: one number to a beat, on any vowel or on the numbers.",
+          "After the chords set home on A, sing one, two, three, two, one: five notes, one to a beat, on any vowel or on the numbers. One is A, the note the chords end on.",
         skills: [
           { skill: "V03", w: 0.6 },
           { skill: "S03", w: 0.4 },
         ],
         hints: [
-          { text: "Hum home first, the note the chords end on. Then step up from it." },
+          {
+            text: "Start from home: hum the note the chords end on, then step up from it, one note of the scale at a time.",
+          },
           { text: "Each number is the next note of the scale: one step up, one more, then back down." },
           { text: "Hear the pattern on the piano once, then sing it back.", replay: { rate: 0.75 } },
           "auto",
@@ -361,7 +371,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Make this tune yours, then let it visit a **second key** with a pattern in `.scale("< >")`. Four bars or more give each key the whole tune.',
+          'Put a pattern in `.scale("< >")` so the tune plays in a second key, for example two bars in one key, then two in another. Change the numbers in `n` too if you like. Done when the melody plays in two different keys.',
         skills: [{ skill: "S03", w: 1 }],
         code: { starter: deg("<[0 2 1 4] [3 2 0 ~]>") },
         bars: [1, 8],
@@ -370,7 +380,7 @@ export default defineLesson({
           {
             id: "two-keys",
             // The effect, not the pattern: `<C4:major!2 C4:major!2>` names one key twice.
-            label: 'The tune visits a second key, with a pattern in `.scale("< >")`',
+            label: 'The tune plays in at least two different keys, set by a pattern in `.scale("< >")`',
             required: true,
             skills: ["S03"],
             rule: "custom",
@@ -380,7 +390,7 @@ export default defineLesson({
           },
           {
             id: "four-bars",
-            label: "Four bars or more, so each key gets the whole tune",
+            label: "The piece is at least four bars long, so each key gets the whole tune",
             required: false,
             skills: ["S03"],
             rule: "bars",
@@ -388,9 +398,9 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Where in the line does the key live?",
+          "The tune must play in two different keys. Where in the line does the key live?",
           "Put a pattern inside `.scale()`: `< >` with one key per bar, and `!2` to hold a key for two bars.",
-          'For the tune in C and then in F: `.scale("<C4:major!2 F4:major!2>")`.',
+          "Inside `.scale()`, write `< >` around two different keys, each followed by `!2`: two bars in the first key, then two in the second.",
         ),
         tests: [
           {

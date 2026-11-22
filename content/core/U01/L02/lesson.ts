@@ -44,7 +44,7 @@ const TAP_FEEDBACK = {
 
 export default defineLesson({
   id: "U01.L02",
-  version: 2,
+  version: 3,
   title: "Count to Four",
   objective: "I can find beat 1, count a bar of four, and leave a beat silent without losing my place.",
   key: { tonic: "C", mode: "major" },
@@ -72,7 +72,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Count along under your breath: one, two, three, four. Which sound tells you to start again at one?",
+          "Count along under your breath, one, two, three, four, and keep going around. Listen for the sound that tells you to start again at one.",
         skills: [{ skill: "R03", w: 1 }],
         hints: null,
         tests: [],
@@ -91,13 +91,13 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Tap only on the crash, once per bar, for four bars. Keep counting the other beats in your head.",
+          "Tap only on the crash, the long splashy cymbal that opens every bar: one tap per bar, four taps in all. Count the other three beats of each bar in your head without tapping them.",
         skills: [
           { skill: "R03", w: 0.5 },
           { skill: "E01", w: 0.5 },
         ],
         hints: ladder(
-          "How many kicks go by between one crash and the next?",
+          "Tap once on each crash and nowhere else, four taps in all. How many kicks go by between one crash and the next?",
           "The crash is the first of the four beats. Count 1, 2, 3, 4 and tap on every 1.",
           "Say the count out loud and tap when you say one: tap, two, three, four, tap.",
         ),
@@ -129,7 +129,7 @@ export default defineLesson({
         id: "which-beat-goes-quiet",
         version: 1,
         role: "practice",
-        prompt: "The line reads `bd bd ~ bd`. Which beat goes quiet?",
+        prompt: "The drum line reads `bd bd ~ bd`. Predict which beat goes quiet, and pick it below.",
         skills: [{ skill: "R06", w: 1 }],
         hints: null,
         tests: [],
@@ -157,10 +157,11 @@ export default defineLesson({
         id: "see-the-gap",
         version: 1,
         role: "practice",
-        prompt: "Run it and count along. Say three out loud in the gap, where no kick plays.",
+        prompt:
+          "Count 1, 2, 3, 4 along with the loop. Say three out loud in the gap, where no kick plays, and find that gap on the roll.",
         skills: [{ skill: "R06", w: 1 }],
         hints: ladder(
-          "How many slots does the roll show in one bar?",
+          "Count along and find the beat with no kick. How many slots does the roll show in one bar?",
           "The `~` takes a whole beat of its own; nothing plays there.",
           "The kicks land on 1, 2 and 4.",
         ),
@@ -182,7 +183,8 @@ export default defineLesson({
         id: "silence-beat-3",
         version: 1,
         role: "check",
-        prompt: "Make beat 3 silent. Beats 1, 2 and 4 keep their sounds, and the bar stays four beats long.",
+        prompt:
+          "Make beat 3 silent: replace the third word, `bd`, with a word that plays nothing. Keep beats 1, 2 and 4 as they are, so the line still has four words.",
         skills: [
           { skill: "R06", w: 0.6 },
           { skill: "R03", w: 0.4 },
@@ -191,8 +193,15 @@ export default defineLesson({
         reference: { solutions: [drums("bd sd ~ sd")], bars: 1 },
         matcher: DRUM_EVENTS,
         target: { audible: true, showRoll: true },
+        // The catalog says "missing hit" and "extra hit": these say what to do about it.
+        feedbackText: {
+          "rhythm.missing":
+            "Bar {bar}, {beatLabel}: no hit here yet{role}. Beats 1, 2 and 4 keep their sounds, and the line keeps four words.",
+          "rhythm.extra":
+            "Bar {bar}, {beatLabel}: a hit that should not be there{role}. Only beat 3 goes silent, and the line keeps four words.",
+        },
         hints: ladder(
-          "If you delete a word, how many beats are left for the other three sounds to share?",
+          "Beat 3 goes silent and the bar keeps four beats. If you delete a word, how many beats are left for the other three sounds to share?",
           "The third word is beat 3. It needs a word that plays nothing, so the bar keeps four words.",
           "In the line you ran before, `~` kept beat 3 silent in `bd bd ~ bd`.",
         ),
@@ -236,14 +245,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Run it. `.gain("1 .5 .5 .5")` sets how loud each kick is, one number per beat. Listen to which kick stands out.',
+          'Listen for the kick that stands out. `.gain("1 .5 .5 .5")` sets how loud each kick is, one number per beat. Then answer the two questions below.',
         skills: [{ skill: "R03", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. The four gain numbers line up with the four kicks: find the biggest, then listen for the kick it belongs to.",
         },
         hints: ladder(
-          "Which number in the gain list is the biggest?",
+          "Find the loudest kick by its number. Which number in the gain list is the biggest?",
           "The four numbers line up with the four kicks: the first number belongs to beat 1.",
           "A loud first kick stands out from the other three, so you always know where the count starts.",
         ),
@@ -298,7 +307,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Keep the kick on beats 1 and 3 only. Use `~` so beats 2 and 4 stay silent and the bar keeps four beats.",
+          "Make the kick play on beats 1 and 3 only. Put `~` in place of the second and fourth words, so beats 2 and 4 are silent and the line keeps four words.",
         skills: [
           { skill: "R06", w: 0.5 },
           { skill: "R03", w: 0.5 },
@@ -308,8 +317,15 @@ export default defineLesson({
         matcher: DRUM_EVENTS,
         constraints: [{ c: "must-use", tool: "tb.mini.rest", feedback: "code.must-use" }],
         target: { audible: true, showRoll: true },
+        // The catalog says "missing hit" and "extra hit": these say which beats keep the kick.
+        feedbackText: {
+          "rhythm.missing": "Bar {bar}, {beatLabel}: no hit here yet{role}. Beats 1 and 3 keep their kick.",
+          "rhythm.extra":
+            "Bar {bar}, {beatLabel}: a hit that should be silent{role}. Only beats 1 and 3 keep their kick.",
+          "code.must-use": "Use {tool} for each silent beat, so the line keeps four words.",
+        },
         hints: ladder(
-          "Which two of the four words should stay as they are?",
+          "Beats 1 and 3 keep their kick, and beats 2 and 4 go silent. Which two of the four words stay as they are?",
           "Words 2 and 4 are beats 2 and 4. Each needs a word that plays nothing.",
           "Beat 2 becomes `~`. Do the same to beat 4.",
         ),
@@ -360,7 +376,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a one-bar groove with at least one silent beat: a beat where none of your lines plays, hats included. Any drums you have: `bd`, `sd`, `hh`, `oh`, `cr`, `rd`, `cp`, `rim`.",
+          "Write a one-bar groove with at least one silent beat: one whole beat where every line rests, the hats included. A `~` on the drums line alone is not enough while the hats keep playing. Use any drums you have: `bd`, `sd`, `hh`, `oh`, `cr`, `rd`, `cp`, `rim`.",
         skills: [
           { skill: "R06", w: 0.6 },
           { skill: "R03", w: 0.4 },
@@ -372,7 +388,7 @@ export default defineLesson({
           {
             id: "a-rest",
             // The effect, not the `~`: a rest in the drums under hats that keep playing leaves no beat empty.
-            label: "At least one beat where nothing plays",
+            label: "One whole beat where every line is silent, hats included",
             required: true,
             skills: ["R06"],
             rule: "custom",
@@ -381,7 +397,7 @@ export default defineLesson({
           },
           {
             id: "beat-one",
-            label: "Something plays on beat 1",
+            label: "A drum sound starts on beat 1 of every bar",
             required: false,
             skills: ["R03"],
             rule: "onsets",
@@ -391,7 +407,7 @@ export default defineLesson({
           },
           {
             id: "accent",
-            label: "An accent with `.gain()`",
+            label: "Uses `.gain()` to set how loud a line plays",
             required: false,
             skills: ["R03"],
             rule: "uses",
@@ -399,7 +415,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Where would a gap make the groove breathe?",
+          "Pick one beat and make every line silent there, the hats included. Where would a gap make the groove breathe?",
           "A beat is empty only when every line rests there, the hats too. Pick one beat and make it silent on the drums line and on the hats line.",
           'Write the hats one word per beat, `hats: s("hh hh ~ hh")`, and put `~` on beat 3 of the drums line too. A crash on beat 1 with a gap after it also marks the start of the bar.',
         ),

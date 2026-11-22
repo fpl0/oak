@@ -64,7 +64,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U05.L05",
-  version: 2,
+  version: 3,
   title: "Inversions",
   objective: "I can turn a triad upside down so its 3rd or 5th is lowest, and name it with a slash: C/E.",
   key: { tonic: "C", mode: "major" },
@@ -92,7 +92,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Follow the lowest note of each chord, first in Loop 1, then in Loop 2. In which loop does it move by step, and in which does it leap?",
+          "Follow the lowest note of each chord, first in Loop 1, then in Loop 2. Listen for the loop where it moves by step and the loop where it leaps.",
         skills: [{ skill: "C04", w: 1 }],
         hints: null,
         tests: [],
@@ -123,7 +123,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          '`n("[2,4,7]")` in C major is degrees 3, 5 and 1 an octave up: E, G and C. Which note will be lowest, and what chord is it?',
+          '`n("[2,4,7]")` in C major is degrees 3, 5 and 1 an octave up: E, G and C. Predict which note is lowest and which chord this is, and pick that answer.',
         skills: [{ skill: "C04", w: 1 }],
         hints: null,
         tests: [],
@@ -151,14 +151,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the four chords. Bar 2 is `[-1,1,4]`: B, D and G, a G chord, since G, B and D stack in 3rds from G. Look at what sits at the bottom.",
+          "Run the four chords and look at bar 2, `[-1,1,4]`: B, D and G. It is a G chord, since G, B and D stack in 3rds from G. Find which of its notes is lowest, then answer both questions below.",
         skills: [{ skill: "C04", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Stack bar 2's notes in 3rds from G (G, B, D), then find the lowest one on the roll in that stack.",
         },
         hints: ladder(
-          "Which is the lowest of B, D and G in bar 2?",
+          "Find bar 2 on the roll and read which of B, D and G sits lowest.",
           "In G, B, D the root is G, the 3rd is B and the 5th is D. Root position G would be `[4,6,8]`.",
           "`n` -1 is degree 7 below home, B. Now compare B, D, G with G, B, D letter by letter.",
         ),
@@ -212,7 +212,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "F, C, D minor, G. The lowest notes should walk down F, E, D, but bar 2's C chord has C at the bottom. Rearrange it so its 3rd, E, is lowest.",
+          "The chords are F, C, D minor, G. Bar 2's C chord has C at the bottom, so the lowest notes do not walk down F, E, D. Rearrange bar 2 so its 3rd, E, is lowest. Done when bar 2 still plays C, E and G, with E at the bottom.",
         skills: [{ skill: "C04", w: 1 }],
         code: { starter: WALK_STARTER },
         reference: { solutions: [WALK], bars: 4 },
@@ -227,7 +227,7 @@ export default defineLesson({
             "Bar {bar}: the right three notes, with another one lowest. The target has E, the 3rd, at the bottom.",
         },
         hints: ladder(
-          "Which of `n` 0, 2 and 4 is E, and where must it go?",
+          "Find which of `n` 0, 2 and 4 is E. It has to end up below the other two.",
           "E is `n` 2. For E to be lowest, the C has to move above it: up an octave is 7 more.",
           "Start the stack with `n` 2 and keep `n` 4 after it. The C goes on top.",
         ),
@@ -278,11 +278,11 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "One chord at a time, major or minor, on a new note each time. Is its root lowest, or its 3rd?",
+          "Oak plays one chord at a time, major or minor, each on a new note. Pick whether its lowest note is the root or the 3rd.",
         skills: [{ skill: "C04", w: 1 }],
         hints: [
           {
-            text: "Hum the lowest note. Does the chord feel planted on it, or lighter, as if it could step on?",
+            text: "Hum the lowest note. Listen for whether the chord feels planted on it, or lighter, as if it could step on.",
           },
           {
             text: "With the root lowest the bottom note and the chord agree. With the 3rd lowest, the bottom note is a 3rd above the note the chord is named after.",
@@ -320,10 +320,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A chord from the key of C, on the staff and played. Type its name, then a slash, then its lowest note.",
+          "A chord from the key of C plays and shows on the staff. Type its name, then a slash, then its lowest note, as in C/E.",
         skills: [{ skill: "C04", w: 1 }],
         hints: ladder(
-          "Which of the three notes do the other two stack on in 3rds?",
+          "Find the root first: it is the note the other two stack on in 3rds.",
           "Rearrange C, F, A until the notes are a 3rd apart. The bottom note of that stack is the root.",
           "Stacked in 3rds the notes are F, A, C, so the chord is F, a major triad. Which note is lowest on the staff?",
         ),
@@ -368,7 +368,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Your four chords, C G Am F, all stand on their roots, so the lowest note jumps. Rearrange some of them so the lowest notes move by step, down or up: C, G/B, Am, … .",
+          "Your chords C G Am F all stand on their roots, so the lowest note leaps. Rearrange at least one chord so its 3rd or 5th is lowest, and let the lowest notes move by step: C, G/B, Am, … . Done when at least one chord is an inversion.",
         skills: [{ skill: "C04", w: 1 }],
         // The catalog's text is "{label}: {detail}"; the detail names chords by symbols and members, and the
         // same text serves the suggestions, so it says only "not yet".
@@ -379,7 +379,7 @@ export default defineLesson({
         rubric: [
           {
             id: "an-inversion",
-            label: "At least one chord with a note other than its root at the bottom",
+            label: "At least one chord with its 3rd or 5th at the bottom, not its root",
             required: true,
             skills: ["C04"],
             rule: "chord-inversions",
@@ -387,7 +387,7 @@ export default defineLesson({
           },
           {
             id: "a-tune",
-            label: "A tune on top",
+            label: "A tune on its own line, such as `mel`",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -396,7 +396,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which chord could put B at the bottom, between C and A?",
+          "Between C and A the walking line needs a B. Of the four chords, only G has a B in it.",
           "G is G, B, D, written `[4,6,8]`. Take the G an octave up, or the B and D an octave down, and B is lowest.",
           "Bar 2 as `[-1,1,4]` and bar 3 as `[-2,0,2]` give C, B, A in the first three bars. For F in bar 4, try A or C at the bottom and listen.",
         ),

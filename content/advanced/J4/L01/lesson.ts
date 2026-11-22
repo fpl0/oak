@@ -76,7 +76,7 @@ const TURN_OPTIONS = [
   { id: BRIGHT, label: "iii–VI–ii–V: the second chord is a dominant" },
 ];
 const earHints = (): HintLadder => [
-  { text: "Listen to the second chord of the four. Does it sit back, or lean forward?" },
+  { text: "Listen to the second chord of the four: it either sits back or leans forward into the third." },
   {
     text: "In one turnaround the second chord is the key's own minor chord on degree 6; in the other it is a dominant seventh aimed at the ii that follows.",
   },
@@ -136,7 +136,7 @@ const VIBES =
 /** The Make's one idea, heard in the chords that sound: the run iii7 → VI7 → ii7 → V7 in E♭. */
 const BRIGHT_TURN: RubricRule = {
   id: "bright-turn",
-  label: "A iii–VI–ii–V turnaround",
+  label: "The chords play iii7, VI7, ii7, V7 of E♭ in that order: Gm7, C7, Fm7, B♭7",
   required: true,
   skills: ["J10"],
   rule: "contains-rn",
@@ -152,7 +152,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J4.L01",
-  version: 2,
+  version: 3,
   title: "Turnarounds",
   objective: "I can end a tune with I–vi–ii–V or the brighter iii–VI–ii–V and send it back to the top.",
   key: Eb,
@@ -178,7 +178,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to the second chord of each four bars. In which take does it sit back, and in which does it lean forward into the chord after it?",
+          "Listen to the second chord of each four bars in both takes. Notice in which take it sits back, and in which it leans forward into the chord after it.",
         skills: [{ skill: "J10", w: 1 }],
         hints: null,
         tests: [],
@@ -209,14 +209,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the eight bars with the chord band showing numerals. Compare bars 1–4 with bars 5–8, chord by chord.",
+          "Run the eight bars with the chord band showing numerals. Compare bars 1–4 with bars 5–8, chord by chord, and answer two questions: what C7 is doing in bar 6, and how many chords the two turns have in common.",
         skills: [{ skill: "J10", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read the chord band under bars 6 and 7: where does C7's root move, and how far? Then count the chords that are the same in both halves.",
         },
         hints: ladder(
-          "C7 is not the chord E♭ major owns on degree 6. Which chord does it lead into?",
+          "C7 is not the chord E♭ major owns on degree 6. Look at the chord right after it, in bar 7.",
           "A dominant seventh whose root falls a 5th to the next chord is that chord's V7. Here the next chord is Fm7, the ii.",
           "Bars 7 and 8 are the same in both halves; so are bars 3 and 4.",
         ),
@@ -270,10 +270,10 @@ export default defineLesson({
         role: "check",
         key: Eb,
         prompt:
-          "The second turnaround in E♭: Gm7, C7, Fm7, B♭7. Write the numeral of each chord, sevenths included. Name the chord that is not the key's own by the chord it leads to.",
+          "The second turnaround in E♭: Gm7, C7, Fm7, B♭7. Write the numeral of each chord in E♭, sevenths included. For the one chord that is not the key's own, write it as the V7 of the chord it leads to, with a slash.",
         skills: [{ skill: "J10", w: 1 }],
         hints: ladder(
-          "Three of the four chords are E♭ major's own sevenths. Which one has a note the key does not have?",
+          "Three of the four chords are E♭ major's own sevenths. Find the one with a note outside the key, and see where it leads.",
           "Count each root's degree in E♭: G is 3, C is 6, F is 2, B♭ is 5. Then the quality: minor, dominant, minor, dominant.",
           "Fm7 is ii7 and B♭7 is V7. The chord before Fm7 is the V7 of that ii.",
         ),
@@ -336,7 +336,7 @@ export default defineLesson({
         role: "check",
         key: Eb,
         prompt:
-          "The trio loops I–vi–ii–V in E♭. Turn it into iii–VI–ii–V: change the first two chords and leave the last two.",
+          "The trio loops I–vi–ii–V in E♭. Turn it into iii–VI–ii–V: rewrite the first two chords in `changes` and leave Fm7 and B♭7 as they are. Done when the loop matches the target.",
         skills: [{ skill: "J10", w: 1 }],
         swing: SWUNG,
         code: { starter: TURN_STARTER },
@@ -355,7 +355,7 @@ export default defineLesson({
             "Strudel does not know that chord name. A dominant seventh is written as its root and a 7, the way `Bb7` is.",
         },
         hints: ladder(
-          "Which two degrees does iii–VI–ii–V start on, counted in E♭?",
+          "Count up E♭ major to degrees 3 and 6: those are the roots of the two new chords.",
           "Degree 3 of E♭ is G, and the iii is minor. Degree 6 is C, and the VI here is not the key's own minor chord but the V7 of Fm7.",
           "The first chord is `Gm7`. The second keeps the root of Cm7: which kind of seventh leans into Fm7?",
         ),
@@ -422,7 +422,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four turnarounds, four bars each, in E♭ and in C, one at a time. Which one is it: I–vi–ii–V or iii–VI–ii–V?",
+          "Four turnarounds, four bars each, in E♭ and in C, one at a time. For each, pick I–vi–ii–V or iii–VI–ii–V.",
         skills: [{ skill: "J10", w: 1 }],
         hints: earHints(),
         srs: [{ family: "fam.jzz.ii-v", mode: "review-if-due" }],
@@ -449,7 +449,7 @@ export default defineLesson({
         key: Eb,
         title: "Turnaround in E♭",
         prompt:
-          "Eight bars in E♭: four of your own, then a turnaround through iii–VI–ii–V that loops back to the top. The starter turns with I–vi–ii–V. The first four bars, the comping and a vibes line are yours; a walking bass or Charleston comping would fit here.",
+          "Write eight bars in E♭ in `changes`. Required: bars 5 to 8 turn around through iii–VI–ii–V, back to the top; the starter turns with I–vi–ii–V. Also on the checklist: one or two chords a bar, and a vibes line. The first four bars are yours.",
         skills: [{ skill: "J10", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -459,7 +459,7 @@ export default defineLesson({
           BRIGHT_TURN,
           {
             id: "two-a-bar",
-            label: "One or two chords in every bar",
+            label: "Every bar holds one or two chords",
             required: false,
             skills: ["J10"],
             rule: "harmonic-rhythm",
@@ -467,7 +467,7 @@ export default defineLesson({
           },
           {
             id: "tune-on-top",
-            label: "A vibes line on top",
+            label: "A vibes line plays",
             required: false,
             skills: ["J10"],
             rule: "sounds",
@@ -478,7 +478,7 @@ export default defineLesson({
         // detail names the chord it is missing.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which two chords of the last four bars make the turn sound brighter?",
+          "Change only bars 5 and 6, the turn's first two chords. Bars 7 and 8 already hold ii and V.",
           "Bars 5 and 6 hold I and vi. The bright turn starts on the minor chord of degree 3, then a dominant on degree 6 that leans into the ii.",
           "Bar 5 becomes `Gm7`. Bar 6 keeps its root and becomes a dominant seventh.",
         ),

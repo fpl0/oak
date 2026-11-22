@@ -187,7 +187,7 @@ function transcribe(t: TranscribeSpec): CapstoneDef {
 }
 
 const backbeat = [
-  req("snare-backbeat", "Snare on beats 2 and 4", ["R04"], {
+  req("snare-backbeat", "Snare on beats 2 and 4 of every bar", ["R04"], {
     rule: "onsets",
     track: "@drums",
     drum: "snare",
@@ -1641,7 +1641,7 @@ export const capstones: readonly CapstoneDef[] = [
     meter: "4/4",
     bpm: [70, 140],
     brief:
-      "Write a 4 to 8 bar drum intro for your album: a backbeat, steady hats, and a fill in the last bar.",
+      "Write a drum intro for your album, 4 to 8 bars long, with at least two drum lines. Put the snare on beats 2 and 4 in bars 1 to 3, and closed hats on every eighth or every sixteenth. Make the last bar a fill: written with `< >`, it plays something the bar before it does not.",
     starter: 'setcpm(100/4)\n\nkick: s("bd ~ bd ~")\nsnare: s("~ sd ~ sd")\nhats: s("hh*8")',
     skills: ["R04", "R05", "R07"],
     // §6.6 names two one-off checks, `hats-grid` and `fill-last-bar` (CUSTOM_RUBRIC_FNS). Until @oak/grader
@@ -1683,17 +1683,22 @@ export const capstones: readonly CapstoneDef[] = [
         perBar: false,
       }),
       // Corrections gate (AS-32): the last bar itself changes; a `< >` that puts the fill in bar 1 does not count.
-      req("fill", "A fill: the last bar changes, written with `< >`", ["R07"], {
-        rule: "custom",
-        fn: "bars-differ",
-        params: { last: true, alsoUses: ["tb.mini.alt"] },
-      }),
+      req(
+        "fill",
+        "The last bar is a fill, written with `< >`, playing something the bar before it does not",
+        ["R07"],
+        {
+          rule: "custom",
+          fn: "bars-differ",
+          params: { last: true, alsoUses: ["tb.mini.alt"] },
+        },
+      ),
       tempo(70, 140),
     ],
     sessions: [["Intro", "A 4–8 bar drum intro: backbeat, 8th or 16th hats, a fill; first album track."]],
     canDo: ["cd.compose.drum-intro"],
     hints: ladder(
-      "What does a listener need to hear before the band comes in?",
+      "Before the band comes in, the listener needs the beat: the snare on 2 and 4, steady hats, then a last bar that sounds different. Which of the three is still missing?",
       "The snare marks beats 2 and 4; the last bar is where the fill goes.",
       'Try toms in the last bar: `s("<[~ sd ~ sd] [~ sd ~ sd] [~ sd ~ sd] [ht mt lt lt]>")`.',
     ),
@@ -1776,12 +1781,13 @@ export const capstones: readonly CapstoneDef[] = [
     opensAfter: { checkpoints: ["U02.CP"] },
     meter: "4/4",
     bpm: [70, 140],
-    brief: "A 4-bar loop: a groove, a bass line written with note names, and a 2-bar riff on top.",
+    brief:
+      "Write a loop of exactly 4 bars with drums, a bass and a riff. Put the snare on beats 2 and 4 of every bar. Write the bass with note names, between C1 and C3, using at least 3 different notes. On top, play a 2-bar riff whose lowest and highest notes are 15 half steps apart or less.",
     starter:
       'setcpm(96/4)\n\nkick: s("bd ~ bd ~")\nsnare: s("~ sd ~ sd")\nhats: s("hh*8")\nbass: note("⟪c2 c2 g1 a1⟫").s("ebass").lpf(600)\nmel: note("⟪e4 g4 a4 g4⟫").s("piano")',
     skills: ["R04", "P02", "P05"],
     rubric: [
-      req("roles", "Drums, bass and melody", ["R04"], {
+      req("roles", "Three parts: drums, a bass and a melody", ["R04"], {
         rule: "tracks",
         min: 3,
         roles: ["drums", "bass", "melody"],
@@ -1798,7 +1804,7 @@ export const capstones: readonly CapstoneDef[] = [
         track: "@bass",
         min: 3,
       }),
-      req("riff-range", "Riff spans at most 15 half steps", ["P03"], {
+      req("riff-range", "The riff's lowest and highest notes 15 half steps apart or less", ["P03"], {
         rule: "range",
         track: "@melody",
         maxSpan: 15,
@@ -1810,7 +1816,7 @@ export const capstones: readonly CapstoneDef[] = [
     ],
     canDo: ["cd.compose.first-loop"],
     hints: ladder(
-      "Which part holds the floor of the loop?",
+      "The bass holds the floor of the loop: low, and moving between at least three notes. Which line of the checklist is still open?",
       "The bass line sits under C3; give it three different notes.",
       'A two-bar riff: a first bar, then one that answers it, `note("<[c4 e4 g4 e4] [d4 g4 a4 g4]>")`. The bass can walk the band\'s chords: c, g, a, f.',
     ),
@@ -1892,7 +1898,7 @@ export const capstones: readonly CapstoneDef[] = [
     key: { tonic: "C", mode: "major" },
     bpm: [70, 140],
     brief:
-      "Loop, then land: a four-chord schema in bars 1–6, a cadence in bars 7–8, and a melody built on its bar-1 idea, which comes back, the same or moved onto another chord, in half the bars or more.",
+      "Write 8 bars in C. Bars 1 to 6: loop I V vi IV (C G Am F), from any of the four, one chord a bar. Bars 7 and 8: V then I, or IV then I. Bring the tune's bar-1 idea back, the same or on another chord, in half the bars or more.",
     starter: C2_TEMPLATE,
     skills: ["H04", "H03", "M03", "M02"],
     // The binding rubric of contracts §6.6. `schema` reads bars 1–6 only (`bars`), so the landing in bars
@@ -1901,18 +1907,23 @@ export const capstones: readonly CapstoneDef[] = [
     rubric: [
       req("bars", "8 bars", ["F01"], { rule: "bars", min: 8, max: 8 }),
       req("roles", "Chords and a melody", ["H04"], { rule: "tracks", min: 2, roles: ["chords", "melody"] }),
-      req("schema", "Bars 1–6: a four-chord loop, one chord a bar", ["H04"], {
-        rule: "progression",
-        schema: "schema.axis",
-        allowRotation: true,
-        bars: [1, 6],
-      }),
+      req(
+        "schema",
+        "Bars 1–6: I V vi IV (C G Am F) as a loop, starting on any of the four, one chord a bar",
+        ["H04"],
+        {
+          rule: "progression",
+          schema: "schema.axis",
+          allowRotation: true,
+          bars: [1, 6],
+        },
+      ),
       req("cadence", "Bars 7–8 land on I: V then I, or IV then I", ["H03"], {
         rule: "cadence",
         types: ["PAC", "IAC", "PC"],
         at: "last",
       }),
-      req("chord-tones", "Chord notes on beats 1 and 3", ["M03"], {
+      req("chord-tones", "The tune plays chord notes on beats 1 and 3, 6 times in 10 or more", ["M03"], {
         rule: "chord-tones-strong",
         minRatio: 0.6,
         melody: "@melody",
@@ -1927,12 +1938,17 @@ export const capstones: readonly CapstoneDef[] = [
       // `shape: "either"`: a bar that moves the idea by degrees (the sequence of U07.L02, C E G over C, then
       // A C E over Am) counts as the idea, as it does in U07.L10; in half steps only, every move onto a chord
       // of the other quality was refused, so a tune built the way the course teaches it failed (review).
-      req("motif", "Repeat or vary your bar-1 idea in half the bars or more", ["M02"], {
-        rule: "motif-reuse",
-        track: "@melody",
-        minRatio: 0.5,
-        shape: "either",
-      }),
+      req(
+        "motif",
+        "Your bar-1 idea comes back, the same or moved onto another chord, in half the bars or more",
+        ["M02"],
+        {
+          rule: "motif-reuse",
+          track: "@melody",
+          minRatio: 0.5,
+          shape: "either",
+        },
+      ),
       opt("ends-home", "The tune ends on 1", ["M01"], {
         rule: "ends-on-degree",
         degrees: ["1"],
@@ -1950,7 +1966,7 @@ export const capstones: readonly CapstoneDef[] = [
     canDo: ["cd.compose.fourchord"],
     // One ladder serves both sessions, so each rung speaks to the chords (C2.S1) and to the tune (C2.S2).
     hints: ladder(
-      "Where does the loop stop looping? And where does your tune play its first bar again?",
+      "Two goals: the loop stops looping in bars 7 and 8, and the tune plays its bar-1 idea again in half the bars. Where does your loop stop, and where does bar 1 come back?",
       "Bars 7 and 8 carry the ending: the chord on 5 then the chord on 1, or the chord on 4 then the chord on 1. For the tune, play bar 1's shape again from the next chord's notes, the way a sequence did in Motif & Variation, in at least half the bars.",
       "Keep the loop for six bars, then two new chords for bars 7 and 8; under C G Am F that means `… G C>`. A tune that starts `[0 2 4 2]` can go on `[4 6 8 6] [5 7 9 7] [3 5 7 5]`: bar 1, moved onto each chord.",
     ),
@@ -2117,7 +2133,7 @@ export const capstones: readonly CapstoneDef[] = [
     bpm: [70, 140],
     // No key: the song is in whatever key the learner writes it (the analysis reads it from the code).
     brief:
-      "Verse, chorus, verse, chorus, 90 seconds or more, no intro. The chorus lifts: it differs from the verse in two ways or more (higher tune, busier drums, new chords, more parts). The bass lands with the kick. Key, tempo (70–140 BPM), groove, chords, tunes and sounds are yours; start from the template or paste your C2 in as the verse.",
+      "Write a song in the form verse, chorus, verse, chorus, 90 seconds or more, with no intro. Make the chorus differ from the verse in two ways or more: a higher tune, busier drums, new chords, more parts. Land at least half the bass notes with a kick. Start from the template, or paste your C2 in as the verse.",
     starter: C3_TEMPLATE,
     skills: ["F02", "F05", "B04"],
     minDurationSec: 90,
@@ -2136,7 +2152,7 @@ export const capstones: readonly CapstoneDef[] = [
         minAxes: 2,
       }),
       req("duration", "At least 90 seconds", ["F06"], { rule: "duration-sec", min: 90 }),
-      req("groove-lock", "Bass lands with the kick", ["B04"], {
+      req("groove-lock", "At least half the bass notes land with a kick", ["B04"], {
         rule: "groove-lock",
         kick: "@drums",
         bass: "@bass",
@@ -2370,7 +2386,7 @@ export const capstones: readonly CapstoneDef[] = [
     key: { tonic: "A", mode: "minor" },
     bpm: [60, 95],
     brief:
-      "A slow minor ballad in A minor, 60 to 95 BPM. The verse loops i–VI–III–VII (Am F C G); the chorus finds its own chords and lands with the major V, E with its G♯, then i. Your tune sings ♭3 and ♭6 and ends on 1 over Am. Groove, tempo, both tunes, the form and the sounds are yours.",
+      "Write a slow ballad in A minor at 60 to 95 BPM. Loop i–VI–III–VII (Am F C G) in the verse. Give the chorus its own chords, with the major V (E, with its G♯) going home to i. Make the tune sing ♭3 (C) and ♭6 (F), and end on 1 (A) over Am.",
     starter: C4_TEMPLATE,
     skills: ["H08", "H09", "S05"],
     // The binding rubric of contracts §6.6 in the Wave 5 shapes (content/specs/U10.md C4): the verse rule reads
@@ -2410,7 +2426,7 @@ export const capstones: readonly CapstoneDef[] = [
     ],
     canDo: ["cd.compose.minor-ballad"],
     hints: ladder(
-      "Which chord makes a minor key sound as if it has to go home?",
+      "The chorus needs one chord that pulls hard toward home. In a minor key, which chord on 5 does that?",
       "The chord on 5 pulls home only with the raised 7th: in A minor that is E major, with G♯, not E minor. For the colour, the tune needs C (♭3) and F (♭6) somewhere; its very last note is A, over Am.",
       'End the chorus on `E Am>` and put an F into the verse tune over the F chord: in `.scale("A3:minor")` that is ♭6, `n` 5.',
     ),
@@ -2590,7 +2606,7 @@ export const capstones: readonly CapstoneDef[] = [
     bpm: [80, 140],
     swing: { subdivision: 8, amount: 1 / 3 },
     brief:
-      "Two choruses of a 12-bar blues in C, 80–140 BPM, shuffled: swung 8ths on the hats. Every chord a dominant seventh, standard or quick change, V in bar 12. A riff that comes back, ♭3 or ♭5 in the tune at least twice, a second chorus that answers the first. Tempo, groove, riff and sounds are yours.",
+      "Write two choruses of a 12-bar blues in C at 80 to 140 BPM. Swing the 8ths on the hats. Make every chord a dominant seventh, standard or quick change, with V in bar 12. Give the tune a riff that comes back, and ♭3 or ♭5 twice or more. Let the second chorus answer the first.",
     starter: C5_TEMPLATE,
     skills: ["H10", "F04", "R13", "M08"],
     // The binding rubric of contracts §6.6 in the Wave 5 shapes (content/specs/U11.md C5). `blues-form` counts
@@ -2627,7 +2643,11 @@ export const capstones: readonly CapstoneDef[] = [
         anyOf: ["b3", "b5"],
         minCount: 2,
       }),
-      req("riff", "The riff comes back", ["M08"], { rule: "motif-reuse", track: "@melody", minRatio: 0.6 }),
+      req("riff", "The riff comes back: your bar-1 idea, again in 60% of the bars or more", ["M08"], {
+        rule: "motif-reuse",
+        track: "@melody",
+        minRatio: 0.6,
+      }),
     ],
     sessions: [
       ["Changes & riff", "Changes, shuffle feel and riff."],
@@ -2639,7 +2659,7 @@ export const capstones: readonly CapstoneDef[] = [
     ],
     canDo: ["cd.compose.twelve-bar"],
     hints: ladder(
-      "What makes a shuffle lean, and where does a blues turn round to start again?",
+      "A shuffle leans because its hats swing; a blues turns round in bar 12 to start again. Which of the two does your piece still miss?",
       "Swing the hats with `.swingBy(1/3, 4)`: eighths move, quarter notes stay. Bar 12 is the turnaround, V7 pulling back to bar 1. The blue notes are the key's ♭3 and ♭5: in C, E♭ and G♭.",
       "Give the tune two 12-bar sections, `mel: arrange([12, melChorus], [12, melChorus2])`: chorus 1 plays the riff; chorus 2 calls with it in the first two bars of each line and answers in the next two.",
     ),
@@ -2818,7 +2838,7 @@ export const capstones: readonly CapstoneDef[] = [
     meter: "4/4",
     bpm: [80, 130],
     brief:
-      'A modal vamp, 16 bars or more at 80–130 BPM, Mixolydian or Dorian, on a home note you choose. Put the colour note (♭7, or the raised 6) on beat 1 or 3, keep the home chord coming back, and leave out the 7th a half step below home, or ♭6. For Dorian: `.scale("D4:dorian")` and `chord("<Dm7 G7>")`. The rest is yours.',
+      "Write a modal vamp, 16 bars or more at 80 to 130 BPM, Mixolydian or Dorian, on any home note. Put the colour note (♭7, or the raised 6) on beat 1 or 3 twice or more. Play the home chord in 40% of the bars or more. Leave out the 7th a half step below home, or ♭6.",
     starter: C6_TEMPLATE,
     skills: ["S12", "H11"],
     rubric: [
@@ -2847,7 +2867,7 @@ export const capstones: readonly CapstoneDef[] = [
     sessionExtras: [{ starter: C6_TEMPLATE, focusRules: ["mode"] }, { focusRules: ["mode", "bars"] }],
     canDo: ["cd.compose.modal-vamp"],
     hints: ladder(
-      "Which one note makes your mode sound unlike major or minor, and where in the bar does the ear catch it?",
+      "One note makes your mode sound unlike major or minor, and the ear catches it on beat 1 or 3. Which note is it, and where does it fall in your bars?",
       "In G Mixolydian it is F natural (`n` 6 on the mode), in D Dorian B natural (`n` 5). Put it on beat 1 or 3 of the hook or the tune, twice or more, and keep the home chord in about half the bars.",
       "For sixteen bars, give each track sections: a `melTune` const for the tune and `mel: arrange([4, silence], [8, melTune], [4, silence])`, with the same 4 + 8 + 4 bars on every arranged track.",
     ),
@@ -3081,7 +3101,7 @@ export const capstones: readonly CapstoneDef[] = [
     key: { tonic: "C", mode: "major" },
     bpm: [70, 140],
     brief:
-      "A song in C, at least 32 bars at 70–140 BPM, with two colours from outside the key and a lift: a secondary dominant that goes where it points (A7 into Dm), ♭VI–♭VII–I in a row (A♭ B♭ C), and a last chorus of 8+ bars a half or whole step up, same tune. Where they go is yours.",
+      "Write a song in C, 32 bars or more at 70 to 140 BPM. Add a secondary dominant that goes where it points (A7 into Dm), and ♭VI ♭VII I in a row (A♭ B♭ C). End with a last chorus of 8 bars or more, a half or whole step up, with the same tune.",
     starter: C7_TEMPLATE,
     skills: ["H12", "H13", "H14"],
     rubric: [
@@ -3146,7 +3166,7 @@ export const capstones: readonly CapstoneDef[] = [
     ],
     canDo: ["cd.compose.chromatic"],
     hints: ladder(
-      "Which chord of the verse could a visitor lean into, bringing the note a half step below its root, and which two chords from C minor climb into C?",
+      "You need two colours: a chord that leans into a chord of the verse, bringing the note a half step below its root, and two chords from C minor that climb into C. Where could each go?",
       "A7 is the V7 of Dm: put it in the bar before a Dm (E7 before Am and D7 before G work the same way). A♭ and B♭ come from C minor: play them in the last bars of the chorus, straight into C.",
       "For the lift: add the chorus once more to the end of every `arrange()`, give the chords and bass a `changesChorus2` with every name moved up by the same step, and count the tune's key plan over the whole song, after its `arrange()`: C for 32 bars, then the new key for 8.",
     ),
@@ -3345,7 +3365,7 @@ export const capstones: readonly CapstoneDef[] = [
     // No key: the single is in whatever key the learner writes it, major or minor (the analysis reads it from the
     // code and from the key plan after `arrange()`).
     brief:
-      "Your single, the last track of Side A: a song of your own, two minutes or longer, with a verse, a chorus and a bridge, and four or more of the six devices on the card. Most are on your record; the card plays them back. Key, tempo, groove, sounds, form and what the song is about are yours.",
+      "Write your single, the last track of Side A: a song of your own, two minutes or longer, with a verse, a chorus and a bridge. Use four or more of the six devices on the devices card; most are already on your record, and the card plays them back. Key, tempo, groove, sounds and form are yours.",
     starter: CF_A_TEMPLATE,
     skills: ["H12", "H13", "H14", "F02"],
     minDurationSec: 120,
@@ -3520,7 +3540,7 @@ export const capstones: readonly CapstoneDef[] = [
     // content/specs/J2.md "JC1 ii–V Ballad"; the pieces and why each passes or fails are in
     // content/advanced/capstones/JC1/pieces.ts, the rule-by-rule tests in jc1.test.ts beside it.
     brief:
-      "A ballad of your own: sixteen bars at 56–92 BPM over ii–Vs that reach at least three keys, and a tune that meets the new chords on their 3rds and 7ths, a step or less from the note before. Every line reads `changes`. The keys, their order, the voicings, the sounds and the tune between the changes are yours.",
+      "Write a ballad of exactly 16 bars at 56 to 92 BPM over ii–Vs that reach at least three keys. At 7 chord changes in 10 or more, land the tune on the new chord's 3rd or 7th, a step or less from the note before. Let every line read `changes`. The keys and the voicings are yours.",
     starter: JC1_TEMPLATE,
     skills: ["J04", "J05", "J07"],
     // contracts §6.6 JC1, as 1.8 settled it. `parts` is a suggestion that never gates: it names the four parts the
@@ -3530,7 +3550,7 @@ export const capstones: readonly CapstoneDef[] = [
       req("ii-v", "ii–Vs that reach at least three keys", ["J05"], custom("ii-v-chain", { minKeys: 3 })),
       req(
         "guide-tones",
-        "At each chord change the tune lands on a 3rd or a 7th, a step or less from the last",
+        "At 7 chord changes in 10 or more, the tune lands on a 3rd or a 7th, 2 half steps or less from the note before",
         ["J07"],
         {
           rule: "guide-tones",
@@ -3677,7 +3697,7 @@ export const capstones: readonly CapstoneDef[] = [
     // content/specs/JC2.md; the pieces and why each passes or fails are in content/advanced/capstones/JC2/pieces.ts,
     // the rule-by-rule tests in jc2.test.ts beside it.
     brief:
-      "A jazz blues in F, yours. Write the changes once and let them drive the band: shells on the Rhodes, a bass that walks with its roots taken from your chord pattern, the ride swinging. Then put your own head on top for two choruses, the second one changed. Tempo, comping, the walk and the tune are yours.",
+      "Write a jazz blues in F. Write the changes once, as one chord pattern, and drive the band from it: shells on the Rhodes, and a walking bass that takes its roots from the pattern. Swing the ride or the comping. Put your own head on top for two choruses, the second one changed. Tempo and tune are yours.",
     starter: JC2_TEMPLATE,
     skills: ["J11", "B05", "J08"],
     // contracts §6.6 JC2 with the spec's settled bodies. Every required rule reads what is heard except
@@ -3694,7 +3714,7 @@ export const capstones: readonly CapstoneDef[] = [
       }),
       req(
         "walking",
-        "The bass walks",
+        "The bass walks: mostly the root on beat 1, a chord tone on 3, and on 4 a note a step from the next bar's root",
         ["B05"],
         custom("walking-bass", {
           bass: "@bass",
@@ -3717,7 +3737,7 @@ export const capstones: readonly CapstoneDef[] = [
         tool: ["tb.set", "tb.rootNotes"],
         min: 1,
       }),
-      req("head", "A head on top", ["J11"], {
+      req("head", "Four parts heard: drums, bass, chords and your head on top", ["J11"], {
         rule: "tracks",
         min: 4,
         roles: ["drums", "bass", "chords", "melody"],
@@ -3861,7 +3881,7 @@ export const capstones: readonly CapstoneDef[] = [
     swing: { subdivision: 8, amount: 1 / 3 },
     song: ["song.i-got-rhythm"],
     brief:
-      "A new head on rhythm changes in B♭: 32 bars, A A B A. The A sections keep the starter's chords, I Got Rhythm's (1930), each A ending on B♭. The bridge is D7 G7 C7 F7, two bars each. The tune is yours: at most a quarter of its bars may echo the old head.",
+      "Write a new head on rhythm changes in B♭: 32 bars, A A B A. Keep the starter's chords in each A, I Got Rhythm's (1930), ending on B♭. Make the bridge D7 G7 C7 F7, two bars each. Write your own tune: at most a quarter of its bars may echo the old head.",
     starter: JC3_TEMPLATE,
     skills: ["J12", "J10"],
     rubric: [
@@ -3877,27 +3897,32 @@ export const capstones: readonly CapstoneDef[] = [
         rn: ["III7", "III7", "VI7", "VI7", "II7", "II7", "V7", "V7"],
         bars: [17, 24],
       }),
-      req("chord-tones", "Chord tones on the strong beats of the tune", ["M03"], {
+      req("chord-tones", "The tune on chord tones on beats 1 and 3, in more than half of them", ["M03"], {
         rule: "chord-tones-strong",
         minRatio: 0.55,
         melody: "@melody",
         harmony: "@chords",
         strength: "strong",
       }),
-      req("bridge-guides", "In the bridge, a 3rd or a 7th as each chord arrives", ["J07"], {
-        rule: "guide-tones",
-        track: "@melody",
-        harmony: "@chords",
-        minRatio: 0.5,
-        at: "change",
-        section: { bars: [17, 24] },
-      }),
+      req(
+        "bridge-guides",
+        "In the bridge, the tune on a 3rd or a 7th as half the chords or more arrive",
+        ["J07"],
+        {
+          rule: "guide-tones",
+          track: "@melody",
+          harmony: "@chords",
+          minRatio: 0.5,
+          at: "change",
+          section: { bars: [17, 24] },
+        },
+      ),
       // Reads `GradeContext.songMelody` (I Got Rhythm's head, from its answer key) as the model the tune must not
       // repeat, and the changes bar by bar from `changes` (the first chord of each bar). While the key is not on file
       // the model is `standIn`, the head J4.L04 reads on these changes (decision 80).
       req(
         "original",
-        "A tune of your own, not an old head",
+        "A tune of your own: at most a quarter of its bars echo the old head",
         ["J12"],
         custom("contrafact", {
           changes: [...JC3_CHANGES_BY_BAR],
@@ -3980,7 +4005,7 @@ export const capstones: readonly CapstoneDef[] = [
       },
     ],
     hints: ladder(
-      "A head lands on the chord's own notes where the beat is strong and moves freely between them.",
+      "Land the tune on the chord's own notes on the strong beats, and move freely between them. Which bars miss a chord note on a strong beat?",
       "Look at beats 1 and 3 of each bar of the A, and at the first beat of each two-bar chord of the bridge.",
       "Start from a two-bar riff over the first two bars and vary it; in the bridge, land on each chord's 3rd or 7th, each landing a half step from the last.",
     ),
@@ -3994,7 +4019,7 @@ export const capstones: readonly CapstoneDef[] = [
     bpm: [56, 100],
     song: ["song.georgia-on-my-mind", "song.body-and-soul"],
     brief:
-      "Reharmonize a 1930 standard, Georgia on My Mind or Body and Soul, with at least three different devices: a tritone substitute, a secondary ii–V, a backdoor, a passing diminished chord. The melody stays exactly as written: put each new chord where the notes the tune holds agree with it.",
+      "Reharmonize Georgia on My Mind or Body and Soul (both 1930) with three or more of these four devices: a tritone substitute, a secondary ii–V, a backdoor, a passing diminished chord. Keep the melody note for note. Put each new chord where the tune's long notes are its chord tones or tensions that fit.",
     starter: JC4_TEMPLATE,
     skills: ["J14", "J13"],
     rubric: [
@@ -4041,7 +4066,7 @@ export const capstones: readonly CapstoneDef[] = [
     ],
     canDo: ["cd.compose.reharm"],
     hints: ladder(
-      "Where does the tune hold a note long enough for a new chord to sit under it?",
+      "Each new chord needs a place to sit: a note the tune holds. Where does the tune hold a note long enough for a new chord under it?",
       "Look at each dominant seventh that resolves, at a chord held for two bars, and at two chords a whole step apart.",
       "Swap a resolving dominant for the dominant a half step above its target, split a held chord into a ii–V aimed at the next, or climb between two chords a whole step apart with a diminished seventh.",
     ),
@@ -4063,7 +4088,7 @@ export const capstones: readonly CapstoneDef[] = [
     // content/specs/R3.md "RC1 16th-Note Funk"; the pieces and why each passes or fails are in
     // content/advanced/capstones/RC1/pieces.ts, the rule-by-rule tests in rc1.test.ts beside it.
     brief:
-      "A one-chord funk vamp at 90–115 BPM on any minor seventh, the bass on its minor pentatonic (Dorian too, once you have it). Sixteenth hats with accents and ghost notes; kick and bass together on the one of every bar; three bass notes or more between the eighths. Then a clav, and short stabs on a `horns:` track.",
+      "Write a one-chord funk vamp at 90 to 115 BPM on any minor seventh. Play sixteenth hats with loud accents and quiet ghost notes. Put the kick and the bass on the one of every bar. Give the bass three notes or more between the eighths. Add a clav, and short stabs on a `horns:` track.",
     starter: RC1_STARTER,
     skills: ["R14", "R15", "R10"],
     // Contracts §6.6 RC1, every line read from what is heard (AUTHORING §20.2).
@@ -4173,7 +4198,7 @@ export const capstones: readonly CapstoneDef[] = [
     // content/specs/R3.md "RC2 Clave & Polyrhythm"; the pieces and why each passes or fails are in
     // content/advanced/capstones/RC2/pieces.ts, the rule-by-rule tests in rc2.test.ts beside it.
     brief:
-      "Your son band, eight bars or more at 90–130 BPM: the son clave 3-2 on `perc` from bar 1 to the end, the tresillo in the bass in every bar (not a tumbao). Then layer it: three even hits on `perc2` against two on `kick` in the same bars, and a bell on `perc3`, five hits over sixteen steps.",
+      "Write a son band, eight bars or more. Play the son clave 3-2 on `perc` from bar 1 to the end, and the tresillo in the bass in every bar (not a tumbao). Add three even hits on `perc2` against two on `kick` in the same bars, and a bell on `perc3`: five hits over sixteen steps.",
     starter: RC2_STARTER,
     skills: ["R18", "R17"],
     // Contracts §6.6 RC2 with the pre-flight's coverage and simultaneity fixes (R3.md): the clave in every two-bar
@@ -4247,7 +4272,7 @@ export const capstones: readonly CapstoneDef[] = [
     ],
     canDo: ["cd.compose.clave"],
     hints: ladder(
-      "The clave is the line everything else answers. Does it run, unchanged and the right way round, from the first bar to the last?",
+      "The clave is the line everything else answers: it runs unchanged and the right way round from bar 1 to the last bar. Does yours?",
       "Eight bars means every line reaches bar 8: a loop written as `<…>` with eight entries, or `arrange()` on every line. Three against two means both in the same bar: three hits spaced a third of a bar apart while the kick plays two.",
       "For the bell, give `perc3` a rhythm in the `(k,n)` form over sixteen steps; a third number turns it to start on another step. Try two or three turns against the clave and keep the one that sits best.",
     ),
@@ -4268,7 +4293,7 @@ export const capstones: readonly CapstoneDef[] = [
       meter: "4/4",
       bpm: [60, 220],
       brief:
-        "Arrange the tune twice, in two genres; it stays note for note, at any octave. Put the versions 20 BPM apart or swing only one, and give each two sounds the other lacks. In each, shape one sound with a filter envelope, grit, movement, FM or room until you hear it. Twelve bars or more.",
+        "Arrange the tune twice, in two genres, twelve bars or more each. Keep the tune note for note, at any octave. Put the versions 20 BPM apart or swing only one, and give each two sounds the other lacks. In each, shape one sound with a filter envelope, grit, movement, FM or room, set far enough to hear.",
       starter: AC1_TEMPLATE,
       skills: ["D09", "D02", "D06", "D07", "F06"],
       // contracts §6.6 AC1, as the content lead settled it (A2.md): each rule runs on each version's own code;
@@ -4326,7 +4351,7 @@ export const capstones: readonly CapstoneDef[] = [
       ],
       canDo: ["cd.compose.two-genres"],
       hints: ladder(
-        "What stays when a song changes genre, and what moves?",
+        "The song's notes stay; almost everything around them can change between the versions. What have you changed so far?",
         "The tune's notes and their order stay. The tempo, the feel, the drums, the bass, the chords and the sounds can all move.",
         "Move the tempo a long way, or swing every line of one version and none of the other; swap at least two instruments; then turn one sound control up until you hear the sound change.",
       ),
@@ -4415,7 +4440,7 @@ export const capstones: readonly CapstoneDef[] = [
     // content/specs/A2.md "AC2 Neo-Soul Ballad"; the pieces and why each passes or fails are in
     // content/advanced/capstones/AC2/pieces.ts, the rule-by-rule tests in ac2.test.ts beside it.
     brief:
-      "A neo-soul ballad where the three tracks meet: eight bars or more at 60–90 BPM. Ninth and eleventh chords on the Rhodes in `chords:`, written note by note, the top note moving a step or less. Hats that swing in 16ths, a snare a few milliseconds behind the beat (about 20 ms at 76 BPM is `.late(.006)`), and your tune.",
+      "A neo-soul ballad where the three tracks meet: eight bars or more at 60–90 BPM. Play 9th and 11th chords on the Rhodes in `chords:`, note by note, their top note moving a step or less. Swing the hats in 16ths. Put the snare a little behind the beat: about 20 ms at 76 BPM is `.late(.006)`. Add your tune.",
     starter: AC2_TEMPLATE,
     skills: ["J02", "C05", "R13", "R15", "D10"],
     // contracts §6.6 AC2, as the content lead settled it (A2.md). The top voice is read on the `chords:` line, the
@@ -4423,7 +4448,7 @@ export const capstones: readonly CapstoneDef[] = [
     rubric: [
       req(
         "extensions",
-        "A 9th or an 11th in at least 60% of the bars",
+        "A 9th or an 11th in the chords of at least 60% of the bars",
         ["J02"],
         custom("extended-share", { harmony: "@chords", minRatio: 0.6 }),
       ),

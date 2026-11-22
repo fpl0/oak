@@ -77,7 +77,7 @@ const STAFF = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L04",
-  version: 2,
+  version: 3,
   title: "Passing & Neighbour Tones",
   objective:
     "I can decorate a tune with notes outside the chord that move by step: passing tones between chord tones, neighbour tones around one.",
@@ -107,7 +107,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Play both loops. What do the notes added in loop 2 do: rub like wrong notes, or join the line up?",
+          "Play both loops. Listen to beat 2 of loop 2, where each bar gains one note: do the added notes rub like wrong notes, or join the line up?",
         skills: [{ skill: "M04", w: 1 }],
         hints: null,
         tests: [],
@@ -130,7 +130,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Over the C chord the tune goes from home, C, up to degree 3 (E), with one note between them. Which note will you hear as a step on the way?",
+          "Over the C chord the tune goes from home, C, up to degree 3 (E), with one note between them. Read `n` and predict which note fills the gap, then pick it below.",
         skills: [{ skill: "M04", w: 1 }],
         hints: null,
         tests: [],
@@ -158,7 +158,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it with the chord-tone lens on: it marks every tune note that belongs to the chord under it. Look at the notes it leaves unmarked.",
+          "Run it with the chord-tone lens on: it marks every tune note that belongs to the chord under it. Look at the notes it leaves unmarked, then answer both questions.",
         skills: [{ skill: "M04", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -222,7 +222,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Fill each beat-2 gap with a note that is a step from the note before it, a step from the note after it, and not in the chord.",
+          "Replace each of the four `~` on beat 2 with one note. Each new note must be one step, one number in `n`, from the note before it and from the note after it, and not in that bar's chord. Keep beats 1 and 3 as they are.",
         skills: [{ skill: "M04", w: 1 }],
         code: { starter: STEP_STARTER },
         reference: { solutions: [STEP_REF], bars: 4 },
@@ -232,7 +232,7 @@ export default defineLesson({
           rules: [
             {
               id: "strong-beats",
-              label: "Beats 1 and 3 stay chord tones",
+              label: "Every note on beats 1 and 3 is a note of the chord under it",
               required: true,
               skills: ["M03"],
               rule: "chord-tones-strong",
@@ -243,7 +243,7 @@ export default defineLesson({
             },
             {
               id: "four-steps",
-              label: "Every gap: outside the chord, a step from both sides",
+              label: "At least 4 notes outside the chord, each a step from the notes on both sides",
               required: true,
               skills: ["M04"],
               rule: "non-chord-tones",
@@ -261,7 +261,7 @@ export default defineLesson({
             "{label}: not yet. Compare each gap with the notes on both sides of it: one step up or down from each.",
         },
         hints: ladder(
-          "Sing bar 1: E, a gap, G. Which note lies between them?",
+          "Start with bar 1: E on beat 1, the gap on beat 2, G on beat 3. Which degree lies between E and G?",
           "A step is the next degree up or down: one number in `n`. Where the notes on both sides are the same, step off it and come back.",
           "Bar 1's gap is `n` 3, F, between E and G. Bar 3 has G on both sides: one number above or below 4.",
         ),
@@ -312,7 +312,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "One bar, two chords, a short tune. One note, marked on the staff, is not in its chord. Does it pass through, or step off and come back?",
+          "Listen to a one-bar tune over two chords. One note, marked on the staff, is not in its chord. Pick passing tone if the tune steps through it and keeps going the same way, or neighbour tone if it steps off a note and comes back to it.",
         skills: [{ skill: "M04", w: 1 }],
         hints: [
           { text: "Follow the tune into the marked note and out of it. Does it keep going the same way?" },
@@ -359,7 +359,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The tune sings only the chords' own notes and jumps between them. Connect some of them by step: a passing tone between two, a neighbour tone around one.",
+          "Add at least two notes outside the chord on the empty beats: a passing tone that steps between two notes a 3rd apart, or a neighbour tone that steps off a note and straight back to it. Keep the notes on beats 1 and 3 as they are.",
         skills: [{ skill: "M04", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -367,7 +367,8 @@ export default defineLesson({
         rubric: [
           {
             id: "decorated",
-            label: "At least two passing or neighbour tones",
+            label:
+              "At least 2 notes outside the chord that step through (passing) or step off and back (neighbour)",
             required: true,
             skills: ["M04"],
             rule: "non-chord-tones",
@@ -378,7 +379,7 @@ export default defineLesson({
           },
           {
             id: "strong-beats",
-            label: "Chord tones on most of beats 1 and 3",
+            label: "At least 3 in 4 notes on beats 1 and 3 are notes of the chord under them",
             required: false,
             skills: ["M03"],
             rule: "chord-tones-strong",
@@ -389,7 +390,7 @@ export default defineLesson({
           },
           {
             id: "home",
-            label: "Ends on home, degree 1",
+            label: "The last note is home, degree 1",
             required: false,
             skills: ["M01"],
             rule: "ends-on-degree",
@@ -398,7 +399,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Bar 1 jumps from C to E. Which note could walk between them?",
+          "Bar 1 jumps from C on beat 1 to E on beat 3, and beat 2 is empty. Which note could walk between them?",
           "Put a note on a beat that is empty now, one step from the note before and one step from the note after. Keep beats 1 and 3 as they are.",
           "Bar 1 can become `[0 1 2 ~]`. Find a second bar where a step fits between two notes, or around one.",
         ),

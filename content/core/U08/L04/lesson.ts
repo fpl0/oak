@@ -80,7 +80,7 @@ const TAP_FEEDBACK = {
 
 export default defineLesson({
   id: "U08.L04",
-  version: 2,
+  version: 3,
   title: "Lock with the Kick",
   objective:
     "I can give the kick drum and the bass one rhythm, named once in a const, so they hit as one instrument.",
@@ -107,7 +107,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen low, where the kick and the bass live. In each loop, do the two sound like two parts or like one?",
+          "Listen to both loops, low down, where the kick and the bass play. Listen for whether the two sound like two parts or like one.",
         skills: [{ skill: "B04", w: 1 }],
         hints: null,
         tests: [],
@@ -129,7 +129,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'The rhythm is written once, `const hits = "x ~ ~ x ~ ~ x ~"`, and both lines take it: `kick: s("bd").struct(hits)` and `bass: n(…).struct(hits)`. How many times a bar do the kick and the bass hit together?',
+          'Predict how many times in one bar the kick and the bass hit together, then enter the number. The rhythm is written once, `const hits = "x ~ ~ x ~ ~ x ~"`, and both lines take it with `.struct(hits)`.',
         skills: [{ skill: "B04", w: 1 }],
         hints: null,
         tests: [],
@@ -152,14 +152,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Run it. Then change the `x`s and `~`s inside `hits`, for example to `"x ~ x ~ ~ x ~ ~"`, run it again and watch the kick and the bass on the roll.',
+          'Run the loop. Change the `x`s and `~`s inside the quotes of `hits`, for example to `"x ~ x ~ ~ x ~ ~"`, and run it again. Watch which lines move on the roll, then answer both questions below.',
         skills: [{ skill: "B04", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Find every line that says `hits`. Then count the eighths of the hook's rhythm, 1 & 2 & 3 & 4 &, and see which hits land on an &.",
         },
         hints: ladder(
-          "Which lines read `hits`? Those are the ones a change can reach.",
+          "Find every line that reads `hits`. Those are the lines a change can reach.",
           "Count the hook's `hits` in eighths: 1 & 2 & 3 & 4 &. Each `x` is one hit.",
           'The first `x` is beat 1 and the last is beat 4. The middle one sits on an "and": which beat comes before it?',
         ),
@@ -212,7 +212,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The kick plays `hits`, but the bass has a rhythm of its own, an eighth on every beat. Change the bass's `.struct()` so it plays the kick's rhythm.",
+          "The kick plays `hits`; the bass plays a rhythm of its own, an eighth on every beat. Change the highlighted rhythm in the bass's `.struct()` so the bass plays the kick's rhythm. Done when every bass note starts with a kick.",
         skills: [{ skill: "B04", w: 1 }],
         code: { starter: S4_STARTER },
         reference: { solutions: [S4_SOLUTION], bars: 4 },
@@ -225,7 +225,7 @@ export default defineLesson({
           "rhythm.extra": "Bar {bar}, {beatLabel}: the bass plays where the kick is silent.",
         },
         hints: ladder(
-          "Where is the kick's rhythm written? Could the bass read it from the same place?",
+          "The kick's rhythm is written once, at the top. The bass can read it from the same place.",
           "`.struct()` takes a rhythm; the name `hits` stands for the kick's rhythm, without quotes.",
           'The kick line is `s("bd").struct(hits)`. The bass\'s `.struct()` can hold the same thing.',
         ),
@@ -275,13 +275,13 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Tap with the kick and the bass for two bars: three taps a bar, on 1, the “and” of 2, and 4. Any key works.",
+          "Tap with the kick and the bass for two bars, on 1, the “and” of 2, and 4: three taps a bar, six in all.",
         skills: [
           { skill: "B04", w: 0.6 },
           { skill: "R07", w: 0.4 },
         ],
         hints: ladder(
-          "Which hit comes between two beats?",
+          "Two of the three hits fall on beats, 1 and 4. Listen for the one that falls between two beats.",
           "Count eighths out loud, 1 & 2 & 3 & 4 &, and tap on 1, the & after 2, and 4.",
           "Tap the first bar's three hits alone, then keep going without stopping.",
         ),
@@ -313,7 +313,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Two bars of drums and bass, a new groove each time. Does the bass hit with the kick, or does it have a rhythm of its own?",
+          "Listen to two bars of drums and bass, a new groove each time. Pick whether every bass note starts with a kick, or the bass has a rhythm of its own.",
         skills: [{ skill: "B04", w: 1 }],
         hints: [
           {
@@ -352,7 +352,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write one rhythm in a `const` and give it to both the kick and the bass; a hit between the beats makes them push. Then add a snare and hats of your own.",
+          "Write one rhythm in a `const` at the top, with at least one hit between the beats. Give it to both the kick and the bass with `.struct()`. Then add a snare on 2 and 4 and hats. Done when at least 3 in 4 bass notes start with a kick.",
         skills: [{ skill: "B04", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -360,7 +360,7 @@ export default defineLesson({
         rubric: [
           {
             id: "bass-with-the-kick",
-            label: "The bass lands with the kick",
+            label: "At least 3 in 4 bass notes start with a kick",
             required: true,
             skills: ["B04"],
             rule: "groove-lock",
@@ -370,7 +370,7 @@ export default defineLesson({
           },
           {
             id: "named-once",
-            label: "The rhythm named once, in a `const`",
+            label: "A `const` in the code",
             required: false,
             skills: ["B04"],
             rule: "uses",
@@ -378,7 +378,7 @@ export default defineLesson({
           },
           {
             id: "a-push",
-            label: "A kick between the beats that pushes into the next one",
+            label: "At least one kick between the beats",
             required: false,
             skills: ["R07"],
             rule: "syncopation",
@@ -389,7 +389,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Where do the kick and the bass hit now? Which line should follow which?",
+          "Now the kick plays on 1 and 3 and the bass on every beat. One rhythm has to serve both lines.",
           'Write the rhythm once at the top, `const hits = "…"`, with `x` for a hit and `~` for a gap in eight eighths. Then give it to both lines with `.struct(hits)`.',
           'The kick becomes `s("bd").struct(hits)`. The bass keeps its notes and takes `.struct(hits)` in place of its own rhythm.',
         ),

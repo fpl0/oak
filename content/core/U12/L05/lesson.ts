@@ -78,7 +78,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U12.L05",
-  version: 2,
+  version: 3,
   title: "Sevenths in Minor & Guide-Tone Preview",
   objective:
     "I can number the seventh chords of a minor key and follow the 3rds and 7ths as a thread through a chain of sevenths.",
@@ -104,7 +104,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Every chord changes, bar after bar. In loop 2, listen to the long note on top instead: how far does it move while the chords travel?",
+          "Listen to both loops: the eight chords alone, then the same chords with one long note a bar on top. In loop 2, listen for that top note: how far does it move while the chords travel?",
         skills: [{ skill: "C08", w: 1 }],
         hints: null,
         tests: [],
@@ -126,7 +126,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Dm7 is D F A C; G7 is G B D F. One note of Dm7 makes it minor, and in G7 the same note is what makes G7 lean. Which?",
+          "Predict the one note that is both the note making Dm7 minor and the note making G7 lean, then run it. Dm7 is D F A C; G7 is G B D F.",
         skills: [{ skill: "C08", w: 1 }],
         hints: null,
         tests: [],
@@ -154,7 +154,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it with the chord-tone lens open: it marks which member of each chord every note is. The top line plays F, F, E, E. Which member is it each time, and how far does it move when G7 goes to Cmaj7?",
+          "Run the code with the chord-tone lens open: it marks which member of each chord every note is. The top line plays F, F, E, E. Answer both questions: which member it is in each bar, and how many half steps it moves from G7 to Cmaj7.",
         skills: [{ skill: "C08", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -215,7 +215,7 @@ export default defineLesson({
         role: "check",
         key: A_MINOR,
         prompt:
-          "A loop in A minor, in chord names: Am7, Dm7, Bm7♭5, E7. Write the numeral of each chord with its seventh, counted from A.",
+          "Fill the four slots, in order, with the numeral of each chord of this A minor loop: Am7, Dm7, Bm7♭5, E7. Count the degrees from A, and give each numeral its seventh ending.",
         skills: [
           { skill: "C08", w: 0.7 },
           { skill: "N06", w: 0.3 },
@@ -281,7 +281,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The cycle's last four bars, Bm7♭5, E7, Am7, Am7, with a thread that starts on D, the 3rd of Bm7♭5. Finish it: one note a bar, each the 3rd or the 7th of its chord, staying put or moving by a step.",
+          "Finish the thread on the `mel` line: change its last three notes, one a bar, over E7, Am7 and Am7. Each note must be the 3rd or the 7th of its chord, and stay put or move one step from the note before. Bar 1 stays D, the 3rd of Bm7♭5.",
         skills: [{ skill: "C08", w: 1 }],
         code: { starter: THREAD_STARTER },
         reference: { solutions: [THREAD_SOLUTION], bars: 4 },
@@ -295,7 +295,7 @@ export default defineLesson({
             "Bar {bar}: the right note in the wrong octave. The thread stays close: from D it moves by a step, not a leap.",
         },
         hints: ladder(
-          "Is D a note of E7? If it is, the thread can stay.",
+          "Start with bar 2, over E7. The thread is on D: is D the 3rd or the 7th of E7? If it is, the thread can stay.",
           "E7 is E G♯ B D: D is its 7th, so bar 2 keeps D. Am7 is A C E G: which of its 3rd and 7th is a step from D?",
           "Bar 2 is D again. In bars 3 and 4 the thread falls one step, to the 3rd of Am7, and stays there.",
         ),
@@ -342,7 +342,7 @@ export default defineLesson({
         role: "practice",
         key: C_MAJOR,
         prompt:
-          "Hear it, then sing the thread over the first four chords: fa, fa, mi, mi, one long note a bar. Dm7, G7, Cmaj7 and Fmaj7 all live in C major, so do is C here. The numbers stay on screen: 4, 4, 3, 3. Sing in your own range.",
+          "Sing the thread over the first four chords: four long notes, one a bar, fa, fa, mi, mi (4, 4, 3, 3). Dm7, G7, Cmaj7 and Fmaj7 all live in C major, so do is C here. Hear it first, and sing in your own range.",
         skills: [
           { skill: "V03", w: 0.6 },
           { skill: "C08", w: 0.4 },
@@ -378,7 +378,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The eight-bar cycle plays with its bass; the tune is one A a bar. Write your own: start each bar on the chord's 3rd or 7th, then fill the bar as you like, with passing notes, a rhythm or a leap. Let the line fall slowly, the way the thread does.",
+          "Replace the one A a bar on the `mel` line with your own tune over the eight-bar cycle. Start every bar on its chord's 3rd or 7th, then fill the rest of the bar as you like: passing notes, a rhythm, a leap. Let the line fall slowly, the way the thread does.",
         skills: [{ skill: "C08", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [8, 8],
@@ -386,7 +386,7 @@ export default defineLesson({
         rubric: [
           {
             id: "starts-on-guide-tones",
-            label: "Your tune starts each bar on the chord's 3rd or 7th",
+            label: "All eight bars of the `mel` line start on the chord's 3rd or 7th",
             required: true,
             skills: ["C08"],
             rule: "guide-tones",
@@ -399,7 +399,7 @@ export default defineLesson({
           },
           {
             id: "ends-at-home",
-            label: "The tune ends on 1, A, over Am7",
+            label: "The `mel` line's last note is degree 1, A",
             required: false,
             skills: ["M03"],
             rule: "ends-on-degree",
@@ -409,7 +409,7 @@ export default defineLesson({
         ],
         // Corrections gate: no "not yet." override; the rule names the bar, the chord and its guide tones.
         hints: ladder(
-          "Over Dm7, which two notes say what kind of chord it is?",
+          "Each bar's first note must be one of its chord's two guide tones. Over Dm7, the first bar, which two notes are they?",
           "Each bar's first note should be its chord's 3rd or 7th: F or C over Dm7, B or F over G7, E or B over Cmaj7, and so on. The chord-tone lens marks them.",
           "Start from the thread you heard, one long note a bar, then give each bar a few more notes after its first. Bar 1 can begin F, then fall through E and D.",
         ),

@@ -103,7 +103,7 @@ const makeAnswer = (pattern: string, lines = trio(TOUR_CALL), bpm = BPM) =>
  */
 const COMPING_TOURS: RubricRule = {
   id: "comping-tours",
-  label: "Your comping comes back a 4th higher, twice",
+  label: "The comping's four bars come back a 4th higher (5 half steps up, or 7 down), at least twice",
   required: true,
   skills: ["J05"],
   rule: "custom",
@@ -113,7 +113,7 @@ const COMPING_TOURS: RubricRule = {
 const LICK_TOURS: RubricRule = {
   ...COMPING_TOURS,
   id: "lick-tours",
-  label: "Your vibes lick moves with the trio",
+  label: "The vibes' four bars come back a 4th higher with the comping, at least twice",
   required: false,
   params: { track: "mel", unitBars: 4, semis: [5, -7], min: 2 },
 };
@@ -125,7 +125,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J2.L01",
-  version: 2,
+  version: 3,
   title: "All Twelve Keys",
   objective: "I can move a ii–V–I round the cycle of fourths and play it in any key.",
   key: { tonic: "C", mode: "major" },
@@ -151,7 +151,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen for home at the end of each four bars. Is it the same chord each time, or does home keep moving?",
+          "Listen for home, the chord each four bars land on. Notice whether it is the same chord each time or whether home keeps moving.",
         skills: [{ skill: "J05", w: 1 }],
         hints: null,
         tests: [],
@@ -177,7 +177,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The trio of the first example, in C, with `.transpose(5)` added to every line: chords, bass and lick all move up five half steps. Where is home now?",
+          "The trio of the first example, in C, with `.transpose(5)` added to every line: chords, bass and lick all move up five half steps. Predict where home is now, and pick it.",
         skills: [{ skill: "J05", w: 1 }],
         hints: null,
         tests: [],
@@ -205,14 +205,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the tour and read the chord band as it goes, with the circle of fifths beside it. Each number in `tour` moves the whole trio.",
+          "Run the tour and read the chord band as it goes, with the circle of fifths beside it. Each number in `tour` moves the whole trio. Then answer: which key comes straight after B♭, and how many keys the tour visits before C comes back.",
         skills: [{ skill: "J05", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read the chord band at bars 9 and 13, and find both keys on the circle: which way round does the tour walk?",
         },
         hints: ladder(
-          "Which way round the circle does each move go?",
+          "Find C and F on the circle, then the next key the chord band shows. Each move goes the same way round.",
           "Each number is the one before plus five; five half steps up from a key is the key a 4th above it.",
           "From C the tour goes to F, then to the key a 4th above F. Count the keys until home comes back.",
         ),
@@ -261,7 +261,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The trio plays its ii–V–I in C, then in F: `tour` moves every line. Take it one key further round the cycle, four bars more.",
+          "The trio plays its ii–V–I in C, then in F: `tour` moves every line. Add one more number to `tour` so the trio plays four more bars in the next key round the cycle. Done when bars 9 to 12 match the target.",
         skills: [{ skill: "J05", w: 1 }],
         swing: SWUNG,
         code: { starter: TOUR_STARTER },
@@ -276,7 +276,7 @@ export default defineLesson({
             "Not yet: from bar 9 the chords are not the ones of the next key round the cycle. Listen to bars 5 to 8, then to the target's bars 9 to 12: how far up does home move each time?",
         },
         hints: ladder(
-          "How far did the trio move from C to F?",
+          "Look at the two numbers already in `tour`: they say how far the trio moved from C to F. The next key moves the same distance again.",
           "Five half steps up each time. The third key is five half steps above F, and it lasts four bars like the others.",
           "Add one more number to `tour`: F's number plus five, written with `!4`. Taking 12 off keeps the trio low.",
         ),
@@ -331,7 +331,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "This chart tours C, F, B♭ and E♭, then repeats E♭ where the fifth key should be. Write the fifth key's ii–V–I by name.",
+          "This chart tours C, F, B♭ and E♭, then repeats E♭ where the fifth key should be. Rewrite bars 17 to 20 of `changes` by name as the ii–V–I of the fifth key, the key a 4th above E♭. Done when those four bars match the target.",
         skills: [{ skill: "J05", w: 1 }],
         swing: SWUNG,
         code: { starter: CHART_STARTER },
@@ -344,7 +344,7 @@ export default defineLesson({
             "Not yet: bars 17 to 20 do not sound like the key a 4th above E♭. Compare each chord with the same chord four bars earlier: every one moves the same distance.",
         },
         hints: ladder(
-          "Which key is a 4th above E♭?",
+          "Count a 4th up from E♭ to find the fifth key's home. Every key in the tour is a 4th above the one before.",
           "Each chord of the new key is a 4th above the same chord of the last one: the ii, the V and the home chord all move.",
           "The home chord is A♭ major seventh. Its ii is a minor seventh a step above A♭, its V the dominant seventh a 5th above it.",
         ),
@@ -420,7 +420,7 @@ export default defineLesson({
         role: "practice",
         title: "ii–V–I tour",
         prompt:
-          "Take your trio on tour: start in any key, and every four bars move the whole trio a 4th higher, at least three keys. Give the vibes a lick of your own that travels with the shells, and pick a swing tempo between 120 and 200.",
+          "Take your trio on tour with `tour`. Required: start in any key, and every four bars move the comping a 4th higher, through at least three keys. Also on the checklist: the vibes lick moves with the trio, and a tempo between 120 and 200. For more, give the vibes a lick of your own.",
         skills: [{ skill: "J05", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -431,7 +431,7 @@ export default defineLesson({
           LICK_TOURS,
           {
             id: "tour-tempo",
-            label: "A tempo for medium or up-tempo swing, 120–200",
+            label: "`setcpm` sets a tempo between 120 and 200 beats a minute",
             required: false,
             skills: ["J05"],
             rule: "tempo-bpm",
@@ -442,7 +442,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "What moves the whole trio at once?",
+          "Look for the one call that ends every line of the trio: one number pattern feeds it.",
           "Every line ends with the same move; give `tour` one number for each key, each one five half steps above the last.",
           "Three keys from C: 0, then 5, then 5 more (or 12 fewer); each lasts four bars with `!4`.",
         ),

@@ -87,7 +87,7 @@ const plain = (starter: string) => starter.replace(/[⟪⟫]/g, "");
 /** Every chord a shell: three notes, the root at the bottom, the 3rd and the 7th above it, against the cycle. */
 const SHELLS_RULE: RubricRule = {
   id: "shells",
-  label: "Your chords are shells: root, 3rd and 7th",
+  label: "Every chord is a shell: the root lowest, then the 3rd and the 7th, nothing else",
   required: true,
   skills: ["J08"],
   rule: "custom",
@@ -101,7 +101,7 @@ const DRUMS_BASS = { band: "band.two-five-one", tracks: ["drums", "bass"] } as c
 
 export default defineLesson({
   id: "J1.L05",
-  version: 2,
+  version: 3,
   title: "Shells",
   objective: "I can voice a ii–V–I in shells, root, 3rd and 7th, and comp it in a swinging trio.",
   key: { tonic: "C", mode: "major" },
@@ -127,7 +127,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to what the Rhodes adds in the second loop. Does it fill the room, or leave space around the bass and the ride?",
+          "Listen to what the Rhodes adds in the second loop. Notice whether it fills the room or leaves space around the bass and the ride.",
         skills: [{ skill: "J08", w: 1 }],
         hints: null,
         tests: [],
@@ -158,14 +158,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run the left hand alone, held a bar a chord. The chord-tone lens names each note. How many notes does each chord have, and which members of G7 are they?",
+          "Run the left hand alone, held a bar a chord. The chord-tone lens names each note. Answer two questions: how many notes each chord has, and which members of G7 the left hand plays in bar 2.",
         skills: [{ skill: "J08", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the notes of one chord on the roll, then read the lens over bar 2 from the lowest note up.",
         },
         hints: ladder(
-          "Which note of G7 is at the bottom, and is the 5th there at all?",
+          "Read bar 2 from its lowest note up and name each note's member of G7. Check whether the 5th is there at all.",
           "G7 is G B D F. The lens marks each note of bar 2 as one of those members.",
           "The lowest note of bar 2 is G, the root. Above it are two of B, D and F; one of the three is left out.",
         ),
@@ -213,10 +213,11 @@ export default defineLesson({
         id: "shell-of-fmaj7",
         version: 1,
         role: "check",
-        prompt: "Play a shell of Fmaj7 on the keyboard: three notes, F at the bottom.",
+        prompt:
+          "Play a shell of Fmaj7 on the keyboard: three notes, F at the bottom, then its 3rd and its 7th.",
         skills: [{ skill: "J08", w: 1 }],
         hints: ladder(
-          "Fmaj7 has four notes. Which one does a shell leave out?",
+          "Fmaj7 has four notes and a shell keeps three. Find the one it leaves out.",
           "Fmaj7 is F A C E. A shell keeps the root at the bottom and the two notes that name the quality above it.",
           "F at the bottom, then the 3rd of Fmaj7, then one more note: not C.",
         ),
@@ -280,7 +281,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Write the Rhodes' chords yourself as shells, one bracket of three notes a chord, and keep the comping rhythm.",
+          "Replace `chord(changes).voicing()` with chords you write as note names: one bracket of three notes for each bar, Dm7, G7, Cmaj7, Cmaj7. Each is a shell: the root lowest, then the 3rd and the 7th. Keep `.struct()` and the rest of the chain. Done when every chord is a three-note shell.",
         skills: [{ skill: "J08", w: 1 }],
         swing: SWUNG,
         code: { starter: SHELL_STARTER },
@@ -313,7 +314,7 @@ export default defineLesson({
             "{label}: not yet. Count the notes of each chord and check which one sits at the bottom.",
         },
         hints: ladder(
-          "Which three notes of Dm7 make its shell?",
+          "Start with Dm7, D F A C. A shell keeps three of those four notes, with the root lowest.",
           "Dm7 is D F A C: the root at the bottom, then the 3rd and the 7th. A chord in note names is a bracket with commas, lowest note first.",
           "Bar 1 is `[d3,f3,c4]`. For G7 put G at the bottom and its 3rd and 7th above it; Cmaj7 the same.",
         ),
@@ -398,7 +399,7 @@ export default defineLesson({
         role: "practice",
         title: "Shell comping",
         prompt:
-          "Comp the ii–V–I in C with shells you write by hand: root at the bottom, the 3rd and 7th above it. Then pick a rhythm: two short hits a bar on 1 and the and of 2, as the trio's pianist played, a push on the and of 4, or long notes.",
+          "Comp the ii–V–I in C (Dm7, G7, Cmaj7, Cmaj7) with shells you write as note names. Required: each chord is the root at the bottom with its 3rd and 7th above. Also on the checklist: at least two chords off the beat, with the beat after them silent, such as on the and of 2 or the and of 4.",
         skills: [{ skill: "J08", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -408,7 +409,7 @@ export default defineLesson({
           { ...SHELLS_RULE, params: { ...SHELLS_RULE.params, minRatio: 0.75 } },
           {
             id: "comping-pushes",
-            label: "The comping syncopates: a chord off the beat, none on the beat after it",
+            label: "At least 2 chords land off the beat, with no chord on the beat after them",
             required: false,
             skills: ["R13"],
             rule: "syncopation",
@@ -419,7 +420,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which notes does the dictionary's voicing play that a shell leaves out?",
+          "Replace the dictionary voicing with chords you write yourself as note names, one bracket per bar.",
           "A shell is three notes: the root at the bottom, then the 3rd and the 7th, in either order. Write each chord as a bracket of note names.",
           "Dm7 can be `[d3,f3,c4]`. Give G7 and Cmaj7 the same treatment, and keep or change the rhythm after the chords.",
         ),

@@ -103,7 +103,7 @@ const MAKE_VIBES = `mel: note("<[d5 ~ c5 bb4] [b4 ~ ~ ~] [eb5 ~ d5 c5] [eb5 ~ ~ 
 /** The Make's one idea: a dominant a half step above the chord it moves to, heard on the chords line. */
 const TRITONE_SUB: RubricRule = {
   id: "tritone-sub",
-  label: "A tritone substitute that slides into its chord",
+  label: "At least one dominant is replaced by its tritone substitute, the dominant six half steps away",
   required: true,
   skills: ["J13"],
   rule: "device-count",
@@ -117,7 +117,7 @@ const TRITONE_SUB: RubricRule = {
  */
 const BASS_FOLLOWS: RubricRule = {
   id: "bass-follows",
-  label: "The bass plays each chord's root as it changes, so it slides with the substitute",
+  label: "At every chord change the bass plays the new chord's root",
   required: false,
   skills: ["J13"],
   rule: "bass-line",
@@ -132,7 +132,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J5.L01",
-  version: 2,
+  version: 3,
   title: "Tritone Substitution",
   objective: "I can swap a V7 for the dominant a tritone away and hear the bass slide home.",
   key: C,
@@ -157,7 +157,8 @@ export default defineLesson({
         id: "two-endings",
         version: 1,
         role: "practice",
-        prompt: "Listen to the bass from bar 1 to the last chord. How does it travel in each take?",
+        prompt:
+          "Listen to the bass from bar 1 to the last chord in both takes. Notice how it travels: by jumps, or by small steps.",
         skills: [{ skill: "J13", w: 1 }],
         hints: null,
         tests: [],
@@ -187,7 +188,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight bars: the first ending, then the second, with D♭7 in bar 6. From D in bar 5, where does the bass go in bar 6?",
+          "Eight bars: the first ending, then the second, with D♭7 in bar 6. Predict where the bass goes from D in bar 5, and pick your answer.",
         skills: [{ skill: "J13", w: 1 }],
         hints: null,
         tests: [],
@@ -215,14 +216,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'G7, then D♭7, each played as its 3rd and 7th with `.dict("guidetones")`, over its root. Run it and read the roll.',
+          'G7, then D♭7, each played as its 3rd and 7th with `.dict("guidetones")`, over its root. Run it, read the roll and answer two questions: how many notes the two chords share, and how far D♭ is from G.',
         skills: [{ skill: "J13", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Compare the two upper notes of bar 1 with the two of bar 2 on the roll, then count the half steps between the two bass notes.",
         },
         hints: ladder(
-          "Do the upper notes move at all when the chord changes?",
+          "Read the two upper notes of bar 1, then of bar 2, and check whether they move at all.",
           "The roll's upper lane holds two notes per bar. Read their names in bar 1, then in bar 2.",
           "In G7 the 3rd is B and the 7th is F. Find the 3rd and the 7th of D♭7 the same way: up four half steps from D♭, and down two from D♭.",
         ),
@@ -272,7 +273,7 @@ export default defineLesson({
         role: "check",
         key: F,
         prompt:
-          "A ii–V–I in F: Gm7, C7, Fmaj7. Replace C7 with the dominant a tritone away, so the bass slides into F by half steps.",
+          "A ii–V–I in F: Gm7, C7, Fmaj7. Replace C7 in `changes` with the dominant seventh a tritone (six half steps) away, so the bass slides into F by half steps. Keep Gm7 and Fmaj7.",
         skills: [{ skill: "J13", w: 1 }],
         swing: SWUNG,
         code: { starter: SUB_STARTER },
@@ -286,7 +287,7 @@ export default defineLesson({
             "Bar {bar}: other notes than the target's. Listen to the bass from bar 1 to bar 3: in the target it slides down by half steps, and the chord in bar 2 still leans hard into F.",
         },
         hints: ladder(
-          "Which note is a tritone, six half steps, from C?",
+          "Count six half steps from C to find the root of the new chord.",
           "Count six half steps up from C. A dominant seventh on that note shares C7's 3rd and 7th, E and B♭.",
           "In C the substitute for G7 was D♭7, a half step above home. Find the same chord above F.",
         ),
@@ -355,7 +356,7 @@ export default defineLesson({
         prompt: "The ii–V–I in E♭: Fm7, B♭7, E♭maj7. Type the chord that can replace B♭7.",
         skills: [{ skill: "J13", w: 1 }],
         hints: ladder(
-          "How far from B♭7's root is its substitute's root?",
+          "The substitute's root is a tritone from B♭: count six half steps.",
           "Six half steps from B♭, and the same kind of chord as B♭7.",
           "Its root is a half step above E♭, where the bass lands.",
         ),
@@ -396,10 +397,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Short endings in different keys, one at a time. Each comes home through a V7 or through its substitute. Which one?",
+          "Short endings in different keys, one at a time. Each comes home through a V7 or through its tritone substitute. For each, pick which.",
         skills: [{ skill: "J13", w: 1 }],
         hints: [
-          { text: "Hum the lowest note of each chord. Does the bass jump, or slide?" },
+          { text: "Hum the lowest note of the last two chords: the bass either jumps or slides into home." },
           {
             text: "Before home, the V7's bass falls a 5th (or climbs a 4th); the substitute's bass steps down a half step.",
           },
@@ -438,7 +439,7 @@ export default defineLesson({
         key: Bb,
         title: "Turnaround with a slide",
         prompt:
-          "The turnaround that ends a tune in B♭: B♭maj7, G7, Cm7, F7. Put a substitute in for one of its dominants, or both, and move the bass with it so it slides. Then add a vibes line that lands on the guide tones each pair of twins shares, or try another tempo.",
+          "The turnaround is B♭maj7, G7, Cm7, F7. Required: replace at least one of its dominants with its tritone substitute. Also on the checklist: the bass plays each new chord's root, so it slides, and a third line of your own, such as a vibes line.",
         skills: [{ skill: "J13", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -451,7 +452,7 @@ export default defineLesson({
           BASS_FOLLOWS,
           {
             id: "a-tune",
-            label: "A line of your own on top",
+            label: "At least three lines play, such as a vibes line over chords and bass",
             required: false,
             skills: ["J13"],
             rule: "tracks",
@@ -461,7 +462,7 @@ export default defineLesson({
         // The override serves both rules, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which two chords of the loop are dominant sevenths?",
+          "Find the two dominant sevenths in the loop: either can take a substitute.",
           "Each of them can be replaced by the dominant seventh six half steps away; the new root sits a half step above the chord that follows.",
           "Start with the last one: the chord before B♭maj7 can become a dominant whose root is a half step above B♭.",
         ),

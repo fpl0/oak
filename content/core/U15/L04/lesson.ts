@@ -135,7 +135,7 @@ const earPart = (id: string, prompt: string, form: string, right: string): Ident
 
 export default defineLesson({
   id: "U15.L04",
-  version: 2,
+  version: 3,
   title: "Tonicization",
   objective: "I can lead into a chord with its own leading-tone chord, and hear it from the climbing bass.",
   key: C_MAJOR,
@@ -160,7 +160,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Two ways into D minor: first last lesson's A7, then an organ walk-up. Keep your ear on the bass. How does it reach each new chord, by a leap or by the smallest steps?",
+          "Listen to two ways into D minor: first last lesson's A7, then an organ walk-up. Keep your ear on the bass. Listen for how it reaches each new chord: by a leap, or a half step at a time.",
         skills: [{ skill: "H12", w: 1 }],
         hints: null,
         tests: [],
@@ -190,7 +190,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A7 is A, C♯, E and G. Take the root away and put B♭ on top: C♯, E, G, B♭. The code plays both, one a bar. What kind of chord is the second?",
+          "A7 is A, C♯, E and G. Take the root away and put B♭ on top: C♯, E, G, B♭. The code plays both, one a bar. Predict what kind of chord the second one is, then pick it.",
         skills: [{ skill: "H12", w: 1 }],
         hints: null,
         tests: [],
@@ -218,14 +218,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A7, then C♯°7, then D minor, each stacked from its root. Compare the note names of the first two bars on the roll, then see where each root sits against D.",
+          "Run the three chords, A7, C♯°7 and D minor, each stacked from its root, and read the note names on the roll. Answer two questions. First, how many notes do A7 and C♯°7 share? Second, where does C♯, the root of the diminished seventh, sit against D?",
         skills: [{ skill: "H12", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read bars 1 and 2 bottom to top, A C♯ E G and C♯ E G B♭, and tick off the names that appear in both. Then count the half steps from C♯ to D.",
         },
         hints: ladder(
-          "Which note names appear in both bar 1 and bar 2?",
+          "First count shared notes, then find a distance. Which note names appear in both bar 1 and bar 2?",
           "A7 is A C♯ E G; C♯°7 is C♯ E G B♭. Only one note of each is missing from the other.",
           "A and B♭ are the odd ones out. For the second question: C♯ and D are neighbours on the keyboard.",
         ),
@@ -275,13 +275,13 @@ export default defineLesson({
         role: "check",
         key: C_MAJOR,
         prompt:
-          "Build the leading-tone chord of G on the keyboard, its root lowest: a diminished seventh whose root is a half step below G.",
+          "Build the leading-tone chord of G on the keyboard: the diminished seventh whose root is a half step below G. Play its four notes with the root lowest.",
         skills: [
           { skill: "H12", w: 0.6 },
           { skill: "C07", w: 0.4 },
         ],
         hints: ladder(
-          "Which note is a half step below G? That is the root.",
+          "Find the root first: it is the note a half step below G. Which note is that?",
           "The root is F♯. A diminished seventh stacks three half steps, three more, and three more above it.",
           "F♯, then A, then C: one more key, three half steps above C.",
         ),
@@ -339,7 +339,7 @@ export default defineLesson({
         role: "check",
         key: C_MAJOR,
         prompt:
-          "The walk-up with its first push in place: C♯°7 into Dm7. Bars 4 and 6 only wait on the chord before them. Turn each into the leading-tone chord of the chord in the bar after it.",
+          "Bars 4 and 6 only repeat the chord before them. Change each marked chord into the leading-tone chord of the chord in the next bar: the diminished seventh on the note a half step below that chord's root. Bar 2, C♯°7 into Dm7, is the first push, already in place.",
         skills: [{ skill: "H12", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 8 },
@@ -361,7 +361,7 @@ export default defineLesson({
           { family: "fam.chd.quality-7th", mode: "review-if-due" },
         ],
         hints: ladder(
-          "Which chords come after bars 4 and 6? Their roots are what you are aiming at.",
+          "Each new chord aims at the chord in the bar after it, so start from that chord's root. Which chords come after bars 4 and 6?",
           "Bar 5 is G7 and bar 7 is Am7. Each push is the diminished seventh on the note a half step below that root.",
           "Bar 2 shows the shape: `C#o7`, a half step below D. Bar 4 needs the same chord built a half step below G.",
         ),
@@ -436,7 +436,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Three loops in C major, heard and not seen. In each, bar 2 pushes into bar 3 with that chord's own V7 or its own leading-tone chord. Which one is it? Listen to the bass.",
+          "Name the push in three loops in C major, heard and not seen. In each, bar 2 pushes into bar 3 with either bar 3's own V7 or its own leading-tone chord. Listen to the bass from bar 2 into bar 3, then pick which one.",
         skills: [
           { skill: "H12", w: 0.7 },
           { skill: "E09", w: 0.3 },
@@ -462,7 +462,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A slow turn on the organ that waits two bars on C, on Dm7 and on G7. Fill the waits: in the second bar of a pair, write the chord that pushes into the next bar, a leading-tone chord or a V7. Use at least one leading-tone chord and listen to the bass climb.",
+          "In `changes`, bars 2, 4 and 6 repeat the chord before them. Replace at least one with the leading-tone chord of the next bar's chord. Fill any other repeat with a leading-tone chord or a V7 aimed at the next bar. Done when a diminished seventh moves straight into the chord a half step above its root.",
         skills: [{ skill: "H12", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -470,7 +470,8 @@ export default defineLesson({
         rubric: [
           {
             id: "leading-tone-chord-lands",
-            label: "A leading-tone chord that goes to its chord",
+            label:
+              "A leading-tone chord (a diminished seventh) at least a beat long, moving straight into the chord whose root is a half step above its own",
             required: true,
             skills: ["H12"],
             rule: "contains-rn",
@@ -480,7 +481,8 @@ export default defineLesson({
           },
           {
             id: "a-v7-push-too",
-            label: "A V7 push as well, landing on its chord",
+            label:
+              "A V7 of ii, V or vi (A7, D7 or E7) as well, at least a beat long, moving straight into its target",
             required: false,
             skills: ["H12"],
             rule: "contains-rn",
@@ -490,7 +492,7 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root",
+            label: "The bass plays each chord's root on at least 3 of every 4 chord changes",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -500,7 +502,8 @@ export default defineLesson({
           },
           {
             id: "line-on-chord-tones",
-            label: "A line on top whose strong beats are chord notes",
+            label:
+              "A tune on top: at least 3 of every 4 of its notes on beats 1 and 3 are notes of the chord",
             required: false,
             skills: ["M01"],
             rule: "chord-tones-strong",
@@ -513,7 +516,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Where does the turn wait? Each wait is a bar with room for a chord that leans into the next one.",
+          "Each repeated chord is a wait, with room for a chord that leans into the next bar. Which bars of `changes` repeat the chord before them?",
           "Bars 2, 4 and 6 repeat the chord before them. The chord after bar 2 is Dm7, whose root is D.",
           "A half step below D is C♯. Bar 2 becomes the diminished seventh on C♯, and the bass climbs C, C♯, D.",
         ),

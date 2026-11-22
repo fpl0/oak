@@ -111,7 +111,7 @@ const formOf = (a: string, b: string, c: string, d: string) =>
  */
 const BRIDGE_RULE: RubricRule = {
   id: "bridge",
-  label: "The bridge in bars 17–24: four dominant sevenths a 4th apart, two bars each",
+  label: "Bars 17–24 play the bridge: D7, G7, C7, F7, two bars each",
   required: true,
   skills: ["J12"],
   rule: "progression",
@@ -127,7 +127,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J4.L03",
-  version: 2,
+  version: 3,
   title: "Rhythm Changes",
   objective: "I can play rhythm changes: the 32-bar AABA of I Got Rhythm, with its bridge of dominants.",
   key: B_FLAT,
@@ -153,7 +153,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Follow the form lens, and listen for the stretch where the vibes stop. How do its chords feel against the bars around it?",
+          "Follow the form lens and listen for the stretch where the vibes stop. Notice how its chords feel against the bars around it.",
         skills: [{ skill: "J12", w: 1 }],
         hints: null,
         tests: [],
@@ -180,14 +180,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it. Count the bars of one section in the form lens, then read the chord band in B, the section the vibes leave out.",
+          "Run it and answer two questions: how many bars one section lasts in the form lens, and what the chord band shows in B, the section the vibes leave out.",
         skills: [{ skill: "J12", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Count the bars from the first A's start to the second A's start, then read the chord band through B: how long does each chord last, and how far does the bass move at each change?",
         },
         hints: ladder(
-          "Where does the second A begin? Count the bars up to it.",
+          "Count the bars from the start of the first A to the start of the second A in the form lens.",
           "The form lens marks each section. In B the chord band shows one chord over two bars at a time; follow the bass from one to the next.",
           "Each section has the same length. In B the bass goes D, then the G above it.",
         ),
@@ -237,10 +237,10 @@ export default defineLesson({
         role: "check",
         key: B_FLAT,
         prompt:
-          "The bridge alone, in B♭ major: D7, G7, C7, F7, two bars each. Write the numeral of each chord in B♭, naming each by the chord it is the V7 of.",
+          "The bridge alone, in B♭ major: D7, G7, C7, F7, two bars each. Write the numeral of each chord in B♭. Write the key's own V7 as V7, and each other chord as the V7 of the chord it leads to, with a slash.",
         skills: [{ skill: "J12", w: 1 }],
         hints: ladder(
-          "Start at the end. Which of the four is the key's own V7?",
+          "Start at the end: one of the four is the key's own V7. Work backwards from it.",
           "F7 is V7 in B♭. Each chord before it is the V7 of a chord of B♭ major: find the chord a 4th above its root, and that chord's degree in B♭.",
           "C7 is the V7 of F, and F is degree 5 in B♭: C7 is V7/V. Name D7 and G7 the same way.",
         ),
@@ -309,7 +309,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The A sections and the order A A B A are written, but `const B` still holds the A section, so the form never leaves home. Write the bridge into `B`: eight bars, the four dominants you just numbered.",
+          "The A sections and the order A A B A are written, but `const B` still holds the A section, so the form never leaves home. Rewrite `const B` as the bridge: eight bars, the four dominants you just numbered, two bars each. Leave the A sections and `arrange()` as they are.",
         skills: [{ skill: "J12", w: 1 }],
         swing: SWUNG,
         code: { starter: S4_STARTER },
@@ -323,7 +323,7 @@ export default defineLesson({
             "Bar {bar}: not what the target plays there. Hear that bar against the target: is the Rhodes sounding, how long does each chord last, and what kind of seventh is it?",
         },
         hints: ladder(
-          "How many bars does the bridge hold, and how many different chords?",
+          "The bridge is eight bars and four chords, so each chord lasts two bars.",
           "Eight bars, four dominant sevenths, each held for two bars. Each root is a 4th above the one before, and the last one is the key's own V7.",
           "The bridge starts on D7 for two bars. Repeat a chord in `< >` by writing it twice, or with `!2`.",
         ),
@@ -380,7 +380,7 @@ export default defineLesson({
         role: "practice",
         title: "Rhythm changes",
         prompt:
-          "Your trio only loops the A section. Put the whole form together: write the bridge, then arrange A A B A on the comping and on the bass, the last A from `A3`. The comping rhythm, a walk, and a vibes riff over the A sections are yours.",
+          "Your trio only loops the A section. Build the whole form: write `const B`, then use `arrange()` on the comping and the bass for A A B A, eight bars each, the last A from `A3`. Required: the bridge in bars 17 to 24. Also on the checklist: 32 bars or more, and a vibes riff.",
         skills: [{ skill: "J12", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -390,7 +390,7 @@ export default defineLesson({
           BRIDGE_RULE,
           {
             id: "whole-form",
-            label: "The whole form: 32 bars or more",
+            label: "The piece is at least 32 bars long",
             required: false,
             skills: ["J12"],
             rule: "bars",
@@ -398,7 +398,7 @@ export default defineLesson({
           },
           {
             id: "riff",
-            label: "A riff on the vibes",
+            label: "A vibes line plays",
             required: false,
             skills: ["J12"],
             rule: "sounds",
@@ -409,7 +409,7 @@ export default defineLesson({
         // suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "What has to come between the second A and the last one?",
+          "The form needs the bridge third, between the second A and the last one. Write it as its own `const` first.",
           "Write `const B` as in the last step, then give the comping and the bass the four sections in order with `arrange()`, eight bars each.",
           "The comping's source becomes `arrange([8, chord(A)], [8, chord(A)], …)` with the bridge third and `A3` last; the bass takes the same four.",
         ),

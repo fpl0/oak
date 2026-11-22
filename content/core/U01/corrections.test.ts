@@ -63,7 +63,7 @@ describe("U01.L02 S8: a silent beat is silent in every line", () => {
     const r = await grade(L02, "S8", `${T(96)}drums: s("bd sd ~ sd")\nhats: s("hh*8").gain(.6)`);
     expect(r.status).toBe("fail");
     expect(unmet(r).join("\n")).toContain(
-      "At least one beat where nothing plays: 0 silent beats; at least 1. A silent beat is empty in every part",
+      "One whole beat where every line is silent, hats included: 0 silent beats; at least 1. A silent beat is empty in every part",
     );
   });
   test("right answers pass", async () => {
@@ -84,7 +84,9 @@ describe("U01.L04 S8: a split beat, not brackets round the bar", () => {
       `${T(100)}kick: s("bd ~ bd ~")\nsnare: s("~ sd ~ sd")\nhats: s("[hh hh hh hh]")`,
     );
     expect(r.status).toBe("fail");
-    expect(unmet(r).join("\n")).toContain("Splits a beat with `[ ]`: no beat is split");
+    expect(unmet(r).join("\n")).toContain(
+      "At least one beat split in two on any line, with `[ ]`: no beat is split",
+    );
   });
   test("right answers pass", async () => {
     for (const code of [

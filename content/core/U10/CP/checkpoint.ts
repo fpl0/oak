@@ -99,7 +99,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
   covers: ["U10"],
   gated: ["S05", "S06", "S07", "S08", "H07", "H08", "H09"],
   levelSetting: ["E10"],
-  version: 1,
+  version: 2,
   authored: [
     {
       kind: "code-modify",
@@ -108,7 +108,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: { tonic: "E", mode: "minor" },
       prompt:
-        "One tune in E major, played by `mel` and then by `vox`. Change only the scale names: move `mel` to the parallel minor of E major and `vox` to its relative minor.",
+        "One tune in E major: `mel` plays it in bars 1–2, `vox` in bars 3–4. Change only the two scale names. Move `mel` to E major's parallel minor, the twin with the same home. Move `vox` to its relative minor, the twin with the same notes.",
       skills: [
         { skill: "S05", w: 0.5 },
         { skill: "S06", w: 0.5 },
@@ -158,7 +158,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: { tonic: "D", mode: "minor" },
       prompt:
-        "Eight bars in D minor, written in chord names: Dm B♭ F C, then Dm Gm A Dm. Write the numeral of each chord, one a bar: upper case for major, lower case for minor.",
+        "Write the numeral of each chord in this D minor song, one per bar: Dm B♭ F C, then Dm Gm A Dm. Count each root from D. Use upper case for a major chord and lower case for a minor one.",
       skills: [
         { skill: "H07", w: 0.4 },
         { skill: "H08", w: 0.3 },
@@ -201,7 +201,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       role: "checkpoint",
       key: { tonic: "E", mode: "melodic minor" },
       prompt:
-        "A line in E minor climbs from 5 to home, then falls back. On the way up, raise 6 and 7 with a scale for each bar; on the way down, keep them natural. Make the chord under the climb the major V.",
+        "A line in E minor climbs from 5 to home in bar 1, then falls back in bar 2. Change bar 1's scale name so the climb goes through raised 6 and 7; keep bar 2 in natural minor. Then change the chord under the climb, Bm, to the major V.",
       skills: [
         { skill: "S07", w: 0.4 },
         { skill: "S08", w: 0.4 },
@@ -256,7 +256,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     role: "checkpoint",
     title: "A minor loop",
     prompt:
-      "Eight bars in A minor over the band's drums. Bars 1–4 are the Aeolian loop: i VI III VII. Then a turn of your own that comes home on i, with the major V before it if you like, and a tune on top.",
+      "Write eight bars of chords in A minor over the band's drums. Bars 1–4 play the Aeolian loop, i VI III VII. Bars 5–8 are a turn of your own that comes home on i, with the major V before it if you like. Add a tune on top.",
     skills: [{ skill: "H08", w: 1 }],
     hints: null,
     key: { tonic: "A", mode: "minor" },
@@ -267,7 +267,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
     rubric: [
       {
         id: "aeolian",
-        label: "Bars 1–4: the Aeolian loop, i VI III VII",
+        label: "Bars 1–4 play the Aeolian loop, i VI III VII (Am F C G)",
         required: true,
         skills: ["H08"],
         rule: "progression",
@@ -276,7 +276,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "major-v",
-        label: "A major V that goes home to i",
+        label: "The chords play a major V (E) followed by i (Am)",
         required: false,
         skills: ["H09"],
         rule: "contains-rn",
@@ -286,7 +286,7 @@ export const checkpoint: CheckpointDef = defineCheckpoint({
       },
       {
         id: "me-and-le",
-        label: "The tune sings ♭3 and ♭6",
+        label: "The tune plays ♭3 (me) and ♭6 (le)",
         required: false,
         skills: ["S05"],
         rule: "degree-set",

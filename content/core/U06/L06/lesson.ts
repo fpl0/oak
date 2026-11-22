@@ -68,7 +68,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U06.L06",
-  version: 2,
+  version: 3,
   title: "The Four-Chord Schema",
   objective:
     "I can hear the four-chord loop I V vi IV in a song, start it on any of its chords, and hear V swerve to vi instead of going home.",
@@ -117,7 +117,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The same four numbers in `.add()`, in another order: `<5 3 0 4>`, so the loop starts on the chord of degree 6. What will you hear?",
+          "The code has the same four numbers in `.add()` in another order, `<5 3 0 4>`, so the loop starts on the chord of degree 6. Predict what you will hear, and pick it.",
         skills: [{ skill: "H04", w: 1 }],
         hints: null,
         tests: [],
@@ -144,14 +144,15 @@ export default defineLesson({
         id: "same-chords-new-start",
         version: 1,
         role: "practice",
-        prompt: "Four bars of I V vi IV, then four of vi IV I V. Read the degree of each root on the roll.",
+        prompt:
+          "Run it: four bars of I V vi IV, then four of vi IV I V. Read the degree of each root on the roll, then answer both questions below.",
         skills: [{ skill: "H04", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read the roots bar by bar: 1 5 6 4, then 6 4 1 5. Which ones are new in the second half?",
         },
         hints: ladder(
-          "Does the second half bring in a chord the first half did not have?",
+          "Compare the two halves and listen for whether the second brings in a chord the first did not have.",
           "Write the roots of both halves as degrees, one under the other, and compare them.",
           "The first half is 1 5 6 4. The second starts on 6. Does 6 appear in the first half?",
         ),
@@ -208,10 +209,10 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "A loop of four chords, in C or another key. Is it the four-chord schema, or a loop of three chords that ends where it began?",
+          "A loop of four chords plays, in C or another key. Pick which loop it is: the four-chord schema, I V vi IV, or the three-chord loop I IV V I that ends where it began.",
         skills: [{ skill: "H04", w: 1 }],
         hints: [
-          { text: "Does the loop ever turn dark? Listen for a minor chord." },
+          { text: "Listen for a minor chord: one loop turns dark once, the other stays bright." },
           {
             text: "The four-chord loop has a minor chord in bar 3, vi. The three-chord loop is all major: I IV V I.",
           },
@@ -247,7 +248,8 @@ export default defineLesson({
         id: "start-on-vi",
         version: 1,
         role: "check",
-        prompt: "Rotate the loop so it starts on vi: vi IV I V. Change the numbers in `.add()`.",
+        prompt:
+          "Rotate the loop so it starts on vi: vi IV I V. Reorder the four numbers in `.add()`, keeping the same four. Done when the loop plays vi IV I V.",
         skills: [
           { skill: "H04", w: 0.7 },
           { skill: "N06", w: 0.3 },
@@ -262,7 +264,7 @@ export default defineLesson({
             "Bar {bar}: your chord has {got}; the target has {exp}. Keep the four numbers you have (`n` counts from 0) and change only where the loop starts.",
         },
         hints: ladder(
-          "Which of the four numbers is the root of vi?",
+          "Find the number in `.add()` that is the root of vi. The new loop starts there.",
           "A rotation keeps the order and moves the start: the loop reads 0 4 5 3, so starting on vi means starting on the third number.",
           "vi is degree 6, `n` 5, and IV comes after it. Then the loop wraps round to the start.",
         ),
@@ -306,10 +308,10 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A phrase opens on I and IV. Then two endings, each V and one more chord, the tune the same in both. Which ending goes somewhere you did not expect?",
+          "A phrase opens on I and IV. Then come two endings, each V and one more chord, with the same tune. Pick the ending that goes somewhere you did not expect.",
         skills: [{ skill: "H03", w: 1 }],
         hints: ladder(
-          "After V, where does your ear expect the phrase to go?",
+          "After V your ear expects one chord in particular. Listen for the ending that does not give it.",
           "V leans toward I: the authentic cadence. Listen for the ending whose last chord is darker than home.",
           "Hum the bass of each last chord. One falls from 5 to 1; the other steps up from 5 to 6.",
         ),
@@ -353,7 +355,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write I V vi IV on the pad, started on whichever of its chords you like. Then give the chords a rhythm, and add a bass or a tune on top.",
+          "Finish the four-chord loop in the `chords` line on the pad, I V vi IV, started on whichever of its chords you like, in the loop's order. Then give the chords a rhythm or add a bass or a tune if you like. Done when all four chords play in the loop's order.",
         skills: [{ skill: "H04", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -361,7 +363,7 @@ export default defineLesson({
         rubric: [
           {
             id: "the-four-chord-loop",
-            label: "The four-chord loop, in any rotation",
+            label: "`chords` plays I V vi IV in order, started on any of its four chords",
             required: true,
             skills: ["H04"],
             rule: "progression",
@@ -371,7 +373,7 @@ export default defineLesson({
           },
           {
             id: "on-the-pad",
-            label: "The chords on the pad",
+            label: "The `pad` sound used",
             required: false,
             skills: ["H04"],
             rule: "sounds",
@@ -379,7 +381,7 @@ export default defineLesson({
           },
           {
             id: "a-tune",
-            label: "A tune on top",
+            label: "A tune on its own line, such as `mel`",
             required: false,
             skills: ["M01"],
             rule: "tracks",
@@ -388,7 +390,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "The starter has two of the four chords. Which two are missing?",
+          "The starter has two of the four chords. Add the other two, keeping the loop's order.",
           "I V vi IV are the numbers 0 4 5 3. A rotation keeps that order and starts on any one of them.",
           "Starting on IV gives IV I V vi: the loop begins `<3 0 …>`. Any other start works the same way.",
         ),

@@ -71,7 +71,7 @@ const MINOR = { tonic: "A", mode: "minor" } as const;
 
 export default defineLesson({
   id: "U10.L03",
-  version: 2,
+  version: 3,
   title: "Hearing Minor",
   objective:
     "I can hear me, le and te against home in a minor key, and tell a minor tune from a major one by its 3rd.",
@@ -98,7 +98,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The groove, then its tune alone after four chords that set home on A. Listen for the notes that give the tune its dark colour, and find their degrees on the roll.",
+          "Listen to two clips: the groove, then its tune alone after four chords that set home on A. Listen for the notes that give the tune its dark colour, and find their degrees on the roll.",
         skills: [{ skill: "E10", w: 1 }],
         hints: null,
         tests: [],
@@ -129,7 +129,8 @@ export default defineLesson({
         id: "do-me-or-sol",
         version: 1,
         role: "check",
-        prompt: "Four chords set a minor home, then one note. Is it 1, ♭3 or 5: do, me or sol?",
+        prompt:
+          "Four chords set a minor home, then one note plays. Name that note: 1, ♭3 or 5 (do, me or sol).",
         skills: [{ skill: "E10", w: 1 }],
         hints: [
           { text: "Hum home, the note the chords end on. Is the new note home itself, or above it?" },
@@ -162,7 +163,7 @@ export default defineLesson({
         role: "check",
         key: MINOR,
         prompt:
-          "The opening of the hook's tune on two cards, over the same low A. One card sings me, the other mi. Which one is the minor tune?",
+          "Pick the card that plays the minor tune. Both cards play the opening of the hook's tune over the same low A. Only the first note differs: one card starts on me, the other on mi.",
         skills: [{ skill: "E10", w: 1 }],
         hints: ladder(
           "Sing do, the low A, then sing up two steps. Which card's first note matches the one you land on in A minor?",
@@ -208,7 +209,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Le falling to sol, then te rising a whole step to do. Listen once, then sing it in your own range.",
+          "Listen once, then sing four notes: le falling to sol, then te rising a whole step to the high do. Sing in your own range.",
         skills: [
           { skill: "V03", w: 0.6 },
           { skill: "E10", w: 0.4 },
@@ -249,13 +250,13 @@ export default defineLesson({
         role: "check",
         key: MINOR,
         prompt:
-          "A two-bar phrase in A minor over the chords in the code. Write its tune in the `mel` line, in `n` over `A3:minor`. Any octave is fine.",
+          "Write the two-bar tune you hear in the `mel:` line, as numbers in `n()` over `A3:minor`. Keep the `chords:` line as it is. Any octave is fine. Done when each note and the beat it starts on match the phrase.",
         skills: [
           { skill: "E10", w: 0.6 },
           { skill: "E07", w: 0.4 },
         ],
         hints: ladder(
-          "Sing the phrase back. Where does bar 1 end, and where does bar 2 end?",
+          "Sing the phrase back. Find the note each bar ends on first, then work back from it.",
           "Bar 1 walks down by step to home; bar 2 leans from one note onto the note below it. `n` counts from 0, so degree ♭3 is `n` 2.",
           "Bar 1 is `[2 ~ 1 0]`: me re do. Bar 2 has two notes, on beats 1 and 3.",
         ),
@@ -318,7 +319,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Rewrite the tune so it sings me, le and te: ♭3, ♭6 and ♭7. Lean le onto sol somewhere, and let the last note land where it sounds finished to you.",
+          "Rewrite the `mel:` line so the tune plays all three dark notes: me, le and te (♭3, ♭6 and ♭7). Keep the chords and bass as they are. Done when all three are in the tune. If you like, lean le onto sol somewhere.",
         skills: [{ skill: "E10", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -326,7 +327,7 @@ export default defineLesson({
         rubric: [
           {
             id: "me-le-te",
-            label: "The tune sings ♭3, ♭6 and ♭7",
+            label: "The tune plays ♭3 (me), ♭6 (le) and ♭7 (te)",
             required: true,
             skills: ["E10"],
             rule: "degree-set",
@@ -335,7 +336,7 @@ export default defineLesson({
           },
           {
             id: "comes-home",
-            label: "The tune ends on 1",
+            label: "The tune's last note is 1 (do)",
             required: false,
             skills: ["S05"],
             rule: "ends-on-degree",
@@ -344,7 +345,7 @@ export default defineLesson({
           },
           {
             id: "on-the-chords",
-            label: "Chord notes on beats 1 and 3",
+            label: "Most of the tune's notes on beats 1 and 3 are notes of the chord under them",
             required: false,
             skills: ["M01"],
             rule: "chord-tones-strong",
@@ -357,7 +358,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which three notes did minor lower? Which of them does the tune have so far?",
+          "The tune needs all three lowered notes: ♭3, ♭6 and ♭7. So far it plays only 1 and 5.",
           "In `n()` over `A3:minor`, degree ♭3 is `n` 2, ♭6 is `n` 5 and ♭7 is `n` 6: C, F and G.",
           "Start from the hook's tune, `[2 ~ 1 0] [5 ~ 3 ~] [7 ~ 5 4]`: it has me and le. Give bar 4 a G.",
         ),

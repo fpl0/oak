@@ -57,7 +57,7 @@ const TAP_FEEDBACK = {
 
 export default defineLesson({
   id: "U01.L03",
-  version: 3,
+  version: 5,
   title: "Backbeat",
   objective: "I can put the kick on 1 and 3 and the snare on 2 and 4, one labelled line per drum.",
   key: { tonic: "C", mode: "major" },
@@ -82,7 +82,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Play the first groove, then the second. Which drum goes missing, and what does the groove lose without it?",
+          "Listen to the first groove, then the second. Listen for the drum that goes missing in the second, and for what the groove loses without it.",
         skills: [{ skill: "R04", w: 1 }],
         hints: null,
         tests: [],
@@ -104,7 +104,8 @@ export default defineLesson({
         id: "where-the-snare-lands",
         version: 1,
         role: "practice",
-        prompt: 'The snare line reads `snare: s("~ sd ~ sd")`. On which beats does the snare play?',
+        prompt:
+          'The snare line reads `snare: s("~ sd ~ sd")`. Predict on which beats the snare plays, and pick one answer.',
         skills: [{ skill: "R04", w: 1 }],
         hints: null,
         tests: [],
@@ -137,14 +138,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it. Mute the lines one at a time with the buttons beside them, then clap along. Which line gives you the claps?",
+          "Clap along with the groove. Then mute the lines one at a time with the buttons beside them, and find the line that plays on the beats you clap. Answer below.",
         skills: [{ skill: "R04", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Keep clapping while you mute each line in turn. Which line, once muted, leaves your claps on their own?",
         },
         hints: ladder(
-          "When you clap along to a song, do you clap on 1 and 3, or on 2 and 4?",
+          "Find the line that plays where your claps land. When you clap along to a song, do you clap on 1 and 3, or on 2 and 4?",
           "Mute each line in turn and keep clapping. The line whose silence you miss most is the one.",
           "The kick plays on 1 and 3, so it is not the kick.",
         ),
@@ -181,15 +182,23 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Add a third line, `snare:`, with `sd` on the two beats the kick leaves empty. Leave the kick and hats as they are.",
+          "Add a third line, `snare:`, that plays `sd` on beats 2 and 4, the two beats the kick leaves empty. Write it as four words, one per beat. Leave the kick and hats as they are.",
         skills: [{ skill: "R04", w: 1 }],
         code: { starter: code(KICK, HATS) },
         reference: { solutions: [code(KICK, SNARE, HATS)], bars: 1 },
         matcher: DRUM_EVENTS,
         constraints: [{ c: "labels", min: 3, feedback: "code.labels" }],
         target: { audible: true, showRoll: true },
+        // The catalog says "missing hit" and "labeled parts": these say what goes where.
+        feedbackText: {
+          "rhythm.missing":
+            "Bar {bar}, {beatLabel}: no hit here yet{role}. The snare plays on beats 2 and 4.",
+          "rhythm.extra":
+            "Bar {bar}, {beatLabel}: a hit that should not be there{role}. The snare plays on beats 2 and 4 only.",
+          "code.labels": "Write {min} lines, each starting with its own name: `kick:`, `snare:` and `hats:`.",
+        },
         hints: ladder(
-          "Where did your claps land in the last step?",
+          "The snare goes on its own line, on beats 2 and 4. Where did your claps land in the last step?",
           'A new line needs its own label, then `s("…")` with four words: one per beat.',
           "The kick line is `bd ~ bd ~`. The snare line has the same shape with the gaps swapped.",
         ),
@@ -234,15 +243,23 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The `drums:` line plays kick and snare together. Split it into a `kick:` line and a `snare:` line that sound exactly the same.",
+          "Split the `drums:` line into two lines: a `kick:` line with only the kicks and a `snare:` line with only the snares. Each keeps four words, with `~` where its drum is silent. Done when it sounds exactly as before.",
         skills: [{ skill: "R04", w: 1 }],
         code: { starter: code('drums: s("bd sd bd sd")', HATS) },
         reference: { solutions: [code(KICK, SNARE, HATS)], bars: 1 },
         matcher: DRUM_EVENTS,
         constraints: [{ c: "labels", min: 3, feedback: "code.labels" }],
         target: { audible: true, showRoll: true },
+        // The catalog says "missing hit" and "labeled parts": these say what goes where.
+        feedbackText: {
+          "rhythm.missing":
+            "Bar {bar}, {beatLabel}: no hit here yet{role}. Together the two lines play `bd` on 1 and 3 and `sd` on 2 and 4, four words each.",
+          "rhythm.extra":
+            "Bar {bar}, {beatLabel}: a hit that should not be there{role}. Each line needs four words, with `~` where its drum is silent.",
+          "code.labels": "Write {min} lines, each starting with its own name: `kick:`, `snare:` and `hats:`.",
+        },
         hints: ladder(
-          "On which beats does `bd` play, and on which does `sd` play?",
+          "Together the two new lines play what `drums:` plays now. On which beats does `bd` play, and on which does `sd` play?",
           "Each new line keeps four words, one per beat, with `~` wherever its drum is silent.",
           // The same idea on another drum: rung 3 never quotes the solution (the tutor's leak guard rates
           // solution literals as a reveal).
@@ -287,13 +304,14 @@ export default defineLesson({
         id: "tap-the-backbeat",
         version: 1,
         role: "practice",
-        prompt: "Tap only with the snare, four taps over two bars. Let the kick go by.",
+        prompt:
+          "Tap only on the snare, the crisp crack on beats 2 and 4: two taps per bar, four taps in all. Let the kick, the deep thump on 1 and 3, go by without a tap.",
         skills: [
           { skill: "R04", w: 0.5 },
           { skill: "E01", w: 0.5 },
         ],
         hints: ladder(
-          "Which drum answers the kick?",
+          "Tap the snare only, on beats 2 and 4. Which drum answers the kick?",
           "Count 1, 2, 3, 4 and tap only on 2 and 4.",
           "Say the count and tap on the even numbers: one, tap, three, tap.",
         ),
@@ -325,14 +343,15 @@ export default defineLesson({
         id: "another-machine",
         version: 1,
         role: "practice",
-        prompt: 'Run it. Then change all three `"RolandTR808"` to `"RolandTR909"` and run it again.',
+        prompt:
+          'Listen first. Then change all three `"RolandTR808"` to `"RolandTR909"`, listen again and watch the roll. Answer the question below.',
         skills: [{ skill: "R04", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Switch the machine back and forth and watch the roll: did any hit move, or only the sound change?",
         },
         hints: ladder(
-          "Did the roll change when you switched machines?",
+          "Compare the two machines by ear and on the roll. Did the roll change when you switched?",
           "`.bank()` picks which drum machine plays the sounds. The words in the quotes stay the same.",
           "Watch the roll while you listen: the hits sit exactly where they were. Only the drums that play them changed.",
         ),
@@ -368,7 +387,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write your own backbeat, one line per drum, on any kit. The snare stays on 2 and 4; everything else is yours.",
+          "Write your own backbeat, one line per drum, on any kit. The snare plays on beats 2 and 4 and not on 1 or 3. Everything else is yours.",
         skills: [{ skill: "R04", w: 1 }],
         code: { starter: code(KICK, HATS) },
         bars: [1, 2],
@@ -376,7 +395,7 @@ export default defineLesson({
         rubric: [
           {
             id: "backbeat",
-            label: "Snare on beats 2 and 4",
+            label: "In every bar, the snare plays on beats 2 and 4 and not on beats 1 or 3",
             required: true,
             skills: ["R04"],
             rule: "onsets",
@@ -395,7 +414,7 @@ export default defineLesson({
           },
           {
             id: "three-lines",
-            label: "Three or more drum lines",
+            label: "Three or more drum lines, each with its own name",
             required: false,
             skills: ["R04"],
             rule: "tracks",
@@ -404,7 +423,7 @@ export default defineLesson({
           },
           {
             id: "machine",
-            label: "A drum machine with `.bank()`",
+            label: "Picks a drum machine with `.bank()`",
             required: false,
             skills: ["R04"],
             rule: "uses",
@@ -412,7 +431,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which drum is missing from the starter?",
+          "The snare needs its own line, on beats 2 and 4 only. Which drum is missing from the starter?",
           "Add a `snare:` line with four words, the snare on the second and fourth.",
           "Put `~` on beats 1 and 3 of the snare line so the kick has them to itself.",
         ),

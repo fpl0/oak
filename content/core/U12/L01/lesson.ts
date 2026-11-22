@@ -107,7 +107,7 @@ const earPart = (id: string, prompt: string, symbol: string, answer: "maj7" | "m
 
 export default defineLesson({
   id: "U12.L01",
-  version: 2,
+  version: 3,
   title: "Major 7 & Minor 7",
   objective: "I can write Cmaj7 and Am7 by name (C^7, Am7), build them, and hear what the 7th adds.",
   key: { tonic: "C", mode: "major" },
@@ -135,7 +135,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The loop twice: plain triads, then with the note you stacked on each chord in Seventh Colour. Listen to how the tune sits on the chords. In which loop does it blend in, and in which does it stand apart?",
+          "Listen to the loop twice: first in plain triads, then with the note you stacked on each chord in Seventh Colour. Listen for the tune against the chords: in which loop does it blend in, and in which does it stand apart?",
         skills: [{ skill: "C07", w: 1 }],
         hints: null,
         tests: [],
@@ -156,7 +156,8 @@ export default defineLesson({
         id: "what-the-caret-adds",
         version: 1,
         role: "practice",
-        prompt: '`chord("<C C^7>")` plays C for a bar, then C^7. Which note does `^7` add to the C chord?',
+        prompt:
+          'Predict which note `^7` adds to the C chord, then run it. `chord("<C C^7>")` plays C for one bar, then C^7 for one bar.',
         skills: [{ skill: "C07", w: 1 }],
         hints: null,
         tests: [],
@@ -184,7 +185,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Cmaj7, then Am7, each stacked by hand from its root. Run it and read the note names on the roll, bottom to top.",
+          "Run the code and read the note names on the roll, bottom to top: bar 1 is Cmaj7, bar 2 is Am7. Then answer both questions: which four notes make Am7, and how many half steps lie from C up to B.",
         skills: [{ skill: "C07", w: 1 }],
         feedbackText: {
           "investigate.wrong":
@@ -244,7 +245,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Play Fmaj7 on the keyboard, F at the bottom: the F major triad, and on top the note a half step below the next F.",
+          "Play Fmaj7 on the keyboard: the F major triad, plus the note a half step below the next F. Done when those four notes sound together with F as the lowest.",
         skills: [{ skill: "C07", w: 1 }],
         hints: ladder(
           "Start with the F major triad. Which three notes is it?",
@@ -302,7 +303,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The loop with three plain triads and G7. Give C, Am and Dm their sevenths by name: `^7` after a major chord's letter, `7` after a minor chord's `m`. The bass reads `changes` too, so one edit does it.",
+          "Change C, Am and Dm in `changes` into seventh chords by name: write `^7` after a major chord's letter, and `7` after a minor chord's `m`. Leave G7 as it is. Done when `changes` holds four seventh chords; the bass reads `changes` too, so it follows.",
         skills: [{ skill: "C07", w: 1 }],
         code: { starter: MODIFY_STARTER },
         reference: { solutions: [MODIFY_SOLUTION], bars: 4 },
@@ -319,7 +320,7 @@ export default defineLesson({
           { family: "fam.chd.spell", mode: "review-if-due" },
         ],
         hints: ladder(
-          "Which of the three triads are major and which are minor? Their sevenths are written differently.",
+          "Look at the three plain chords in `changes`: C, Am and Dm. A major one and a minor one get their sevenths written differently. Which are major?",
           "C is major: its seventh is written `C^7`. Am and Dm are minor: the 7 goes straight after the m.",
           "The first chord is `C^7`. Am becomes `Am7`; do the same to Dm.",
         ),
@@ -377,7 +378,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four seventh chords on other roots, one at a time, each played twice. Which kind is each: the one on a major triad, or the one on a minor triad?",
+          "Name the kind of each of four seventh chords, played one at a time, twice each. Pick the major seventh when the triad inside sounds major, the minor seventh when it sounds minor.",
         skills: [{ skill: "C07", w: 1 }],
         hints: earHints(),
         tests: [],
@@ -401,7 +402,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A walk down from F to C in plain triads, with a tune. Turn it into soul: give each chord its seventh by name (two are major, two are minor). Then go further: reorder the chords, comp them with `.struct()`, write a new tune from their notes, try the organ.",
+          "Change each of the four triads in `changes` into its seventh by name: two are major (`^7`), two are minor (`m7`). Then go further with one earlier tool: reorder the chords, comp them with `.struct()`, or write a new tune from their notes. Done when the first checklist line is ticked.",
         skills: [{ skill: "C07", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -409,7 +410,8 @@ export default defineLesson({
         rubric: [
           {
             id: "major-and-minor-sevenths",
-            label: "A major seventh chord and a minor seventh chord in your loop",
+            label:
+              "On the chords line, at least one major seventh chord (`^7`) and at least one minor seventh chord (`m7`)",
             required: true,
             skills: ["C07"],
             rule: "chord-qualities",
@@ -419,7 +421,8 @@ export default defineLesson({
           },
           {
             id: "bass-on-roots",
-            label: "The bass on each chord's root",
+            label:
+              "The bass plays the chord's root where the chord changes, at three changes in four or more",
             required: false,
             skills: ["B01"],
             rule: "bass-line",
@@ -429,7 +432,7 @@ export default defineLesson({
           },
           {
             id: "tune-from-the-chords",
-            label: "A tune whose strong beats are chord notes",
+            label: "A `mel` line whose notes on strong beats are mostly notes of the chord under them",
             required: false,
             skills: ["M03"],
             rule: "chord-tones-strong",
@@ -440,7 +443,9 @@ export default defineLesson({
           },
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
-        feedbackText: { "rubric.unmet": "{label}: not yet." },
+        feedbackText: {
+          "rubric.unmet": "{label}: not yet. Change the code until this line of the checklist holds.",
+        },
         hints: ladder(
           "Which of the four triads are major, and which are minor? Each kind takes its own seventh.",
           "All four chords live in `changes`. F and C are major: `^7`. Em and Dm are minor: a 7 after the m.",

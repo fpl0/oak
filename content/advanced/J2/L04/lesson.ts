@@ -102,7 +102,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J2.L04",
-  version: 2,
+  version: 3,
   title: "Chord-Scales",
   objective:
     "I can choose a scale that fits each chord of a ii–V–I and play a line that follows the changes.",
@@ -129,7 +129,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to where each bar of the line starts. In which take does the line seem to know when the chord changes?",
+          "Listen to the note each bar of the line starts on, in both takes. Notice in which take the line seems to know when the chord changes.",
         skills: [{ skill: "J03", w: 1 }],
         hints: null,
         tests: [],
@@ -160,14 +160,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bar 1 runs A Dorian over Am7, bar 2 G major over Gmaj7, bar 3 G Lydian over Gmaj7. Run it and read the roll.",
+          "Bar 1 runs A Dorian over Am7, bar 2 G major over Gmaj7, bar 3 G Lydian over Gmaj7. Run it, read the roll and answer two questions: how many notes of A Dorian are missing from G major, and which one note G Lydian has that G major does not.",
         skills: [{ skill: "J03", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Read the letters of bar 1 against bar 2 on the roll, then find the one note of bar 3 that bar 2 does not have and count up to it from G.",
         },
         hints: ladder(
-          "Do bars 1 and 2 use different notes, or the same notes from a different start?",
+          "Write out the letters of bars 1 and 2, ignoring order and octave, and compare the two sets.",
           "Compare the letters of bar 1 with the letters of bar 2, ignoring order and octave. Then compare bar 3 with bar 2.",
           "Bar 3 raises one note of G major a half step. Count up from G to it: which number is it, above the octave?",
         ),
@@ -231,7 +231,7 @@ export default defineLesson({
           { family: "fam.key.mode", mode: "review-if-due" },
         ],
         hints: ladder(
-          "Which key are all three chords from, and which note of that key does each one start on?",
+          "All three chords come from B♭ major. Start B♭ major on each chord's root and listen to which scale that makes.",
           "Start B♭ major on each chord's root and you get its scale: the ii's has a minor 3rd and a major 6th, the V's a major 3rd and a ♭7.",
           "Cm7 takes the minor scale whose 6th is raised: not natural minor. F7 takes the major scale whose 7th is lowered.",
         ),
@@ -288,7 +288,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The vibes line plays the same numbers on G major in every bar. Give each bar the scale of its chord, so the line outlines Am7, D7 and Gmaj7 as they come.",
+          "The vibes line plays the same numbers on G major in every bar. Change `.scale()` so each bar runs the scale of its chord, starting on its root: Am7, D7, then Gmaj7 for two bars. Keep the numbers in `n()`. Done when the line matches the target.",
         skills: [{ skill: "J03", w: 1 }],
         swing: SWUNG,
         code: { starter: LINE_STARTER },
@@ -309,7 +309,7 @@ export default defineLesson({
             "Bar {bar}, {beatLabel}: that note is not in the scale of the chord under it. Listen to the bar against the target's and check which scale that bar runs on.",
         },
         hints: ladder(
-          "Where should each bar of the line start, if it is to outline its chord?",
+          "Make `.scale()` change every bar, one scale per chord, each starting on that chord's root.",
           "Make `.scale()` a pattern with one scale per bar, each starting on its chord's root: the ii, the V, then home twice.",
           "Bar 1 is `A4:dorian`. The V and the home chord take the scales you named in B♭, started on D and G.",
         ),
@@ -373,7 +373,7 @@ export default defineLesson({
         role: "practice",
         title: "Two-key solo",
         prompt:
-          "The trio now plays the ii–V–I in G, then in B♭, and your line still runs the G scales in bars 5 to 8. Make it follow the chords into B♭. Then make the line your own: your numbers, your rhythm, swung like the ride, and a ♯11 on a beat if you want home brighter.",
+          "The chords now go from G into B♭, but the line still runs the G scales in bars 5 to 8. Required: make the line follow the chords into B♭, so its notes fit each chord's scale. Also on the checklist: the line swings, and a ♯11 rings at least twice. Then make it your own.",
         skills: [{ skill: "J03", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -382,7 +382,8 @@ export default defineLesson({
         rubric: [
           {
             id: "line-fits",
-            label: "Your line fits each chord's scale",
+            label:
+              "At least 9 in 10 of the line's long or on-beat notes are in the scale of the chord under them",
             required: true,
             skills: ["J03"],
             rule: "custom",
@@ -393,7 +394,7 @@ export default defineLesson({
           },
           {
             id: "line-swings",
-            label: "The line swings",
+            label: "The line's eighths swing long-short, not even",
             required: false,
             skills: ["J03"],
             rule: "swing",
@@ -403,7 +404,7 @@ export default defineLesson({
           },
           {
             id: "lydian-colour",
-            label: "A Lydian colour: a ♯11 on a beat",
+            label: "At least two long or on-beat notes ring on the ♯11 of their chord",
             required: false,
             skills: ["J03"],
             rule: "custom",
@@ -414,7 +415,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "Which scale does each chord of bars 5 to 8 take?",
+          "Look at bars 5 to 8: the chords are in B♭, but the line still runs the G scales there.",
           "The scale pattern has four entries, so it starts again at bar 5 in G. Give it eight, one per bar.",
           "Bars 5 to 8 are the B♭ ii–V–I you named earlier: a scale on C, one on F, then home on B♭ twice.",
         ),

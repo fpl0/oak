@@ -47,7 +47,7 @@ const ROLL_STAFF = { roll: true, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U03.L07",
-  version: 2,
+  version: 3,
   title: "Flat Keys & the Circle",
   objective:
     "I can write the flats of F, B♭ and E♭ major in order, and find any major key's sharps or flats on the circle of fifths.",
@@ -74,7 +74,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Home moves every bar: C, F, B♭, E♭. Listen at each change: does it sound like a small shift or a big jump?",
+          "The same four notes play from a new home each bar: C, F, B♭, E♭. At each change, listen for whether it sounds like a small shift or a big jump.",
         skills: [{ skill: "S04", w: 1 }],
         hints: null,
         tests: [],
@@ -94,7 +94,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Build F major from F: whole, whole, half, whole, whole, whole, half. One note needs a flat. Which one?",
+          "Spell F major from F in your head: whole, whole, half, whole, whole, whole, half. Predict which one note needs a flat, and pick it below.",
         skills: [{ skill: "S04", w: 1 }],
         hints: null,
         tests: [],
@@ -122,13 +122,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it: C, G, D, A, each home degree 5 of the one before, each key a sharp more. The hook went the other way. Then hear a far key: make the plan `<C4:major G4:major C4:major F#4:major>` and run it again.",
+          "Run the plan C, G, D, A: each new home is degree 5 of the one before, and each key adds a sharp. Then answer both questions below about the hook's way, C, F, B♭, E♭. To hear a far key, make the plan `<C4:major G4:major C4:major F#4:major>` and run it again.",
         skills: [{ skill: "S04", w: 1 }],
         feedbackText: {
-          "investigate.wrong": "Not quite. The hook went C, F, B♭, E♭: count those steps, one flat for each.",
+          "investigate.wrong":
+            "Not yet. The hook went C, F, B♭, E♭: each step from C adds one flat. Count the steps to the key in the question.",
         },
         hints: ladder(
-          "Going from C to G added a sharp. Which way did the hook go, and what did it add?",
+          "Both answers are about the hook's way, C, F, B♭, E♭. Going from C to G added a sharp: what did each step the other way add?",
           "One step the other way from C is the key whose degree 5 is C. Each step that way adds a flat.",
           "F major has one flat, B♭ major two. Keep counting along the hook.",
         ),
@@ -137,7 +138,7 @@ export default defineLesson({
         questions: [
           {
             q: "choice",
-            prompt: "Which key is one step from C the other way, with one flat?",
+            prompt: "Pick the key one step from C the other way: the one with one flat.",
             options: [
               { id: "f", label: "F" },
               { id: "d", label: "D" },
@@ -145,7 +146,7 @@ export default defineLesson({
             ],
             correct: ["f"],
           },
-          { q: "number", prompt: "How many flats does E♭ major have?", correct: 3 },
+          { q: "number", prompt: "Type how many flats E♭ major has.", correct: 3 },
         ],
         tests: [
           { name: "both right", response: { answer: { choice: ["f"], number: 3 } }, expect: "pass" },
@@ -178,7 +179,7 @@ export default defineLesson({
         role: "check",
         key: { tonic: "Bb", mode: "major" },
         prompt:
-          "Write the key signature of B♭ major at the start of the staff, in the order flats are always written.",
+          "Write the key signature of B♭ major: its flats at the start of the staff, from the left, in the order flats are always written, B E A D G C F. Write only the flats B♭ major needs.",
         skills: [
           { skill: "N03", w: 0.6 },
           { skill: "S04", w: 0.4 },
@@ -192,7 +193,7 @@ export default defineLesson({
           "keysig.type": "B♭ major is a flat key: its signature has flats only.",
         },
         hints: ladder(
-          "How many steps from C is B♭ on the circle, and what does each step add?",
+          "Write only B♭ major's flats, in order. How many steps from C is B♭ on the circle, and what does each step add?",
           "Flats are written in the order B E A D G C F, the order of sharps backwards, as many as the key needs.",
           "The first flat of every flat key is B♭, F major's only one. B♭ major needs one more.",
         ),
@@ -248,7 +249,7 @@ export default defineLesson({
         role: "check",
         key: { tonic: "Eb", mode: "major" },
         prompt:
-          "The starter climbs from E with no flats at all. Turn it into E♭ major, from `eb4` to `eb5`, each letter once: add `b` where the key needs a flat.",
+          "Turn the starter into E♭ major, from `eb4` to `eb5`: add `b` to every letter the key makes flat. Keep the letters and octaves as they are, each letter once. Done when the line plays the E♭ major scale.",
         skills: [{ skill: "S04", w: 1 }],
         code: { starter: mel("⟪e4 f4 g4 a4 b4 c5 d5 e5⟫") },
         reference: { solutions: [mel(EB_SCALE)], bars: 1 },
@@ -265,7 +266,7 @@ export default defineLesson({
             "It sounds right, but a sharp here spells a letter twice. E♭ major uses each letter once, with flats only.",
         },
         hints: ladder(
-          "How many flats does E♭ major have, and which letters are they?",
+          "Add a `b` to every letter E♭ major makes flat. How many flats does it have, and which letters are they?",
           "Flats come in the order B E A D G C F. E♭ major is three steps from C: the first three.",
           "B and E are flat, so the first and last notes are `eb4` and `eb5`, and the B is `bb4`. One more letter needs a `b`.",
         ),
@@ -311,10 +312,12 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Which major key is one step from the one named, clockwise or anticlockwise round the circle?",
+          "Type the major key one step round the circle from the key named, in the direction named. Write its letter, with a sharp or a flat if it has one.",
         skills: [{ skill: "S04", w: 1 }],
         hints: [
-          { text: "Which way is the step: towards more sharps, or towards more flats?" },
+          {
+            text: "Find the key one step round from the one named. Which way is the step: towards more sharps, or towards more flats?",
+          },
           { text: "Clockwise, the new home is degree 5 of the old key. Anticlockwise, it is degree 4." },
           { text: "From C: clockwise is G, anticlockwise is F. Do the same from the key named." },
           "auto",
@@ -339,7 +342,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "In note names, write a two-bar line with **every note in F major**. Start by fixing the starter, then change its notes and rhythm until the line is yours.",
+          "Fix the one B in the starter that is missing its flat: in F major every `b` is `bb`. Then change the notes and rhythm until the line is yours, still in note names. Done when every note is in F major.",
         skills: [
           { skill: "S04", w: 0.6 },
           { skill: "N03", w: 0.4 },
@@ -350,7 +353,7 @@ export default defineLesson({
         rubric: [
           {
             id: "in-f",
-            label: "Every note is in F major",
+            label: "Every note of the line is in F major: every B is `bb`, and no other sharps or flats",
             required: true,
             skills: ["S04"],
             rule: "in-key",
@@ -360,7 +363,7 @@ export default defineLesson({
           },
           {
             id: "ends-home",
-            label: "Ends on f, home",
+            label: "The line's last note is an `f`, home",
             required: false,
             skills: ["S02"],
             rule: "ends-on-degree",
@@ -369,7 +372,7 @@ export default defineLesson({
           },
           {
             id: "in-range",
-            label: "Stays between `c4` and `c6`",
+            label: "Every note of the line is between `c4` and `c6`",
             required: false,
             skills: ["N03"],
             rule: "range",
@@ -378,9 +381,9 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Which letter carries the flat in F major's key signature?",
+          "Every note must be in F major. Which letter carries the flat in F major's key signature?",
           "Every B in F major is B♭: in code, `bb4` or `bb5`. Look for a B without its flat.",
-          "The starter's first bar has a `b4` just before the end. In F major it is `bb4`.",
+          "Look inside the brackets at the end of bar 1: one note there needs the key's flat.",
         ),
         tests: [
           {

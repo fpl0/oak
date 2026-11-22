@@ -82,7 +82,8 @@ const APPROACH_SOLUTION = walkOf("a1 c2 e2 eb2", "d2 f#2 a2 ab2", "g2 d2 b1 f#1"
  */
 const APPROACHES: RubricRule = {
   id: "approaches",
-  label: "Beat 4 leans into every bar line, the root still on beat 1",
+  label:
+    "In every bar the root is on beat 1, and beat 4 is one or two half steps from the next bar's first note",
   required: true,
   skills: ["B05"],
   rule: "custom",
@@ -92,7 +93,7 @@ const APPROACHES: RubricRule = {
 /** Still four to the bar: a note on every beat and nothing between them. */
 const FOUR_TO_THE_BAR: RubricRule = {
   id: "four-to-the-bar",
-  label: "One note on every beat, nothing between",
+  label: "Four bass notes a bar, one on each beat, nothing between",
   required: true,
   skills: ["B05"],
   rule: "onsets",
@@ -114,7 +115,7 @@ const BASS_OPTIONS = [
 ];
 const earHints = (): HintLadder =>
   ladder(
-    "How many bass notes do you hear in one bar?",
+    "Count the bass notes in one bar first: two or four.",
     "If there are four, listen to the bar lines only: the last note of a bar and the first note of the next.",
     "Hum those two notes. Do they almost touch, or does the line jump between them?",
   );
@@ -150,7 +151,8 @@ const MAKE_STARTER = code(bass(TWO_FEEL));
 const make = (...lines: string[]) => code(...lines);
 const WALKS: RubricRule = {
   id: "walks",
-  label: "Your bass walks: every beat, roots on 1, approaches on 4",
+  label:
+    "A bass note on every beat; the root on beat 1 in most bars, and beat 4 a step or less from the next bar's first note in at least half",
   required: true,
   skills: ["B05"],
   rule: "custom",
@@ -170,7 +172,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "J3.L04",
-  version: 2,
+  version: 3,
   title: "Walking Bass",
   objective:
     "I can walk a bass line through a set of changes: the root on beat 1, a chord tone on beat 3, and beat 4 leaning into the next bar.",
@@ -197,7 +199,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The ride and the Rhodes are the same both times. Listen to the bass at each bar line: in which take does the music roll forward into the next bar?",
+          "The ride and the Rhodes are the same both times. Listen to the bass at each bar line in both takes. Notice in which take the music rolls forward into the next bar.",
         skills: [{ skill: "B05", w: 1 }],
         hints: null,
         tests: [],
@@ -228,14 +230,14 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Run it: the chords are held a bar each over the bass. Look at the first note of every bar, then at the last note of bar 1 and the first of bar 2.",
+          "Run it: the chords are held a bar each over the bass. Answer two questions: what the bass plays on beat 1 of every bar, and how many half steps lie between the last note of bar 1 and the first note of bar 2.",
         skills: [{ skill: "B05", w: 1 }],
         feedbackText: {
           "investigate.wrong":
             "Not quite. Compare each bar's first note with the chord's name above it, then count the keys from the last note of bar 1 to the first of bar 2, black keys included.",
         },
         hints: ladder(
-          "The chords are Am7, D7, Gmaj7, Gmaj7. Which note of each chord gives it its name?",
+          "The chords are Am7, D7, Gmaj7, Gmaj7. Compare each bar's first bass note with the letter its chord is named after.",
           "Bar 1 starts on A under Am7, bar 2 on D under D7. For the second question, a half step is one key to the very next one.",
           "Bar 1 ends on E♭ and bar 2 starts on D. Is there a key between them?",
         ),
@@ -288,7 +290,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "This bass plays every beat, but it runs through each chord and then jumps to the next bar. Change beat 4 of each bar to a note one or two half steps from the next bar's first note. Keep beats 1 to 3.",
+          "This bass plays every beat, but it runs through each chord and then jumps to the next bar. Change the last note of each bar, beat 4, to a note one or two half steps from the next bar's first note, above or below. Bar 4 leads back to bar 1. Keep beats 1 to 3.",
         skills: [{ skill: "B05", w: 1 }],
         swing: SWUNG,
         code: { starter: APPROACH_STARTER },
@@ -304,7 +306,7 @@ export default defineLesson({
             "{label}: not yet. Listen to beat 4 of each bar and to the note that comes after it.",
         },
         hints: ladder(
-          "Where does each bar's last note sit, and where does the next bar begin?",
+          "Work one bar line at a time: find the first note of the next bar, then pick a beat 4 right beside it.",
           "Beat 4 is the note just before the bar line. Move it next to the next bar's first note: one or two half steps away, above or below.",
           "Bar 1 is heading for D, so its last note can sit right beside D. Bar 3 is heading for the low G that starts bar 4.",
         ),
@@ -385,7 +387,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Four short examples, four bars each, over the same ride and Rhodes. For each one: is the bass in two, walking but jumping into each bar, or walking with every beat 4 a half step from the next bar?",
+          "Four short examples, four bars each, over the same ride and Rhodes. For each, pick how the bass moves: in two, walking but jumping into each bar, or walking with every beat 4 a half step from the next bar.",
         skills: [{ skill: "B05", w: 1 }],
         hints: earHints(),
         srs: [{ family: "fam.har.bass", mode: "review-if-due" }],
@@ -415,7 +417,7 @@ export default defineLesson({
         role: "practice",
         title: "Walking in G",
         prompt:
-          "Walk the bass: a note on every beat, the root on 1, a chord tone on 3, and beat 4 a step or a half step from the next bar's first note. Up or down, high or low, is your choice. Approach some bars from above and some from below.",
+          "Walk the bass. Required: a note on every beat, the root on beat 1, and beat 4 a step or a half step from the next bar's first note. Also on the checklist: a chord tone on beat 3 in every bar, and a tempo of 120 to 200. Approach some bars from above, some from below.",
         skills: [{ skill: "B05", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -425,7 +427,7 @@ export default defineLesson({
           WALKS,
           {
             id: "three-in-the-chord",
-            label: "Beat 3 a chord tone in every bar",
+            label: "Beat 3 is a note of the chord in every bar",
             required: false,
             skills: ["B05"],
             rule: "custom",
@@ -434,7 +436,7 @@ export default defineLesson({
           },
           {
             id: "swing-tempo",
-            label: "A tempo between 120 and 200",
+            label: "`setcpm` sets a tempo between 120 and 200 beats a minute",
             required: false,
             skills: ["R13"],
             rule: "tempo-bpm",
@@ -445,7 +447,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "How many notes does the bass play in a bar now, and how many does a walk play?",
+          "The starter plays two notes a bar; a walk plays four, one on each beat.",
           "A note on every beat: the chord's root on 1, another note of the chord on 3, and on 4 a note right beside the next bar's first note.",
           "Bar 1 can climb from A through the notes of Am7 and end next to D. Do the same into G, and from the last bar back into A.",
         ),
