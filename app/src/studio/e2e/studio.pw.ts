@@ -276,20 +276,11 @@ test("export shows the code with its liner notes and downloads a .js file", asyn
   await expect(dialog).toBeHidden();
 });
 
-test("Ask for a listening note: the tutor (fake backend) listens and the note shows on the sketch", async ({
-  page,
-}) => {
+test("no listening notes: the sketch page offers none (owner, 2026-11-22)", async ({ page }) => {
   const id = await createSketch(page, "Listen to me");
   await openSketch(page, id);
+  await expect(page.getByTestId("ask-listening")).toHaveCount(0);
   await expect(page.getByTestId("listening-note")).toHaveCount(0);
-  await page.getByTestId("ask-listening").click();
-  await expect(page.getByText("Asked Claude to listen to v1")).toBeVisible();
-  // The docked panel streams the scripted note; the tutor keeps it on this sketch and the page shows it,
-  // with its music tokens rendered (no raw [[deg:…]] markup).
-  const note = page.getByTestId("listening-note");
-  await expect(note).toBeVisible({ timeout: 30_000 });
-  await expect(note).not.toContainText("[[");
-  await expect(note).toContainText("Claude reads your notes and code, never your audio.");
 });
 
 test("keyboard only: new sketch, run, name a version, the shortcut sheet lists the Studio and loop keys", async ({

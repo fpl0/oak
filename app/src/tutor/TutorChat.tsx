@@ -7,7 +7,7 @@ import type { SubjectRef, TutorNote } from "@oak/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { clsx } from "clsx";
-import { Ear, Lightbulb, Lock, MessageSquareText, Send, Square, Stethoscope, X } from "lucide-react";
+import { Lightbulb, Lock, MessageSquareText, Send, Square, Stethoscope, X } from "lucide-react";
 import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 import { useHealth, useTutorRetractNote, useTutorStatus, useTutorTimeline } from "../lib/queries.ts";
 import { Button } from "../ui/kit/Button.tsx";
@@ -18,7 +18,6 @@ import {
   askChat,
   askExplain,
   askHint,
-  askListeningNote,
   askReview,
   askTranscriptionReview,
   type ContextChip,
@@ -434,19 +433,6 @@ function QuickActions({ subject, disabled }: { subject: TutorSubject; disabled: 
         run: () => void askExplain(),
       });
   }
-  if (subject.thread.subjectKind === "sketch" && subject.sketchId && subject.code)
-    actions.push({
-      key: "listen",
-      icon: <Ear aria-hidden className="size-3.5" />,
-      label: "Listening note",
-      cost: "Claude reads your code and score, never your audio.",
-      run: () =>
-        void askListeningNote({
-          sketchId: subject.sketchId as string,
-          title: subject.title,
-          code: subject.code as string,
-        }),
-    });
   if (subject.thread.subjectKind === "capstone" && subject.capstoneId)
     actions.push({
       key: "review",
