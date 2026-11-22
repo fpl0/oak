@@ -285,7 +285,7 @@ describe("course", () => {
       { wrappedEarly: false, phaseMs: { warmup: 60_000, main: 600_000, make: 240_000, coda: 30_000 } },
     );
     expect(end.body.session.phase).toBe("done");
-    expect(end.body.listeningNote).toBe("auto");
+    expect(end.body.listeningNote).toBe("off"); // Claude's listening notes are gone (owner, 2026-11-22)
     expect(end.body.session.activeMinutes).toBeCloseTo(15.5, 5);
     expect(
       (

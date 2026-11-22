@@ -6,7 +6,6 @@ import {
   AudioWaveform,
   ChevronLeft,
   ListChecks,
-  Lock,
   NotebookPen,
   Search,
   Settings,
@@ -80,7 +79,8 @@ function NavRail({ path }: { path: string }) {
         : n.id === "oak"
           ? oakNavLabel(n.label, tracks)
           : n.label;
-    // Transcribe and Album say when they open, and stay reachable (never gated, contracts §7.6).
+    // Transcribe and Album say in their tooltip when they fill in, and stay reachable (never gated, contracts
+    // §7.6). No lock badge and no dimming: the owner asked for the locks to go (2026-11-22).
     const { pending, label } = navItemState(n.id, base, unlocked, ready);
     return (
       <li key={n.id}>
@@ -94,23 +94,11 @@ function NavRail({ path }: { path: string }) {
             data-nav-tracks={n.id === "oak" && tracksNote ? "open" : undefined}
             className={clsx(
               "relative flex size-10 items-center justify-center rounded-control transition-colors",
-              active
-                ? "bg-lane-in text-accent"
-                : pending
-                  ? "text-text-3 hover:bg-surface-2 hover:text-text-2"
-                  : "text-text-2 hover:bg-surface-2 hover:text-text",
+              active ? "bg-lane-in text-accent" : "text-text-2 hover:bg-surface-2 hover:text-text",
             )}
           >
             {ICONS[n.id]}
             {n.id === "practice" && <PracticeBadge />}
-            {pending && (
-              <span
-                aria-hidden
-                className="absolute right-0 bottom-0 flex size-4 items-center justify-center rounded-full border border-border bg-surface-2 text-text-2"
-              >
-                <Lock className="size-2.5" strokeWidth={2.5} />
-              </span>
-            )}
           </Link>
         </Tooltip>
       </li>

@@ -309,7 +309,7 @@ export const toolbox: readonly ToolEntry[] = defineToolbox([
   row("C", "tb.note", "tool", 'note("…")', "U02.L01", "pitch", { preview: P0 }),
   row("C", "tb.note.names", "tool", "note names with octave (c4 e4)", "U02.L01", "a pitch is written as a letter plus an octave number"),
   row("C", "tb.note.accidentals", "tool", "# and b in note names", "U02.L03", "accidentals"),
-  row("C", "tb.transpose", "tool", ".transpose(semitones)", "U02.L05", "semitone distance", { matches: ["transpose"] }),
+  row("C", "tb.transpose", "tool", ".transpose(halfSteps)", "U02.L05", "half-step distance", { matches: ["transpose"] }),
   row("C", "tb.note.midi", "tool", "numeric note(60)", "U02.L05", "MIDI numbers"),
   row("C", "tb.s.pitched", "tool", '.s("…") on pitched patterns', "U02.L01", "an instrument plays the pitch (.s(\"piano\"))", { preview: P0 }),
   row("C", "tb.n", "tool", 'n("…") as scale index', "U03.L02", "degrees: n = degree − 1", { preview: P0, matches: ["n"] }),

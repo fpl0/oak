@@ -4,7 +4,7 @@ import type { NextSession, Session, SessionDay, SessionSummary, SessionTelemetry
 import { STREAK } from "@oak/srs";
 import { tx } from "../db/index.ts";
 import { badRequest, conflict, notFound } from "../errors.ts";
-import { addDays, dayIndex } from "../lib/days.ts";
+import { addDays } from "../lib/days.ts";
 import type { CapstoneSessionsService } from "./capstone-sessions.ts";
 import { LearnerTime, newId, type ServiceContext } from "./context.ts";
 import type { CourseService } from "./course.ts";
@@ -282,12 +282,8 @@ export class SessionsService {
       }
       this.ctx.repos.ops.saveSessionTelemetry(telemetry);
 
-      const firstDay = this.time.firstDay();
-      const listening: SessionSummary["listeningNote"] = this.d.tutorOff()
-        ? "off"
-        : s.kind === "capstone" || dayIndex(s.day) - dayIndex(firstDay) < 7
-          ? "auto"
-          : "offer";
+      // Claude's listening notes are gone (owner, 2026-11-22: "useless"): the Coda never offers or asks for one.
+      const listening: SessionSummary["listeningNote"] = "off";
       const next = this.d.gates.nextMapItem();
       const teaser =
         this.ctx.repos.settings.get("teaserOptIn") && next !== null

@@ -216,9 +216,9 @@ describe("onsets perBar counts the bars of an arranged piece, not the silence af
     const half = `bass: note("<${`${tres} `.repeat(4)}${"[c2 c2 c2 c2] ".repeat(4)}${"~ ".repeat(8)}>")`;
     const r = await check(TRES, half, 16, null, { totalBars: 8 });
     expect(r.ok).toBe(false);
-    expect(r.detail).toBe("4 of 8 bars have the onsets");
+    expect(r.detail).toMatch(/^right in 4 of 8 bars; /);
     const loop = `bass: note("<${`${tres} `.repeat(8)}${"[c2 c2 c2 c2] ".repeat(8)}>")`;
-    expect((await check(TRES, loop, 16, null, { totalBars: 8 })).detail).toBe("8 of 16 bars have the onsets");
+    expect((await check(TRES, loop, 16, null, { totalBars: 8 })).detail).toMatch(/^right in 8 of 16 bars; /);
   });
 });
 

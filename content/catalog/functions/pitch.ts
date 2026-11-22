@@ -33,7 +33,7 @@ export const pitchFns = defineFns([
     name: "transpose",
     tool: "tb.transpose",
     kind: "method",
-    signature: ".transpose(semitones)",
+    signature: ".transpose(halfSteps)",
     explanation: "Moves every note up or down by a number of half steps: 12 is an octave up.",
     example: ex(84, 'mel: note("c4 d4 e4 c4").transpose(7).s("piano")'),
     gotchas: ["To change key in a song, change the scale, not the transposition."],

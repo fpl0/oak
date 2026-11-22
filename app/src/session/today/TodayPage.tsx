@@ -63,7 +63,7 @@ import {
   todayView,
 } from "../today-model.ts";
 import { type OfferRow, offerPlan, offersFromTracks, trackDay } from "../tracks-day.ts";
-import { AlbumStrip, LastSketchCard, NextUnlockCard, OakGlanceCard, TutorNoteCard } from "./Glance.tsx";
+import { AlbumStrip, LastSketchCard, NextUnlockCard, OakGlanceCard } from "./Glance.tsx";
 import { InlineCodeText, SideOfferLine } from "./SideOffer.tsx";
 import { CftStrip, FirstDayLine, OpenToYou, OtherTabLine, TracksLine } from "./TodayWave6.tsx";
 import { CourseFirstDayLine, KeepPlayingLine, TrackOffers, TrackSessionLine } from "./TodayWave7.tsx";
@@ -712,7 +712,6 @@ export function TodayPage() {
           <OakGlanceCard />
           <AlbumStrip />
           <LastSketchCard />
-          {planData?.tutorNote && <TutorNoteCard note={planData.tutorNote} />}
           {!b && <Skeleton className="h-24 w-full" />}
           <p className="flex items-center gap-1.5 text-sm text-text-3">
             <Leaf aria-hidden className="size-3.5" /> Spacing beats cramming: a little most days grows the

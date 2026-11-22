@@ -117,7 +117,7 @@ test("C0 starts; a failing rule shows its bar anchor; a reload resumes the draft
   await setCode(page, NO_BACKBEAT);
   await expect(rule(page, "snare-backbeat")).toHaveAttribute("data-state", "open", { timeout: 30_000 });
   await expect(rule(page, "snare-backbeat").getByTestId("bar-anchor")).toHaveText("Bars 1–3");
-  await expect(rule(page, "snare-backbeat")).toContainText("the onsets differ from the brief");
+  await expect(rule(page, "snare-backbeat")).toContainText("the hits are not where this asks yet");
   await expect(page.getByTestId("req-count")).toHaveText("5 of 6 met");
   await expect(page.getByTestId("release")).toBeDisabled();
 

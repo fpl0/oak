@@ -1609,7 +1609,7 @@ const onsetsRule: Impl<"onsets"> = (r, n, ctx) => {
   };
   if (!r.perBar) {
     const ok = check(new Set(onsets(ev).map(ratKey)));
-    return { ok, detail: ok ? "the onsets are right" : "the onsets differ from the brief" };
+    return { ok, detail: ok ? "every hit is where it should be" : "the hits are not where this asks yet" };
   }
   // The bars of the piece: an arranged piece shorter than the rendered window (RC2's eight bars of `arrange()`
   // under a 16-bar render) is counted over its own bars, never over the silence after it ends
@@ -1638,10 +1638,19 @@ const onsetsRule: Impl<"onsets"> = (r, n, ctx) => {
     ok: total > 0 && good === total,
     value: good,
     target: total,
-    detail:
-      extraAt !== undefined && firstBad !== null
-        ? `${good} of ${total} bars have the onsets; ${placeText(R.add(rat(firstBad), R.frac(extraAt)), ctx)} has one too, where this part stays silent`
-        : `${good} of ${total} bars have the onsets`,
+    // Clarity pass (2026-11-22): "0 of 16 bars have the onsets" left the learner guessing. Say how many bars
+    // are right and the first place to fix, in the bar's own beat words.
+    detail: (() => {
+      const right = `right in ${good} of ${total} bars`;
+      if (firstBad === null) return right;
+      if (extraAt !== undefined)
+        return `${right}; ${placeText(R.add(rat(firstBad), R.frac(extraAt)), ctx)} has a hit too, where this part stays silent`;
+      const bar = ev.filter((e) => R.floor(e.onset) === firstBad);
+      const missing = r.contains?.find((x) => !onsets(bar).some((o) => R.eq(R.frac(o), R.frac(x))));
+      return missing !== undefined
+        ? `${right}; ${placeText(R.add(rat(firstBad), R.frac(missing)), ctx)} has no hit yet`
+        : `${right}; bar ${locAt(rat(firstBad), ctx).bar} is the first to fix`;
+    })(),
     ...(firstBad !== null ? { where: locAt(rat(firstBad), ctx) } : {}),
   };
 };

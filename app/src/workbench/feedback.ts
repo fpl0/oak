@@ -63,13 +63,26 @@ export function unlocks(
   return { ab, ghosts, nextLabel };
 }
 
+/**
+ * Triplet places ("2-trip", "2-let") said in plain words beside the count, so a hit that lands on a triplet before
+ * triplets are taught (U13.L05) still says where it is (clarity pass, 2026-11-22).
+ */
+export function plainBeats(text: string): string {
+  return text
+    .replace(/\b(\d+)-trip\b(?! \()/g, (_m, n: string) => `${n}-trip (a third of the way through beat ${n})`)
+    .replace(
+      /\b(\d+)-let\b(?! \()/g,
+      (_m, n: string) => `${n}-let (two thirds of the way through beat ${n})`,
+    );
+}
+
 /** "Bar 2, beat 3" (rung 0 always says where). */
 export function whereText(issue: Pick<IssueView, "where">): string {
   const w = issue.where;
   const parts: string[] = [];
   if (w.track) parts.push(w.track);
   if (w.bar !== undefined) parts.push(`Bar ${w.bar}`);
-  if (w.beatLabel) parts.push(`beat ${w.beatLabel}`);
+  if (w.beatLabel) parts.push(plainBeats(`beat ${w.beatLabel}`));
   else if (w.beat !== undefined) parts.push(`beat ${w.beat}`);
   if (w.rule) parts.push(w.rule);
   return parts.length ? parts.join(", ") : "Somewhere in the piece";

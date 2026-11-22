@@ -13,7 +13,7 @@ import {
 import { signatureOf } from "@oak/theory";
 import { takeProblem } from "../answers/sing.ts";
 import type { AnswerFeedback, AnswerSpec, AnswerValue, PartMark } from "../answers/types.ts";
-import { summaryText, whereText } from "../workbench/feedback.ts";
+import { plainBeats, summaryText, whereText } from "../workbench/feedback.ts";
 
 /** Catalog text with the exercise's overrides; the result's own message, then the ID, as fallbacks. */
 export function renderer(
@@ -28,15 +28,17 @@ export function renderer(
     if (catalog) {
       try {
         const t = catalog(d, ex?.feedbackText);
-        if (t && t !== d.id) return degreeSigns(t);
+        if (t && t !== d.id) return plainBeats(degreeSigns(t));
       } catch {
         // fall through
       }
     }
-    return degreeSigns(
-      result?.messages.find((m) => m.id === d.id && m.where?.slot === d.where?.slot)?.text ??
-        result?.messages.find((m) => m.id === d.id)?.text ??
-        d.id,
+    return plainBeats(
+      degreeSigns(
+        result?.messages.find((m) => m.id === d.id && m.where?.slot === d.where?.slot)?.text ??
+          result?.messages.find((m) => m.id === d.id)?.text ??
+          d.id,
+      ),
     );
   };
 }

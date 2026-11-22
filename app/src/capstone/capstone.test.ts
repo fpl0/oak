@@ -87,7 +87,7 @@ describe("the living checklist", () => {
     expect(rows.map((r) => r.id)).toEqual(rules.map((r) => r.id));
     const snare = rows.find((r) => r.id === "snare-backbeat");
     expect(snare).toMatchObject({ state: "open", required: true, anchor: { from: 1, to: 3 } });
-    expect(snare?.detail).toBe("the onsets differ from the brief");
+    expect(snare?.detail).toBe("the hits are not where this asks yet");
     expect(rows.find((r) => r.id === "tempo")).toMatchObject({ state: "met", anchor: null, detail: null });
     expect(rows.find((r) => r.id === "fill")?.focus).toBe(true);
     expect(readiness(rows)).toEqual({ ready: false, met: 5, required: 6 });

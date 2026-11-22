@@ -9,7 +9,7 @@ import type { KeySpec, LintResult, MeterId } from "@oak/content-kit";
 import type { EvalOutcome, MuteMap } from "@oak/strudel";
 import { cpsToBpm, METERS } from "@oak/theory";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Archive, ChevronLeft, Download, Ear, Save, Trash2 } from "lucide-react";
+import { Archive, ChevronLeft, Download, Save, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { bandMeter, bands } from "../../../content/bands/index.ts";
 import { useContent } from "../lib/content.ts";
@@ -19,26 +19,13 @@ import { FLAVOUR_LABEL, formatDate, formatKey } from "../lib/format.ts";
 import { lintInBrowser } from "../lib/grader-client.ts";
 import { TRACK_LENS_GATES, useLenses } from "../lib/lenses.ts";
 import { usePageTitle } from "../lib/nav.ts";
-import {
-  useCourseProgress,
-  useSketchAddVersion,
-  useSketchDelete,
-  useSketchPatch,
-  useTutorNotes,
-} from "../lib/queries.ts";
+import { useCourseProgress, useSketchAddVersion, useSketchDelete, useSketchPatch } from "../lib/queries.ts";
 import { currentSessionId } from "../session/store.ts";
-import {
-  askListeningNote,
-  clearSubject,
-  patchSubject,
-  registerTutorHost,
-  setSubject,
-} from "../tutor/context.ts";
-import { Markdown } from "../tutor/Markdown.tsx";
+import { clearSubject, patchSubject, registerTutorHost, setSubject } from "../tutor/context.ts";
 import { IS_MAC, keyScope, useHotkeys } from "../ui/keys/KeymapProvider.tsx";
 import { formatKeys } from "../ui/keys/keymap.ts";
 import { Button } from "../ui/kit/Button.tsx";
-import { Card, Chip, Kbd } from "../ui/kit/basics.tsx";
+import { Chip, Kbd } from "../ui/kit/basics.tsx";
 import { Callout, SegmentedControl } from "../ui/kit/Controls.tsx";
 import { toast } from "../ui/kit/Toast.tsx";
 import "../workbench/index.ts";
@@ -112,7 +99,6 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
   const addVersion = useSketchAddVersion();
   const patch = useSketchPatch();
   const del = useSketchDelete();
-  const notes = useTutorNotes({ subjectKind: "sketch", subjectId: id });
   const progress = useCourseProgress();
   const lenses = useLenses();
   usePageTitle(sketch.title);
@@ -338,13 +324,6 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
     [id],
   );
 
-  const askNote = () => {
-    const r = askListeningNote({ sketchId: id, title: sketch.title, code: saved.current.code });
-    if (r.ok)
-      toast.info(`Asked Claude to listen to v${latest.version}`, "The note appears in the tutor panel.");
-    else toast.info(r.notice.message);
-  };
-
   // --- keys -------------------------------------------------------------------------------------------
   useHotkeys([
     {
@@ -412,8 +391,6 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
 
   const fitting = bandsForMeter(bands, meter, bandMeter);
   const liner = linerFlags(latest, toolbox, flavourLabel);
-  const listening = (notes.data?.items ?? []).filter((n) => n.source === "listening" && !n.retractedAt);
-  const lastNote = listening.at(-1)?.text ?? sketch.listeningNote;
   const onWorkbenchMutes = useCallback((m: MuteMap) => {
     mutes.current = m;
   }, []);
@@ -468,9 +445,6 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
             data-testid="name-version"
           >
             Name version <Kbd>{formatKeys("Mod+S", IS_MAC)}</Kbd>
-          </Button>
-          <Button icon={<Ear aria-hidden className="size-4" />} onClick={askNote} data-testid="ask-listening">
-            Ask for a listening note
           </Button>
           <Button
             variant="ghost"
@@ -753,22 +727,6 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
                 ))}
               </ul>
             </Callout>
-          ) : null}
-          {lastNote ? (
-            <Card className="p-4" data-testid="listening-note">
-              <h2 className="mb-1 font-sans text-sm font-semibold text-text-2">Claude's listening note</h2>
-              <Markdown
-                text={lastNote}
-                thread={thread}
-                ctx={{
-                  terms: content.data?.terms ?? [],
-                  introduced: null,
-                  tools: toolbox,
-                  unlocked: unlocked as ReadonlySet<string>,
-                }}
-              />
-              <p className="mt-1 text-sm text-text-3">Claude reads your notes and code, never your audio.</p>
-            </Card>
           ) : null}
 
           <Facts
