@@ -545,6 +545,9 @@ describe("telemetry, QA, dev", () => {
     });
     expect(r.status).toBe(200);
     expect(h.server.deps.repos.ops.stepTelemetry()).toHaveLength(1);
+    const report = await h.json<{ steps: unknown[] }>("GET", "/api/telemetry");
+    expect(report.status).toBe(200);
+    expect(report.body.steps).toHaveLength(1);
     expect((await h.json("GET", "/api/dev/telemetry")).status).toBe(404);
   });
 
@@ -848,7 +851,7 @@ describe("Wave 2 endpoints", () => {
                   theoryTags: [],
                   includeReviewNote: false,
                 }
-              : name === "dev.listenMark"
+              : name === "listen.mark"
                 ? { hash: "h", verdict: "ok", note: "" }
                 : name === "onboarding.put"
                   ? { step: "loop" }

@@ -37,6 +37,9 @@ export function metaRoutes(mount: Mounter, d: AppDeps): void {
 
   mount("health", () => healthOf(d));
 
+  // The desktop app only: a newer release on GitHub (asked at most once a day), else null.
+  mount("app.update", () => d.updates.update());
+
   mount("bootstrap", async () => {
     const day = s.streak.time.day();
     return {

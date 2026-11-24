@@ -161,7 +161,7 @@ describe("dev seed snapshots", () => {
       ).status,
     ).toBe(200);
     expect(
-      (await x.json("PUT", "/api/dev/listen/tb.example%2F1", { verdict: "ok", hash: "h1", note: "" })).status,
+      (await x.json("PUT", "/api/listen/tb.example%2F1", { verdict: "ok", hash: "h1", note: "" })).status,
     ).toBe(200);
     const marks = learner(x, { listen: true }).listen_marks;
     expect(learner(x)).not.toEqual(atBuild);

@@ -439,7 +439,7 @@ describe("the first playable: onboarding to C1 over simulated weeks", () => {
       (c) => c.status === "active" && ["perceptual", "production"].includes(familyOf(c.cardId)?.kind ?? ""),
     );
     expect(pp.length).toBeLessThanOrEqual(12);
-    const telemetry = await me.api<TelemetryReport>("GET", "/api/dev/telemetry");
+    const telemetry = await me.api<TelemetryReport>("GET", "/api/telemetry");
     expect(telemetry.sessions.length).toBeGreaterThan(20);
     // Session telemetry carries the planned warm-up and the review due before and after (§9.7).
     expect(telemetry.sessions.some((t) => t.warmupPlannedSec > 0 && t.dueSecBefore > 0)).toBe(true);
@@ -733,7 +733,7 @@ describe("the 15-minute split and Wrap up (§9.4)", () => {
       expect(again).toMatchObject({ mapItemId: lessonId, main: { resumeStep: makeStep } });
       const tele = await me.api<{ sessions: { sessionId: string; wrappedEarly: boolean }[] }>(
         "GET",
-        "/api/dev/telemetry",
+        "/api/telemetry",
       );
       expect(tele.sessions.find((t) => t.sessionId === ses.id)?.wrappedEarly).toBe(true);
     } finally {

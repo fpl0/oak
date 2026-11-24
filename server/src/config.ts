@@ -51,6 +51,11 @@ export interface OakConfig {
   contentDir: string;
   appVersion: string;
   /**
+   * Run by the desktop app: `OAK_APP_VERSION` is set (desktop/main.cjs) and this is not a dev server. Only then does
+   * the server ask GitHub whether a newer Oak is out (services/app-update.ts).
+   */
+  desktopApp: boolean;
+  /**
    * Extra ports whose Host and Origin the tutor's own routes allow (the Vite proxy in dev): 5173 and
    * `OAK_VITE_PORT`. Oak's /api security accepts any loopback port in dev (security.ts).
    */
@@ -103,6 +108,7 @@ export function loadConfig(input: ConfigInput = {}): OakConfig {
     soundsDir: join(rootDir, "sounds", "pack"),
     contentDir: join(rootDir, "content"),
     appVersion: appVersionOf(env, rootDir, dev),
+    desktopApp: !dev && Boolean(env.OAK_APP_VERSION?.trim()),
     devPorts: dev ? [...new Set([PORTS.vite, vitePort])] : [],
     tutorFake: dev && env.OAK_TUTOR_FAKE === "1",
     songsAutostart: dev && env.OAK_SONGS_AUTOSTART === "1",
@@ -124,6 +130,7 @@ export function testConfig(dataDir: string, overrides: Partial<OakConfig> = {}):
     soundsDir: join(dataDir, "sounds"),
     contentDir: join(dataDir, "content"),
     appVersion: APP_VERSION,
+    desktopApp: false,
     devPorts: [],
     tutorFake: false,
     songsAutostart: false,

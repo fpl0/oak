@@ -484,6 +484,13 @@ function TimeCard({ days, today }: { days: Parameters<typeof practiceTime>[0]; t
         ))}
       </dl>
       <p className="mt-2 text-sm text-text-3">Active time only: a pause or an idle minute is not counted.</p>
+      <Link
+        to="/progress/sessions"
+        className="mt-2 inline-block text-sm text-link underline-offset-2 hover:underline"
+        data-testid="progress-sessions-link"
+      >
+        Your sessions: time taken against the plan
+      </Link>
     </Card>
   );
 }

@@ -1,5 +1,6 @@
-// A small bar chart for the dev pages: one series, labelled bars, an optional reference value per bar (drawn
-// as a tick) and an optional horizontal guide. Values print on the bars, so the chart reads without hover.
+// A small bar chart for Progress › Your sessions: one series, labelled bars, an optional reference value per
+// bar (drawn as a tick) and an optional horizontal guide. Values print on the bars, so the chart reads
+// without hover.
 import { clsx } from "clsx";
 
 export interface Bar {

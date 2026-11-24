@@ -1,6 +1,6 @@
-// Settings › Voice (ux §2.3, §4.7; contracts §8.2, §8.5, §8.6): the mic and Quiet mode, the singing range and the
-// pitch match, the tolerance ladder (where it is, why, how it moves — never as a score), the singing labels,
-// timing, and the last calibration results. Each measurement re-runs on its own through
+// Settings › Voice (ux §2.3, §4.7; contracts §8.2, §8.5, §8.6): the mic, its last headphone-leak check and Quiet
+// mode, the singing range and the pitch match, the tolerance ladder (where it is, why, how it moves — never as a
+// score), the singing labels, timing, and the last calibration results. Each measurement re-runs on its own through
 // /settings/voice/setup?part=… (the same screens as onboarding). Quiet mode and the ladder are the server's
 // (`GET /voice`), with the profile as the fallback while that endpoint is not built.
 import type { CalibrationRecord, Profile } from "@oak/api";
@@ -15,7 +15,7 @@ import { buttonClass } from "../../ui/kit/Button.tsx";
 import { Callout } from "../../ui/kit/Controls.tsx";
 import { Field, ReadOnlyRow, Section, Switch } from "../../ui/kit/Field.tsx";
 import { QueryView } from "../../ui/kit/QueryState.tsx";
-import { calibrationLine, inputLabel, lastMatch } from "../../voice/history.ts";
+import { calibrationLine, inputLabel, lastLeak, lastMatch } from "../../voice/history.ts";
 import { noiseVerdict, outputChoiceOf, outputGuidance } from "../../voice/logic.ts";
 import { LadderCard, QuietControl, RecheckHint } from "../../voice/panels.tsx";
 import { HIGH_FLOOR_DB } from "../../voice/recheck.ts";
@@ -67,6 +67,7 @@ function VoicePage({ p, voice }: { p: Profile; voice: Voice }) {
   const runs = useCalibrations();
   const items = runs.isSuccess ? runs.data.items : runs.isError ? null : [];
   const match = items ? lastMatch(items) : null;
+  const leak = items ? lastLeak(items) : null;
   const floorHigh = p.noiseFloorDb !== null && p.noiseFloorDb >= HIGH_FLOOR_DB;
   const bluetooth = p.outputKind === "bluetooth";
   return (
@@ -92,6 +93,19 @@ function VoicePage({ p, voice }: { p: Profile; voice: Voice }) {
                 )}
               </span>
             )
+          }
+        />
+        <ReadOnlyRow
+          label="Headphone leak"
+          value={
+            <span data-testid="leak-last" data-heard={leak ? String(leak.heard) : undefined}>
+              {leak ? leak.words : "not checked"}
+              {leak?.heard && (
+                <span className="block text-sm text-text-3">
+                  Use headphones, or turn the volume down, so Oak grades your voice and not its own.
+                </span>
+              )}
+            </span>
           }
         />
         <QuietControl voice={voice} />
@@ -121,6 +135,14 @@ function VoicePage({ p, voice }: { p: Profile; voice: Voice }) {
             data-testid="rerun-noise"
           >
             Run the quiet check
+          </Link>
+          <Link
+            to="/settings/voice/setup"
+            search={{ part: "bleed" }}
+            className={buttonClass("secondary")}
+            data-testid="rerun-bleed"
+          >
+            Check for headphone leak
           </Link>
         </div>
       </Section>

@@ -43,7 +43,7 @@ export const LESSON_FLAG_RATIO = 1.15;
 /** contracts §9.7: prompt to change BEGINNER_FACTOR when the rolling multiplier leaves this band. */
 export const MULTIPLIER_BAND = [1.25, 1.55] as const;
 
-/** The aggregates /dev/telemetry shows (contracts §9.7), from the stored rows. Pure. */
+/** The aggregates Progress › Your sessions shows (contracts §9.7), from the stored rows. Pure. */
 export function telemetryAggregates(
   steps: readonly StepTelemetry[],
   sessions: readonly SessionTelemetry[],

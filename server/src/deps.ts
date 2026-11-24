@@ -6,6 +6,7 @@ import type { ContentIndex } from "./content/index.ts";
 import type { Db } from "./db/index.ts";
 import type { Repos } from "./db/repos/index.ts";
 import type { KeyValidator, Secrets } from "./secrets.ts";
+import type { UpdateChecker } from "./services/app-update.ts";
 import type { Clock } from "./services/context.ts";
 import type { DevClock } from "./services/dev-clock.ts";
 import type { Services } from "./services/index.ts";
@@ -37,6 +38,8 @@ export interface AppDeps {
   planner: () => SessionPlannerPort | null;
   graders: GraderHosts;
   tutor: TutorWiring | null;
+  /** The desktop app's "a new version is out" check (services/app-update.ts). */
+  updates: UpdateChecker;
   /** Validate every JSON response against the contract (dev and tests). */
   validateResponses: boolean;
   log: (msg: string) => void;

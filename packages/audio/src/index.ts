@@ -19,6 +19,18 @@ export {
   mineRateFor,
   sideGains,
 } from "./ab-switch.ts";
+// The headphone-leak check: does Oak's own playback reach the mic (the set-up's speaker check)?
+export {
+  goertzelAmp2,
+  gradeGateDb,
+  LEAK_CHECK,
+  type LeakCheck,
+  type LeakToneReading,
+  leakCheck,
+  leakProbe,
+  type MicBlock,
+  type ProbeTone,
+} from "./bleed.ts";
 export {
   CALIBRATION,
   type CalibrationExtras,

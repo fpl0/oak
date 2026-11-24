@@ -3,6 +3,7 @@ import type { MasterReading } from "@oak/audio/master-meter";
 import type { PitchFrame } from "@oak/pitch";
 import { firstSingPasses, midiToHz } from "@oak/pitch";
 import {
+  bleedResult,
   bleedVerdict,
   centsWords,
   FIRST_SING_MAX_SEC,
@@ -52,6 +53,61 @@ describe("verdicts", () => {
   test("bleed", () => {
     expect(bleedVerdict(false).ok).toBe(true);
     expect(bleedVerdict(true).ok).toBe(false);
+    // Plain words: what the mic hears and what to do about it.
+    expect(bleedVerdict(false).title).toBe("Your mic doesn't hear Oak. Good.");
+    expect(bleedVerdict(true).title).toBe("Your mic hears Oak's sound");
+    expect(bleedVerdict(true).body).toBe(
+      "Use headphones, or turn the volume down, so Oak grades your voice and not its own.",
+    );
+  });
+  test("the speaker check stores its verdict and what it measured, JSON-safe", () => {
+    const tone = (heard: boolean) => ({
+      hz: 880,
+      blocks: 12,
+      tonalDb: 30,
+      aboveQuietDb: 30,
+      aloneDb: 30,
+      levelDb: heard ? -41.3 : Number.NEGATIVE_INFINITY,
+      present: heard,
+      heard,
+    });
+    const leak = {
+      heard: true,
+      byPitch: false,
+      tones: {
+        heard: true,
+        lagSec: 0.123,
+        floorDb: -61.8,
+        gateDb: -45,
+        leakDb: -41.3,
+        tones: [tone(true), tone(true), tone(false)],
+      },
+    };
+    expect(bleedResult(leak, "speakers")).toEqual({
+      heard: true,
+      outputKind: "speakers",
+      byPitch: false,
+      leakDb: -41.5,
+      floorDb: -62,
+      lagMs: 123,
+      tonesHeard: 2,
+    });
+    const clean = bleedResult(
+      { heard: false, byPitch: false, tones: { ...leak.tones, heard: false, lagSec: null, leakDb: null } },
+      "wired",
+    );
+    expect(clean).toMatchObject({ heard: false, leakDb: null, lagMs: null });
+    // A session that gave no raw samples: the pitch tracker's answer only.
+    expect(bleedResult({ heard: true, byPitch: true, tones: null }, "wired")).toEqual({
+      heard: true,
+      outputKind: "wired",
+      byPitch: true,
+      leakDb: null,
+      floorDb: null,
+      lagMs: null,
+      tonesHeard: null,
+    });
+    expect(JSON.stringify(clean)).not.toMatch(/Infinity|NaN/);
   });
   test("tap latency: too few taps, normal, Bluetooth-high", () => {
     expect(tapVerdict({ latencyMs: 30, jitterMs: 8, taps: 5 }).ok).toBe(false);

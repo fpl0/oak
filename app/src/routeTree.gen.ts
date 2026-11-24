@@ -19,9 +19,6 @@ import { Route as CapstoneIdRouteImport } from "./routes/capstone/$id";
 import { Route as CheckpointUnitIdRouteImport } from "./routes/checkpoint/$unitId";
 import { Route as DevGlanceRouteImport } from "./routes/dev/glance";
 import { Route as DevKitRouteImport } from "./routes/dev/kit";
-import { Route as DevListenRouteImport } from "./routes/dev/listen";
-import { Route as DevQaRouteImport } from "./routes/dev/qa";
-import { Route as DevTelemetryRouteImport } from "./routes/dev/telemetry";
 import { Route as DevWorkbenchRouteImport } from "./routes/dev/workbench";
 import { Route as LearnLessonIdRouteImport } from "./routes/learn/$lessonId";
 import { Route as OnboardingIndexRouteImport } from "./routes/onboarding/index";
@@ -29,6 +26,7 @@ import { Route as OnboardingStepRouteImport } from "./routes/onboarding/$step";
 import { Route as PracticeIndexRouteImport } from "./routes/practice/index";
 import { Route as PracticeFamilyIdRouteImport } from "./routes/practice/$familyId";
 import { Route as PracticeReviewRouteImport } from "./routes/practice/review";
+import { Route as ProgressSessionsRouteImport } from "./routes/progress_.sessions";
 import { Route as SessionIndexRouteImport } from "./routes/session/index";
 import { Route as SessionCodaRouteImport } from "./routes/session/coda";
 import { Route as SessionReviveRouteImport } from "./routes/session/revive";
@@ -39,6 +37,8 @@ import { Route as SettingsAudioRouteImport } from "./routes/settings/audio";
 import { Route as SettingsDataRouteImport } from "./routes/settings/data";
 import { Route as SettingsKeysRouteImport } from "./routes/settings/keys";
 import { Route as SettingsLearningRouteImport } from "./routes/settings/learning";
+import { Route as SettingsListeningRouteImport } from "./routes/settings/listening";
+import { Route as SettingsReportsRouteImport } from "./routes/settings/reports";
 import { Route as SettingsTutorRouteImport } from "./routes/settings/tutor";
 import { Route as SettingsVoiceRouteImport } from "./routes/settings/voice";
 import { Route as SongUnitIdRouteImport } from "./routes/song/$unitId";
@@ -100,21 +100,6 @@ const DevKitRoute = DevKitRouteImport.update({
   path: "/dev/kit",
   getParentRoute: () => rootRouteImport,
 } as any);
-const DevListenRoute = DevListenRouteImport.update({
-  id: "/dev/listen",
-  path: "/dev/listen",
-  getParentRoute: () => rootRouteImport,
-} as any);
-const DevQaRoute = DevQaRouteImport.update({
-  id: "/dev/qa",
-  path: "/dev/qa",
-  getParentRoute: () => rootRouteImport,
-} as any);
-const DevTelemetryRoute = DevTelemetryRouteImport.update({
-  id: "/dev/telemetry",
-  path: "/dev/telemetry",
-  getParentRoute: () => rootRouteImport,
-} as any);
 const DevWorkbenchRoute = DevWorkbenchRouteImport.update({
   id: "/dev/workbench",
   path: "/dev/workbench",
@@ -148,6 +133,11 @@ const PracticeFamilyIdRoute = PracticeFamilyIdRouteImport.update({
 const PracticeReviewRoute = PracticeReviewRouteImport.update({
   id: "/practice/review",
   path: "/practice/review",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const ProgressSessionsRoute = ProgressSessionsRouteImport.update({
+  id: "/progress_/sessions",
+  path: "/progress/sessions",
   getParentRoute: () => rootRouteImport,
 } as any);
 const SessionIndexRoute = SessionIndexRouteImport.update({
@@ -198,6 +188,16 @@ const SettingsKeysRoute = SettingsKeysRouteImport.update({
 const SettingsLearningRoute = SettingsLearningRouteImport.update({
   id: "/learning",
   path: "/learning",
+  getParentRoute: () => SettingsRouteRoute,
+} as any);
+const SettingsListeningRoute = SettingsListeningRouteImport.update({
+  id: "/listening",
+  path: "/listening",
+  getParentRoute: () => SettingsRouteRoute,
+} as any);
+const SettingsReportsRoute = SettingsReportsRouteImport.update({
+  id: "/reports",
+  path: "/reports",
   getParentRoute: () => SettingsRouteRoute,
 } as any);
 const SettingsTutorRoute = SettingsTutorRouteImport.update({
@@ -261,14 +261,12 @@ export interface FileRoutesByFullPath {
   "/checkpoint/$unitId": typeof CheckpointUnitIdRoute;
   "/dev/glance": typeof DevGlanceRoute;
   "/dev/kit": typeof DevKitRoute;
-  "/dev/listen": typeof DevListenRoute;
-  "/dev/qa": typeof DevQaRoute;
-  "/dev/telemetry": typeof DevTelemetryRoute;
   "/dev/workbench": typeof DevWorkbenchRoute;
   "/learn/$lessonId": typeof LearnLessonIdRoute;
   "/onboarding/$step": typeof OnboardingStepRoute;
   "/practice/$familyId": typeof PracticeFamilyIdRoute;
   "/practice/review": typeof PracticeReviewRoute;
+  "/progress/sessions": typeof ProgressSessionsRoute;
   "/session/coda": typeof SessionCodaRoute;
   "/session/revive": typeof SessionReviveRoute;
   "/settings/about": typeof SettingsAboutRoute;
@@ -277,6 +275,8 @@ export interface FileRoutesByFullPath {
   "/settings/data": typeof SettingsDataRoute;
   "/settings/keys": typeof SettingsKeysRoute;
   "/settings/learning": typeof SettingsLearningRoute;
+  "/settings/listening": typeof SettingsListeningRoute;
+  "/settings/reports": typeof SettingsReportsRoute;
   "/settings/tutor": typeof SettingsTutorRoute;
   "/settings/voice": typeof SettingsVoiceRoute;
   "/song/$unitId": typeof SongUnitIdRoute;
@@ -302,14 +302,12 @@ export interface FileRoutesByTo {
   "/checkpoint/$unitId": typeof CheckpointUnitIdRoute;
   "/dev/glance": typeof DevGlanceRoute;
   "/dev/kit": typeof DevKitRoute;
-  "/dev/listen": typeof DevListenRoute;
-  "/dev/qa": typeof DevQaRoute;
-  "/dev/telemetry": typeof DevTelemetryRoute;
   "/dev/workbench": typeof DevWorkbenchRoute;
   "/learn/$lessonId": typeof LearnLessonIdRoute;
   "/onboarding/$step": typeof OnboardingStepRoute;
   "/practice/$familyId": typeof PracticeFamilyIdRoute;
   "/practice/review": typeof PracticeReviewRoute;
+  "/progress/sessions": typeof ProgressSessionsRoute;
   "/session/coda": typeof SessionCodaRoute;
   "/session/revive": typeof SessionReviveRoute;
   "/settings/about": typeof SettingsAboutRoute;
@@ -318,6 +316,8 @@ export interface FileRoutesByTo {
   "/settings/data": typeof SettingsDataRoute;
   "/settings/keys": typeof SettingsKeysRoute;
   "/settings/learning": typeof SettingsLearningRoute;
+  "/settings/listening": typeof SettingsListeningRoute;
+  "/settings/reports": typeof SettingsReportsRoute;
   "/settings/tutor": typeof SettingsTutorRoute;
   "/settings/voice": typeof SettingsVoiceRoute;
   "/song/$unitId": typeof SongUnitIdRoute;
@@ -345,14 +345,12 @@ export interface FileRoutesById {
   "/checkpoint/$unitId": typeof CheckpointUnitIdRoute;
   "/dev/glance": typeof DevGlanceRoute;
   "/dev/kit": typeof DevKitRoute;
-  "/dev/listen": typeof DevListenRoute;
-  "/dev/qa": typeof DevQaRoute;
-  "/dev/telemetry": typeof DevTelemetryRoute;
   "/dev/workbench": typeof DevWorkbenchRoute;
   "/learn/$lessonId": typeof LearnLessonIdRoute;
   "/onboarding/$step": typeof OnboardingStepRoute;
   "/practice/$familyId": typeof PracticeFamilyIdRoute;
   "/practice/review": typeof PracticeReviewRoute;
+  "/progress_/sessions": typeof ProgressSessionsRoute;
   "/session/coda": typeof SessionCodaRoute;
   "/session/revive": typeof SessionReviveRoute;
   "/settings/about": typeof SettingsAboutRoute;
@@ -361,6 +359,8 @@ export interface FileRoutesById {
   "/settings/data": typeof SettingsDataRoute;
   "/settings/keys": typeof SettingsKeysRoute;
   "/settings/learning": typeof SettingsLearningRoute;
+  "/settings/listening": typeof SettingsListeningRoute;
+  "/settings/reports": typeof SettingsReportsRoute;
   "/settings/tutor": typeof SettingsTutorRoute;
   "/settings/voice": typeof SettingsVoiceRoute;
   "/song/$unitId": typeof SongUnitIdRoute;
@@ -389,14 +389,12 @@ export interface FileRouteTypes {
     | "/checkpoint/$unitId"
     | "/dev/glance"
     | "/dev/kit"
-    | "/dev/listen"
-    | "/dev/qa"
-    | "/dev/telemetry"
     | "/dev/workbench"
     | "/learn/$lessonId"
     | "/onboarding/$step"
     | "/practice/$familyId"
     | "/practice/review"
+    | "/progress/sessions"
     | "/session/coda"
     | "/session/revive"
     | "/settings/about"
@@ -405,6 +403,8 @@ export interface FileRouteTypes {
     | "/settings/data"
     | "/settings/keys"
     | "/settings/learning"
+    | "/settings/listening"
+    | "/settings/reports"
     | "/settings/tutor"
     | "/settings/voice"
     | "/song/$unitId"
@@ -430,14 +430,12 @@ export interface FileRouteTypes {
     | "/checkpoint/$unitId"
     | "/dev/glance"
     | "/dev/kit"
-    | "/dev/listen"
-    | "/dev/qa"
-    | "/dev/telemetry"
     | "/dev/workbench"
     | "/learn/$lessonId"
     | "/onboarding/$step"
     | "/practice/$familyId"
     | "/practice/review"
+    | "/progress/sessions"
     | "/session/coda"
     | "/session/revive"
     | "/settings/about"
@@ -446,6 +444,8 @@ export interface FileRouteTypes {
     | "/settings/data"
     | "/settings/keys"
     | "/settings/learning"
+    | "/settings/listening"
+    | "/settings/reports"
     | "/settings/tutor"
     | "/settings/voice"
     | "/song/$unitId"
@@ -472,14 +472,12 @@ export interface FileRouteTypes {
     | "/checkpoint/$unitId"
     | "/dev/glance"
     | "/dev/kit"
-    | "/dev/listen"
-    | "/dev/qa"
-    | "/dev/telemetry"
     | "/dev/workbench"
     | "/learn/$lessonId"
     | "/onboarding/$step"
     | "/practice/$familyId"
     | "/practice/review"
+    | "/progress_/sessions"
     | "/session/coda"
     | "/session/revive"
     | "/settings/about"
@@ -488,6 +486,8 @@ export interface FileRouteTypes {
     | "/settings/data"
     | "/settings/keys"
     | "/settings/learning"
+    | "/settings/listening"
+    | "/settings/reports"
     | "/settings/tutor"
     | "/settings/voice"
     | "/song/$unitId"
@@ -515,14 +515,12 @@ export interface RootRouteChildren {
   CheckpointUnitIdRoute: typeof CheckpointUnitIdRoute;
   DevGlanceRoute: typeof DevGlanceRoute;
   DevKitRoute: typeof DevKitRoute;
-  DevListenRoute: typeof DevListenRoute;
-  DevQaRoute: typeof DevQaRoute;
-  DevTelemetryRoute: typeof DevTelemetryRoute;
   DevWorkbenchRoute: typeof DevWorkbenchRoute;
   LearnLessonIdRoute: typeof LearnLessonIdRoute;
   OnboardingStepRoute: typeof OnboardingStepRoute;
   PracticeFamilyIdRoute: typeof PracticeFamilyIdRoute;
   PracticeReviewRoute: typeof PracticeReviewRoute;
+  ProgressSessionsRoute: typeof ProgressSessionsRoute;
   SessionCodaRoute: typeof SessionCodaRoute;
   SessionReviveRoute: typeof SessionReviveRoute;
   SongUnitIdRoute: typeof SongUnitIdRoute;
@@ -611,27 +609,6 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof DevKitRouteImport;
       parentRoute: typeof rootRouteImport;
     };
-    "/dev/listen": {
-      id: "/dev/listen";
-      path: "/dev/listen";
-      fullPath: "/dev/listen";
-      preLoaderRoute: typeof DevListenRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/dev/qa": {
-      id: "/dev/qa";
-      path: "/dev/qa";
-      fullPath: "/dev/qa";
-      preLoaderRoute: typeof DevQaRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/dev/telemetry": {
-      id: "/dev/telemetry";
-      path: "/dev/telemetry";
-      fullPath: "/dev/telemetry";
-      preLoaderRoute: typeof DevTelemetryRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
     "/dev/workbench": {
       id: "/dev/workbench";
       path: "/dev/workbench";
@@ -679,6 +656,13 @@ declare module "@tanstack/react-router" {
       path: "/practice/review";
       fullPath: "/practice/review";
       preLoaderRoute: typeof PracticeReviewRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/progress_/sessions": {
+      id: "/progress_/sessions";
+      path: "/progress/sessions";
+      fullPath: "/progress/sessions";
+      preLoaderRoute: typeof ProgressSessionsRouteImport;
       parentRoute: typeof rootRouteImport;
     };
     "/session/": {
@@ -749,6 +733,20 @@ declare module "@tanstack/react-router" {
       path: "/learning";
       fullPath: "/settings/learning";
       preLoaderRoute: typeof SettingsLearningRouteImport;
+      parentRoute: typeof SettingsRouteRoute;
+    };
+    "/settings/listening": {
+      id: "/settings/listening";
+      path: "/listening";
+      fullPath: "/settings/listening";
+      preLoaderRoute: typeof SettingsListeningRouteImport;
+      parentRoute: typeof SettingsRouteRoute;
+    };
+    "/settings/reports": {
+      id: "/settings/reports";
+      path: "/reports";
+      fullPath: "/settings/reports";
+      preLoaderRoute: typeof SettingsReportsRouteImport;
       parentRoute: typeof SettingsRouteRoute;
     };
     "/settings/tutor": {
@@ -831,6 +829,8 @@ interface SettingsRouteRouteChildren {
   SettingsDataRoute: typeof SettingsDataRoute;
   SettingsKeysRoute: typeof SettingsKeysRoute;
   SettingsLearningRoute: typeof SettingsLearningRoute;
+  SettingsListeningRoute: typeof SettingsListeningRoute;
+  SettingsReportsRoute: typeof SettingsReportsRoute;
   SettingsTutorRoute: typeof SettingsTutorRoute;
   SettingsVoiceRoute: typeof SettingsVoiceRoute;
   SettingsIndexRoute: typeof SettingsIndexRoute;
@@ -843,6 +843,8 @@ const SettingsRouteRouteChildren: SettingsRouteRouteChildren = {
   SettingsDataRoute: SettingsDataRoute,
   SettingsKeysRoute: SettingsKeysRoute,
   SettingsLearningRoute: SettingsLearningRoute,
+  SettingsListeningRoute: SettingsListeningRoute,
+  SettingsReportsRoute: SettingsReportsRoute,
   SettingsTutorRoute: SettingsTutorRoute,
   SettingsVoiceRoute: SettingsVoiceRoute,
   SettingsIndexRoute: SettingsIndexRoute,
@@ -862,14 +864,12 @@ const rootRouteChildren: RootRouteChildren = {
   CheckpointUnitIdRoute: CheckpointUnitIdRoute,
   DevGlanceRoute: DevGlanceRoute,
   DevKitRoute: DevKitRoute,
-  DevListenRoute: DevListenRoute,
-  DevQaRoute: DevQaRoute,
-  DevTelemetryRoute: DevTelemetryRoute,
   DevWorkbenchRoute: DevWorkbenchRoute,
   LearnLessonIdRoute: LearnLessonIdRoute,
   OnboardingStepRoute: OnboardingStepRoute,
   PracticeFamilyIdRoute: PracticeFamilyIdRoute,
   PracticeReviewRoute: PracticeReviewRoute,
+  ProgressSessionsRoute: ProgressSessionsRoute,
   SessionCodaRoute: SessionCodaRoute,
   SessionReviveRoute: SessionReviveRoute,
   SongUnitIdRoute: SongUnitIdRoute,

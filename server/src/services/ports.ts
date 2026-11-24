@@ -56,7 +56,7 @@ export interface SrsPort {
   afterStep(input: StepReviewInput): MaybePromise<SrsReviewResult[]>;
   /** Current recall of a card for mastery R and shading; `null` for an unknown or never-reviewed card. */
   recall(cardId: string): { retrievability: number; desiredRetention: number } | null;
-  /** Seconds of review due per day for the next 7 days (`/dev/telemetry`). */
+  /** Seconds of review due per day for the next 7 days (Progress › Your sessions). */
   forecast?(): MaybePromise<number[]>;
   /**
    * Wave 4: work outside a drill set that reviews a family's card when it is due within 2 days, else moves only its

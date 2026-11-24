@@ -2,6 +2,7 @@
 // measurement, the note the first sing plays, the live note readout and the tolerance-ladder summary. No audio
 // here; the parts in ./parts call these with what @oak/audio measured.
 import type { Profile } from "@oak/api";
+import type { BleedCheck } from "@oak/audio";
 // The meter's own module: pure, so this file stays importable outside the browser.
 import { levelText, limiterWords, type MasterReading } from "@oak/audio/master-meter";
 import type { SingTolCents } from "@oak/content-kit";
@@ -51,14 +52,38 @@ export function bleedVerdict(heard: boolean): { ok: boolean; title: string; body
   return heard
     ? {
         ok: false,
-        title: "The mic hears your speakers",
-        body: "When you sing, Oak plays first and listens after, so its own sound is never taken for your voice. Headphones let the two overlap.",
+        title: "Your mic hears Oak's sound",
+        body: "Use headphones, or turn the volume down, so Oak grades your voice and not its own.",
       }
     : {
         ok: true,
-        title: "The mic doesn't hear your speakers",
+        title: "Your mic doesn't hear Oak. Good.",
         body: "You can sing along while Oak plays.",
       };
+}
+
+const rounded = (v: number | null | undefined, step = 1): number | null =>
+  typeof v === "number" && Number.isFinite(v) ? Math.round(v / step) * step : null;
+
+/**
+ * What the speaker check stores (a calibration run, kind `bleed`): the verdict, the output in use, and what
+ * was measured (the test tones' level in the mic and the room's, dBFS; the delay they arrived at, ms), so a
+ * later look at the history can tell a loud leak from a borderline one. JSON-safe: no infinities.
+ */
+export function bleedResult(
+  check: BleedCheck,
+  outputKind: Profile["outputKind"],
+): Record<string, string | number | boolean | null> {
+  const t = check.tones;
+  return {
+    heard: check.heard,
+    outputKind,
+    byPitch: check.byPitch,
+    leakDb: rounded(t?.leakDb, 0.5),
+    floorDb: rounded(t?.floorDb, 0.5),
+    lagMs: t?.lagSec === null || t === null ? null : rounded(t.lagSec * 1000),
+    tonesHeard: t ? t.tones.filter((x) => x.heard).length : null,
+  };
 }
 
 export interface TapVerdict {

@@ -78,7 +78,10 @@ export function useDestructiveMutation<N extends ConfirmEndpointName>(
 
 export const useHealth = () => useQuery({ ...apiQuery("health"), refetchInterval: 30_000, retry: 0 });
 export const useBootstrap = () => useQuery({ ...apiQuery("bootstrap"), staleTime: 30_000 });
-export const useSettingsPut = () => useApiMutation("settings.put", ["bootstrap"]);
+export const useSettingsPut = () => useApiMutation("settings.put", ["bootstrap", "app.update"]);
+/** Desktop app only: a newer Oak on GitHub, or `null` (the server asks GitHub at most once a day). */
+export const useAppUpdate = () =>
+  useQuery({ ...apiQuery("app.update"), staleTime: 60 * 60_000, refetchInterval: 6 * 60 * 60_000, retry: 0 });
 export const useAnthropicKeySet = () => useApiMutation("settings.anthropicKey.set", ["health", "bootstrap"]);
 export const useAnthropicKeyDelete = () =>
   useDestructiveMutation("settings.anthropicKey.delete", ["health", "bootstrap"]);
@@ -260,7 +263,11 @@ export const useTutorRetractNote = () =>
 export const useServerGrade = () => useApiMutation("grade");
 export const useAnalyze = () => useApiMutation("analyze");
 export const useTelemetrySteps = () => useApiMutation("telemetry.steps");
-export const useQaReport = () => useApiMutation("qa.report", ["dev.qa"]);
+export const useQaReport = () => useApiMutation("qa.report", ["qa.list"]);
+// Settings › Grading reports and Progress › Your sessions.
+export const useQaReports = () => useQuery(apiQuery("qa.list"));
+export const useQaUpdate = () => useApiMutation("qa.update", ["qa.list"]);
+export const useSessionTiming = () => useQuery(apiQuery("telemetry.report"));
 
 // --- backup -------------------------------------------------------------------------------------
 
@@ -300,9 +307,6 @@ export const useBackupImport = () =>
 
 // --- dev (OAK_DEV=1) ------------------------------------------------------------------------------
 
-export const useDevQa = () => useQuery(apiQuery("dev.qa"));
-export const useDevQaUpdate = () => useApiMutation("dev.qaUpdate", ["dev.qa"]);
-export const useDevTelemetry = () => useQuery(apiQuery("dev.telemetry"));
 export const useDevContentReport = () => useQuery(apiQuery("dev.contentReport"));
 
 // --- Wave 2 additions (docs/design/wave2.md §4) -------------------------------------------------------
@@ -344,8 +348,8 @@ export const useCalibrations = (kind?: CalibrationKind) =>
   useQuery(apiQuery("profile.calibrations", { query: kind ? { kind } : {} }));
 export const useTutorStatus = (refresh = false) =>
   useQuery({ ...apiQuery("tutor.status", { query: refresh ? { refresh: "1" } : {} }), retry: 0 });
-export const useDevListen = () => useQuery(apiQuery("dev.listen"));
-export const useDevListenMark = () => useApiMutation("dev.listenMark", ["dev.listen"]);
+export const useListenMarks = () => useQuery(apiQuery("listen.list"));
+export const useListenMark = () => useApiMutation("listen.mark", ["listen.list"]);
 
 // --- Wave 3 additions (docs/design/wave3.md §5) -------------------------------------------------------
 // Until the server engineer builds them these answer 501 (`OakApiError.code === "not_implemented"`, never

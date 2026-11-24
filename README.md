@@ -73,6 +73,15 @@ cd desktop && npm install && npm run dist   # the DMG and zip land in desktop/re
 
 `OAK_SRC=<checkout>` stages from another checkout, such as a clean worktree of a release commit.
 
+**Releasing** (maintainers): bump `"version"` in `desktop/package.json`, commit and push, then
+
+```bash
+desktop/scripts/release.sh 1.3.3 --dry-run   # print every step, run nothing
+desktop/scripts/release.sh 1.3.3             # or: cd desktop && npm run release -- 1.3.3
+```
+
+It builds the commit (`--sha`, default `HEAD`) in a clean worktree with the sound pack copied in, packages it, writes `SHA256SUMS`, publishes the GitHub release (notes default to the commit subjects since the last tag; `--notes-file` to write your own), points the blog post's links at the new version (edits only; you commit and push), moves the old `/Applications/Oak.app` to the Trash and installs the new one, then removes the worktree. It refuses to start if the version is not newer than the last tag, `desktop/package.json` disagrees, the commit is not pushed, `gh` is not signed in, or the sound pack is missing. Each outward step asks first unless `--yes`; skip steps with `--no-publish`, `--no-blog`, `--no-install`.
+
 ### 2. Or run from source
 
 ```bash
@@ -216,6 +225,11 @@ Useful environment variables, which apply only with `OAK_DEV=1`:
 | `bun run test:content` | Content validation alone |
 | `bun run e2e` | The Playwright browser suite with fake-microphone WAVs, run in parallel by area |
 | `bun run lint` / `bun run format` | Biome |
+| `bun run check:changed` | The spot check for a change: every typecheck, Biome on the changed files, then `test:changed` |
+| `bun run test:changed` | Only the unit tests the change reaches through imports (`--list` prints the plan and why each test is in it) |
+| `bun run e2e:changed` | Only the browser specs the change reaches: changed specs, specs that import a changed file, and the e2e folder of the changed file's area, at most 12 (`--max <n>`) |
+
+The `:changed` commands take the files changed since the merge-base with `origin/main` plus everything uncommitted (staged, unstaged, untracked); `--base <ref>` picks another base and `--files a b c` names the files. A changed config that affects every test (a workspace `package.json`, `bun.lock`, a `tsconfig*.json`, `biome.json`, `bunfig.toml`) prints a warning; `--all-on-config` then runs everything. A test reaches a package file only through the names it imports from the package's barrel; `--coarse` selects by files alone. Run the whole `bun run check` and `bun run e2e` before a release. The rules are at the top of `scripts/changed.ts`.
 
 Content validation is part of the unit tests. For every lesson it checks that:
 

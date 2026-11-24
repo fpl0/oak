@@ -1,8 +1,8 @@
-// /dev/listen (architecture §3.8): the listening pass over every curated sound of the pack and every code
-// example of the course, with a verdict each. Examples come from `content/.generated/examples.json`
-// (`{ref, code, hash, bars, key, meter}`) when the content build has run, otherwise from the lesson files'
-// step examples; sounds from the pack manifest. Verdicts live on the server (`GET /api/dev/listen`,
-// `PUT /api/dev/listen/:ref`, wave2 §4). Pure.
+// Settings › Listening pass (architecture §3.8): the listening pass over every curated sound of the pack and
+// every code example of the course, with a verdict each. Examples come from
+// `content/.generated/examples.json` (`{ref, code, hash, bars, key, meter}`) when the content build has run,
+// otherwise from the lesson files' step examples; sounds from the pack manifest. Verdicts live on the server
+// (`GET /api/listen`, `PUT /api/listen/:ref`, wave2 §4). Pure.
 import type { ListenMark as ApiListenMark, KeySpec, LessonDef, MeterId } from "@oak/api";
 
 export interface ListenExample {

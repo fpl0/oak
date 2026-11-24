@@ -1,6 +1,8 @@
 // The calibration wizard's measurements, driven by a fake clock and a scripted "world" the mic hears.
 import { describe, expect, test } from "bun:test";
 import type { PitchFrame } from "@oak/pitch";
+import { midiToHz } from "@oak/pitch";
+import { mulberry32 } from "@oak/pitch/synth";
 import { CALIBRATION, createCalibration, quietCheckOf } from "./calibration.ts";
 import { FakeContext, framesBetween } from "./fakes.test-data.ts";
 import type { MicGraph, MicSession, MicState } from "./types.ts";
@@ -14,6 +16,8 @@ function rig(world: (played: { midi: number; at: number; dur: number }[]) => Wor
   const panned: [number, number][] = [];
   let open: { frames: PitchFrame[]; subs: Set<(f: PitchFrame) => void>; closed: boolean } | null = null;
   let opens = 0;
+  const taps: AudioNode[] = [];
+  const untaps: AudioNode[] = [];
   let state: MicState = "closed";
   const mic: MicGraph = {
     prepare: async () => {},
@@ -31,6 +35,10 @@ function rig(world: (played: { midi: number; at: number; dur: number }[]) => Wor
         levelDb: () => -60,
         deviceId: "mic",
         sampleRate: 48000,
+        tap: (node) => {
+          taps.push(node);
+          return () => untaps.push(node);
+        },
         close: () => {
           s.closed = true;
           state = "closed";
@@ -65,7 +73,7 @@ function rig(world: (played: { midi: number; at: number; dur: number }[]) => Wor
     playPanned: (hz, pan) => panned.push([hz, pan]),
     sleep,
   });
-  return { ctx, cal, played, clicks, panned, state: () => state, opens: () => opens };
+  return { ctx, cal, played, clicks, panned, taps, untaps, state: () => state, opens: () => opens };
 }
 
 const silent: World = () => ({ midi: null, rms: 10 ** (-62 / 20) });
@@ -117,6 +125,45 @@ describe("calibration", () => {
     expect(speakers.played.map((p) => p.midi)).toEqual([...CALIBRATION.bleedTones]);
     const phones = rig(() => silent);
     expect(await phones.cal.bleedTest()).toBe(false);
+  });
+
+  test("leak check: an analyser on the mic hears the tones Oak played (speakers), or only the room (headphones)", async () => {
+    // The raw mic: what was played at `gain` (−∞: nothing), 90 ms late, over a −65 dBFS room; no pitch frames.
+    const withAnalyser = (leakDb: number | null) => {
+      const r = rig(() => silent);
+      const rand = mulberry32(5);
+      const sample = (t: number) => {
+        let v = 10 ** (-65 / 20) * Math.sqrt(3) * (2 * rand() - 1);
+        if (leakDb !== null)
+          for (const p of r.played)
+            if (t >= p.at + 0.09 && t < p.at + 0.09 + p.dur)
+              v += 10 ** (leakDb / 20) * Math.SQRT2 * Math.sin(2 * Math.PI * midiToHz(p.midi) * t);
+        return v;
+      };
+      (r.ctx as unknown as { createAnalyser(): unknown }).createAnalyser = () => ({
+        fftSize: 2048,
+        smoothingTimeConstant: 0.8,
+        getFloatTimeDomainData(buf: Float32Array) {
+          const end = r.ctx.currentTime;
+          for (let i = 0; i < buf.length; i++) buf[i] = sample(end - (buf.length - 1 - i) / 48000);
+        },
+      });
+      return r;
+    };
+    const speakers = withAnalyser(-40);
+    const loud = await speakers.cal.bleedCheck();
+    expect(loud.heard).toBe(true);
+    expect(loud.byPitch).toBe(false);
+    expect(loud.tones?.heard).toBe(true);
+    expect(loud.tones?.leakDb as number).toBeCloseTo(-40, 0);
+    expect(speakers.played.map((p) => p.midi)).toEqual([...CALIBRATION.bleedTones]);
+    expect(speakers.untaps).toEqual(speakers.taps);
+    expect(speakers.state()).toBe("closed");
+    const phones = await withAnalyser(null).cal.bleedCheck();
+    expect(phones).toMatchObject({ heard: false, byPitch: false, tones: { heard: false, leakDb: null } });
+    expect(phones.tones?.floorDb as number).toBeCloseTo(-65, 0);
+    // Without an analyser (or a session that cannot tap) the pitch tracker's check still answers.
+    expect((await rig(() => silent).cal.bleedCheck()).tones).toBeNull();
   });
 
   test("tap latency: 16 clicks, median and MAD; 'high' above 120 ms", async () => {

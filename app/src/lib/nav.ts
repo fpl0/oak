@@ -52,6 +52,8 @@ export const SETTINGS_SECTIONS = [
   { id: "appearance", label: "Appearance" },
   { id: "keys", label: "Keys" },
   { id: "data", label: "Data" },
+  { id: "listening", label: "Listening pass" },
+  { id: "reports", label: "Grading reports" },
   { id: "about", label: "About" },
 ] as const;
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number]["id"];

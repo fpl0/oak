@@ -323,7 +323,7 @@ test("Report a grading problem saves the report and opens Continue at once", asy
   await expect(page.getByTestId("continue")).toBeEnabled();
   const qa = await api<{ items: { stepId: string | null; note: string | null; kind: string }[] }>(
     page,
-    "/dev/qa",
+    "/qa/reports",
   );
   expect(qa.items.find((r) => r.stepId === "S7")).toMatchObject({
     kind: "lesson-step",

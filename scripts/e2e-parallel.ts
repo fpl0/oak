@@ -34,6 +34,8 @@
 //   bun run e2e --project lesson --no-budget   the budget table is printed, not enforced (a partial run)
 //   bun run e2e --since origin/main      only the projects that cover the paths changed since that ref (committed,
 //                                        staged, unstaged and untracked); a shared path selects everything
+//   bun run e2e --file app/src/lesson/e2e/a.pw.ts   only these spec files (repeatable; `bun run e2e:changed`,
+//                                        scripts/changed.ts, passes the specs a change affects); a partial run
 //   bun run e2e --shift 300              every port and data dir moved by 300 (a second run beside a first one)
 //   bun run e2e --quiet-jobs 1           the quiet files one unit at a time
 //   bun run e2e --no-bundle              every stack on a Vite dev server (as an area run alone does)
@@ -311,6 +313,8 @@ interface Args {
   quietJobs: number;
   only: Set<string> | null;
   since: string | null;
+  /** `--file`: only these spec files (repo-relative), in whichever projects list them. */
+  files: Set<string> | null;
   shift: number;
   plan: boolean;
   config: string | null;
@@ -327,6 +331,7 @@ export function parseArgs(argv: string[]): Args {
     quietJobs: 2,
     only: null,
     since: null,
+    files: null,
     shift: Number(process.env.OAK_E2E_SHIFT ?? 0),
     plan: false,
     config: null,
@@ -335,6 +340,7 @@ export function parseArgs(argv: string[]): Args {
     rest: [],
   };
   const only = new Set<string>();
+  const files = new Set<string>();
   const value = (i: number, flag: string): string => {
     const v = argv[i + 1];
     if (v === undefined) throw new Error(`${flag} needs a value`);
@@ -355,6 +361,7 @@ export function parseArgs(argv: string[]): Args {
     } else if (flag === "--quiet-jobs") a.quietJobs = Number(take());
     else if (flag === "--project") only.add(take());
     else if (flag === "--since") a.since = take();
+    else if (flag === "--file") files.add(take().replace(/^\.\//, ""));
     else if (flag === "--shift") a.shift = Number(take());
     else if (flag === "--plan") a.plan = true;
     else if (flag === "--config") a.config = take();
@@ -374,6 +381,7 @@ export function parseArgs(argv: string[]): Args {
   )
     throw new Error("--shift must be a multiple of 10 in 0–4590");
   a.only = only.size > 0 ? only : null;
+  a.files = files.size > 0 ? files : null;
   return a;
 }
 
@@ -589,6 +597,34 @@ export function projectsFor(
     if (to.length > 0) why.push(`${path} → ${to.join(", ")}`);
   }
   return { selected, why };
+}
+
+// --- --file ------------------------------------------------------------------------------------------------------
+
+/**
+ * `--file`: keeps only these spec files in every project (in place). `unknown` are the files no project lists;
+ * `narrowed` the projects that lost a file (their measured minutes are not a whole project's).
+ */
+export function narrowToFiles(
+  projects: Map<string, Project>,
+  files: Set<string>,
+): { unknown: string[]; narrowed: Set<string> } {
+  const listed = new Set([...projects.values()].flatMap((p) => [...p.files.keys()]));
+  const narrowed = new Set<string>();
+  for (const p of projects.values())
+    for (const f of [...p.files.keys()])
+      if (!files.has(f)) {
+        p.files.delete(f);
+        narrowed.add(p.name);
+      }
+  return { unknown: [...files].filter((f) => !listed.has(f)).sort(), narrowed };
+}
+
+/** A unit planned with every file of its projects (`files: []`) names them when the projects were narrowed. */
+export function pinFiles(units: Unit[], projects: Map<string, Project>): void {
+  for (const u of units)
+    if (u.files.length === 0)
+      u.files = [...new Set(u.projects.flatMap((p) => [...(projects.get(p)?.files.keys() ?? [])]))];
 }
 
 // --- planning ----------------------------------------------------------------------------------------------------
@@ -1059,8 +1095,22 @@ if (import.meta.main) {
       process.exit(0);
     }
   }
+  let narrowed = new Set<string>();
+  if (args.files) {
+    const n = narrowToFiles(all, args.files);
+    narrowed = n.narrowed;
+    say(`--file: ${args.files.size} spec files`);
+    for (const f of n.unknown) console.log(`  ${f}: no project of the config lists it (skipped)`);
+    wanted = new Set([...wanted].filter((p) => (all.get(p)?.files.size ?? 0) > 0));
+    if (wanted.size === 0) {
+      console.log("E2E TOTAL: nothing to run (no project lists the given files)");
+      process.exit(0);
+    }
+  }
   // What this run is given, and whether that is the whole suite (the total budget applies only then).
-  const wantedListed = listed.filter((t) => wanted.has(t.project));
+  const wantedListed = listed.filter(
+    (t) => wanted.has(t.project) && (args.files === null || args.files.has(t.file)),
+  );
   const everything = wholeSuite(
     wantedListed.map((t) => t.key),
     whole,
@@ -1074,6 +1124,7 @@ if (import.meta.main) {
     durations,
     args.shift,
   );
+  if (args.files) pinFiles(units, all);
   // The tests each unit is given (its projects, its files): what its report must account for.
   const given = (u: Unit): Listed[] =>
     listed.filter(
@@ -1274,7 +1325,12 @@ if (import.meta.main) {
     generated: new Date().toISOString(),
     projects: {
       ...durations.projects,
-      ...Object.fromEntries(Object.entries(projectMinutes).map(([k, v]) => [k, Number(v.toFixed(2))])),
+      // A project narrowed by `--file` ran only some of its files: its minutes are not the project's.
+      ...Object.fromEntries(
+        Object.entries(projectMinutes)
+          .filter(([k]) => !narrowed.has(k))
+          .map(([k, v]) => [k, Number(v.toFixed(2))]),
+      ),
     },
     files: {
       ...durations.files,

@@ -18,7 +18,7 @@ export function calibrationLine(r: CalibrationRecord): string {
       return `Noise floor · ${db === null ? "not measured" : `${Math.round(db)} dBFS`}`;
     }
     case "bleed":
-      return `Bleed · ${x.heard === true ? "the mic heard the speakers" : "none"}`;
+      return `Headphone leak · ${x.heard === true ? "the mic heard Oak's sound" : "none"}`;
     case "tap-latency": {
       const ms = num(x.latencyMs);
       return `Tap latency · ${ms === null ? "not measured" : `${Math.round(ms)} ms`}`;
@@ -48,6 +48,18 @@ export function calibrationLine(r: CalibrationRecord): string {
         : `Pitch match · ${within} of ${trials} within ±${num(x.windowCents) ?? 50}¢`;
     }
   }
+}
+
+/**
+ * The newest speaker check, as Settings › Voice shows it: "none" or "your mic hears Oak's sound", or null when
+ * none was run.
+ */
+export function lastLeak(items: readonly CalibrationRecord[]): { heard: boolean; words: string } | null {
+  const r = items.find((x) => x.kind === "bleed" && typeof x.result.heard === "boolean");
+  if (!r) return null;
+  return r.result.heard === true
+    ? { heard: true, words: "Your mic hears Oak's sound" }
+    : { heard: false, words: "None: your mic doesn't hear Oak" };
 }
 
 /** The newest three-note pitch match, as Settings › Voice shows it ("2 of 3 within ±50¢ · 11 Nov"), or null. */

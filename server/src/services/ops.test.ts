@@ -44,7 +44,7 @@ const session = (over: Partial<SessionTelemetry>): SessionTelemetry => ({
   ...over,
 });
 
-describe("/dev/telemetry aggregates (contracts §9.7)", () => {
+describe("Your sessions aggregates (contracts §9.7)", () => {
   test("actual vs scaled minutes per lesson, flagged above 1.15 × the scaled budget", () => {
     const a = telemetryAggregates(
       [

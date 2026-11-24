@@ -177,10 +177,19 @@ describe("the app refuses what the rules refuse", () => {
   });
 
   test("/api/dev/* does not exist without OAK_DEV", async () => {
+    expect((await h.req("GET", "/api/dev/seed")).status).toBe(404);
     expect((await h.req("GET", "/api/dev/qa")).status).toBe(404);
+    // Grading reports, your sessions and the listening pass are in every build, under the same checks as the rest.
+    for (const p of ["/api/qa/reports", "/api/telemetry", "/api/listen"]) {
+      expect([p, (await h.req("GET", p)).status]).toEqual([p, 200]);
+      expect([p, (await h.req("GET", p, undefined, { host: "rebind.example:8787" })).status]).toEqual([
+        p,
+        403,
+      ]);
+    }
     const dev = await harness({ dev: true });
     try {
-      expect((await dev.req("GET", "/api/dev/qa")).status).toBe(200);
+      expect((await dev.req("GET", "/api/dev/seed")).status).toBe(200);
     } finally {
       await dev.close();
     }

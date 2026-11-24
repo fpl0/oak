@@ -460,7 +460,7 @@ describe("capstone release", () => {
 });
 
 describe("the grading-problem queue (§11.8)", () => {
-  test("a report marks the attempt disputed, removes its evidence, and lands in /dev/qa", async () => {
+  test("a report marks the attempt disputed, removes its evidence, and lands in Settings › Grading reports", async () => {
     const r = await h.json<{ attempt: { id: number }; evidence: { skillId: string }[] }>(
       "POST",
       "/api/lessons/U01.L01/steps/S2/attempts",
@@ -502,9 +502,9 @@ describe("the grading-problem queue (§11.8)", () => {
     expect(qa.body.status).toBe("open");
     expect(h.server.deps.repos.lessons.attempt(r.body.attempt.id)?.disputed).toBe(true);
     expect(h.server.deps.repos.mastery.evidenceOf("R03").length).toBe(before - 1);
-    const list = await h.json<{ items: { id: number; note: string }[] }>("GET", "/api/dev/qa");
+    const list = await h.json<{ items: { id: number; note: string }[] }>("GET", "/api/qa/reports");
     expect(list.body.items.map((x) => x.note)).toEqual(["this is right"]);
-    const triaged = await h.json<{ status: string }>("PATCH", `/api/dev/qa/${qa.body.id}`, {
+    const triaged = await h.json<{ status: string }>("PATCH", `/api/qa/reports/${qa.body.id}`, {
       status: "fixed",
     });
     expect(triaged.body.status).toBe("fixed");
@@ -514,11 +514,11 @@ describe("the grading-problem queue (§11.8)", () => {
 describe("dev tools", () => {
   test("listen verdicts are stored per example and replaced by a newer one", async () => {
     const put = (verdict: string, note: string) =>
-      h.json("PUT", "/api/dev/listen/U01.L01@loop-full", { hash: "abc", verdict, note });
+      h.json("PUT", "/api/listen/U01.L01@loop-full", { hash: "abc", verdict, note });
     expect((await put("weak", "thin bass")).status).toBe(200);
     h.clock.advance(1000);
     await put("ok", "");
-    const list = await h.json<{ items: ListenMark[] }>("GET", "/api/dev/listen");
+    const list = await h.json<{ items: ListenMark[] }>("GET", "/api/listen");
     expect(list.body.items).toEqual([
       { ref: "U01.L01@loop-full", hash: "abc", verdict: "ok", note: "", at: "2026-11-11T12:00:01.000Z" },
     ]);
@@ -579,15 +579,23 @@ describe("dev tools", () => {
     expect((await h.json("POST", "/api/dev/seed", { point: "somewhere" })).status).toBe(400);
   });
 
-  test("dev endpoints do not exist without OAK_DEV", async () => {
+  test("dev endpoints do not exist without OAK_DEV; the listening pass, sessions and grading reports do", async () => {
     const prod = await harness();
     try {
       for (const [m, p] of [
         ["GET", "/api/dev/listen"],
+        ["GET", "/api/dev/qa"],
+        ["GET", "/api/dev/telemetry"],
         ["GET", "/api/dev/clock"],
         ["POST", "/api/dev/seed"],
       ] as const)
         expect((await prod.json(m, p, m === "POST" ? { point: "fresh" } : undefined)).status).toBe(404);
+      for (const p of ["/api/listen", "/api/qa/reports", "/api/telemetry"])
+        expect([p, (await prod.json("GET", p)).status]).toEqual([p, 200]);
+      expect(
+        (await prod.json("PUT", "/api/listen/U01.L01@loop-full", { hash: "abc", verdict: "ok", note: "" }))
+          .status,
+      ).toBe(200);
     } finally {
       await prod.close();
     }

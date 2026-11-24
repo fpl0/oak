@@ -1,5 +1,6 @@
-// /dev/qa (contracts §11.8): the "Report a grading problem" queue. A report becomes a ready-made `TestCase` for
-// the exercise's `tests`, so a grader false negative turns into a regression test once it is fixed. Pure.
+// Settings › Grading reports (contracts §11.8): the "Report a grading problem" queue. A report becomes a
+// ready-made `TestCase` for the exercise's `tests`, so a grader false negative turns into a regression test
+// once it is fixed. Pure.
 import type { QaReport, TestCase } from "@oak/api";
 
 export const QA_STATUSES = ["open", "triaged", "fixed", "wontfix"] as const;
@@ -62,7 +63,7 @@ export function toTestCase(
   };
   if (r.params && Object.keys(r.params).length > 0) test.params = r.params as NonNullable<TestCase["params"]>;
   const where = [r.lessonId, r.exerciseId ?? r.familyId].filter(Boolean).join(" / ");
-  const source = `// From /dev/qa report #${r.id}${where ? ` (${where})` : ""}, graded ${status ?? "without a result"} on ${r.at}.\n${JSON.stringify(test, null, 2)},\n`;
+  const source = `// From grading report #${r.id}${where ? ` (${where})` : ""}, graded ${status ?? "without a result"} on ${r.at}.\n${JSON.stringify(test, null, 2)},\n`;
   return { ok: true, test, source };
 }
 

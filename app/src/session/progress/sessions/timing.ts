@@ -1,6 +1,6 @@
-// /dev/telemetry's arithmetic (contracts §9.7): actual vs authored and scaled minutes per lesson (flag over
-// 1.15 × the scaled budget), each step of a lesson, warm-up minutes per day against the plan, the median
-// session length against its target, and the rolling multiplier's 1.25–1.55 band. Pure.
+// Progress › Your sessions: the arithmetic (contracts §9.7): actual vs authored and scaled minutes per lesson
+// (flag over 1.15 × the scaled budget), each step of a lesson, warm-up minutes per day against the plan, the
+// median session length against its target, and the rolling multiplier's 1.25–1.55 band. Pure.
 import type { SessionTelemetry, StepTelemetry, TelemetryReport } from "@oak/api";
 
 export const OVER_BUDGET = 1.15;

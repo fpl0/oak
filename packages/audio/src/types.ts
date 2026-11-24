@@ -46,6 +46,11 @@ export interface MicSession {
    * the learner sings need not call it.
    */
   singing?(window: { on: number; off: number }): void;
+  /**
+   * Connects the mic's source to `node` too (an AnalyserNode for the headphone-leak check), never to the output.
+   * Returns the remover. Optional: a fake session need not have it.
+   */
+  tap?(node: AudioNode): () => void;
 }
 /**
  * The microphone path. The AudioWorkletNode is created ONCE (at audio unlock or calibration: its
@@ -107,6 +112,16 @@ export interface QuietCheck {
   voiced: boolean;
 }
 
+/** The headphone-leak check: does Oak's own playback reach the mic? */
+export interface BleedCheck {
+  /** Playback reaches the mic (either way of hearing it below). */
+  heard: boolean;
+  /** The pitch tracker heard the test tones as notes (what grading would see). */
+  byPitch: boolean;
+  /** The tones found in the raw mic samples (`leakCheck`), or null when the session gives no samples. */
+  tones: import("./bleed.ts").LeakCheck | null;
+}
+
 export interface Calibration {
   /** Left and right test tones; the learner confirms what they heard. */
   outputCheck(): Promise<void>;
@@ -117,6 +132,8 @@ export interface Calibration {
   noiseCheck(seconds?: number): Promise<QuietCheck>;
   /** Plays 880, 1175 and 1568 Hz with the mic open: true when the mic hears the speakers. */
   bleedTest(): Promise<boolean>;
+  /** The same check with what it measured (bleed.ts): what the set-up stores. */
+  bleedCheck(): Promise<BleedCheck>;
   /**
    * 16 clicks; the learner taps along. `onClick` reports progress. `signal` (the learner's Stop) ends the take
    * early: the result is measured from the taps so far.

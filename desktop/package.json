@@ -11,7 +11,8 @@
     "icon": "node scripts/render-icon.mjs",
     "stage": "bash scripts/stage.sh",
     "start": "electron .",
-    "dist": "bash scripts/stage.sh && electron-builder --mac --arm64 --publish never"
+    "dist": "bash scripts/stage.sh && electron-builder --mac --arm64 --publish never",
+    "release": "bash scripts/release.sh"
   },
   "devDependencies": {
     "electron": "45.3.2",

@@ -147,13 +147,15 @@ export function opsRoutes(mount: Mounter, d: AppDeps): void {
     return result;
   });
 
-  mount("dev.qa", () => ({ items: s.ops.qaList() }));
-  mount("dev.qaUpdate", ({ params, body }) => {
+  // Settings › Grading reports, Progress › Your sessions and Settings › Listening pass: every build, like the rest
+  // of /api (security.ts still checks Host, Origin, Fetch Metadata and X-Oak on each).
+  mount("qa.list", () => ({ items: s.ops.qaList() }));
+  mount("qa.update", ({ params, body }) => {
     const id = Number(params.id);
     if (!Number.isInteger(id)) throw badRequest("report id must be an integer");
     return s.ops.setQaStatus(id, body.status);
   });
-  mount("dev.telemetry", async () => {
+  mount("telemetry.report", async () => {
     const srs = d.srs();
     const forecast = srs?.forecast === undefined ? [] : await srs.forecast();
     const month = s.streak.time.day().slice(0, 7);
@@ -171,8 +173,8 @@ export function opsRoutes(mount: Mounter, d: AppDeps): void {
   }));
 
   // Wave 2 (docs/design/wave2.md §4).
-  mount("dev.listen", () => ({ items: d.repos.listen.list() }));
-  mount("dev.listenMark", ({ params, body }) => {
+  mount("listen.list", () => ({ items: d.repos.listen.list() }));
+  mount("listen.mark", ({ params, body }) => {
     if (params.ref.length > 200) throw badRequest("example reference too long");
     return d.repos.listen.put({ ref: params.ref, ...body, at: d.clock.now().toISOString() });
   });

@@ -1,30 +1,23 @@
-// /dev/qa (OAK_DEV=1, contracts §11.8): the "Report a grading problem" queue. Each report shows what was
-// attempted, the code or answer, the grade with its feedback codes, a Replay of the code in a read-only
-// workbench, triage status, and "Copy as test case" so a grader false negative becomes a regression test.
+// Settings › Grading reports (contracts §11.8), in every build: the "Report a grading problem" queue. Each
+// report shows what was attempted, the code or answer, the grade with its feedback codes, a Replay of the
+// code in a read-only workbench, triage status, and "Copy as test case" so a grader false negative becomes a
+// regression test.
 import type { LintContext, QaReport, UnlockableId } from "@oak/api";
 import { Copy, Play, Square } from "lucide-react";
 import { useState } from "react";
 import { toolbox } from "../../../../../content/toolbox.ts";
 import { usePageTitle } from "../../../lib/nav.ts";
-import { useDevQa, useDevQaUpdate } from "../../../lib/queries.ts";
+import { useQaReports, useQaUpdate } from "../../../lib/queries.ts";
 import { appWorkbenchServices } from "../../../lib/workbench-services.ts";
 import { Button } from "../../../ui/kit/Button.tsx";
-import { Card, Chip, EmptyState, Page, PageHeader } from "../../../ui/kit/basics.tsx";
+import { Card, Chip, EmptyState } from "../../../ui/kit/basics.tsx";
 import { SegmentedControl } from "../../../ui/kit/Controls.tsx";
 import { Select } from "../../../ui/kit/Field.tsx";
 import { QueryView } from "../../../ui/kit/QueryState.tsx";
 import { toast } from "../../../ui/kit/Toast.tsx";
 import { ServicesGate } from "../../../workbench/ServicesGate.tsx";
 import { Workbench } from "../../../workbench/Workbench.tsx";
-import {
-  codeOf,
-  countByStatus,
-  QA_STATUS_LABEL,
-  QA_STATUSES,
-  type QaStatus,
-  toTestCase,
-} from "../-lib/qa.ts";
-import { DevGate } from "./DevGate.tsx";
+import { codeOf, countByStatus, QA_STATUS_LABEL, QA_STATUSES, type QaStatus, toTestCase } from "./qa.ts";
 
 const KIND_LABEL: Record<QaReport["kind"], string> = {
   "lesson-step": "Lesson step",
@@ -59,7 +52,7 @@ function ReportCard({
   replaying: boolean;
   onReplay: (on: boolean) => void;
 }) {
-  const update = useDevQaUpdate();
+  const update = useQaUpdate();
   const code = codeOf(r);
   const tc = toTestCase(r);
   const g = r.gradeResult;
@@ -82,18 +75,18 @@ function ReportCard({
     <Card className="flex flex-col gap-3 p-4" data-report={r.id}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="text-h3">
+          <h3 className="text-h3">
             <span className="font-mono text-text-3">#{r.id}</span> {KIND_LABEL[r.kind]}
             {r.lessonId && <span className="ml-2 font-mono text-sm text-text-2">{r.lessonId}</span>}
             {(r.exerciseId ?? r.familyId) && (
               <span className="ml-1 font-mono text-sm text-text-2">/ {r.exerciseId ?? r.familyId}</span>
             )}
-          </h2>
+          </h3>
           <p className="text-sm text-text-2">
             {when(r.at)}
             {r.exerciseVersion !== null && ` · v${r.exerciseVersion}`}
             {r.stepId && ` · step ${r.stepId}`}
-            {r.trialSeed !== null && ` · seed ${r.trialSeed}`} · hint rung {r.hintRung}
+            {r.trialSeed !== null && ` · seed ${r.trialSeed}`} · hint level {r.hintRung}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -248,24 +241,19 @@ function Queue({ reports }: { reports: QaReport[] }) {
   );
 }
 
-export function QaPage() {
-  usePageTitle("Grading problems");
+export function ReportsPage() {
+  usePageTitle("Settings · Grading reports");
+  const qa = useQaReports();
   return (
-    <DevGate>
-      <QaBody />
-    </DevGate>
-  );
-}
-
-function QaBody() {
-  const qa = useDevQa();
-  return (
-    <Page width="wide">
-      <PageHeader
-        title="Grading problems"
-        sub="Developer view. Reports stay on this computer; each one can become a regression test."
-      />
+    <div className="flex flex-col gap-4" data-testid="grading-reports">
+      <header className="min-w-0">
+        <h2 className="text-h2">Grading reports</h2>
+        <p className="mt-1 text-sm text-text-2">
+          Each time you press “Report a grading problem” after a result, it lands here with what you played
+          and how it was graded. The reports stay on this computer.
+        </p>
+      </header>
       <QueryView query={qa}>{(d) => <Queue reports={d.items} />}</QueryView>
-    </Page>
+    </div>
   );
 }

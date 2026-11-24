@@ -269,6 +269,11 @@ export const SettingsSchema = z.object({
     .regex(/^[^\p{Cc}]*$/u, "no control characters")
     .nullable()
     .optional(),
+  /**
+   * The desktop app asks GitHub once a day whether a newer Oak is out (`GET /api/app/update`). On by default; optional
+   * in the type so older settings objects still type-check; the server always answers it.
+   */
+  checkForUpdates: z.boolean().optional(),
 });
 export type Settings = z.infer<typeof SettingsSchema>;
 export type SettingKey = keyof Settings;
@@ -286,6 +291,7 @@ export const DEFAULT_SETTINGS: Settings = {
   backupWithAudio: true,
   lenses: { degrees: true, solfege: true, noteNames: false },
   albumTitle: null,
+  checkForUpdates: true,
 };
 
 export const HealthSchema = z.object({
@@ -301,6 +307,25 @@ export const HealthSchema = z.object({
   dev: z.boolean(),
 });
 export type Health = z.infer<typeof HealthSchema>;
+
+/** A link to Oak's GitHub releases (the only place an update notice may point). */
+const ReleaseLink = z.string().regex(/^https:\/\/github\.com\/fpl0\/oak\/releases\//i);
+/**
+ * `GET /api/app/update`: a newer Oak than this desktop app, from GitHub's latest release (checked at most once a
+ * day; server/src/services/app-update.ts). The endpoint answers `null` when there is none, when the check is off,
+ * offline, or when the server is not the desktop app's.
+ */
+export const AppUpdateSchema = z.object({
+  /** This app's version (`OAK_APP_VERSION`). */
+  current: z.string(),
+  /** The newer release's version, without the `v`. */
+  latest: z.string(),
+  /** The DMG to download, or the release page when the release has none. */
+  url: ReleaseLink,
+  /** The release page with its notes. */
+  notesUrl: ReleaseLink,
+});
+export type AppUpdate = z.infer<typeof AppUpdateSchema>;
 
 /** Answer of `POST /api/settings/anthropic-key`, after one minimal validation call. */
 export const KeyStatusSchema = z.object({
@@ -2145,7 +2170,7 @@ export const TranscriptionVersionCreateSchema = z.strictObject({
 
 // --- telemetry and QA (contracts §9.7, §11.8) ---------------------------------------------------
 
-/** `step_telemetry` row. Local only; shown on `/dev/telemetry`. */
+/** `step_telemetry` row. Local only; shown on Progress › Your sessions (`/progress/sessions`). */
 export const StepTelemetrySchema = z.strictObject({
   sessionId: z.string(),
   lessonId: z.string(),
@@ -2191,9 +2216,10 @@ export const SessionTelemetrySchema = z.object({
 });
 export type SessionTelemetry = z.infer<typeof SessionTelemetrySchema>;
 /**
- * What /dev/telemetry shows (contracts §9.7), computed by the server from the rows: per lesson actual vs
- * scaled minutes (flagged above 1.15 ×), daily review seconds against the warm-up budget, warm-up overflow,
- * and whether the rolling multiplier asks for a new BEGINNER_FACTOR (outside 1.25–1.55). Wave 2 addition.
+ * What Progress › Your sessions shows (contracts §9.7), computed by the server from the rows: per lesson
+ * actual vs scaled minutes (flagged above 1.15 ×), daily review seconds against the warm-up budget, warm-up
+ * overflow, and whether the rolling multiplier asks for a new BEGINNER_FACTOR (outside 1.25–1.55).
+ * Wave 2 addition.
  */
 export const TelemetryAggregatesSchema = z.object({
   lessons: z.array(
@@ -2529,7 +2555,7 @@ export const CalibrationRecordSchema = z.object({
 });
 export type CalibrationRecord = z.infer<typeof CalibrationRecordSchema>;
 
-/** `/dev/listen` verdicts (architecture §3.8), moved from localStorage to the server. Dev only. */
+/** Settings › Listening pass verdicts (architecture §3.8), moved from localStorage to the server. */
 export const LISTEN_VERDICTS = ["ok", "wrong-sound", "wrong-notation", "weak", "wrong-theory"] as const;
 export const ListenMarkCreateSchema = z.strictObject({
   /** Hash of the code the verdict was given on: a verdict is stale once the code changes. */

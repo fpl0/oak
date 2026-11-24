@@ -134,7 +134,7 @@ test("gate journey 1: a fresh learner goes through onboarding with a microphone"
   await expect(page.getByRole("button", { name: /Microphone is live/ })).toHaveCount(0, { timeout: 5_000 });
   await partContinue(page).click();
   await page.getByTestId("bleed-start").click();
-  await expect(page.getByText("The mic doesn't hear your speakers")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("Your mic doesn't hear Oak. Good.")).toBeVisible({ timeout: 15_000 });
   await shootOnboarding(page, "10-mic-done");
   await partContinue(page).click();
 

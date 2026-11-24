@@ -1,4 +1,4 @@
-// onboarding_state (one row) and listen_marks (/dev/listen verdicts). Migration 0002.
+// onboarding_state (one row) and listen_marks (Settings › Listening pass verdicts). Migration 0002.
 import {
   LISTEN_VERDICTS,
   type ListenMark,

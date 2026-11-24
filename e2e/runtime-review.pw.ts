@@ -297,8 +297,8 @@ test("Listen QA: switching examples quickly keeps one live mirror and one source
 }) => {
   const problems = watch(page);
   await noHmr(page);
-  await page.goto("/dev/listen");
-  // /dev/listen has no separate wake button any more: the first Play wakes the sound (a user gesture).
+  await page.goto("/settings/listening");
+  // The listening pass has no separate wake button any more: the first Play wakes the sound (a user gesture).
   const plays = page.getByTestId("listen-list").getByRole("button", { name: /^Play / });
   await expect(plays.first()).toBeVisible({ timeout: 30_000 });
   const n = Math.min(await plays.count(), 6);

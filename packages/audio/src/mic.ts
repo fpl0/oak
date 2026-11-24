@@ -129,6 +129,17 @@ export function createMicGraphWith(
     singing(window: { on: number; off: number }): void {
       if (window.off > window.on) this.windows.push({ on: window.on, off: window.off });
     }
+    tap(node: AudioNode): () => void {
+      if (this.closed) return () => {};
+      this.source.connect(node);
+      return () => {
+        try {
+          this.source.disconnect(node);
+        } catch {
+          // already disconnected (the session closed first)
+        }
+      };
+    }
     onFrame(cb: (frame: PitchFrame) => void): () => void {
       this.subs.add(cb);
       return () => this.subs.delete(cb);

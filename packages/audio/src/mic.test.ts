@@ -113,6 +113,20 @@ describe("MicGraph", () => {
     expect(nodes.length).toBe(1);
   });
 
+  test("tap: the leak check's analyser hangs off the mic's source, never the output; a closed session taps nothing", async () => {
+    const { ctx, graph, nodes } = setup();
+    const s = await graph.open();
+    const analyser = new FakeNode();
+    const off = s.tap?.(analyser as unknown as AudioNode);
+    expect(ctx.sources[0]?.connected).toEqual([nodes[0], analyser]);
+    expect(ctx.destination.connected).toEqual([]);
+    off?.();
+    s.close();
+    const late = new FakeNode();
+    s.tap?.(late as unknown as AudioNode)();
+    expect(ctx.sources[0]?.connected).toEqual([]);
+  });
+
   test("a second open closes the first session; closeAll closes; an ended track closes", async () => {
     const { graph, streams } = setup();
     const a = await graph.open();

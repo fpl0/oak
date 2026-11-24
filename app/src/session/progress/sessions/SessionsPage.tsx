@@ -1,16 +1,19 @@
-// /dev/telemetry (OAK_DEV=1, contracts §9.7): real step and lesson durations against the authored and scaled
-// estimates (flag over 1.15×), the rolling multiplier against its 1.25–1.55 band, warm-up minutes per day
-// against the plan, the review-load forecast, and the median session length against its target. Local only.
+// Progress › Your sessions (contracts §9.7), in every build: real step and lesson durations against the
+// authored and scaled estimates (flag over 1.15×), the rolling multiplier against its 1.25–1.55 band, warm-up
+// minutes per day against the plan, the review-load forecast, and the median session length against its
+// target. Local only.
 import type { TelemetryReport } from "@oak/api";
+import { Link } from "@tanstack/react-router";
 import { clsx } from "clsx";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { useContent } from "../../../lib/content.ts";
 import { lessonTitles } from "../../../lib/content-model.ts";
 import { usePageTitle } from "../../../lib/nav.ts";
-import { useDevTelemetry } from "../../../lib/queries.ts";
+import { useSessionTiming } from "../../../lib/queries.ts";
 import { Card, Chip, EmptyState, Page, PageHeader } from "../../../ui/kit/basics.tsx";
 import { QueryView } from "../../../ui/kit/QueryState.tsx";
+import { Bars } from "./Bars.tsx";
 import {
   fmtMin,
   forecastBars,
@@ -21,9 +24,7 @@ import {
   OVER_BUDGET,
   sessionLengths,
   warmupByDay,
-} from "../-lib/telemetry.ts";
-import { Bars } from "./Bars.tsx";
-import { DevGate } from "./DevGate.tsx";
+} from "./timing.ts";
 
 function Stat({
   label,
@@ -50,23 +51,23 @@ function LessonTable({ rows, titles }: { rows: LessonRow[]; titles: Map<string, 
   return (
     <div className="overflow-x-auto rounded-card border border-border">
       <table className="w-full text-sm" data-testid="lesson-timings">
-        <caption className="sr-only">Lesson time against the authored and scaled estimates</caption>
+        <caption className="sr-only">How long each lesson took against its plan</caption>
         <thead className="bg-surface-2 text-left text-text-2">
           <tr>
             <th scope="col" className="px-3 py-2 font-medium">
               Lesson
             </th>
             <th scope="col" className="px-3 py-2 text-right font-medium">
-              Authored
+              Written
             </th>
             <th scope="col" className="px-3 py-2 text-right font-medium">
-              Budget (scaled)
+              Planned
             </th>
             <th scope="col" className="px-3 py-2 text-right font-medium">
-              Actual
+              Took
             </th>
             <th scope="col" className="px-3 py-2 text-right font-medium">
-              Actual ÷ budget
+              Took ÷ planned
             </th>
           </tr>
         </thead>
@@ -117,25 +118,25 @@ function LessonTable({ rows, titles }: { rows: LessonRow[]; titles: Map<string, 
                             Kind
                           </th>
                           <th scope="col" className="py-1 text-right font-medium">
-                            Authored
+                            Written
                           </th>
                           <th scope="col" className="py-1 text-right font-medium">
-                            Budget
+                            Planned
                           </th>
                           <th scope="col" className="py-1 text-right font-medium">
-                            Actual
+                            Took
                           </th>
                           <th scope="col" className="py-1 text-right font-medium">
-                            Runs
+                            Times
                           </th>
                           <th scope="col" className="py-1 text-right font-medium">
-                            Attempts
+                            Tries
                           </th>
                           <th scope="col" className="py-1 text-right font-medium">
-                            Hint rung
+                            Hints
                           </th>
                           <th scope="col" className="py-1 text-right font-medium">
-                            Tutor
+                            Tutor messages
                           </th>
                           <th scope="col" className="py-1 text-right font-medium">
                             Result
@@ -194,25 +195,23 @@ function Report({ report }: { report: TelemetryReport }) {
     <div className="flex flex-col gap-6">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Stat
-          label="Rolling multiplier (last 10 lessons)"
-          value={report.rollingMultiplier === null ? "–" : `${report.rollingMultiplier.toFixed(2)}×`}
-          tone={verdict === "low" || verdict === "high" ? "warn" : undefined}
-          note={
-            verdict === "none"
-              ? "Needs finished lessons with step timings."
-              : verdict === "ok"
-                ? `Inside ${MULTIPLIER_BAND[0]}–${MULTIPLIER_BAND[1]}: BEGINNER_FACTOR fits.`
-                : `Outside ${MULTIPLIER_BAND[0]}–${MULTIPLIER_BAND[1]}: revisit BEGINNER_FACTOR (1.4).`
-          }
-        />
-        <Stat
-          label="Median session"
+          label="A typical session"
           value={fmtMin(lengths.all.medianMin)}
           tone={lengths.all.ratio !== null && lengths.all.ratio > OVER_BUDGET ? "warn" : undefined}
           note={
             lengths.all.sessions === 0
               ? "No sessions finished yet."
-              : `Target ${lengths.all.target} min over ${lengths.all.sessions} sessions${lengths.byTarget.length > 1 ? `; ${lengths.byTarget.map((t) => `${t.target}: ${fmtMin(t.medianMin)}`).join(", ")}` : ""}.`
+              : `The middle of ${lengths.all.sessions} sessions; you planned ${lengths.all.target} min${lengths.byTarget.length > 1 ? ` (${lengths.byTarget.map((t) => `planned ${t.target}: took ${fmtMin(t.medianMin)}`).join(", ")})` : ""}.`
+          }
+        />
+        <Stat
+          label="Lesson pace (last 10 lessons)"
+          value={report.rollingMultiplier === null ? "–" : `${report.rollingMultiplier.toFixed(2)}×`}
+          tone={verdict === "low" || verdict === "high" ? "warn" : undefined}
+          note={
+            verdict === "none"
+              ? "Shows once you finish a few lessons."
+              : `Each written minute takes you ${report.rollingMultiplier?.toFixed(1)} minutes. The plan allows ${MULTIPLIER_BAND[0]}–${MULTIPLIER_BAND[1]}${verdict === "ok" ? ": it fits you." : verdict === "high" ? ", so lessons run longer than planned." : ", so lessons run shorter than planned."}`
           }
         />
         <Stat
@@ -225,28 +224,27 @@ function Report({ report }: { report: TelemetryReport }) {
           }
         />
         <Stat
-          label="Tutor prompt cache"
-          value={`${Math.round(report.tutor.cacheHitRatio * 100)}%`}
-          note={
-            report.tutor.costUsd > 0
-              ? `$${report.tutor.costUsd.toFixed(2)} this month.`
-              : "No API cost this month."
-          }
+          label="Tutor cost this month"
+          value={`$${report.tutor.costUsd.toFixed(2)}`}
+          note={`${Math.round(report.tutor.cacheHitRatio * 100)}% of what the tutor read was reused from earlier messages, which costs less.`}
         />
       </div>
 
       <section aria-labelledby="t-lessons" className="flex flex-col gap-2">
         <h2 id="t-lessons" className="text-h3">
-          Lessons: actual time against the budget
+          Lessons: time taken against the plan
         </h2>
         <p className="text-sm text-text-2">
-          Budget = authored minutes scaled for a beginner. Active time only (idle over 60 s removed).{" "}
+          Planned is the written time, stretched for a beginner. Only active time counts: a pause longer than
+          a minute is left out. Open a lesson to see each step.{" "}
           {over > 0
-            ? `${over} ${over === 1 ? "lesson runs" : "lessons run"} over ${OVER_BUDGET}×.`
-            : "None over budget."}
+            ? `${over} ${over === 1 ? "lesson took" : "lessons took"} more than ${OVER_BUDGET}× the plan.`
+            : "None took much longer than planned."}
         </p>
         {lessons.length === 0 ? (
-          <EmptyState title="No step timings yet">Finish a lesson step and its time shows here.</EmptyState>
+          <EmptyState title="No lesson times yet">
+            Finish a step of a lesson and its time shows here.
+          </EmptyState>
         ) : (
           <LessonTable rows={lessons} titles={titles} />
         )}
@@ -257,7 +255,9 @@ function Report({ report }: { report: TelemetryReport }) {
           <h2 id="t-warm" className="text-h3">
             Warm-up minutes per day
           </h2>
-          <p className="text-sm text-text-2">Bars are minutes spent; the tick is the planned warm-up.</p>
+          <p className="text-sm text-text-2">
+            Each bar is the minutes you spent; the tick is the planned warm-up.
+          </p>
           {warm.length === 0 ? (
             <p className="text-sm text-text-2">No sessions yet.</p>
           ) : (
@@ -276,14 +276,14 @@ function Report({ report }: { report: TelemetryReport }) {
         </section>
         <section aria-labelledby="t-forecast" className="flex flex-col gap-2">
           <h2 id="t-forecast" className="text-h3">
-            Review load, next days
+            Reviews coming up
           </h2>
-          <p className="text-sm text-text-2">Minutes of reviews falling due each day, today first.</p>
+          <p className="text-sm text-text-2">Minutes of review due each day, today first.</p>
           {forecast.length === 0 ? (
-            <p className="text-sm text-text-2">The scheduler has no forecast yet.</p>
+            <p className="text-sm text-text-2">Nothing is planned yet.</p>
           ) : (
             <Bars
-              title="Review load forecast"
+              title="Reviews coming up"
               unit="min"
               bars={forecast.map((f) => ({
                 key: String(f.day),
@@ -297,7 +297,7 @@ function Report({ report }: { report: TelemetryReport }) {
 
       <section aria-labelledby="t-sessions" className="flex flex-col gap-2">
         <h2 id="t-sessions" className="text-h3">
-          Sessions
+          Each session
         </h2>
         {report.sessions.length === 0 ? (
           <p className="text-sm text-text-2">No sessions finished yet.</p>
@@ -310,14 +310,14 @@ function Report({ report }: { report: TelemetryReport }) {
                   {[
                     "Day",
                     "Kind",
-                    "Target",
-                    "Active",
+                    "Planned",
+                    "Took",
                     "Warm-up",
                     "New",
                     "Make",
                     "Coda",
-                    "Overflow",
-                    "Wrapped early",
+                    "Warm-up over plan",
+                    "Ended early",
                   ].map((h) => (
                     <th key={h} scope="col" className="px-3 py-2 font-medium">
                       {h}
@@ -361,20 +361,20 @@ function Report({ report }: { report: TelemetryReport }) {
   );
 }
 
-export function TelemetryPage() {
-  usePageTitle("Timing");
-  return (
-    <DevGate>
-      <TelemetryBody />
-    </DevGate>
-  );
-}
-
-function TelemetryBody() {
-  const report = useDevTelemetry();
+export function SessionsPage() {
+  usePageTitle("Your sessions");
+  const report = useSessionTiming();
   return (
     <Page width="full" className="max-w-[1400px]">
-      <PageHeader title="Timing" sub="Developer view. Local only: nothing here leaves this computer." />
+      <PageHeader
+        title="Your sessions"
+        sub="How long each session and lesson took, next to the time it was planned to take. Nothing here leaves this computer."
+        actions={
+          <Link to="/progress" className="text-sm text-link underline-offset-2 hover:underline">
+            Back to Progress
+          </Link>
+        }
+      />
       <QueryView query={report}>{(r) => <Report report={r} />}</QueryView>
     </Page>
   );

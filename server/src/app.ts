@@ -20,6 +20,7 @@ import { tutorRoutes, tutorTurnRoutes } from "./routes/tutor.ts";
 import { ladderGenerator, patternStimulus } from "./seams.ts";
 import { anthropicKeyValidator, type KeyValidator, redactSecrets, Secrets } from "./secrets.ts";
 import { apiSecurity, cspOnHtml, hostOnly } from "./security.ts";
+import { type FetchLike, settingsUpdateStore, UpdateChecker } from "./services/app-update.ts";
 import { dailyBackup } from "./services/backup.ts";
 import { type Clock, LearnerTime, systemClock, systemTimeZone } from "./services/context.ts";
 import { DevClock } from "./services/dev-clock.ts";
@@ -47,6 +48,8 @@ export interface ServerOptions {
   validateResponses?: boolean;
   /** The daily backup and the unlock backfill at start-up (default true). */
   startup?: boolean;
+  /** How the desktop app's update check reaches GitHub (default: the global `fetch`; tests inject one). */
+  updateFetch?: FetchLike;
   log?: (msg: string) => void;
 }
 
@@ -188,6 +191,15 @@ export async function createServer(o: ServerOptions): Promise<OakServer> {
     planner: () => planner,
     graders: o.graders,
     tutor: null,
+    // Asks nothing until the app first calls `GET /api/app/update`, and only in the desktop app.
+    updates: new UpdateChecker({
+      current: o.config.desktopApp ? o.config.appVersion : null,
+      enabled: () => repos.settings.get("checkForUpdates") !== false,
+      fetch: o.updateFetch ?? ((url, init) => fetch(url, init)),
+      now: () => clock.now(),
+      store: settingsUpdateStore(db),
+      log,
+    }),
     validateResponses: o.validateResponses ?? o.config.dev,
     log,
   };

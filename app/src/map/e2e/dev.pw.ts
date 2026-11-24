@@ -1,7 +1,8 @@
-// The dev pages against the real server: /dev/telemetry over step rows posted through the API and the seeded
-// session telemetry, /dev/qa over reports posted through the API (replay, copy as test case, triage), and
-// /dev/listen (every curated sound and example, verdicts saved on the server), and /dev/kit with the Wave 4
-// and Wave 5 pieces. Screenshots in both themes.
+// The tools that used to be dev pages, against the real server: Progress › Your sessions (/progress/sessions)
+// over step rows posted through the API and the seeded session telemetry, Settings › Grading reports
+// (/settings/reports) over reports posted through the API (replay, copy as test case, triage), Settings ›
+// Listening pass (/settings/listening: every curated sound and example, verdicts saved on the server), and the
+// dev-only /dev/kit with the Wave 4 and Wave 5 pieces. Screenshots in both themes.
 import { fileURLToPath } from "node:url";
 import { expect, test } from "@playwright/test";
 import { SCREENSHOT_MATRIX } from "../../../../e2e/support/stack.ts";
@@ -59,7 +60,7 @@ const grade = (status: "pass" | "fail", score: number) => ({
 
 test.beforeAll(async ({ request }) => {
   // Once per server: a retried worker reruns this hook against the same data.
-  const existing = (await (await request.get("/api/dev/qa", { headers: API })).json()) as {
+  const existing = (await (await request.get("/api/qa/reports", { headers: API })).json()) as {
     items: unknown[];
   };
   if (existing.items.length > 0) return;
@@ -107,10 +108,15 @@ test.beforeAll(async ({ request }) => {
   }
 });
 
-test("timing: lessons against budget, steps, warm-up, forecast, sessions", async ({ page }) => {
+test("your sessions: lessons against the plan, steps, warm-up, forecast, sessions", async ({ page }) => {
   await useUiPrefs(page, { theme: "paper" });
-  await page.goto("/dev/telemetry");
-  await expect(page.getByRole("heading", { level: 1, name: "Timing" })).toBeVisible({ timeout: 30_000 });
+  // Reached from Progress.
+  await page.goto("/progress");
+  await page.getByTestId("progress-sessions-link").click();
+  await expect(page).toHaveURL(/\/progress\/sessions$/);
+  await expect(page.getByRole("heading", { level: 1, name: "Your sessions" })).toBeVisible({
+    timeout: 30_000,
+  });
   const lessons = page.getByTestId("lesson-timings");
   // U01.L01: 6 authored → 8.4 budget; 13.8 min actual → over 1.15×.
   const l1 = lessons.locator('tr[data-lesson="U01.L01"]');
@@ -124,17 +130,20 @@ test("timing: lessons against budget, steps, warm-up, forecast, sessions", async
   await expect(lessons.locator('tr[data-step="S5"]')).toContainText("9.5 min");
   await expect(page.getByRole("img", { name: /Warm-up minutes per day/ })).toBeVisible();
   await expect(page.getByTestId("session-timings").locator("tbody tr")).toHaveCount(6);
-  await expect(page.getByText("Median session")).toBeVisible();
-  await expect(page.getByText(/Target 20 min over 6 sessions/)).toBeVisible();
+  await expect(page.getByText("A typical session")).toBeVisible();
+  await expect(page.getByText(/The middle of 6 sessions; you planned 20 min/)).toBeVisible();
 });
 
-test("grading problems: replay, copy as test case, triage", async ({ page, context }) => {
+test("grading reports: replay, copy as test case, triage", async ({ page, context }) => {
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   await useUiPrefs(page, { theme: "paper" });
-  await page.goto("/dev/qa");
-  await expect(page.getByRole("heading", { level: 1, name: "Grading problems" })).toBeVisible({
+  await page.goto("/settings/reports");
+  await expect(page.getByRole("heading", { level: 2, name: "Grading reports" })).toBeVisible({
     timeout: 30_000,
   });
+  await expect(
+    page.getByRole("navigation", { name: "Settings" }).getByRole("link", { name: "Grading reports" }),
+  ).toHaveAttribute("aria-current", "page");
   const cards = page.locator("[data-report]");
   await expect(cards).toHaveCount(2);
   const hats = cards.filter({ hasText: "busy-hats" });
@@ -164,8 +173,8 @@ test("grading problems: replay, copy as test case, triage", async ({ page, conte
 
 test("listening pass: every curated sound and example, verdicts on the server", async ({ page }) => {
   await useUiPrefs(page, { theme: "paper" });
-  await page.goto("/dev/listen");
-  await expect(page.getByRole("heading", { level: 1, name: "Listening pass" })).toBeVisible({
+  await page.goto("/settings/listening");
+  await expect(page.getByRole("heading", { level: 2, name: "Listening pass" })).toBeVisible({
     timeout: 30_000,
   });
   const list = page.getByTestId("listen-list");
@@ -174,10 +183,10 @@ test("listening pass: every curated sound and example, verdicts on the server", 
   // Keyboard: Tab to a play button, Enter plays it in the workbench.
   await list.getByRole("button", { name: "Play sound:rhodes" }).focus();
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("heading", { level: 2, name: "sound:rhodes" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 3, name: "sound:rhodes" })).toBeVisible();
   await expect(page.locator(".cm-editor")).toBeVisible({ timeout: 30_000 });
   const keep = page.getByRole("group", { name: "Verdict" }).getByRole("button", { name: "Keep" });
-  const store = await page.request.get("/api/dev/listen", { headers: API });
+  const store = await page.request.get("/api/listen", { headers: API });
   if (store.status() === 501) {
     // The server's verdict endpoint is not built yet: the page says so and offers no dead buttons.
     await expect(page.getByText("Verdicts cannot be saved right now")).toBeVisible();
@@ -198,16 +207,18 @@ test("listening pass: every curated sound and example, verdicts on the server", 
 });
 
 for (const m of SCREENSHOT_MATRIX) {
-  test(`dev screenshots in ${m.theme} at ${m.width}x${m.height}`, async ({ page }) => {
+  test(`sessions, grading reports and listening pass screenshots in ${m.theme} at ${m.width}x${m.height}`, async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: m.width, height: m.height });
     await useUiPrefs(page, { theme: m.theme });
-    for (const [path, name, heading] of [
-      ["/dev/telemetry", "dev-telemetry", "Timing"],
-      ["/dev/qa", "dev-qa", "Grading problems"],
-      ["/dev/listen", "dev-listen", "Listening pass"],
+    for (const [path, name, heading, level] of [
+      ["/progress/sessions", "your-sessions", "Your sessions", 1],
+      ["/settings/reports", "grading-reports", "Grading reports", 2],
+      ["/settings/listening", "listening-pass", "Listening pass", 2],
     ] as const) {
       await page.goto(path);
-      await expect(page.getByRole("heading", { level: 1, name: heading })).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByRole("heading", { level, name: heading })).toBeVisible({ timeout: 30_000 });
       await page.waitForLoadState("networkidle");
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth),

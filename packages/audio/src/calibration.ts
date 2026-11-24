@@ -14,8 +14,10 @@ import {
   rmsDb,
   WINDOW_SIZE,
 } from "@oak/pitch";
+import { LEAK_CHECK, leakCheck, leakProbe, type MicBlock } from "./bleed.ts";
 import { detectDevices } from "./devices.ts";
 import type {
+  BleedCheck,
   Calibration,
   CalibrationDeps,
   MicSession,
@@ -32,8 +34,8 @@ export const CALIBRATION = {
   singClicks: 8,
   singSpacing: 0.75,
   noiseFloorSec: 3,
-  bleedTones: [81, 86, 91] as const, // A5 880 Hz, D6 1175 Hz, G6 1568 Hz
-  bleedToneSec: 0.6,
+  bleedTones: LEAK_CHECK.tones, // A5 880 Hz, D6 1175 Hz, G6 1568 Hz (bleed.ts)
+  bleedToneSec: LEAK_CHECK.toneSec,
   rangeSweepSec: 10,
   pitchMatchToneSec: 1,
   pitchMatchSingSec: 2.5,
@@ -122,6 +124,29 @@ export function quietCheckOf(frames: readonly PitchFrame[]): QuietCheck {
 /** A voice this long during the quiet check spoils it. */
 export const QUIET_VOICE_SEC = 0.3;
 
+/** Raw mic samples for the leak check: an AnalyserNode on the session's source, read on each poll. */
+function listenRaw(
+  ctx: Pick<BaseAudioContext, "currentTime">,
+  s: MicSession,
+): { poll(): void; blocks: MicBlock[]; close(): void } | null {
+  const make = (ctx as Partial<Pick<BaseAudioContext, "createAnalyser">>).createAnalyser;
+  if (!s.tap || typeof make !== "function") return null;
+  const analyser = make.call(ctx);
+  analyser.fftSize = LEAK_CHECK.blockSize;
+  analyser.smoothingTimeConstant = 0;
+  const off = s.tap(analyser);
+  const blocks: MicBlock[] = [];
+  return {
+    blocks,
+    poll() {
+      const samples = new Float32Array(analyser.fftSize);
+      analyser.getFloatTimeDomainData(samples);
+      blocks.push({ t: ctx.currentTime, samples });
+    },
+    close: off,
+  };
+}
+
 export interface CalibrationExtras {
   /** For tests: replaces `setTimeout` polling. */
   sleep?: (ms: number) => Promise<void>;
@@ -154,6 +179,35 @@ export function createCalibration(deps: CalibrationDeps & CalibrationExtras): Ca
     });
   }
 
+  /**
+   * The headphone-leak check (bleed.ts): a short silence, then the three test tones through Oak's own output
+   * with the mic open. Heard when the tones stand out in the raw mic samples (`leakCheck`), or when the pitch
+   * tracker hears them as notes (`detectBleed`, the older check, kept: it is what grading sees).
+   */
+  async function bleedCheck(): Promise<BleedCheck> {
+    return withMic(async (s) => {
+      const raw = listenRaw(ctx, s);
+      const probe = leakProbe(ctx.currentTime);
+      for (const p of probe) deps.playTone(p.midi, p.on, p.off - p.on);
+      const end = (probe.at(-1) as (typeof probe)[number]).off + LEAK_CHECK.maxLagSec + 0.05;
+      const pause = sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+      try {
+        for (let guard = 0; ctx.currentTime < end && guard < 100_000; guard++) {
+          await pause(LEAK_CHECK.pollMs);
+          raw?.poll();
+        }
+      } finally {
+        raw?.close();
+      }
+      const byPitch = detectBleed(
+        s.frames(),
+        probe.map((p): SungTarget => ({ midi: p.midi, on: p.on, off: p.off })),
+      );
+      const tones = raw ? leakCheck(raw.blocks, probe, ctx.sampleRate) : null;
+      return { heard: byPitch || tones?.heard === true, byPitch, tones };
+    });
+  }
+
   return {
     async outputCheck() {
       const t = ctx.currentTime + 0.1;
@@ -170,18 +224,10 @@ export function createCalibration(deps: CalibrationDeps & CalibrationExtras): Ca
 
     noiseCheck,
 
+    bleedCheck,
+
     async bleedTest() {
-      return withMic(async (s) => {
-        const start = ctx.currentTime + 0.3;
-        const playing: SungTarget[] = CALIBRATION.bleedTones.map((midi, i) => ({
-          midi,
-          on: start + i * (CALIBRATION.bleedToneSec + 0.2),
-          off: start + i * (CALIBRATION.bleedToneSec + 0.2) + CALIBRATION.bleedToneSec,
-        }));
-        for (const p of playing) deps.playTone(p.midi, p.on, p.off - p.on);
-        await wait((playing[playing.length - 1] as SungTarget).off + 0.3);
-        return detectBleed(s.frames(), playing);
-      });
+      return (await bleedCheck()).heard;
     },
 
     async tapLatency(taps, onClick, signal) {

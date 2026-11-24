@@ -32,6 +32,8 @@ const SETTINGS_KEYWORDS: Readonly<Record<string, readonly string[]>> = {
   appearance: ["theme", "dark", "light", "motion"],
   keys: ["shortcuts", "keyboard"],
   data: ["reset", "reset progress", "backup", "export", "import", "restore"],
+  listening: ["listen", "sounds", "instruments", "examples", "verdict"],
+  reports: ["grading", "report", "problem", "wrong grade", "qa"],
   about: ["version", "credits", "licence"],
 };
 

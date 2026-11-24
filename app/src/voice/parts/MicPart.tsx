@@ -19,6 +19,7 @@ import { Callout } from "../../ui/kit/Controls.tsx";
 import { Select } from "../../ui/kit/Field.tsx";
 import { dbToLevel, MicLevelMeter } from "../../ui/kit/Meters.tsx";
 import {
+  bleedResult,
   bleedVerdict,
   liveMidi,
   micProblemOf,
@@ -287,10 +288,11 @@ export function MicPart({ profile, onDone, onQuiet, onSkip, only, context, back,
       try {
         const { oak, calibration } = await voiceAudio();
         await oak.unlock();
-        const got = await calibration.bleedTest();
+        const check = await calibration.bleedCheck();
+        const got = check.heard;
         const saved = await run.save({
           kind: "bleed",
-          result: { heard: got, outputKind: profile.outputKind },
+          result: bleedResult(check, profile.outputKind),
           patch: {},
         });
         if (saved) setBleed(got);
@@ -610,7 +612,7 @@ export function MicPart({ profile, onDone, onQuiet, onSkip, only, context, back,
         {phase === "bleed-done" && floorDb !== null && !only && (
           <div className="rounded-card border border-border px-3">
             <ResultRow label="Room noise" value={`${Math.round(floorDb)} dBFS`} />
-            <ResultRow label="Speaker sound in the mic" value={bleed ? "Heard" : "None"} />
+            <ResultRow label="Oak's sound in the mic" value={bleed ? "Heard" : "None"} />
           </div>
         )}
         {error && (

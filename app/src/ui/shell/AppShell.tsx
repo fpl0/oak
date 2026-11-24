@@ -33,6 +33,7 @@ import { navItemState } from "./nav-state.ts";
 import { AudioStatus, MicLiveDot, NowPlaying, TutorToggle } from "./status.tsx";
 import { TrackCommands } from "./TrackCommands.tsx";
 import { TutorPanel } from "./TutorPanel.tsx";
+import { UpdateNotice } from "./UpdateNotice.tsx";
 
 const ICONS: Record<NavId, ReactNode> = {
   today: <Sunrise aria-hidden className="size-5" strokeWidth={1.5} />,
@@ -222,6 +223,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       {!focus && <NavRail path={path} />}
       <div className="flex min-w-0 flex-1 flex-col">
         {focus ? <FocusBar /> : <TopBar />}
+        {!focus && <UpdateNotice />}
         <div className="flex min-h-0 flex-1">
           <main id="main" tabIndex={-1} className="relative min-w-0 flex-1 overflow-auto outline-none">
             {children}

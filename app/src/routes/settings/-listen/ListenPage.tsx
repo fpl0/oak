@@ -1,7 +1,7 @@
-// /dev/listen (OAK_DEV=1, architecture §3.8): the listening pass. Every curated sound of the pack (keep,
+// Settings › Listening pass (architecture §3.8), in every build: every curated sound of the pack (keep,
 // replace or flag) and every code example of the course (OK or one of four problems), each with a play
 // button; the selected item plays in a read-only workbench. Verdicts are saved on the server
-// (`PUT /api/dev/listen/:ref`), carry the code's hash, and go stale when the code changes.
+// (`PUT /api/listen/:ref`), carry the code's hash, and go stale when the code changes.
 import { type LessonDef, type LintContext, OakApiError, type UnlockableId } from "@oak/api";
 import { useQuery } from "@tanstack/react-query";
 import { clsx } from "clsx";
@@ -9,10 +9,10 @@ import { Download, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toolbox } from "../../../../../content/toolbox.ts";
 import { usePageTitle } from "../../../lib/nav.ts";
-import { apiQuery, useApiMutation } from "../../../lib/queries.ts";
+import { useListenMark, useListenMarks } from "../../../lib/queries.ts";
 import { appWorkbenchServices } from "../../../lib/workbench-services.ts";
 import { Button } from "../../../ui/kit/Button.tsx";
-import { Card, Chip, EmptyState, Page, PageHeader } from "../../../ui/kit/basics.tsx";
+import { Card, Chip, EmptyState } from "../../../ui/kit/basics.tsx";
 import { Callout } from "../../../ui/kit/Controls.tsx";
 import { Switch } from "../../../ui/kit/Field.tsx";
 import { LoadingState } from "../../../ui/kit/QueryState.tsx";
@@ -35,8 +35,7 @@ import {
   VERDICT_LABEL,
   VERDICTS,
   type Verdict,
-} from "../-lib/listen.ts";
-import { DevGate } from "./DevGate.tsx";
+} from "./listen.ts";
 
 const generated = import.meta.glob<unknown>("../../../../../content/.generated/examples.json", {
   import: "default",
@@ -111,27 +110,19 @@ const STATUS_CHIP: Record<ListenStatus, { label: string; tone: "neutral" | "acce
 };
 
 export function ListenPage() {
-  usePageTitle("Listening pass");
-  return (
-    <DevGate>
-      <ListenBody />
-    </DevGate>
-  );
-}
-
-function ListenBody() {
+  usePageTitle("Settings · Listening pass");
   const examples = useQuery({
-    queryKey: ["dev-listen", "examples"],
+    queryKey: ["listening-pass", "examples"],
     queryFn: loadExamples,
     staleTime: Number.POSITIVE_INFINITY,
   });
   const sounds = useQuery({
-    queryKey: ["dev-listen", "sounds"],
+    queryKey: ["listening-pass", "sounds"],
     queryFn: loadSounds,
     staleTime: Number.POSITIVE_INFINITY,
   });
-  const marksQ = useQuery(apiQuery("dev.listen"));
-  const save = useApiMutation("dev.listenMark", ["dev.listen"]);
+  const marksQ = useListenMarks();
+  const save = useListenMark();
   const [unit, setUnit] = useState<string | null>(SOUNDS_UNIT);
   const [needsListen, setNeedsListen] = useState(false);
   const [autoAdvance, setAutoAdvance] = useState(false);
@@ -206,29 +197,32 @@ function ListenBody() {
 
   let lastGroup: string | undefined;
   return (
-    <Page width="full" className="max-w-[1400px]">
-      <PageHeader
-        title="Listening pass"
-        sub={`Every curated sound and every lesson example, heard once. ${heard} of ${all.length} have a current verdict.`}
-        actions={
-          <Button
-            size="sm"
-            icon={<Download aria-hidden className="size-4" />}
-            onClick={download}
-            disabled={Object.keys(marks).length === 0}
-          >
-            Export verdicts
-          </Button>
-        }
-      />
+    <div className="flex flex-col gap-4" data-testid="listening-pass">
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="text-h2">Listening pass</h2>
+          <p className="mt-1 text-sm text-text-2">
+            Play each instrument and each lesson example once and say whether it sounds right. {heard} of{" "}
+            {all.length} have a verdict.
+          </p>
+        </div>
+        <Button
+          size="sm"
+          icon={<Download aria-hidden className="size-4" />}
+          onClick={download}
+          disabled={Object.keys(marks).length === 0}
+        >
+          Download verdicts
+        </Button>
+      </header>
       {storeDown && (
-        <Callout tone="attention" title="Verdicts cannot be saved right now" className="mb-4">
+        <Callout tone="attention" title="Verdicts cannot be saved right now">
           {notBuilt
-            ? "The server's listening-log endpoint is not built yet. You can still play everything."
-            : "The server did not answer for the listening log. You can still play everything."}
+            ? "This version of Oak cannot store them yet. You can still play everything."
+            : "Oak did not answer when asked for them. You can still play everything."}
         </Callout>
       )}
-      <div className="grid gap-4 lg:grid-cols-[minmax(300px,380px)_minmax(0,1fr)]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(240px,300px)_minmax(0,1fr)]">
         <Card className="flex max-h-[calc(100dvh-210px)] min-h-[360px] flex-col p-0">
           <div className="flex flex-col gap-2 border-b border-border p-3">
             <div className="flex items-center gap-2 text-sm text-text-2">
@@ -324,7 +318,7 @@ function ListenBody() {
           {current ? (
             <>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="font-mono text-h3">{current.ref}</h2>
+                <h3 className="font-mono text-h3">{current.ref}</h3>
                 <p className="text-sm text-text-2">
                   {isSound
                     ? `${current.group} · demo in C`
@@ -337,7 +331,7 @@ function ListenBody() {
                 <ServicesGate load={appWorkbenchServices} auto>
                   <Workbench
                     key={current.ref}
-                    id="dev-listen"
+                    id="listening-pass"
                     code={current.code}
                     lessonCtx={{
                       key: current.key,
@@ -408,6 +402,6 @@ function ListenBody() {
           )}
         </section>
       </div>
-    </Page>
+    </div>
   );
 }

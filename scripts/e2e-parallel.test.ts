@@ -18,9 +18,11 @@ import {
   eachTest,
   type Listed,
   merge,
+  narrowToFiles,
   outcomeOf,
   type Project,
   parseArgs,
+  pinFiles,
   plan,
   projectsFor,
   readBudgets,
@@ -150,6 +152,12 @@ describe("arguments", () => {
       "test-results/x/playwright.config.ts",
     );
     expect(a.only).toEqual(new Set(["lesson"]));
+  });
+  test("--file is repeatable and repo-relative", () => {
+    expect(parseArgs([]).files).toBeNull();
+    expect(parseArgs(["--file", "app/src/x/e2e/a.pw.ts", "--file=./e2e/b.pw.ts"]).files).toEqual(
+      new Set(["app/src/x/e2e/a.pw.ts", "e2e/b.pw.ts"]),
+    );
   });
   test("a shift must leave room for the shards", () => {
     expect(() => parseArgs(["--shift", "4999"])).toThrow();
@@ -457,8 +465,9 @@ describe("budgets", () => {
     // 105 after the suite pass; 131 after Wave 6 (docs/decisions.md 63: the new specs' measured minutes only); 134
     // after the Wave 6 gate (decision 66: the two review specs); 134.9 after Wave 7 Foundation (decision 73: the
     // offline renderer's and the illustrated Oak's specs, measured); 156.8 after Wave 7 (decision 79: the new specs'
-    // measured minutes only); 160.7 after the Wave 7 gate (decision 85: the reviews' new specs, measured).
-    expect(real.totalMinutes).toBe(160.7);
+    // measured minutes only); 160.7 after the Wave 7 gate (decision 85: the reviews' new specs, measured); 205.7
+    // after the unit songs (d94f372: songs.pw.ts and every take lesson opening its unit song, measured).
+    expect(real.totalMinutes).toBe(205.7);
     const covered = new Set(real.budgets.flatMap((b) => b.projects));
     for (const p of [
       "lesson",
@@ -706,4 +715,33 @@ test("own: the last link, declared in the spec", () => {
     );
     expect(traces).toHaveLength(2);
   }, 120_000);
+});
+
+describe("--file", () => {
+  test("keeps only the given files, names the unknown ones and pins them on the units", () => {
+    const ps = new Map<string, Project>([
+      [
+        "lesson",
+        project(
+          "lesson",
+          { "app/src/lesson/e2e/a.pw.ts": 2, "app/src/lesson/e2e/b.pw.ts": 1 },
+          ["oak-api:8801"],
+          "app/src/lesson/e2e",
+        ),
+      ],
+      [
+        "drills",
+        project("drills", { "app/src/drills/e2e/d.pw.ts": 1 }, ["oak-api:8803"], "app/src/drills/e2e"),
+      ],
+    ]);
+    const n = narrowToFiles(ps, new Set(["app/src/lesson/e2e/b.pw.ts", "nowhere/x.pw.ts"]));
+    expect(n.unknown).toEqual(["nowhere/x.pw.ts"]);
+    expect(n.narrowed).toEqual(new Set(["lesson", "drills"]));
+    expect([...(ps.get("lesson")?.files.keys() ?? [])]).toEqual(["app/src/lesson/e2e/b.pw.ts"]);
+    expect(ps.get("drills")?.files.size).toBe(0);
+    const units = plan([ps.get("lesson") as Project], { generated: "", projects: {}, files: {} }, 0);
+    expect(units.map((u) => u.files)).toEqual([[]]);
+    pinFiles(units, ps);
+    expect(units.map((u) => u.files)).toEqual([["app/src/lesson/e2e/b.pw.ts"]]);
+  });
 });

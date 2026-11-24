@@ -1,4 +1,4 @@
-// Local timing telemetry (contracts §9.7; shown on /dev/telemetry, never sent anywhere else).
+// Local timing telemetry (contracts §9.7; shown on Progress › Your sessions, never sent anywhere else).
 //
 //  - `ActivityClock`: the one way to measure active time. Time counts while the tab is visible and the learner
 //    did something in the last 60 s; a longer idle gap counts as 60 s at most.

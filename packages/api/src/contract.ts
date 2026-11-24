@@ -57,6 +57,8 @@ export const contract = {
   // --- meta ---
   health: { method: "GET", path: "/health", res: D.HealthSchema },
   bootstrap: { method: "GET", path: "/bootstrap", res: D.BootstrapSchema },
+  /** Desktop app only: a newer release on GitHub, or `null` (server/src/services/app-update.ts). */
+  "app.update": { method: "GET", path: "/app/update", res: D.AppUpdateSchema.nullable() },
   "settings.put": {
     method: "PUT",
     path: "/settings/:key",
@@ -466,6 +468,25 @@ export const contract = {
     res: D.Ok,
   },
   "qa.report": { method: "POST", path: "/qa/reports", body: D.QaReportCreateSchema, res: D.QaReportSchema },
+  // Your sessions (Progress), Settings › Grading reports and Settings › Listening pass: in every build, not only
+  // with OAK_DEV=1 (they were `dev.telemetry`, `dev.qa`, `dev.qaUpdate`, `dev.listen` and `dev.listenMark`).
+  "telemetry.report": { method: "GET", path: "/telemetry", res: D.TelemetryReportSchema },
+  "qa.list": { method: "GET", path: "/qa/reports", res: list(D.QaReportSchema) },
+  "qa.update": {
+    method: "PATCH",
+    path: "/qa/reports/:id",
+    params: p("id"),
+    body: z.strictObject({ status: z.enum(["open", "triaged", "fixed", "wontfix"]) }),
+    res: D.QaReportSchema,
+  },
+  "listen.list": { method: "GET", path: "/listen", res: list(D.ListenMarkSchema) },
+  "listen.mark": {
+    method: "PUT",
+    path: "/listen/:ref",
+    params: p("ref"),
+    body: D.ListenMarkCreateSchema,
+    res: D.ListenMarkSchema,
+  },
 
   // --- backup ---
   "backup.info": { method: "GET", path: "/backup", res: D.BackupInfoSchema },
@@ -484,16 +505,6 @@ export const contract = {
   },
 
   // --- dev (OAK_DEV=1) ---
-  "dev.qa": { method: "GET", path: "/dev/qa", res: list(D.QaReportSchema), dev: true },
-  "dev.qaUpdate": {
-    method: "PATCH",
-    path: "/dev/qa/:id",
-    params: p("id"),
-    body: z.strictObject({ status: z.enum(["open", "triaged", "fixed", "wontfix"]) }),
-    res: D.QaReportSchema,
-    dev: true,
-  },
-  "dev.telemetry": { method: "GET", path: "/dev/telemetry", res: D.TelemetryReportSchema, dev: true },
   "dev.contentReport": {
     method: "GET",
     path: "/dev/content-report",
@@ -561,15 +572,6 @@ export const contract = {
     path: "/tutor/status",
     query: z.strictObject({ refresh: z.literal("1").optional() }),
     res: TutorStatusSchema,
-  },
-  "dev.listen": { method: "GET", path: "/dev/listen", res: list(D.ListenMarkSchema), dev: true },
-  "dev.listenMark": {
-    method: "PUT",
-    path: "/dev/listen/:ref",
-    params: p("ref"),
-    body: D.ListenMarkCreateSchema,
-    res: D.ListenMarkSchema,
-    dev: true,
   },
 
   // --- Wave 2 Build: dev tools for e2e (server engineer). ---
@@ -934,8 +936,8 @@ export const WAVE2_ENDPOINTS = [
   "onboarding.get",
   "onboarding.put",
   "profile.calibrations",
-  "dev.listen",
-  "dev.listenMark",
+  "listen.list",
+  "listen.mark",
 ] as const satisfies readonly (keyof typeof contract)[];
 
 export type Contract = typeof contract;

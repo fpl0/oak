@@ -2177,13 +2177,13 @@ A `modify` step that only exercises code mechanics (a mini-notation operator, `s
 
 The pace estimate on `/progress` = remaining map sessions × (measured sessions per map session over the last 30 days) ÷ (measured sessions per week over the last 4 weeks). It is shown as a month, never as a count of sessions behind.
 
-### 9.7 Telemetry (local only, shown on `/dev/telemetry`)
+### 9.7 Telemetry (local only, shown on Progress › Your sessions, `/progress/sessions`)
 
 `step_telemetry`: `session_id, lesson_id, lesson_version, step_id, step_kind, target_minutes, authored_minutes, scaled_minutes, started_at, ended_at, active_ms` (time with focus; idle over 60 s removed)`, attempts, max_hint_rung, tutor_messages, passed, skipped, tested_out, split_part ('A'|'B'|null)`.
 
 `session_telemetry`: `session_id, day, target_minutes, kind ('lesson'|'checkpoint'|'capstone'|'gym'|'keepalive'|'light'|'studio'), warmup_ms, new_ms, make_ms, coda_ms, total_active_ms, warmup_sets, warmup_planned_sec, due_sec_before, due_sec_after, deferred_cards, overflow_sec, wrapped_early, split`.
 
-`/dev/telemetry` shows: actual vs scaled minutes per lesson (flag at > 1.15 × budget); the rolling multiplier `median(active content time / authored minutes)` over the last 10 lessons, with a prompt to change `BEGINNER_FACTOR` when it leaves 1.25–1.55; daily review seconds against budget and the 7-day forecast; warm-up overflow; tutor cache-hit ratio and cost. Nothing here is sent anywhere.
+Your sessions shows: actual vs scaled minutes per lesson (flag at > 1.15 × budget); the rolling multiplier `median(active content time / authored minutes)` over the last 10 lessons, with a prompt to change `BEGINNER_FACTOR` when it leaves 1.25–1.55; daily review seconds against budget and the 7-day forecast; warm-up overflow; tutor cache-hit ratio and cost. Nothing here is sent anywhere.
 
 ## 10. Tutor contract
 
@@ -2476,7 +2476,7 @@ Every graded result (lesson step, drill trial, checkpoint item, capstone rubric,
 
 - It writes one row to `qa_reports`: `id, at, kind, lesson_id, step_id, exercise_id, exercise_version, family_id, trial_seed, params_json, response_json` (code or answer)`, grade_result_json, hint_rung, note` (optional text)`, content_version, app_version, status ('open'|'triaged'|'fixed'|'wontfix')`.
 - The attempt is marked `disputed`: it gives no mastery evidence and no SRS rating, and the step offers "Continue anyway" at once (recorded as completed-disputed, not as passed).
-- `/dev/qa` lists the queue and exports any report as a ready-made `TestCase` for the exercise's `tests`, so a grader false negative becomes a regression test when it is fixed.
+- Settings › Grading reports (`/settings/reports`) lists the queue and exports any report as a ready-made `TestCase` for the exercise's `tests`, so a grader false negative becomes a regression test when it is fixed.
 - Nothing leaves the machine.
 
 ### 11.9 Naming, routes, keymaps, theme
@@ -2499,11 +2499,10 @@ Every graded result (lesson step, drill trial, checkpoint item, capstone rubric,
 | `/transcribe`, `/transcribe/$projectId` | Transcribe | shell |
 | `/album`, `/album/$trackId?v=` | Album, track page | shell |
 | `/toolbox?cat=`, `/toolbox/$toolId` | Toolbox | shell |
-| `/progress` | Can-do ledger, milestones, pace | shell |
-| `/settings/{audio,voice,tutor,learning,appearance,keys,data,about}`, `/settings/voice/setup` | Settings; calibration wizard | shell / focus |
-| `/dev/listen`, `/dev/telemetry`, `/dev/qa` | Listen QA, telemetry, grading-problem queue (`OAK_DEV=1`) | shell |
+| `/progress`, `/progress/sessions` | Can-do ledger, milestones, pace; Your sessions (telemetry, §9.7) | shell |
+| `/settings/{audio,voice,tutor,learning,appearance,keys,data,listening,reports,about}`, `/settings/voice/setup` | Settings (Listening pass = Listen QA; Grading reports = the grading-problem queue, §11.8); calibration wizard | shell / focus |
 
-**Endpoints renamed or added** against architecture §4.4: `POST /api/tutor/warm` (the only warm endpoint); `POST /api/tutor/note` (replaces `listening-comment`); `POST /api/confirm`; `POST /api/data/reset`; `POST /api/qa/reports`, `GET /api/dev/qa`; `GET /api/dev/telemetry`; `POST /api/telemetry/steps` (batched); `POST /api/checkpoints/:cpId/attempts`; `POST /api/gym/sessions`; `GET /api/terms/introduced`; `POST /api/tutor/notes/:id/retract`; `DELETE` endpoints of §11.6.
+**Endpoints renamed or added** against architecture §4.4: `POST /api/tutor/warm` (the only warm endpoint); `POST /api/tutor/note` (replaces `listening-comment`); `POST /api/confirm`; `POST /api/data/reset`; `POST /api/qa/reports`, `GET /api/qa/reports`, `PATCH /api/qa/reports/:id`; `GET /api/telemetry`; `GET /api/listen`, `PUT /api/listen/:ref` (in every build since 2026-11-24; they were `/api/dev/qa`, `/api/dev/telemetry` and `/api/dev/listen`); `POST /api/telemetry/steps` (batched); `POST /api/checkpoints/:cpId/attempts`; `POST /api/gym/sessions`; `GET /api/terms/introduced`; `POST /api/tutor/notes/:id/retract`; `DELETE` endpoints of §11.6.
 
 **Keymap scopes.** Keymaps are scoped to the focused region; a key acts only in its scope.
 

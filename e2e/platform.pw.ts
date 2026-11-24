@@ -134,11 +134,11 @@ test.describe("every route against the real server", () => {
     "/settings/appearance",
     "/settings/keys",
     "/settings/data",
+    "/settings/listening",
+    "/settings/reports",
     "/settings/about",
+    "/progress/sessions",
     "/dev/workbench",
-    "/dev/listen",
-    "/dev/telemetry",
-    "/dev/qa",
   ];
 
   for (const [i, r] of ROUTES.entries()) {
