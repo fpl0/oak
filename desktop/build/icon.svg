@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-labelledby="oak-icon-title">
+  <title id="oak-icon-title">Oak</title>
   <!-- Oak's app icon: the cross-section of a log, one ring a day, with a sprout growing from the heartwood.
        macOS grid: an 824 px rounded square centred on a 1024 canvas, with room for the shadow. -->
   <defs>

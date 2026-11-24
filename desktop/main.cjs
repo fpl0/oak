@@ -32,7 +32,10 @@ if (!app.requestSingleInstanceLock()) {
 /** Where the runtime lives: the app bundle's Resources when packaged, the repository in development. */
 function runtime() {
   if (app.isPackaged) {
-    return { root: path.join(process.resourcesPath, "oak"), bun: path.join(process.resourcesPath, "bin", "bun") };
+    return {
+      root: path.join(process.resourcesPath, "oak"),
+      bun: path.join(process.resourcesPath, "bin", "bun"),
+    };
   }
   return { root: path.join(__dirname, ".."), bun: "bun" };
 }
@@ -51,7 +54,14 @@ function loginPath() {
   } catch {
     /* fall back to the defaults below */
   }
-  const parts = [...(shellPath || process.env.PATH || "").split(":"), ...extra, "/usr/bin", "/bin", "/usr/sbin", "/sbin"];
+  const parts = [
+    ...(shellPath || process.env.PATH || "").split(":"),
+    ...extra,
+    "/usr/bin",
+    "/bin",
+    "/usr/sbin",
+    "/sbin",
+  ];
   return [...new Set(parts.filter(Boolean))].join(":");
 }
 
@@ -83,13 +93,20 @@ function startServer(port) {
   const env = { ...process.env, PATH: loginPath(), OAK_PORT: String(port) };
   delete env.OAK_DEV;
   delete env.ELECTRON_RUN_AS_NODE;
-  server = spawn(bun, ["server/src/main.ts", "--serve-dist"], { cwd: root, env, stdio: ["ignore", "pipe", "pipe"] });
+  server = spawn(bun, ["server/src/main.ts", "--serve-dist"], {
+    cwd: root,
+    env,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
   server.stdout.pipe(serverLog, { end: false });
   server.stderr.pipe(serverLog, { end: false });
   server.on("exit", (code, signal) => {
     server = null;
     if (quitting) return;
-    dialog.showErrorBox("Oak stopped", `Oak's server exited (${signal ?? `code ${code}`}).\n\nThe log is at ${logPath}.`);
+    dialog.showErrorBox(
+      "Oak stopped",
+      `Oak's server exited (${signal ?? `code ${code}`}).\n\nThe log is at ${logPath}.`,
+    );
     app.quit();
   });
   return logPath;
