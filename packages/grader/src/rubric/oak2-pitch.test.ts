@@ -382,3 +382,282 @@ describe("AC8 edge pins and AC9 plain failure details", () => {
     expect(r.where).toMatchObject({ bar: 1, beat: 2, track: "mel" });
   });
 });
+
+// Direct evaluator coverage makes each acceptance case and its heard pitches independently reviewable.
+// Existing tests above also evaluate real code through check -> run -> strudel; only Band attachment is synthetic.
+interface RealCodeCase {
+  name: string;
+  rule: string;
+  code: string;
+  ok: boolean;
+  params?: Record<string, unknown>;
+  context?: Partial<RubricContext>;
+  heard: { track: string; pitches: number[]; onsets?: number[] };
+  detail?: RegExp;
+  named?: string;
+}
+const realCodeCases: RealCodeCase[] = [
+  {
+    name: "AC1a minor-seventh shape via note addition passes",
+    rule: "same-shape",
+    code: piece('chords: note("<c3 f3 g3 bb2>").add(note("[0,3,7,10]")).s("piano")'),
+    ok: true,
+    heard: { track: "chords", pitches: [48, 51, 55, 58, 53, 56, 60, 63], onsets: [0, 0, 0, 0, 1, 1, 1, 1] },
+  },
+  {
+    name: "AC1b major-triad shape via transpose passes",
+    rule: "same-shape",
+    code: piece('chords: note("[c3,e3,g3]").transpose("<0 3 5 -2>").s("piano")'),
+    ok: true,
+    heard: { track: "chords", pitches: [48, 52, 55, 51, 55, 58], onsets: [0, 0, 0, 1, 1, 1] },
+  },
+  {
+    name: "AC2a revised I-ii-vi-IV changes shape and fails",
+    rule: "same-shape",
+    code: piece('chords: n("[0,2,4]").add(n("<0 1 5 3>")).scale("C:major").s("piano")'),
+    ok: false,
+    heard: { track: "chords", pitches: [48, 52, 55, 50, 53, 57, 57, 60, 64, 53, 57, 60] },
+    detail: /chord shapes change/i,
+  },
+  {
+    name: "AC2 extra I-IV-V preserves shape and passes",
+    rule: "same-shape",
+    code: piece('chords: n("[0,2,4]").add(n("<0 3 4>")).scale("C:major").s("piano")'),
+    ok: true,
+    heard: { track: "chords", pitches: [48, 52, 55, 53, 57, 60, 55, 59, 62] },
+  },
+  {
+    name: "AC2b repeated chord fails",
+    rule: "same-shape",
+    code: piece('chords: note("[c3,e3,g3]").s("piano")'),
+    ok: false,
+    heard: { track: "chords", pitches: [48, 52, 55, 48, 52, 55] },
+    detail: /move/i,
+  },
+  {
+    name: "AC2c automatic voicing fails",
+    rule: "same-shape",
+    code: piece('chords: chord("<Cm7 Fm7 Gm7 Bbm7>").voicing().s("piano")'),
+    ok: false,
+    heard: { track: "chords", pitches: [58, 63, 67, 70], onsets: [0, 0, 0, 0] },
+    detail: /move the shape yourself/i,
+  },
+  ...(
+    [
+      [
+        "AC3a A fourth-stack names Am11 and passes",
+        "a1",
+        "e3,a3,d4,g4,c5",
+        [52, 57, 62, 67, 72],
+        true,
+        "Am11",
+      ],
+      [
+        "AC3b D fourth-stack names Dm11 and passes",
+        "d2",
+        "a3,d4,g4,c5,f5",
+        [57, 62, 67, 72, 77],
+        true,
+        "Dm11",
+      ],
+      [
+        "AC3c C bass changes the A-stack chord and fails",
+        "c2",
+        "e3,a3,d4,g4,c5",
+        [52, 57, 62, 67, 72],
+        false,
+        undefined,
+      ],
+      [
+        "AC3d F bass changes the D-stack chord and fails",
+        "f2",
+        "a3,d4,g4,c5,f5",
+        [57, 62, 67, 72, 77],
+        false,
+        undefined,
+      ],
+    ] as const
+  ).map(
+    ([name, bass, chord, pitches, ok, named]): RealCodeCase => ({
+      name,
+      rule: "bass-names-chord",
+      code: piece(`bass: note("${bass}").s("sawtooth")\nchords: note("[${chord}]").s("piano")`),
+      ok,
+      params: { quality: "m11" },
+      heard: { track: "chords", pitches: [...pitches] },
+      ...(named ? { named } : {}),
+    }),
+  ),
+  {
+    name: "AC4a C-major degree inversion passes",
+    rule: "inverted-copy",
+    code: pair('n("0 1 4 2").scale("C4:major")', 'n("4 3 0 2").scale("C4:major")'),
+    ok: true,
+    params: pairParams,
+    context: { key: C },
+    heard: { track: "mel2", pitches: [67, 65, 60, 64], onsets: [0, 0.25, 0.5, 0.75] },
+  },
+  ...(
+    [
+      ["AC4b chromatic inversion passes", "67 66 60 63", [67, 66, 60, 63], true],
+      ["AC4c transposed copy fails", "65 66 72 69", [65, 66, 72, 69], false],
+      ["AC4d reversed copy fails", "64 67 61 60", [64, 67, 61, 60], false],
+    ] as const
+  ).map(
+    ([name, copy, pitches, ok]): RealCodeCase => ({
+      name,
+      rule: "inverted-copy",
+      code: pair('note("60 61 67 64")', `note("${copy}")`),
+      ok,
+      params: pairParams,
+      heard: { track: "mel2", pitches: [...pitches], onsets: [0, 0.25, 0.5, 0.75] },
+    }),
+  ),
+  ...(
+    [
+      ["AC5a rotation by one passes", "e4 g4 d4 c4", [64, 67, 62, 60], true],
+      ["AC5b rotation by three passes", "d4 c4 e4 g4", [62, 60, 64, 67], true],
+      ["AC5c identical copy fails", "c4 e4 g4 d4", [60, 64, 67, 62], false],
+      ["AC5d non-rotation shuffle fails", "c4 g4 e4 d4", [60, 67, 64, 62], false],
+    ] as const
+  ).map(
+    ([name, copy, pitches, ok]): RealCodeCase => ({
+      name,
+      rule: "rotated-copy",
+      code: pair('note("c4 e4 g4 d4")', `note("${copy}")`),
+      ok,
+      params: pairParams,
+      heard: { track: "mel2", pitches: [...pitches], onsets: [0, 0.25, 0.5, 0.75] },
+    }),
+  ),
+  ...(
+    [
+      [
+        "AC6a early by one eighth passes",
+        ".early(1/8)",
+        [64, 67, 62, 60],
+        [0.125, 0.375, 0.625, 0.875],
+        true,
+      ],
+      ["AC6b late by one quarter passes", ".late(1/4)", [62, 60, 64, 67], [0, 0.25, 0.5, 0.75], true],
+      ["AC6c zero offset fails", "", [60, 64, 67, 62], [0, 0.25, 0.5, 0.75], false],
+      [
+        "AC6d differently shifted halves fail",
+        '.late("0.125 0.25")',
+        // Patterned shifts re-query the source, so this boundary repeats E and drops D.
+        [60, 64, 64, 67],
+        [0.125, 0.375, 0.5, 0.75],
+        false,
+      ],
+    ] as const
+  ).map(
+    ([name, shift, pitches, onsets, ok]): RealCodeCase => ({
+      name,
+      rule: "time-shifted",
+      code: pair('note("c4 e4 g4 d4")', `note("c4 e4 g4 d4")${shift}`),
+      ok,
+      params: pairParams,
+      heard: { track: "mel2", pitches: [...pitches], onsets: [...onsets] },
+    }),
+  ),
+  ...(
+    [
+      ["AC7a sixth up then step down passes", "c4 a4 g4 f4", [60, 69, 67, 65], true],
+      [
+        "AC7b arpeggio plus gap-filled leap passes",
+        "c4 e4 g4 c5 b4 d4 e4",
+        [60, 64, 67, 72, 71, 62, 64],
+        true,
+      ],
+      ["AC7c continuing leaps fail", "c3 f#3 c#4 g4 d5", [48, 54, 61, 67, 74], false],
+      ["AC7d stepwise tune fails with no leap yet", "c4 d4 e4 f4", [60, 62, 64, 65], false],
+    ] as const
+  ).map(
+    ([name, melody, pitches, ok]): RealCodeCase => ({
+      name,
+      rule: "gap-fill",
+      code: piece(`mel: note("${melody}").s("piano")`),
+      ok,
+      params: { track: "mel" },
+      heard: { track: "mel", pitches: [...pitches] },
+      ...(name.startsWith("AC7d") ? { detail: /no leap yet/i } : {}),
+    }),
+  ),
+  {
+    name: "AC7 edge missing melody fails",
+    rule: "gap-fill",
+    code: piece('drums: s("bd ~ sd ~")'),
+    ok: false,
+    params: { track: "mel" },
+    heard: { track: "mel", pitches: [] },
+    detail: /mel/,
+  },
+  {
+    name: "AC7 edge muted melody fails",
+    rule: "gap-fill",
+    code: piece('drums: s("bd ~ sd ~")\n_mel: note("c4 a4 g4").s("piano")'),
+    ok: false,
+    params: { track: "mel" },
+    heard: { track: "mel", pitches: [] },
+    detail: /mel/,
+  },
+  {
+    name: "AC7 edge three-four gap fill passes",
+    rule: "gap-fill",
+    code: 'setcpm(96/3)\n\nmel: note("c4 a4 g4").s("piano")',
+    ok: true,
+    params: { track: "mel" },
+    context: { meter: "3/4" },
+    heard: { track: "mel", pitches: [60, 69, 67], onsets: [0, 1 / 3, 2 / 3] },
+  },
+  {
+    name: "AC7 edge three-four continuing leaps fail at beat two",
+    rule: "gap-fill",
+    code: 'setcpm(96/3)\n\nmel: note("c3 f#3 c#4").s("piano")',
+    ok: false,
+    params: { track: "mel" },
+    context: { meter: "3/4" },
+    heard: { track: "mel", pitches: [48, 54, 61], onsets: [0, 1 / 3, 2 / 3] },
+  },
+];
+
+describe("real Strudel acceptance cases", () => {
+  for (const c of realCodeCases) {
+    test(c.name, async () => {
+      const bars = 4;
+      const code = c.code;
+      const n = await strudel(code, bars);
+      const ctx: RubricContext = { code, meter: "4/4", params: {}, bars, totalBars: bars, ...c.context };
+      const fn = oak2PitchRules(CUSTOM_DEPS)[c.rule];
+      if (!fn) throw new Error(`Missing rule ${c.rule}`);
+      const r = fn(n, ctx, c.params ?? {});
+      expect(r.ok).toBe(c.ok);
+      const track = n.byTrack[c.heard.track] ?? [];
+      const observed = track.slice(0, c.heard.pitches.length);
+      expect(observed.map((e) => e.midi)).toEqual(c.heard.pitches);
+      if (c.heard.onsets) expect(observed.map((e) => e.onset[0] / e.onset[1])).toEqual(c.heard.onsets);
+      if (c.detail) expect(r.detail).toMatch(c.detail);
+      if (c.name.startsWith("AC2c")) {
+        expect(track.length).toBeGreaterThan(0);
+        expect(track.every((e) => e.midi !== null && e.chordSymbol !== undefined)).toBe(true);
+      }
+      if (c.name.startsWith("AC7 edge missing") || c.name.startsWith("AC7 edge muted")) {
+        expect(track).toEqual([]);
+      }
+      if (c.named) {
+        const midis = n.all.filter((e) => e.onset[0] === 0 && e.midi !== null).map((e) => e.midi as number);
+        const named = identifyChord(midis)[0];
+        expect(named?.quality).toBe("m11");
+        expect(named && toLeadSheet(named)).toBe(c.named);
+      }
+      if (!r.ok) {
+        expect(r.detail).not.toMatch(/semitone|[.!?].*\S|\n/i);
+        expect(r.where?.track).toBeTruthy();
+        expect(r.where?.bar).toBeDefined();
+      }
+      if (c.name === "AC7 edge three-four continuing leaps fail at beat two") {
+        expect(r.where).toMatchObject({ bar: 1, beat: 2, track: "mel" });
+      }
+    });
+  }
+});
