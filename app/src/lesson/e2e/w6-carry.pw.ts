@@ -4,9 +4,10 @@
 //       A step of several answers names the part that is off ("Part 1 is not right yet.") and marks it.
 //  d4   an unchecked line of numerals survives a reload (U15.L02 S6), the disabled Check says which bars are still
 //       empty, and the kept answer is forgotten when the step is left or checked.
-//  d15  a Make that builds on an earlier lesson's sketch (U10.L06 on U10.L05's) opens with the learner's own sketch
-//       when the server has one, offers "Start from Oak's copy" and back again without losing an edit, and opens
-//       with Oak's copy when there is none; and once against the real server, from the day U10.L06 is the lesson.
+//  d15  a Make that builds on an earlier lesson (U10.L06 on U10.L05) opens with the learner's own code, now their
+//       take of that lesson in the unit song (`startFrom`, spec 2026-11-24 §5.3), at the song's tempo, when the song
+//       has one; offers "Start from Oak's copy" and back again without losing an edit, and opens with Oak's copy
+//       when there is none; and once against the real server, from the day U10.L06 is the lesson.
 // Later lessons are played as previews from the same seed (every step in the real app, nothing saved).
 import { fileURLToPath } from "node:url";
 import type { Page } from "@playwright/test";
@@ -194,103 +195,103 @@ test("d4: unchecked numerals survive a reload; Check says which bars are empty; 
 const OWN =
   'setcpm(96/4)\n\nchords: chord("<Am F C G>").voicing().s("piano")\nmel: n("0 2 4 2").scale("A4:minor").s("piano")';
 
-/** `GET /lessons/U10.L05/sketch` answered as the server will once it holds (or does not hold) a sketch. */
-async function sketchRoute(page: Page, sketch: "own" | "none") {
+/** Code with its first `setcpm(<n>/4)` at `bpm`: what a take Make opens with inside its song (spec §5.3). */
+const atTempo = (code: string, bpm: number) => code.replace(/setcpm\(\d+(?:\.\d+)?\//, `setcpm(${bpm}/`);
+
+/**
+ * `GET /songs/U10` answered as the server answers it, with the takes replaced: one take of U10.L05 that plays OWN at
+ * 96 BPM in the first two choruses (the learner's saved Make, as the song records it), or none. Inside the unit song
+ * a Make opens from its step's `startFrom` take (U10.L06 starts from U10.L05), no longer from `lessons.sketch`.
+ */
+async function songRoute(page: Page, take: "own" | "none") {
   const now = new Date().toISOString();
-  await page.route("**/api/lessons/U10.L05/sketch", (route) =>
-    route.fulfill({
-      json: {
-        lessonId: "U10.L05",
-        sketch:
-          sketch === "none"
-            ? null
-            : {
-                id: "sk_own",
-                title: "My Aeolian loop",
-                originKind: "lesson-make",
-                originId: "U10.L05",
-                currentVersion: 2,
-                tags: [],
-                archived: false,
-                listeningNote: null,
-                createdAt: now,
-                updatedAt: now,
-                versions: [1, 2].map((version) => ({
-                  sketchId: "sk_own",
-                  version,
-                  code: version === 2 ? OWN : "setcpm(96/4)",
-                  bpm: 96,
-                  meter: "4/4",
-                  key: { tonic: "A", mode: "minor" },
-                  analysis: null,
-                  note: null,
-                  tutorAssisted: false,
-                  band: null,
-                  flags: { lockedTools: [], previewTools: [] },
-                  createdAt: now,
-                })),
-              },
-      },
-    }),
-  );
+  const cells = ["chorus1", "chorus2"].flatMap((s) => ["lead", "chords", "bass"].map((p) => `${p}@${s}`));
+  await page.route("**/api/songs/U10", async (route) => {
+    const res = await route.fetch();
+    const song = (await res.json()) as { takes: unknown[]; takesCount: number };
+    song.takes =
+      take === "none"
+        ? []
+        : [
+            {
+              id: 1,
+              lessonId: "U10.L05",
+              sketchId: "sk_own",
+              sketchVersion: 2,
+              code: OWN,
+              cells,
+              labels: { chords: "chords", mel: "lead" },
+              bpm: 96,
+              backfilled: false,
+              reviewBeforeRun: false,
+              createdAt: now,
+            },
+          ];
+    song.takesCount = song.takes.length;
+    await route.fulfill({ response: res, json: song });
+  });
 }
 
 const codeNow = async (page: Page) =>
   ((await snapshot(page)) as { code: string | null } | null)?.code ?? null;
 
-test("d15: a Make that builds on an earlier sketch opens with the learner's own, with Oak's copy one press away", async ({
+test("d15: a Make that builds on an earlier take opens with the learner's own, with Oak's copy one press away", async ({
   page,
 }) => {
   const def = await lessonDefW5("U10.L06");
   const make = def.steps.find((s) => s.kind === "make") as { id: string; exercise: PartLike };
   const starter = (make.exercise.code?.starter ?? "").replace(/[⟪⟫]/g, "");
-  await sketchRoute(page, "own");
+  await songRoute(page, "own");
   await open(page, "U10.L06", make.id, true);
   const note = page.getByTestId("make-start-note");
   await expect(note).toBeVisible({ timeout: 30_000 });
   await expect(note).toHaveAttribute("data-source", "sketch");
-  await expect(note).toContainText("your own sketch");
-  await expect(note).toContainText("My Aeolian loop");
+  await expect(note).toContainText("your code from “The Aeolian Loop”");
   // The lesson it came from is named by its title, never by its ID.
   await expect(note).not.toContainText(/U\d\d\.L\d\d/);
-  await expect.poll(() => codeNow(page), { message: "the editor holds the sketch" }).toBe(OWN);
+  // The take's tempo is the song's (the newest take sets it), so the code opens exactly as saved.
+  await expect.poll(() => codeNow(page), { message: "the editor holds the take" }).toBe(OWN);
   await expect(step$(page).locator(".cm-content").first()).toContainText('chord("<Am F C G>")');
   await shootBoth(page, "w6-make-own-sketch", "save-sketch");
 
-  // An edit of the sketch, then Oak's copy, then back: the edit is still there.
+  // An edit of the take, then Oak's copy (the starter at the song's tempo), then back: the edit is still there.
   const edited = `${OWN}\nbass: n("0 ~ 0 ~").scale("A2:minor").s("ebass")`;
   await setCode(page, edited);
   await page.getByTestId("make-oak-copy").click();
   await expect(note).toHaveAttribute("data-source", "oak");
   await expect(note).toContainText("Oak's copy");
-  await expect.poll(() => codeNow(page), { message: "Oak's copy in the editor" }).toBe(starter);
+  await expect.poll(() => codeNow(page), { message: "Oak's copy in the editor" }).toBe(atTempo(starter, 96));
   await page.getByTestId("make-own-sketch").focus();
   await page.keyboard.press("Enter");
   await expect(note).toHaveAttribute("data-source", "sketch");
-  await expect.poll(() => codeNow(page), { message: "the edited sketch is back" }).toBe(edited);
+  await expect.poll(() => codeNow(page), { message: "the edited take is back" }).toBe(edited);
   // The checklist grades what is in the editor, and the sketch saves (a preview: nothing is stored).
   await expect(page.getByTestId("make-checklist")).toBeVisible();
   await expect(page.getByTestId("save-sketch")).toBeEnabled();
 });
 
-test("d15: with no sketch of that lesson the Make opens with Oak's copy, as before", async ({ page }) => {
+test("d15: with no take of that lesson the Make opens with Oak's copy at the song's tempo", async ({
+  page,
+}) => {
   const def = await lessonDefW5("U10.L06");
   const make = def.steps.find((s) => s.kind === "make") as { id: string; exercise: PartLike };
   const starter = (make.exercise.code?.starter ?? "").replace(/[⟪⟫]/g, "");
-  await sketchRoute(page, "none");
+  await songRoute(page, "none");
   await open(page, "U10.L06", make.id, true);
   await expect(page.getByTestId("make-checklist")).toBeVisible({ timeout: 30_000 });
-  await expect(page.getByTestId("make-start-note")).toHaveCount(0);
+  // No choice to offer: only the line that says the tempo moved to the song's (Oak's 88 BPM with no takes).
+  const note = page.getByTestId("make-start-note");
+  await expect(note).toHaveAttribute("data-source", "oak");
+  await expect(note).toHaveText("The first line is set to your song's tempo, 88 beats per minute.");
   await expect(page.getByTestId("make-oak-copy")).toHaveCount(0);
-  await expect(step$(page).locator(".cm-content").first()).toContainText(
-    (starter.split("\n").find((l) => l.includes("(")) ?? "").trim().slice(0, 24),
-  );
+  await expect.poll(() => codeNow(page), { message: "Oak's copy in the editor" }).toBe(atTempo(starter, 88));
 });
 
-test("d15 against the real server: U10.L06's Make opens with the sketch the learner saved in U10.L05", async ({
+test("d15 against the real server: U10.L06's Make opens with the code the learner saved in U10.L05", async ({
   page,
 }) => {
-  // The day U10.L06 is the lesson: U10.L05's Make was saved by the seeded learner two sessions ago.
+  // The day U10.L06 is the lesson: U10.L05's Make was saved by the seeded learner two sessions ago. The unit song
+  // starts on first read and records it as U10.L05's take (spec §5.4 backfill), the take U10.L06 starts from.
   await seed(page, "after GYM.07");
   const def = await lessonDefW5("U10.L06");
   const make = def.steps.find((s) => s.kind === "make") as { id: string; exercise: PartLike };
@@ -305,13 +306,26 @@ test("d15 against the real server: U10.L06's Make opens with the sketch the lear
   expect(sketch, "the seeded learner saved U10.L05's Make").not.toBeNull();
   const newest = [...(sketch?.versions ?? [])].sort((a, b) => b.version - a.version)[0];
   await open(page, "U10.L06", make.id, false);
+  const song = await api<{ takes: { lessonId: string; code: string; bpm: number }[] }>(
+    page,
+    "GET",
+    "/songs/U10",
+  );
+  const takes = song.body?.takes ?? [];
+  expect(takes.find((t) => t.lessonId === "U10.L05")?.code, "U10.L05's sketch is its take in the song").toBe(
+    newest?.code,
+  );
+  // The song plays at its newest take's tempo, and the Make opens at it.
+  const bpm = takes.at(-1)?.bpm ?? 88;
   const note = page.getByTestId("make-start-note");
   await expect(note).toBeVisible({ timeout: 30_000 });
   await expect(note).toHaveAttribute("data-source", "sketch");
-  await expect(note).toContainText(sketch?.title ?? "");
-  await expect.poll(() => codeNow(page), { message: "the saved sketch in the editor" }).toBe(newest?.code);
+  await expect(note).toContainText("“The Aeolian Loop”");
+  await expect
+    .poll(() => codeNow(page), { message: "the saved code in the editor" })
+    .toBe(atTempo(newest?.code ?? "", bpm));
   await page.getByTestId("make-oak-copy").click();
-  await expect.poll(() => codeNow(page), { message: "Oak's copy in the editor" }).toBe(starter);
+  await expect.poll(() => codeNow(page), { message: "Oak's copy in the editor" }).toBe(atTempo(starter, bpm));
   await expect(note).toHaveAttribute("data-source", "oak");
   // The learner's sketch itself is untouched on the server.
   const again = await api<{ sketch: { versions: unknown[] } | null }>(page, "GET", "/lessons/U10.L05/sketch");

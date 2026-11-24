@@ -160,10 +160,8 @@ test("a whole session: Start (Enter) → New → Wrap up → Quick sketch → Co
   await expect(page.getByTestId("coda-title")).toHaveText("A good place to stop.");
   await expect(page.getByTestId("coda-sketch")).toContainText(/quick sketch/i);
   await expect(page.getByTestId("coda-week")).toBeVisible();
-  // First week: the listening note is automatic (contracts §10.10), with the audio caption.
-  await expect(page.getByTestId("coda-listen")).toContainText(
-    "Claude reads your code and score, never your audio.",
-  );
+  // Claude's listening note is gone (owner, 2026-11-22): the Coda neither asks for one nor offers it.
+  await expect(page.getByTestId("coda-listen")).toHaveCount(0);
   await expect(page.getByTestId("done-for-today")).toBeFocused();
 
   // A reload keeps the Coda (the summary is saved in this browser); with reduced motion it appears at once.

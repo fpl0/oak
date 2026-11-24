@@ -200,6 +200,13 @@ async function warmupByKeys(
       if (a.tag !== "button")
         await tabTo(page, byText(/^(Next set|On to|Continue|Done)/), "the summary's button");
       await page.keyboard.press("Enter");
+    } else if (await vis("drill-start")) {
+      // A sung trial waits for Start (main f492370). The focus stays on the drill runner (the answer pad's scope),
+      // where Enter is the drill's Start key; on the Start button itself Enter presses it. Never another control.
+      const a = await active(page);
+      expect(a.id === "drill-start" || (a.tag !== "button" && !a.editable), "Enter reaches Start").toBe(true);
+      await page.keyboard.press("Enter");
+      await expect(page.getByTestId("drill-start")).toHaveCount(0, { timeout: 10_000 });
     } else if (await vis("trial-feedback")) {
       const label = (
         (await page.getByTestId("next-trial").filter({ visible: true }).first().textContent()) ?? ""

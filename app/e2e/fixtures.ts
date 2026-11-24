@@ -137,6 +137,23 @@ const usage = {
   softPassed: false,
 };
 
+/** The learner's U01 song, started with no takes (`songs.get` and `songs.list` add their own fields). */
+const U01_SONG = {
+  unitId: "U01",
+  songId: "usong.U01",
+  songVersion: 1,
+  contentVersion: 1,
+  flavour: "flavour.pop",
+  title: "Count me in",
+  status: "open",
+  changedSinceRelease: false,
+  releasable: false,
+  backfilled: false,
+  styleSeen: true,
+  takesCount: 0,
+  releases: [],
+} as const;
+
 /** Response per JSON GET endpoint. Endpoints not listed answer 404 from the stub. */
 export const FIXTURES = {
   health: {
@@ -659,6 +676,11 @@ export const FIXTURES = {
     open: [],
   },
   "ladder.songs": { items: [] },
+  // Unit songs (spec 2026-11-24 §5.4): the song of the lesson the routes open (/learn/U01.L02), started in the
+  // profile's style with no takes yet; every unit answers with it (the stub matches endpoints, not ids). The album's
+  // Songs shelf lists it.
+  "songs.get": { ...U01_SONG, takes: [] },
+  "songs.list": { items: [{ ...U01_SONG, lessonsCount: 0 }] },
 } satisfies Partial<Record<JsonEndpointName, unknown>>;
 
 FIXTURES["profile.get"] = FIXTURES.bootstrap.profile;

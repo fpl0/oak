@@ -61,7 +61,7 @@ export interface Services {
 }
 
 export interface ServiceOptions {
-  config: Pick<OakConfig, "audioDir" | "albumDir" | "backupsDir"> & Partial<Pick<OakConfig, "dev">>;
+  config: Pick<OakConfig, "audioDir" | "albumDir" | "backupsDir"> & Partial<Pick<OakConfig, "dev" | "songsAutostart">>;
   srs: () => SrsPort | null;
   stimulus?: PatternStimulus;
   ladder?: LadderGenerator;
@@ -141,7 +141,11 @@ export function createServices(ctx: ServiceContext, opts: ServiceOptions): Servi
     ...(opts.stimulus === undefined ? {} : { stimulus: opts.stimulus }),
     ...(opts.ladder === undefined ? {} : { ladder: opts.ladder }),
   });
-  const unitSongs = new UnitSongsService(ctx, { gates, library });
+  const unitSongs = new UnitSongsService(ctx, {
+    gates,
+    library,
+    autostart: opts.config.dev === true && opts.config.songsAutostart === true,
+  });
   const release = new CapstoneReleaseService(ctx, {
     course,
     gates,

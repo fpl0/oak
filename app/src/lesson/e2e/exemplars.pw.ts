@@ -1,6 +1,6 @@
 // The two exemplar lessons against the real server, as a learner who finished the lessons before them: every
 // step solved from its reference, a known-wrong variant first on the checked steps with its feedback, the
-// keyboard-only path on a graded modify, resume after a reload, the Make over the Band, completion on the
+// keyboard-only path on a graded modify, resume after a reload, the Make inside the unit song, completion on the
 // server (progress, sketch, unlocks), and the tutor's nudge through the fake backend.
 import type { Page } from "@playwright/test";
 import { stack } from "./playwright.config.ts";
@@ -123,7 +123,7 @@ test("U01.L01 Heartbeat: every step, a wrong variant first, keyboard only on S6,
   await expect(page.getByTestId("step-feedback")).toHaveAttribute("data-status", "pass");
   await page.getByTestId("continue").click();
 
-  // S8 the Make over the band: three to a bar leaves the required rule open ("Save anyway"); four ticks it.
+  // S8 the Make inside the song: three to a bar leaves the required rule open ("Save anyway"); four ticks it.
   await stepIs(page, "S8");
   await setCode(page, kickLine("bd sd bd", 100));
   await page.getByTestId("play-toggle").click();
@@ -139,7 +139,10 @@ test("U01.L01 Heartbeat: every step, a wrong variant first, keyboard only on S6,
   await page.getByTestId("play-toggle").click();
   await expect(page.locator('[data-rule="every-beat"]')).toHaveAttribute("data-ok", "1", { timeout: 20_000 });
   await expect(page.locator('[data-rule="two-lines"]')).toHaveAttribute("data-ok", "1");
-  await expect(page.getByText("chords (band)")).toBeVisible();
+  // The Make plays inside the unit song (spec 2026-11-24-unit-songs-design.md §5.3): the transport's chips tell today's
+  // code from Oak's parts, where the plain Band's "chords (band)" used to be.
+  await expect(page.getByRole("button", { name: "drums (today's code)" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Chords (Oak)" })).toBeVisible();
   await page.getByTestId("play-toggle").click();
   await page.getByTestId("sketch-title").fill("My first heartbeat");
   await page.getByTestId("save-sketch").click();

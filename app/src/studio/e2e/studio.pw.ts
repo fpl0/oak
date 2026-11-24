@@ -351,7 +351,7 @@ for (const m of SCREENSHOT_MATRIX) {
     await openSketch(page, id);
     await expect(page.getByTestId("locked-hints")).toBeVisible({ timeout: 20_000 });
     // At 1280×800 the primary actions are on screen without scrolling.
-    for (const tid of ["play-toggle", "name-version", "ask-listening"]) {
+    for (const tid of ["play-toggle", "name-version"]) {
       const box = await page.getByTestId(tid).boundingBox();
       expect(box).not.toBeNull();
       expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThanOrEqual(m.height);

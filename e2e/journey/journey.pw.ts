@@ -2,10 +2,10 @@
 // tutor, Chrome's fake microphone. Split at the final gate of Wave 3 into five tests of a few minutes each, every one
 // starting from a dev seed (wave2.md §5) instead of replaying the days before it: onboarding with a microphone (a
 // fresh learner); U00.L02 and U01.L01 as daily sessions with their warm-ups; U01.L02 with a tutor hint and an
-// explanation, then the Studio sketch with a listening note, the Toolbox and the Oak; the U01 checkpoint; C0 made,
-// released and found on the album with its cover, audio and liner notes. Zero console errors (beyond Strudel's
-// learner-error line) and zero requests off this machine. A last test does onboarding in Quiet mode (no microphone)
-// and one session.
+// explanation, then the Studio sketch (no listening note: removed 2026-11-22), the Toolbox and the Oak; the U01
+// checkpoint; C0 made, released and found on the album with its cover, audio and liner notes. Zero console errors
+// (beyond Strudel's learner-error line) and zero requests off this machine. A last test does onboarding in Quiet mode
+// (no microphone) and one session.
 import { expect, type Page, test } from "@playwright/test";
 import {
   expectStep,
@@ -319,13 +319,14 @@ test("gate journey 3: U01.L02 with a tutor hint and an explanation, then Studio,
     },
   });
 
-  // --- the Studio: the day's sketch, with Claude's listening note -----------------------------------------------
+  // --- the Studio: the day's sketch opens; Claude's listening note is gone (owner, 2026-11-22) -----------------
   await page.goto("/studio");
   const card = page.getByTestId("sketch-card").filter({ hasText: "Count to four" }).first();
   await card.click();
   await expect(page).toHaveURL(/\/studio\/[^/]+$/);
-  await page.getByTestId("ask-listening").click();
-  await expect(page.getByTestId("listening-note")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId("sketch-title")).toHaveText("Count to four", { timeout: 30_000 });
+  await expect(page.getByTestId("ask-listening")).toHaveCount(0);
+  await expect(page.getByTestId("listening-note")).toHaveCount(0);
 
   // --- the Toolbox shows the tools U01.L02 opened -------------------------------------------------------------
   await page.goto("/toolbox/tb.gain");

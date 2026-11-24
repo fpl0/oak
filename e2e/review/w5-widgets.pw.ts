@@ -103,9 +103,10 @@ test("U10.L04 S5: a minor loop numbered in upper case fails, names the bars, and
   expect(first).not.toMatch(RAW);
   const second = await checkFor(page, /fail/);
   expect(second).not.toMatch(RAW);
-  // The hint ladder names what to look at; the answer can be shown.
+  // The hint ladder names what to look at (the first hint states the goal: count each root up from A); the
+  // answer can be shown.
   await page.getByTestId("hint").click();
-  await expect(page.getByTestId("hint-texts")).toContainText("Count from A");
+  await expect(page.getByTestId("hint-texts")).toContainText("Count each chord's root up from A");
   await shootAll(page, "w5-widget-rn-upper-case");
   await showAnswer(page);
   expect(problems).toEqual([]);
@@ -127,7 +128,8 @@ test("U11.L01 S6: seven notes for the pentatonic fail; the answer can be shown",
   await expect(step(page)).toContainText(/Your scale:.*F♯/);
   for (let i = 0; i < 2; i++) expect(await checkFor(page, /fail/)).not.toMatch(RAW);
   await page.getByTestId("hint").click();
-  await expect(page.getByTestId("hint-texts")).toContainText("leave out");
+  // The first hint says what to do: start from all seven notes of G major and take two away.
+  await expect(page.getByTestId("hint-texts")).toContainText("take two of them away");
   await shootAll(page, "w5-widget-scale-seven");
   await showAnswer(page);
   expect(problems).toEqual([]);

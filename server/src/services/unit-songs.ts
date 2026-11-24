@@ -44,6 +44,8 @@ import type { LibraryService } from "./library.ts";
 export interface UnitSongsDeps {
   gates: GatesService;
   library: LibraryService;
+  /** Dev only (config `songsAutostart`, the e2e stacks): `get` starts a song not started, in the profile's style. */
+  autostart?: boolean;
 }
 
 const CELL = /^[a-z][a-z0-9-]*@[a-z][a-z0-9-]*$/;
@@ -172,6 +174,7 @@ export class UnitSongsService {
     const def = this.defOf(unitId);
     const row = this.#repos.unitSongs.get(unitId);
     if (def === null && row === null) throw notFound(`the song of ${unitId}`);
+    if (def !== null && row === null && this.deps.autostart === true) return this.start(unitId, this.#profileFlavour());
     if (def === null || row === null) return this.#detail(unitId, def, row);
     // A completed take lesson whose take never landed joins the song now, not at the next start-up (see `backfill`).
     this.#fillGaps(def);

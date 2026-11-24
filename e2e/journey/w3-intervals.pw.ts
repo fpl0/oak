@@ -1,5 +1,5 @@
 // Wave 3 journey (e): U04.L04 "Interval Ear Lab" as a real daily session from the "after U04.L03" seed. Its
-// passive-listen blocks are played (pairs named as they sound, nothing marked), its harmonic step ("Together":
+// passive-listen blocks are played (pairs named as they sound, nothing marked), its harmonic step ("Pairs together":
 // two notes at once) is answered on the interval pad, and the Make is saved. Then the ear lab's passive block in
 // Practice: the interval family's listening run, opened with L, names each pair and needs no answer.
 import { expect, test } from "@playwright/test";
@@ -33,8 +33,8 @@ test("U04.L04 as a daily session: named pairs, a harmonic interval step, then th
         await expect(page.getByTestId("passive")).toContainText("Nothing here is marked.");
       }
       if (step.id !== "S6") return;
-      // "Together": both notes at once. The interval pad is the answer; the walker answers the drawn pair.
-      await expect(page.getByTestId("step-title")).toHaveText("Together");
+      // "Pairs together": both notes at once. The interval pad is the answer; the walker answers the drawn pair.
+      await expect(page.getByTestId("step-title")).toHaveText("Pairs together");
       await expect(page.getByTestId("lesson-step").getByRole("group").first()).toBeVisible();
       const trial = await page.evaluate(() =>
         (globalThis as unknown as { __oakLesson: { trial(): unknown } }).__oakLesson.trial(),

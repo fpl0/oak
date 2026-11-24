@@ -1,7 +1,7 @@
 // Plays a session's warm-up in the real drill runner, set by set, as a learner would: listen blocks are heard,
-// tap trials are tapped with Space on the beat, sung trials are sung by Chrome's fake microphone, pad trials are
-// answered from the keyboard, and each set summary moves on with Enter. It does not aim for a perfect score; the
-// grades come from the real drill engine and go to the real server.
+// tap trials are tapped with Space on the beat, sung trials are started and sung by Chrome's fake microphone, pad
+// trials are answered from the keyboard, and each set summary moves on with Enter. It does not aim for a perfect
+// score; the grades come from the real drill engine and go to the real server.
 import { expect, type Page } from "@playwright/test";
 import { textNow } from "../support/ui.ts";
 
@@ -110,6 +110,12 @@ export async function walkWarmup(
         continue;
       }
       await next.click();
+      continue;
+    }
+    // A sung trial waits for Start (main f492370): nothing plays and the mic stays closed until it is pressed.
+    const start = page.getByTestId("drill-start").filter({ visible: true }).first();
+    if (await start.isVisible().catch(() => false)) {
+      await start.click({ timeout: 2_000 }).catch(() => {});
       continue;
     }
     const stage = (await textNow(page.getByTestId("stage-text"))).trim();

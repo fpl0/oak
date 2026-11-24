@@ -340,7 +340,7 @@ test("music tokens: every kind renders as a chip with a definition; bars loop in
   await expect(panel(page).getByText('<img src=x onerror="window.__pwned=1"> **hi**')).toBeVisible();
 });
 
-test("listening note on a sketch and a capstone review rendered from the schema", async ({ page }) => {
+test("no listening note on a sketch; a capstone review rendered from the schema", async ({ page }) => {
   await openApp(page);
   // A sketch and a saved C0 draft, as Studio and the capstone workspace would make them.
   const sk = await page.request.post(`${API}/api/sketches`, {
@@ -378,9 +378,9 @@ test("listening note on a sketch and a capstone review rendered from the schema"
     sketchId: sketch.id,
     code: 'setcpm(96/4)\n\ndrums: s("bd*4, ~ sd ~ sd, hh*8")',
   });
-  await panel(page).getByTestId("quick-actions").getByRole("button", { name: "Listening note" }).click();
-  await waitDone(page);
-  await expect(lastMessage(page)).toContainText("What happens if the last note is");
+  // The panel offers no Listening note on a sketch (owner, 2026-11-22).
+  await expect(panel(page)).toBeVisible();
+  await expect(panel(page).getByRole("button", { name: "Listening note" })).toHaveCount(0);
 
   await setSubject(page, {
     thread: { subjectKind: "capstone", subjectId: "C0" },

@@ -170,6 +170,9 @@ export function oakStack(options: StackOptions): OakStack {
         url: `${apiURL}/api/health`,
         timeout: 60_000,
         env: {
+          // A unit song not started starts on first read (config.ts `songsAutostart`): a spec opens a lesson the way
+          // a learner who already met its song would, not on the New song moment. A stack may pass "0" to see it.
+          OAK_SONGS_AUTOSTART: "1",
           ...o.extraEnv,
           OAK_DEV: "1",
           OAK_PORT: String(o.apiPort),

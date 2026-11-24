@@ -223,6 +223,10 @@ async function playUntilDone(
   const counter = page.getByTestId("bar-counter").first();
   await toggle.click();
   await expect(toggle, `${label}: it plays`).toHaveAttribute("aria-pressed", "true", { timeout: 30_000 });
+  // A step of several loops to compare is heard through only once every loop has played through (renderers.tsx
+  // `ListenItems`, since d051fe2): its buttons Loop 1, Loop 2… switch the loop and play it at once.
+  const loops = page.getByRole("group", { name: "Loops" }).getByRole("button");
+  const loopCount = kind === "listen" ? Math.max(1, await loops.count()) : 1;
   let skip = kind === "run" || heardThrough.has(file);
   let why = `heard through earlier in ${file}`;
   if (!skip && listen === "short") {
@@ -230,10 +234,15 @@ async function playUntilDone(
     await expect(page.getByTestId("tempo").first())
       .toContainText("BPM", { timeout: 5_000 })
       .catch(() => undefined);
-    const s = await loopSeconds(page);
+    const one = await loopSeconds(page);
+    // All its loops, counted as long as the first: near enough to tell a short step from a long one.
+    const s = one === null ? null : one * loopCount;
     if (s !== null && s > SHORT_LOOP_S) {
       skip = true;
-      why = `a loop of ${Math.round(s)} s: a shorter one of the file is heard through`;
+      why =
+        loopCount > 1
+          ? `${loopCount} loops of ${Math.round(s)} s in all: a shorter item of the file is heard through`
+          : `a loop of ${Math.round(s)} s: a shorter one of the file is heard through`;
     }
   }
   if (skip) {
@@ -252,9 +261,16 @@ async function playUntilDone(
     return;
   }
   try {
+    for (let n = 1; n < loopCount; n++) {
+      await expect(page.getByTestId("listen-progress"), `${label}: loop ${n} heard`).toContainText(
+        `${n} of ${loopCount} heard`,
+        { timeout: 25_000 },
+      );
+      await loops.nth(n).click();
+    }
     await expect(cont, `${label}: one loop heard`).toHaveText(/Continue/, { timeout: 25_000 });
     heardThrough.add(file);
-    console.log(`[listen] ${label}: one loop heard through`);
+    console.log(`[listen] ${label}: ${loopCount > 1 ? `all ${loopCount} loops` : "one loop"} heard through`);
   } catch {
     await expect(page.getByTestId("bar-counter").first(), `${label}: the bars move on`).not.toHaveText(
       /^1\./,

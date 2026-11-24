@@ -51,6 +51,14 @@ test("a short-code Make keeps the side-by-side layout", async ({ page, request }
   await page.goto("/learn/U01.L01?step=S8");
   await expect(page.getByTestId("lesson-step")).toHaveAttribute("data-step", "S8", { timeout: 60_000 });
   await expect(page.locator(".oak-workbench--full")).toHaveCount(1);
-  await expect(page.getByTestId("workbench").first()).toContainText("/ 2");
+  // U01.L01's Make plays inside the unit song (spec 2026-11-24-unit-songs-design.md §5.3): the transport counts the
+  // whole song (37 bars) and starts looping today's section, the 4-bar opening. "Today's code" plays the Make alone,
+  // and the transport counts its own two bars again.
+  const wb = page.getByTestId("workbench").first();
+  await expect(wb).toContainText("/ 37");
+  await expect(wb).toHaveAttribute("data-loop", "1-4");
+  await page.getByRole("radio", { name: "Today's code" }).click();
+  await expect(wb).toContainText("/ 2");
+  await expect(page.locator(".oak-workbench--full")).toHaveCount(1);
   void u01l01;
 });

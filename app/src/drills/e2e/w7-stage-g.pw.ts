@@ -200,6 +200,8 @@ test("a guide-tone line: sung on the fake mic, then the same trial in Quiet mode
   expect(t.params.mode).toBe("sing");
   await expect(page.getByTestId("quiet-sing")).toHaveCount(0);
   const feedback = page.getByTestId("trial-feedback");
+  // A sung trial waits for Start: nothing plays and the mic stays closed until then.
+  await page.getByTestId("drill-start").click({ timeout: 30_000 });
   await expect(feedback).toBeVisible({ timeout: 40_000 });
   expect(micAsked()).toBeGreaterThan(0);
   await expect(page.getByTestId("hear-alone")).toHaveText(/The line alone/);

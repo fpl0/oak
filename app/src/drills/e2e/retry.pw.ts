@@ -224,10 +224,13 @@ test("Try again after a right pick, a wrong pick, a tap, a sung note and a fact 
   // 5. A sung trial on the fake microphone: sung, then sung again as practice.
   await expect(page.getByTestId("warmup-position")).toHaveText("Warm-up · 3 of 4");
   await expect(counter).toHaveText("Trial 1 of 5", { timeout: 60_000 });
+  // A sung trial waits for Start (and so does its practice take).
+  await page.getByTestId("drill-start").click({ timeout: 15_000 });
   await expect(feedback).toBeVisible({ timeout: 30_000 });
   const sungFirst = posts.filter((r) => r.familyId === "fam.pit.match").at(-1) as DrillTrialRecord;
   expect(sungFirst.response.skipped).toBe(false);
   await page.keyboard.press(RETRY);
+  await page.getByTestId("drill-start").click({ timeout: 15_000 });
   await expect(page.getByRole("button", { name: "Microphone is live. Close it" })).toBeVisible({
     timeout: 15_000,
   });

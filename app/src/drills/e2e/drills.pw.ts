@@ -225,6 +225,8 @@ test("a warm-up runs a tap set and a sing set, writes its trials, and resumes af
   await expect(counter).toHaveText("Trial 1 of 5", { timeout: 60_000 });
   for (let i = 0; i < 2; i++) {
     await expect(counter).toHaveText(`Trial ${i + 1} of 5`);
+    // A sung trial waits for Start: nothing plays and the mic stays closed until then.
+    await page.getByTestId("drill-start").click({ timeout: 15_000 });
     if (i === 0) {
       await expect(page.getByTestId("stage-text")).toHaveText(/sing now|Listen/, { timeout: 15_000 });
       await expect(page.getByRole("button", { name: "Microphone is live. Close it" })).toBeVisible();
@@ -240,6 +242,7 @@ test("a warm-up runs a tap set and a sing set, writes its trials, and resumes af
   await expect(counter).toHaveText("Trial 3 of 5", { timeout: 60_000 });
   for (let i = 2; i < 5; i++) {
     await expect(counter).toHaveText(`Trial ${i + 1} of 5`);
+    await page.getByTestId("drill-start").click({ timeout: 15_000 });
     // Shift+S skips one sung part: logged, no penalty.
     if (i === 3) {
       await expect(page.getByTestId("stage-text")).toHaveText(/sing now|Listen/, { timeout: 15_000 });

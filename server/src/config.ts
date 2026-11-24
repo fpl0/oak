@@ -34,6 +34,11 @@ export interface OakConfig {
   devPorts: readonly number[];
   /** `OAK_DEV=1` and `OAK_TUTOR_FAKE=1`: the scripted fake tutor backend answers (tutor-adapters/fake-backend.ts). */
   tutorFake: boolean;
+  /**
+   * `OAK_DEV=1` and `OAK_SONGS_AUTOSTART=1` (every e2e stack, e2e/support/stack.ts): a unit song not started starts in
+   * the profile's style the first time it is read, so a lesson opens without the New song moment. Off everywhere else.
+   */
+  songsAutostart: boolean;
   /** `OAK_NOW=<ISO>` with `OAK_DEV=1`: the dev clock starts at this instant and runs on (services/dev-clock.ts). */
   nowAt: string | null;
 }
@@ -77,6 +82,7 @@ export function loadConfig(input: ConfigInput = {}): OakConfig {
     appVersion: APP_VERSION,
     devPorts: dev ? [...new Set([PORTS.vite, vitePort])] : [],
     tutorFake: dev && env.OAK_TUTOR_FAKE === "1",
+    songsAutostart: dev && env.OAK_SONGS_AUTOSTART === "1",
     nowAt: dev && env.OAK_NOW?.trim() && Number.isFinite(Date.parse(env.OAK_NOW)) ? env.OAK_NOW.trim() : null,
   };
 }
@@ -97,6 +103,7 @@ export function testConfig(dataDir: string, overrides: Partial<OakConfig> = {}):
     appVersion: APP_VERSION,
     devPorts: [],
     tutorFake: false,
+    songsAutostart: false,
     nowAt: null,
     ...overrides,
   };

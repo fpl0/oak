@@ -12,8 +12,10 @@
 //  - the last session of the course begun at 03:50 and released after the 04:00 rollover: the Coda opens on the
 //    course finale, before the release card and the sketch (it sat third, below the fold); Today is "complete"
 //    and the day after is an ordinary day;
-//  - Claude's note on Today: its music tokens render as chips; they were printed raw ("[[deg:4]] in [[bars:3]]",
-//    app/src/session/today/Glance.tsx `TutorNoteCard`);
+//  - Claude's note on Today: its music tokens were printed raw ("[[deg:4]] in [[bars:3]]", Glance.tsx
+//    `TutorNoteCard`). Today no longer shows Claude's note at all (owner, 2026-11-22, main e890415), so the test
+//    now pins that a stored note stays off Today; music tokens still render as chips where Claude's words do
+//    appear, the tutor panel (app/src/tutor/e2e/wave3.pw.ts, wave6.pw.ts) and its parser (markdown.test.ts);
 //  - J2.L04 opened by URL without U14.CP and a locked track capstone opened by URL each say what holds them.
 import { DatabaseSync } from "node:sqlite";
 import { expect, type Page, test } from "@playwright/test";
@@ -176,7 +178,7 @@ test("the last session of the course across the 04:00 rollover: the finale first
   await resetClock(request);
 });
 
-test("Claude's note on Today renders its music tokens as chips, never raw markup", async ({
+test("Today shows no note from Claude, even with one stored, and never raw markup", async ({
   page,
   request,
 }) => {
@@ -199,11 +201,13 @@ test("Claude's note on Today renders its music tokens as chips, never raw markup
   await useUiPrefs(page, { theme: "paper", motion: "off" });
   const problems = watch(page);
   await page.goto("/");
-  const note = page.getByTestId("tutor-note");
-  await expect(note).toBeVisible({ timeout: 60_000 });
-  await expect(note).toContainText("The bass holds");
-  await expect(note).not.toContainText("[[");
-  await expect(note).toContainText("bar 3");
+  // Today has loaded once its card has (the glance column renders with it); the stored note is not on it.
+  await expect(page.getByTestId("today-card")).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByTestId("album-strip")).toBeVisible();
+  await expect(page.getByTestId("tutor-note")).toHaveCount(0);
+  const main = page.locator("main");
+  await expect(main).not.toContainText("The bass holds");
+  await expect(main).not.toContainText("[[");
   await shootAll(page, "w7-rj-today-note");
   expect(problems).toEqual([]);
 });
