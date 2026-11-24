@@ -61,7 +61,8 @@ export interface Services {
 }
 
 export interface ServiceOptions {
-  config: Pick<OakConfig, "audioDir" | "albumDir" | "backupsDir"> & Partial<Pick<OakConfig, "dev" | "songsAutostart">>;
+  config: Pick<OakConfig, "audioDir" | "albumDir" | "backupsDir"> &
+    Partial<Pick<OakConfig, "dev" | "songsAutostart">>;
   srs: () => SrsPort | null;
   stimulus?: PatternStimulus;
   ladder?: LadderGenerator;
