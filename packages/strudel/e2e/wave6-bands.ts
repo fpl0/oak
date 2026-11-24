@@ -31,16 +31,23 @@ interface Kit {
   chords: string;
   /** Kick and snare, and the hats or ride: a level each (see the header). */
   drumsGain: number;
+  /**
+   * Controls on the whole drum line after the bank, or none. Funk: Oak's 808 kick (sound pack v4, which
+   * `RolandTR808` now plays) rings for 3 s, where the old machine's lasted 0.25 s; it is choked as the unit songs and
+   * content/bands choke it (`.decay(.35).sustain(0)`), which leaves the shorter hats and snare as they were.
+   */
+  drumsFx?: string;
   hatsGain: number;
   bassGain: number;
   chordsGain: number;
 }
 const KITS: Record<Flavour, Kit> = {
+  // Drums .7 → .55 (sound pack v4): the 6/8 and 12/8 Bands peaked at +0.7 dBFS (wave6.pw.ts).
   "flavour.pop": {
     bank: "",
     bass: "ebass",
     chords: "piano",
-    drumsGain: 0.7,
+    drumsGain: 0.55,
     hatsGain: 0.5,
     bassGain: 0.9,
     chordsGain: 0.4,
@@ -63,14 +70,17 @@ const KITS: Record<Flavour, Kit> = {
     bassGain: 0.9,
     chordsGain: 0.4,
   },
+  // Sound pack v4 (Oak's 808 under `RolandTR808`, hits hotter than the old machine's): drums .9 → .6, hats .6 → .4,
+  // the clav .4 → .5, so the funk push and the Phrygian figure sit within 10 LU (wave6.pw.ts).
   "flavour.funk": {
     bank: "RolandTR808",
+    drumsFx: ".decay(.35).sustain(0)",
     bass: "fingerbass",
     chords: "clav",
-    drumsGain: 0.9,
-    hatsGain: 0.6,
+    drumsGain: 0.6,
+    hatsGain: 0.4,
     bassGain: 0.9,
-    chordsGain: 0.4,
+    chordsGain: 0.5,
   },
 };
 /** A number as Strudel code is written in this repo: `.4`, not `0.4`. */
@@ -112,7 +122,7 @@ function layers(f: Flavour, p: Parts): string {
   const kitVel = p.kitVelocity ? `.velocity(${p.kitVelocity})` : "";
   const struct = p.struct ? `.struct("${p.struct}")` : "";
   return [
-    `drums: stack(s("${p.kit}")${kitVel}.gain(${num(k.drumsGain)}), s("${p.hats}").velocity(${p.hatsVelocity}).gain(${num(k.hatsGain)}))${bank}`,
+    `drums: stack(s("${p.kit}")${kitVel}.gain(${num(k.drumsGain)}), s("${p.hats}").velocity(${p.hatsVelocity}).gain(${num(k.hatsGain)}))${bank}${k.drumsFx ?? ""}`,
     `bass: n(${p.bass}).scale("{{key}}")${p.bassAdd ? `.add(note(${p.bassAdd}))` : ""}${p.bassTime ?? ""}.s("${k.bass}").lpf(${prod.bassLpf}).gain(${num(k.bassGain)})`,
     `chords: n(${p.chords}).scale("{{key}}")${struct}${p.chordsTime ?? ""}.s("${p.chordsSound ?? k.chords}").velocity(${p.chordsVelocity}).gain(${num(p.chordsGain ?? k.chordsGain)}).pan(${num(prod.pan.chords ?? 0.42)}).room(${num(prod.room)})`,
   ].join("\n");

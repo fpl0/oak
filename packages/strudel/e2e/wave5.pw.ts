@@ -782,7 +782,7 @@ test("a 90-second C3 arrangement: the chorus's new sounds are warmed before bar 
   );
   const chorusAt = r.started + C3_CHORUS_CYCLE * barMs;
   const chorusFiles = requests.filter((q) =>
-    [/0290_/, /0480_/, /\/cr\//, /\/oh\//, /\/tb\//].some((re) => re.test(decodeURIComponent(q.url))),
+    [/0290_/, /0480_/, /\/src\/strings\//, /\/cr\//, /\/oh\//, /\/tb\//, /\/(cr|oh|tb)_\d/].some((re) => re.test(decodeURIComponent(q.url))),
   );
   record("preload", {
     rule: "the C3 arrangement at 4× speed on a pack that answers every audio file 700 ms late: every sound the chorus brings is fetched and decoded before bar 9; no skipped note; nothing leaves 127.0.0.1",

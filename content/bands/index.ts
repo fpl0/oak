@@ -85,6 +85,11 @@ interface Kit {
   drumsGain: number;
   bassGain: number;
   chordsGain: number;
+  /**
+   * Controls on the drum line after the bank (funk: the 808's choke), or none. It shapes every hit of the line; the
+   * kit's hats and snare are shorter than it, the open hat and crash are cut to it.
+   */
+  drumsFx?: string;
   /** Synth controls after the bass's `.lpf()` (electronic: the acid filter), or none. */
   bassFx?: string;
   /** Synth controls after the chords' `.s()` (electronic: the stab's filter envelope), or none. */
@@ -108,27 +113,34 @@ const KITS: Record<Flavour, Kit> = {
     bassGain: 0.9,
     chordsGain: 0.4,
   },
+  // Sound pack v4: `RolandTR808` plays Oak's 808, whose kick rings for 3 s (the old machine's lasted 0.25 s) and
+  // whose hits are hotter: four kicks a bar piled up and the drums sat 12 to 22 LU over the clav. The Band chokes the
+  // kick as the unit songs and the lessons do (AUTHORING: `.decay(.35).sustain(0)` on an 808 kick); choked, the drums
+  // at .7 still sat −16.8 LUFS over a clav at −31.3 in the Aeolian loop. At .47, with the clav at .5, every Band's
+  // three parts are within 10 LU (packages/strudel/e2e/wave5.pw.ts, sound-wave5.json `bands`).
   "flavour.funk": {
     bank: "RolandTR808",
     bass: "fingerbass",
     chords: "clav",
-    drumsGain: 0.7,
+    drumsGain: 0.47,
+    drumsFx: ".decay(.35).sustain(0)",
     bassGain: 0.9,
-    chordsGain: 0.4,
+    chordsGain: 0.5,
   },
   // Electronic (sound pack v4): Oak's 909-style machine, an acid bass and sawtooth stabs. A raw sawtooth is as loud
   // as a sampled bass at the default gain (packages/strudel/sound-wave5.json: `s("sawtooth").lpf(600)` −22.6 LUFS,
-  // ebass −23) and the ladder's resonance and the envelope add to it, so the synth parts sit lower than the kits of
-  // samples: bass .55, stabs .3, the machine .6 (four kicks a bar, a clap and sixteenth hats). The acid line is the
-  // TB-303's recipe: a sawtooth under the resonant ladder filter (corner at the kit's 700 Hz), an envelope that opens
-  // it on every note by an accent pattern, short notes. The stab is a sawtooth chord whose filter snaps shut.
+  // ebass −23), but the ladder filter's short envelope and the stab's snapping filter leave little of it: with the
+  // machine at .6, the bass at .55 and the stabs at .3, the two-chord vamp measured −15.8, −28.5 and −29.9 LUFS, 14.1 LU
+  // apart. At .4, .75 and .4 it measures −19.3, −25.8 and −27.4 (packages/strudel/e2e/wave5.pw.ts). The acid line is
+  // the TB-303's recipe: a sawtooth under the resonant ladder filter (corner at the kit's 700 Hz), an envelope that
+  // opens it on every note by an accent pattern, short notes. The stab is a sawtooth chord whose filter snaps shut.
   "flavour.electronic": {
     bank: "oak909",
     bass: "sawtooth",
     chords: "sawtooth",
-    drumsGain: 0.6,
-    bassGain: 0.55,
-    chordsGain: 0.3,
+    drumsGain: 0.4,
+    bassGain: 0.75,
+    chordsGain: 0.4,
     bassFx: '.lpq(12).ftype("ladder").lpenv("<3 1.5 2 4>*8").lpd(.14).lps(0).decay(.2).sustain(.4)',
     chordsFx: ".lpf(1800).lpenv(2).lpd(.12).lps(0).decay(.22).sustain(.3)",
   },
@@ -174,7 +186,7 @@ function layers(f: Flavour, p: Parts): string {
   const swing = p.swing ?? "";
   const bank = k.bank ? `.bank("${k.bank}")` : "";
   return [
-    `drums: s("${p.drums}")${bank}${swing}.velocity(${p.drumsVelocity}).gain(${num(drumsGainOf(k, p.drumsLift))})`,
+    `drums: s("${p.drums}")${bank}${k.drumsFx ?? ""}${swing}.velocity(${p.drumsVelocity}).gain(${num(drumsGainOf(k, p.drumsLift))})`,
     `bass: n(${p.bass}).scale("{{key}}").s("${k.bass}").lpf(${prod.bassLpf})${k.bassFx ?? ""}.gain(${num(k.bassGain)})`,
     `chords: n(${p.chords}).scale("{{key}}").struct("${p.struct}")${swing}.s("${k.chords}")${k.chordsFx ?? ""}.velocity(${p.chordsVelocity}).gain(${num(chordsGainOf(k, p.chordsLift))}).pan(${num(prod.pan.chords ?? 0.42)}).room(${num(prod.room)})`,
   ].join("\n");

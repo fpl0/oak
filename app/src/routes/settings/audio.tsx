@@ -152,7 +152,7 @@ function AudioSettings() {
       useShell.getState().setAudio({ kind: "ready" });
       toast.success(
         "Sounds ready",
-        `${report.warmed} sounds warmed in ${Math.round(report.ms / 100) / 10} s.`,
+        `${report.warmed} sound files warmed in ${Math.round(report.ms / 100) / 10} s.`,
       );
     } catch (e) {
       useShell.getState().setAudio({ kind: "error", message: e instanceof Error ? e.message : String(e) });

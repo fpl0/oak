@@ -13,8 +13,8 @@ const LOCK = JSON.parse(
   readFileSync(resolve(import.meta.dirname, "../../../sounds/pack.lock.json"), "utf8"),
 ) as {
   packVersion: string;
-  files?: unknown[];
-  entries?: unknown[];
+  files?: { path: string }[];
+  entries?: { path: string }[];
 };
 
 test("the test pages load the locked pack version", () => {
@@ -256,11 +256,12 @@ test("preload(spec) warms named sounds at their pitches and reports missing name
     );
     return { report, last: progress.at(-1), spec: oak.soundsIn('x: s("bd hh").bank("RolandTR909")') };
   });
-  // piano at its 3 pitches, every variant of the TR-909 kick (4), the rhodes at C4
-  expect(r.report.warmed).toBe(8);
+  // piano at its 3 pitches, every variant of the TR-909 kick (3: the name plays Oak's oak909 since pack v4), the
+  // rhodes at C4
+  expect(r.report.warmed).toBe(7);
   expect(r.report.synths).toBe(1);
   expect(r.report.missing).toEqual(["gm_violin"]);
-  expect(r.last).toBe(10);
+  expect(r.last).toBe(9);
   expect(r.spec.sounds).toEqual([
     { s: "bd", bank: "RolandTR909" },
     { s: "hh", bank: "RolandTR909" },
@@ -447,7 +448,9 @@ test("Service Worker: CacheFirst /sounds/*, precache of the whole pack, sounds s
   await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
   await page.evaluate(() => (window as unknown as W).__oak.oak.ready);
   const files = await page.evaluate(() => (window as unknown as W).__oak.oak.packFiles());
-  const lockCount = (LOCK.files ?? LOCK.entries ?? []).length;
+  // Every file of the pack the app can play; the credits and licence texts (v4: CREDITS.md, LICENSES/) are
+  // documents, served but never precached.
+  const lockCount = (LOCK.files ?? LOCK.entries ?? []).filter((f) => !/\.(md|txt)$/.test(f.path)).length;
   expect(files.length).toBe(lockCount);
   expect(files.every((f: { bytes: number }) => f.bytes > 0)).toBe(true);
   const sw = (msg: unknown) =>

@@ -30,6 +30,12 @@ interface Kit {
   bass: string;
   chords: string;
   drumsGain: number;
+  /**
+   * Controls on the whole drum line after the bank, or none. Funk: Oak's 808 kick (sound pack v4, which
+   * `RolandTR808` now plays) rings for 3 s, where the old machine's lasted 0.25 s; it is choked as the unit songs and
+   * content/bands choke it (`.decay(.35).sustain(0)`), which leaves the shorter hats and snare as they were.
+   */
+  drumsFx?: string;
   hatsGain: number;
   bassGain: number;
   chordsGain: number;
@@ -45,12 +51,14 @@ const KITS: Record<Flavour, Kit> = {
     bassGain: 0.9,
     chordsGain: 0.4,
   },
+  // Drums .65 → .72 and ride .55 → .6 (sound pack v4: the soft kick's layer trim): the swing Bands' kit sat 10.3 LU
+  // under the walking bass (wave7.pw.ts).
   "flavour.jazz-soul": {
     bank: "jazzkit",
     bass: "upright",
     chords: "rhodes",
-    drumsGain: 0.65,
-    hatsGain: 0.55,
+    drumsGain: 0.72,
+    hatsGain: 0.6,
     bassGain: 0.9,
     chordsGain: 0.5,
   },
@@ -63,14 +71,17 @@ const KITS: Record<Flavour, Kit> = {
     bassGain: 0.9,
     chordsGain: 0.4,
   },
+  // Sound pack v4 (Oak's 808 under `RolandTR808`, hits hotter than the old machine's): drums .9 → .6, hats .6 → .4,
+  // the clav .4 → .5, and the swing Bands' hat figure .9 → .6 (they clipped): within 10 LU and under full scale.
   "flavour.funk": {
     bank: "RolandTR808",
+    drumsFx: ".decay(.35).sustain(0)",
     bass: "fingerbass",
     chords: "clav",
-    drumsGain: 0.9,
-    hatsGain: 0.6,
+    drumsGain: 0.6,
+    hatsGain: 0.4,
     bassGain: 0.9,
-    chordsGain: 0.4,
+    chordsGain: 0.5,
   },
 };
 const num = (x: number): string => String(x).replace(/^0\./, ".");
@@ -120,7 +131,10 @@ function swingBand(chart: readonly ChartBar[], gains: { chords?: number } = {}):
       chordSound: k.chords,
       // Measured in wave7.pw.ts: the funk kit's hat figure and the clav's two hits a bar sat 8 and 10 LU under
       // the upright, the pop ride 9 under it and the Rhodes's two hits 9.9 under it in the blues: lifted.
-      rideGain: f === "flavour.funk" ? 0.9 : f === "flavour.pop" ? 0.7 : k.hatsGain,
+      // Sound pack v4: `LinnDrum` plays rockkit, whose ride is a quiet jazz ride (16.5 dB under the old LinnDrum
+      // ride): at the kit's hat level (.25) the indie kit sat 14 LU under the walk; .55.
+      rideGain:
+        f === "flavour.funk" ? 0.6 : f === "flavour.pop" ? 0.7 : f === "flavour.indie" ? 0.55 : k.hatsGain,
       bassGain: k.bassGain,
       chordGain: Math.round(k.chordsGain * (gains.chords ?? 1) * SWING_CHORD_LIFT[f] * 100) / 100,
       bassLpf: prod.bassLpf,
@@ -153,7 +167,7 @@ function semiLayers(
   const bank = k.bank ? `.bank("${k.bank}")` : "";
   const gain = Math.round(k.chordsGain * (p.chordsLift ?? 1) * 100) / 100;
   return [
-    `drums: ${p.drums}${bank}`,
+    `drums: ${p.drums}${bank}${k.drumsFx ?? ""}`,
     `bass: note(${p.bass}).add(${TONIC})${p.bassTail ?? ""}.s("${k.bass}").lpf(${prod.bassLpf}).gain(${num(k.bassGain)})`,
     `chords: note(${p.chords}).add(${TONIC})${p.chordsTail ?? ""}.s("${p.chordsSound ?? k.chords}").gain(${num(gain)}).pan(${num(prod.pan.chords ?? 0.42)}).room(${num(prod.room)})`,
   ].join("\n");

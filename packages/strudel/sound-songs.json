@@ -33,23 +33,23 @@
       }
     },
     "flavour.funk": {
-      "floor": -20.6,
-      "ceiling": -13.7,
-      "aimLow": -17.7,
-      "aimHigh": -13.7,
+      "floor": -23.5,
+      "ceiling": -18,
+      "aimLow": -22,
+      "aimHigh": -18,
       "lowPct": {
-        "min": 27.7,
-        "max": 95.6
+        "min": 19.9,
+        "max": 68.7
       }
     },
     "flavour.electronic": {
-      "floor": -23.2,
-      "ceiling": -15.3,
-      "aimLow": -17.5,
-      "aimHigh": -15.3,
+      "floor": -24.8,
+      "ceiling": -17.7,
+      "aimLow": -20.4,
+      "aimHigh": -17.7,
       "lowPct": {
-        "min": 25.5,
-        "max": 87.9
+        "min": 23.9,
+        "max": 82.3
       }
     }
   },
@@ -7071,18 +7071,18 @@
         "lowPctMedian": 37.1
       },
       "flavour.funk": {
-        "median": -15.7,
-        "min": -18.6,
-        "max": -13.6,
+        "median": -20,
+        "min": -21.5,
+        "max": -16.6,
         "n": 23,
-        "lowPctMedian": 83.1
+        "lowPctMedian": 59.7
       },
       "flavour.electronic": {
-        "median": -15.5,
-        "min": -21.2,
-        "max": -15.3,
+        "median": -18.4,
+        "min": -22.8,
+        "max": -17.7,
         "n": 23,
-        "lowPctMedian": 76.4
+        "lowPctMedian": 71.6
       }
     },
     "mixes": [
@@ -7092,6 +7092,7 @@
         "lufs": -16.5,
         "peakDb": -1,
         "lowPct": 36.3,
+        "ungated": -16.7,
         "seconds": 3
       },
       {
@@ -7100,6 +7101,7 @@
         "lufs": -21.3,
         "peakDb": -1.3,
         "lowPct": 34.6,
+        "ungated": -21.3,
         "seconds": 3
       },
       {
@@ -7108,22 +7110,25 @@
         "lufs": -20.8,
         "peakDb": -1,
         "lowPct": 46.6,
+        "ungated": -20.2,
         "seconds": 3
       },
       {
         "band": "band.two-chord-vamp",
         "flavour": "flavour.funk",
-        "lufs": -15.7,
-        "peakDb": -1.5,
-        "lowPct": 82.9,
+        "lufs": -20.1,
+        "peakDb": -5,
+        "lowPct": 53.2,
+        "ungated": -20.2,
         "seconds": 3
       },
       {
         "band": "band.two-chord-vamp",
         "flavour": "flavour.electronic",
-        "lufs": -15.3,
-        "peakDb": -0.9,
-        "lowPct": 77,
+        "lufs": -17.8,
+        "peakDb": -4.2,
+        "lowPct": 72,
+        "ungated": -18.2,
         "seconds": 3
       },
       {
@@ -7132,6 +7137,7 @@
         "lufs": -16.5,
         "peakDb": -1,
         "lowPct": 36.3,
+        "ungated": -16.7,
         "seconds": 3
       },
       {
@@ -7140,6 +7146,7 @@
         "lufs": -21.3,
         "peakDb": -1.3,
         "lowPct": 34.6,
+        "ungated": -21.3,
         "seconds": 3
       },
       {
@@ -7148,22 +7155,25 @@
         "lufs": -22.7,
         "peakDb": -2.2,
         "lowPct": 40.6,
+        "ungated": -21.6,
         "seconds": 3
       },
       {
         "band": "band.axis-4bar",
         "flavour": "flavour.funk",
-        "lufs": -15.7,
-        "peakDb": -1.5,
-        "lowPct": 82.9,
+        "lufs": -20.1,
+        "peakDb": -5,
+        "lowPct": 53.2,
+        "ungated": -20.2,
         "seconds": 3
       },
       {
         "band": "band.axis-4bar",
         "flavour": "flavour.electronic",
-        "lufs": -15.3,
-        "peakDb": -0.9,
-        "lowPct": 77,
+        "lufs": -17.8,
+        "peakDb": -4.2,
+        "lowPct": 72,
+        "ungated": -18.2,
         "seconds": 3
       },
       {
@@ -7172,6 +7182,7 @@
         "lufs": -16.5,
         "peakDb": -1,
         "lowPct": 36.3,
+        "ungated": -16.7,
         "seconds": 3
       },
       {
@@ -7180,6 +7191,7 @@
         "lufs": -21.3,
         "peakDb": -1.3,
         "lowPct": 34.6,
+        "ungated": -21.3,
         "seconds": 3
       },
       {
@@ -7188,22 +7200,25 @@
         "lufs": -21.8,
         "peakDb": -1,
         "lowPct": 51.3,
+        "ungated": -20.9,
         "seconds": 3
       },
       {
         "band": "band.phrase-8bar",
         "flavour": "flavour.funk",
-        "lufs": -16.1,
-        "peakDb": -0.3,
-        "lowPct": 86.4,
+        "lufs": -21.3,
+        "peakDb": -4.9,
+        "lowPct": 62.1,
+        "ungated": -21.2,
         "seconds": 3
       },
       {
         "band": "band.phrase-8bar",
         "flavour": "flavour.electronic",
-        "lufs": -15.3,
-        "peakDb": -0.9,
-        "lowPct": 77,
+        "lufs": -17.8,
+        "peakDb": -4.2,
+        "lowPct": 72,
+        "ungated": -18.2,
         "seconds": 3
       },
       {
@@ -7212,6 +7227,7 @@
         "lufs": -16.5,
         "peakDb": -0.1,
         "lowPct": 29,
+        "ungated": -16.3,
         "seconds": 3
       },
       {
@@ -7220,6 +7236,7 @@
         "lufs": -19,
         "peakDb": -1.3,
         "lowPct": 28.5,
+        "ungated": -19.2,
         "seconds": 3
       },
       {
@@ -7228,22 +7245,25 @@
         "lufs": -19.7,
         "peakDb": -1,
         "lowPct": 29,
+        "ungated": -19.2,
         "seconds": 3
       },
       {
         "band": "band.doo-wop",
         "flavour": "flavour.funk",
-        "lufs": -15.8,
-        "peakDb": -1.5,
-        "lowPct": 83,
+        "lufs": -20,
+        "peakDb": -5,
+        "lowPct": 51.6,
+        "ungated": -20.1,
         "seconds": 3
       },
       {
         "band": "band.doo-wop",
         "flavour": "flavour.electronic",
-        "lufs": -15.4,
-        "peakDb": -1.4,
-        "lowPct": 75.6,
+        "lufs": -17.7,
+        "peakDb": -4.9,
+        "lowPct": 67.8,
+        "ungated": -18.1,
         "seconds": 3
       },
       {
@@ -7252,6 +7272,7 @@
         "lufs": -15.3,
         "peakDb": -0.6,
         "lowPct": 32,
+        "ungated": -15.5,
         "seconds": 3
       },
       {
@@ -7260,6 +7281,7 @@
         "lufs": -17.5,
         "peakDb": -1.3,
         "lowPct": 29.2,
+        "ungated": -17.9,
         "seconds": 3
       },
       {
@@ -7268,22 +7290,25 @@
         "lufs": -20.8,
         "peakDb": -1,
         "lowPct": 46.6,
+        "ungated": -20.2,
         "seconds": 3
       },
       {
         "band": "band.three-chord",
         "flavour": "flavour.funk",
-        "lufs": -15.7,
-        "peakDb": -1.5,
-        "lowPct": 82.9,
+        "lufs": -20.1,
+        "peakDb": -5,
+        "lowPct": 53.2,
+        "ungated": -20.2,
         "seconds": 3
       },
       {
         "band": "band.three-chord",
         "flavour": "flavour.electronic",
-        "lufs": -15.3,
-        "peakDb": -1.3,
-        "lowPct": 76.8,
+        "lufs": -17.8,
+        "peakDb": -5,
+        "lowPct": 71.4,
+        "ungated": -18.2,
         "seconds": 3
       },
       {
@@ -7292,6 +7317,7 @@
         "lufs": -21.1,
         "peakDb": -2.7,
         "lowPct": 43.6,
+        "ungated": -20.4,
         "seconds": 3
       },
       {
@@ -7300,6 +7326,7 @@
         "lufs": -23,
         "peakDb": -3.9,
         "lowPct": 44.9,
+        "ungated": -23.6,
         "seconds": 3
       },
       {
@@ -7308,22 +7335,25 @@
         "lufs": -22,
         "peakDb": -2.9,
         "lowPct": 43,
+        "ungated": -21.9,
         "seconds": 3
       },
       {
         "band": "band.waltz-vamp",
         "flavour": "flavour.funk",
-        "lufs": -16.2,
-        "peakDb": -3.6,
-        "lowPct": 88.2,
+        "lufs": -21.2,
+        "peakDb": -6.3,
+        "lowPct": 55.7,
+        "ungated": -22.2,
         "seconds": 3
       },
       {
         "band": "band.waltz-vamp",
         "flavour": "flavour.electronic",
-        "lufs": -20.1,
-        "peakDb": -4.4,
-        "lowPct": 74.2,
+        "lufs": -21.8,
+        "peakDb": -6.7,
+        "lowPct": 66.6,
+        "ungated": -22.7,
         "seconds": 3
       },
       {
@@ -7332,6 +7362,7 @@
         "lufs": -16,
         "peakDb": -0.7,
         "lowPct": 34.3,
+        "ungated": -16,
         "seconds": 3
       },
       {
@@ -7340,6 +7371,7 @@
         "lufs": -18,
         "peakDb": -0.8,
         "lowPct": 28.5,
+        "ungated": -18.3,
         "seconds": 3
       },
       {
@@ -7348,22 +7380,25 @@
         "lufs": -21.1,
         "peakDb": -2.1,
         "lowPct": 43.1,
+        "ungated": -20.5,
         "seconds": 3
       },
       {
         "band": "band.aeolian-4bar",
         "flavour": "flavour.funk",
-        "lufs": -15.6,
-        "peakDb": -0.9,
-        "lowPct": 83.1,
+        "lufs": -18,
+        "peakDb": -3.9,
+        "lowPct": 77.2,
+        "ungated": -18.2,
         "seconds": 3
       },
       {
         "band": "band.aeolian-4bar",
         "flavour": "flavour.electronic",
-        "lufs": -15.4,
-        "peakDb": -1.6,
-        "lowPct": 75.9,
+        "lufs": -18,
+        "peakDb": -4.6,
+        "lowPct": 71,
+        "ungated": -18.4,
         "seconds": 3
       },
       {
@@ -7372,6 +7407,7 @@
         "lufs": -17.1,
         "peakDb": -2,
         "lowPct": 31.7,
+        "ungated": -17,
         "seconds": 3
       },
       {
@@ -7380,6 +7416,7 @@
         "lufs": -18.3,
         "peakDb": -2.3,
         "lowPct": 36.7,
+        "ungated": -18.5,
         "seconds": 3
       },
       {
@@ -7388,22 +7425,25 @@
         "lufs": -20.2,
         "peakDb": -1.8,
         "lowPct": 33.8,
+        "ungated": -19.8,
         "seconds": 3
       },
       {
         "band": "band.blues-12bar",
         "flavour": "flavour.funk",
-        "lufs": -15,
-        "peakDb": -3.5,
-        "lowPct": 91.3,
+        "lufs": -17.5,
+        "peakDb": -5.2,
+        "lowPct": 85.1,
+        "ungated": -17.4,
         "seconds": 3
       },
       {
         "band": "band.blues-12bar",
         "flavour": "flavour.electronic",
-        "lufs": -16.6,
-        "peakDb": -2.6,
-        "lowPct": 75,
+        "lufs": -19,
+        "peakDb": -4.5,
+        "lowPct": 70,
+        "ungated": -19.3,
         "seconds": 3
       },
       {
@@ -7412,6 +7452,7 @@
         "lufs": -17.1,
         "peakDb": -2,
         "lowPct": 31.7,
+        "ungated": -17,
         "seconds": 3
       },
       {
@@ -7420,6 +7461,7 @@
         "lufs": -18.3,
         "peakDb": -2.3,
         "lowPct": 36.7,
+        "ungated": -18.5,
         "seconds": 3
       },
       {
@@ -7428,22 +7470,25 @@
         "lufs": -20.2,
         "peakDb": -1.8,
         "lowPct": 33.8,
+        "ungated": -19.8,
         "seconds": 3
       },
       {
         "band": "band.blues-12bar-qc",
         "flavour": "flavour.funk",
-        "lufs": -15,
-        "peakDb": -3.5,
-        "lowPct": 91.3,
+        "lufs": -17.5,
+        "peakDb": -5.2,
+        "lowPct": 85.1,
+        "ungated": -17.4,
         "seconds": 3
       },
       {
         "band": "band.blues-12bar-qc",
         "flavour": "flavour.electronic",
-        "lufs": -16.6,
-        "peakDb": -2.6,
-        "lowPct": 75,
+        "lufs": -19,
+        "peakDb": -4.5,
+        "lowPct": 70,
+        "ungated": -19.3,
         "seconds": 3
       },
       {
@@ -7452,6 +7497,7 @@
         "lufs": -18.3,
         "peakDb": -1,
         "lowPct": 30.7,
+        "ungated": -18,
         "seconds": 3
       },
       {
@@ -7460,6 +7506,7 @@
         "lufs": -21.1,
         "peakDb": -1.3,
         "lowPct": 33.8,
+        "ungated": -21.1,
         "seconds": 3
       },
       {
@@ -7468,22 +7515,25 @@
         "lufs": -21.9,
         "peakDb": -2.2,
         "lowPct": 37,
+        "ungated": -21,
         "seconds": 3
       },
       {
         "band": "band.sections",
         "flavour": "flavour.funk",
-        "lufs": -15.7,
-        "peakDb": -1.5,
-        "lowPct": 82.9,
+        "lufs": -18.1,
+        "peakDb": -4.7,
+        "lowPct": 76.3,
+        "ungated": -18.3,
         "seconds": 3
       },
       {
         "band": "band.sections",
         "flavour": "flavour.electronic",
-        "lufs": -16,
-        "peakDb": -0.6,
-        "lowPct": 80.3,
+        "lufs": -19,
+        "peakDb": -3,
+        "lowPct": 76.6,
+        "ungated": -19.4,
         "seconds": 3
       },
       {
@@ -7492,6 +7542,7 @@
         "lufs": -15.2,
         "peakDb": -0.1,
         "lowPct": 31.1,
+        "ungated": -15.3,
         "seconds": 3
       },
       {
@@ -7500,6 +7551,7 @@
         "lufs": -21.1,
         "peakDb": -1.3,
         "lowPct": 33.7,
+        "ungated": -21.1,
         "seconds": 3
       },
       {
@@ -7508,22 +7560,25 @@
         "lufs": -21,
         "peakDb": -0.4,
         "lowPct": 37.1,
+        "ungated": -20.3,
         "seconds": 3
       },
       {
         "band": "band.mixolydian-vamp",
         "flavour": "flavour.funk",
-        "lufs": -15.7,
-        "peakDb": -1.5,
-        "lowPct": 83.1,
+        "lufs": -18.2,
+        "peakDb": -4.7,
+        "lowPct": 76.8,
+        "ungated": -18.3,
         "seconds": 3
       },
       {
         "band": "band.mixolydian-vamp",
         "flavour": "flavour.electronic",
-        "lufs": -15.3,
-        "peakDb": -1.1,
-        "lowPct": 77.2,
+        "lufs": -17.8,
+        "peakDb": -4.5,
+        "lowPct": 72.7,
+        "ungated": -18.2,
         "seconds": 3
       },
       {
@@ -7532,6 +7587,7 @@
         "lufs": -14.8,
         "peakDb": -0.1,
         "lowPct": 29,
+        "ungated": -15,
         "seconds": 3
       },
       {
@@ -7540,6 +7596,7 @@
         "lufs": -21.1,
         "peakDb": -1.3,
         "lowPct": 33.7,
+        "ungated": -21.1,
         "seconds": 3
       },
       {
@@ -7548,22 +7605,25 @@
         "lufs": -20.8,
         "peakDb": -1.6,
         "lowPct": 37.3,
+        "ungated": -20.3,
         "seconds": 3
       },
       {
         "band": "band.dorian-vamp",
         "flavour": "flavour.funk",
-        "lufs": -15.7,
-        "peakDb": -1.5,
-        "lowPct": 83.1,
+        "lufs": -18.2,
+        "peakDb": -4.7,
+        "lowPct": 76.9,
+        "ungated": -18.3,
         "seconds": 3
       },
       {
         "band": "band.dorian-vamp",
         "flavour": "flavour.electronic",
-        "lufs": -15.4,
-        "peakDb": -1,
-        "lowPct": 77.7,
+        "lufs": -17.9,
+        "peakDb": -4.4,
+        "lowPct": 73.4,
+        "ungated": -18.3,
         "seconds": 3
       },
       {
@@ -7572,6 +7632,7 @@
         "lufs": -15.2,
         "peakDb": -0.1,
         "lowPct": 31.1,
+        "ungated": -15.3,
         "seconds": 3
       },
       {
@@ -7580,6 +7641,7 @@
         "lufs": -21.1,
         "peakDb": -1.3,
         "lowPct": 33.7,
+        "ungated": -21.1,
         "seconds": 3
       },
       {
@@ -7588,22 +7650,25 @@
         "lufs": -20.8,
         "peakDb": -1,
         "lowPct": 34,
+        "ungated": -20.4,
         "seconds": 3
       },
       {
         "band": "band.lydian-vamp",
         "flavour": "flavour.funk",
-        "lufs": -15.7,
-        "peakDb": -1.6,
-        "lowPct": 83,
+        "lufs": -18.2,
+        "peakDb": -4.7,
+        "lowPct": 76.7,
+        "ungated": -18.3,
         "seconds": 3
       },
       {
         "band": "band.lydian-vamp",
         "flavour": "flavour.electronic",
-        "lufs": -15.3,
-        "peakDb": -1,
-        "lowPct": 77.1,
+        "lufs": -17.8,
+        "peakDb": -4.3,
+        "lowPct": 72.3,
+        "ungated": -18.2,
         "seconds": 3
       },
       {
@@ -7612,6 +7677,7 @@
         "lufs": -14.8,
         "peakDb": -0.1,
         "lowPct": 29,
+        "ungated": -15,
         "seconds": 3
       },
       {
@@ -7620,6 +7686,7 @@
         "lufs": -21.1,
         "peakDb": -1.3,
         "lowPct": 33.7,
+        "ungated": -21.1,
         "seconds": 3
       },
       {
@@ -7628,22 +7695,25 @@
         "lufs": -20.8,
         "peakDb": -1.6,
         "lowPct": 37.3,
+        "ungated": -20.3,
         "seconds": 3
       },
       {
         "band": "band.phrygian-vamp",
         "flavour": "flavour.funk",
-        "lufs": -15.7,
-        "peakDb": -1.5,
-        "lowPct": 83.1,
+        "lufs": -18.2,
+        "peakDb": -4.7,
+        "lowPct": 76.9,
+        "ungated": -18.3,
         "seconds": 3
       },
       {
         "band": "band.phrygian-vamp",
         "flavour": "flavour.electronic",
-        "lufs": -15.4,
-        "peakDb": -1,
-        "lowPct": 77.7,
+        "lufs": -17.9,
+        "peakDb": -4.4,
+        "lowPct": 73.4,
+        "ungated": -18.3,
         "seconds": 3
       },
       {
@@ -7652,6 +7722,7 @@
         "lufs": -16.4,
         "peakDb": -0.9,
         "lowPct": 35.3,
+        "ungated": -16.3,
         "seconds": 3
       },
       {
@@ -7660,6 +7731,7 @@
         "lufs": -19.9,
         "peakDb": -2.2,
         "lowPct": 29.2,
+        "ungated": -20,
         "seconds": 3
       },
       {
@@ -7668,22 +7740,25 @@
         "lufs": -20.8,
         "peakDb": -1.4,
         "lowPct": 40.2,
+        "ungated": -20.4,
         "seconds": 3
       },
       {
         "band": "band.two-five-one",
         "flavour": "flavour.funk",
-        "lufs": -15.8,
-        "peakDb": -1,
-        "lowPct": 83.8,
+        "lufs": -20.5,
+        "peakDb": -4.5,
+        "lowPct": 53.1,
+        "ungated": -20.6,
         "seconds": 3
       },
       {
         "band": "band.two-five-one",
         "flavour": "flavour.electronic",
-        "lufs": -15.5,
-        "peakDb": -0.9,
-        "lowPct": 76.4,
+        "lufs": -18.4,
+        "peakDb": -4.1,
+        "lowPct": 71.6,
+        "ungated": -18.8,
         "seconds": 3
       },
       {
@@ -7692,6 +7767,7 @@
         "lufs": -17.8,
         "peakDb": -2.2,
         "lowPct": 31.6,
+        "ungated": -17.5,
         "seconds": 3
       },
       {
@@ -7700,6 +7776,7 @@
         "lufs": -20.8,
         "peakDb": -5.4,
         "lowPct": 24.1,
+        "ungated": -20.8,
         "seconds": 3
       },
       {
@@ -7708,22 +7785,25 @@
         "lufs": -21.9,
         "peakDb": -4,
         "lowPct": 44.5,
+        "ungated": -21.2,
         "seconds": 3
       },
       {
         "band": "band.ii-v-i-comp",
         "flavour": "flavour.funk",
-        "lufs": -15.8,
-        "peakDb": -1.1,
-        "lowPct": 83.5,
+        "lufs": -20.3,
+        "peakDb": -4.6,
+        "lowPct": 52,
+        "ungated": -20.5,
         "seconds": 3
       },
       {
         "band": "band.ii-v-i-comp",
         "flavour": "flavour.electronic",
-        "lufs": -15.6,
-        "peakDb": -0.8,
-        "lowPct": 76.3,
+        "lufs": -18.6,
+        "peakDb": -4,
+        "lowPct": 71.6,
+        "ungated": -18.8,
         "seconds": 3
       },
       {
@@ -7732,6 +7812,7 @@
         "lufs": -18,
         "peakDb": -0.2,
         "lowPct": 34,
+        "ungated": -17.4,
         "seconds": 3
       },
       {
@@ -7740,6 +7821,7 @@
         "lufs": -20.1,
         "peakDb": -3.2,
         "lowPct": 33.9,
+        "ungated": -20.2,
         "seconds": 3
       },
       {
@@ -7748,22 +7830,25 @@
         "lufs": -20.3,
         "peakDb": -1.6,
         "lowPct": 31.7,
+        "ungated": -19.6,
         "seconds": 3
       },
       {
         "band": "band.jazz-blues",
         "flavour": "flavour.funk",
-        "lufs": -14.2,
-        "peakDb": -1,
-        "lowPct": 90.4,
+        "lufs": -16.6,
+        "peakDb": -3.3,
+        "lowPct": 85.1,
+        "ungated": -16.6,
         "seconds": 3
       },
       {
         "band": "band.jazz-blues",
         "flavour": "flavour.electronic",
-        "lufs": -16.1,
-        "peakDb": -1.6,
-        "lowPct": 78.8,
+        "lufs": -18.8,
+        "peakDb": -4.7,
+        "lowPct": 72.2,
+        "ungated": -18.9,
         "seconds": 3
       },
       {
@@ -7772,6 +7857,7 @@
         "lufs": -17.2,
         "peakDb": -0.7,
         "lowPct": 27.5,
+        "ungated": -16.8,
         "seconds": 3
       },
       {
@@ -7780,6 +7866,7 @@
         "lufs": -19.8,
         "peakDb": -4.6,
         "lowPct": 27.4,
+        "ungated": -19.9,
         "seconds": 3
       },
       {
@@ -7788,22 +7875,25 @@
         "lufs": -20.4,
         "peakDb": -1.1,
         "lowPct": 39,
+        "ungated": -19.6,
         "seconds": 3
       },
       {
         "band": "band.rhythm-changes",
         "flavour": "flavour.funk",
-        "lufs": -14.2,
-        "peakDb": -1,
-        "lowPct": 90.4,
+        "lufs": -16.6,
+        "peakDb": -3.6,
+        "lowPct": 85.1,
+        "ungated": -16.5,
         "seconds": 3
       },
       {
         "band": "band.rhythm-changes",
         "flavour": "flavour.electronic",
-        "lufs": -16.2,
-        "peakDb": -1.5,
-        "lowPct": 78.4,
+        "lufs": -19,
+        "peakDb": -4.6,
+        "lowPct": 71.9,
+        "ungated": -19.2,
         "seconds": 3
       },
       {
@@ -7812,6 +7902,7 @@
         "lufs": -15.8,
         "peakDb": -1.1,
         "lowPct": 32.1,
+        "ungated": -16.3,
         "seconds": 3
       },
       {
@@ -7820,6 +7911,7 @@
         "lufs": -20.3,
         "peakDb": -4,
         "lowPct": 38.7,
+        "ungated": -21,
         "seconds": 3
       },
       {
@@ -7828,22 +7920,25 @@
         "lufs": -19.7,
         "peakDb": -3.9,
         "lowPct": 17.9,
+        "ungated": -20.3,
         "seconds": 3
       },
       {
         "band": "band.son-montuno",
         "flavour": "flavour.funk",
-        "lufs": -17,
-        "peakDb": -5.4,
-        "lowPct": 84.7,
+        "lufs": -21.2,
+        "peakDb": -7.3,
+        "lowPct": 43.2,
+        "ungated": -22,
         "seconds": 3
       },
       {
         "band": "band.son-montuno",
         "flavour": "flavour.electronic",
-        "lufs": -20.1,
-        "peakDb": -5.2,
-        "lowPct": 65.7,
+        "lufs": -21.1,
+        "peakDb": -5.8,
+        "lowPct": 46.2,
+        "ungated": -21.9,
         "seconds": 3
       },
       {
@@ -7852,6 +7947,7 @@
         "lufs": -18.2,
         "peakDb": -2.8,
         "lowPct": 27.2,
+        "ungated": -17.8,
         "seconds": 3
       },
       {
@@ -7860,6 +7956,7 @@
         "lufs": -20.8,
         "peakDb": -4.4,
         "lowPct": 33,
+        "ungated": -21,
         "seconds": 3
       },
       {
@@ -7868,22 +7965,25 @@
         "lufs": -20.9,
         "peakDb": -2,
         "lowPct": 35,
+        "ungated": -20.8,
         "seconds": 3
       },
       {
         "band": "band.neo-soul",
         "flavour": "flavour.funk",
-        "lufs": -17.8,
-        "peakDb": -3,
-        "lowPct": 83.8,
+        "lufs": -21.5,
+        "peakDb": -5.9,
+        "lowPct": 55.9,
+        "ungated": -21.7,
         "seconds": 3
       },
       {
         "band": "band.neo-soul",
         "flavour": "flavour.electronic",
-        "lufs": -20,
-        "peakDb": -5.5,
-        "lowPct": 64.3,
+        "lufs": -21.9,
+        "peakDb": -5,
+        "lowPct": 52.6,
+        "ungated": -21.9,
         "seconds": 3
       },
       {
@@ -7892,6 +7992,7 @@
         "lufs": -19,
         "peakDb": -3.9,
         "lowPct": 30,
+        "ungated": -18.9,
         "seconds": 3
       },
       {
@@ -7900,6 +8001,7 @@
         "lufs": -21.7,
         "peakDb": -4.7,
         "lowPct": 31.5,
+        "ungated": -21.8,
         "seconds": 3
       },
       {
@@ -7908,22 +8010,25 @@
         "lufs": -21.3,
         "peakDb": -4.2,
         "lowPct": 24.2,
+        "ungated": -21.1,
         "seconds": 3
       },
       {
         "band": "band.odd-54",
         "flavour": "flavour.funk",
-        "lufs": -18.6,
-        "peakDb": -4.9,
-        "lowPct": 79,
+        "lufs": -21.1,
+        "peakDb": -7,
+        "lowPct": 46.3,
+        "ungated": -21.4,
         "seconds": 3
       },
       {
         "band": "band.odd-54",
         "flavour": "flavour.electronic",
-        "lufs": -21.2,
-        "peakDb": -7.7,
-        "lowPct": 63.8,
+        "lufs": -22.8,
+        "peakDb": -8.1,
+        "lowPct": 52.6,
+        "ungated": -23.2,
         "seconds": 3
       },
       {
@@ -7932,6 +8037,7 @@
         "lufs": -18.3,
         "peakDb": -0.5,
         "lowPct": 28.5,
+        "ungated": -17.6,
         "seconds": 3
       },
       {
@@ -7940,6 +8046,7 @@
         "lufs": -21.3,
         "peakDb": -1.3,
         "lowPct": 35.6,
+        "ungated": -21.6,
         "seconds": 3
       },
       {
@@ -7948,22 +8055,25 @@
         "lufs": -21.5,
         "peakDb": -1,
         "lowPct": 34,
+        "ungated": -20.6,
         "seconds": 3
       },
       {
         "band": "band.soul-68",
         "flavour": "flavour.funk",
-        "lufs": -13.6,
-        "peakDb": 0.5,
-        "lowPct": 91.2,
+        "lufs": -19.6,
+        "peakDb": -5,
+        "lowPct": 59.7,
+        "ungated": -19.8,
         "seconds": 3
       },
       {
         "band": "band.soul-68",
         "flavour": "flavour.electronic",
-        "lufs": -20.2,
-        "peakDb": -6.8,
-        "lowPct": 64.2,
+        "lufs": -21.8,
+        "peakDb": -9.2,
+        "lowPct": 56.8,
+        "ungated": -21.8,
         "seconds": 3
       },
       {
@@ -7972,6 +8082,7 @@
         "lufs": -16.5,
         "peakDb": -0.1,
         "lowPct": 29,
+        "ungated": -16.3,
         "seconds": 3
       },
       {
@@ -7980,6 +8091,7 @@
         "lufs": -19,
         "peakDb": -1.3,
         "lowPct": 28.5,
+        "ungated": -19.2,
         "seconds": 3
       },
       {
@@ -7988,22 +8100,25 @@
         "lufs": -19.7,
         "peakDb": -1,
         "lowPct": 29,
+        "ungated": -19.2,
         "seconds": 3
       },
       {
         "band": "band.slow-128",
         "flavour": "flavour.funk",
-        "lufs": -15.8,
-        "peakDb": -1.5,
-        "lowPct": 83,
+        "lufs": -20,
+        "peakDb": -5,
+        "lowPct": 51.6,
+        "ungated": -20.1,
         "seconds": 3
       },
       {
         "band": "band.slow-128",
         "flavour": "flavour.electronic",
-        "lufs": -15.4,
-        "peakDb": -1.4,
-        "lowPct": 75.6,
+        "lufs": -17.7,
+        "peakDb": -4.9,
+        "lowPct": 67.8,
+        "ungated": -18.1,
         "seconds": 3
       }
     ]

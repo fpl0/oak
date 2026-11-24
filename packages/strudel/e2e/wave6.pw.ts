@@ -654,7 +654,13 @@ test("CF-A: a two-minute single with a bridge and a lift plays to the end withou
     ] as const,
   );
   // Where each section's new sounds were fetched, against the moment its first bar played (fast run).
-  const firstFiles: Record<string, RegExp[]> = { strings: [/0480_/], horns: [/0610_/], cr: [/\/cr\//] };
+  // Pack v4: `strings` plays Oak's sampled strings (src/strings/), no longer the 0480 soundfont; the kits name
+  // their files `<role>_<variant>_<layer>`.
+  const firstFiles: Record<string, RegExp[]> = {
+    strings: [/0480_/, /\/src\/strings\//],
+    horns: [/0610_/],
+    cr: [/\/cr\//, /\/cr_\d/],
+  };
   const warmed = Object.entries(CFA_FIRST_IN).flatMap(([section, sounds]) => {
     const at = r.fast.started + cfaStart(section) * fastBarMs;
     return sounds.flatMap((s) =>

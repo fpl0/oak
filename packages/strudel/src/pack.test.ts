@@ -1,14 +1,20 @@
 // The prebake's alias and kit wrappers, and the preloader's pitch plan for soundfonts. No audio runs: the
 // triggers are stand-ins that record what they receive.
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { LAYER_TRIMS } from "./layer-trims.ts";
 import {
   kitGainOf,
   layeredIndex,
+  layerGains,
   layerOf,
   OAK_KITS,
   pinVariant,
   type SoundEntry,
   sampleAliasTrigger,
+  sampleUrlOf,
+  withLayerTrims,
   withOutputGain,
 } from "./pack.ts";
 import { DEFAULT_FONT_RANGE, FONT_WARM_STEP, fontWarmNotes } from "./preload.ts";
@@ -83,6 +89,72 @@ describe("withOutputGain", () => {
     expect(h.trim.gain.value).toBe(0.33);
     const none = withOutputGain(() => undefined, 0.5);
     expect(await none(0, { s: "x" }, () => {})).toBeUndefined();
+  });
+});
+
+/** A trigger whose handle records the trim gain each hit is routed through (1: no trim). */
+function trimmed() {
+  const seen: Record<string, unknown>[] = [];
+  const trims: number[] = [];
+  const trigger = (_t: number, value: Record<string, unknown>) => {
+    seen.push(value);
+    const i = trims.push(1) - 1;
+    const trim = { gain: { value: 1 } };
+    return {
+      node: {
+        context: { createGain: () => trim },
+        connect: () => {
+          trims[i] = trim.gain.value;
+        },
+      },
+    };
+  };
+  return { seen, trims, trigger };
+}
+
+describe("velocity layer trims", () => {
+  test("the played file is chosen as superdough chooses it: n in a list, the nearest note (the first of two) in a map", () => {
+    expect(sampleUrlOf(["a", "b", "c"], { n: 4 })).toBe("b");
+    const map = { _base: "x", B3: ["b0", "b1"], "C#4": ["c0", "c1"], D4: ["d0", "d1"] };
+    expect(sampleUrlOf(map, { note: 60, n: 0 })).toBe("b0");
+    expect(sampleUrlOf(map, { note: "d4", n: 1 })).toBe("d1");
+    expect(sampleUrlOf(map, { freq: 277.18, n: 1 })).toBe("c1");
+    expect(sampleUrlOf(undefined, { n: 0 })).toBeUndefined();
+  });
+
+  test("trims apply to this pack's version only, by URL under its public root", () => {
+    const v4 = layerGains({ packVersion: LAYER_TRIMS.packVersion, publicRoot: "/sounds/v4" });
+    const [path, db] = Object.entries(LAYER_TRIMS.db)[0] as [string, number];
+    expect(v4.get(`/sounds/v4/${path}`)).toBeCloseTo(10 ** (db / 20), 12);
+    expect(layerGains({ packVersion: "v9", publicRoot: "/sounds/v9" }).size).toBe(0);
+  });
+
+  test("a soft layer plays through its trim; a sound with no trimmed file is untouched", async () => {
+    const { trims, trigger } = trimmed();
+    const gains = new Map([["/s/sd_0_0.flac", 1.5]]);
+    const files = ["/s/sd_0_0.flac", "/s/sd_0_1.flac"];
+    const t = withLayerTrims(trigger, files, gains);
+    await t(0, { s: "rockkit_sd", n: 0 }, () => {});
+    await t(0, { s: "rockkit_sd", n: 1 }, () => {});
+    expect(trims).toEqual([1.5, 1]);
+    expect(withLayerTrims(trigger, ["/s/other.flac"], gains)).toBe(trigger);
+  });
+
+  test("every trimmed file is a lower layer of a v4 kit role or sample alias", () => {
+    const root = resolve(import.meta.dirname, "../../../sounds/pack/v4");
+    const read = (f: string) => JSON.parse(readFileSync(`${root}/${f}`, "utf8"));
+    const manifest = read("manifest.json");
+    const lower = new Set<string>();
+    for (const kit of manifest.kits as string[])
+      for (const [key, files] of Object.entries(read(`oak-kit-${kit}.json`) as Record<string, string[]>)) {
+        const l = manifest.kitLayers[key]?.layers ?? 1;
+        if (Array.isArray(files)) for (const [i, f] of files.entries()) if (i % l !== l - 1) lower.add(f);
+      }
+    for (const a of Object.values(manifest.sampleAliases) as { sample: string; layers: number }[])
+      for (const [note, files] of Object.entries(read("oak-src.json")[a.sample] ?? {}))
+        if (note !== "_base") for (const f of (files as string[]).slice(0, -1)) lower.add(f);
+    expect(LAYER_TRIMS.packVersion).toBe(manifest.packVersion);
+    expect(Object.keys(LAYER_TRIMS.db).filter((f) => !lower.has(f))).toEqual([]);
   });
 });
 

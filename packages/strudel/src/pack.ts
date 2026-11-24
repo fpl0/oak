@@ -12,13 +12,17 @@
 // - v4: a sample-backed alias (`rhodes` -> map key `src_rhodes`) is a registered sample sound under the alias
 //   name, so the preloader and `packFileUrls` treat it like any sample; its velocity picks the layer.
 // - v4: retired bank names (`RolandTR909`...) are bank aliases of Oak's CC0 kits (`manifest.kitAliases`),
-//   made after the kits are complete and trimmed, so they copy the finished entries.
+//   made after the kits are complete and trimmed, so they copy the finished entries and play exactly as the kits do.
+// - v4: a soft velocity layer of a kit or of a short-sounding instrument is trimmed to its top layer's level
+//   (`layerGains`, layer-trims.ts), so velocity alone sets the level and the layer only the timbre. Sounds whose soft
+//   layer swells in (strings, brass) are left as recorded: no fixed window measures them fairly.
 import * as core from "@strudel/core";
 import * as draw from "@strudel/draw";
 import * as mini from "@strudel/mini";
 import * as soundfonts from "@strudel/soundfonts";
 import * as tonal from "@strudel/tonal";
 import * as webaudio from "@strudel/webaudio";
+import { LAYER_TRIMS } from "./layer-trims.ts";
 
 export interface PackManifest {
   packVersion: string;
@@ -193,6 +197,40 @@ export function layeredIndex(
   return core.getSoundIndex(n, variants) * layers + layerOf(velocity, split);
 }
 
+/** The file a sample sound plays for a hap: superdough's own choice (`getSampleInfo`), so the two never drift. */
+export function sampleUrlOf(samples: unknown, value: HapValue): string | undefined {
+  if (!samples || typeof samples !== "object") return undefined;
+  const url = (webaudio.getSampleInfo(value, samples) as { url?: unknown } | undefined)?.url;
+  return typeof url === "string" ? url : undefined;
+}
+
+/**
+ * Velocity layer trims (packages/strudel/src/layer-trims.ts) as linear gains by sample URL, for a pack whose version
+ * they were measured on; none for any other pack.
+ */
+export function layerGains(manifest: Pick<PackManifest, "packVersion" | "publicRoot">): Map<string, number> {
+  const out = new Map<string, number>();
+  if (manifest.packVersion !== LAYER_TRIMS.packVersion) return out;
+  const root = manifest.publicRoot.replace(/\/+$/, "");
+  for (const [path, db] of Object.entries(LAYER_TRIMS.db)) out.set(`${root}/${path}`, 10 ** (db / 20));
+  return out;
+}
+
+/** A sample sound's trigger with each file's layer trim, when any of its files has one. */
+export function withLayerTrims(
+  trigger: OnTrigger,
+  samples: unknown,
+  gains: ReadonlyMap<string, number>,
+): OnTrigger {
+  const files = Array.isArray(samples)
+    ? samples
+    : samples && typeof samples === "object"
+      ? Object.values(samples as Record<string, unknown>).flat()
+      : [];
+  if (!files.some((f) => typeof f === "string" && gains.has(f))) return trigger;
+  return withOutputGain(trigger, (v) => gains.get(sampleUrlOf(samples, v) ?? "") ?? 1);
+}
+
 /**
  * A trigger whose output passes through a fixed gain (an alias's or a kit role's level trim). The handle's
  * `node` becomes the gain node, so superdough's chain (velocity, gain, effects) follows the trim.
@@ -277,13 +315,15 @@ export async function prebake(soundsRoot: string): Promise<PackManifest> {
   if (manifest.bankAliases) await webaudio.aliasBank(manifest.bankAliases);
   const kits = manifest.kits ?? [...OAK_KITS];
   registerOakKits(kits);
-  trimKits(manifest.kitGains ?? {}, manifest.kitLayers ?? {});
+  const layered = layerGains(manifest);
+  trimKits(manifest.kitGains ?? {}, manifest.kitLayers ?? {}, layered);
   registerKitAliases(manifest.kitAliases ?? {});
 
   for (const [alias, a] of Object.entries(manifest.sampleAliases ?? {})) {
     const entry = webaudio.getSound(a.sample) as SoundEntry | undefined;
     if (!entry) throw new Error(`@oak/strudel: sample alias ${alias}: ${a.sample} is not in the pack`);
-    webaudio.registerSound(alias.toLowerCase(), withOutputGain(sampleAliasTrigger(entry, a), a.gain ?? 1), {
+    const trimmed = { ...entry, onTrigger: withLayerTrims(entry.onTrigger, entry.data?.samples, layered) };
+    webaudio.registerSound(alias.toLowerCase(), withOutputGain(sampleAliasTrigger(trimmed, a), a.gain ?? 1), {
       ...entry.data,
       type: "sample",
       prebake: true,
@@ -406,12 +446,13 @@ export function kitGainOf(gain: number | readonly number[], n: unknown): number 
 }
 
 /**
- * Applies the manifest's per-role level trims, and the velocity layers of v4 kits, to the kit sounds (data
- * kept: the preloader reads it).
+ * Applies the manifest's per-role level trims, and the velocity layers of v4 kits with their layer trims
+ * (`layerGains`), to the kit sounds (data kept: the preloader reads it).
  */
 export function trimKits(
   gains: Record<string, number | number[]>,
   layers: Record<string, { layers: number; split: number[] }> = {},
+  layerTrims: ReadonlyMap<string, number> = new Map(),
 ): void {
   for (const key of new Set([...Object.keys(gains), ...Object.keys(layers)])) {
     const entry = webaudio.getSound(key) as SoundEntry | undefined;
@@ -421,7 +462,7 @@ export function trimKits(
     const files = Array.isArray(entry.data?.samples) ? entry.data.samples.length : 1;
     let trigger = entry.onTrigger;
     if (l && l.layers > 1) {
-      const inner = trigger;
+      const inner = withLayerTrims(trigger, entry.data?.samples, layerTrims);
       trigger = (t, value, onended, cps) =>
         inner(
           t,

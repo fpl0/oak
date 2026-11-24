@@ -34,12 +34,18 @@ export function soundKeyOf(value: { s?: unknown; bank?: unknown }): string | nul
   return typeof value.bank === "string" && value.bank.length > 0 ? `${value.bank}_${value.s}` : value.s;
 }
 
-/** Warm the buffer one hap value will need. Mirrors what superdough does at trigger time. */
-export async function warmValue(value: HapValue): Promise<WarmResult> {
+type Resolved =
+  | { kind: "sample"; value: HapValue; samples: unknown }
+  | { kind: "font"; font: string }
+  | { kind: "synth" }
+  | { kind: "missing" };
+
+/** What superdough will load for one hap value: the sample value it looks up, or the soundfont, or nothing. */
+function resolve(value: HapValue): Resolved {
   const key = soundKeyOf(value);
-  if (key === null) return "synth";
+  if (key === null) return { kind: "synth" };
   const sound = webaudio.getSound(key) as SoundEntry | undefined;
-  if (!sound) return "missing";
+  if (!sound) return { kind: "missing" };
   const { type, samples, fonts, layers, split } = sound.data ?? {};
   if (type === "sample") {
     // A v4 layered sound plays the file its velocity picks (pack.ts sampleAliasTrigger / trimKits).
@@ -49,15 +55,26 @@ export async function warmValue(value: HapValue): Promise<WarmResult> {
           ? layeredIndex(value.n, value.velocity, samples.length, layers, split ?? [])
           : layerOf(value.velocity, split ?? [])
         : value.n;
-    await webaudio.getSampleBuffer({ ...value, s: key, n }, samples);
-    return "warmed";
+    return { kind: "sample", value: { ...value, s: key, n }, samples };
   }
   if (type === "soundfont" && fonts && fonts.length > 0) {
-    const font = fonts[core.getSoundIndex(value.n ?? 0, fonts.length)] as string;
-    await soundfonts.getFontBufferSource(font, value, webaudio.getAudioContext());
+    return { kind: "font", font: fonts[core.getSoundIndex(value.n ?? 0, fonts.length)] as string };
+  }
+  return { kind: "synth" };
+}
+
+/** Warm the buffer one hap value will need. Mirrors what superdough does at trigger time. */
+export async function warmValue(value: HapValue): Promise<WarmResult> {
+  const r = resolve(value);
+  if (r.kind === "sample") {
+    await webaudio.getSampleBuffer(r.value, r.samples);
     return "warmed";
   }
-  return "synth";
+  if (r.kind === "font") {
+    await soundfonts.getFontBufferSource(r.font, value, webaudio.getAudioContext());
+    return "warmed";
+  }
+  return r.kind;
 }
 
 /**
@@ -105,11 +122,35 @@ function layerVelocities(data: NonNullable<SoundEntry["data"]>): number[] {
   );
 }
 
-/** Values that load the same file are warmed once (velocity is in the key: below a split it picks a soft layer). */
+/** The key of a value `fileKeyOf` cannot resolve to a file (a synth, a missing sound, an unexpected shape). */
 const valueKey = (v: HapValue): string =>
   JSON.stringify([v.bank, v.s, v.n, v.note, v.freq, typeof v.velocity === "number" ? v.velocity : 1]);
 
-/** Warms every distinct value, at most `concurrency` at a time. Never rejects: a failed load counts as missing. */
+/**
+ * What a value's warm loads: the sample file superdough resolves it to (the closest pitch of a pitched map, the
+ * velocity layer, the variant), or a soundfont zone (cached per font and pitch). A melody's neighbouring pitches
+ * and a chord's voices mostly share a pitched map's file; warmed as separate values, each held a loader slot
+ * waiting on the same fetch, and new files queued behind them (Wave 5, C3 on pack v4).
+ */
+export function fileKeyOf(v: HapValue): string {
+  try {
+    const r = resolve(v);
+    if (r.kind === "sample") {
+      const url = (webaudio.getSampleInfo(r.value, r.samples) as { url?: unknown }).url;
+      if (typeof url === "string") return `sample ${url}`;
+    } else if (r.kind === "font") {
+      return `font ${JSON.stringify([r.font, v.note ?? "c3", v.freq])}`;
+    }
+  } catch {
+    // an unexpected value shape: fall back to the value itself
+  }
+  return valueKey(v);
+}
+
+/**
+ * Warms one value per distinct file (`fileKeyOf`), at most `concurrency` at a time; the report counts files, not
+ * values. Never rejects: a failed load counts as missing.
+ */
 export async function warmAll(
   values: readonly HapValue[],
   onProgress?: (done: number, total: number) => void,
@@ -119,7 +160,7 @@ export async function warmAll(
   const report: PreloadReport = { warmed: 0, synths: 0, missing: [], ms: 0 };
   const seen = new Set<string>();
   const unique = values.filter((v) => {
-    const key = valueKey(v);
+    const key = fileKeyOf(v);
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -160,15 +201,21 @@ interface QueryablePattern {
   queryArc(begin: number, end: number, controls?: Record<string, unknown>): Strudel.Hap[];
 }
 
-/** The exact (s, bank, n, note) values a pattern triggers in `[from, to)` cycles. */
+/**
+ * The exact (s, bank, n, note) values a pattern triggers in `[from, to)` cycles, earliest onset first. A query
+ * lists haps voice by voice (a stack's layers in order); warmed in that order, a chunk's first new melody note
+ * waited behind every drum, chord and pad file the later bars bring, and played before it was decoded.
+ */
 export function valuesOfPattern(pattern: QueryablePattern, from: number, to: number): HapValue[] {
-  const out: HapValue[] = [];
+  const out: { at: number; v: HapValue }[] = [];
   for (const hap of pattern.queryArc(from, to)) {
     if (!hap.hasOnset()) continue;
     const v = hap.value;
-    if (v && typeof v === "object" && !Array.isArray(v)) out.push(v as HapValue);
+    if (v && typeof v === "object" && !Array.isArray(v)) {
+      out.push({ at: Number((hap.whole ?? hap.part).begin.valueOf()), v: v as HapValue });
+    }
   }
-  return out;
+  return out.sort((a, b) => a.at - b.at).map((x) => x.v);
 }
 
 /** Exact preload: query the pattern and warm precisely the combinations it will trigger. */
@@ -200,8 +247,9 @@ export interface WarmAhead {
 
 /**
  * Warms the rest of a long piece in the background, in order: `[from, to)` cycles in steps of `chunk`, each step
- * warming only values no earlier step warmed. A 90-second song whose chorus brings a crash, a pad or a pitch
- * the first bars never play has it decoded long before bar 17 (Wave 5, C3), without delaying the first note.
+ * warming only files no earlier step warmed (`fileKeyOf`), earliest onset first. A 90-second song whose chorus
+ * brings a crash, a pad or a pitch the first bars never play has it decoded long before bar 17 (Wave 5, C3), without
+ * delaying the first note.
  */
 export function warmAhead(
   pattern: QueryablePattern,
@@ -226,7 +274,7 @@ export function warmAhead(
         break; // a query error is the evaluation's to report
       }
       const fresh = values.filter((v) => {
-        const key = valueKey(v);
+        const key = fileKeyOf(v);
         if (seen.has(key)) return false;
         seen.add(key);
         return true;
