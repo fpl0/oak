@@ -114,10 +114,20 @@ export function checkOf(
 export function songLock(
   song: SongDef,
   meta: RepertoireMeta | undefined,
-  opts: { completed: ReadonlySet<string>; allowUnverified: boolean },
+  opts: {
+    completed: ReadonlySet<string>;
+    allowUnverified: boolean;
+    /** The lesson's title, so the note names it in words ("Opens with the lesson “Blues Changes”"), never by ID. */
+    lessonTitle?: (id: string) => string;
+  },
 ): string | null {
   const from = song.availableFrom ?? meta?.availableFrom;
-  if (from !== undefined && !opts.completed.has(from)) return `Opens with ${from}`;
+  if (from !== undefined && !opts.completed.has(from)) {
+    const title = opts.lessonTitle?.(from);
+    return title !== undefined && title !== from
+      ? `Opens with the lesson “${title}”`
+      : "Opens with a later lesson";
+  }
   if (!opts.allowUnverified && !songVerified(song)) return "Being checked";
   return null;
 }

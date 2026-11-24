@@ -9,6 +9,9 @@ import { useIsLarge } from "../../lib/use-media.ts";
 import { IconButton } from "../kit/Button.tsx";
 import { Tooltip } from "../kit/Tooltip.tsx";
 import { usePrefs } from "../theme/prefs.ts";
+import { focusInTutor, installTutorFocusMemory, returnFocusFromTutor } from "./tutor-focus.ts";
+
+installTutorFocusMemory();
 
 export function AudioStatus() {
   const audio = useShell((s) => s.audio);
@@ -78,7 +81,13 @@ export function useTutorToggle(): { open: boolean; toggle(): void } {
   const open = large ? docked : drawer;
   return {
     open,
-    toggle: () => (large ? setPrefs({ tutorOpen: !docked }) : setDrawer(!drawer)),
+    toggle: () => {
+      if (!large) return setDrawer(!drawer);
+      // Closing the docked panel from inside it gives the focus back (the drawer is a dialog: it does so itself).
+      const returnFocus = docked && focusInTutor();
+      setPrefs({ tutorOpen: !docked });
+      if (returnFocus) returnFocusFromTutor();
+    },
   };
 }
 
@@ -90,6 +99,9 @@ export function TutorToggle() {
     <IconButton
       label={off ? "Tutor (off — see Settings › Tutor)" : open ? "Hide tutor" : "Show tutor"}
       shortcut="⌘J"
+      // The last icon of the top bar: the tooltip sits to its left. Below it, it covered the tutor panel's own hide
+      // icon just under the bar; at the window edge it would lose its shortcut.
+      tooltipSide="left"
       pressed={open}
       onClick={toggle}
       data-testid="tutor-toggle"

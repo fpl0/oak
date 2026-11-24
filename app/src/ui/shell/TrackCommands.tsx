@@ -1,5 +1,5 @@
 // The advanced tracks' commands in the palette (Wave 7, docs/design/wave7.md §4.2, §5.2): the eight track lenses,
-// each with its state ("Tensions lens · on · Shift+X", "Clave lens · opens with R3.L02 Clave Direction"), switched
+// each with its state ("Tensions lens · on · Shift+X", "Clave lens · Opens with the lesson “Clave Direction”."), switched
 // from here; and the learner's focus between the core and the tracks ("Focus on Jazz Harmony", "Focus on the
 // core"). A lens that is not open yet leads to Settings › Learning, where every lens and the gate that opens it is
 // listed; it never toggles something that draws nothing. A focus is offered only for a track that is open and not
@@ -53,6 +53,8 @@ export function TrackCommands() {
           title: r.available ? `${r.label} lens: turn ${r.on ? "off" : "on"}` : `${r.label} lens`,
           group: "Actions",
           hint: r.available ? `${r.on ? "On" : "Off"} · ${r.what}` : r.state,
+          // A lens whose track is not open yet is found by name, but does not fill the empty palette.
+          searchOnly: !r.available,
           ...(r.keys && r.available ? { shortcut: r.keys } : {}),
           keywords: ["lens", "lenses", "label", r.label, r.what, "track"],
           run: () => {

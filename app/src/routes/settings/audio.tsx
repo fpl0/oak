@@ -269,11 +269,19 @@ function AudioSettings() {
                 </Link>
               </div>
             </Section>
+            {/* The one Timing card (Settings › Voice links here): every delay Oak allows for, with these headphones. */}
             <Section
               title="Timing"
-              description="Measured once at set-up; measure again when you change headphones."
+              description="The delays Oak allows for when it checks your taps and your singing. Measure again when you change headphones."
             >
-              <ReadOnlyRow label="Tap latency" value={ms(profile.tapLatencyMs)} />
+              <ReadOnlyRow
+                label="Tap latency"
+                value={
+                  profile.tapLatencyMs !== null && profile.tapJitterMs !== null
+                    ? `${ms(profile.tapLatencyMs)} (±${Math.round(profile.tapJitterMs)} ms)`
+                    : ms(profile.tapLatencyMs)
+                }
+              />
               <ReadOnlyRow label="Sing latency" value={ms(profile.singLatencyMs)} />
               <ReadOnlyRow label="Output latency" value={ms(profile.outputLatencyMs)} />
               <div className="py-3">
@@ -283,7 +291,9 @@ function AudioSettings() {
                   className={buttonClass("secondary")}
                   data-testid="audio-recalibrate"
                 >
-                  Measure timing again
+                  {profile.tapLatencyMs === null && profile.singLatencyMs === null
+                    ? "Measure timing"
+                    : "Measure timing again"}
                 </Link>
               </div>
             </Section>

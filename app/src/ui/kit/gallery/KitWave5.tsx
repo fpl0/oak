@@ -431,7 +431,7 @@ export function KitWave5({ nested = false }: { nested?: boolean } = {}) {
               value={0.5}
               onChange={() => {}}
               disabled
-              help="Opens with A1.L04 · Space."
+              help="Opens with the side lesson “Space”."
             />
           </div>
           <ScopeFrame

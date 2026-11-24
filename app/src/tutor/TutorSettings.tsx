@@ -2,7 +2,7 @@
 // with the server's own set-up guidance when one is signed out or missing), the backend choice, the API key,
 // this month's usage and the soft monthly marker (a marker only: there is no cap), the notes Claude keeps (each
 // removable), and what Claude sees.
-import { EFFORT_OF, LANES, type Lane, type TutorSettings, type TutorStatus } from "@oak/api";
+import { EFFORT_OF, type Lane, type TutorSettings, type TutorStatus } from "@oak/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { callApi } from "../lib/api.ts";
@@ -22,7 +22,7 @@ import { Chip } from "../ui/kit/basics.tsx";
 import { Callout } from "../ui/kit/Controls.tsx";
 import { Field, ReadOnlyRow, Section, Select } from "../ui/kit/Field.tsx";
 import { Meter } from "../ui/kit/Meters.tsx";
-import { QueryView } from "../ui/kit/QueryState.tsx";
+import { ErrorState, QueryView } from "../ui/kit/QueryState.tsx";
 import { toast } from "../ui/kit/Toast.tsx";
 
 const HEALTH_COPY: Record<TutorStatus["tutor"], string> = {
@@ -94,6 +94,20 @@ function StatusSection() {
       },
     );
   };
+  // One failure, one message and one way to retry: both reads of this card fail together when the server is down.
+  const failed = status.isError ? status.error : bootstrap.isError ? bootstrap.error : null;
+  if (failed !== null)
+    return (
+      <Section
+        title="Status"
+        description="Oak is fully usable without the tutor: lessons, hints and grading never need it."
+      >
+        <ErrorState
+          error={failed}
+          onRetry={() => void Promise.all([status.refetch(), bootstrap.refetch()])}
+        />
+      </Section>
+    );
   return (
     <Section
       title="Status"
@@ -188,10 +202,21 @@ function StatusSection() {
   );
 }
 
+/**
+ * There may be a key to remove: the API backend has one (from this page or the environment). "missing_key" says there
+ * is none; "not_installed" that the backend is not in this build. Unknown (status not read) counts as none, so the
+ * button never offers to remove what may not exist.
+ */
+export function mayHaveKey(status: Pick<TutorStatus, "backends"> | undefined): boolean {
+  const api = status?.backends.find((b) => b.id === "anthropic-api");
+  return api !== undefined && api.reason !== "missing_key" && api.reason !== "not_installed";
+}
+
 function KeyForm() {
   const [key, setKey] = useState("");
   const set = useAnthropicKeySet();
   const del = useAnthropicKeyDelete();
+  const status = useTutorStatus();
   const invalidate = useInvalidateTutor();
   return (
     <div className="flex flex-col gap-3">
@@ -229,6 +254,7 @@ function KeyForm() {
         <Button
           variant="ghost"
           loading={del.isPending}
+          disabled={!mayHaveKey(status.data)}
           onClick={async () => {
             try {
               const r = await del.mutateAsync({
@@ -337,8 +363,9 @@ function UsageSection() {
               />
               <div className="py-3">
                 <table className="w-full text-sm" data-testid="usage-by-lane">
-                  <caption className="mb-2 text-left text-sm font-semibold text-text-2">
-                    By kind of request
+                  <caption className="mb-2 text-left text-sm text-text-2">
+                    <span className="font-semibold">By kind of request.</span> Each kind has a fixed effort;
+                    it never changes inside a conversation.
                   </caption>
                   <thead>
                     <tr className="text-left text-text-3">
@@ -449,14 +476,6 @@ export function TutorSettingsPage() {
       </Section>
       <UsageSection />
       <NotesSection />
-      <Section
-        title="Effort per kind of request"
-        description="Fixed per kind; it never changes inside a conversation."
-      >
-        {LANES.map((lane) => (
-          <ReadOnlyRow key={lane} label={LANE_LABEL[lane]} value={EFFORT_OF[lane]} />
-        ))}
-      </Section>
       <Section title="What Claude sees">
         <ul className="ml-5 list-disc space-y-1 py-1 text-text-2">
           <li>

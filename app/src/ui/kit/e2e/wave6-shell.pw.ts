@@ -127,7 +127,7 @@ test("the advanced tracks: locked before U13.CP, then open and still being writt
   await input.fill("Jazz Harmony");
   await expect(page.getByRole("option").first()).toContainText("Jazz Harmony");
   await expect(page.getByRole("option").first()).toContainText(
-    "Advanced track · opens with the U13 checkpoint",
+    "Advanced track · opens with the unit 13 checkpoint",
   );
   await page.keyboard.press("Escape");
 
@@ -136,8 +136,8 @@ test("the advanced tracks: locked before U13.CP, then open and still being writt
   const row = (k: string) => wb.locator(`[data-sheet-row="${k}"]`);
   await expect(row("Shift+I")).toHaveAttribute("data-locked", "true");
   await expect(row("Shift+I")).toContainText("Guide tones");
-  await expect(row("Shift+I")).toContainText("Opens with U12 · Seventh Chords");
-  await expect(row("Shift+V")).toContainText("Opens with U13 · Rhythm II");
+  await expect(row("Shift+I")).toContainText("Opens with unit 12, Seventh Chords.");
+  await expect(row("Shift+V")).toContainText("Opens with unit 13, Rhythm II.");
   // The key ribbon's tool is the patterned .scale() of U03.L05: this learner has it.
   await expect(row("Shift+J")).not.toHaveAttribute("data-locked", "true");
   // The Wave 6 sections and rows are listed from any page.
@@ -258,10 +258,10 @@ test("the advanced tracks: locked before U13.CP, then open and still being writt
   input = await openPalette(page);
   await input.fill("clave lens");
   const clave = page.getByRole("option").filter({ hasText: "Clave lens" }).first();
-  await expect(clave).toContainText("Opens with R3.L02 Clave Direction");
+  await expect(clave).toContainText("Opens with the lesson “Clave Direction”.");
   await input.fill("tensions lens");
   await expect(page.getByRole("option").filter({ hasText: "Tensions lens" }).first()).toContainText(
-    "Opens with J2.L03",
+    "Opens with the lesson “Extensions”.",
   );
   await page.keyboard.press("Escape");
 
@@ -270,8 +270,8 @@ test("the advanced tracks: locked before U13.CP, then open and still being writt
   await expect(row("Shift+I")).not.toHaveAttribute("data-locked", "true");
   await expect(row("Shift+V")).not.toHaveAttribute("data-locked", "true");
   await expect(row("Shift+X")).toHaveAttribute("data-locked", "true");
-  await expect(row("Shift+X")).toContainText("Opens with J2.L03");
-  await expect(row("Shift+D")).toContainText("Opens with A2.L02");
+  await expect(row("Shift+X")).toContainText("Opens with the lesson “Extensions”.");
+  await expect(row("Shift+D")).toContainText("Opens with the lesson “Texture & Density”.");
 });
 
 test("after the core nothing in the navigation reads as finished, and what is open is one search away", async ({

@@ -4,6 +4,7 @@ import type { OnboardingState, Profile } from "@oak/api";
 import { Link } from "@tanstack/react-router";
 import { Check, Circle } from "lucide-react";
 import { toolLabel } from "../../lib/tool-label.ts";
+import { styleName } from "../../song/surfaces-model.ts";
 import { Button } from "../../ui/kit/Button.tsx";
 import { Card } from "../../ui/kit/basics.tsx";
 import { noiseVerdict, rangeWords } from "../../voice/logic.ts";
@@ -28,8 +29,8 @@ export function codaRows(st: OnboardingState, p: Profile, tutorReady: boolean): 
       done: true,
     },
     {
-      label: "Backing band",
-      value: `${p.flavour === "flavour.jazz-soul" ? "Jazz-soul" : p.flavour === "flavour.pop" ? "Pop" : p.flavour.replace("flavour.", "")} · ${p.targetMinutes} minutes a day · ${p.weeklyGoal} days a week`,
+      label: "Style",
+      value: `${styleName(p.flavour)} · ${p.targetMinutes} minutes a day · ${p.weeklyGoal} days a week`,
       done: true,
     },
     { label: STEP_META.tutor.label, value: tutorReady ? "Connected" : later, done: tutorReady },

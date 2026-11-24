@@ -114,7 +114,7 @@ test("each piece works from the keyboard and says its state in words", async ({ 
     "7 of 34 sessions · 0 of 4 capstones released",
   );
   const waiting = page.getByTestId("track-waiting");
-  await expect(waiting.getByTestId("track-line")).toHaveText("Waits for: U09 checkpoint passed.");
+  await expect(waiting.getByTestId("track-line")).toHaveText("Waits for the unit 9 checkpoint.");
   await expect(waiting.getByRole("button", { name: "This is never drawn" })).toHaveCount(0);
   await expect(page.getByTestId("track-complete").getByTestId("track-state")).toHaveText("Complete");
   await expect(page.getByTestId("track-open")).toHaveAttribute(

@@ -1050,8 +1050,10 @@ The builders' areas are joined into one app; `docs/design/wave2.md` §9 is the d
   `Workbench` with the new optional prop `tutorBars` loops the bars of a tutor `[[bars …]]` reference
   (`TUTOR_BARS_EVENT`); Studio, the capstone and the lesson Make set it.
 - **Grader**: the lint's locked/preview diagnostics carry `tool` and `lesson` params, so the catalog templates
-  `code.locked-*` and `code.preview-tool` name the tool ("`chord` unlocks in U05.L08. For now, use the tools you
-  have."). `lockedParams` in the lesson stays as a no-op guard.
+  `code.locked-*` and `code.preview-tool` name the tool and the lesson by its title ("`chord` unlocks in the lesson
+  “Let Strudel Voice It”. For now, use the tools you have."): the app starts every grader host from toolbox rows
+  that carry their unlock sites' titles (`unlockNames`, filled by `buildBundle`); a row without them says the
+  session ID. `lockedParams` in the lesson stays as a no-op guard.
 - **Lesson grading**: a sung step whose target comes from a code stimulus reads only the stimulus's own bars
   (`stimulus.bars`), so a one-bar call is one target note.
 - **Checkpoint in a session**: the Make is reported after the hand-in (the result screen's "On to the coda"), never
@@ -1212,7 +1214,8 @@ The reviews and the final gate changed these seams. wave3.md §0 is the summary;
 - **`@oak/theory` beat labels** (`barPosition().label`): triplets read `1-trip`, `1-let` (were `1t`, `1l`); a
   position off the counting grid reads `between 1 and 2` or `after 4, before the bar line` (was `1+4/7`).
 - **App:** `AnswerEnv.submitVerb?: "check" | "save"` and `useSubmitVerb()`; the lesson host sets `"save"` in a
-  checkpoint, so the key-signature, staff, key and interval widgets say "Enter save". `voice/sync.ts`
+  checkpoint, so the key-signature, staff, key and interval widgets say "Enter save" (`useEnterHint` then names
+  what Enter does for the focused control: "Enter play again" on Play, "Enter next item" once saved). `voice/sync.ts`
   (`useVoiceSync`, `announceQuiet`) carries a Quiet-mode change to every open tab over a `BroadcastChannel`; the
   lesson and the drill runner use it. `lesson/target-marks.ts` draws the editable region of a code-modify step.
   `AlbumCover` text is fitted (`fitCoverText`, `coverTextWidth`, `ALBUM_WIDTH`, `TITLE_WIDTH`) and haloed. The

@@ -43,6 +43,11 @@ const isMac = () => typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(n
 /**
  * On the edit and reaction screens the one box in the code is the number to change: Strudel's playback outlines
  * (drawn as inline styles on every token that plays) are hidden there, and the target box is drawn strongly.
+ *
+ * Day 1 asks only to listen and change one number: the transport keeps play/stop, the bar counter and the
+ * musicians' mute chips. Tempo, metre, key, practice speed, solo and the read-only badge are terms and tools the
+ * first lessons bring; shown here they were noise. The Workbench's own `transport="minimal"` leaves them out (the
+ * loop region and metronome are off through `loopControls`).
  */
 const QUIET_CODE_CSS = `
 .onb-loop--edit .cm-content [style*="outline"] { outline: none !important; }
@@ -301,6 +306,8 @@ export function LoopStage(props: LoopStageProps) {
         roll={{ color: "part", labels: "none" }}
         lenses={null}
         targetRegions={step !== "loop"}
+        loopControls={false}
+        transport="minimal"
         readOnly={readOnly}
         onChange={(c) => {
           setCode(c);

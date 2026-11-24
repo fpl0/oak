@@ -211,8 +211,8 @@ The only reminder is an optional **Add to calendar** button that generates a loc
   - **Mic live** red dot (only while capturing),
   - Tutor toggle.
 - **Focus mode** (lesson, drill, checkpoint, onboarding): the NavRail is hidden. A 56 px header carries `← Today` (`Esc`; "Your place is saved"), the title, the step rail, a subtle elapsed timer, AudioStatus and the Tutor toggle.
-- **Tutor panel:** docked at L (360 default, resizable 320–520, persisted); 400 px overlay drawer at M (`Cmd+J`).
-- **Command palette** (`Cmd/Ctrl+K`): navigate, actions ("New sketch in D minor", "Start drill: degrees in minor", "Recalibrate mic"), and search over lessons, tools, sketches and tracks.
+- **Tutor panel:** docked at L (360 default, resizable 320–520, persisted); 400 px overlay drawer at M (`Cmd+J`). Closing the docked panel while focus is in it gives the focus back to where it came from (or the main region).
+- **Command palette** (`Cmd/Ctrl+K`): navigate ("Continue lesson", `G L`), actions ("New sketch in D minor", "Start drill: degrees in minor", "Recalibrate mic"), and search over unit songs (by title: started ones and those of units reached), lessons (one still ahead says "not open yet"), tools, sketches and tracks. Word and prefix matches rank first; a scattered-letter match shows only when nothing else matches. Each group heading shows once, and the list scrolls with the arrow keys. A track lens whose track is not open is found by typing but does not fill the empty palette.
 - **PlaybackCoordinator** (global): only one source plays at a time — Strudel mirrors (built-in solo), Transcription audio, Toolbox demos and tutor cards. Starting any one stops the others. `Ctrl/Cmd+.` from anywhere is a panic stop for everything.
 - **Height rule:** if the Workbench height is below 760 px, the roll and staff panes become tabs (Roll | Staff | Both). Otherwise they stack.
 
@@ -254,7 +254,7 @@ The only reminder is an optional **Add to calendar** button that generates a loc
   - Versions dropdown,
   - Export (code `.js`, audio, lead sheet),
   - **Add to album as B-side**.
-- **New sketch from…** Blank; Today's lesson; or an unlocked template ("Four-chord pop", "12-bar shuffle", "Dorian funk vamp", "Jazz blues in F"). Templates unlock with units.
+- **New sketch from…** Blank; Today's lesson; or an unlocked template ("Four-chord pop", "12-bar shuffle", "Dorian funk vamp", "Jazz blues in F"). Templates unlock with capstones; until a template's starter song is written (content/toolbox.ts has no code for them yet), an unlocked one is listed as "coming soon" and is not offered as a start.
 - **Autosave:** every successful Run creates a version; `Cmd+S` names a snapshot.
 - **Layers:** gutter icons on each `$:` line toggle mute and solo. The code text is never changed: the adapter rewrites labels at equal length (`$:` → `_:`) so highlight offsets stay valid.
 - **Lenses** (unlocked analysis overlays on the roll): Chord-tone %, Function bands, Form map, Range.
@@ -278,7 +278,7 @@ The only reminder is an optional **Add to calendar** button that generates a loc
   - leaf-colour recall dot,
   - 7-day accuracy sparkline with an 80–90% target band,
   - Practice button.
-- Locked families are greyed: "Unlocks in U4".
+- Locked families are greyed: "Unlocks in unit 3, Major Scale & Degrees", or "Unlocks with the lesson “Degrees in Code”" once that unit has begun (words, never the IDs).
 - A **Transcription Gym** card appears after U6.
 - Practising cards that are not due is logged as practice. It changes the schedule only for cards due within 2 days. Copy: "Extra practice doesn't change your schedule unless items are nearly due."
 
@@ -298,10 +298,10 @@ The only reminder is an optional **Add to calendar** button that generates a loc
 
 | Section | Contents |
 |---|---|
-| audio | Master volume; limiter (on, read-only indicator); UI sounds on/volume; practice-tempo default; latency offsets (tap, sing) + Recalibrate; sound-pack cache status and size; **Preload all** |
-| voice | Input device; noise floor; bleed test; vocal range and comfort zone + Re-test; tolerance (Auto / ±70 / ±50 / ±35 / ±25 ¢); octave folding (on); syllables on/off; Quiet mode (no singing today) |
-| tutor | Status (`ready / missing_key / invalid_key / unreachable`) from `/api/health`; model and per-route effort table (read-only); this month's tokens and estimated $; soft monthly budget warning; threads list (archive only, append-only); "What Claude sees" explainer |
-| learning | Daily target 15/20/25; weekly goal 3–7 (default 5); genre flavour; roll labels (degrees / +syllables / note names); scaffold fading (auto / always colour / never colour); desired retention (advanced: facts 0.90, perceptual 0.85) |
+| audio | Master volume; limiter (on, read-only indicator); UI sounds on/volume; practice-tempo default; the one Timing card (tap, sing and output latency + "Measure timing", "again" once measured); sound-pack cache status and size; **Preload all** |
+| voice | Input device; noise floor (with its words: a quiet room / a little noisy); bleed test; vocal range and comfort zone + Re-test; tolerance (Auto / ±70 / ±50 / ±35 / ±25 ¢); octave folding (on); syllables on/off (the lesson that brings them named by title while it is ahead); Quiet mode (no singing today); a link to the Timing card in Audio |
+| tutor | Status (`ready / missing_key / invalid_key / unreachable`) from `/api/health`, one error and one retry for the card when the server is down; model; this month's tokens and estimated $, with the fixed effort of each kind of request in the usage table (read-only); soft monthly budget warning; "Remove saved key" only when there may be a key; threads list (archive only, append-only); "What Claude sees" explainer |
+| learning | Daily target 15/20/25; weekly goal 3–7 (default 5); Style (Pop, Indie, Jazz-soul, Funk, Electronic: the band in lessons, capstones and new songs; each song can pick its own); roll labels (degrees / +syllables / note names); scaffold fading (auto / always colour / never colour); desired retention (advanced: facts 0.90, perceptual 0.85) |
 | appearance | Theme Paper / Bark / System; high contrast; UI scale 90–125%; editor font size 13–20; reduced motion (system / on / off); calm highlighting |
 | keys | Shortcut sheet; "Strudel-compatible Ctrl on macOS" (on: both Ctrl and Cmd work) |
 | data | Export JSON backup (option: include audio files); Import; storage location path; Reset progress (type `RESET OAK`) |
@@ -364,7 +364,7 @@ At M (1280×800): prompt column 352, Workbench 928, tutor as overlay drawer.
 | `dictate` | transcription | degree / RN / code / staff input (§4.5) | submit | yes → SRS |
 | `notate` | write symbol | StaffInput | submit | yes |
 | `compare` | judgement | A/B two versions: "Which ends more conclusively?" | answered | yes (light) |
-| `make` | Make | open editor + live rule checklist + **Save sketch** | sketch saved | rules logged, never blocking |
+| `make` | Make | open editor + live rule checklist + **Save sketch** (**Save into your song** in a unit song's Make, with a line saying what it puts where) | sketch saved | rules logged, never blocking |
 | `reflect` | metacognition | can-do statement self-rating (Not yet / Getting there / Yes) + optional note | answered | no |
 
 Budget: 8–14 steps per lesson, 2–4 graded checks, about 10 min plus about 4 min of Make.
@@ -779,7 +779,7 @@ Re-check prompt: if more than 40% of voiced frames in a session have low clarity
 - Card grid, 4 columns at L and 3 at M, 220×180 cards.
 - Instruments are an "Instrument wall" of square cards.
 
-**Card (unlocked):** name, signature, one-line musical meaning, ▶ 2-bar demo (mini Workbench), "Learned in U3.2", "Used in 14 of your sketches".
+**Card (unlocked):** name (a sound by the code you type, `.s("ebass")`), signature, one-line musical meaning with code set as code, ▶ 2-bar demo (mini Workbench), "Learned in Heartbeat" (the lesson's title; its id in the tooltip), "Used in 14 of your sketches".
 
 **Card (locked):** silhouette with the name visible, unlock condition, goal-gradient bar ("2 lessons to go"), and a ▶ teaser (you can hear it, not open it).
 
@@ -888,6 +888,7 @@ interface ToolCard {
 **Album page**
 - Header: album title (set at C0 release; default "Oak Sessions"; editable), total runtime, number of tracks.
 - Tracklist as an LP: **Side A — Core** (C0 Intro, C1 First Loop, C2 Four-Chord Song, C3 Verse–Chorus Demo, C4 Minor Indie Ballad, C5 12-Bar Shuffle, C6 Modal Vamp, C7 Chromatic Color, Finale: Album Single, Finale: public-domain transcription) and **Side B — Advanced** (J1–J4, F1–F3, A1 ×2), plus **B-sides** (sketches promoted by the learner).
+- **Songs** shelf after the sides: one tile per unit song, open or released, with its stage ("Still growing", "Every lesson is in", "Ready for the album", "On the album", "Off the album"). A released song is listed there only, never again as a B-side; its tree-ring cover follows it to the hero and its track page, and its length and Play all count it.
 - Cover grid: 4 columns at L, 220 px covers.
 - Empty slots are dashed with the capstone name and when it unlocks.
 
@@ -1287,7 +1288,7 @@ The melody's chord tones line up with the chords: G E G over C; C E over Am; A F
 | t | Screen id | What happens | Why |
 |---|---|---|---|
 | 0:00 | `onb.welcome` | Rings logo; "Learn music by making it." **Start sound** (`Enter`/`Space`/click) → `ctx.resume()` + `initAudio()`; preload drums first, then ebass, rhodes and piano (≈9 MB from localhost; Service Worker caches it). | Gesture unlock |
-| 0:05 | `onb.loop` | Drums start at once. Layers un-mute at bars 2 (bass), 3 (chords) and 5 (melody); each code line lights as it enters. Roll in part colours; staff hidden. Caption: "This is code. Each line is a musician." The four lines carry small "you'll unlock this" tags. | Awe; staged entry hides loading |
+| 0:05 | `onb.loop` | Drums start at once. Layers un-mute at bars 2 (bass), 3 (chords) and 5 (melody); each code line lights as it enters. Roll in part colours; staff hidden. The transport keeps play/stop, the bar counter and the mute chips only (no tempo, key, practice speed, loop, metronome or solo on day 1). Caption: "This is code. Each line is a musician." The four lines carry small "you'll unlock this" tags. | Awe; staged entry hides loading |
 | 0:40 | `onb.edit` | Dashed box on the last `4`: "Change this number to anything from 0 to 7, then press Ctrl+Enter." The roll updates instantly; the bar-4 note pulses with "plays in N bars". | Agency |
 | ≤1:30 | `onb.react` | Deterministic reaction keyed by the chosen value, e.g. 6 → "You ended on 7 (ti). Hear how it leans up, wanting to go home?"; 0 → "You ended on 1 (do) — home, though the chord underneath hasn't arrived yet." 8 variants. | **Wow** without an API dependency |
 | 1:45 | `onb.tutor` | `/api/health` ready → tutor slides in and streams a 2-sentence greeting that references the edit (low effort). Otherwise a non-blocking card: "Connect your tutor: add `ANTHROPIC_API_KEY=…` to `.env.local` in the Oak folder and restart `bun run start`. The key stays on the server." **Check again**. | Tutor is central and honest |
@@ -1296,7 +1297,7 @@ The melody's chord tones line up with the chords: G E G over C; C E over Am; A F
 | 4:45 | `onb.latency` | `latency.tap` (singing latency deferred to U0.2) | — |
 | 5:30 | `onb.range` | `voice.range` | — |
 | 7:00 | `onb.firstSing` | The loop plays softly: "Sing the note that feels like the end." PitchLane with a hidden target (C, folded). On success the loop resolves with the learner's note highlighted: "That note is 1 — do. Everything in Oak is measured from here." | Second wow; core metaphor |
-| 8:15 | `onb.prefs` | Flavour (Pop/rock/indie · Jazz/soul/funk · Both); daily target 15/20/25; weekly goal (default 5); optional **Add to calendar** (.ics). | Autonomy |
+| 8:15 | `onb.prefs` | Style (Pop · Jazz-soul, each with Hear it; the names and blurbs of the song style cards); daily target 15/20/25; weekly goal (default 5); optional **Add to calendar** (.ics). | Autonomy |
 | 9:00 | `onb.sketch` | "Make it yours — change anything, then save." Saves **Sketch 001**. | Every session ends with a sketch |
 | 9:40 | `onb.coda` | Coda-lite: seedling sprouts; Toolbox ceremony for `s()` + `piano` + uzu kit; teaser "Next: Rows and layers" (`$:` and mini-notation). **Done for today** / *Continue to U0.2*. | Close the loop |
 

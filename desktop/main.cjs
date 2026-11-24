@@ -90,7 +90,13 @@ function startServer(port) {
   const logPath = logFile();
   serverLog = fs.createWriteStream(logPath, { flags: "a" });
   serverLog.write(`\n--- ${new Date().toISOString()} Oak ${app.getVersion()} on port ${port}\n`);
-  const env = { ...process.env, PATH: loginPath(), OAK_PORT: String(port) };
+  // The version Settings › About and the ops records report (server/src/config.ts): this app's, from package.json.
+  const env = {
+    ...process.env,
+    PATH: loginPath(),
+    OAK_PORT: String(port),
+    OAK_APP_VERSION: app.getVersion(),
+  };
   delete env.OAK_DEV;
   delete env.ELECTRON_RUN_AS_NODE;
   server = spawn(bun, ["server/src/main.ts", "--serve-dist"], {

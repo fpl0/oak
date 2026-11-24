@@ -1,4 +1,4 @@
-// `onb.prefs` (ux §8): the flavour of the backing band (Pop or Jazz-soul, each with an audible preview), the
+// `onb.prefs` (ux §8): the style of the backing band (Pop or Jazz-soul, each with an audible preview), the
 // daily length (15 / 20 / 25 minutes) and the weekly goal (3–7 days, default 5). Saved to the profile.
 import type { Profile } from "@oak/api";
 import type { PatternPlayer } from "@oak/strudel";
@@ -7,6 +7,7 @@ import { ArrowRight, Pause, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { getOak } from "../../lib/oak.ts";
 import { useProfileUpdate } from "../../lib/queries.ts";
+import { SONG_STYLES } from "../../song/surfaces-model.ts";
 import { Button } from "../../ui/kit/Button.tsx";
 import { Callout, SegmentedControl, type SegmentOption, Stepper } from "../../ui/kit/Controls.tsx";
 import { toast } from "../../ui/kit/Toast.tsx";
@@ -14,14 +15,14 @@ import { PartActions, type PartBack } from "../../voice/parts/common.tsx";
 import type { PrefFlavour } from "../prefs.ts";
 import { PREVIEW_BPM, previewCode, withInstalledBanks } from "../prefs.ts";
 
-const FLAVOURS: readonly { id: PrefFlavour; title: string; blurb: string }[] = [
-  { id: "flavour.pop", title: "Pop", blurb: "Straight eighths, a punchy kit, electric bass and piano." },
-  {
-    id: "flavour.jazz-soul",
-    title: "Jazz-soul",
-    blurb: "A swung ride, upright bass and Rhodes, richer chords.",
-  },
-];
+// The two styles a first-day learner can hear apart, named and described as Settings and the song style cards do
+// (shared decision: one setting, called "Style", with one set of names and blurbs).
+const FLAVOURS: readonly { id: PrefFlavour; title: string; blurb: string }[] = (
+  ["flavour.pop", "flavour.jazz-soul"] as const
+).map((id) => {
+  const s = SONG_STYLES.find((x) => x.id === id);
+  return { id, title: s?.name ?? id, blurb: s?.blurb ?? "" };
+});
 const MINUTES: readonly SegmentOption<"15" | "20" | "25">[] = [
   { value: "15", label: "15 min" },
   { value: "20", label: "20 min" },
@@ -102,17 +103,17 @@ export function PrefsScreen({
           Your sound and your week
         </h1>
         <p className="max-w-[60ch] font-medium text-text" data-testid="step-instruction">
-          Pick a backing band and how much time you have; the defaults are fine.
+          Pick a style and how much time you have; the defaults are fine.
         </p>
         <p className="max-w-[60ch] text-text-2">
-          Most lessons put your part inside a small backing band. Pick the one you'd rather hear; it changes
+          Most lessons put your part inside a small backing band. Pick the style you'd rather hear; it changes
           the sounds, never what you learn. You can change all of this in Settings.
         </p>
       </header>
 
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2 font-medium">Backing band</legend>
-        <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Backing band">
+        <legend className="mb-2 font-medium">Style</legend>
+        <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Style">
           {FLAVOURS.map((f) => {
             const on = flavour === f.id;
             return (
@@ -154,7 +155,7 @@ export function PrefsScreen({
                       <Play aria-hidden className="size-4" />
                     )
                   }
-                  aria-label={`${playing === f.id ? "Stop" : "Hear"} the ${f.title} band`}
+                  aria-label={`${playing === f.id ? "Stop" : "Hear"} the ${f.title} style`}
                   data-testid={`preview-${f.title.toLowerCase()}`}
                 >
                   {playing === f.id ? "Stop" : "Hear it"}

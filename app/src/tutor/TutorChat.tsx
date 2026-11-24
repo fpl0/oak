@@ -13,6 +13,7 @@ import { useHealth, useTutorRetractNote, useTutorStatus, useTutorTimeline } from
 import { Button } from "../ui/kit/Button.tsx";
 import { Skeleton } from "../ui/kit/basics.tsx";
 import { Callout } from "../ui/kit/Controls.tsx";
+import { SERVER_DOWN } from "../ui/kit/QueryState.tsx";
 import { toast } from "../ui/kit/Toast.tsx";
 import {
   askChat,
@@ -119,7 +120,7 @@ const STATUS_LINE: Record<Availability, { text: string; dot: string }> = {
   checking: { text: "Checking…", dot: "bg-text-3" },
   ready: { text: "Claude · ready", dot: "bg-accent" },
   off: { text: "Tutor off", dot: "bg-text-3" },
-  down: { text: "Oak's server is not answering", dot: "bg-issue" },
+  down: { text: SERVER_DOWN.title, dot: "bg-issue" },
 };
 
 function ThreadSwitch({ subject }: { subject: TutorSubject | null }) {
@@ -620,14 +621,14 @@ function OffGuidance({ down }: { down: boolean }) {
   const s = status.data;
   const signedOut = s?.backends.find((b) => b.id === "claude-cli" && b.reason === "not_logged_in");
   const title = down
-    ? "Oak's server is not answering"
+    ? SERVER_DOWN.title
     : s?.setting === "off"
       ? "The tutor is turned off"
       : signedOut && s?.setting !== "anthropic-api"
         ? "Claude is not signed in"
         : "The tutor is off";
   const body = down
-    ? "Start Oak again with `bun run start`. Your work is saved."
+    ? SERVER_DOWN.body
     : (s?.guidance ??
       reasonText(s?.reason ?? null) ??
       (offReason === "unreachable" ? "Claude could not be reached right now." : null));

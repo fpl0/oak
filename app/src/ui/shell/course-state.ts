@@ -20,6 +20,7 @@ import {
   type TrackState,
 } from "@oak/api";
 import type { SyllabusDef } from "@oak/content-kit";
+import { opensWithCheckpoint } from "../kit/lock-notes.ts";
 import { type BranchState, branchNote, branchState, listWords } from "../kit/model-w6.ts";
 import { type TrackCardState, trackCardState, trackNext, trackWaitingFor } from "../kit/model-w7.ts";
 
@@ -62,7 +63,8 @@ function requirementMet(ref: string, progress: NonNullable<ProgressLike>): boole
 }
 
 function requirementWords(ref: string, syllabus: SyllabusDef | null): string {
-  if (ref.endsWith(".CP")) return `Opens with the ${ref.replace(/\.CP$/, "")} checkpoint.`;
+  // In words, as the server's track note says it ("U13.CP" reads "the unit 13 checkpoint"): the kit's one wording.
+  if (ref.endsWith(".CP")) return opensWithCheckpoint(ref);
   const title = syllabus?.units.flatMap((u) => u.lessons).find((l) => l.id === ref)?.title;
   return title ? `Opens after ${title}.` : `Opens after ${ref}.`;
 }

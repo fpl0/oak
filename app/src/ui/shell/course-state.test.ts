@@ -81,14 +81,14 @@ describe("the advanced tracks in the shell", () => {
       lessons: [lesson("U03.L02", "completed")],
       checkpoints: [cp("U13.CP", "open")],
       tracks: [
-        track("J", "locked", "Opens with the U13 checkpoint."),
-        track("R", "locked", "Opens with the U13 checkpoint."),
+        track("J", "locked", "Opens with the unit 13 checkpoint."),
+        track("R", "locked", "Opens with the unit 13 checkpoint."),
         track("A", "open", "Its side lessons are open. The rest is still being written."),
       ],
     };
     const t = shellTracks(p, S);
     expect(oakTracksNote(t)).toBeNull();
-    expect(trackHint(t[0] as (typeof t)[number])).toBe("Advanced track · opens with the U13 checkpoint");
+    expect(trackHint(t[0] as (typeof t)[number])).toBe("Advanced track · opens with the unit 13 checkpoint");
   });
 
   test("one track open reads in the singular; a track with a lesson to start is named with it", () => {
@@ -99,7 +99,7 @@ describe("the advanced tracks in the shell", () => {
           checkpoints: [],
           tracks: [
             track("J", "open", "Open. Its first lessons are still being written."),
-            track("R", "locked", "Opens with the U13 checkpoint."),
+            track("R", "locked", "Opens with the unit 13 checkpoint."),
           ],
         }),
       ),
@@ -121,8 +121,8 @@ describe("the advanced tracks in the shell", () => {
   test("from a server that does not send tracks yet, the same gates are read from the course progress", () => {
     const before: P = { lessons: [lesson("U03.L02", "available")], checkpoints: [cp("U13.CP", "open")] };
     expect(shellTracks(before, S).map((t) => [t.trackId, t.state, t.note])).toEqual([
-      ["J", "locked", "Opens with the U13 checkpoint."],
-      ["R", "locked", "Opens with the U13 checkpoint."],
+      ["J", "locked", "Opens with the unit 13 checkpoint."],
+      ["R", "locked", "Opens with the unit 13 checkpoint."],
       [
         "A",
         "locked",
@@ -182,7 +182,7 @@ describe("after the core", () => {
       kind: "gym",
       id: null,
       title: "Transcription Gym",
-      note: "Ladder L8: Ain't She Sweet, form to tune. Every fifth session, or any day from Today.",
+      note: "Ladder level 8: Ain't She Sweet, form to tune. Every fifth session, or any day from Today.",
       available: true,
     },
     {

@@ -77,24 +77,29 @@ describe("track card", () => {
       gates: [gate(false, "U13 checkpoint passed")],
       next: null,
       nextSession: null,
-      note: "Opens with the U13 checkpoint.",
+      note: "Opens with the unit 13 checkpoint.",
     });
     expect(trackCardState(locked)).toBe("waiting");
     expect(trackWaitingFor(locked)).toBe("U13 checkpoint passed");
-    expect(trackCardLine(locked)).toBe("Waits for: U13 checkpoint passed.");
+    // In words, never the gate's id (shared decision 5): the server's label leads with "U13".
+    expect(trackCardLine(locked)).toBe("Waits for the unit 13 checkpoint.");
     // J2.L04 waits for U14.CP while the rest of the track goes on: a second gate, closed.
     const j2l04 = track({
       sessionsDone: 30,
       gates: [
         gate(true, "U13 checkpoint passed"),
-        { ...gate(false, "U14 checkpoint passed"), gateId: "J.chord-scales" },
+        {
+          ...gate(false, "U14 checkpoint passed"),
+          gateId: "J.chord-scales",
+          requires: [{ ref: "U14.CP", kind: "checkpoint", label: "U14 checkpoint passed", met: false }],
+        },
       ],
       next: null,
       nextSession: null,
       note: "J2.L04 opens with the U14 checkpoint.",
     });
     expect(trackCardState(j2l04)).toBe("waiting");
-    expect(trackCardLine(j2l04)).toBe("Waits for: U14 checkpoint passed.");
+    expect(trackCardLine(j2l04)).toBe("Waits for the unit 14 checkpoint.");
     expect(trackCardLine(j2l04)).not.toMatch(/\d+ (more|left|missing|remaining)/);
   });
 

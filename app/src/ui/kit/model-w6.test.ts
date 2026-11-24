@@ -282,8 +282,8 @@ describe("branch card", () => {
     expect(branchSummary("Jazz Harmony", "open", "Its first lessons are still being written.")).toBe(
       "Jazz Harmony: open. Its first lessons are still being written.",
     );
-    expect(branchSummary("Advanced Rhythm", "locked", "Opens with the U13 checkpoint.")).toBe(
-      "Advanced Rhythm: not open yet. Opens with the U13 checkpoint.",
+    expect(branchSummary("Advanced Rhythm", "locked", "Opens with the unit 13 checkpoint.")).toBe(
+      "Advanced Rhythm: not open yet. Opens with the unit 13 checkpoint.",
     );
     expect(branchSummary("Jazz Harmony", "ready", "")).toBe("Jazz Harmony: open.");
   });
@@ -295,7 +295,9 @@ describe("branch card", () => {
     expect(branchNote("ready", "Next: J1.L01 Swing Feel & the Ride.")).toBe(
       "Next: J1.L01 Swing Feel & the Ride.",
     );
-    expect(branchNote("locked", "Opens with the U13 checkpoint.")).toBe("Opens with the U13 checkpoint.");
+    expect(branchNote("locked", "Opens with the unit 13 checkpoint.")).toBe(
+      "Opens with the unit 13 checkpoint.",
+    );
     expect(branchSummary("Jazz Harmony", "open", "Open. Its first lessons are still being written.")).toBe(
       "Jazz Harmony: open. Its first lessons are still being written.",
     );

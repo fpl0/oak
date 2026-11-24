@@ -194,10 +194,12 @@ export function formatKeys(keys: string, isMac: boolean): string {
   return first
     .split(/\s+/)
     .map((step) =>
+      // A "+" that ends the step is the plus key itself ("+", "Shift++"), not a separator.
       step
-        .split("+")
+        .split(/\+(?!$)/)
         .map((p) => {
           const l = p.toLowerCase();
+          if (l === "plus") return "+";
           if (l === "mod") return isMac ? "⌘" : "Ctrl";
           if (l === "shift") return isMac ? "⇧" : "Shift";
           if (l === "alt") return isMac ? "⌥" : "Alt";

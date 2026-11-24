@@ -8,17 +8,33 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { formatDate } from "../../lib/format.ts";
 import { usePageTitle } from "../../lib/nav.ts";
 import { formatNoteMidi } from "../../lib/notes.ts";
-import { useCalibrations, useProfile } from "../../lib/queries.ts";
+import { useCalibrations, useCourseProgress, useProfile } from "../../lib/queries.ts";
 import { useUpdateProfile } from "../../lib/settings.ts";
+import { useLessonTitles } from "../../song/hooks.ts";
 import { buttonClass } from "../../ui/kit/Button.tsx";
 import { Callout } from "../../ui/kit/Controls.tsx";
 import { Field, ReadOnlyRow, Section, Switch } from "../../ui/kit/Field.tsx";
 import { QueryView } from "../../ui/kit/QueryState.tsx";
 import { calibrationLine, inputLabel, lastMatch } from "../../voice/history.ts";
-import { outputChoiceOf, outputGuidance } from "../../voice/logic.ts";
+import { noiseVerdict, outputChoiceOf, outputGuidance } from "../../voice/logic.ts";
 import { LadderCard, QuietControl, RecheckHint } from "../../voice/panels.tsx";
 import { HIGH_FLOOR_DB } from "../../voice/recheck.ts";
 import { useVoice, type Voice } from "../../voice/use-voice.ts";
+import { SYLLABLES_LESSON, syllablesHelp } from "./-data/voice-copy.ts";
+
+/** A result line, with a quiet check's number in plain words ("Noise floor · −62 dBFS: a quiet room"). */
+function withNoiseWords(r: CalibrationRecord): string {
+  const line = calibrationLine(r);
+  const db = r.kind === "noise" ? (r.result as { floorDb?: unknown }).floorDb : null;
+  return typeof db === "number" && Number.isFinite(db)
+    ? `${line}: ${noiseVerdict(db).ok ? "a quiet room" : "a little noisy"}`
+    : line;
+}
+
+/** A noise floor in plain words after the number: "−62 dBFS: a quiet room". */
+function noiseWords(db: number): string {
+  return `${Math.round(db)} dBFS: ${noiseVerdict(db).ok ? "a quiet room" : "a little noisy"}`;
+}
 
 export const Route = createFileRoute("/settings/voice")({ component: VoiceSettings });
 
@@ -34,7 +50,7 @@ function History({ items }: { items: CalibrationRecord[] | null }) {
       {items.slice(0, 8).map((r) => (
         <li key={r.id} className="grid gap-1 py-2 text-sm sm:grid-cols-[14rem_1fr]">
           <span className="text-text-3">{formatDate(r.at)}</span>
-          <span>{calibrationLine(r)}</span>
+          <span>{withNoiseWords(r)}</span>
         </li>
       ))}
     </ul>
@@ -43,6 +59,11 @@ function History({ items }: { items: CalibrationRecord[] | null }) {
 
 function VoicePage({ p, voice }: { p: Profile; voice: Voice }) {
   const update = useUpdateProfile();
+  const titleOf = useLessonTitles();
+  const progress = useCourseProgress();
+  const syllablesDone = progress.data
+    ? progress.data.lessons.some((l) => l.lessonId === SYLLABLES_LESSON && l.status === "completed")
+    : null;
   const runs = useCalibrations();
   const items = runs.isSuccess ? runs.data.items : runs.isError ? null : [];
   const match = items ? lastMatch(items) : null;
@@ -63,7 +84,7 @@ function VoicePage({ p, voice }: { p: Profile; voice: Voice }) {
               "not measured"
             ) : (
               <span data-testid="noise-floor">
-                {Math.round(p.noiseFloorDb)} dBFS
+                {noiseWords(p.noiseFloorDb)}
                 {floorHigh && (
                   <span className="block text-sm text-text-3">
                     High for singing: Oak may miss a soft voice. A quieter spot and a fresh quiet check help.
@@ -153,10 +174,7 @@ function VoicePage({ p, voice }: { p: Profile; voice: Voice }) {
         description="How close a sung note must be to count. It follows your singing, not the calendar."
       >
         <LadderCard voice={voice} />
-        <Field
-          label="Sing on syllables"
-          help="do re mi instead of numbers. Numbers are always accepted; syllables arrive with U03.L08."
-        >
+        <Field label="Sing on syllables" help={syllablesHelp(titleOf(SYLLABLES_LESSON), syllablesDone)}>
           {({ id, describedBy }) => (
             <Switch
               id={id}
@@ -168,32 +186,19 @@ function VoicePage({ p, voice }: { p: Profile; voice: Voice }) {
         </Field>
       </Section>
 
-      <Section
-        title="Timing"
-        description="Measured with your current headphones; re-run it when they change."
-      >
-        <ReadOnlyRow
-          label="Tap latency"
-          value={
-            p.tapLatencyMs === null
-              ? "not measured"
-              : `${Math.round(p.tapLatencyMs)} ms${p.tapJitterMs === null ? "" : ` (±${Math.round(p.tapJitterMs)} ms)`}`
-          }
-        />
-        <ReadOnlyRow
-          label="Sing latency"
-          value={p.singLatencyMs === null ? "not measured" : `${Math.round(p.singLatencyMs)} ms`}
-        />
-        <div className="py-3">
+      {/* Timing has one card, in Settings › Audio beside the headphones it depends on; this page points there. */}
+      <Section title="Timing">
+        <p className="py-3 text-sm text-text-2">
+          How late your taps and your singing reach Oak is measured with your headphones, in{" "}
           <Link
-            to="/settings/voice/setup"
-            search={{ part: "latency" }}
-            className={buttonClass("secondary")}
-            data-testid="rerun-latency"
+            to="/settings/audio"
+            className="font-medium text-link underline-offset-2 hover:underline"
+            data-testid="voice-timing-link"
           >
-            {p.tapLatencyMs === null && p.singLatencyMs === null ? "Measure timing" : "Measure timing again"}
+            Settings › Audio
           </Link>
-        </div>
+          .
+        </p>
       </Section>
 
       <Section title="Recent results">

@@ -23,6 +23,18 @@ import { Dialog } from "../kit/Dialog.tsx";
 import { resolveTheme, usePrefs } from "../theme/prefs.ts";
 import { useTutorToggle } from "./status.tsx";
 
+/** What a learner may type to find a Settings section by what is in it ("reset" → Settings › Data). */
+const SETTINGS_KEYWORDS: Readonly<Record<string, readonly string[]>> = {
+  audio: ["sound", "output", "latency", "timing"],
+  voice: ["microphone", "mic", "singing", "pitch"],
+  tutor: ["claude", "api key", "ask"],
+  learning: ["style", "lens", "teaser", "goal"],
+  appearance: ["theme", "dark", "light", "motion"],
+  keys: ["shortcuts", "keyboard"],
+  data: ["reset", "reset progress", "backup", "export", "import", "restore"],
+  about: ["version", "credits", "licence"],
+};
+
 function anyDialogOpen(): boolean {
   return document.querySelector("dialog[open]") !== null;
 }
@@ -136,6 +148,15 @@ export function GlobalKeys() {
 
   const commands = useMemo<Command[]>(
     () => [
+      {
+        // The same as G L: the lesson this tab left open, else Today, which says what is next.
+        id: "nav:continue",
+        title: "Continue lesson",
+        group: "Navigate",
+        shortcut: "G L",
+        keywords: ["resume", "lesson", "today's session", "start", "next"],
+        run: () => void resumeLesson(),
+      },
       ...NAV_ITEMS.map(
         (item): Command => ({
           id: `nav:${item.id}`,
@@ -151,7 +172,7 @@ export function GlobalKeys() {
           id: `nav:settings-${s.id}`,
           title: `Settings › ${s.label}`,
           group: "Settings",
-          keywords: ["settings", s.id],
+          keywords: ["settings", s.id, ...(SETTINGS_KEYWORDS[s.id] ?? [])],
           run: () => void router.navigate({ to: `/settings/${s.id}` }),
         }),
       ),

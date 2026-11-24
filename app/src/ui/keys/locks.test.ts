@@ -38,23 +38,23 @@ describe("locked rows in the shortcut sheet", () => {
     const none = new Set<string>();
     expect(rowLock("workbench", "Shift+I", none, true, T, S)).toEqual({
       locked: true,
-      note: "Opens with U12 · Seventh Chords",
+      note: "Opens with unit 12, Seventh Chords.",
     });
     expect(rowLock("workbench", "Shift+I", new Set(["chord.seventh"]), true, T, S)).toBeNull();
     // The beat grid: compound meter (U13.L04) or .ply() (U13.L05); either one opens it.
-    expect(rowLock("workbench", "Shift+V", none, true, T, S)?.note).toBe("Opens with U13 · Rhythm II");
+    expect(rowLock("workbench", "Shift+V", none, true, T, S)?.note).toBe("Opens with unit 13, Rhythm II.");
     expect(rowLock("workbench", "Shift+V", new Set(["tb.ply"]), true, T, S)).toBeNull();
     expect(rowLock("workbench", "Shift+V", new Set(["tb.meter.compound"]), true, T, S)).toBeNull();
     // The key ribbon's tool is the patterned .scale() of U03: locked only before it.
-    expect(rowLock("workbench", "Shift+J", none, true, T, S)?.note).toMatch(/^Opens with U03 · /);
+    expect(rowLock("workbench", "Shift+J", none, true, T, S)?.note).toMatch(/^Opens with unit 3, /);
     expect(rowLock("workbench", "Shift+J", new Set(["tb.scale.patterned"]), true, T, S)).toBeNull();
     expect(rowLock("workbench", "Shift+J", none, false, T, S)).toBeNull();
   });
 
-  test("where a row opens, in the course's words", () => {
-    expect(opensWith("tb.lens.form", T, S)).toBe("U09 · Form");
-    expect(opensWith("scale.blues", T, S)).toBe("U11 · Pentatonic & Blues");
-    expect(opensWith("tb.scope", T, S)).toMatch(/^the side lesson /);
+  test("where a row opens, in the course's words, never by an id alone", () => {
+    expect(opensWith("tb.lens.form", T, S)).toBe("unit 9, Form");
+    expect(opensWith("scale.blues", T, S)).toBe("unit 11, Pentatonic & Blues");
+    expect(opensWith("tb.scope", T, S)).toMatch(/^the side lesson “.+”$/);
     expect(opensWith("tb.nothing", T, S)).toBeNull();
   });
 
@@ -62,13 +62,15 @@ describe("locked rows in the shortcut sheet", () => {
     const none = new Set<string>();
     expect(rowLock("workbench", "Shift+O", none, true, T, S)).toEqual({
       locked: true,
-      note: "Opens with U09 · Form",
+      note: "Opens with unit 9, Form.",
     });
     expect(rowLock("workbench", "Shift+O", new Set(["tb.lens.form"]), true, T, S)).toBeNull();
     expect(rowLock("workbench", "Shift+O", none, false, T, S)).toBeNull();
     expect(rowLock("editor", "Mod+Enter", none, true, T, S)).toBeNull();
     expect(rowLock("workbench", "L", none, true, T, S)).toBeNull();
-    expect(rowLock("workbench", "Shift+W", none, true, T, S)?.note).toMatch(/^Opens with the side lesson /);
+    expect(rowLock("workbench", "Shift+W", none, true, T, S)?.note).toMatch(
+      /^Opens with the side lesson “.+”\.$/,
+    );
   });
 
   test("Wave 7: a track lens key opens with its tool or its lesson; nothing is marked before the progress loads", () => {
@@ -83,10 +85,10 @@ describe("locked rows in the shortcut sheet", () => {
     expect(rowLock("workbench", "Shift+X", none, true, T, S, null)).toBeNull();
     expect(rowLock("workbench", "Shift+X", none, true, T, S, new Set())).toEqual({
       locked: true,
-      note: "Opens with J2.L03 Extensions",
+      note: "Opens with the lesson “Extensions”.",
     });
     expect(rowLock("workbench", "Shift+D", none, true, T, S, new Set())?.note).toMatch(
-      /^Opens with A2\.L02 /,
+      /^Opens with the lesson “.+”\.$/,
     );
     // The lesson opens it; so does the tool, wherever it unlocks.
     expect(rowLock("workbench", "Shift+X", none, true, T, S, new Set(["J2.L03"]))).toBeNull();

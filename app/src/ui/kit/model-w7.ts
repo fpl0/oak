@@ -4,6 +4,7 @@
 // slider that plays. Every piece draws and reports only; the owner measures, plays and words the music.
 import type { TrackState } from "@oak/api";
 import { euclid } from "@oak/theory";
+import { waitsForNote } from "./lock-notes.ts";
 import { dbFraction, dbText } from "./model-w6.ts";
 
 // --- track card ------------------------------------------------------------------------------------
@@ -80,7 +81,8 @@ export function trackNextLine(next: NonNullable<ReturnType<typeof trackNext>>): 
 }
 
 /**
- * The card's one line. Waiting names the gate ("Waits for: U14 checkpoint passed."), never a count of what is
+ * The card's one line. Waiting names the gate in words ("Waits for the unit 14 checkpoint.", `waitsForNote`: the
+ * server's label leads with the id), never a count of what is
  * missing (wave7.md §10 item 18); a waiting track with no closed gate keeps the server's note. Open and in
  * progress name the next session; complete says so plainly.
  */
@@ -88,8 +90,11 @@ export function trackCardLine(t: TrackLike): string {
   const state = trackCardState(t);
   if (state === "complete") return `All ${t.sessionsTotal} sessions done. Every lesson stays open to replay.`;
   if (state === "waiting") {
-    const gate = trackWaitingFor({ gates: t.gates });
-    return gate ? `Waits for: ${gate}.` : t.note.replace(/^Open\.\s+/, "");
+    const gate = t.gates.filter((g) => !g.open).flatMap((g) => g.requires.find((r) => !r.met) ?? [])[0];
+    // A track's own checkpoint is named by the server's label ("Jazz checkpoint 1 passed"), which carries no id.
+    const named =
+      gate?.kind === "checkpoint" && !/^U\d+\.CP$/.test(gate.ref) ? gate.label.replace(/ passed$/, "") : null;
+    return gate ? waitsForNote(gate, named) : t.note.replace(/^Open\.\s+/, "");
   }
   const next = trackNext(t);
   return next ? trackNextLine(next) : t.note;

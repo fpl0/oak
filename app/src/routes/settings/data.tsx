@@ -201,8 +201,12 @@ function DataSettings() {
         }
       >
         <label className="flex flex-col gap-1 text-sm">
-          Type <code className="font-mono">RESET OAK</code> to confirm
+          {/* One sentence: the label stacks its children, so the words share a span or they break onto three lines. */}
+          <span>
+            Type <code className="font-mono">RESET OAK</code> to confirm
+          </span>
           <input
+            data-autofocus
             value={typed}
             onChange={(e) => setTyped(e.target.value)}
             className="h-9 rounded-control border border-border bg-surface px-2 font-mono"

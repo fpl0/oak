@@ -73,6 +73,11 @@ describe("chords", () => {
     expect(formatKeys("Shift+ArrowUp", true)).toBe("⇧↑");
     expect(formatKeys("Mod+ArrowDown", false)).toBe("Ctrl+↓");
     expect(formatKeys("ArrowLeft", false)).toBe("←");
+    expect(formatKeys("+", false)).toBe("+");
+    expect(formatKeys("+", true)).toBe("+");
+    expect(formatKeys("Shift++", false)).toBe("Shift++");
+    expect(formatKeys("Mod++", true)).toBe("⌘+");
+    expect(formatKeys("Mod+Plus", false)).toBe("Ctrl++");
   });
 });
 

@@ -18,16 +18,16 @@ describe("the track lenses in the shell", () => {
     });
   });
 
-  test("a lens not open says where it opens, by the lesson's id and title", () => {
-    expect(trackLensOpens("clave", S)).toBe("Opens with R3.L02 Clave Direction");
-    expect(trackLensOpens("clave", null)).toBe("Opens with R3.L02");
+  test("a lens not open says where it opens, by the lesson's title, never its id", () => {
+    expect(trackLensOpens("clave", S)).toBe("Opens with the lesson “Clave Direction”.");
+    expect(trackLensOpens("clave", null)).toBe("Opens with a later lesson.");
     const rows = trackLensRows(all(true), { ...all(false), voicings: true }, S);
     expect(rows.map((r) => r.id)).toEqual([...TRACK_LENS_IDS]);
     const voicings = rows.find((r) => r.id === "voicings");
     expect(voicings).toMatchObject({ available: true, on: true, state: "On", keys: null });
     const tensions = rows.find((r) => r.id === "tensions");
     expect(tensions).toMatchObject({ available: false, on: false, keys: "Shift+X" });
-    expect(tensions?.state).toMatch(/^Opens with J2\.L03 /);
+    expect(tensions?.state).toBe("Opens with the lesson “Extensions”.");
     // Never a count of what is missing.
     for (const r of rows) expect(r.state).not.toMatch(/\d+ (more|left|to go)/);
   });

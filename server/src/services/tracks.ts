@@ -24,6 +24,12 @@ type CoreStage = CoreCompletion["stage"];
 /** The gate whose meeting opens each track (contracts §4.3; `TrackState.status`). */
 const MAIN_GATE: Record<TrackId, string> = { J: "J.main", R: "R.main", A: "A.side" };
 /** The track's name inside a sentence ("The Jazz and Rhythm tracks are open"). */
+/** A checkpoint in the learner's words: "U13.CP" reads "the unit 13 checkpoint" (an ID never stands alone). */
+export function checkpointWords(ref: string): string {
+  const unit = /^U(\d+)\.CP/.exec(ref);
+  return unit ? `the unit ${Number(unit[1])} checkpoint` : "its checkpoint";
+}
+
 const TRACK_SHORT: Record<TrackId, string> = { J: "Jazz", R: "Rhythm", A: "Arrangement" };
 /** The core-complete milestone (content/milestones.ts; ux §5.5 M7). */
 export const CORE_MILESTONE = "ms.07";
@@ -200,8 +206,8 @@ export class TracksService {
         first === undefined
           ? "Not open yet."
           : first.kind === "checkpoint"
-            ? `Opens with the ${first.ref.replace(/\.CP\d*$/, "")} checkpoint.`
-            : `Opens with ${first.ref}.`;
+            ? `Opens with ${checkpointWords(first.ref)}.`
+            : `Opens with the lesson “${this.#content.lessonTitle(first.ref)}”.`;
     } else if (nextSession !== null && nextSession !== undefined && nextSession.kind !== "lesson")
       note = `Next: ${nextSession.mapItemId} ${nextSession.title}.`;
     else if (next !== null) note = `Next: ${next} ${this.#content.lessonTitle(next)}.`;
@@ -487,9 +493,9 @@ export class TracksService {
       id: null,
       title: "Transcription Gym",
       note: !gymOpen
-        ? "Opens with U07.L01."
+        ? `Opens with the lesson “${this.#content.lessonTitle("U07.L01")}”.`
         : standard !== null
-          ? `Ladder L8: ${standard}, form to tune. Every fifth session, or any day from Today.`
+          ? `Ladder level 8: ${standard}, form to tune. Every fifth session, or any day from Today.`
           : "Your own audio, a full arrangement at a time. Every fifth session, or any day from Today.",
       available: gymOpen,
     });

@@ -91,6 +91,8 @@ export interface IconButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonEle
   size?: ButtonSize;
   pressed?: boolean;
   tooltipSide?: "top" | "right" | "bottom" | "left";
+  /** See `Tooltip`'s `align`: `end` for an icon at the right edge of the window. */
+  tooltipAlign?: "start" | "center" | "end";
   ref?: Ref<HTMLButtonElement>;
 }
 
@@ -106,11 +108,12 @@ export function IconButton({
   className,
   type = "button",
   tooltipSide = "bottom",
+  tooltipAlign = "center",
   ref,
   ...rest
 }: IconButtonProps) {
   return (
-    <Tooltip content={label} shortcut={shortcut} side={tooltipSide}>
+    <Tooltip content={label} shortcut={shortcut} side={tooltipSide} align={tooltipAlign}>
       <button
         ref={ref}
         type={type}

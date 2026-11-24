@@ -53,10 +53,10 @@ test("the shortcut sheet lists the section, chart and control keys, and says whe
   const wb = sheet.locator('[data-sheet-section="workbench"]');
   const row = (k: string) => wb.locator(`[data-sheet-row="${k}"]`);
   await expect(row("Shift+O")).toHaveAttribute("data-locked", "true");
-  await expect(row("Shift+O")).toContainText("Opens with U09 · Form");
-  await expect(row("Shift+E")).toContainText("Opens with U09 · Form");
-  await expect(row("Shift+B")).toContainText("Opens with U08 · Bass Lines");
-  await expect(row("Shift+U")).toContainText("Opens with U11 · Pentatonic & Blues");
+  await expect(row("Shift+O")).toContainText("Opens with unit 9, Form.");
+  await expect(row("Shift+E")).toContainText("Opens with unit 9, Form.");
+  await expect(row("Shift+B")).toContainText("Opens with unit 8, Bass Lines.");
+  await expect(row("Shift+U")).toContainText("Opens with unit 11, Pentatonic & Blues.");
   await expect(row("Shift+W")).toContainText("Opens with the side lesson");
   // What the learner has is not marked: the loop, the degree lens (U03.L02), the key panel (U03.L06).
   for (const k of ["L", "D", "Shift+K"]) await expect(row(k)).not.toHaveAttribute("data-locked", "true");

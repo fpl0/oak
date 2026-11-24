@@ -7,15 +7,28 @@ import type { ReactNode } from "react";
 import { Button } from "./Button.tsx";
 import { EmptyState, Skeleton } from "./basics.tsx";
 
+/**
+ * What every surface says while Oak's server is not answering (pages, Settings, the tutor panel): one message and one
+ * way back. The desktop app never shows it: it says "Oak stopped" itself and quits (desktop/main.cjs). Queries ask
+ * again when the window gets the focus back (lib/query-client.ts), so the page fills in once the server is back.
+ */
+export const SERVER_DOWN = {
+  title: "Oak's server isn't answering",
+  body: "Start Oak again (in a terminal: bun run start). Your work is saved.",
+} as const;
+
+/** The server is not there: no response at all, or the dev proxy's "bad gateway" or "gateway timeout" in its place. */
+export function isServerDown(error: unknown): boolean {
+  return (
+    error instanceof OakApiError && (error.code === "network" || error.status === 502 || error.status === 504)
+  );
+}
+
 /** Learner-facing copy for an API failure. Never shows a stack or a raw status line. */
 export function describeError(error: unknown): { title: string; body: string } {
+  if (isServerDown(error)) return { ...SERVER_DOWN };
   if (error instanceof OakApiError) {
     switch (error.code) {
-      case "network":
-        return {
-          title: "Oak's server isn't answering",
-          body: "Start it with `bun run dev` (or `bun run oak`) and this page will fill in.",
-        };
       case "not_found":
         return { title: "Nothing here", body: "This item doesn't exist, or it was deleted." };
       case "contract":

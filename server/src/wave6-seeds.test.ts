@@ -257,7 +257,7 @@ async function deepChecks(h: Harness, point: string, plan: SessionPlan): Promise
         expect({ id, has: u.has(id) }).toEqual({ id, has: true });
       const tracks = await ok<Tracks>(h, "GET", "/api/tracks");
       expect(tracks.items.find((t) => t.trackId === "J")?.status).toBe("locked");
-      expect(tracks.items.find((t) => t.trackId === "J")?.note).toBe("Opens with the U13 checkpoint.");
+      expect(tracks.items.find((t) => t.trackId === "J")?.note).toBe("Opens with the unit 13 checkpoint.");
       break;
     }
     case "tracks open (after U13.CP)": {

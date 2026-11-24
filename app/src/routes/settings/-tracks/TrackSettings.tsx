@@ -136,7 +136,7 @@ export function TrackSettings() {
             help={
               <>
                 {r.what[0]?.toUpperCase()}
-                {r.what.slice(1)}.{r.available ? "" : ` ${r.state}.`}
+                {r.what.slice(1)}.{r.available ? "" : ` ${r.state.replace(/\.$/, "")}.`}
                 {r.keys && (
                   <>
                     {" "}

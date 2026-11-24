@@ -4,7 +4,14 @@ import { useNavigate } from "@tanstack/react-router";
 import { clsx } from "clsx";
 import { Search } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { allCommands, type Command, rankCommands, useCommandStore } from "../../lib/commands.ts";
+import { unitSongs } from "../../../../content/unit-songs/index.ts";
+import {
+  allCommands,
+  type Command,
+  groupInOrder,
+  rankCommands,
+  useCommandStore,
+} from "../../lib/commands.ts";
 import { useContent } from "../../lib/content.ts";
 import { apiQuery } from "../../lib/queries.ts";
 import { useShell } from "../../lib/shell-store.ts";
@@ -20,12 +27,14 @@ import {
   unwrittenHint,
 } from "./course-state.ts";
 import { sideLessonHint } from "./side-lessons.ts";
+import { reachedUnits, songEntries } from "./song-commands.ts";
 
 function useSearchCommands(open: boolean): Command[] {
   const navigate = useNavigate();
   const content = useContent();
   const sketches = useQuery({ ...apiQuery("sketches.list", { query: {} }), enabled: open });
   const album = useQuery({ ...apiQuery("album.get"), enabled: open });
+  const songs = useQuery({ ...apiQuery("songs.list"), enabled: open });
   // Wave 5: side lessons say they are optional and where they stand: the server's answer when a page loaded it
   // (never fetched here), else the unlock list the shell has anyway.
   const side = useQuery({ ...apiQuery("sideLessons.list"), enabled: false });
@@ -85,7 +94,25 @@ function useSearchCommands(open: boolean): Command[] {
         },
       });
     }
-    for (const u of content.data?.syllabus?.units ?? [])
+    // Unit songs (1.3.0): by the title Today and the song page show, before the lessons that make them.
+    const units = content.data?.syllabus?.units ?? [];
+    const reached = reachedUnits(progress.data?.lessons ?? [], progress.data?.next ?? null);
+    for (const s of songEntries(
+      unitSongs,
+      songs.data?.items ?? [],
+      reached,
+      (id) => units.find((u) => u.id === id)?.title,
+    ))
+      out.push({
+        id: `song:${s.unitId}`,
+        title: s.title,
+        group: "Songs",
+        hint: s.hint,
+        keywords: s.keywords,
+        run: () => void navigate({ to: "/song/$unitId", params: { unitId: s.unitId } }),
+      });
+    const lessonState = new Map((progress.data?.lessons ?? []).map((p) => [p.lessonId as string, p.status]));
+    for (const u of units)
       for (const l of u.lessons) {
         // A lesson nobody has written yet is listed honestly and leads to the course view, not to an empty page.
         const unwritten = unwrittenHint(l.id, authored);
@@ -102,7 +129,8 @@ function useSearchCommands(open: boolean): Command[] {
               toolbox: content.data?.toolbox ?? [],
               syllabus: content.data?.syllabus ?? null,
             }) ??
-            l.id,
+            // A lesson still ahead says so (its page says "This lesson isn't open yet").
+            (lessonState.get(l.id) === "locked" ? `${l.id} · not open yet` : l.id),
           keywords: l.side ? [l.id, u.title, "side lesson", "optional", "sound"] : [l.id, u.title],
           run: unwritten
             ? toCourse
@@ -139,6 +167,7 @@ function useSearchCommands(open: boolean): Command[] {
     content.data,
     sketches.data,
     album.data,
+    songs.data,
     side.data,
     progress.data,
     completion.data,
@@ -162,7 +191,9 @@ export function CommandPalette() {
   const commands = useMemo(() => {
     const base = allCommands(sources);
     // Search results only once the learner types: an empty palette shows navigation and actions.
-    return query.trim() ? rankCommands(query, [...base, ...search], 40) : base.slice(0, 40);
+    return query.trim()
+      ? groupInOrder(rankCommands(query, [...base, ...search], 40))
+      : groupInOrder(rankCommands("", base, 40));
   }, [sources, search, query]);
 
   useEffect(() => {
@@ -178,6 +209,11 @@ export function CommandPalette() {
   }, [open]);
 
   useEffect(() => setActive(0), [query]);
+  // The arrow keys move the active row; the list follows it, or Enter would run a row scrolled out of sight.
+  useEffect(() => {
+    if (!open) return;
+    document.getElementById(`${listId}-${active}`)?.scrollIntoView({ block: "nearest" });
+  }, [open, active, listId]);
 
   const runAt = (i: number) => {
     const c = commands[i];

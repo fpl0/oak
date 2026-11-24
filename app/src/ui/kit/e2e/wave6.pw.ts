@@ -363,7 +363,7 @@ test("the album player bar plays, changes track and stops from the keyboard; a b
   await expect(open.getByRole("button", { name: "See it on the Oak" })).toBeVisible();
   const locked = page.getByTestId("branch-locked");
   await expect(locked.getByTestId("branch-state")).toHaveText("Not open yet");
-  await expect(locked.getByTestId("branch-note")).toHaveText("Opens with the U13 checkpoint.");
+  await expect(locked.getByTestId("branch-note")).toHaveText("Opens with the unit 13 checkpoint.");
   await expect(locked.getByRole("button")).toHaveCount(0);
   const ready = page.getByTestId("branch-ready");
   await expect(ready.getByRole("button", { name: "Start A1.L03" })).toBeVisible();

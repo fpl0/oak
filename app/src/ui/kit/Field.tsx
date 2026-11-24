@@ -80,15 +80,17 @@ export function Switch({
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={clsx(
-        "relative inline-flex h-6 w-10 shrink-0 items-center rounded-full border transition-colors disabled:opacity-50",
-        checked ? "border-accent bg-accent" : "border-border bg-surface-2",
+        "relative inline-flex h-6 w-10 shrink-0 items-center rounded-full border transition-colors disabled:opacity-50 reduced:transition-none",
+        // Off: a text-3 outline and thumb (above 3:1 on the card in both themes, WCAG 1.4.11); the border token
+        // and a surface-coloured thumb left an off switch nearly invisible on the card.
+        checked ? "border-accent bg-accent" : "border-text-3 bg-surface-2",
       )}
     >
       <span
         aria-hidden
         className={clsx(
-          "inline-block size-4.5 rounded-full bg-surface shadow transition-transform",
-          checked ? "translate-x-[18px]" : "translate-x-[3px]",
+          "inline-block size-4.5 rounded-full shadow transition-transform reduced:transition-none",
+          checked ? "translate-x-[18px] bg-surface" : "translate-x-[3px] bg-text-3",
         )}
       />
     </button>

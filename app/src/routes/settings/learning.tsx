@@ -1,9 +1,9 @@
 import { FLAVOUR_IDS, type Profile, type Settings } from "@oak/api";
 import { createFileRoute } from "@tanstack/react-router";
-import { FLAVOUR_LABEL } from "../../lib/format.ts";
 import { usePageTitle } from "../../lib/nav.ts";
 import { useBootstrap } from "../../lib/queries.ts";
 import { useUpdateProfile, useUpdateSetting } from "../../lib/settings.ts";
+import { styleName } from "../../song/surfaces-model.ts";
 import { Field, Section, Select, Switch } from "../../ui/kit/Field.tsx";
 import { QueryView } from "../../ui/kit/QueryState.tsx";
 import { TrackSettings } from "./-tracks/TrackSettings.tsx";
@@ -46,13 +46,16 @@ function LearningSettings() {
                 />
               )}
             </Field>
-            <Field label="Genre flavour" help="Drums, bass and chords in your capstones follow it.">
+            <Field
+              label="Style"
+              help="The band in your lessons, capstones and new songs. Each song can still pick its own."
+            >
               {({ id, describedBy }) => (
                 <Select<Profile["flavour"]>
                   id={id}
                   describedBy={describedBy}
                   value={p.flavour}
-                  options={FLAVOUR_IDS.map((f) => ({ value: f, label: FLAVOUR_LABEL[f] ?? f }))}
+                  options={FLAVOUR_IDS.map((f) => ({ value: f, label: styleName(f) }))}
                   onChange={(flavour) => profile.set({ flavour })}
                 />
               )}

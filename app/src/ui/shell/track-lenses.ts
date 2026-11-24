@@ -1,8 +1,8 @@
 // The advanced tracks' eight lenses as the shell lists them (Wave 7, docs/design/wave7.md §4.2): three have a key of
 // their own (Shift+X tensions, Shift+Q chord-scales, Shift+D density, registered by the Workbench); all eight are
 // listed with their state in the command palette and in Settings › Learning, and switched there. A lens opens with
-// its lesson or its tool (`TRACK_LENS_GATES`); a lens not open yet says where it opens ("Opens with J2.L03
-// Extensions"), never a count of what is missing. Pure: tested in track-lenses.test.ts.
+// its lesson or its tool (`TRACK_LENS_GATES`); a lens not open yet says where it opens ("Opens with the lesson
+// “Extensions”."), never a count of what is missing. Pure: tested in track-lenses.test.ts.
 import type { SyllabusDef } from "@oak/content-kit";
 import {
   TRACK_LENS_GATES,
@@ -11,6 +11,7 @@ import {
   type TrackLensId,
   type TrackLensPrefs,
 } from "../../lib/lenses.ts";
+import { lessonWords, opensWithNote } from "../kit/lock-notes.ts";
 
 /** What each lens draws, in one line (the palette's hint, the settings row's help). */
 export const TRACK_LENS_WHAT: Readonly<Record<TrackLensId, string>> = {
@@ -31,11 +32,14 @@ export const TRACK_LENS_KEYS: Readonly<Partial<Record<TrackLensId, string>>> = {
   density: "Shift+D",
 };
 
-/** "Opens with J2.L03 Extensions": the lesson that opens a lens (its tools open it too, wherever they unlock). */
+/**
+ * "Opens with the lesson “Extensions”.": the lesson that opens a lens, by its title (its tools open it too,
+ * wherever they unlock); "Opens with a later lesson." until the syllabus has loaded.
+ */
 export function trackLensOpens(id: TrackLensId, syllabus: SyllabusDef | null): string {
   const lesson = TRACK_LENS_GATES[id].lesson;
   const title = syllabus?.units.flatMap((u) => u.lessons).find((l) => l.id === lesson)?.title;
-  return title ? `Opens with ${lesson} ${title}` : `Opens with ${lesson}`;
+  return opensWithNote(lessonWords(lesson, title));
 }
 
 export interface TrackLensRow {

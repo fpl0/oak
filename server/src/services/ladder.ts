@@ -605,6 +605,7 @@ export class LadderService {
     return songLock(song, this.#meta(song.id), {
       completed: this.#completed(),
       allowUnverified: this.d.allowUnverifiedSongs === true,
+      lessonTitle: (id) => this.ctx.content.lessonTitle(id),
     });
   }
   /** The song items (projects) of a song at a level, newest first. */

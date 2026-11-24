@@ -474,7 +474,7 @@ export function KitWave6({ headingLevel = 1 }: { headingLevel?: 1 | 2 }) {
               kicker="Advanced track"
               title={TRACK_TITLES.R}
               state="locked"
-              note="Opens with the U13 checkpoint."
+              note="Opens with the unit 13 checkpoint."
               data-testid="branch-locked"
             />
             <BranchCard

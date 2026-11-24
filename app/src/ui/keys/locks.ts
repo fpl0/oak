@@ -1,6 +1,6 @@
 // Honest locked rows in the shortcut sheet (Wave 5). The Workbench's lens and panel keys work only once their tool
 // is unlocked (a lens, the form map, the scope, the chart …); the sheet lists every key, so a row whose tool the
-// learner does not have yet says when it opens ("opens with U09 · Form") instead of listing a key that does
+// learner does not have yet says when it opens ("Opens with unit 9, Form.") instead of listing a key that does
 // nothing. Pure: the tables come from the owners (workbench panels, app lenses) and the course from the content
 // bundle, so nothing here repeats an unlock site (tested in locks.test.ts against content/toolbox.ts).
 import type { SyllabusDef, ToolEntry } from "@oak/content-kit";
@@ -12,6 +12,7 @@ import {
   TRACK_LENS_GATES,
 } from "../../lib/lenses.ts";
 import { PANEL_SWITCHES, PANEL_UNLOCKS } from "../../workbench/panels.ts";
+import { lessonWords, opensWithNote, unitWords } from "../kit/lock-notes.ts";
 import { TRACK_LENS_OF_KEY, trackLensOpens } from "../shell/track-lenses.ts";
 
 /** Workbench keys → the toolbox row each needs (keys in the sheet's syntax, as `WORKBENCH_LENS_SHORTCUTS` writes them). */
@@ -44,8 +45,9 @@ export const WORKBENCH_KEY_ANY_UNLOCKS: Readonly<Record<string, readonly string[
 export const LOCKABLE_SECTIONS: ReadonlySet<string> = new Set(["workbench"]);
 
 /**
- * "U09 · Form", "the side lesson Waves & Harmonics", "C1 · Riff Builder": the course place where a toolbox row
- * opens (its first unlock site), or `null` when the row or the place is unknown.
+ * "unit 9, Form", "the side lesson “Waves & Harmonics”", "the capstone “C1 Riff Builder”": the course place where a
+ * toolbox row opens (its first unlock site), in words (`kit/lock-notes.ts`), or `null` when the row or the place is
+ * unknown. A capstone keeps its album track number, part of its title.
  */
 export function opensWith(
   unlockId: string,
@@ -60,20 +62,22 @@ export function opensWith(
   const capstone = /^([CX]\d+)\./.exec(site)?.[1];
   if (capstone) {
     const c = syllabus?.capstones.find((x) => x.id === capstone);
-    return c ? `${capstone} · ${c.title}` : capstone;
+    return c ? `the capstone “${capstone} ${c.title}”` : "a capstone";
   }
   const unitId = /^([A-Z]+\d+)\./.exec(site)?.[1];
   if (!unitId) return null;
   const unit = syllabus?.units.find((u) => u.id === unitId);
   const lesson = unit?.lessons.find((l) => l.id === site);
-  if (lesson?.side) return `the side lesson ${lesson.title}`;
-  return unit ? `${unitId} · ${unit.title}` : unitId;
+  if (lesson?.side) return `the side lesson “${lesson.title}”`;
+  // A core unit by its number and title; a track's unit by the lesson that opens the row.
+  if (/^U\d+$/.test(unitId)) return unitWords(unitId, unit?.title);
+  return lessonWords(site, lesson?.title);
 }
 
 export interface RowLock {
   /** The row's tool is not unlocked yet. */
   locked: boolean;
-  /** "Opens with U09 · Form" (or "Not open yet" when the place is unknown). */
+  /** "Opens with unit 9, Form." (or "Not open yet" when the place is unknown). */
   note: string;
 }
 
@@ -107,5 +111,5 @@ export function rowLock(
   const need = WORKBENCH_KEY_UNLOCKS[keys] ?? anyOf?.[0];
   if (!need || unlocked.has(need)) return null;
   const where = opensWith(need, toolbox, syllabus);
-  return { locked: true, note: where ? `Opens with ${where}` : "Not open yet" };
+  return { locked: true, note: where ? opensWithNote(where) : "Not open yet" };
 }

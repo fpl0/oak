@@ -94,10 +94,10 @@ const JAZZ_IN_PROGRESS: TrackState = {
   nextSession: { kind: "lesson", mapItemId: "J2.L02", title: "Minor ii–V–i", estMinutes: 20 },
   focus: true,
   capstones: [
-    { capstoneId: "JC1", status: "locked", lockedReason: "Opens with J.CP1." },
+    { capstoneId: "JC1", status: "locked", lockedReason: "Opens with Jazz checkpoint 1." },
     { capstoneId: "JC2", status: "locked", lockedReason: "Opens after J4.L04." },
-    { capstoneId: "JC3", status: "locked", lockedReason: "Opens with J.CP2." },
-    { capstoneId: "JC4", status: "locked", lockedReason: "Opens with J.CP2." },
+    { capstoneId: "JC3", status: "locked", lockedReason: "Opens with Jazz checkpoint 2." },
+    { capstoneId: "JC4", status: "locked", lockedReason: "Opens with Jazz checkpoint 2." },
   ],
 };
 
@@ -151,7 +151,7 @@ const RHYTHM_LOCKED: TrackState = {
   gates: [gateOf("R", "R.main", "R1–R3", "U13 checkpoint passed", false)],
   next: null,
   nextSession: null,
-  note: "Opens with the U13 checkpoint.",
+  note: "Opens with the unit 13 checkpoint.",
 };
 
 // --- the stateful specimens ------------------------------------------------------------------------

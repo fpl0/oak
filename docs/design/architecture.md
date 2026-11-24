@@ -321,7 +321,7 @@ mirror.editor.dispatch({ effects: StateEffect.appendConfig.of(oakExtensions(opts
 * **Pre-eval lint.** `lint()` runs before each evaluate. Error diagnostics block evaluation.
 * **`oakExtensions`:**
   * `autocompletion({ override: [unlockedFunctionsSource] })`. Strudel's own `isAutoCompletionEnabled` stays false.
-  * `linter(oakLinter)`: acorn parse errors, `[mini] parse error at line N`, the "not unlocked yet (unlocks in U05·L06)" rule, the forbidden-in-this-exercise rule, and dialect traps (`Cmaj7` → `C^7`).
+  * `linter(oakLinter)`: acorn parse errors, `[mini] parse error at line N`, the "not unlocked yet (unlocks in the lesson “…”, named by its title)" rule, the forbidden-in-this-exercise rule, and dialect traps (`Cmaj7` → `C^7`).
   * A read-only `transactionFilter` over a `RangeSet` `StateField`.
   * `EditorView.updateListener` feeding the cursor into the HighlightBus.
 * **Settings, before the first mirror is built:**

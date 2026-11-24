@@ -1,37 +1,20 @@
 // The sound pack's credits on the About page, rendered from `/sounds/<version>/credits.json` (written by
 // scripts/sounds/mirror.ts from scripts/sounds/credits.ts). CC BY works first, with the attribution their
-// authors ask for; then the CC0, Unlicense and MIT ones; then Oak's own renders.
-import { useQuery } from "@tanstack/react-query";
+// authors ask for; then the CC0, Unlicense and MIT ones; then Oak's own renders; then one line per sound with all
+// of its sources (toolbox/sound-credits.ts, which the Toolbox's sound pages read too).
+import {
+  type CreditsFile,
+  creditText,
+  licenceName,
+  type SoundCredit,
+  soundIndex,
+  useSoundCredits,
+} from "../../../toolbox/sound-credits.ts";
+import { Chip } from "../../../ui/kit/basics.tsx";
 import { Section } from "../../../ui/kit/Field.tsx";
+import { ErrorState } from "../../../ui/kit/QueryState.tsx";
 
-/** One credits.json entry (scripts/sounds/pack.config.ts `CreditEntry`). */
-export interface SoundCredit {
-  title: string;
-  author: string;
-  url: string;
-  licence: string;
-  licenceUrl: string;
-  attribution?: string;
-  modified: string;
-  sounds: string[];
-  origins?: string[];
-}
-
-interface CreditsFile {
-  packVersion: string;
-  credits: { id: string; entry: SoundCredit }[];
-}
-
-const LICENCE_NAMES: Record<string, string> = {
-  "CC0-1.0": "CC0 1.0 (public domain)",
-  Unlicense: "Unlicense (public domain)",
-  MIT: "MIT",
-  "CC-BY-3.0": "CC BY 3.0",
-  "CC-BY-4.0": "CC BY 4.0",
-};
-
-/** A licence's display name; anything off the list is shown as "licence not verified". */
-export const licenceName = (id: string): string => LICENCE_NAMES[id] ?? "licence not verified";
+export { licenceName, type SoundCredit };
 
 /** CC BY first (attribution required), then the other licences, then Oak's own; by title within each. */
 export function orderCredits(items: CreditsFile["credits"]): CreditsFile["credits"] {
@@ -41,33 +24,21 @@ export function orderCredits(items: CreditsFile["credits"]): CreditsFile["credit
   );
 }
 
-async function loadCredits(): Promise<CreditsFile | null> {
-  const res = await fetch("/sounds/manifest.json", { headers: { Accept: "application/json" } });
-  if (!res.ok) throw new Error(`the sound pack manifest answered ${res.status}`);
-  const manifest = (await res.json()) as { packVersion: string; credits?: string };
-  if (!manifest.credits) return null;
-  const c = await fetch(manifest.credits, { headers: { Accept: "application/json" } });
-  if (!c.ok) throw new Error(`the sound credits answered ${c.status}`);
-  return (await c.json()) as CreditsFile;
-}
-
 const external = { target: "_blank", rel: "noreferrer" } as const;
 
+/** A licence Oak has no name for: `licenceName` falls back to the same words for every unknown id. */
+const unverified = (id: string) => licenceName(id) === licenceName("");
+
 export function SoundCredits() {
-  const q = useQuery({
-    queryKey: ["sound-credits"],
-    queryFn: loadCredits,
-    staleTime: Number.POSITIVE_INFINITY,
-  });
+  const q = useSoundCredits();
   return (
     <Section
       title="Sound credits"
       description="Where every sound in Oak's pack comes from, and its licence. Music you make with them is yours."
     >
       {q.isPending && <p className="py-3 text-text-2">Loading the credits…</p>}
-      {q.isError && (
-        <p className="py-3 text-text-2">The sound credits could not be loaded: {String(q.error)}</p>
-      )}
+      {/* The app's one wording for a failed load ("Oak's server isn't answering" while it is down), one Try again. */}
+      {q.isError && <ErrorState error={q.error} onRetry={() => void q.refetch()} />}
       {q.data === null && <p className="py-3 text-text-2">This sound pack has no credits file.</p>}
       {q.data &&
         orderCredits(q.data.credits).map(({ id, entry }) => (
@@ -77,14 +48,36 @@ export function SoundCredits() {
             </a>
             <span className="text-sm text-text-2">
               {entry.author} ·{" "}
-              <a className="underline-offset-2 hover:underline" href={entry.licenceUrl} {...external}>
-                {licenceName(entry.licence)}
-              </a>
+              {unverified(entry.licence) ? (
+                // A warning, not a licence: it must not read like the links of the checked licences beside it.
+                <Chip tone="amber" data-testid="licence-unverified">
+                  Licence not verified
+                </Chip>
+              ) : (
+                <a className="underline-offset-2 hover:underline" href={entry.licenceUrl} {...external}>
+                  {licenceName(entry.licence)}
+                </a>
+              )}
             </span>
             {entry.attribution && <span className="text-sm">{entry.attribution}</span>}
             <span className="text-sm text-text-2">Oak sounds: {entry.sounds.join(", ")}</span>
           </div>
         ))}
+      {q.data ? (
+        // One answer per sound: a kit mixed from several libraries, or a General MIDI name whose variants come
+        // from different fonts, sits under each source above; here it is one line with every source and licence.
+        <details className="py-3" data-testid="credits-by-sound">
+          <summary className="cursor-pointer font-medium">Look up one sound</summary>
+          <dl className="mt-2 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-sm">
+            {soundIndex(q.data.credits).map((s) => (
+              <div key={s.sound} className="contents" id={`sound-${s.sound}`}>
+                <dt className="font-mono">{s.sound}</dt>
+                <dd className="text-text-2">{creditText(s)}</dd>
+              </div>
+            ))}
+          </dl>
+        </details>
+      ) : null}
     </Section>
   );
 }

@@ -1,7 +1,7 @@
 // TrackCard (Wave 7): one advanced track — Jazz Harmony, Advanced Rhythm, Arrangement & Sound — as a real place in
 // the course, with where the learner stands in it. Four states, each with its own icon and words (never colour
 // alone): `open` (something to start, nothing done yet), `in-progress` (sessions done, the next one named),
-// `waiting` (a named gate holds the next thing: "Waits for: U14 checkpoint passed." — never a count of what is
+// `waiting` (a named gate holds the next thing: "Waits for the unit 14 checkpoint." — never a count of what is
 // missing, docs/design/wave7.md §10 item 18) and `complete` (every session done; its lessons stay open to replay).
 // `trackCardState(TrackState)` picks the state and `trackCardLine` the line; an `action` is drawn only when there
 // is something to start, so a waiting track can never look like a way in. `focus` marks the track the learner chose

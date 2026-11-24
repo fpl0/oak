@@ -21,7 +21,12 @@ function useModal(open: boolean, onClose: () => void) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (open && !el.open) el.showModal();
+    if (open && !el.open) {
+      el.showModal();
+      // showModal() focuses the first control, the Close button; a dialog whose job is a field marks that field
+      // `data-autofocus` (React's autoFocus runs at mount, while the dialog is still closed, and is lost).
+      el.querySelector<HTMLElement>("[data-autofocus]")?.focus();
+    }
     if (!open && el.open) el.close();
   }, [open]);
   useEffect(() => {

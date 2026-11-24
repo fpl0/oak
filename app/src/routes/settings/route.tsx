@@ -7,7 +7,9 @@ export const Route = createFileRoute("/settings")({ component: SettingsLayout })
 function SettingsLayout() {
   return (
     <div className="mx-auto flex w-full max-w-5xl gap-8 px-6 py-6">
-      <nav aria-label="Settings" className="w-44 shrink-0">
+      {/* Sticky inside the scrolling main region: About and Tutor run to several screens, and the list of sections
+          stays in reach. */}
+      <nav aria-label="Settings" className="sticky top-6 w-44 shrink-0 self-start">
         <h1 className="mb-3 text-h2">Settings</h1>
         <ul className="flex flex-col gap-0.5">
           {SETTINGS_SECTIONS.map((s) => (

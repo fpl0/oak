@@ -1,10 +1,33 @@
 // Server configuration: where the data lives, which ports are allowed, whether dev routes exist.
 // Nothing else in the server reads `process.env` or `Bun.argv` (the API key is read by secrets.ts).
+import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { PORTS } from "@oak/api";
 
+/** What the server reports when no version can be found (tests, a checkout without desktop/). */
 export const APP_VERSION = "0.0.0";
+
+/**
+ * Oak's version, from the one place a release sets it: desktop/package.json's "version". The desktop app passes it
+ * as `OAK_APP_VERSION` (Electron's `app.getVersion()` reads that file, desktop/main.cjs), because the staged app
+ * carries no desktop/ folder; a checkout (`bun run dev`, `bun run start`) reads the file itself. A dev server says
+ * "-dev" after it, so a report from a dev build is never mistaken for a release.
+ */
+export function appVersionOf(env: Record<string, string | undefined>, rootDir: string, dev: boolean): string {
+  let v = env.OAK_APP_VERSION?.trim() || "";
+  if (!v)
+    try {
+      const pkg = JSON.parse(readFileSync(join(rootDir, "desktop", "package.json"), "utf8")) as {
+        version?: unknown;
+      };
+      if (typeof pkg.version === "string") v = pkg.version.trim();
+    } catch {
+      // No desktop/ beside the server: the fallback below.
+    }
+  v ||= APP_VERSION;
+  return dev ? `${v}-dev` : v;
+}
 
 export interface OakConfig {
   /** Always loopback: the server never listens on another interface (contracts §11.1 rule 1). */
@@ -79,7 +102,7 @@ export function loadConfig(input: ConfigInput = {}): OakConfig {
     distDir: join(rootDir, "dist"),
     soundsDir: join(rootDir, "sounds", "pack"),
     contentDir: join(rootDir, "content"),
-    appVersion: APP_VERSION,
+    appVersion: appVersionOf(env, rootDir, dev),
     devPorts: dev ? [...new Set([PORTS.vite, vitePort])] : [],
     tutorFake: dev && env.OAK_TUTOR_FAKE === "1",
     songsAutostart: dev && env.OAK_SONGS_AUTOSTART === "1",

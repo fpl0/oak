@@ -23,7 +23,7 @@ export interface BranchCardProps {
   note: string;
   /** A small line over the title ("Advanced track"). */
   kicker?: string;
-  /** What opens it, shown while locked when the note does not say ("Opens with the U13 checkpoint."). */
+  /** What opens it, shown while locked when the note does not say ("Opens with the unit 13 checkpoint."). */
   opens?: string;
   /** Opened today: say so once. */
   fresh?: boolean;

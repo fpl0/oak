@@ -27,7 +27,7 @@ before, each piece draws and reports only: the owner measures, plays, renders an
 
 | Piece | File | What it is for |
 |---|---|---|
-| `TrackCard` | `kit/TrackCard.tsx` | An advanced track as a place: `track` is the server's `TrackState`. Four states with icon + words: `open` (something to start, nothing done), `in-progress` (the next session named: lesson, checkpoint or capstone session, with minutes), `waiting` ("Waits for: U14 checkpoint passed." — the first closed gate's unmet `requires[].label`, never a count; a waiting track with no closed gate keeps the server's note), `complete` ("All 34 sessions done. Every lesson stays open to replay."). `action` drawn only when there is something to start; `focus` ("Your focus", defaults to `TrackState.focus`); progress bar + "7 of 34 sessions · 1 of 4 capstones released"; `layout="card" | "row"`; `state`/`line` overrides. Use it for Today's `trackOffers`, Progress, the Coda, the Oak's course view. |
+| `TrackCard` | `kit/TrackCard.tsx` | An advanced track as a place: `track` is the server's `TrackState`. Four states with icon + words: `open` (something to start, nothing done), `in-progress` (the next session named: lesson, checkpoint or capstone session, with minutes), `waiting` ("Waits for the unit 14 checkpoint." — the first closed gate's unmet requirement in words, `kit/lock-notes.ts` `waitsForNote`, never a count; a waiting track with no closed gate keeps the server's note), `complete` ("All 34 sessions done. Every lesson stays open to replay."). `action` drawn only when there is something to start; `focus` ("Your focus", defaults to `TrackState.focus`); progress bar + "7 of 34 sessions · 1 of 4 capstones released"; `layout="card" | "row"`; `state`/`line` overrides. Use it for Today's `trackOffers`, Progress, the Coda, the Oak's course view. |
 | `TwoLaneTapPad` | `kit/TwoLaneTapPad.tsx` | Two lanes (3 against 2, clave against pulse): F taps lane 1, J lane 2 (one focus stop, `data-keyscope="tap"`), a pointer-down on a lane taps it. `onTap(lane, at)` gives the event's `timeStamp`; the owner keeps the clock and passes `targets`, `marks` ({ at 0–1, state hit / near / miss / extra: each a different shape}), `playhead`, `beats`, `note` per lane, `armed`, `idleText`. (The answers' tap pad keeps its own two-lane mode for `tap.lanes`; this one is for drills, stage H and the capstones.) |
 | `VersionSwitch` | `kit/VersionSwitch.tsx` | Which version of one piece is in front (AC1's two versions, an album track's versions): radio segments with a letter badge, name and detail line; `playing` says which sounds ("…, playing" + a speaker icon); arrows/Home/End; `keyHint`; bind your page key with `nextVersion`. |
 | `ExportButton` | `kit/ExportButton.tsx` | Export a WAV (carry f2): `state: ExportState` (`idle` · `rendering` with `fraction` or indeterminate, Cancel beside it · `done` "Saved X.wav (2.1 MB)." · `failed` the renderer's message + "Nothing was saved." · `cancelled`), `onExport`, `onCancel`, `what`, `disabledReason`. One `role="status"` line. |
@@ -48,10 +48,10 @@ before, each piece draws and reports only: the owner measures, plays, renders an
   the learner's **focus** (core / an open track; `tracks.focus` + `tracks.setFocus`; says so plainly when the server
   cannot set it). **Track lenses**: the eight lenses with their state and the lesson that opens each.
 - **Palette**: "Focus on Jazz Harmony" / "Focus on the core" (only once the server answers `tracks.focus`), and the eight
-  track lenses ("Tensions lens: turn off", "Clave lens · Opens with R3.L02 Clave Direction"), `shell/TrackCommands.tsx`,
+  track lenses ("Tensions lens: turn off", "Clave lens · Opens with the lesson “Clave Direction”."), `shell/TrackCommands.tsx`,
   `shell/track-lenses.ts`.
 - **Shortcut sheet**: Shift+X, Shift+Q, Shift+D (the Workbench's rows) are locked until the lens opens — by its tool
-  or by its lesson (`keys/locks.ts` `rowLock(…, completed)`), saying "Opens with J2.L03 Extensions".
+  or by its lesson (`keys/locks.ts` `rowLock(…, completed)`), saying "Opens with the lesson “Extensions”.".
 
 ## New in Wave 6 (use these instead of a local copy)
 
@@ -105,8 +105,8 @@ All exported from `kit/index.ts`; specimens in both themes in `kit/gallery/KitWa
 ## Shell and settings (Wave 5)
 
 - The shortcut sheet has a section **Sections, charts and sound controls** (the kit pieces' keys). Workbench lens and
-  panel keys whose tool is not unlocked yet stay listed but say when they open ("Opens with U09 · Form", "Opens with
-  the side lesson Waves & Harmonics"), from the owners' tables (`workbench/panels.ts`, `lib/lenses.ts`) and the
+  panel keys whose tool is not unlocked yet stay listed but say when they open ("Opens with unit 9, Form.", "Opens with
+  the side lesson “Waves & Harmonics”."), in the one lock wording of `kit/lock-notes.ts`, from the owners' tables (`workbench/panels.ts`, `lib/lenses.ts`) and the
   course (`keys/locks.ts`). Nothing is marked before the unlock list loads.
 - The command palette lists side lessons as optional ("Optional side lesson", "Side lesson · opens after …",
   "Side lesson · done"): the server's `sideLessons.list` answer when a page loaded it, else the unlock list
