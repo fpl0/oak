@@ -61,7 +61,7 @@ const MAKE_STARTER = deg("<[0 2 4 7] [5 3 5 7] [4 2 0 2] [5 3 5 ~]>");
 
 export default defineLesson({
   id: "U03.L09",
-  version: 4,
+  version: 5,
   title: "Tunes by Number",
   objective:
     "I can write a known tune as degrees, tell its steps from its leaps, join its notes with .legato(), and sing it from the staff.",
@@ -341,7 +341,7 @@ export default defineLesson({
         // The catalog's text for a `uses` rule names the tool ID; the label says it in words.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         prompt:
-          "Rewrite the starter's tune so most moves go to the next degree, up or down; the starter leaps on every move. Keep a leap or two for interest. Done when at least 6 in 10 moves to a new note are steps.",
+          "Rewrite the starter's tune so most moves go to the next degree, up or down; the starter leaps on every move. Keep a leap or two for interest. Your tune takes over the eight bars after the opening of your song. Done when at least 6 in 10 moves to a new note are steps.",
         skills: [{ skill: "M01", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],

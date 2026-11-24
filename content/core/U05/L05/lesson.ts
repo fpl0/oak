@@ -64,7 +64,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U05.L05",
-  version: 3,
+  version: 4,
   title: "Inversions",
   objective: "I can turn a triad upside down so its 3rd or 5th is lowest, and name it with a slash: C/E.",
   key: { tonic: "C", mode: "major" },
@@ -368,7 +368,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Your chords C G Am F all stand on their roots, so the lowest note leaps. Rearrange at least one chord so its 3rd or 5th is lowest, and let the lowest notes move by step: C, G/B, Am, … . Done when at least one chord is an inversion.",
+          "Your chords C G Am F from Stacking Thirds all stand on their roots, so the lowest note leaps. For the part after your song's first loud part, rearrange at least one chord so its 3rd or 5th is lowest, and let the lowest notes move by step: C, G/B, Am, … . Done when at least one chord is an inversion.",
         skills: [{ skill: "C04", w: 1 }],
         // The catalog's text is "{label}: {detail}"; the detail names chords by symbols and members, and the
         // same text serves the suggestions, so it says only "not yet".

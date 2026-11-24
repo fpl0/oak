@@ -68,7 +68,7 @@ const SING_HINTS: HintLadder = [
 
 export default defineLesson({
   id: "U03.L03",
-  version: 3,
+  version: 4,
   title: "Restless Neighbours",
   objective: "I can hear degrees 2 and 4 lean home, sing them there, and reach below or above home with `n`.",
   key: { tonic: "C", mode: "major" },
@@ -411,7 +411,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Change at least one note so the line reaches under home or past 7: an `n` below 0 or above 6. Then let the line settle on 1, home. Done when one `n` sits outside 0 to 6.",
+          "Your line from Degrees in Code is in the editor. Change at least one note so it reaches under home or past 7: an `n` below 0 or above 6. Then let the line settle on 1, home. It plays the four bars after the first loud part of your song. Done when one `n` sits outside 0 to 6.",
         skills: [{ skill: "S02", w: 1 }],
         code: { starter: deg("<[0 2 4 2] [3 1 0 ~]>") },
         bars: [1, 4],
@@ -447,7 +447,7 @@ export default defineLesson({
         // The catalog's detail names the tool ID ("tb.n.range used 0×"); the label says it in words.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "One `n` must end up below 0 or above 6. Which note of the starter could go higher or lower than the rest?",
+          "One `n` must end up below 0 or above 6. Which note of your line could go higher or lower than the rest?",
           "`n` 7 is 1 an octave up, and `n` -3 is the 5 below home. Swap one of them in, in bar 1 or bar 2.",
           "Add 7 to one note's number: it plays the same degree an octave up. The top of bar 1 is a good place.",
         ),

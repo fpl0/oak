@@ -39,7 +39,8 @@ describe("unit songs", () => {
     expect(side?.song.id).toBe("usong.U01");
     expect(side?.step.kind).toBe("side");
     expect(songStepOf("U02.L05")?.song.id).toBe("usong.U02");
-    expect(songStepOf("U05.L01" as LessonId)).toBeNull();
+    // A unit whose song is not written yet (U17's is the last one written; move the probe when it lands).
+    expect(songStepOf("U17.L01" as LessonId)).toBeNull();
     expect(songStepOf("U00.L01")).toBeNull();
     expect(unitSongOfUnit("U00")).toBeNull();
   });

@@ -108,7 +108,7 @@ const ENDINGS = CADENCE_OPTIONS.filter((o) => ["PAC", "IAC", "HC"].includes(o.id
 
 export default defineLesson({
   id: "U07.L06",
-  version: 3,
+  version: 4,
   title: "Question & Answer",
   objective:
     "I can write a four-bar question that stops open and a four-bar answer that starts the same way and comes home.",
@@ -396,7 +396,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Turn bars 5–8 into an answer. Keep the question in bars 1–4 or write your own. Start bars 5–8 the way bars 1–4 start, and change the ending. Done when the last note of the tune is degree 1.",
+          "Turn bars 5–8 of your song's fourth part into an answer. Keep the question in bars 1–4 or write your own. Start bars 5–8 the way bars 1–4 start, and change the ending. Done when the last note of the tune is degree 1.",
         skills: [
           { skill: "M06", w: 0.7 },
           { skill: "F01", w: 0.3 },

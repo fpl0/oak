@@ -49,7 +49,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U05.L04",
-  version: 4,
+  version: 5,
   title: "Arpeggios",
   objective: "I can play a chord one note at a time with .arp().",
   key: { tonic: "C", mode: "major" },
@@ -248,7 +248,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Your four triads play as blocks. Add `.arp()` to the `chords` line, after the stacks and before `.scale()`, with a pattern of your own: up, down, skipping, with gaps. Done when the chords play one note at a time.",
+          "Your four triads from Stacking Thirds play as blocks. Add `.arp()` to the `chords` line, after the stacks and before `.scale()`, with a pattern of your own: up, down, skipping, with gaps. Your broken chords open the song. Done when the chords play one note at a time.",
         skills: [{ skill: "C01", w: 1 }],
         // The catalog's text is "{label}: {detail}", and a progression's detail names the chords in Roman
         // numerals (U06.L02). The same text serves every rule, so it says only "not yet".

@@ -73,7 +73,7 @@ const KEYS = { roll: false, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "U06.L10",
-  version: 4,
+  version: 5,
   title: "Seventh Colour (preview)",
   objective: 'I can stack one more 3rd on a triad, n("[0,2,4,6]"), and colour a chord loop with it.',
   key: { tonic: "C", mode: "major" },
@@ -379,7 +379,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Here is I V vi IV in plain triads, with its bass and tune. Give at least two of its chords one more 3rd on top, whichever you choose. The Rhodes suits it; so does a slow tempo. Done when at least two chords have a 7th on top.",
+          "Your four-chord loop from The Four-Chord Schema is in the editor, for the part after your song's opening. Give at least two of its chords one more 3rd on top, whichever you choose. The Rhodes suits it. Done when at least two chords have a 7th on top.",
         skills: [{ skill: "C10", w: 1 }],
         // The catalog's text is "{label}: {detail}", and this rule's detail names the kinds of four-note
         // chord (major 7th, dominant 7th), which wait for U12. The same text serves the suggestions.

@@ -48,7 +48,7 @@ const MAKE_STARTER = deg("<[0 4 7 9] [7 4 2 0]>");
 
 export default defineLesson({
   id: "U03.L08",
-  version: 3,
+  version: 4,
   title: "Solfège",
   objective: "I can sing degrees on syllables, do for home in any key, and write a line I can sing.",
   key: { tonic: "C", mode: "major" },
@@ -317,7 +317,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Change the starter so the whole line spans no more than do up to la, 9 half steps from its lowest note to its highest; the starter climbs past the high do. Then sing your line on syllables. Done when the span fits.",
+          "Your line from Restless Neighbours is in the editor. Change it so the whole line spans no more than do up to la, 9 half steps from its lowest note to its highest. Then sing your line on syllables. It plays the four bars after the first loud part of your song. Done when the span fits.",
         skills: [{ skill: "V03", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [1, 4],
@@ -356,8 +356,8 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "The whole line must fit between a do and the la above it. Sing the starter: which notes are too high for one comfortable breath?",
-          "The span is from the lowest note to the highest. The starter climbs from do to the mi above the next do.",
+          "The whole line must fit between a do and the la above it. Sing your line: which notes are too high or too low for one comfortable breath?",
+          "The span is from the lowest note to the highest. A line that plays home, `n` 0, and the high do, `n` 7, already spans 12 half steps.",
           "Keep every `n` between 0 and 5, or between -1 and 4: then no two notes are further apart than do and la.",
         ),
         tests: [

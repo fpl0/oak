@@ -49,7 +49,7 @@ const NUMBERS = {
 
 export default defineLesson({
   id: "U03.L04",
-  version: 4,
+  version: 5,
   title: "Leading Tone & Six",
   objective: "I can hear degrees 6 and 7, feel 7 pull up to home, and write a run of the scale with `..`.",
   key: { tonic: "C", mode: "major" },
@@ -295,7 +295,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Change the starter so the line plays degree 6 (`n` 5) and degree 7 (`n` 6), each at least once; the starter has neither. Put 7 just before a 1 so it leads home. Done when both degrees play.",
+          "Your line from Restless Neighbours is in the editor, for the four bars that lead into the first loud part of your song. Make it play degree 6 (`n` 5) and degree 7 (`n` 6), each at least once. Put 7 just before a 1 so it leads home. Done when both degrees play.",
         skills: [{ skill: "E05", w: 1 }],
         code: { starter: deg("<[0 1 2 4] [3 2 1 ~]>") },
         bars: [1, 4],
@@ -331,7 +331,7 @@ export default defineLesson({
         // The catalog's detail for an unused tool names its ID ("tb.mini.range used 0×").
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "The line must play degrees 6 and 7. Which degrees does the starter play, and which two are missing?",
+          "The line must play degrees 6 and 7. Which degrees does your line play, and which of those two are missing?",
           "`n` counts from 0, so degree 6 is `n` 5 and degree 7 is `n` 6. 7 sounds best just before a 1.",
           "Bar 2 can become a climb that passes through 6 and 7 on its way up to the high home.",
         ),

@@ -85,7 +85,7 @@ const STAFF = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L08",
-  version: 3,
+  version: 4,
   title: "Pickups",
   objective:
     "I can start a tune with a pickup: rests at the start of bar 0, so its first notes lead into bar 1.",
@@ -385,7 +385,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Turn bar 0 into a pickup. Its note now plays on beat 1 and just sits there. Move it, or write two or three notes, so bar 0 starts with rests and a note sounds on its beat 4, leading into bar 1. Rework the tune after it if you like.",
+          "Turn bar 0 into a pickup: in your song it plays the one-bar stop before the last loud part. Its note now plays on beat 1 and just sits there. Move it, or write two or three notes, so bar 0 starts with rests and a note sounds on its beat 4, leading into bar 1.",
         skills: [{ skill: "M10", w: 1 }],
         pickup: { units: [1, 1] },
         code: { starter: MAKE_STARTER },

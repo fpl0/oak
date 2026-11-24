@@ -61,7 +61,7 @@ const STAFF = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U06.L02",
-  version: 3,
+  version: 4,
   title: "Roman Numerals",
   objective:
     "I can name the chords of a major key with Roman numerals, I ii iii IV V vi vii°, and play a loop from them in any key.",
@@ -369,7 +369,7 @@ export default defineLesson({
         role: "practice",
         key: G,
         prompt:
-          "Many songs open on the loop vi IV I V. Write it in G in the `chords` line, one chord a bar; bar 1, vi, is written. Then give the chords a rhythm or add a tune if you like. Done when the four bars go vi IV I V in G.",
+          "Your loop plays the four bars where your song moves into G. Write vi IV I V in G in the `chords` line, one chord a bar; bar 1, vi, is written. Then give the chords a rhythm if you like. Done when the four bars go vi IV I V in G.",
         skills: [
           { skill: "N06", w: 0.5 },
           { skill: "H01", w: 0.5 },

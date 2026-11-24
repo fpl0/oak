@@ -185,7 +185,7 @@ const BASS_MATCH: Matcher = {
 
 export default defineLesson({
   id: "U09.L05",
-  version: 3,
+  version: 4,
   title: "Arranging in Code",
   objective:
     "I can bring parts in and out of an arrangement by bar with .mask(): an intro that builds, a part that steps out before the chorus.",
@@ -487,7 +487,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Add a four-bar intro before the verse: an intro section in each `arrange()`, with `.mask()` so the parts come in one at a time. Done when, at least twice, a part stays silent for a whole bar while another plays. For more, drop one part out for the bar before a chorus.",
+          "Add a four-bar intro before the first verse, to open your song: an intro section in each `arrange()`, with `.mask()` so the parts come in one at a time. Done when, at least twice, a part stays silent for a whole bar while another plays. For more, drop one part out for the bar before a chorus.",
         skills: [{ skill: "F06", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [12, 32],

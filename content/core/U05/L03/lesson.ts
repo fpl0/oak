@@ -62,7 +62,7 @@ const ROLL_KEYS = { roll: true, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "U05.L03",
-  version: 3,
+  version: 4,
   title: "Diminished & Augmented",
   objective:
     "I can build and hear the two restless triads: two minor 3rds (diminished) and two major 3rds (augmented).",
@@ -362,7 +362,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Put one restless triad, diminished or augmented, into the four-bar loop, and let the next chord answer it: B° to C, or C+ (C, E, G♯) to F. A tune on top can climb with the chords. Done when the loop has at least one diminished or augmented triad.",
+          "Put one restless triad, diminished or augmented, into your four-bar loop, and let the next chord answer it: B° to C, or C+ (C, E, G♯) to F. A B° in bar 4 is answered by the first loud part's C. Done when the loop has at least one diminished or augmented triad.",
         skills: [{ skill: "C03", w: 1 }],
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         code: { starter: MAKE_STARTER },

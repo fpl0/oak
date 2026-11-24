@@ -60,7 +60,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U06.L03",
-  version: 3,
+  version: 4,
   title: "Home, Away, Tension",
   objective:
     "I can hear whether a chord sounds like home, away or tension, and write a phrase that goes away and comes home through tension.",
@@ -342,7 +342,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Change the starter into a phrase that starts at home, goes away, builds tension on V, then comes home on I. The home and away chords are your choice. Done when V is followed straight away by I, with an away chord (IV or ii) somewhere before it.",
+          "Change the starter into the ending of your song: a phrase that starts at home, goes away, builds tension on V, then comes home on I. The home and away chords are your choice. Done when V is followed straight away by I, with an away chord (IV or ii) somewhere before it.",
         skills: [{ skill: "H02", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

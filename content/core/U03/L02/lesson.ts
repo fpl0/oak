@@ -52,7 +52,7 @@ const NUMBERS = {
 
 export default defineLesson({
   id: "U03.L02",
-  version: 3,
+  version: 4,
   title: "Degrees in Code",
   objective:
     "I can write a melody as scale degrees with n() and .scale(), and move it to another key with one word.",
@@ -434,7 +434,7 @@ export default defineLesson({
         // The catalog's text for a `uses` rule names the tool ID; the label says it in words.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         prompt:
-          "Change the starter so the line plays degrees 1, 3 and 5 (`n` 0, 2 and 4), each at least once. The starter has no degree 3 yet. Ending on 1 is a bonus.",
+          "Change the starter so the line plays degrees 1, 3 and 5 (`n` 0, 2 and 4), each at least once. The starter has no degree 3 yet. Ending on 1 is a bonus. This line plays the eight bars after the opening of your song.",
         skills: [{ skill: "S02", w: 1 }],
         code: { starter: deg("<[0 1 0 ~] [4 [5 4] 1 ~]>") },
         bars: [1, 4],

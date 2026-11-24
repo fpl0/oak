@@ -72,7 +72,7 @@ const BASS_STAFF = { roll: false, staff: "bass", keyboard: false } as const;
 
 export default defineLesson({
   id: "U08.L02",
-  version: 3,
+  version: 4,
   title: "Root–Five–Octave",
   objective:
     "I can write a bass line from each chord's root, its 5th and its octave, as one cell moved onto every root.",
@@ -395,7 +395,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The bass cell `[0 ~ 2 ~]` plays each root, then its 3rd. Replace the 2 with the 5th (4) or the octave (7). Then build your own cell from 0, 4 and 7, in any rhythm and order. Keep the chords as they are.",
+          "Write the bass for the three loud parts of your song. The cell `[0 ~ 2 ~]` plays each root, then its 3rd: replace the 2 with the 5th (4) or the octave (7). Then build your own cell from 0, 4 and 7, in any rhythm and order. Keep the chords as they are.",
         skills: [{ skill: "B02", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

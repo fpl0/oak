@@ -37,7 +37,7 @@ const STAFF_ONLY = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U04.L03",
-  version: 3,
+  version: 4,
   title: "Together Now",
   objective:
     "I can play two notes together with `,` and hear whether a pair is at rest or clashes, the tritone included.",
@@ -357,7 +357,7 @@ export default defineLesson({
         // The catalog's text for a `uses` rule names the tool ID; the label says it in words.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         prompt:
-          "The riff plays its pairs one note after the other. Change it so each pair's two notes play together, with `,`. Keep B with F as the clash and let it move to a pair at rest. Done when the riff plays notes together with `,`.",
+          "Change the riff so each pair's two notes play together, with `,`. It fills the fifth part of your song, the quiet one before the last loud part, over Oak's bass and drums only. Keep B with F as the clash and let it move to a pair at rest. Done when the riff plays notes together with `,`.",
         skills: [{ skill: "I05", w: 1 }],
         code: { starter: keys(MAKE_APART) },
         bars: [1, 4],

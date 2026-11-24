@@ -113,7 +113,7 @@ const LEAD = { roll: false, staff: "lead", keyboard: false } as const;
 
 export default defineLesson({
   id: "U09.L03",
-  version: 3,
+  version: 4,
   title: "AABA & Strophic",
   objective:
     "I can name a song's form by ear, verse–chorus, AABA or strophic, and arrange a song A A B A with a bridge of my own.",
@@ -402,7 +402,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Rewrite the bridge in `chordsB` and `melB`: start away from home, on F or Am, and end on G so A can come back. Then give the chords and the tune each an `arrange()`: A, A, B, A, four bars each. Done when the song runs A A B A.",
+          "Rewrite the bridge in `chordsB` and `melB`: start away from home, on F or Am, and end on G so A can come back. Then give the chords and the tune each an `arrange()`: A, A, B, A, four bars each. Done when your code runs A A B A. Your song plays B, then A, after its second chorus.",
         skills: [{ skill: "F03", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [16, 32],

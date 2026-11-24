@@ -91,7 +91,7 @@ const ROOT_BASS = {
 
 export default defineLesson({
   id: "U08.L03",
-  version: 3,
+  version: 4,
   title: "Walking Up to It",
   objective:
     "I can lead a bass line into a chord change with an approach note a step or a half step from the next root.",
@@ -429,7 +429,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "On beat 4 of at least two bars, add an approach tone: a note a step or a half step from the next chord's root, above or below it. Keep every root on beat 1. Keep the chords as they are.",
+          "Write the bass for the second and fourth parts of your song. On beat 4 of at least two bars, add an approach tone: a note a step or a half step from the next chord's root, above or below it. Keep every root on beat 1 and the chords as they are.",
         skills: [{ skill: "B03", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

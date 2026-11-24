@@ -70,7 +70,7 @@ const STARTER_PLAIN = `${TEMPO}mel: n("0 ~ ~ ~").scale("C4:major").s("piano")`;
 
 export default defineLesson({
   id: "U03.L10",
-  version: 4,
+  version: 5,
   title: "By-Ear Transcription I",
   objective: "I can hear a short tune, find home and its first note, and write the rest down in degrees.",
   key: { tonic: "C", mode: "major" },
@@ -330,7 +330,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write bars 3 and 4 as a copy of bars 1 and 2 at another height: add the same number to every `n`. Start bar 3 on degree 6, `n` 5, and the answer ends on home. Done when bars 3 and 4 are bars 1 and 2 moved by one amount.",
+          "Write bars 3 and 4 as a copy of bars 1 and 2 at another height: add the same number to every `n`. Start bar 3 on degree 6, `n` 5, and the answer ends on home. Your four bars end your song. Done when bars 3 and 4 are bars 1 and 2 moved by one amount.",
         skills: [
           { skill: "E07", w: 0.5 },
           { skill: "M01", w: 0.5 },

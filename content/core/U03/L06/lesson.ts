@@ -51,7 +51,7 @@ const STAFF_ONLY = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U03.L06",
-  version: 3,
+  version: 4,
   title: "Sharp Keys",
   objective:
     "I can write the sharps of G, D and A major as a key signature, in order, and read a tune in G from the staff.",
@@ -368,7 +368,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Fix the one F in the starter that is missing its sharp: in G major every `f` is `f#`. Then change the notes and rhythm until the line is yours, still in note names. Done when every note is in G major.",
+          "Fix the one F in the starter that is missing its sharp: in G major every `f` is `f#`. Then change the notes and rhythm until the line is yours, still in note names. It plays the eight bars of your song in G. Done when every note is in G major.",
         skills: [
           { skill: "S04", w: 0.6 },
           { skill: "N03", w: 0.4 },

@@ -102,7 +102,7 @@ const ROLL_GRAND = { roll: true, staff: "grand", keyboard: false } as const;
 
 export default defineLesson({
   id: "U05.L07",
-  version: 3,
+  version: 4,
   title: "Voice Leading by Hand",
   objective:
     "I can voice a progression by hand so each note moves as little as possible: shared notes stay, the rest move a short way, and every chord keeps all its notes.",
@@ -435,7 +435,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The chords start from their roots, so every change leaps. Rewrite them, keeping each bar's three letters, so every note stays or moves by a step, the last chord leading back into the first. Done when no note of `chords` moves more than a whole step.",
+          "The chords in the editor start from their roots, so every change leaps. Rewrite them for your song's first loud part, keeping each bar's three letters, so every note stays or moves by a step, the last chord leading back into the first. Done when no note of `chords` moves more than a whole step.",
         skills: [{ skill: "C05", w: 1 }],
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         code: { starter: MAKE_STARTER },

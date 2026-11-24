@@ -36,7 +36,7 @@ const PAD: AnswerUi = {
 
 export default defineLesson({
   id: "U04.L04",
-  version: 3,
+  version: 4,
   title: "Interval Ear Lab",
   objective: "I can name the distance between two notes in a key, up, down and played together.",
   key: { tonic: "C", mode: "major" },
@@ -247,7 +247,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bar 2 is empty. Fill it with bar 1's riff moved up or down by one distance, every note by the same number of half steps. A perfect 4th up puts it on the band's F chord. Done when bar 2 is bar 1 at a new height, every distance inside it the same size.",
+          "Fill the empty bar 2 with bar 1 moved up or down by one distance, every note by the same number of half steps. This riff opens and ends your song; a perfect 4th up puts bar 2 on the F chord. Done when bar 2 is bar 1 at a new height, every distance inside it the same size.",
         skills: [{ skill: "E06", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [1, 4],

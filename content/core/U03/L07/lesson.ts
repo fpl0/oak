@@ -47,7 +47,7 @@ const ROLL_STAFF = { roll: true, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U03.L07",
-  version: 3,
+  version: 4,
   title: "Flat Keys & the Circle",
   objective:
     "I can write the flats of F, B♭ and E♭ major in order, and find any major key's sharps or flats on the circle of fifths.",
@@ -342,7 +342,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Fix the one B in the starter that is missing its flat: in F major every `b` is `bb`. Then change the notes and rhythm until the line is yours, still in note names. Done when every note is in F major.",
+          "Fix the one B in the starter that is missing its flat: in F major every `b` is `bb`. Then change the notes and rhythm until the line is yours, still in note names. It plays the quiet eight bars of your song in F. Done when every note is in F major.",
         skills: [
           { skill: "S04", w: 0.6 },
           { skill: "N03", w: 0.4 },

@@ -107,7 +107,7 @@ const GRAND_KEYS = { roll: false, staff: "grand", keyboard: true } as const;
 
 export default defineLesson({
   id: "U05.L08",
-  version: 3,
+  version: 4,
   title: "Let Strudel Voice It",
   objective:
     'I can write chords as symbols, chord("<C G Am F>"), and let .voicing() place their notes, close to how I would by hand.',
@@ -527,7 +527,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The starter is your hand-led loop from the last lesson. Rewrite it as four bars of chord names, any you like, placed by `.voicing()` on a Rhodes or an organ. A bass line of roots can go under them. Done when `.voicing()` places the chords.",
+          "The editor holds your hand-led loop from the last lesson. Rewrite it as four bars of chord names, the same C G Am F, placed by `.voicing()` on a Rhodes or an organ, for the last loud part of your song. A bass line of roots can go under them. Done when `.voicing()` places the chords.",
         skills: [
           { skill: "N05", w: 0.6 },
           { skill: "C05", w: 0.4 },
@@ -567,7 +567,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Name the starter's four chords bar by bar: those names go inside `chord()`.",
+          "Name your loop's four chords bar by bar: those names go inside `chord()`.",
           'Write them inside `chord("< >")`, one a bar, and end the chain with `.voicing()` and a sound.',
           "The bass can play each chord's root, one note a bar, the way the bass did in Voice Leading by Hand.",
         ),

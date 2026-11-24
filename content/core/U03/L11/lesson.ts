@@ -55,7 +55,7 @@ const ROLL_STAFF = { roll: true, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U03.L11",
-  version: 3,
+  version: 4,
   title: "Melody Workshop",
   objective: "I can write an eight-bar melody that pauses half-way and comes home to 1 at the end.",
   key: { tonic: "C", mode: "major" },
@@ -415,7 +415,7 @@ export default defineLesson({
         // The catalog's text for a `uses` rule names the tool ID; the label says it in words.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         prompt:
-          "Change the outline so the melody's last note is degree 1, home; the outline ends on 2. Then make the eight bars yours, with bar 4 pausing on an open degree such as 5. Done when the last note is 1.",
+          "Change the outline so the melody's last note is degree 1, home; the outline ends on 2. Then make the eight bars yours, with bar 4 pausing on an open degree such as 5. Your melody plays both loud parts of your song. Done when the last note is 1.",
         skills: [{ skill: "M01", w: 1 }],
         code: { starter: deg(OUTLINE, "piano") },
         bars: [8, 16],

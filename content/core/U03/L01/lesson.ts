@@ -58,7 +58,7 @@ const LETTERS = {
 
 export default defineLesson({
   id: "U03.L01",
-  version: 3,
+  version: 4,
   title: "Home & the Major Scale",
   objective:
     "I can hear which note is home, and spell a major scale from any note with whole and half steps, each letter once.",
@@ -400,7 +400,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Find the one note in the starter that is not in C major and change it to a note that is. Then end the line on a `c`, home, and keep `< >` so bar 2 answers bar 1. Done when every note is in C major.",
+          "Find the one note in the starter that is not in C major and change it to a note that is. Then end the line on a `c`, home, and keep `< >` so bar 2 answers bar 1. This line opens your song. Done when every note is in C major.",
         skills: [{ skill: "S01", w: 1 }],
         code: { starter: mel(MAKE_STARTER) },
         bars: [1, 4],

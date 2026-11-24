@@ -75,7 +75,7 @@ const AUTHENTIC_OR_HALF = CADENCE_OPTIONS.filter((o) => ["PAC", "IAC", "HC"].inc
 
 export default defineLesson({
   id: "U06.L04",
-  version: 3,
+  version: 4,
   title: "Endings",
   objective:
     "I can hear whether a phrase ends closed, V to I, or open on V, and write an eight-bar phrase that waits halfway and comes home at the end.",
@@ -382,7 +382,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The starter asks its question twice and never answers. Keep bar 4 waiting on V, and change bars 7 and 8 so the phrase lands V to I. Done when bar 4 ends on V and bars 7 and 8 go V to I.",
+          "The starter asks its question twice and never answers. Keep bar 4 waiting on V, and change bars 7 and 8 so the phrase lands V to I. These eight bars become the first loud part of your song. Done when bar 4 ends on V and bars 7 and 8 go V to I.",
         skills: [{ skill: "H03", w: 1 }],
         // The rule's detail names cadences by their abbreviations (PAC, HC, PC), which the prose never uses, and
         // PC is U06.L07's. The same text serves the suggestions, so it says only "not yet".

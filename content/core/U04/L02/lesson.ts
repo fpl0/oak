@@ -51,7 +51,7 @@ const HARMONY_SEMIS = Array.from({ length: 47 }, (_, i) => i - 23).filter((k) =>
 
 export default defineLesson({
   id: "U04.L02",
-  version: 3,
+  version: 4,
   title: "Major, Minor, Perfect",
   objective:
     'I can tell a major interval from a minor one by its half steps, and move a line by a named interval with .transpose("3M").',
@@ -295,7 +295,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Change the number in `vox`'s `.transpose(7)` to an interval name in quotes. Try a major 3rd, a major 6th and a perfect 5th, and keep the one you like. Done when `vox` follows `mel` by a named interval.",
+          "Change the number in `vox`'s `.transpose(7)` to an interval name in quotes. Try a major 3rd, a major 6th and a perfect 5th, and keep the one you like for both loud parts of your song. Done when `vox` follows `mel` by a named interval.",
         skills: [{ skill: "I02", w: 1 }],
         code: { starter: makePair(".transpose(7)") },
         bars: [1, 4],

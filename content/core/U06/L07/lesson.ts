@@ -84,7 +84,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U06.L07",
-  version: 3,
+  version: 4,
   title: "Doo-Wop & Three-Chord Rock",
   objective:
     "I can hear and play doo-wop (I vi IV V) and three-chord rock (I IV V), and end a phrase with IV going home to I.",
@@ -362,7 +362,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Reorder the starter's four chord names into doo-wop, I vi IV V, starting on any of the four. Then add `.arp()` after `.voicing()` to break the chords into a rhythm of your own. Done when the chords go I vi IV V in order, from any start.",
+          "Reorder the starter's four chord names into doo-wop, I vi IV V, starting on any of the four, for the four bars before your song's last loud part. Then add `.arp()` after `.voicing()` to break the chords into a rhythm of your own. Done when the chords go I vi IV V in order, from any start.",
         skills: [{ skill: "H05", w: 1 }],
         // A default voicing often puts the 3rd lowest, and the rule's detail then prints inversion figures
         // ("I6"), which wait for U06.L11. The same text serves the suggestions, so it says only "not yet".

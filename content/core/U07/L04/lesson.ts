@@ -77,7 +77,7 @@ const STAFF = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L04",
-  version: 3,
+  version: 4,
   title: "Passing & Neighbour Tones",
   objective:
     "I can decorate a tune with notes outside the chord that move by step: passing tones between chord tones, neighbour tones around one.",
@@ -359,7 +359,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Add at least two notes outside the chord on the empty beats: a passing tone that steps between two notes a 3rd apart, or a neighbour tone that steps off a note and straight back to it. Keep the notes on beats 1 and 3 as they are.",
+          "Add at least two notes outside the chord on the empty beats of the tune that opens your song: a passing tone that steps between two notes a 3rd apart, or a neighbour tone that steps off a note and straight back to it. Keep the notes on beats 1 and 3 as they are.",
         skills: [{ skill: "M04", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

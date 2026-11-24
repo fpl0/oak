@@ -58,7 +58,7 @@ const KEYS = { roll: false, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "U06.L01",
-  version: 3,
+  version: 4,
   title: "The Seven Chords",
   objective:
     'I can build a triad on any degree of a key and move one stack onto any root with .add(n("…")): seven chords, all from the key\'s own notes.',
@@ -345,7 +345,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Change at least one number in `.add()` so the loop uses a chord the four-chord loop never had: the one on degree 2, 3 or 7. A bass line on the same roots, low on the bass clef, can go under it. Done when the loop has a chord on degree 2, 3 or 7.",
+          "Change at least one number in `.add()` so the loop uses a chord the four-chord loop never had: the one on degree 2, 3 or 7. Your loop plays the four bars that climb into the first loud part of your song. Done when the loop has a chord on degree 2, 3 or 7.",
         skills: [{ skill: "H01", w: 1 }],
         // The catalog's text is "{label}: {detail}", and this rule's detail names the chords in Roman
         // numerals (U06.L02). The same text serves the suggestions, so it says only "not yet".

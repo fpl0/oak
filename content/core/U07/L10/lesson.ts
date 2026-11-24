@@ -109,7 +109,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L10",
-  version: 3,
+  version: 4,
   title: "Hook Lab",
   objective:
     "I can write a short hook that comes back and is easy to sing, and let chance change a few of its repeats.",
@@ -509,7 +509,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Turn these four bars, which never repeat, into a hook. Pick one or two bars and bring them back in other bars, the same or moved to fit the chord. Done when at least one bar comes back. Then, if you like, add `?`, `.degradeBy()` or `.sometimesBy()` so chance changes a few repeats.",
+          "Turn these four bars, which never repeat, into a hook for the last loud part of your song. Pick one or two bars and bring them back in other bars, the same or moved to fit the chord. Done when at least one bar comes back. Then, if you like, add `?`, `.degradeBy()` or `.sometimesBy()`.",
         skills: [{ skill: "M09", w: 1 }],
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         code: { starter: MAKE_STARTER },

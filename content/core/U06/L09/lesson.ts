@@ -76,7 +76,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U06.L09",
-  version: 3,
+  version: 4,
   title: "Chord Dictation Workshop",
   objective:
     "I can take down a chord loop by ear: the bass first, then each chord's quality, then its Roman numeral.",
@@ -289,7 +289,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write the loop you took down by ear, I V vi iii, in C and in that order, one chord a bar; bar 1 is written. Then make it a track if you like: a rhythm for the chords, a bass, a tune. Done when the chords go I V vi iii.",
+          "Write the loop you took down by ear, I V vi iii, in C and in that order, one chord a bar; bar 1 is written. It opens your song. Then give the chords a rhythm if you like. Done when the chords go I V vi iii.",
         skills: [{ skill: "E09", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

@@ -70,7 +70,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U06.L08",
-  version: 3,
+  version: 4,
   title: "Harmonic Rhythm",
   objective:
     "I can set the pace of a song by changing chords once or twice a bar, and speed up the changes to drive a phrase home.",
@@ -359,7 +359,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The starter changes chord once a bar. Set the pace: put two chords, in brackets, in at least one bar, and keep one chord in at least one other. Try the faster changes just before the end. Done when some bars hold one chord and some hold two.",
+          "The starter changes chord once a bar. Set the pace for the four bars that climb into your song's second loud part: put two chords, in brackets, in at least one bar, and keep one chord in at least one other. Done when some bars hold one chord and some hold two.",
         skills: [{ skill: "H06", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

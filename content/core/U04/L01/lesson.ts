@@ -40,7 +40,7 @@ const LABELS = { rollLabels: "degree+solfege", staffLabels: "degree+solfege" } a
 
 export default defineLesson({
   id: "U04.L01",
-  version: 3,
+  version: 4,
   title: "Steps Apart",
   objective:
     "I can count the distance between two degrees of a key, and write a second voice a 3rd above a line.",
@@ -278,7 +278,7 @@ export default defineLesson({
         // The catalog's text for a `uses` rule names the tool ID; the label says it in words.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         prompt:
-          "Add a `vox` line under `mel` that moves with it note for note. Try it a 3rd above (each `n` plus 2), then a 6th above (each `n` plus 5), and keep the one you like. Done when the riff has two lines that play notes.",
+          "Add a `vox` line under `mel`, the start of the tune Oak plays in the second and fourth parts of your song, moving with it note for note. Try a 3rd above (each `n` plus 2), then a 6th above (each `n` plus 5), and keep the one you like. Done when your code has two lines that play notes.",
         skills: [{ skill: "I01", w: 1 }],
         code: { starter: deg(MAKE_RIFF) },
         bars: [1, 4],

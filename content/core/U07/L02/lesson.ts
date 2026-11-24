@@ -60,7 +60,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L02",
-  version: 3,
+  version: 4,
   title: "Motif & Variation",
   objective:
     "I can build a tune from one short idea: repeat it, move it to another degree, and play it backwards.",
@@ -364,7 +364,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Pick the starter bar you like best and make it bar 1, your motif. Build bars 2 to 4 from it: repeat it, move it with `.scaleTranspose()`, or turn it round with `.rev()`. Done when at least two of the bars repeat an earlier bar's shape, the same or moved, and not all four bars are identical.",
+          "Write the first loud part of your song from one motif: the starter bar you like best, as bar 1. Build bars 2 to 4 from it: repeat it, move it with `.scaleTranspose()`, or turn it round with `.rev()`. Done when at least two bars repeat an earlier bar's shape, the same or moved, and not all four are identical.",
         skills: [{ skill: "M02", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

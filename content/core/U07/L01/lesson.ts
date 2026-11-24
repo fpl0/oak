@@ -76,7 +76,7 @@ const STAFF = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L01",
-  version: 3,
+  version: 4,
   title: "Shape",
   objective: "I can shape a melody: mostly steps, a leap or two, and one high point placed on purpose.",
   key: { tonic: "C", mode: "major" },
@@ -492,7 +492,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Rewrite the eight bars so the tune moves mostly by step, reaches its highest note once, in bars 5 to 8, and ends on home. Done when at least 6 in 10 moves go to the next degree up or down.",
+          "Rewrite the eight bars of your song's second part so the tune moves mostly by step, reaches its highest note once, in bars 5 to 8, and ends on home. Done when at least 6 in 10 moves go to the next degree up or down.",
         skills: [{ skill: "M01", w: 1 }],
         // As in S4: the labels carry the numbers, so the rules' "semitones" details stay out of sight.
         feedbackText: { "rubric.unmet": "{label}: not yet." },

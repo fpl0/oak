@@ -95,7 +95,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L03",
-  version: 3,
+  version: 4,
   title: "Landing on Chord Tones",
   objective:
     "I can write a tune that lands on a note of the chord on beats 1 and 3, and moves freely between.",
@@ -495,7 +495,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Rewrite the tune so its notes on beats 1 and 3 are chord tones of the chord in their bar. Between them, go where you like. Done when at least 6 in 10 of the notes on beats 1 and 3 are chord tones.",
+          "Rewrite the tune of your song's second loud part so its notes on beats 1 and 3 are chord tones of the chord in their bar. Between them, go where you like. Done when at least 6 in 10 of the notes on beats 1 and 3 are chord tones.",
         skills: [{ skill: "M03", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

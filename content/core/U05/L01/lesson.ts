@@ -57,7 +57,7 @@ const MAKE_STARTER = code(chords("<[0,2,4] ~ ~ ~>"));
 
 export default defineLesson({
   id: "U05.L01",
-  version: 3,
+  version: 4,
   title: "Stacking Thirds",
   objective: 'I can stack a triad on any degree of a key with n("[0,2,4]"): root, 3rd and 5th.',
   key: { tonic: "C", mode: "major" },
@@ -365,7 +365,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The band's bass plays degrees 1, 5, 6 and 4, one a bar. In the `chords` line, stack a triad on each bass note, one bar each, in that order. Then give the chords a rhythm or add a tune if you like. Done when the four bars play triads on 1, 5, 6 and 4.",
+          "Write the chords of your song's second part. Oak's bass plays degrees 1, 5, 6 and 4 there, one a bar: in the `chords` line, stack a triad on each bass note, in that order. Then give the chords a rhythm if you like. Done when the four bars play triads on 1, 5, 6 and 4.",
         skills: [{ skill: "C01", w: 1 }],
         // The catalog's text is "{label}: {detail}", and a progression's detail names the chords in Roman
         // numerals (U06.L02). The same text serves the suggestions, so it says only "not yet".

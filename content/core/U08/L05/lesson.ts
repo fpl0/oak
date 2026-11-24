@@ -95,7 +95,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U08.L05",
-  version: 3,
+  version: 4,
   title: "Bass Dictation & Tone",
   objective: "I can take a bass line down by ear, and give a bass its tone.",
   key: { tonic: "C", mode: "major" },
@@ -374,7 +374,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The bass is a bar late: each bar plays the root of the chord before. Change it so every bar plays its own chord's root on beat 1. Then add 5ths, octaves or approach tones, and pick a bass sound. Keep the chords as they are.",
+          "Write the bass for the quiet part of your song. The bass you start with is a bar late: each bar plays the root of the chord before. Change it so every bar plays its own chord's root on beat 1. Then add 5ths, octaves or approach tones, and pick a bass sound. Keep the chords as they are.",
         skills: [{ skill: "B01", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

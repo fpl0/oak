@@ -42,7 +42,7 @@ const NUMBERS = {
 
 export default defineLesson({
   id: "U03.L05",
-  version: 4,
+  version: 5,
   title: "Same Song, Any Key",
   objective:
     "I can play the same tune in any major key by changing one word, and change key bar by bar with a pattern in .scale().",
@@ -371,7 +371,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          'Put a pattern in `.scale("< >")` so the tune plays in a second key, for example two bars in one key, then two in another. Change the numbers in `n` too if you like. Done when the melody plays in two different keys.',
+          'Your line from Leading Tone & Six is in the editor. Put a pattern in `.scale("< >")` so it plays two bars in C, then two bars in F, as the band does in this part of your song. Change the numbers in `n` too if you like. Done when the melody plays in two different keys.',
         skills: [{ skill: "S03", w: 1 }],
         code: { starter: deg("<[0 2 1 4] [3 2 0 ~]>") },
         bars: [1, 8],

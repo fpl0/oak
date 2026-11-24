@@ -76,7 +76,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L05",
-  version: 3,
+  version: 4,
   title: "Leaning & Holding",
   objective:
     "I can make a tune lean: a note outside the chord on the strong beat, held over or leapt to, that falls a step into the chord.",
@@ -401,7 +401,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Make the tune lean at least once. Either hold a note from one bar into the next chord, where it is not a chord tone, or leap to a note outside the chord on beat 1. Then move that note one step down into the chord.",
+          "Make the tune that ends your song lean at least once. Either hold a note from one bar into the next chord, where it is not a chord tone, or leap to a note outside the chord on beat 1. Then move that note one step down into the chord.",
         skills: [{ skill: "M05", w: 1 }],
         // The rule's own detail ends "step into a note outside the chord and step on", which describes a
         // passing tone, not a lean; the same text serves the suggestions, so it says only "not yet".

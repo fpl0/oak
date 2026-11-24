@@ -68,7 +68,7 @@ const KEYS = { roll: false, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "U05.L09",
-  version: 3,
+  version: 4,
   title: "Chord Names",
   objective: "I can read a chord's name (C, Cm, C°, C+), play the chord it asks for and name a chord I see.",
   key: { tonic: "C", mode: "major" },
@@ -308,7 +308,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bars 1 and 2 are C and F. Replace the bare roots of bars 3 and 4 with stacks for two chords from Dm, Em, G and Am, at least one of them minor. Say the four names out loud as the loop plays. Done when the chart has a minor chord.",
+          "Your chart plays the half-time part of your song. Bars 1 and 2 are C and F. Replace the bare roots of bars 3 and 4 with stacks for two chords from Dm, Em, G and Am, at least one of them minor. Say the four names as the chart plays. Done when the chart has a minor chord.",
         skills: [{ skill: "N05", w: 1 }],
         // The catalog's text is "{label}: {detail}", and a chord rule's detail may name the chords in words
         // this lesson has not taught. The same text serves every rule, so it says only "not yet".

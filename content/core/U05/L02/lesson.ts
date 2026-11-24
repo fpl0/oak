@@ -62,7 +62,7 @@ const ROLL_KEYS = { roll: true, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "U05.L02",
-  version: 3,
+  version: 4,
   title: "Major & Minor",
   objective:
     "I can tell a major triad from a minor one by ear and by its 3rds, and turn one into the other by moving its middle note a half step.",
@@ -342,7 +342,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Replace at least one of the four stacks with a minor triad, a stack on degree 2, 3 or 6. Try it in different bars, first, middle or last, and keep the place you like. Done when the loop has at least one minor triad.",
+          "Write the ending of your song: replace at least one of the four stacks with a minor triad, a stack on degree 2, 3 or 6. Try it in different bars, first, middle or last, and keep the place you like. Done when the loop has at least one minor triad.",
         skills: [{ skill: "C02", w: 1 }],
         // The catalog's text is "{label}: {detail}", and a contains-rn detail names the chords in Roman
         // numerals (U06.L02). The same text serves the suggestions, so it says only "not yet".

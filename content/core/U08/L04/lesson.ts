@@ -80,7 +80,7 @@ const TAP_FEEDBACK = {
 
 export default defineLesson({
   id: "U08.L04",
-  version: 3,
+  version: 4,
   title: "Lock with the Kick",
   objective:
     "I can give the kick drum and the bass one rhythm, named once in a const, so they hit as one instrument.",
@@ -352,7 +352,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write one rhythm in a `const` at the top, with at least one hit between the beats. Give it to both the kick and the bass with `.struct()`. Then add a snare on 2 and 4 and hats. Done when at least 3 in 4 bass notes start with a kick.",
+          "Write the kick and bass for the last two loud parts of your song. Put one rhythm in a `const` at the top, with a hit between the beats, and give it to both with `.struct()`. Add a snare on 2 and 4 and hats. Done when at least 3 in 4 bass notes start with a kick.",
         skills: [{ skill: "B04", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

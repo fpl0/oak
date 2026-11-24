@@ -4,8 +4,25 @@
 import type { LessonId, TakeoverStep, UnitId, UnitSongDef, UnitSongId } from "@oak/content-kit";
 import { U01_SONG } from "./U01.ts";
 import { U02_SONG } from "./U02.ts";
+import { U03_SONG } from "./U03.ts";
+import { U04_SONG } from "./U04.ts";
+import { U05_SONG } from "./U05.ts";
+import { U06_SONG } from "./U06.ts";
+import { U07_SONG } from "./U07.ts";
+import { U08_SONG } from "./U08.ts";
+import { U09_SONG } from "./U09.ts";
 
-export const unitSongs: readonly UnitSongDef[] = Object.freeze([U01_SONG, U02_SONG]);
+export const unitSongs: readonly UnitSongDef[] = Object.freeze([
+  U01_SONG,
+  U02_SONG,
+  U03_SONG,
+  U04_SONG,
+  U05_SONG,
+  U06_SONG,
+  U07_SONG,
+  U08_SONG,
+  U09_SONG,
+]);
 
 export const unitSongById: ReadonlyMap<UnitSongId, UnitSongDef> = new Map(unitSongs.map((s) => [s.id, s]));
 

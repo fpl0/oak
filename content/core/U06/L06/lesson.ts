@@ -68,7 +68,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U06.L06",
-  version: 3,
+  version: 4,
   title: "The Four-Chord Schema",
   objective:
     "I can hear the four-chord loop I V vi IV in a song, start it on any of its chords, and hear V swerve to vi instead of going home.",
@@ -355,7 +355,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Finish the four-chord loop in the `chords` line on the pad, I V vi IV, started on whichever of its chords you like, in the loop's order. Then give the chords a rhythm or add a bass or a tune if you like. Done when all four chords play in the loop's order.",
+          "Finish the four-chord loop in the `chords` line on the pad, I V vi IV, started on whichever of its chords you like, in the loop's order. It plays the part after the opening of your song. Then add a rhythm, a bass or a tune if you like. Done when all four chords play in the loop's order.",
         skills: [{ skill: "H04", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

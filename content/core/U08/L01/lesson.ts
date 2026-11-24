@@ -62,7 +62,7 @@ const ROOT_BASS = {
 
 export default defineLesson({
   id: "U08.L01",
-  version: 3,
+  version: 4,
   title: "Roots Down Low",
   objective:
     "I can write a bass line that plays each chord's root on its downbeat, in degrees or from chord names.",
@@ -363,7 +363,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Change the bass so it plays each chord's root on beat 1 of that chord's bar, all four bars. Then give the bass any rhythm you like. Keep the chords as they are.",
+          "Write the bass for the opening and the ending of your song. Change it so it plays each chord's root on beat 1 of that chord's bar, all four bars. Then give it any rhythm you like. Keep the chords as they are.",
         skills: [{ skill: "B01", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

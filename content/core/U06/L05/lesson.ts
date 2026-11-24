@@ -85,7 +85,7 @@ const PAD: AnswerUi = {
 
 export default defineLesson({
   id: "U06.L05",
-  version: 3,
+  version: 4,
   title: "Hear the Bass First",
   objective:
     "I can pick the bass out of a chord loop, sing its roots and write them down in degrees: a root bass of 1 5 6 4 spells I V vi IV.",
@@ -284,7 +284,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The `chords` line plays I V vi IV, and the `bass` line plays only C. Change the bass so that on beat 1 of every bar it plays a note of that bar's chord; between, anything you like. Done when every beat 1 has a note of its chord.",
+          "Your loop plays the part after your song's first loud part. The `chords` line plays I V vi IV, and the `bass` line plays only C. Change the bass so that on beat 1 of every bar it plays a note of that bar's chord; between, anything you like. Done when every beat 1 has a note of its chord.",
         skills: [
           { skill: "E09", w: 0.5 },
           { skill: "H01", w: 0.5 },

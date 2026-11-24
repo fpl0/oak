@@ -112,7 +112,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L07",
-  version: 3,
+  version: 4,
   title: "Call & Response",
   objective: "I can write a call in one part and a response in another part that answers it in the gap.",
   key: { tonic: "C", mode: "major" },
@@ -455,7 +455,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Add a `vox:` line on the Rhodes, the organ or the piano that answers the call in bars 2 and 4, while `mel` rests. Done when the two lines take turns instead of playing together. End `vox` on degree 1 to bring the four bars home.",
+          "Add a `vox:` line that answers the call in bars 2 and 4, while `mel` rests, for the quiet part of your song. Play it on the Rhodes, the organ or the piano. Done when the two lines take turns instead of playing together. End `vox` on degree 1 to bring the four bars home.",
         skills: [{ skill: "M07", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

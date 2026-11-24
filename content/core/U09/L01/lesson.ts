@@ -116,7 +116,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U09.L01",
-  version: 3,
+  version: 4,
   title: "Phrases Make Sections",
   objective: "I can hear where a section starts and count a song in four- and eight-bar phrases.",
   key: { tonic: "C", mode: "major" },
@@ -397,7 +397,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "After the four-bar question, add a four-bar answer inside the same `< >`. Start the answer with the question's first two bars, the same or a step higher or lower. End it home on 1. Then add a crash on bars 1 and 5.",
+          "After the four-bar question, add a four-bar answer inside the same `< >`: these eight bars end your song. Start the answer with the question's first two bars, the same or a step higher or lower. End it home on 1. Then add a crash on bars 1 and 5.",
         skills: [{ skill: "F01", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [8, 16],

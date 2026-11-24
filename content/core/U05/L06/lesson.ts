@@ -63,7 +63,7 @@ const BASS_KEYS = { roll: false, staff: "bass", keyboard: true } as const;
 
 export default defineLesson({
   id: "U05.L06",
-  version: 3,
+  version: 4,
   title: "Bass Clef & Grand Staff",
   objective:
     "I can read and write low notes on the bass clef, and read a bass line under chords on the grand staff.",
@@ -343,7 +343,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The starter's bass line sits an octave too high, among the band's chords. Move it down so every note is at `c3` or below, then reshape it: the root of each chord on beat 1, anything you like between. Done when every bass note is at `c3` or below.",
+          "The starter's bass line sits an octave too high, among the chords. Move it down so every note is at `c3` or below, then reshape it: the root of each chord on beat 1, anything you like between. It plays under your song's second part and both loud parts. Done when every bass note is at `c3` or below.",
         skills: [{ skill: "N04", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],

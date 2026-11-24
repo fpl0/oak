@@ -122,7 +122,7 @@ const PERC_MATCH: Matcher = {
 
 export default defineLesson({
   id: "U09.L02",
-  version: 3,
+  version: 4,
   title: "Verse & Chorus",
   objective:
     "I can build a song from two contrasting sections, verse and chorus, with one arrange() per track.",
@@ -386,7 +386,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Give the chords and the bass each an `arrange()`: verse, chorus, verse, chorus, four bars each. Then make the chorus lift: a higher tune in `melChorus`, or a fourth track. Done when the chords play in that order over 16 bars.",
+          "Give the chords and the bass each an `arrange()`: verse, chorus, verse, chorus, four bars each. Then make the chorus lift: a higher tune in `melChorus`, or a fourth track. Done when the chords play in that order over 16 bars. Your verse then plays every verse of your song, your chorus every chorus.",
         skills: [{ skill: "F02", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [16, 32],

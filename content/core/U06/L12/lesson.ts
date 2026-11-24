@@ -76,7 +76,7 @@ const RHYTHM: Matcher = {
 
 export default defineLesson({
   id: "U06.L12",
-  version: 3,
+  version: 4,
   title: "Comping Patterns",
   objective: 'I can give a chord loop a rhythm that locks with the drums, with .struct("~ x ~ x").',
   key: { tonic: "C", mode: "major" },
@@ -379,7 +379,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Your chords hold each bar over the band's drums and bass. Add `.struct()` to the `chords` line with a rhythm that locks with the band's kick and snare and leaves room for a tune. Done when the chords play a rhythm set with `.struct()`.",
+          "Your chords hold each bar over Oak's drums and bass, in the last two loud parts of your song. Add `.struct()` to the `chords` line with a rhythm that locks with the kick and snare and leaves room for Oak's tune. Done when the chords play a rhythm set with `.struct()`.",
         skills: [{ skill: "H06", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -413,7 +413,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "Listen first for where the band's kick and snare land. Your chords can hit with them or in the gaps.",
+          "Listen first for where Oak's kick and snare land. Your chords can hit with them or in the gaps.",
           "`.struct()` goes after `.scale()`, before `.s()`. Its rhythm has one word a beat: `x` to hit, `~` to rest.",
           'One rhythm to start from: `"~ x ~ x"`. Then try a push, or split a beat in two.',
         ),

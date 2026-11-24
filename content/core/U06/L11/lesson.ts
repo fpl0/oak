@@ -85,7 +85,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U06.L11",
-  version: 3,
+  version: 4,
   title: "Slash Chords & Walking Down",
   objective:
     "I can walk a bass down by step under a chord loop, so that some chords stand on their 3rd or 5th (C G/B Am).",
@@ -457,7 +457,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The `bass` line plays every root: C, G, A, F. Make it walk down by step instead, C, B, A, so at least one chord stands on its 3rd or 5th. Change the chords too if you like. Done when at least one chord has its 3rd or 5th in the bass.",
+          "The `bass` line plays every root: C, G, A, F. Make it walk down by step instead, C, B, A, so at least one chord stands on its 3rd or 5th. Your loop plays the part after your song's first loud part. Done when at least one chord has its 3rd or 5th in the bass.",
         skills: [
           { skill: "H15", w: 0.6 },
           { skill: "C04", w: 0.4 },
