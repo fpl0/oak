@@ -1816,6 +1816,35 @@ const bandState = z.strictObject({
    */
   song: z.strictObject({ unitId, takeIds: z.array(z.number().int().positive()).max(256) }).optional(),
 });
+/**
+ * Oak 2.0 S3 (contracts §13): a jam take is `kept` or `cut` (cut = hidden, never deleted); `null` = not judged, or not
+ * a take. Stored in `sketch_versions.take_state`, which has no CHECK (the service validates against this list).
+ */
+export const TAKE_STATES = ["kept", "cut"] as const;
+export type TakeState = (typeof TAKE_STATES)[number];
+/**
+ * Oak 2.0 S5: the musical dimensions a variation changes, the learner's pick for a sibling or a generation
+ * (`sketch_versions.dimension`). `diffDimensions` in `@oak/grader` describes a change with the same five names.
+ */
+export const SKETCH_DIMENSIONS = ["sound", "rhythm", "notes", "harmony", "form"] as const;
+export type SketchDimension = (typeof SKETCH_DIMENSIONS)[number];
+/** Oak 2.0 S7 Commit sounds: a line whose sound settings are committed as they were in `version` (edits ask first). */
+const committedLine = z.strictObject({
+  label: z.string().min(1).max(64),
+  version: z.number().int().positive(),
+  at: Instant,
+});
+/** Oak 2.0 S6: a card drawn for this sketch (`content/studio/cards.ts` id). */
+const drawnCard = z.strictObject({ cardId: z.string().min(1).max(80), drawnAt: Instant });
+/** Oak 2.0 S5: a version's place in a variation chain (absent from a 1.x server; W3 builds the writes). */
+const lineageFields = {
+  /** The version of the same sketch this one was copied from (a sibling or a next generation); `null` otherwise. */
+  parentVersion: z.number().int().positive().nullable(),
+  /** 1 for a child of a version outside any chain, parent's + 1 after that; `null` for ordinary Runs. */
+  generation: z.number().int().positive().nullable(),
+  /** The one dimension the learner chose to change against the parent. */
+  dimension: z.enum(SKETCH_DIMENSIONS).nullable(),
+};
 const sketchFlags = z.strictObject({
   lockedTools: z.array(z.string()),
   previewTools: z.array(z.string()),
@@ -1841,6 +1870,11 @@ export const SketchVersionSchema = z.object({
   band: bandState.nullable(),
   flags: sketchFlags,
   createdAt: Instant,
+  /** Oak 2.0 (migration 0012, contracts §13): optional until the W1/W3 server returns them, then always present. */
+  takeState: z.enum(TAKE_STATES).nullable().optional(),
+  parentVersion: lineageFields.parentVersion.optional(),
+  generation: lineageFields.generation.optional(),
+  dimension: lineageFields.dimension.optional(),
 });
 export type SketchVersion = z.infer<typeof SketchVersionSchema>;
 /** `sketches` row. */
@@ -1855,6 +1889,10 @@ export const SketchSchema = z.object({
   listeningNote: z.string().nullable(),
   createdAt: Instant,
   updatedAt: Instant,
+  /** Oak 2.0 S7: lines whose sound settings are committed (`sketches.committed_json`; empty = none). */
+  committed: z.array(committedLine).optional(),
+  /** Oak 2.0 S6: cards drawn for this sketch (`sketches.cards_json`; empty = none). */
+  cards: z.array(drawnCard).optional(),
 });
 export type Sketch = z.infer<typeof SketchSchema>;
 export const SketchDetailSchema = SketchSchema.extend({ versions: z.array(SketchVersionSchema) });
@@ -1883,6 +1921,15 @@ export type SketchCreate = z.infer<typeof SketchCreateSchema>;
 export const SketchVersionCreateSchema = z.strictObject({
   sessionId: z.string().nullable(),
   ...sketchVersionInput,
+  /**
+   * Oak 2.0 (contracts §13). `analysis` above is the worker's analysis, saved with the version (the habits mirror
+   * reads it). A Run in a jam is a take (`takeState: null` until kept or cut); a sibling or next generation names its
+   * parent, generation and dimension. Absent = `null`.
+   */
+  takeState: z.enum(TAKE_STATES).nullable().optional(),
+  parentVersion: lineageFields.parentVersion.optional(),
+  generation: lineageFields.generation.optional(),
+  dimension: lineageFields.dimension.optional(),
 });
 export type SketchVersionCreate = z.infer<typeof SketchVersionCreateSchema>;
 export const SketchPatchSchema = z
@@ -1891,8 +1938,30 @@ export const SketchPatchSchema = z
     tags: z.array(z.string()),
     archived: z.boolean(),
     listeningNote: z.string().nullable(),
+    /** Oak 2.0 S7: the whole committed list (replaces it). */
+    committed: z.array(committedLine).max(64),
+    /** Oak 2.0 S6: the whole list of drawn cards (replaces it). */
+    cards: z.array(drawnCard).max(64),
   })
   .partial();
+/** Oak 2.0 S3 (`sketches.patchVersion`): keep or cut a take, or clear the mark. */
+export const SketchVersionPatchSchema = z.strictObject({ takeState: z.enum(TAKE_STATES).nullable() });
+export type SketchVersionPatch = z.infer<typeof SketchVersionPatchSchema>;
+/** Oak 2.0 S5 (`sketches.lineage`): the chain that ends at a version, first to last. */
+export const SketchLineageSchema = z.object({
+  sketchId: z.string(),
+  versions: z.array(
+    z.object({
+      version: z.number().int().positive(),
+      ...lineageFields,
+      takeState: z.enum(TAKE_STATES).nullable(),
+      /** The change undoes the grandparent's change in the same dimension (noted, never blocked). */
+      undoesGrandparent: z.boolean(),
+      createdAt: Instant,
+    }),
+  ),
+});
+export type SketchLineage = z.infer<typeof SketchLineageSchema>;
 export const SketchSavedSchema = z.object({ sketch: SketchDetailSchema, streak: StreakSummarySchema });
 export type SketchSaved = z.infer<typeof SketchSavedSchema>;
 
@@ -1940,8 +2009,16 @@ export const AlbumTrackSchema = z.object({
   currentVersion: z.number().int().positive(),
   coverSeed: z.string(),
   createdAt: Instant,
+  /**
+   * Oak 2.0 F6 (`album_tracks.shelved`): finished but on the Shelf, not on the album; counts as finished. Optional
+   * until the W4 server returns it.
+   */
+  shelved: z.boolean().optional(),
 });
 export type AlbumTrack = z.infer<typeof AlbumTrackSchema>;
+/** Oak 2.0 F6 (`album.patchTrack`): shelve a track or take it back off the Shelf. */
+export const TrackPatchSchema = z.strictObject({ shelved: z.boolean() }).partial();
+export type TrackPatch = z.infer<typeof TrackPatchSchema>;
 export const AlbumTrackDetailSchema = AlbumTrackSchema.extend({ versions: z.array(AlbumTrackVersionSchema) });
 export type AlbumTrackDetail = z.infer<typeof AlbumTrackDetailSchema>;
 export const AlbumSchema = z.object({
@@ -2327,6 +2404,9 @@ export const CONFIRM_ACTIONS = [
   "anthropic-key.delete",
   /** Wave 5 (carry-over c11): re-recording an album version replaces its earlier recording. */
   "album.audio.replace",
+  /** Oak 2.0 (contracts §13): deleting a saved scrap or one of the learner's templates. */
+  "scrap.delete",
+  "template.delete",
 ] as const;
 export type ConfirmAction = (typeof CONFIRM_ACTIONS)[number];
 export const ConfirmRequestSchema = z.strictObject({
@@ -3579,3 +3659,152 @@ export const WAVE7_SEED_POINTS = [
   "whole course complete",
 ] as const;
 export type Wave7SeedPoint = (typeof WAVE7_SEED_POINTS)[number];
+
+// --- Oak 2.0 additions (docs/oak2/PLAN.md §4–§6; contracts §13; migration 0012) --------------------------------
+// Declared in W0; the handlers are built in W1 (scraps, templates, takes), W3 (lineage, habits, catalogs) and W4
+// (Shelf, check history); until then each answers the typed 501 (`OAK2_ENDPOINTS` in contract.ts).
+
+/** The part a scrap plays (`scraps.role`, no CHECK): the Band roles plus the tune, or anything else. */
+export const SCRAP_ROLES = ["drums", "bass", "chords", "tune", "other"] as const;
+export type ScrapRole = (typeof SCRAP_ROLES)[number];
+/** Where a saved scrap came from (`scraps.source_kind`, no CHECK): a sketch line, a lesson step, a capture. */
+export const SCRAP_SOURCE_KINDS = ["sketch", "lesson", "hum", "tap", "memo"] as const;
+export type ScrapSourceKind = (typeof SCRAP_SOURCE_KINDS)[number];
+/**
+ * S1: one scrap. `saved` scraps are rows of `scraps`; `index` scraps are the labelled lines of every sketch's current
+ * version, read on each list and never stored (their `id` is the server's, stable for one sketch version and line;
+ * `scraps.delete` refuses it). For an `index` scrap `sourceKind` is `sketch` and `sketchId`/`sketchVersion` name the
+ * version; for a saved one they are `null` unless it was saved from a sketch.
+ */
+export const ScrapSchema = z.object({
+  id: z.string(),
+  origin: z.enum(["saved", "index"]),
+  role: z.enum(SCRAP_ROLES).nullable(),
+  label: z.string().nullable(),
+  code: z.string(),
+  bpm: z.number().nullable(),
+  meter: meterId.nullable(),
+  key: KeySpecSchema.nullable(),
+  sourceKind: z.enum(SCRAP_SOURCE_KINDS),
+  sourceRef: z.string().nullable(),
+  sketchId: z.string().nullable(),
+  sketchVersion: z.number().int().positive().nullable(),
+  /** Set by a backup import on a saved scrap: its code runs only after the strict lint (contracts §11.3). */
+  reviewBeforeRun: z.literal(true).optional(),
+  createdAt: Instant,
+});
+export type Scrap = z.infer<typeof ScrapSchema>;
+/** Save a line as a scrap (from a lesson, a capture, or a line of a take in the edit view). */
+export const ScrapCreateSchema = z.strictObject({
+  role: z.enum(SCRAP_ROLES).nullable(),
+  label: z.string().min(1).max(64).nullable(),
+  code: z.string().min(1).max(8000),
+  bpm: z.number().positive().nullable(),
+  meter: meterId.nullable(),
+  key: KeySpecSchema.nullable(),
+  sourceKind: z.enum(SCRAP_SOURCE_KINDS),
+  sourceRef: z.string().min(1).max(200).nullable(),
+});
+export type ScrapCreate = z.infer<typeof ScrapCreateSchema>;
+
+/** S2: one of the learner's own starting points (`user_templates`). At most one is the Blank. */
+export const UserTemplateSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  code: z.string(),
+  bpm: z.number().nullable(),
+  meter: meterId.nullable(),
+  isBlank: z.boolean(),
+  /** Set by a backup import: its code runs only after the strict lint (contracts §11.3). */
+  reviewBeforeRun: z.literal(true).optional(),
+  createdAt: Instant,
+  updatedAt: Instant,
+});
+export type UserTemplate = z.infer<typeof UserTemplateSchema>;
+/**
+ * Save a template. With `fromSketch`, the server reads that version and keeps its tempo, meter and sounds with no
+ * notes ("Make this my Blank"), ignoring `code`; otherwise `code` is stored as given. `isBlank: true` makes it the
+ * Blank (the previous Blank stops being one).
+ */
+export const UserTemplateCreateSchema = z.strictObject({
+  name: z.string().min(1).max(80),
+  isBlank: z.boolean(),
+  fromSketch: z
+    .strictObject({ sketchId: z.string().min(1), version: z.number().int().positive() })
+    .nullable(),
+  code: z.string().max(60_000).nullable(),
+  bpm: z.number().positive().nullable(),
+  meter: meterId.nullable(),
+});
+export type UserTemplateCreate = z.infer<typeof UserTemplateCreateSchema>;
+export const UserTemplatePatchSchema = z
+  .strictObject({ name: z.string().min(1).max(80), isBlank: z.boolean() })
+  .partial();
+export type UserTemplatePatch = z.infer<typeof UserTemplatePatchSchema>;
+
+/** S6 habits mirror: plain sentences over the current version of every sketch, Oak's defaults ignored. */
+export const HabitsSchema = z.object({
+  /** How many sketches the sentences are drawn from. */
+  sketches: z.number().int().nonnegative(),
+  /** Empty when there is nothing to say. `id` is stable per habit, so "Not this time" can name it. */
+  habits: z.array(z.object({ id: z.string(), text: z.string() })),
+});
+export type Habits = z.infer<typeof HabitsSchema>;
+
+/** S7: who parked an item on the Later list (`later_items.source`, no CHECK). */
+export const LATER_SOURCES = ["tutor", "learner"] as const;
+export const LaterItemSchema = z.object({
+  id: z.string(),
+  text: z.string(),
+  source: z.enum(LATER_SOURCES).nullable(),
+  createdAt: Instant,
+  doneAt: Instant.nullable(),
+});
+export type LaterItem = z.infer<typeof LaterItemSchema>;
+export const LaterCreateSchema = z.strictObject({
+  text: z.string().trim().min(1).max(500),
+  source: z.enum(LATER_SOURCES).nullable(),
+});
+/** `done: true` sets `doneAt` (the row stays); `false` clears it. */
+export const LaterPatchSchema = z
+  .strictObject({ text: z.string().trim().min(1).max(500), done: z.boolean() })
+  .partial();
+
+/** S6 Catalog of attributes: what the reference is (`catalogs.ref_kind`, no CHECK). */
+export const CATALOG_REF_KINDS = ["song", "transcription", "audio"] as const;
+/** The six plain lines, in the order the learner writes them. */
+export const CATALOG_LINES = ["tempo", "sound", "harmony", "melody", "rhythm", "form"] as const;
+const catalogLines = z.strictObject(
+  Object.fromEntries(CATALOG_LINES.map((k) => [k, z.string().max(400)])) as Record<
+    (typeof CATALOG_LINES)[number],
+    z.ZodString
+  >,
+);
+export const CatalogSchema = z.object({
+  id: z.string(),
+  refKind: z.enum(CATALOG_REF_KINDS),
+  refId: z.string(),
+  lines: catalogLines,
+  /** The sketch written from the lines, once there is one. */
+  sketchId: z.string().nullable(),
+  createdAt: Instant,
+});
+export type Catalog = z.infer<typeof CatalogSchema>;
+export const CatalogCreateSchema = z.strictObject({
+  refKind: z.enum(CATALOG_REF_KINDS),
+  refId: z.string().min(1).max(200),
+  lines: catalogLines,
+  sketchId: z.string().min(1).nullable(),
+});
+
+/** F2: one rubric check of a capstone draft (`capstone_check_history`), oldest first. */
+export const CapstoneCheckHistoryEntrySchema = z.object({
+  id: z.number().int().positive(),
+  capstoneId,
+  sessionId: z.string().nullable(),
+  sketchId: z.string(),
+  sketchVersion: z.number().int().positive(),
+  passed: z.boolean(),
+  at: Instant,
+});
+export type CapstoneCheckHistoryEntry = z.infer<typeof CapstoneCheckHistoryEntrySchema>;

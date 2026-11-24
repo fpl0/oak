@@ -1,6 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import { z } from "zod";
-import { buildPath, contract, ENDPOINT_NAMES, type EndpointDef, pathParams } from "./contract.ts";
+import {
+  buildPath,
+  contract,
+  ENDPOINT_NAMES,
+  type EndpointDef,
+  OAK2_ENDPOINTS,
+  pathParams,
+} from "./contract.ts";
 import {
   CONFIRM_ACTIONS,
   DEFAULT_SETTINGS,
@@ -118,6 +125,78 @@ describe("the contract table", () => {
     expect(required.filter((r) => !have.has(r))).toEqual([]);
   });
 
+  test("the Oak 2.0 endpoints of contracts §13 have their binding names and paths", () => {
+    expect(Object.fromEntries(OAK2_ENDPOINTS.map((n) => [n, sig(contract[n])]))).toEqual({
+      "scraps.list": "GET /scraps",
+      "scraps.create": "POST /scraps",
+      "scraps.delete": "DELETE /scraps/:id",
+      "templates.list": "GET /templates",
+      "templates.create": "POST /templates",
+      "templates.patch": "PATCH /templates/:id",
+      "templates.delete": "DELETE /templates/:id",
+      "sketches.patchVersion": "PATCH /sketches/:id/versions/:version",
+      "sketches.lineage": "GET /sketches/:id/lineage",
+      "album.patchTrack": "PATCH /album/tracks/:id",
+      "habits.get": "GET /habits",
+      "later.list": "GET /later",
+      "later.create": "POST /later",
+      "later.patch": "PATCH /later/:id",
+      "catalogs.list": "GET /catalogs",
+      "catalogs.create": "POST /catalogs",
+      "capstones.checkHistory": "GET /capstones/:id/check-history",
+    });
+  });
+
+  test("Oak 2.0 bodies: a 1.x client's version still parses; takes, lineage, commits and the Shelf are optional", () => {
+    const version = {
+      sessionId: null,
+      code: 'drums: s("bd sd")',
+      bpm: 90,
+      meter: "4/4",
+      key: null,
+      analysis: null,
+      note: null,
+      tutorAssisted: false,
+      band: null,
+      flags: { lockedTools: [], previewTools: [] },
+      ranOk: true,
+    };
+    const add = contract["sketches.addVersion"].body;
+    expect(add.safeParse(version).success).toBe(true);
+    expect(
+      add.safeParse({ ...version, takeState: null, parentVersion: 3, generation: 2, dimension: "rhythm" })
+        .success,
+    ).toBe(true);
+    expect(add.safeParse({ ...version, dimension: "melody" }).success).toBe(false);
+    expect(add.safeParse({ ...version, takeState: "deleted" }).success).toBe(false);
+    expect(contract["sketches.patchVersion"].body.safeParse({ takeState: "cut" }).success).toBe(true);
+    expect(contract["sketches.patchVersion"].body.safeParse({}).success).toBe(false);
+    const patch = contract["sketches.patch"].body;
+    expect(
+      patch.safeParse({
+        committed: [{ label: "bass", version: 4, at: "2026-11-24T10:00:00.000Z" }],
+        cards: [{ cardId: "card.no-hats", drawnAt: "2026-11-24T10:00:00.000Z" }],
+      }).success,
+    ).toBe(true);
+    expect(contract["album.patchTrack"].body.safeParse({ shelved: true }).success).toBe(true);
+    expect(contract["album.patchTrack"].body.safeParse({ title: "x" }).success).toBe(false);
+    // A 1.x server's sketch and track responses (no 2.0 fields) still parse.
+    expect(
+      contract["album.patchTrack"].res.safeParse({
+        id: "trk_1",
+        capstoneId: null,
+        sketchId: "sk_1",
+        side: "Bside",
+        trackNo: 1,
+        title: "B",
+        flavour: null,
+        currentVersion: 1,
+        coverSeed: "c",
+        createdAt: "2026-11-24T10:00:00.000Z",
+      }).success,
+    ).toBe(true);
+  });
+
   test("renamed or removed endpoints are gone (contracts §11.9)", () => {
     const paths = defs.map(([, d]) => d.path);
     for (const gone of ["/tutor/session-warm", "/tutor/listening-comment", "/checkpoints/:unitId/attempts"])
@@ -126,7 +205,7 @@ describe("the contract table", () => {
     expect(defs.filter(([, d]) => d.method === "DELETE" && d.path.startsWith("/tutor"))).toEqual([]);
   });
 
-  test("the seven destructive endpoints of contracts §11.6 need a confirm nonce, and only they do", () => {
+  test("the destructive endpoints of contracts §11.6 (seven, plus Oak 2.0's two) need a confirm nonce, and only they do", () => {
     const destructive = defs
       .filter(([, d]) => d.confirm)
       .map(([, d]) => `${sig(d)} → ${d.confirm}`)
@@ -140,6 +219,9 @@ describe("the contract table", () => {
         "DELETE /audio/:id → audio.delete",
         "DELETE /transcriptions/:id → transcription.delete",
         "DELETE /settings/anthropic-key → anthropic-key.delete",
+        // Oak 2.0 (contracts §13): every DELETE is destructive.
+        "DELETE /scraps/:id → scrap.delete",
+        "DELETE /templates/:id → template.delete",
       ].sort(),
     );
     // Wave 5: `confirmIf` actions need the nonce only when they replace something (album.audio.replace).

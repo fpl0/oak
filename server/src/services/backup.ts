@@ -398,6 +398,8 @@ export class BackupService {
  * it), and an imported lesson attempt is marked `imported` (the voicing gate never hands its code back as typed).
  * Unit songs (spec 2026-11-24 §5.4): a take plays its sketch version, flagged above (`UnitSongTake.reviewBeforeRun`
  * reads that flag); a release snapshot holds code of its own (Oak's and every take's), so it is flagged too.
+ * Oak 2.0 (migration 0012): saved scraps and the learner's templates hold runnable code of their own, so they are
+ * flagged too; catalogs hold plain words only.
  */
 export function markForReview(db: Db): void {
   const empty = '{"lockedTools":[],"previewTools":[]}';
@@ -409,6 +411,8 @@ export function markForReview(db: Db): void {
   db.run("UPDATE transcription_versions SET review_before_run = 1");
   db.run("UPDATE step_attempts SET imported = 1 WHERE code IS NOT NULL");
   db.run("UPDATE unit_song_releases SET review_before_run = 1");
+  db.run("UPDATE scraps SET review_before_run = 1");
+  db.run("UPDATE user_templates SET review_before_run = 1");
 }
 
 /** JSON gives numbers, strings, booleans and nulls; SQLite STRICT tables want 0/1 for booleans. */

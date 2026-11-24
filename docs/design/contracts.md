@@ -2451,7 +2451,7 @@ Sources, in order: `ANTHROPIC_API_KEY` in `.env.local`; or the key pasted in the
 
 ### 11.6 Destructive actions need a confirm nonce
 
-Destructive endpoints: `POST /api/backup/import`, `POST /api/data/reset`, `DELETE /api/sketches/:id`, `DELETE /api/album/tracks/:id`, `DELETE /api/audio/:id`, `DELETE /api/transcriptions/:id`, `DELETE /api/settings/anthropic-key`.
+Destructive endpoints: `POST /api/backup/import`, `POST /api/data/reset`, `DELETE /api/sketches/:id`, `DELETE /api/album/tracks/:id`, `DELETE /api/audio/:id`, `DELETE /api/transcriptions/:id`, `DELETE /api/settings/anthropic-key`. Oak 2.0 (§13) adds `DELETE /api/scraps/:id` (`scrap.delete`) and `DELETE /api/templates/:id` (`template.delete`): every DELETE is destructive.
 
 Each requires the header `X-Oak-Confirm: <nonce>`. A nonce comes from `POST /api/confirm { action, target }` → `{ nonce, expiresAt }`; it is single-use, lives 60 seconds, is bound to that `(action, target)` pair and is kept in server memory only. The UI requests it only after the learner accepts a native confirm dialog that names the action. Tutor threads and messages have no delete endpoint at all.
 
@@ -2551,6 +2551,14 @@ Every graded result (lesson step, drill trial, checkpoint item, capstone rubric,
 | new `terms_introduced` | `term_id PRIMARY KEY, lesson_id, at` |
 | `sessions` | add `kind`, `target_minutes`, `content_version`, `map_item_id` |
 | `unlocks` | `kind` CHECK becomes `('tool','sound','scale','chord','feature','template','lens')`; rows are never deleted |
+| new `scraps` | Oak 2.0 (migration 0012, §13): `id TEXT PRIMARY KEY, role, label, code TEXT NOT NULL, bpm REAL, meter, key_json, source_kind TEXT NOT NULL, source_ref, created_at TEXT NOT NULL, review_before_run INTEGER NOT NULL DEFAULT 0` (0/1) |
+| new `user_templates` | Oak 2.0: `id TEXT PRIMARY KEY, name TEXT NOT NULL, code TEXT NOT NULL, bpm REAL, meter, is_blank INTEGER NOT NULL DEFAULT 0` (0/1)`, created_at, updated_at, review_before_run INTEGER NOT NULL DEFAULT 0` (0/1) |
+| new `capstone_check_history` | Oak 2.0: `id INTEGER PRIMARY KEY AUTOINCREMENT, capstone_id TEXT NOT NULL, session_id, sketch_id TEXT NOT NULL, sketch_version INTEGER NOT NULL, passed INTEGER NOT NULL` (0/1)`, at TEXT NOT NULL`; `capstone_checks` is unchanged |
+| new `later_items` | Oak 2.0: `id TEXT PRIMARY KEY, text TEXT NOT NULL, source, created_at TEXT NOT NULL, done_at` |
+| new `catalogs` | Oak 2.0: `id TEXT PRIMARY KEY, ref_kind TEXT NOT NULL, ref_id TEXT NOT NULL, lines_json TEXT NOT NULL, sketch_id, created_at TEXT NOT NULL` |
+| `sketch_versions` (2.0) | add `take_state TEXT`, `parent_version INTEGER`, `generation INTEGER`, `dimension TEXT` (no CHECK; §13) |
+| `sketches` (2.0) | add `committed_json TEXT`, `cards_json TEXT` |
+| `album_tracks` (2.0) | add `shelved INTEGER NOT NULL DEFAULT 0` (0/1) |
 
 ### 11.12 Supported browsers
 
@@ -2648,6 +2656,61 @@ Every issue and every MISSING item in `docs/design/critiques.md`, with where thi
 | LM13 | Missing: daily staff-to-code reading family | `fam.not.read` in §7.3; §9.2 rule 8 |
 | LM14 | Missing: weekly-goal streak semantics | §7.8 |
 
+## 13. Oak 2.0
+
+Binding for the Oak 2.0 waves W1–W5 (`docs/oak2/PLAN.md` revision 2, §4 Studio 2.0, §5 Course 2.0, §6 Finishing 2.0). Written in W0 so later waves only implement; a name here changes only by a change to this section and its changelog row. The state of W0 as delivered is in `docs/design/oak2/W0.md`.
+
+### 13.1 Migration 0012 (`server/src/db/migrations/0012_oak2.sql`)
+
+1. **Additive only.** New tables and `ADD COLUMN` only; `sketches`, `sketch_versions`, `album_tracks`, `album_track_versions` and `sessions` are never rebuilt (a rebuild inside the migration's transaction cascades into their children; 0011's header). A 1.4.0 database (schema 11) migrates once and keeps every row (`server/src/db/migrations.oak2.test.ts`).
+2. **No CHECK on status-like text.** `take_state`, `dimension`, `scraps.role`, `scraps.source_kind`, `catalogs.ref_kind` and `later_items.source` take any text in SQLite; the services validate them against the `@oak/api` enums of §13.3, so a later wave widens an enum without a migration. Only 0/1 flags carry a CHECK.
+3. **Backup.** The new tables are exported and imported like every other table (§11.10). `scraps` and `user_templates` hold runnable code of their own, so an import sets their `review_before_run` (`markForReview`, §11.3) and the app runs that code only after the strict lint. `catalogs` holds plain words; the sketch it names is flagged with its versions.
+
+The tables and columns are listed in §11.11 (rows marked Oak 2.0).
+
+### 13.2 Endpoints
+
+Declared in `packages/api/src/contract.ts` (`OAK2_ENDPOINTS`), schemas in `dto.ts`. Each answers the typed 501 `not_implemented` until its wave builds the handler.
+
+| Name | Method and path | Body → response | Built in |
+|---|---|---|---|
+| `scraps.list` | `GET /api/scraps?role=&origin=` | → `{ items: Scrap[] }` | W1 (X6) |
+| `scraps.create` | `POST /api/scraps` | `ScrapCreate` → `Scrap` | W1 (X6) |
+| `scraps.delete` | `DELETE /api/scraps/:id` | → `Ok`; nonce `scrap.delete`; an `index` scrap is refused | W1 (X6) |
+| `templates.list` | `GET /api/templates` | → `{ items: UserTemplate[] }` | W1 (X7) |
+| `templates.create` | `POST /api/templates` | `UserTemplateCreate` → `UserTemplate` | W1 (X7) |
+| `templates.patch` | `PATCH /api/templates/:id` | `UserTemplatePatch` → `UserTemplate` | W1 (X7) |
+| `templates.delete` | `DELETE /api/templates/:id` | → `Ok`; nonce `template.delete` | W1 (X7) |
+| `sketches.patchVersion` | `PATCH /api/sketches/:id/versions/:version` | `{ takeState }` → `SketchVersion` | W1 |
+| `sketches.lineage` | `GET /api/sketches/:id/lineage?version=` | → `SketchLineage` (first to last) | W3 (X15) |
+| `album.patchTrack` | `PATCH /api/album/tracks/:id` | `TrackPatch` (`{ shelved }`) → `AlbumTrack` | W4 |
+| `habits.get` | `GET /api/habits` | → `Habits` | W3 (X16) |
+| `later.list` | `GET /api/later?done=` | → `{ items: LaterItem[] }` | W1 |
+| `later.create` | `POST /api/later` | `LaterCreate` → `LaterItem` | W1 |
+| `later.patch` | `PATCH /api/later/:id` | `LaterPatch` → `LaterItem` | W1 |
+| `catalogs.list` | `GET /api/catalogs?refKind=&refId=` | → `{ items: Catalog[] }` | W3 |
+| `catalogs.create` | `POST /api/catalogs` | `CatalogCreate` → `Catalog` | W3 |
+| `capstones.checkHistory` | `GET /api/capstones/:id/check-history` | → `{ items: CapstoneCheckHistoryEntry[] }` (oldest first) | W4 |
+
+Amended request bodies: `SketchVersionCreateSchema` gains optional `takeState`, `parentVersion`, `generation`, `dimension` (absent = `null`; `analysis` was already there and is now saved for the habits mirror); `SketchPatchSchema` gains `committed` and `cards` (each replaces the whole list). Amended responses: `SketchVersion` gains `takeState`, `parentVersion`, `generation`, `dimension`; `Sketch` gains `committed`, `cards`; `AlbumTrack` gains `shelved`. These response fields are optional in the schema only while a 1.x server may answer; once the wave that writes them lands, the server always sends them.
+
+### 13.3 Enums and shapes
+
+- `TAKE_STATES` = `kept`, `cut` (`null` = not judged, or not a take). Cut takes are hidden, never deleted.
+- `SKETCH_DIMENSIONS` = `sound`, `rhythm`, `notes`, `harmony`, `form`: the dimension a sibling or a generation changes, and the names `diffDimensions` (`@oak/grader`) reports. A form change counts as one change.
+- `generation`: `null` for ordinary Runs; 1 for a child of a version outside any chain, the parent's + 1 after that. `parent_version` names a version of the same sketch.
+- `SCRAP_ROLES` = `drums`, `bass`, `chords`, `tune`, `other`; `SCRAP_SOURCE_KINDS` = `sketch`, `lesson`, `hum`, `tap`, `memo`. A scrap's `origin` is `saved` (a `scraps` row) or `index` (a labelled line of a sketch's current version, never stored).
+- `CATALOG_REF_KINDS` = `song`, `transcription`, `audio`; `CATALOG_LINES` = `tempo`, `sound`, `harmony`, `melody`, `rhythm`, `form` (plain words, at most 400 characters each).
+- `LATER_SOURCES` = `tutor`, `learner`.
+- `committed`: `{ label, version, at }`, the line's sound settings as they were in `version`. `cards`: `{ cardId, drawnAt }` (`content/studio/cards.ts` ids).
+- Habits: `{ sketches, habits: { id, text }[] }`, plain sentences; the `id` is stable per habit so "Not this time" can name it.
+
+### 13.4 Rules every 2.0 wave keeps
+
+1. **Studio describes, never scores** (PLAN §2 anti-goal): no Studio endpoint returns a pass or fail; cards and habits describe.
+2. **No invented numbers** (PLAN §2 fidelity rule 2): an Oak threshold is written as Oak's call in the code that holds it and kept loose.
+3. **Nothing the learner made is lost:** cut takes, shelved tracks and done Later items stay as rows; only the two confirm-guarded DELETEs remove a row.
+
 ## Change log
 
 | Version | Date | Change |
@@ -2665,3 +2728,4 @@ Every issue and every MISSING item in `docs/design/critiques.md`, with where thi
 | 1.9 | 2026-11-24 | Sound pack v4 (same version, unit-songs branch). §3.2: rows `snd.oak909`, `snd.oak808` (U01.L03), `snd.rockkit`, `snd.lofikit` (U01.L09), `snd.drum.clave` (R3.L02), `snd.drum.conga`, `snd.drum.bongo` (R3.L04), `snd.breaks`, `snd.foley` (A2.L04), `snd.sbd`, `tb.penv` (A1.L03), `snd.marimba`, `snd.kalimba`, `snd.glockenspiel` (A2.L06), `snd.noise`, `tb.ftype` (A1.L02), `snd.wt` (A1.L01), `snd.textures`, `tb.drive`, `tb.density` (A1.L05), `tb.wt` (A1.L06); the note under group H on the sample-backed aliases and the retired banks' names. |
 | 1.9 | 2026-11-24 | The fifth flavour, `flavour.electronic` (same version, unit-songs branch). §1.2 flavour grammar; §5.10 table row and the electronic paragraph (oak909, acid sawtooth bass, sawtooth stabs, square lead; straight; four-note chords from U06.L10; ships `S1`); every Band and unit song carries electronic code. |
 | 1.9 | 2026-11-24 | Unit songs, infrastructure (same version, unit-songs branch). §5.11 rule 2: the one composer moves to `packages/grader/src/song/compose.ts` (`@oak/grader/song`), re-exported unchanged as `@oak/strudel/song-compose`, because the grader's Workbench analysis composes songs and the grader may not import the adapter. Rule 8: song levels are set and guarded by the song loudness harness (`songs.pw.ts`, `sound-songs.json`), not by staying under the Bands. Rules 9–10: sound pack v4 names no part lists (`conga bongo clave`, the foley one-shots, `sbd`, the six breaks) stand for kit sounds (`drumPartsOfSound`); a break belongs to every drum part. Rule 18 names `AlbumSource.songRelease`. The grader's drum tables classify the v4 names additively (`DRUM_MAP`: hand percussion, foley and breaks `perc`, `sbd` `kick`; the lint's sample-index names; `tables()` is a sample loader the base lint checks); no rubric rule, matcher or test changes. |
+| 2.0 | 2026-11-24 | Oak 2.0 W0 foundations (`docs/oak2/PLAN.md` revision 2). §13 (new): migration 0012 (tables `scraps`, `user_templates`, `capstone_check_history`, `later_items`, `catalogs`; columns `sketch_versions.take_state/parent_version/generation/dimension`, `sketches.committed_json/cards_json`, `album_tracks.shelved`; additive only, no CHECK on status-like text, scraps and templates marked for review on import), the seventeen 2.0 endpoints (`OAK2_ENDPOINTS`, typed 501 until built), their enums and shapes. §11.6: `DELETE /api/scraps/:id` and `DELETE /api/templates/:id` need a nonce (`scrap.delete`, `template.delete`). §11.11: rows for the 0012 tables and columns. The ledger stays §12, so Oak 2.0 is §13. |

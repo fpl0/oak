@@ -844,7 +844,140 @@ export const contract = {
     }),
     res: D.UnitSongSnapshotSchema,
   },
+
+  // --- Oak 2.0 (docs/oak2/PLAN.md §4–§6; contracts §13; migration 0012). Declared in W0; W1, W3 and W4 build the
+  // handlers (`OAK2_ENDPOINTS` names who); until then each answers the typed 501. ---
+  /** S1: saved scraps and the labelled lines of every sketch's current version, newest first. */
+  "scraps.list": {
+    method: "GET",
+    path: "/scraps",
+    query: z.strictObject({
+      role: z.enum(D.SCRAP_ROLES).optional(),
+      origin: z.enum(["saved", "index"]).optional(),
+    }),
+    res: list(D.ScrapSchema),
+  },
+  /** S1: save one line as a scrap (from a lesson, a capture, or a take in the edit view). */
+  "scraps.create": { method: "POST", path: "/scraps", body: D.ScrapCreateSchema, res: D.ScrapSchema },
+  /** S1: delete a saved scrap (an `index` scrap goes with its sketch line, never here). */
+  "scraps.delete": {
+    method: "DELETE",
+    path: "/scraps/:id",
+    params: p("id"),
+    res: D.Ok,
+    confirm: "scrap.delete",
+  },
+  /** S2: the learner's own starting points; the Blank first. */
+  "templates.list": { method: "GET", path: "/templates", res: list(D.UserTemplateSchema) },
+  "templates.create": {
+    method: "POST",
+    path: "/templates",
+    body: D.UserTemplateCreateSchema,
+    res: D.UserTemplateSchema,
+  },
+  /** S2: rename a template, or make it (or stop it being) the Blank. */
+  "templates.patch": {
+    method: "PATCH",
+    path: "/templates/:id",
+    params: p("id"),
+    body: D.UserTemplatePatchSchema,
+    res: D.UserTemplateSchema,
+  },
+  "templates.delete": {
+    method: "DELETE",
+    path: "/templates/:id",
+    params: p("id"),
+    res: D.Ok,
+    confirm: "template.delete",
+  },
+  /** S3: keep or cut a take (cut = hidden, never deleted). */
+  "sketches.patchVersion": {
+    method: "PATCH",
+    path: "/sketches/:id/versions/:version",
+    params: p("id", "version"),
+    body: D.SketchVersionPatchSchema,
+    res: D.SketchVersionSchema,
+  },
+  /** S5: the variation chain that ends at `version` (default: the current version), first to last. */
+  "sketches.lineage": {
+    method: "GET",
+    path: "/sketches/:id/lineage",
+    params: p("id"),
+    query: z.strictObject({
+      version: z
+        .string()
+        .regex(/^[1-9]\d{0,9}$/)
+        .optional(),
+    }),
+    res: D.SketchLineageSchema,
+  },
+  /** F6: put a track on the Shelf or take it off. */
+  "album.patchTrack": {
+    method: "PATCH",
+    path: "/album/tracks/:id",
+    params: p("id"),
+    body: D.TrackPatchSchema,
+    res: D.AlbumTrackSchema,
+  },
+  /** S6: the habits mirror, in plain sentences. */
+  "habits.get": { method: "GET", path: "/habits", res: D.HabitsSchema },
+  /** S7: the Later list on Today (open items first). */
+  "later.list": {
+    method: "GET",
+    path: "/later",
+    query: z.strictObject({ done: flag.optional() }),
+    res: list(D.LaterItemSchema),
+  },
+  "later.create": { method: "POST", path: "/later", body: D.LaterCreateSchema, res: D.LaterItemSchema },
+  "later.patch": {
+    method: "PATCH",
+    path: "/later/:id",
+    params: p("id"),
+    body: D.LaterPatchSchema,
+    res: D.LaterItemSchema,
+  },
+  /** S6: the learner's catalogs of attributes, newest first. */
+  "catalogs.list": {
+    method: "GET",
+    path: "/catalogs",
+    query: z.strictObject({ refKind: z.enum(D.CATALOG_REF_KINDS).optional(), refId: id.optional() }),
+    res: list(D.CatalogSchema),
+  },
+  "catalogs.create": { method: "POST", path: "/catalogs", body: D.CatalogCreateSchema, res: D.CatalogSchema },
+  /** F2: every rubric check of the capstone's drafts, oldest first. */
+  "capstones.checkHistory": {
+    method: "GET",
+    path: "/capstones/:id/check-history",
+    params: p("id"),
+    res: list(D.CapstoneCheckHistoryEntrySchema),
+  },
 } as const satisfies Record<string, EndpointDef>;
+
+/**
+ * The Oak 2.0 endpoints (contracts §13), declared in W0. Like Waves 3–7, each answers the typed 501
+ * `not_implemented` until its wave builds the handler (W1: scraps, templates, `sketches.patchVersion`, Later; W3:
+ * `sketches.lineage`, habits, catalogs; W4: `album.patchTrack`, `capstones.checkHistory`). `routes.test.ts` lists the
+ * ones still pending (`OAK2_PENDING`), and the builder removes a name there as each lands.
+ */
+export const OAK2_ENDPOINTS = [
+  "scraps.list",
+  "scraps.create",
+  "scraps.delete",
+  "templates.list",
+  "templates.create",
+  "templates.patch",
+  "templates.delete",
+  "sketches.patchVersion",
+  "sketches.lineage",
+  "album.patchTrack",
+  "habits.get",
+  "later.list",
+  "later.create",
+  "later.patch",
+  "catalogs.list",
+  "catalogs.create",
+  "capstones.checkHistory",
+] as const satisfies readonly (keyof typeof contract)[];
 
 /** The unit song endpoints (spec 2026-11-24 §5.4). */
 export const UNIT_SONG_ENDPOINTS = [

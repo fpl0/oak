@@ -12,10 +12,10 @@ const repos = () => {
 };
 
 describe("schema", () => {
-  test("0001 to 0011 create every table of interfaces.md §7 plus Waves 2 to 7 and unit songs, and set user_version", () => {
+  test("0001 to 0012 create every table of interfaces.md §7 plus Waves 2 to 7, unit songs and Oak 2.0, and set user_version", () => {
     const db = openDb(":memory:");
-    expect(schemaVersion(db)).toBe(11);
-    expect(latestVersion()).toBe(11);
+    expect(schemaVersion(db)).toBe(12);
+    expect(latestVersion()).toBe(12);
     const expected = [
       "settings",
       "learner_profile",
@@ -80,6 +80,12 @@ describe("schema", () => {
       "unit_songs",
       "unit_song_takes",
       "unit_song_releases",
+      // Oak 2.0 (0012, migrations.oak2.test.ts): scraps, the learner's templates, capstone check history, Later, catalogs.
+      "scraps",
+      "user_templates",
+      "capstone_check_history",
+      "later_items",
+      "catalogs",
     ];
     expect(tableNames(db).sort()).toEqual([...expected].sort());
     expect(all<{ foreign_keys: number }>(db, "PRAGMA foreign_keys")[0]?.foreign_keys).toBe(1);
@@ -131,7 +137,7 @@ describe("schema", () => {
     old.run(
       "INSERT INTO album_track_versions (track_id, version, sketch_id, sketch_version, created_at) VALUES ('trk_1', 1, 'sk_1', 1, 't')",
     );
-    expect(migrate(old, migs)).toEqual([11]);
+    expect(migrate(old, migs.slice(0, 11))).toEqual([11]);
     for (const t of ["sketches", "sketch_versions", "album_tracks", "album_track_versions"])
       expect([t, all<{ n: number }>(old, `SELECT COUNT(*) AS n FROM ${t}`)[0]?.n]).toEqual([t, 1]);
   });
@@ -189,7 +195,7 @@ describe("schema", () => {
     try {
       const path = join(dir, "oak.db");
       const db = openDb(path);
-      db.run("PRAGMA user_version = 12");
+      db.run("PRAGMA user_version = 13");
       db.close();
       expect(() => openDb(path)).toThrow(/newer than this build/);
     } finally {
