@@ -103,7 +103,7 @@ const earPart = (id: string, prompt: string, stimulus: string, answer: "triad" |
 
 export default defineLesson({
   id: "U11.L04",
-  version: 3,
+  version: 4,
   title: "The Dominant Seventh",
   objective: "I can build, name and hear a dominant seventh: a major triad with a ♭7 on top, written C7.",
   key: { tonic: "C", mode: "blues" },
@@ -399,7 +399,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Change both chords in `changes` to dominant sevenths. Then make the riff yours with new notes from the blues scale and a new rhythm. You can also try another pair, such as G7 and C7, or F7 and B♭7 (`Bb7`). Done when the chords line plays at least two dominant sevenths.",
+          "Write the vamp for the four bars before your song's first chorus. Change both chords in `changes` to dominant sevenths. Then make the riff yours with new notes from the blues scale and a new rhythm. Done when the chords line plays at least two dominant sevenths.",
         skills: [{ skill: "C06", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],

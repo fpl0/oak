@@ -210,7 +210,7 @@ const HOW_FAR: IdentifyEx = {
 
 export default defineLesson({
   id: "U17.L04",
-  version: 3,
+  version: 4,
   title: "Transcribing Through a Key Change",
   objective:
     "I can write a tune down through its key change: find the bar where home moves and the new do, then write the degrees once and give them a key plan.",
@@ -468,7 +468,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Add a `bass:` line under the chorus that plays the root of every chord: F Dm B♭ C, then G Em C D. Write it once in degrees with a key plan, as the tune has, so it follows the song up to G. Done when it lands on each root in both keys. Then try 5ths or approach notes.",
+          "Add a `bass:` line that plays the root of every chord: F Dm B♭ C, then G Em C D. Write it once in degrees with a key plan, as the tune has, to follow the chords up to G. Done when it lands on each root in both keys. These eight bars play just before your song's last chorus.",
         skills: [
           { skill: "E13", w: 0.5 },
           { skill: "B01", w: 0.5 },

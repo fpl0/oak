@@ -146,7 +146,7 @@ const earPart = (
 
 export default defineLesson({
   id: "U15.L02",
-  version: 3,
+  version: 4,
   title: "Five of Five",
   objective: "I can build the V7 of V, hear the bar where it leans, and name it V7/V.",
   key: C_MAJOR,
@@ -480,7 +480,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "In `changes`, put a V7 of V in the bar right before a V chord. Then change the tune's note in that bar that now rubs against the new chord. Done when a V7 of V moves straight into V. After that the verse is yours: move chords, rewrite the tune, try the organ.",
+          "In `changes`, put a V7 of V in the bar right before a V chord. Then change the tune's note in that bar that now rubs against the new chord. Done when a V7 of V moves straight into V. After that, move chords, rewrite the tune, try the organ. These eight bars play both verses of your song.",
         skills: [{ skill: "H12", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

@@ -83,7 +83,7 @@ const LEAD_SHEET = { melody: "mel", chords: "chords", title: "Aura Lee" } as con
 
 export default defineLesson({
   id: "U16.L05",
-  version: 3,
+  version: 4,
   title: "Mixture Lab",
   objective:
     "I can put new chords under a tune without changing it, and tell a borrowed chord from a secondary dominant by ear.",
@@ -340,7 +340,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Aura Lee's verse with its plain chords and the tune on a tenor sax. Keep every note of the `mel` line. In `changes`, put at least two chords from outside the key: borrowed chords or secondary dominants. Pick each one so it holds the tune's long note in its bar.",
+          "Aura Lee's verse with its plain chords and the tune on a tenor sax: your song's solo, after the second chorus. Keep every note of the `mel` line. In `changes`, put at least two chords from outside the key: borrowed chords or secondary dominants. Pick each one so it holds the tune's long note in its bar.",
         skills: [
           { skill: "E12b", w: 0.4 },
           { skill: "H13", w: 0.3 },

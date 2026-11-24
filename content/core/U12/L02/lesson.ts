@@ -149,7 +149,7 @@ const singPart = (
 
 export default defineLesson({
   id: "U12.L02",
-  version: 3,
+  version: 4,
   title: "Dominant vs Major 7",
   objective:
     "I can hear a major seventh chord from a dominant seventh on the same root: one half step apart, one rests and the other leans.",
@@ -444,7 +444,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Colour the four triads in `changes`: make at least one a major seventh (`^7`) where the music should rest, and at least one a dominant seventh (`7` straight after the letter) where it should lean on. C7 in bar 2 tips into F; G7 in bar 4 leans home. Then let the tune hold a 7th over a leaning chord.",
+          "Write your song's second verse: in `changes`, make at least one triad a major seventh (`^7`), where the music rests, and at least one a dominant seventh (`7` straight after the letter), where it leans on. C7 in bar 2 tips into F; G7 in bar 4 leans home. Then let the tune hold a 7th over a leaning chord.",
         skills: [
           { skill: "C07", w: 0.6 },
           { skill: "E11", w: 0.4 },

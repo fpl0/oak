@@ -60,7 +60,7 @@ const NUMERALS = {
 
 export default defineLesson({
   id: "U11.L05",
-  version: 3,
+  version: 4,
   title: "Twelve Bars",
   objective: "I can play and write the 12-bar blues: I, IV and V in their twelve-bar order.",
   key: { tonic: "C", mode: "blues" },
@@ -336,7 +336,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Change the `changes` string so the twelve bars follow the blues: four bars of I, two of IV, two of I, then V, IV, I, V. Then make the riff yours: change its notes, its rhythm or its sound. Done when at least 11 of the 12 bars match the blues.",
+          "Write the twelve bars of your song's first chorus. Change the `changes` string so they follow the blues: four bars of I, two of IV, two of I, then V, IV, I, V. Then make the riff yours: change its notes, its rhythm or its sound. Done when at least 11 of the 12 bars match the blues.",
         skills: [{ skill: "H10", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [12, 24],
@@ -374,7 +374,7 @@ export default defineLesson({
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "The starter plays I for all twelve bars. Which bars of a blues are not on I?",
+          "A blues has twelve bars, most of them on I. Which bars are on IV, and which on V?",
           "Bars 5–6 are IV (F7), bars 9 and 10 are V and IV (G7 F7), bar 12 is V (G7).",
           'Write it as `"<C7!4 F7!2 C7!2 G7 F7 C7 G7>"`: twelve bars in one string.',
         ),

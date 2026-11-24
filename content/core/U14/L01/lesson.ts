@@ -125,7 +125,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U14.L01",
-  version: 3,
+  version: 4,
   title: "Modes as Colours",
   objective:
     "I can turn a major scale into Mixolydian by lowering its 7th, and hear the colour that one note gives.",
@@ -459,7 +459,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The riff is on G Mixolydian but never plays degree 7, so its scale cannot be heard. Make the `gtr:` line play the ♭7 (F) at least once: `n` 6 above the 5th or `n` -1 just under home. Then shape it freely: new numbers, new rhythm, `.distort()`. Done when the riff plays an F.",
+          "Write the riff for your song's first verse. It is on G Mixolydian but never plays degree 7, so its scale cannot be heard. Make the `gtr:` line play the ♭7 (F) at least once: `n` 6 above the 5th or `n` -1 just under home. Then shape it freely. Done when the riff plays an F.",
         skills: [{ skill: "S12", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],

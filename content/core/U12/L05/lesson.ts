@@ -78,7 +78,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U12.L05",
-  version: 3,
+  version: 4,
   title: "Sevenths in Minor & Guide-Tone Preview",
   objective:
     "I can number the seventh chords of a minor key and follow the 3rds and 7ths as a thread through a chain of sevenths.",
@@ -378,7 +378,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Replace the one A a bar on the `mel` line with your own tune over the eight-bar cycle. Start every bar on its chord's 3rd or 7th, then fill the rest of the bar as you like: passing notes, a rhythm, a leap. Let the line fall slowly, the way the thread does.",
+          "Write the tune for the first eight bars of your song's bridge: replace the one A a bar on the `mel` line. Start every bar on its chord's 3rd or 7th, then fill the rest of the bar as you like: passing notes, a rhythm, a leap. Let the line fall slowly, the way the thread does.",
         skills: [{ skill: "C08", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [8, 8],

@@ -79,7 +79,7 @@ const MINOR = { tonic: "A", mode: "minor" } as const;
 
 export default defineLesson({
   id: "U10.L07",
-  version: 3,
+  version: 4,
   title: "The Andalusian Cadence",
   objective:
     "I can hear and write the Andalusian cadence, i–VII–VI–V: a minor key walking down to its major V.",
@@ -338,7 +338,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The bass walks down A G F E, but the guitar plays Am over every note. In the `chords:` line, give each bass note its chord so the loop plays i VII VI V. Then shape it: two chords a bar if you like (`<[Am G] [F E]>`, the bass to match), a tune that hangs on the V.",
+          "The bass walks down A G F E. In the `chords:` line, give each bass note its chord so the loop plays i VII VI V. Its first four bars open your song. Then shape it: two chords a bar if you like (`<[Am G] [F E]>`, the bass to match), a tune that hangs on the V.",
         skills: [{ skill: "H09", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

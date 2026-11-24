@@ -124,7 +124,7 @@ const earPart = (n: number): IdentifyEx => ({
 
 export default defineLesson({
   id: "U15.L01",
-  version: 3,
+  version: 4,
   title: "Chromatic Degrees",
   objective:
     "I can hear a note from outside the key, name it by the degree it bends (♯4 fi, ♭7 te), and write it in code.",
@@ -411,7 +411,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bend at least two notes of the `mel:` line a half step, each one next to the note it leans into: try `3#` before a 4, `4#` before a 5, `6b` before a 5. Done when the tune holds two notes from outside the key. Then make the rest yours: more bends, a new rhythm, an octave up.",
+          "Bend at least two notes of the `mel:` line a half step, each one next to the note it leans into: try `3#` before a 4, `4#` before a 5, `6b` before a 5. Done when the tune holds two notes from outside the key. This loop plays your song's intro. Then make the rest yours.",
         skills: [
           { skill: "E12a", w: 0.5 },
           { skill: "P06", w: 0.5 },

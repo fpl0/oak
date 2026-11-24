@@ -82,7 +82,7 @@ const keyOptions = (ids: string[]) =>
 
 export default defineLesson({
   id: "U10.L02",
-  version: 3,
+  version: 4,
   title: "Relative & Parallel",
   objective:
     "I can find a major key's relative minor (the same notes, home on degree 6) and its parallel minor (the same home, 3, 6 and 7 lowered).",
@@ -444,7 +444,7 @@ export default defineLesson({
         role: "practice",
         key: A_MINOR,
         prompt:
-          "Move the chords, bass and tune to A minor, C major's relative minor: give each `.scale()` the new home and the word `minor`. Done when the tune ends on A. If you like, let the loop travel: four bars in C major, then four in A minor.",
+          "Move the chords, bass and tune to A minor, C major's relative minor: give each `.scale()` the new home and the word `minor`. Your loop then plays the first verse of your song. Done when the tune ends on A. If you like, let the loop travel: four bars in C major, then four in A minor.",
         skills: [{ skill: "S06", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

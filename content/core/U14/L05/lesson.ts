@@ -80,7 +80,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U14.L05",
-  version: 3,
+  version: 4,
   title: "Phrygian Edge",
   objective: "I can turn minor into Phrygian by lowering its 2nd, and give a riff its edge over i and ♭II.",
   key: { tonic: "E", mode: "minor" },
@@ -396,7 +396,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Make the `gtr:` line play the lowered 2nd, F (`n` 1), at least once, right next to home; without it the riff could be plain E minor. Then let the chords move to F and back. Then choose your guitar: `acgtr` for flamenco, or `crunch` with `.distort()`. Done when the riff plays an F.",
+          "Write your song's bridge. Make the `gtr:` line play the lowered 2nd, F (`n` 1), at least once, right next to home; without it the riff could be plain E minor. Then let the chords move to F and back. Then choose your guitar: `acgtr` for flamenco, or `crunch` with `.distort()`. Done when the riff plays an F.",
         skills: [{ skill: "S13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],

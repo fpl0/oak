@@ -63,7 +63,7 @@ const MINOR = { tonic: "A", mode: "minor" } as const;
 
 export default defineLesson({
   id: "U10.L04",
-  version: 3,
+  version: 4,
   title: "Minor-Key Chords",
   objective:
     "I can name the seven chords of a minor key, i ii° III iv v VI VII, and use its three major chords to lift a minor loop.",
@@ -350,7 +350,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Rewrite the loop, now i iv v i, so at least two chords in bars 1–4 are the key's major chords: III, VI or VII. You choose where the lift comes. Then add a `bass:` line on the chord roots.",
+          "Rewrite the loop, now i iv v i, so at least two chords in bars 1–4 are the key's major chords: III, VI or VII. Those four bars play just before each chorus of your song, so choose where the lift comes. Then add a `bass:` line on the chord roots.",
         skills: [{ skill: "H07", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

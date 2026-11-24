@@ -71,7 +71,7 @@ const MINOR = { tonic: "A", mode: "minor" } as const;
 
 export default defineLesson({
   id: "U10.L03",
-  version: 3,
+  version: 4,
   title: "Hearing Minor",
   objective:
     "I can hear me, le and te against home in a minor key, and tell a minor tune from a major one by its 3rd.",
@@ -319,7 +319,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Rewrite the `mel:` line so the tune plays all three dark notes: me, le and te (♭3, ♭6 and ♭7). Keep the chords and bass as they are. Done when all three are in the tune. If you like, lean le onto sol somewhere.",
+          "Rewrite the `mel:` line so the tune plays all three dark notes: me, le and te (♭3, ♭6 and ♭7). This loop plays your song's second verse. Keep the chords and bass as they are. Done when all three are in the tune. If you like, lean le onto sol somewhere.",
         skills: [{ skill: "E10", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

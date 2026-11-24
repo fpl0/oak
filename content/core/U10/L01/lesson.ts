@@ -68,7 +68,7 @@ const MINOR = { tonic: "C", mode: "minor" } as const;
 
 export default defineLesson({
   id: "U10.L01",
-  version: 3,
+  version: 4,
   title: "The Dark Twin",
   objective:
     "I can turn a tune minor by lowering degrees 3, 6 and 7, and sing the minor scale as do re me fa sol le te.",
@@ -357,7 +357,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Rewrite the `mel:` line, which now plays only home, as a tune of your own that sings me and le, degrees ♭3 and ♭6. Keep the chords and bass as they are. Done when the tune plays both ♭3 and ♭6.",
+          "Rewrite the `mel:` line, which now plays only home, as a tune of your own that sings me and le, degrees ♭3 and ♭6. Your loop plays the bridge of your song. Keep the chords and bass as they are. Done when the tune plays both ♭3 and ♭6.",
         skills: [{ skill: "S05", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

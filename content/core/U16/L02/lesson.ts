@@ -83,7 +83,7 @@ const KEYS = { roll: false, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "U16.L02",
-  version: 3,
+  version: 4,
   title: "♭VI & ♭VII",
   objective: "I can write the ♭VI–♭VII–I ending, two borrowed major chords climbing home from below.",
   key: C,
@@ -396,7 +396,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight bars of an anthem whose bar 7 walks home through F. Replace the F of bar 7 with A♭ then B♭, two beats each, so bar 8's C arrives from below. Done when ♭VI, ♭VII and I play in that order. Then, if you like, move the climb, give each chord a bar or rewrite the tune.",
+          "Eight bars of an anthem, your song's chorus, whose bar 7 walks home through F. Replace the F of bar 7 with A♭ then B♭, two beats each, so bar 8's C arrives from below. Done when ♭VI, ♭VII and I play in that order. Then, if you like, give each chord a bar or rewrite the tune.",
         skills: [{ skill: "H13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

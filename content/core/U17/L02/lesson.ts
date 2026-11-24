@@ -177,7 +177,7 @@ const C_MAJOR = { tonic: "C", mode: "major" } as const;
 
 export default defineLesson({
   id: "U17.L02",
-  version: 4,
+  version: 5,
   title: "Truck-Driver & Direct Modulation",
   objective:
     'I can lift a last chorus into a new key: a key plan in .scale("<…>") on every line written in degrees, after arrange(), and new names for the chords.',
@@ -515,7 +515,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Lift the last chorus, bars 9 to 12, a whole step to D. Bass and tune: after each `arrange()`, write a key plan of 8 bars of C major, then 4 of D major. Chords: in `chordsChorus2`, move every chord name up a whole step. Keep bars 1 to 8 in C. Done when all three lines lift.",
+          "Lift the last chorus, bars 9 to 12, a whole step to D. Bass and tune: after each `arrange()`, write a key plan of 8 bars of C major, then 4 of D major. Chords: in `chordsChorus2`, move every chord name up a whole step. Done when all three lines lift. The lifted chorus becomes your song's last chorus.",
         skills: [{ skill: "H14", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [12, 24],

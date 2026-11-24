@@ -135,7 +135,7 @@ const drillPart = (n: number): IdentifyEx => ({
 
 export default defineLesson({
   id: "U12.L03",
-  version: 3,
+  version: 4,
   title: "Half-Diminished & Diminished 7",
   objective:
     "I can build, write and hear the two sevenths on the diminished triad: Bm7♭5 (Bm7b5) and B°7 (Bo7), one half step apart.",
@@ -449,7 +449,7 @@ export default defineLesson({
         role: "practice",
         key: HARMONIC,
         prompt:
-          "Darken the torch song with one of today's chords in `changes`: put `Bm7b5` in place of Dm7, where it leads into E7, or `G#o7` in place of E7 in the last bar, where it pulls up a half step into Am7. Then shape the tune around the new chord's notes.",
+          "Darken the torch song that ends your song's bridge with one of today's chords in `changes`: put `Bm7b5` in place of Dm7, where it leads into E7, or `G#o7` in place of E7 in the last bar, where it pulls up a half step into Am7. Then shape the tune around the new chord's notes.",
         skills: [{ skill: "C07", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

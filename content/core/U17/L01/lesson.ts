@@ -108,7 +108,7 @@ const LEAD = { roll: false, staff: "lead", keyboard: false } as const;
 
 export default defineLesson({
   id: "U17.L01",
-  version: 4,
+  version: 5,
   title: "Pivot Chords",
   objective:
     "I can change key through a chord that both keys share: Am is vi in C and ii in G, then D7 brings G home.",
@@ -464,7 +464,7 @@ export default defineLesson({
         role: "practice",
         key: C_MAJOR,
         prompt:
-          "Make the verse end in G major the second time round. Bar 6: a chord both C and G major own. Bar 7: G's V7. Bar 8: G. Then give the tune's `.scale()` a key plan: six bars of C major, then two of G major. Done when chords and tune both end in G.",
+          "Make the verse end in G major the second time round. Bar 6: a chord both C and G major own. Bar 7: G's V7. Bar 8: G. Then give the tune's `.scale()` a key plan: six bars of C major, then two of G major. Done when chords and tune end in G. It becomes your song's second verse.",
         skills: [{ skill: "H14", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [8, 16],

@@ -82,7 +82,7 @@ const COLOURS = [...SCALE_COLOUR_OPTIONS];
 
 export default defineLesson({
   id: "U11.L03",
-  version: 3,
+  version: 4,
   title: "Blue Notes",
   objective: "I can give a line its bite with ♭3, ♭5 and ♭7, the notes of the blues scale.",
   key: { tonic: "C", mode: "blues" },
@@ -439,7 +439,7 @@ export default defineLesson({
         // The starter sits on the major pentatonic of C; the rules read degrees against C either way.
         key: { tonic: "C", mode: "major pentatonic" },
         prompt:
-          "Your riff is on the major pentatonic over the C–F vamp. Give it at least one blue note, ♭3, ♭5 or ♭7: change its scale to the blues scale, or write it in note names with a flat note such as `eb3`. Then try the crunch guitar and a small `.distort()`.",
+          "Write the riff for the four bars after your song's opening, over the C–F vamp. Give it at least one blue note, ♭3, ♭5 or ♭7: change its scale to the blues scale, or write it in note names with a flat note such as `eb3`. Then try the crunch guitar and a small `.distort()`.",
         skills: [{ skill: "S11", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],

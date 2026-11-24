@@ -140,7 +140,7 @@ const PUSHES = [7, 15, 23, 31];
 
 export default defineLesson({
   id: "U13.L01",
-  version: 3,
+  version: 4,
   title: "Pushes & Anticipations",
   objective:
     "I can make a chord arrive before its beat with .early(), move a line after the beat with .late(), and hear whether chords are pushed.",
@@ -547,7 +547,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Push the Rhodes chords ahead of the beat with `.early()`, so at least two of them start before a beat and ring through it. Then, if you like, push the bass with them, try a sixteenth, give the chords a rhythm with `.struct()`, change the chords, or add a line on top.",
+          "Push the Rhodes chords ahead of the beat with `.early()`, so at least two of them start before a beat and ring through it. Your loop then plays your song's intro, both verses and its ending. Then, if you like, push the bass with them, try a sixteenth, or give the chords a rhythm with `.struct()`.",
         skills: [{ skill: "R10", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

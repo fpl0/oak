@@ -84,7 +84,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U16.L01",
-  version: 3,
+  version: 4,
   title: "The Sad IV",
   objective: "I can turn IV into the minor iv in a major key, name it, and hear the note that falls.",
   key: C,
@@ -380,7 +380,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The loop plays C, A minor, F, F. Put the sad IV, F minor, in at least one bar of `changes`: in place of an F, or in a bar you add. Done when the loop holds F minor. Then, if you like, let the tune touch A♭ (`5b`) over it, reorder the bars or change the sounds.",
+          "The loop plays both verses of your song: C, A minor, F, F. Put the sad IV, F minor, in at least one bar of `changes`: in place of an F, or in a bar you add. Done when the loop holds F minor. Then, if you like, let the tune touch A♭ (`5b`) over it.",
         skills: [{ skill: "H13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

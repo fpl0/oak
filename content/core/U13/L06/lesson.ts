@@ -202,7 +202,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U13.L06",
-  version: 3,
+  version: 4,
   title: "Rhythm Dictation II",
   objective:
     "I can write down a syncopated, swung or three-to-the-beat rhythm by ear: beat, division, then the hits.",
@@ -544,7 +544,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Bars 1 and 2 of the `kick:` line are the funk groove you took down: the call. Rewrite bars 3 and 4 as your answer: at least two kicks on an “&”, with no kick on the beat after. Then, if you like, move the bass to the same hits, or add a push, ghost notes or a roll.",
+          "Bars 1 and 2 of the `kick:` line are the funk groove you took down: the call. Rewrite bars 3 and 4 as your answer: at least two kicks on an “&”, with no kick on the beat after. Your loop then plays your song's break, before the last chorus. Then, if you like, move the bass to the same hits.",
         skills: [
           { skill: "R10", w: 0.6 },
           { skill: "E14", w: 0.4 },

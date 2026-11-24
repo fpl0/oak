@@ -135,7 +135,7 @@ const earPart = (id: string, prompt: string, form: string, right: string): Ident
 
 export default defineLesson({
   id: "U15.L04",
-  version: 3,
+  version: 4,
   title: "Tonicization",
   objective: "I can lead into a chord with its own leading-tone chord, and hear it from the climbing bass.",
   key: C_MAJOR,
@@ -462,7 +462,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "In `changes`, bars 2, 4 and 6 repeat the chord before them. Replace at least one with the leading-tone chord of the next bar's chord. Fill any other repeat with a leading-tone chord or a V7 aimed at the next bar. Done when a diminished seventh moves straight into the chord a half step above its root.",
+          "In your song's bridge, bars 2, 4 and 6 of `changes` repeat the chord before them. Replace at least one with the leading-tone chord of the next bar's chord. Any other repeat can take one too, or a V7 into the next bar. Done when a diminished seventh moves straight into the chord a half step above its root.",
         skills: [{ skill: "H12", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

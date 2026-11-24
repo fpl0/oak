@@ -74,7 +74,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U11.L02",
-  version: 3,
+  version: 4,
   title: "The Minor Pentatonic Riff",
   objective: "I can write a riff on the minor pentatonic, 1 ♭3 4 5 ♭7, and sing it as do me fa sol te.",
   key: { tonic: "A", mode: "minor pentatonic" },
@@ -466,7 +466,7 @@ export default defineLesson({
         // The starter sits on A natural minor; the rule names its own key.
         key: { tonic: "A", mode: "minor" },
         prompt:
-          "Your riff is on A natural minor and leans on B and F. Change its scale to the minor pentatonic. Then rework it into one or two bars of your own by changing numbers and rests. Done when every note of the gtr line is on A minor pentatonic.",
+          "Write the riff that opens your song. The riff you start with is on A natural minor and leans on B and F: change its scale to the minor pentatonic. Then rework it into one or two bars of your own by changing numbers and rests. Done when every note of the gtr line is on A minor pentatonic.",
         skills: [{ skill: "S10", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],

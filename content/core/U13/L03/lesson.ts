@@ -120,7 +120,7 @@ const at = (beats: number[]) => beats.map((b) => Number((b * BEAT_SEC).toFixed(3
 
 export default defineLesson({
   id: "U13.L03",
-  version: 3,
+  version: 4,
   title: "Ties Across the Beat",
   objective:
     "I can read and write dotted and tied rhythms, in code with @ and on the staff, and I know how a push looks on paper.",
@@ -508,7 +508,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Rewrite the rhythm of the `mel:` line with `@` so at least two notes start between beats and ring through the next beat: one could start on an “and”, one just before a bar line. Keep the notes if you like. Watch the dots and ties appear on the page.",
+          "Rewrite the rhythm of the `mel:` line with `@` so at least two notes start between beats and ring through the next beat: one could start on an “and”, one just before a bar line. Keep the notes if you like. Your loop then plays both verses of your song, its tune in place of Oak's.",
         skills: [{ skill: "R09", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

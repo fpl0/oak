@@ -162,7 +162,7 @@ const earPart = (n: number): IdentifyEx => ({
 
 export default defineLesson({
   id: "U12.L06",
-  version: 3,
+  version: 4,
   title: "Seventh Ear Lab & Left-Hand Voicings",
   objective:
     'I can voice seventh chords the way a pianist\'s left hand does with .dict("lefthand"), name the 9th on top as a 2nd an octave up, turn an interval upside down, and hear all five sevenths.',
@@ -490,7 +490,7 @@ export default defineLesson({
         role: "practice",
         title: "Your trio",
         prompt:
-          "Voice the chords line for the left hand, with the same dictionary as the trio you fixed. Then give the comping a rhythm with `.struct()`, on the Rhodes or the jazz guitar, and keep the bass on the roots. You may swap in a loop of your own from this unit.",
+          "Write your song's first verse as a trio: voice the chords line for the left hand, with the same dictionary as the trio you fixed. Then give the comping a rhythm with `.struct()`, on the Rhodes or the jazz guitar, and keep the bass on the roots. You may swap in a loop of your own from this unit.",
         skills: [
           { skill: "C07", w: 0.5 },
           { skill: "I04", w: 0.5 },

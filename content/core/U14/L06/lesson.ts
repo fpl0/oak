@@ -150,7 +150,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U14.L06",
-  version: 3,
+  version: 4,
   title: "Mode Lab",
   objective:
     "I can name Mixolydian, Dorian, Lydian and Phrygian by ear, and write a vamp that makes its mode heard.",
@@ -408,7 +408,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Pick one colour for this D vamp and show it. Dorian: add G7, play B. Phrygian: scale word `phrygian`, add E♭. Mixolydian: scale word, chords D and C. Lydian: scale word, chords D and E, play G♯. Done when the colour note lands on beat 1 or 3 twice, with D the chord in 40% of the bars.",
+          "Pick one colour for the D vamp that ends your song. Dorian: add G7, play B. Phrygian: scale word `phrygian`, add E♭. Mixolydian: scale word, chords D and C. Lydian: scale word, chords D and E, play G♯. Done when the colour note lands on beat 1 or 3 twice, with D the chord in 40% of the bars.",
         skills: [
           { skill: "E10", w: 0.4 },
           { skill: "S12", w: 0.3 },

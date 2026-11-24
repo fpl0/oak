@@ -218,7 +218,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U17.L03",
-  version: 3,
+  version: 4,
   title: "Hearing Key Changes",
   objective:
     "I can hear whether a song has changed key, find the bar where the new key begins, and tell a move through a pivot chord from a lift.",
@@ -446,7 +446,7 @@ export default defineLesson({
         role: "practice",
         key: C_MAJOR,
         prompt:
-          "Move the bridge, bars 5 to 8, to A minor. In `chordsBridge` and `bassBridge`, put A minor's V, E7, right before an Am. Then give the tune a key plan after its `arrange()`: 4 bars of C major, then 4 of A harmonic minor in octave 3. Done when the bridge ends on Am, reached from E7.",
+          "Move the bridge, bars 5 to 8, to A minor. In `chordsBridge` and `bassBridge`, put A minor's V, E7, right before an Am. Give the tune a key plan after its `arrange()`: 4 bars of C major, then 4 of A harmonic minor, octave 3. Done when the bridge ends on Am, reached from E7. It becomes your song's bridge.",
         skills: [{ skill: "H14", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [8, 16],

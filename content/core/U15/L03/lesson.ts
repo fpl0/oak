@@ -150,7 +150,7 @@ const earPart = (n: number, form: string, target: Target, other: Target): Identi
 
 export default defineLesson({
   id: "U15.L03",
-  version: 3,
+  version: 4,
   title: "Visiting Other Chords",
   objective:
     "I can aim a secondary dominant at vi, ii or IV (V7/vi, V7/ii, V7/IV), hear where it lands, and name it.",
@@ -454,7 +454,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "In `changes`, turn at least one of Em (bar 2), C (bar 4) or Am (bar 6) into the V7 of the chord right after it. Then give the tune in that bar the note the visitor brings. Done when a visitor moves straight into its target. Change all three if they sound right to you.",
+          "In `changes`, turn at least one of Em (bar 2), C (bar 4) or Am (bar 6) into the V7 of the chord right after it. Then give the tune in that bar the note the visitor brings. Done when a visitor moves straight into its target. You may turn all three. Your loop plays both choruses of your song.",
         skills: [{ skill: "H12", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

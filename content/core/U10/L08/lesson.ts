@@ -126,7 +126,7 @@ const MELODIC = { tonic: "A", mode: "melodic minor" } as const;
 
 export default defineLesson({
   id: "U10.L08",
-  version: 3,
+  version: 4,
   title: "Melodic Minor",
   objective:
     "I can tell natural, harmonic and melodic minor apart, and write a tune that climbs home through raised 6 and 7 and comes down in natural minor.",
@@ -409,7 +409,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "In bar 3 the tune holds E over the E chord, then leaps up to home. Rewrite the end so it climbs home by steps through raised 6 and 7 (F♯ and G♯) over the E chord. Wherever the tune falls, keep natural minor. Done when the tune plays both F♯ and G♯.",
+          "In bar 3 the tune holds E over the E chord, then leaps up to home. Rewrite the end so it climbs home by steps through raised 6 and 7 (F♯ and G♯) over the E chord: these four bars end your song. Wherever the tune falls, keep natural minor. Done when the tune plays both F♯ and G♯.",
         skills: [{ skill: "S08", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

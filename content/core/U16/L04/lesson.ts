@@ -144,7 +144,7 @@ const singPart = (
 
 export default defineLesson({
   id: "U16.L04",
-  version: 4,
+  version: 5,
   title: "Picardy & Dorian IV",
   objective:
     "I can end a minor piece on the major home chord and brighten its iv into IV, one raised note each.",
@@ -471,7 +471,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight bars in A minor with a bass, a strings pad and a tune. In `changes`, make the last chord that sounds A major. Done when the verse ends on A major. Then, if you like, let the tune end on C♯ (`2#`), put the bright IV, D major, in an earlier bar, or rewrite the tune.",
+          "Eight bars in A minor with a bass, a strings pad and a tune: your song's bridge. In `changes`, make the last chord that sounds A major. Done when the eight bars end on A major. Then, if you like, let the tune end on C♯ (`2#`) or put the bright IV, D major, in an earlier bar.",
         skills: [{ skill: "H13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [8, 8],

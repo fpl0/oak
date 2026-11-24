@@ -106,7 +106,7 @@ const at = (sixteenths: number[]) => sixteenths.map((s) => Number(((s * BAR_SEC)
 
 export default defineLesson({
   id: "U13.L02",
-  version: 3,
+  version: 4,
   title: "Sixteenth Grooves & Ghost Notes",
   objective:
     "I can give every hit of a groove its own strength with .velocity(), and write a sixteenth-note groove with ghost notes.",
@@ -436,7 +436,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Add `.velocity()` to the snare: ghost notes (.4 or less) on at least three “e” or “a” hits, with 2 and 4 at 1. Then, if you like, accent the hats inside each beat and trade the Rhodes for a clean guitar in sixteenths with accents of its own.",
+          "Add `.velocity()` to the snare: ghost notes (.4 or less) on at least three “e” or “a” hits, with 2 and 4 at 1. Your loop then plays both choruses of your song. Then, if you like, accent the hats inside each beat and trade the Rhodes for a clean guitar in sixteenths with accents of its own.",
         skills: [{ skill: "R10", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],

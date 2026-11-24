@@ -119,7 +119,7 @@ const pair = (n: number, a: string, b: string, home: "a" | "b"): IdentifyEx => (
 
 export default defineLesson({
   id: "U10.L05",
-  version: 3,
+  version: 4,
   title: "The Aeolian Loop",
   objective: "I can write the Aeolian loop i–VI–III–VII and tell it from vi–IV–I–V by where it comes home.",
   key: MINOR,
@@ -381,7 +381,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Change the chords to the Aeolian loop, i VI III VII, one chord per bar, starting on i. Give the bass the same roots. Done when the `chords:` line plays i VI III VII in that order. Then arrange it: a sound for the chords, a tune that comes home on A.",
+          "Change the chords to the Aeolian loop, i VI III VII, one chord per bar, starting on i. Give the bass the same roots. Done when the `chords:` line plays i VI III VII in that order. Then arrange it for your song's first two choruses: a sound for the chords, a tune that comes home on A.",
         skills: [{ skill: "H08", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

@@ -159,7 +159,7 @@ const LEAD = { roll: false, staff: "lead", keyboard: false } as const;
 
 export default defineLesson({
   id: "U16.L03",
-  version: 3,
+  version: 4,
   title: "♭III & Minor Plagal",
   objective:
     "I can use ♭III beside iv, ♭VI and ♭VII, name all four as C minor's chords, and hear iv close into I.",
@@ -456,7 +456,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "A riff over C and F. C, F and G come from C major; E♭, A♭, B♭ and F minor from C minor. Write a four- or eight-bar loop in `changes` with E♭, ♭III, in at least one bar. Then, if you like, add a second chord from C minor and close on F minor into C.",
+          "A riff over C and F that opens your song. C, F and G come from C major; E♭, A♭, B♭ and F minor from C minor. Write a four-bar loop in `changes` with E♭, ♭III, in at least one bar. Then, if you like, add a second chord from C minor and close on F minor into C.",
         skills: [{ skill: "H13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

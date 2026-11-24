@@ -41,8 +41,8 @@
 // One builder writes all five flavours (AUTHORING §23.2), so the roots, the bass downbeats and the tune cannot drift.
 // A flavour changes the kit, the grooves inside a section, the comp and bass rhythms, swing and chord colour (jazz-soul
 // from U03.L01: swung eighths and four-note chords, sixths on I and IV and V7, as the U03 Bands play them;
-// content/flavours.ts FLAVOUR_RULES), and production. Gains stay at or under the kit's Bands (content/bands/index.ts
-// KITS), so the learner's tune sits on top. Each kit plays only sounds its machine has (sound pack v4: the 909 has no
+// content/flavours.ts FLAVOUR_RULES), and production. Gains are levelled by packages/strudel/e2e/songs.pw.ts
+// (budget sound-songs.json), so the learner's tune sits on top. Each kit plays only sounds its machine has (sound pack v4: the 909 has no
 // shaker, tambourine or cowbell, so electronic uses none of them).
 import {
   defineUnitSong,
@@ -292,7 +292,7 @@ interface Kit {
   /** The cymbals and percussion from another kit, when the kit lacks them ("" is the default kit). */
   percBank?: string;
   sounds: { bass: string; chords: string; lead: string };
-  /** At or under the kit's Bands: drums .7 (jazz-soul .65, electronic .6), bass .9 (.55), chords .4 (.45, .3). */
+  /** Levels per part, levelled by packages/strudel/e2e/songs.pw.ts against sound-songs.json. */
   gain: {
     kick: number;
     snare: number;
@@ -342,7 +342,7 @@ const PERC_CHORUS2 = "<[cr, tb*8] [tb*8]!3 [cr, tb*8] [tb*8]!3>";
 const POP: Kit = {
   bank: "",
   sounds: { bass: "ebass", chords: "piano", lead: "piano" },
-  gain: { kick: 0.7, snare: 0.6, hats: 0.4, perc: 0.35, bass: 0.85, chords: 0.4, lead: 0.5 },
+  gain: { kick: 0.16, snare: 0.13, hats: 0.09, perc: 0.08, bass: 0.43, chords: 0.17, lead: 0.71 },
   room: 0.25,
   lpf: 800,
   chordsPan: 0.42,
@@ -437,7 +437,7 @@ const INDIE: Kit = {
   bank: "LinnDrum",
   percBank: "",
   sounds: { bass: "ebass", chords: "cleangtr", lead: "acgtr" },
-  gain: { kick: 0.7, snare: 0.6, hats: 0.4, perc: 0.35, bass: 0.85, chords: 0.4, lead: 0.5 },
+  gain: { kick: 0.32, snare: 0.29, hats: 0.19, perc: 0.17, bass: 0.46, chords: 0.36, lead: 1 },
   room: 0.3,
   lpf: 750,
   chordsPan: 0.38,
@@ -541,7 +541,7 @@ const twoFeel = each((r) => `[${r}@2 ${r + 4}@2]`);
 const JAZZ: Kit = {
   bank: "jazzkit",
   sounds: { bass: "upright", chords: "rhodes", lead: "vibes" },
-  gain: { kick: 0.6, snare: 0.55, hats: 0.35, perc: 0.35, bass: 0.85, chords: 0.45, lead: 0.55 },
+  gain: { kick: 0.24, snare: 0.24, hats: 0.16, perc: 0.16, bass: 0.63, chords: 0.28, lead: 0.49 },
   room: 0.35,
   lpf: 900,
   chordsPan: 0.4,
@@ -647,7 +647,7 @@ const funkPush = (r: number): string => `[${r} ~ ${r + 7} ${r} ~ ~ ${r + 7} ~ ${
 const FUNK: Kit = {
   bank: "RolandTR808",
   sounds: { bass: "fingerbass", chords: "clav", lead: "organ" },
-  gain: { kick: 0.7, snare: 0.6, hats: 0.35, perc: 0.3, bass: 0.85, chords: 0.4, lead: 0.4 },
+  gain: { kick: 0.24, snare: 0.17, hats: 0.1, perc: 0.09, bass: 0.58, chords: 0.4, lead: 0.84 },
   room: 0.2,
   lpf: 850,
   chordsPan: 0.42,
@@ -742,13 +742,21 @@ const acid = (r: number): string => {
   return `[${r} ~ ${r} ${o} ${r} ~ ${r} ~ ${r} ~ ${o} ${r} ${r} ~ ~ ${r}]`;
 };
 const ACID = '.lpq(12).ftype("ladder").lpenv("<3 1.5 2 4>*8").lpd(.14).lps(0).decay(.2).sustain(.4)';
-const SUB = ".decay(1.2).sustain(.7)";
+/** The sine sub reads 6–9 LU over the acid bass of the loud parts: half its level, so the loud parts stay louder (songs.pw.ts). */
+const SUB = ".decay(1.2).sustain(.7).postgain(.5)";
 /** A sawtooth stab whose filter snaps shut. */
 const STAB = ".lpf(1800).lpenv(2).lpd(.12).lps(0).decay(.22).sustain(.3)";
 /** The pump: the on-beat eighth ducked under the kick, as a sidechained record breathes. */
 const PUMP = '.postgain("[.6 1]*4")';
+/**
+ * The 808 kick (funk's `RolandTR808`, the electronic `oak808`) rings for seconds with no choke: hits a beat apart pile
+ * up, by up to 7 dB and by the tempo (packages/strudel/e2e/songs.pw.ts measured `bd*4` at −8.6 LUFS at 92 BPM, −14.9
+ * at 96). A 0.35 s decay keeps its thump and stops the pile-up.
+ */
+const KICK_808 = ".decay(.35).sustain(0)";
 /** A supersaw pad struck on every beat with a slow attack, so it swells after each kick; its filter drifts. */
-const PAD = ".attack(.12).decay(.4).sustain(.7).lpf(sine.range(900, 2200).slow(8))";
+/** The supersaw swell reads 5–7 LU over the stabs of the loud parts: lowered, so the loud parts stay louder (songs.pw.ts). */
+const PAD = ".attack(.12).decay(.4).sustain(.7).lpf(sine.range(900, 2200).slow(8)).postgain(.6)";
 
 /**
  * Electronic: Oak's 909-style machine and the lo-fi kit. The verses, the bridge and the ending sit on the lo-fi kit, a
@@ -760,7 +768,7 @@ const ELECTRONIC: Kit = {
   bank: "oak909",
   banks: { verse1: "lofikit", verse2: "lofikit", bridge: "lofikit", outro: "lofikit" },
   sounds: { bass: "sawtooth", chords: "sawtooth", lead: "square" },
-  gain: { kick: 0.6, snare: 0.5, hats: 0.35, perc: 0.3, bass: 0.5, chords: 0.28, lead: 0.4 },
+  gain: { kick: 0.23, snare: 0.09, hats: 0.06, perc: 0.05, bass: 0.44, chords: 0.19, lead: 0.34 },
   room: 0.2,
   lpf: 700,
   chordsPan: 0.4,
@@ -936,7 +944,8 @@ function code(flavour: FlavourId): string {
       : { by, tail: bank ? `.bank("${bank}")` : "" };
   const drumTrack = (label: "kick" | "snare" | "hats" | "perc", gain: number, bank?: string) => {
     const d = drums(k[label], bank);
-    return track(label, d.by, `${d.tail}${swing}.gain(${num(gain)})`);
+    const choke = label === "kick" && /^(RolandTR808|oak808)$/.test(k.bank) ? KICK_808 : "";
+    return track(label, d.by, `${d.tail}${swing}${choke}.gain(${num(gain)})`);
   };
   const tracks = [
     track(

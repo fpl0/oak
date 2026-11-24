@@ -98,7 +98,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U11.L08",
-  version: 3,
+  version: 4,
   title: "Riffs & Response",
   objective: "I can write a blues riff that comes back in every line and answer it on another part.",
   key: { tonic: "C", mode: "blues" },
@@ -422,7 +422,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The guitar plays a new figure in every line, so nothing calls. Change the `mel:` line so one riff plays in bars 1–2 of every line, and keep the three organ answers different. Then make riff and answers your own. Done when the riff returns in bars 5–6 and 9–10.",
+          "Write the last chorus of your song. The guitar plays a new figure in every line, so nothing calls: change the `mel:` line so one riff plays in bars 1–2 of every line, and keep the three organ answers different. Then make riff and answers your own. Done when the riff returns in bars 5–6 and 9–10.",
         skills: [
           { skill: "M08", w: 0.7 },
           { skill: "M07", w: 0.3 },

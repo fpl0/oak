@@ -107,7 +107,7 @@ const earPart = (id: string, prompt: string, symbol: string, answer: "maj7" | "m
 
 export default defineLesson({
   id: "U12.L01",
-  version: 3,
+  version: 4,
   title: "Major 7 & Minor 7",
   objective: "I can write Cmaj7 and Am7 by name (C^7, Am7), build them, and hear what the 7th adds.",
   key: { tonic: "C", mode: "major" },
@@ -402,7 +402,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Change each of the four triads in `changes` into its seventh by name: two are major (`^7`), two are minor (`m7`). Then go further with one earlier tool: reorder the chords, comp them with `.struct()`, or write a new tune from their notes. Done when the first checklist line is ticked.",
+          "Write your song's chorus: change each of the four triads in `changes` into its seventh by name, two major (`^7`) and two minor (`m7`). Then go further with one earlier tool: reorder the chords, comp them with `.struct()`, or write a new tune from their notes. Done when the chords line has at least one `^7` and one `m7`.",
         skills: [{ skill: "C07", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

@@ -150,7 +150,7 @@ const HARMONIC = { tonic: "A", mode: "harmonic minor" } as const;
 
 export default defineLesson({
   id: "U10.L06",
-  version: 4,
+  version: 5,
   title: "Raise the Seventh",
   objective: "I can raise degree 7 of a minor key to make its v a major V that pulls home to i.",
   key: MINOR,
@@ -407,7 +407,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Am F C G circles: G steps up to home without a pull. In the `const changes` line, give it a major V (E) that goes straight home to i (Am): E in place of G, or four more bars that end E Am. Then shape the tune around that landing; a climb through G♯ helps.",
+          "Your chorus loop circles: G steps up to home without a pull. For your song's last chorus, give the chords and the bass a major V (E) that goes straight home to i (Am): E in place of G, or four more bars that end E Am. Then shape the tune around that landing; a climb through G♯ helps.",
         skills: [{ skill: "H09", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -450,7 +450,7 @@ export default defineLesson({
         hints: ladder(
           "Which chord comes right before home in this loop, and does it lean into A?",
           "G is VII: its G natural is a whole step below home. The chord that leans is E, the major V, with G♯.",
-          'Change the `const` to `"<Am F C E>"`, or to eight bars such as `"<Am F C G Am F E Am>"`. For the tune, `"A3:harmonic:minor"` gives `n` 6 as G♯.',
+          'Change the chords to `"<Am F C E>"`, or to eight bars such as `"<Am F C G Am F E Am>"`, and give the bass the same roots. For the tune, `"A3:harmonic:minor"` gives `n` 6 as G♯.',
         ),
         tests: [
           {

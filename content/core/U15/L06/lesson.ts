@@ -191,7 +191,7 @@ const RIGHT = { bass: ["1", "6", "2", "5"], rn: ["I", "V7/ii", "ii", "V7"] };
 
 export default defineLesson({
   id: "U15.L06",
-  version: 3,
+  version: 4,
   title: "Hearing Secondaries",
   objective: "I can find a secondary dominant by ear and name the chord it points at.",
   key: C_MAJOR,
@@ -442,7 +442,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Open two doors in your staircase. In `changes`, pick two target chords and turn the chord in front of each into the target's V7. Try a door before each chord in turn and keep the two that land best. Done when two secondary dominants each move straight into their target.",
+          "Open two doors in the staircase: in `changes`, pick two target chords and turn the chord in front of each into the target's V7. Try a door before each chord in turn and keep the two that land best. Done when two secondary dominants each move straight into their target. Your loop plays your song's solo.",
         skills: [{ skill: "H12", w: 1 }],
         fromSketch: "U12.L04",
         code: { starter: MAKE_STARTER },

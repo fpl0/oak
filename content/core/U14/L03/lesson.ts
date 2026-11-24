@@ -114,7 +114,7 @@ const LEAD = { roll: false, staff: "lead", keyboard: false } as const;
 
 export default defineLesson({
   id: "U14.L03",
-  version: 3,
+  version: 4,
   title: "Dorian ♮6",
   objective: "I can turn minor into Dorian by raising its 6th, and write a groove over i and the major IV.",
   key: { tonic: "D", mode: "minor" },
@@ -443,7 +443,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Put the major IV, `G` or `G7`, into `changes` at least once; the groove sits on `Dm7` alone now. Then make the `mel:` line play the raised 6, B. Then work on the groove: push a chord, give the bass its own rhythm. Done when the loop has a G major chord.",
+          "Write the groove for your song's choruses. Put the major IV, `G` or `G7`, into `changes` at least once; the groove sits on `Dm7` alone now. Then make the `mel:` line play the raised 6, B. Then push a chord or give the bass its own rhythm. Done when the loop has a G major chord.",
         skills: [{ skill: "H11", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],

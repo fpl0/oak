@@ -98,7 +98,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U15.L05",
-  version: 4,
+  version: 5,
   title: "Dominant Chains",
   objective: "I can write a chain of dominant sevenths that falls by 5ths, each the V7 of the next.",
   key: C_MAJOR,
@@ -438,7 +438,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "In `changes`, keep every root and change chord kinds so that at least three dominant sevenths in a row, each the V7 of the next, lead through G7 into C. Then add horn stabs: copy the chords line, label it `horns`, sound it with `horns`, and give it a `.struct()` of your own.",
+          "In `changes`, keep every root and change chord kinds so that at least three dominant sevenths in a row, each the V7 of the next, lead through G7 into C. Then add horn stabs: copy the chords line, label it `horns`, sound it with `horns`, and give it a `.struct()` of your own. Your loop plays your song's ending.",
         skills: [{ skill: "H12", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

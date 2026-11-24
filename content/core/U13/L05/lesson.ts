@@ -89,7 +89,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U13.L05",
-  version: 3,
+  version: 4,
   title: "Triplets",
   objective:
     "I can play three even notes in the time of two with .ply(3) or a bracket of three, write a roll, and read a triplet on the staff.",
@@ -434,7 +434,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Put the piano or the hats in triplets: three even notes on every beat, through every bar, with `.ply(3)` or brackets of three. Then, if you like, roll the snare into the repeat with three hits in beat 4 of bar 4, and float a tune over the threes.",
+          "Put the piano or the hats in triplets: three even notes on every beat, through every bar, with `.ply(3)` or brackets of three. This loop then plays the bridge of your song. Then, if you like, roll the snare into the repeat with three hits in beat 4 of bar 4, and float a tune over the threes.",
         skills: [{ skill: "R12", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

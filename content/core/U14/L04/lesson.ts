@@ -123,7 +123,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U14.L04",
-  version: 3,
+  version: 4,
   title: "Lydian Glow",
   objective: "I can turn a major scale into Lydian by raising its 4th, and make it float over I and II.",
   key: { tonic: "F", mode: "major" },
@@ -432,7 +432,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Make the `mel:` line play the raised 4th, B (`n` 3), at least once; without it the line could be plain F major. Put it on a long note or a beat. Then let the pad move to G and back. Keep the held F in the bass. Done when the line plays a B.",
+          "Write the opening of your song. Make the `mel:` line play the raised 4th, B (`n` 3), at least once; without it the line could be plain F major. Put it on a long note or a beat. Then let the pad move to G and back over the held F. Done when the line plays a B.",
         skills: [{ skill: "S13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],

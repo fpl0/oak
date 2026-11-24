@@ -103,7 +103,7 @@ const STAFF = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U11.L07",
-  version: 4,
+  version: 5,
   title: "Shuffle",
   objective: "I can swing my own lines in code and hear whether a groove is straight or swung.",
   key: { tonic: "C", mode: "blues" },
@@ -467,7 +467,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Swing the hats with `.swingBy(1/3, 4)`, then the riff the same way. Try a lighter swing too, `.swingBy(.2, 4)`, and a tempo between 80 and 140 in `setcpm`. Keep the feel and tempo you like best. Done when the hats play long–short.",
+          "Swing the hats of your song's third chorus with `.swingBy(1/3, 4)`, then the riff the same way. Try a lighter swing too, `.swingBy(.2, 4)`, and a tempo between 80 and 140 in `setcpm`: your whole song takes that tempo. Keep the feel and tempo you like best. Done when the hats play long–short.",
         skills: [{ skill: "R13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [12, 24],

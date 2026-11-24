@@ -81,7 +81,7 @@ const LEAD = { roll: false, staff: "lead", keyboard: false } as const;
 
 export default defineLesson({
   id: "U12.L04",
-  version: 3,
+  version: 4,
   title: "Diatonic Sevenths in Major",
   objective:
     "I can name the seventh chord on every degree of a major key, Imaj7 to viiø7, and write them by name.",
@@ -371,7 +371,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Change the four bars of Cmaj7 in `changes` into a loop of C major's own seventh chords, by name: walk by step like the hook, or jump. Use at least one major seventh, one minor seventh and the dominant seventh, G7. Four or eight bars.",
+          "Write your song's intro and outro: change the four bars of Cmaj7 in `changes` into a loop of C major's own seventh chords, by name. Walk by step like the hook, or jump. Use at least one major seventh, one minor seventh and the dominant seventh, G7. Four bars, or eight: the song plays the first four.",
         skills: [{ skill: "C08", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

@@ -79,7 +79,7 @@ const NUMERALS = {
 
 export default defineLesson({
   id: "U11.L06",
-  version: 3,
+  version: 4,
   title: "Quick Change & Turnaround",
   objective: "I can add a quick change and a turnaround to a 12-bar blues.",
   key: { tonic: "C", mode: "blues" },
@@ -396,7 +396,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Your blues is in G, where I, IV and V are G7, C7 and D7. Give it a quick change: IV in bar 2, I in bars 3 and 4. Then end bars 11–12 on V: I–IV then I–V, I then V, or your own. Done when bar 2 is IV and the rest follows the twelve bars.",
+          "Write your song's second chorus, in G, where I, IV and V are G7, C7 and D7. Give it a quick change: IV in bar 2, I in bars 3 and 4. Then end bars 11–12 on V: I–IV then I–V, I then V, or your own. Done when bar 2 is IV and the rest follows the twelve bars.",
         skills: [{ skill: "H10", w: 1 }],
         key: { tonic: "G", mode: "blues" },
         code: { starter: MAKE_STARTER },

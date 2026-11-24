@@ -29,7 +29,8 @@
 //
 // One builder writes all five flavours (AUTHORING §23.2), so the roots, the bass downbeats and the tune cannot drift.
 // A flavour changes only the kit, the grooves inside a section (kick, hats, comp and bass rhythm) and production.
-// Gains stay at or under the Bands' kit gains (content/bands/index.ts KITS: drums .7, bass .9, chords .4/.45).
+// Gains are levelled by packages/strudel/e2e/songs.pw.ts (budget packages/strudel/sound-songs.json): the learner's part
+// sits on top, and the song is about as loud as its flavour's Bands.
 import {
   defineUnitSong,
   FLAVOUR_IDS,
@@ -218,6 +219,12 @@ const SNARE_CLAP = {
   chorus: bars(8, "~ [sd,cp] ~ [sd,cp]", "~ [sd,cp] [~ sd] [sd sd]"),
   outro: ["~ [sd,cp] ~ [sd,cp]", "~ [sd,cp] ~ [sd,cp]", "~ [sd,cp] [~ sd] [sd sd]", "~"],
 };
+/**
+ * The 808 kick (funk's `RolandTR808`, the electronic `oak808`) rings for seconds with no choke: hits a beat apart pile
+ * up, by up to 7 dB and by the tempo (packages/strudel/e2e/songs.pw.ts measured `bd*4` at −8.6 LUFS at 92 BPM, −14.9
+ * at 96). A 0.35 s decay keeps its thump and stops the pile-up.
+ */
+const KICK_808 = ".decay(.35).sustain(0)";
 /** The snare and the clap together sound louder than the snare alone: a touch lighter, so the backbeat stays level. */
 const CLAP_LEVEL = { chorus: ".85", outro: ".85" };
 /** The opening's snare pickup, the stop's, and the bridge's half-time backbeat with a roll into the last chorus. */
@@ -264,7 +271,8 @@ const ACID_OPEN = '.lpq(14).ftype("ladder").lpenv("<4 2 3 6>*8").lpd(.16).lps(0)
 /** A sawtooth stab whose filter snaps shut. */
 const STAB = ".lpf(1800).lpenv(2).lpd(.12).lps(0).decay(.22).sustain(.3)";
 /** A supersaw pad that swells after each kick (a slow attack, struck on every beat), its filter drifting. */
-const PAD = ".attack(.12).decay(.4).sustain(.7).lpf(sine.range(900, 2200).slow(8))";
+/** The supersaw swell reads 5–7 LU over the stabs of the loud parts: lowered, so the loud parts stay louder (songs.pw.ts). */
+const PAD = ".attack(.12).decay(.4).sustain(.7).lpf(sine.range(900, 2200).slow(8)).postgain(.6)";
 
 const KITS: Record<FlavourId, Kit> = {
   // The default kit, electric bass, piano chords and a piano tune: a pop-rock band.
@@ -291,7 +299,7 @@ const KITS: Record<FlavourId, Kit> = {
       hats: { intro: "[.8 .6]*4", verse: EIGHTHS, chorus: EIGHTHS, outro: EIGHTHS },
       perc: { bridge: QUARTERS },
     },
-    gains: { kick: 0.65, snare: 0.6, hats: 0.45, perc: 0.4, bass: 0.85, chords: 0.38, lead: 0.5 },
+    gains: { kick: 0.25, snare: 0.21, hats: 0.16, perc: 0.14, bass: 0.7, chords: 0.23, lead: 0.61 },
     bass: {
       sound: "ebass",
       lpf: 800,
@@ -344,7 +352,7 @@ const KITS: Record<FlavourId, Kit> = {
       snare: CLAP_LEVEL,
       hats: { intro: "[.8 .6]*4", verse: EIGHTHS, chorus: EIGHTHS, outro: EIGHTHS },
     },
-    gains: { kick: 0.65, snare: 0.6, hats: 0.45, perc: 0.4, bass: 0.85, chords: 0.38, lead: 0.5 },
+    gains: { kick: 0.46, snare: 0.38, hats: 0.28, perc: 0.26, bass: 0.59, chords: 0.51, lead: 0.84 },
     bass: {
       sound: "ebass",
       lpf: 750,
@@ -408,7 +416,7 @@ const KITS: Record<FlavourId, Kit> = {
       outro: bars(4, "rd*8", "rd ~ ~ ~"),
     },
     accents: { perc: { intro: QUARTERS, verse: EIGHTHS, chorus: EIGHTHS, bridge: QUARTERS, outro: EIGHTHS } },
-    gains: { kick: 0.6, snare: 0.55, hats: 0.4, perc: 0.35, bass: 0.85, chords: 0.42, lead: 0.5 },
+    gains: { kick: 0.22, snare: 0.34, hats: 0.24, perc: 0.21, bass: 0.7, chords: 0.47, lead: 0.52 },
     bass: {
       sound: "upright",
       lpf: 900,
@@ -467,7 +475,7 @@ const KITS: Record<FlavourId, Kit> = {
       hats: { intro: "[.8 .6]*4", verse: SIXTEENTHS, chorus: SIXTEENTHS, outro: SIXTEENTHS },
       perc: { bridge: EIGHTHS },
     },
-    gains: { kick: 0.65, snare: 0.6, hats: 0.4, perc: 0.4, bass: 0.85, chords: 0.36, lead: 0.4 },
+    gains: { kick: 0.45, snare: 0.2, hats: 0.13, perc: 0.13, bass: 0.87, chords: 0.56, lead: 0.7 },
     bass: {
       sound: "fingerbass",
       lpf: 850,
@@ -534,7 +542,7 @@ const KITS: Record<FlavourId, Kit> = {
       hats: { intro: "[.8 .6]*4", verse: SIXTEENTHS, chorus: SIXTEENTHS, outro: SIXTEENTHS },
       perc: { bridge: EIGHTHS },
     },
-    gains: { kick: 0.6, snare: 0.5, hats: 0.35, perc: 0.35, bass: 0.5, chords: 0.28, lead: 0.4 },
+    gains: { kick: 0.3, snare: 0.15, hats: 0.1, perc: 0.1, bass: 0.68, chords: 0.29, lead: 0.43 },
     bass: {
       sound: "sawtooth",
       lpf: 700,
@@ -548,11 +556,12 @@ const KITS: Record<FlavourId, Kit> = {
       },
       sounds: { intro: "sine", bridge: "sine" },
       fx: {
-        intro: ".decay(1.2).sustain(.6)",
+        // The sine sub at half level: at full level it reads over the acid of the loud parts (songs.pw.ts).
+        intro: ".decay(1.2).sustain(.6).postgain(.5)",
         verse: ACID,
         break: ACID,
         chorus: ACID_OPEN,
-        bridge: ".decay(1.2).sustain(.6)",
+        bridge: ".decay(1.2).sustain(.6).postgain(.5)",
         outro: ACID,
       },
     },
@@ -608,7 +617,7 @@ function code(f: FlavourId): string {
           return [[kind, `s("${perBar(b)}")${sectionBank(kind)}${velocity(k.accents[label]?.[kind])}`]];
         }),
       ),
-      `${bank}.gain(${num(k.gains[label])})`,
+      `${bank}${label === "kick" && /^(RolandTR808|oak808)$/.test(k.bank) ? KICK_808 : ""}.gain(${num(k.gains[label])})`,
     );
   /** A section's own sound and synth controls, when the kit changes them by section; else the track's sound. */
   const voiced = (part: Kit["bass"] | Kit["chords"], kind: Kind) =>

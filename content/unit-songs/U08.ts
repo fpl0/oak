@@ -33,7 +33,7 @@
 // Staging at U08 (contracts §5.10, content/flavours.ts FLAVOUR_RULES): pop and indie triads, straight; jazz-soul
 // four-note chords and swung eighths (as its Bands play under these lessons); funk four-note chords and a sixteenth
 // feel; electronic four-note chords, straight. One builder writes the five flavours (AUTHORING
-// §23.2), so the tune, the bass downbeats and the chord roots cannot drift. Gains stay at or under U01/U02's.
+// §23.2), so the tune, the bass downbeats and the chord roots cannot drift. Gains are levelled by songs.pw.ts (sound-songs.json).
 import {
   defineUnitSong,
   FLAVOUR_IDS,
@@ -271,7 +271,7 @@ const POP: Kit = {
   sounds: { bass: "ebass", chords: "piano", lead: "piano", pad: "strings" },
   fours: false,
   swing: "",
-  gain: { kick: 0.7, snare: 0.6, hats: 0.4, perc: 0.35, bass: 0.8, chords: 0.38, lead: 0.5, pad: 0.22 },
+  gain: { kick: 0.25, snare: 0.2, hats: 0.13, perc: 0.11, bass: 0.73, chords: 0.26, lead: 0.61, pad: 0.15 },
   room: 0.25,
   lpf: 800,
   chordsPan: 0.42,
@@ -357,7 +357,7 @@ const INDIE: Kit = {
   sounds: { bass: "ebass", chords: "cleangtr", lead: "acgtr", pad: "organ" },
   fours: false,
   swing: "",
-  gain: { kick: 0.7, snare: 0.6, hats: 0.4, perc: 0.35, bass: 0.8, chords: 0.38, lead: 0.5, pad: 0.18 },
+  gain: { kick: 0.43, snare: 0.37, hats: 0.24, perc: 0.22, bass: 0.53, chords: 0.45, lead: 0.83, pad: 0.21 },
   room: 0.3,
   lpf: 750,
   chordsPan: 0.38,
@@ -454,7 +454,7 @@ const JAZZ: Kit = {
   sounds: { bass: "upright", chords: "rhodes", lead: "vibes", pad: "strings" },
   fours: true,
   swing: ".swingBy(1/3, 4)",
-  gain: { kick: 0.6, snare: 0.55, hats: 0.4, perc: 0.4, bass: 0.8, chords: 0.42, lead: 0.5, pad: 0.2 },
+  gain: { kick: 0.21, snare: 0.33, hats: 0.25, perc: 0.25, bass: 0.62, chords: 0.44, lead: 0.5, pad: 0.16 },
   room: 0.3,
   lpf: 800,
   chordsPan: 0.4,
@@ -548,7 +548,7 @@ const FUNK: Kit = {
   sounds: { bass: "fingerbass", chords: "clav", lead: "tenor", pad: "organ" },
   fours: true,
   swing: "",
-  gain: { kick: 0.7, snare: 0.6, hats: 0.38, perc: 0.35, bass: 0.8, chords: 0.36, lead: 0.45, pad: 0.18 },
+  gain: { kick: 0.38, snare: 0.25, hats: 0.15, perc: 0.14, bass: 0.94, chords: 0.69, lead: 0.71, pad: 0.33 },
   room: 0.2,
   lpf: 900,
   chordsPan: 0.36,
@@ -634,13 +634,21 @@ const FUNK: Kit = {
 const ACID_CELL = (c: Chord) =>
   `${B[c].r} ~ ${B[c].r} ${B[c].o} ${B[c].r} ~ ${B[c].r} ~ ${B[c].r} ~ ${B[c].o} ${B[c].r} ${B[c].r} ~ ~ ${B[c].r}`;
 const ACID = '.lpq(12).ftype("ladder").lpenv("<3 1.5 2 4>*8").lpd(.14).lps(0).decay(.2).sustain(.4)';
-const SUB = ".decay(1.2).sustain(.7)";
+/** The sine sub reads 6–9 LU over the acid bass of the loud parts: half its level, so the loud parts stay louder (songs.pw.ts). */
+const SUB = ".decay(1.2).sustain(.7).postgain(.5)";
 /** A sawtooth stab whose filter snaps shut. */
 const STAB = ".lpf(1800).lpenv(2).lpd(.12).lps(0).decay(.22).sustain(.3)";
 /** The pump: the on-beat eighth ducked under the kick, as a sidechained record breathes. */
 const PUMP = '.postgain("[.6 1]*4")';
+/**
+ * The 808 kick (funk's `RolandTR808`, the electronic `oak808`) rings for seconds with no choke: hits a beat apart pile
+ * up, by up to 7 dB and by the tempo (packages/strudel/e2e/songs.pw.ts measured `bd*4` at −8.6 LUFS at 92 BPM, −14.9
+ * at 96). A 0.35 s decay keeps its thump and stops the pile-up.
+ */
+const KICK_808 = ".decay(.35).sustain(0)";
 /** A supersaw struck on every beat with a slow attack, so it swells after each kick; its filter drifts. */
-const SWELL = ".attack(.12).decay(.4).sustain(.7).lpf(sine.range(900, 2200).slow(8))";
+/** The supersaw swell reads 5–7 LU over the stabs of the loud parts: lowered, so the loud parts stay louder (songs.pw.ts). */
+const SWELL = ".attack(.12).decay(.4).sustain(.7).lpf(sine.range(900, 2200).slow(8)).postgain(.6)";
 
 /**
  * Electronic: Oak's 909-style machine in the loud parts, the lo-fi kit in the opening, the verses and the bridge;
@@ -653,7 +661,7 @@ const ELECTRONIC: Kit = {
   sounds: { bass: "sawtooth", chords: "sawtooth", lead: "square", pad: "supersaw" },
   fours: true,
   swing: "",
-  gain: { kick: 0.6, snare: 0.5, hats: 0.35, perc: 0.3, bass: 0.5, chords: 0.26, lead: 0.4, pad: 0.16 },
+  gain: { kick: 0.36, snare: 0.24, hats: 0.17, perc: 0.14, bass: 0.82, chords: 0.39, lead: 0.52, pad: 0.16 },
   room: 0.2,
   lpf: 700,
   chordsPan: 0.4,
@@ -838,7 +846,11 @@ function code(flavour: FlavourId): string {
       bass,
       `${syn ? "" : `.s("${k.sounds.bass}")`}.lpf(${k.lpf})${sw}.gain(${num(k.gain.bass)})`,
     ),
-    track("kick", drums(k.kick), `${bank}${sw}.gain(${num(k.gain.kick)})`),
+    track(
+      "kick",
+      drums(k.kick),
+      `${bank}${sw}${/^(RolandTR808|oak808)$/.test(k.bank) ? KICK_808 : ""}.gain(${num(k.gain.kick)})`,
+    ),
     track("snare", drums(k.snare), `${bank}${sw}.gain(${num(k.gain.snare)})`),
     track("hats", drums(k.hats), `${bank}${sw}.gain(${num(k.gain.hats)})`),
     track("perc", drums(k.perc), `${bank}${sw}.gain(${num(k.gain.perc)})`),

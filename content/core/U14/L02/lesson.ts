@@ -108,7 +108,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U14.L02",
-  version: 3,
+  version: 4,
   title: "Mixolydian Rock",
   objective:
     "I can find the major chord on Mixolydian's ♭7, write it as ♭VII, and use it in the loop I–♭VII–IV.",
@@ -464,7 +464,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Put an F chord, ♭VII, into `changes` at least once. The loop is G, G, C, G now, with no chord on the ♭7; I–♭VII–IV–I works, or your own order with home coming back. Then rewrite the riff so it plays te (F) over the F chord. Done when the loop has an F chord.",
+          "Write your song's second verse. Put an F chord, ♭VII, into `changes` at least once: the loop is G, G, C, G now. I–♭VII–IV–I works, or your own order with home coming back. Then rewrite the riff so it plays te (F) over the F chord. Done when the loop has an F chord.",
         skills: [{ skill: "H11", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

@@ -3,7 +3,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { defineUnitSong, type LessonId } from "@oak/content-kit";
+import { defineUnitSong } from "@oak/content-kit";
 import { collectIds } from "../../scripts/content/generate.ts";
 import { registries } from "../index.ts";
 import { syllabus } from "../syllabus.ts";
@@ -39,9 +39,9 @@ describe("unit songs", () => {
     expect(side?.song.id).toBe("usong.U01");
     expect(side?.step.kind).toBe("side");
     expect(songStepOf("U02.L05")?.song.id).toBe("usong.U02");
-    // A unit whose song is not written yet (U17's is the last one written; move the probe when it lands).
-    expect(songStepOf("U17.L01" as LessonId)).toBeNull();
+    // U00 is onboarding and never has a song (spec 2026-11-24 §6: core U01–U17, advanced J1–J5, R1–R3, A1–A2).
     expect(songStepOf("U00.L01")).toBeNull();
+    expect(songStepOf("U00.L02")).toBeNull();
     expect(unitSongOfUnit("U00")).toBeNull();
   });
 

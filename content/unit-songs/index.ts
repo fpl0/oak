@@ -11,6 +11,14 @@ import { U06_SONG } from "./U06.ts";
 import { U07_SONG } from "./U07.ts";
 import { U08_SONG } from "./U08.ts";
 import { U09_SONG } from "./U09.ts";
+import { U10_SONG } from "./U10.ts";
+import { U11_SONG } from "./U11.ts";
+import { U12_SONG } from "./U12.ts";
+import { U13_SONG } from "./U13.ts";
+import { U14_SONG } from "./U14.ts";
+import { U15_SONG } from "./U15.ts";
+import { U16_SONG } from "./U16.ts";
+import { U17_SONG } from "./U17.ts";
 
 export const unitSongs: readonly UnitSongDef[] = Object.freeze([
   U01_SONG,
@@ -22,6 +30,14 @@ export const unitSongs: readonly UnitSongDef[] = Object.freeze([
   U07_SONG,
   U08_SONG,
   U09_SONG,
+  U10_SONG,
+  U11_SONG,
+  U12_SONG,
+  U13_SONG,
+  U14_SONG,
+  U15_SONG,
+  U16_SONG,
+  U17_SONG,
 ]);
 
 export const unitSongById: ReadonlyMap<UnitSongId, UnitSongDef> = new Map(unitSongs.map((s) => [s.id, s]));
