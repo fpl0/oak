@@ -31,10 +31,17 @@ const { NewSong } = await import("./NewSong.tsx");
 const { SongPage } = await import("./SongPage.tsx");
 const { SongCard } = await import("./SongCard.tsx");
 const { SongGrew } = await import("./SongGrew.tsx");
-const { cellsSentence, grewSentence, partTracks, releaseOffer } = await import("./surfaces-model.ts");
+const {
+  cellsSentence,
+  grewSentence,
+  partTracks,
+  releaseOffer,
+  songReleaseOfVersion,
+  songReleaseRenderRequest,
+} = await import("./surfaces-model.ts");
 const { TEST_SONG, testDetail, testTake } = await import("./test-song.ts");
 
-import type { SessionPlan, TakeStep, UnitSongDetail } from "@oak/api";
+import type { SessionPlan, TakeStep, UnitSongDetail, UnitSongSnapshot, UnitSongSummary } from "@oak/api";
 
 const KICK_SNARE = 'setcpm(96/4)\n\ndrums: s("bd sd bd sd")';
 const L01 = testTake(1, "U01.L01", KICK_SNARE, ["kick@verse", "snare@verse"], {
@@ -207,7 +214,7 @@ describe("song surfaces", () => {
     expect(container.querySelector('[data-testid="song-hero"]')).toBeNull();
   });
 
-  test("NewSong lists four styles and posts songs.start with the picked flavour", async () => {
+  test("NewSong lists five styles and posts songs.start with the picked flavour", async () => {
     const fresh = testDetail([], { status: "new", flavour: "flavour.pop", title: "The test song" });
     answer = (s) => (s.path.endsWith("/start") ? testDetail([], { flavour: "flavour.funk" }) : fresh);
     let started = 0;
@@ -218,8 +225,9 @@ describe("song surfaces", () => {
       "flavour.indie",
       "flavour.jazz-soul",
       "flavour.funk",
+      "flavour.electronic",
     ]);
-    expect(all('[data-testid="style-play"]')).toHaveLength(4);
+    expect(all('[data-testid="style-play"]')).toHaveLength(5);
     // It opens on the profile's style (the server's answer for a song not started).
     expect(options.find((o) => o.checked)?.value).toBe("flavour.pop");
     expect(one('[data-testid="new-song-title"]').textContent).toBe("The test song");
@@ -367,5 +375,81 @@ describe("song surface words", () => {
     const base = testDetail([L01]);
     expect(releaseOffer(base)).toBe("not-yet");
     expect(releaseOffer({ ...base, releasable: true })).toBe("release");
+  });
+});
+
+describe("a released song on the album plays its frozen release", () => {
+  const L02 = testTake(2, "U01.L02", 'setcpm(96/4)\n\nhats: s("hh*8")', ["hats@chorus1"], { bpm: 98 });
+  const snapshot: UnitSongSnapshot = {
+    id: 7,
+    unitId: "U01",
+    albumTrackId: "trk_1",
+    albumVersion: 2,
+    songId: "usong.U01",
+    songVersion: 1,
+    flavour: "flavour.funk",
+    title: "Second",
+    bpm: 98,
+    oakCode: 'kick: s("bd*4")',
+    def: TEST_SONG,
+    takes: [L01, L02].map((t) => ({
+      takeId: t.id,
+      lessonId: t.lessonId,
+      sketchId: t.sketchId,
+      sketchVersion: t.sketchVersion,
+      code: t.code,
+      cells: t.cells,
+      labels: t.labels,
+      bpm: t.bpm,
+    })),
+    reviewBeforeRun: false,
+    createdAt: "2026-11-24T10:00:00.000Z",
+  };
+
+  test("the export renders the whole song as released, every take and Oak's frozen code", () => {
+    const req = songReleaseRenderRequest(snapshot);
+    expect(req.code).toBe("");
+    expect(req.key).toBeNull();
+    expect([...req.mutes.muted]).toEqual([]);
+    const song = req.band?.song;
+    expect(song?.oakCode).toBe('kick: s("bd*4")');
+    expect(song?.flavour).toBe("flavour.funk");
+    expect(song?.bpm).toBe(98);
+    expect(song?.sources.map((s) => [s.sourceId, s.code])).toEqual([
+      ["1", L01.code],
+      ["2", L02.code],
+    ]);
+    expect(req.band?.tracks).toContain("take.U01.L01.drums");
+    expect(req.band?.tracks).toContain("take.U01.L02.hats");
+  });
+
+  test("an album version is a song release when the song's releases name it", () => {
+    const songs = [
+      {
+        ...testDetail([L01]),
+        releases: [
+          {
+            id: 3,
+            albumTrackId: "trk_1",
+            albumVersion: 1,
+            flavour: "flavour.pop",
+            title: "First",
+            createdAt: "x",
+          },
+          {
+            id: 7,
+            albumTrackId: "trk_1",
+            albumVersion: 2,
+            flavour: "flavour.funk",
+            title: "Second",
+            createdAt: "y",
+          },
+        ],
+      },
+    ] as UnitSongSummary[];
+    expect(songReleaseOfVersion(songs, "trk_1", 2)).toEqual({ unitId: "U01", releaseId: 7 });
+    expect(songReleaseOfVersion(songs, "trk_1", 1)).toEqual({ unitId: "U01", releaseId: 3 });
+    expect(songReleaseOfVersion(songs, "trk_2", 1)).toBeNull();
+    expect(songReleaseOfVersion(undefined, "trk_1", 1)).toBeNull();
   });
 });

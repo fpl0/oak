@@ -42,9 +42,9 @@ import {
   type UnitSongSection,
   unitSongSchema,
 } from "@oak/content-kit";
-import { sectionsFromAst } from "@oak/grader";
+import { SILENT_GAIN, sectionsFromAst } from "@oak/grader";
 import type { HeadlessEvent } from "@oak/grader/testing";
-import { identifyChord, METERS, type Pc } from "@oak/theory";
+import { identifyChord, METERS, type Pc, triadQuality } from "@oak/theory";
 import { checkpointMetas } from "../checkpoints.ts";
 import { courseGraph, registries } from "../index.ts";
 import { atOrBefore } from "../lib/course.ts";
@@ -247,11 +247,25 @@ function clashes(
   return out;
 }
 
-/** Oak's pitched notes in one flavour, by part, from the evaluated song. */
+/**
+ * Whether an event is heard at all, by the grader's convention (normalize/nevent.ts `isAudible`): its effective gain,
+ * `(gain ?? 0.8) · velocity · postgain`, is above `SILENT_GAIN`. `.gain(0)`, `.velocity(0)` or `.postgain(0)` still
+ * makes events, and none of them is music.
+ */
+function heard(e: HeadlessEvent): boolean {
+  const num = (k: string): number | undefined => {
+    const v = e.value[k];
+    return typeof v === "number" && Number.isFinite(v) ? v : undefined;
+  };
+  return (num("gain") ?? 0.8) * (num("velocity") ?? 1) * (num("postgain") ?? 1) > SILENT_GAIN;
+}
+
+/** Oak's pitched notes in one flavour, by part, from the evaluated song (heard ones only). */
 function oakNotes(def: UnitSongDef, events: readonly HeadlessEvent[]): Sounding[] {
   const byLabel = new Map(def.parts.map((p) => [p.label, p] as const));
   const out: Sounding[] = [];
   for (const e of events) {
+    if (!heard(e)) continue;
     const part = byLabel.get(e.track);
     if (!part || part.role === "drums" || e.midi === null) continue;
     out.push({
@@ -288,14 +302,17 @@ interface FlavourView {
   lead: number[][];
   /** The pitch class of the bass note sounding on each downbeat (`null` while the bass rests). */
   bass: (number | null)[];
-  /** The roots of the chords that start in each bar, in order, repeats merged. */
-  chords: number[][];
+  /**
+   * The chords that start in each bar, in order, repeats merged: root and triad (`C`, `Cm`), so a flavour may colour
+   * a chord with a sixth, a seventh or a ninth (spec §5.1) but not change its root or its function.
+   */
+  chords: string[][];
 }
 function flavourView(def: UnitSongDef, notes: readonly Sounding[]): FlavourView {
   const bars = totalBars(def);
   const lead: number[][] = Array.from({ length: bars }, () => []);
   const bass: (number | null)[] = Array.from({ length: bars }, () => null);
-  const chords: number[][] = Array.from({ length: bars }, () => []);
+  const chords: string[][] = Array.from({ length: bars }, () => []);
   const sorted = [...notes].sort((a, b) => a.begin - b.begin || a.midi - b.midi);
   const bassNotes = sorted.filter((n) => n.role === "bass");
   const bassAt = (t: number): number | null => {
@@ -320,8 +337,9 @@ function flavourView(def: UnitSongDef, notes: readonly Sounding[]): FlavourView 
     if (bar < 0 || bar >= bars) continue;
     const b = bassAt(t);
     const best = identifyChord(midis, b === null ? undefined : { bassPc: (((b % 12) + 12) % 12) as Pc })[0];
-    const list = chords[bar] as number[];
-    if (best && list[list.length - 1] !== best.rootPc) list.push(best.rootPc);
+    const list = chords[bar] as string[];
+    const name = best ? chordName(best.rootPc, triadQuality(best.quality)) : null;
+    if (name !== null && list[list.length - 1] !== name) list.push(name);
   }
   return { lead, bass, chords };
 }
@@ -329,6 +347,17 @@ function flavourView(def: UnitSongDef, notes: readonly Sounding[]): FlavourView 
 const PC_NAMES = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"];
 const pcName = (pc: number | null | undefined): string =>
   pc === null || pc === undefined ? "nothing" : (PC_NAMES[pc] as string);
+const TRIAD_SUFFIX: Record<ReturnType<typeof triadQuality>, string> = {
+  maj: "",
+  min: "m",
+  dim: "dim",
+  aug: "aug",
+  sus2: "sus2",
+  sus4: "sus4",
+};
+/** A chord by root and triad: "C", "Am", "Bdim". */
+const chordName = (pc: number, triad: ReturnType<typeof triadQuality>): string =>
+  `${pcName(pc)}${TRIAD_SUFFIX[triad]}`;
 
 /**
  * Every item under "For every song" in spec §8: each flavour evaluates (with the song's tempo line), is not silent,
@@ -377,8 +406,10 @@ export async function checkSong(def: UnitSongDef): Promise<SongIssue[]> {
     }
     const bad = r.logs.filter((l) => BAD_LOG.test(l));
     if (bad.length) add("usong.eval", f, `Strudel says: ${bad.join(" | ")}`);
-    if (r.events.length === 0) {
-      add("usong.silent", f, "plays nothing");
+    // Only what is heard counts: a track at gain 0 still makes events.
+    const sounding = r.events.filter(heard);
+    if (sounding.length === 0) {
+      add("usong.silent", f, "plays nothing anyone can hear");
       continue;
     }
 
@@ -398,7 +429,7 @@ export async function checkSong(def: UnitSongDef): Promise<SongIssue[]> {
       if (consts === null || consts.length !== layout.length) continue; // the schema reports it
       layout.forEach(({ section, start }, i) => {
         if (consts[i] === "silence") return;
-        const sounds = r.events.some(
+        const sounds = sounding.some(
           (e) => e.track === part.label && e.onset >= start - EPS && e.onset < start + section.bars - EPS,
         );
         if (!sounds)
@@ -472,8 +503,8 @@ export async function checkSong(def: UnitSongDef): Promise<SongIssue[]> {
     },
     {
       code: "usong.flavour-chords",
-      of: (v, b) => (v.chords[b] ?? []).map(pcName).join(" "),
-      say: (x, b) => `the chords in ${where(b)} have roots [${x}]`,
+      of: (v, b) => (v.chords[b] ?? []).join(" "),
+      say: (x, b) => `the chords in ${where(b)} are [${x}]`,
     },
   ];
   const flavours = [...views.keys()];
@@ -714,12 +745,19 @@ export async function checkSongStep(
   if (code === null) add("usong.reference", "the Make has no passing test with code to read the take from");
   else if (typeof reading === "string") add("usong.reference", reading);
 
-  // The key of every section the take plays in, when the take is pitched.
+  // The key of every section the take plays in, when the take is pitched. A reference with its own arrange() fills
+  // only the song sections of the types it names (spec §5.2); the others keep their owner, and their key.
   const pitched =
     step.parts.some((p) => byId.get(p)?.role !== "drums") ||
     (reading !== null && typeof reading !== "string" && reading.pitched.length > 0);
+  const named =
+    reading !== null && typeof reading !== "string" && reading.sections !== null
+      ? new Set(reading.sections.map((s) => s.label))
+      : null;
+  const fills =
+    named === null ? sections : sections.filter((id) => named.has(layout.get(id)?.section.type ?? ""));
   if (pitched)
-    for (const id of sections) {
+    for (const id of fills) {
       const k = layout.get(id)?.section.key ?? def.key;
       if (!sameKey(k, key)) add("usong.key", `the Make is in ${keyName(key)}; ${id} is in ${keyName(k)}`);
     }

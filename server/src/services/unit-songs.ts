@@ -49,6 +49,20 @@ const CELL = /^[a-z][a-z0-9-]*@[a-z][a-z0-9-]*$/;
 const NOTHING_PLAYED = { parts: new Set<string>(), playsChords: false } as const;
 const isFlavour = (f: string): f is FlavourId => (FLAVOUR_IDS as readonly string[]).includes(f);
 
+/**
+ * The tempo a Make's code sets (`setcpm(96/4)` → 96, the last uncommented one, as the last call wins), or `null`.
+ * The server never evaluates code; Oak's convention writes the tempo as `setcpm(<bpm>/<beats per bar>)`.
+ */
+export function codeBpm(code: string): number | null {
+  const text = code.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/.*$/gm, "$1");
+  let bpm: number | null = null;
+  for (const m of text.matchAll(/\bsetcpm\(\s*(\d+(?:\.\d+)?)\s*\/\s*\d+(?:\.\d+)?\s*\)/g)) {
+    const n = Number(m[1]);
+    if (Number.isFinite(n) && n > 0) bpm = n;
+  }
+  return bpm;
+}
+
 /** A recorded take with the sketch version it plays (a take whose sketch the learner deleted plays nothing). */
 interface LiveTake {
   row: UnitSongTakeRow;
@@ -193,7 +207,7 @@ export class UnitSongsService {
   start(unitId: string, flavour: FlavourId): UnitSongDetail {
     const def = this.#needDef(unitId);
     tx(this.#repos.db, () => {
-      this.#repos.unitSongs.insert({
+      const created = this.#repos.unitSongs.insert({
         unitId,
         songId: def.id,
         songVersion: def.version,
@@ -203,7 +217,8 @@ export class UnitSongsService {
         styleSeen: true,
         createdAt: this.time.iso(),
       });
-      this.#backfillUnit(def, false);
+      // Only a song this start created gets the unit's earlier Makes: a song that exists keeps its takes as they are.
+      if (created) this.#backfillUnit(def, false);
     });
     return this.get(unitId);
   }
@@ -308,7 +323,7 @@ export class UnitSongsService {
       const flavour = isFlavour(row.flavour) ? row.flavour : this.#profileFlavour();
       const latest = songs.releases(unitId).at(-1);
       const alive = latest !== undefined && songs.albumTrackExists(latest.albumTrackId);
-      if (latest !== undefined && alive && !this.#changedSince(latest, flavour, takes)) {
+      if (latest !== undefined && alive && !this.#changedSince(latest, def, flavour, takes)) {
         songs.patch(unitId, { title });
         return { albumTrackId: latest.albumTrackId, albumVersion: latest.albumVersion, releaseId: latest.id };
       }
@@ -326,6 +341,8 @@ export class UnitSongsService {
       if (latest !== undefined && alive) {
         trackId = latest.albumTrackId;
         version = this.deps.library.addTrackVersion(trackId, album).currentVersion;
+        // The track is named and coloured as its newest release; each older snapshot keeps its own title and style.
+        songs.setAlbumTrackMeta(trackId, title, flavour);
       } else {
         const track = this.deps.library.createTrack({
           capstoneId: null,
@@ -378,8 +395,10 @@ export class UnitSongsService {
 
   /**
    * The backfill (spec §5.6a), at start-up and after an import of a backup from before songs: every unit whose song
-   * has a completed take lesson gets its song (in the profile's style, `backfilled`, style not seen yet), and every
-   * completed take lesson with no take yet gets one from the learner's latest lesson-make sketch of it. Idempotent.
+   * has a completed take lesson and no song yet gets its song (in the profile's style, `backfilled`, style not seen
+   * yet), with one take per completed take lesson from the learner's latest lesson-make sketch of it. A song that
+   * exists is never touched: its takes are the ones the learner recorded (or a restored backup holds), and a
+   * start-up must not add to them or change who owns a cell. Idempotent.
    */
   backfill(): { songs: number; takes: number } {
     let songs = 0;
@@ -387,9 +406,9 @@ export class UnitSongsService {
     this.#index();
     for (const def of this.#byUnit?.values() ?? []) {
       tx(this.#repos.db, () => {
-        const had = this.#repos.unitSongs.get(def.unit) !== null;
+        if (this.#repos.unitSongs.get(def.unit) !== null) return;
         takes += this.#backfillUnit(def, true);
-        if (!had && this.#repos.unitSongs.get(def.unit) !== null) songs += 1;
+        if (this.#repos.unitSongs.get(def.unit) !== null) songs += 1;
       });
     }
     return { songs, takes };
@@ -457,7 +476,7 @@ export class UnitSongsService {
         sketchVersion: v.version,
         cells: claimsOf(def, step, NOTHING_PLAYED),
         labels: {},
-        bpm: v.bpm !== null && v.bpm > 0 ? v.bpm : def.bpm,
+        bpm: codeBpm(v.code) ?? (v.bpm !== null && v.bpm > 0 ? v.bpm : def.bpm),
         backfilled: true,
         // The take dates from the Make it plays, so takes stay in the order the learner made them.
         createdAt: v.createdAt,
@@ -495,11 +514,37 @@ export class UnitSongsService {
     return out;
   }
 
-  /** A take or the style changed since a release: another take, or a take's cells refined, or a new flavour. */
-  #changedSince(release: UnitSongReleaseRow, flavour: string, takes: readonly LiveTake[]): boolean {
+  /**
+   * Whether the song would play differently from a release: another style, another version of the song's
+   * definition or of Oak's code, another take, or a take whose saved version, cells, track labels or tempo changed.
+   */
+  #changedSince(
+    release: UnitSongReleaseRow,
+    def: UnitSongDef | null,
+    flavour: FlavourId,
+    takes: readonly LiveTake[],
+  ): boolean {
     if (release.flavour !== flavour) return true;
-    const then = (release.takes as Partial<UnitSongSnapshotTake>[]).map((t) => [t.takeId, t.cells ?? []]);
-    const now = takes.map((t) => [t.row.id, t.row.cells]);
+    if (def !== null && (release.songVersion !== def.version || release.oakCode !== def.code[flavour]))
+      return true;
+    const labels = (l: Readonly<Record<string, string | null>> | undefined) =>
+      Object.entries(l ?? {}).sort(([a], [b]) => a.localeCompare(b));
+    const then = (release.takes as Partial<UnitSongSnapshotTake>[]).map((t) => [
+      t.takeId,
+      t.sketchId,
+      t.sketchVersion,
+      t.cells ?? [],
+      labels(t.labels),
+      t.bpm,
+    ]);
+    const now = takes.map((t) => [
+      t.row.id,
+      t.row.sketchId,
+      t.row.sketchVersion,
+      t.row.cells,
+      labels(t.row.labels),
+      t.row.bpm,
+    ]);
     return JSON.stringify(then) !== JSON.stringify(now);
   }
 
@@ -582,7 +627,7 @@ export class UnitSongsService {
       flavour,
       title: row.title,
       status: row.status,
-      changedSinceRelease: latest !== undefined && this.#changedSince(latest, flavour, live),
+      changedSinceRelease: latest !== undefined && this.#changedSince(latest, def, flavour, live),
       releasable: def !== null && live.length > 0 && this.#done(def.releaseAfter),
       backfilled: row.backfilled,
       styleSeen: row.styleSeen,

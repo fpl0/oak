@@ -10535,6 +10535,10 @@
       "kind": "family"
     },
     {
+      "id": "flavour.electronic",
+      "kind": "flavour"
+    },
+    {
       "id": "flavour.funk",
       "kind": "flavour"
     },
@@ -12244,6 +12248,10 @@
       "kind": "sound"
     },
     {
+      "id": "snd.breaks",
+      "kind": "sound"
+    },
+    {
       "id": "snd.brk",
       "kind": "sound"
     },
@@ -12268,7 +12276,19 @@
       "kind": "sound"
     },
     {
+      "id": "snd.drum.bongo",
+      "kind": "sound"
+    },
+    {
       "id": "snd.drum.cb",
+      "kind": "sound"
+    },
+    {
+      "id": "snd.drum.clave",
+      "kind": "sound"
+    },
+    {
+      "id": "snd.drum.conga",
       "kind": "sound"
     },
     {
@@ -12328,6 +12348,14 @@
       "kind": "sound"
     },
     {
+      "id": "snd.foley",
+      "kind": "sound"
+    },
+    {
+      "id": "snd.glockenspiel",
+      "kind": "sound"
+    },
+    {
       "id": "snd.horns",
       "kind": "sound"
     },
@@ -12340,7 +12368,31 @@
       "kind": "sound"
     },
     {
+      "id": "snd.kalimba",
+      "kind": "sound"
+    },
+    {
+      "id": "snd.lofikit",
+      "kind": "sound"
+    },
+    {
+      "id": "snd.marimba",
+      "kind": "sound"
+    },
+    {
       "id": "snd.mutetpt",
+      "kind": "sound"
+    },
+    {
+      "id": "snd.noise",
+      "kind": "sound"
+    },
+    {
+      "id": "snd.oak808",
+      "kind": "sound"
+    },
+    {
+      "id": "snd.oak909",
       "kind": "sound"
     },
     {
@@ -12360,11 +12412,23 @@
       "kind": "sound"
     },
     {
+      "id": "snd.rockkit",
+      "kind": "sound"
+    },
+    {
+      "id": "snd.sbd",
+      "kind": "sound"
+    },
+    {
       "id": "snd.strings",
       "kind": "sound"
     },
     {
       "id": "snd.tenor",
+      "kind": "sound"
+    },
+    {
+      "id": "snd.textures",
       "kind": "sound"
     },
     {
@@ -12401,6 +12465,10 @@
     },
     {
       "id": "snd.wave.triangle",
+      "kind": "sound"
+    },
+    {
+      "id": "snd.wt",
       "kind": "sound"
     },
     {
@@ -18116,6 +18184,10 @@
       "kind": "tool"
     },
     {
+      "id": "tb.density",
+      "kind": "tool"
+    },
+    {
       "id": "tb.dict.guidetones",
       "kind": "tool"
     },
@@ -18137,6 +18209,10 @@
     },
     {
       "id": "tb.distorttype",
+      "kind": "tool"
+    },
+    {
+      "id": "tb.drive",
       "kind": "tool"
     },
     {
@@ -18253,6 +18329,10 @@
     },
     {
       "id": "tb.fscope",
+      "kind": "tool"
+    },
+    {
+      "id": "tb.ftype",
       "kind": "tool"
     },
     {
@@ -18460,6 +18540,10 @@
       "kind": "tool"
     },
     {
+      "id": "tb.penv",
+      "kind": "tool"
+    },
+    {
       "id": "tb.phaser",
       "kind": "tool"
     },
@@ -18621,6 +18705,10 @@
     },
     {
       "id": "tb.voicing.n",
+      "kind": "tool"
+    },
+    {
+      "id": "tb.wt",
       "kind": "tool"
     },
     {

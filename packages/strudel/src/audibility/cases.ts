@@ -338,6 +338,27 @@ export const CONTROL_CASES: ControlCase[] = [
     base: `stack(${ARP}.orbit(1), s("~ bd ~ bd").orbit(2).duckorbit(1).duckdepth(0.3))`,
     withCode: `stack(${ARP}.orbit(1), s("~ bd ~ bd").orbit(2).duckorbit(1).duckdepth(1))`,
   },
+  // Sound pack v4 controls (docs/design/samples/proposal.md §5.2).
+  { id: "tb.ftype", control: "ftype", value: "ladder", base: `${ARP}.lpf(500).lpq(15)` },
+  { id: "tb.penv", control: "penv", value: 24, base: 'note("c2 ~ c2 ~").s("sine").decay(.4).sustain(0)' },
+  {
+    id: "tb.penv",
+    control: "pdecay",
+    value: 0.3,
+    base: 'note("c2 ~ c2 ~").s("sine").penv(24).decay(.4).sustain(0)',
+  },
+  {
+    id: "tb.penv",
+    control: "pattack",
+    value: 0.3,
+    base: 'note("c2 ~ c2 ~").s("sine").penv(24).decay(.4).sustain(0)',
+  },
+  { id: "tb.drive", control: "drive", value: 3, base: `${ARP}.lpf(800).ftype("ladder")` },
+  { id: "tb.density", control: "density", value: 0.3, base: 's("crackle")' },
+  { id: "tb.wt", control: "wt", value: 0.8, base: 'note("c3 e3 g3 c4").s("wt_morph")' },
+  { id: "tb.wt", control: "wtenv", value: 1, base: 'note("c3 e3 g3 c4").s("wt_morph").wtdecay(.3)' },
+  { id: "tb.wt", control: "wtrate", value: 4, base: 'note("c3 e3 g3 c4").s("wt_morph").wtdepth(1)' },
+  { id: "tb.wt", control: "wtdepth", value: 1, base: 'note("c3 e3 g3 c4").s("wt_morph").wtrate(4)' },
   { id: "tb.velocity", control: "velocity", value: 0.3 },
   { id: "tb.gain", control: "gain", value: 0.3 },
   // Wave 4: the pattern, chord and voicing tools U05–U07 unlock (the voicing gate's tools included). A pattern
@@ -381,6 +402,45 @@ export const SOUND_CASES: SoundCase[] = [
   ...["RolandTR909", "RolandTR808", "LinnDrum", "AkaiLinn", "RolandTR707"].map(bank),
   { id: "snd.jazzkit", sound: "jazzkit", code: 's("bd sd hh rd").bank("jazzkit")' },
   { id: "snd.brk", sound: "brk", code: 's("brk")' },
+  // Sound pack v4: Oak's kits, the retired bank names that now play them (above), breaks, percussion, textures.
+  ...["oak909", "oak808", "rockkit", "lofikit"].map((kit) => ({
+    id: `snd.${kit}`,
+    sound: kit,
+    code: `s("bd sd hh cp").bank("${kit}")`,
+  })),
+  ...["clave", "conga", "bongo"].map(drum),
+  ...["brkfunk", "brkboombap", "brkjungle", "brkhouse", "brkjazz", "brklofi"].map((b) => ({
+    id: "snd.breaks",
+    sound: b,
+    code: `s("${b}")`,
+  })),
+  ...["foley", "snap", "impact", "swoosh", "scratch", "drone"].map((f) => ({
+    id: "snd.foley",
+    sound: f,
+    code: `s("${f} ${f}")`,
+  })),
+  ...["vinyl", "tape"].map((t) => ({ id: "snd.textures", sound: t, code: `s("${t}")` })),
+  ...["white", "pink", "brown"].map((n) => ({ id: "snd.noise", sound: n, code: `s("${n} ${n}")` })),
+  // crackle's default density (0.02) is a click or two a second: heard at the density lessons use
+  { id: "snd.noise", sound: "crackle", code: 's("crackle crackle").density(0.3)' },
+  { id: "snd.sbd", sound: "sbd", code: 's("sbd sbd")' },
+  ...[
+    "wt_basic",
+    "wt_organ",
+    "wt_epiano",
+    "wt_bass",
+    "wt_fm",
+    "wt_chip",
+    "wt_voice",
+    "wt_clav",
+    "wt_morph",
+    "wt_pwm",
+    "wt_drawbar",
+    "wt_fmsweep",
+  ].map((w) => pitched("snd.wt", w)),
+  pitched("snd.marimba", "marimba", "c4 e4 g4 c5"),
+  pitched("snd.kalimba", "kalimba", "c4 e4 g4 c5"),
+  pitched("snd.glockenspiel", "glockenspiel", "c6 e6 g6 c7"),
   pitched("snd.piano", "piano"),
   ...["sine", "triangle", "square", "sawtooth", "supersaw", "pulse"].map((w) => pitched(`snd.wave.${w}`, w)),
   pitched("snd.ebass", "ebass", "c2 e2 g2 c3"),
@@ -448,6 +508,10 @@ export const QUALITY_CASES: QualityCase[] = [
   q("clav", [45, 57, 69], MID),
   q("pad", [45, 57, 69], MID),
   q("choir", [45, 57, 69], MID),
+  q("marimba", [57, 69, 81], MID),
+  // the top tines (B4 up) ring for under 0.3 s: too short for the tuning window, so the measured notes are lower
+  q("kalimba", [61, 69], MID),
+  q("glockenspiel", [81, 93], "c6 e6 g6 c7"),
 ];
 
 /**
@@ -593,6 +657,24 @@ export const A1_CASES: LessonCase[] = [
     `${A1_RIFF}.s("sawtooth")`,
     `${A1_RIFF}.s("sawtooth").bpf(800)`,
     "the riff through .bpf(800)",
+  ),
+  // Sound pack v4: the ladder filter (A1.L02), heard on the lesson's bass
+  a1(
+    "A1.L02",
+    "tb.ftype",
+    "ftype",
+    `${A1_BASS}.s("sawtooth").lpf(500).lpq(15)`,
+    `${A1_BASS}.s("sawtooth").lpf(500).lpq(15).ftype("ladder")`,
+    "the acid squelch: the bass through the ladder filter",
+  ),
+  // Sound pack v4: the pitch envelope (A1.L03), a falling sine on the lesson's bass notes
+  a1(
+    "A1.L03",
+    "tb.penv",
+    "penv",
+    `${A1_BASS}.s("sine").decay(.3).sustain(0)`,
+    `${A1_BASS}.s("sine").penv(24).pdecay(.06).decay(.3).sustain(0)`,
+    "a kick-like drop at the start of each bass note",
   ),
   // A1.L03 Envelopes
   a1(
@@ -1049,6 +1131,31 @@ const a2 = (
 });
 
 export const W7_LESSON_CASES: LessonCase[] = [
+  // Sound pack v4: drive and crackle density (A1.L05), the morphing table (A1.L06)
+  a1(
+    "A1.L05",
+    "tb.drive",
+    "drive",
+    `${A1_BASS}.s("sawtooth").lpf(800).ftype("ladder")`,
+    `${A1_BASS}.s("sawtooth").lpf(800).ftype("ladder").drive(3)`,
+    "the ladder filter's drive on the bass",
+  ),
+  a1(
+    "A1.L05",
+    "tb.density",
+    "density",
+    's("crackle").density(.05)',
+    's("crackle").density(.4)',
+    "a crackle bed thickened",
+  ),
+  a1(
+    "A1.L06",
+    "tb.wt",
+    "wt",
+    `${A1_RIFF}.s("wt_morph").wt(0)`,
+    `${A1_RIFF}.s("wt_morph").wt(1)`,
+    "the morph table from saw to square",
+  ),
   // A1.L05 Grit
   a1(
     "A1.L05",

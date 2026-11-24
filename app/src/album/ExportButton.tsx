@@ -1,8 +1,10 @@
 // "Export" on an album track (carry f2; wave7.md §5.5): the released version rendered offline as a WAV download,
 // with its progress, a Cancel, and a plain sentence when it fails (nothing is saved then, and no partial file is
 // offered). The file is exactly what the version plays (`album.source`: its code, its Band at release, its key, its
-// mutes). The real-time take stays the release recording: an export is never stored as a take.
-import { renderPiece } from "@oak/strudel/offline";
+// mutes; a released unit song: its frozen release, `songs.snapshot`). The real-time take stays the release
+// recording: an export is never stored as a take.
+import type { UnitId } from "@oak/api";
+import { type RenderPieceRequest, renderPiece } from "@oak/strudel/offline";
 import { useQueryClient } from "@tanstack/react-query";
 import { FileAudio, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -18,6 +20,7 @@ import {
 import { formatDuration } from "../lib/format.ts";
 import { analyzeCode } from "../lib/grader-client.ts";
 import { apiQuery, useCourseProgress } from "../lib/queries.ts";
+import { songReleaseRenderRequest } from "../song/surfaces-model.ts";
 import { bandReached } from "../studio/model.ts";
 import { Button } from "../ui/kit/Button.tsx";
 
@@ -75,20 +78,35 @@ export function ExportButton({
         staleTime: 0,
       });
       stopIfCancelled();
-      // A loop is rendered for its own length (the renderer takes only a piece that says where it ends).
-      const bars = await pieceLength(source.code, analyzeCode);
-      stopIfCancelled();
-      // The Band as it played at release: `album.source` stores its state, the code is built here.
-      const bundle = content.data ?? (await content.refetch()).data;
-      stopIfCancelled();
-      const request = renderRequestOf(source, {
-        bands: bundle?.bands ?? [],
-        capstone: bundle?.capstones.find((c) => c.id === capstoneId) ?? null,
-        reached: bandReached(progress.data),
-      });
+      let request: Pick<RenderPieceRequest, "code" | "band" | "key" | "mutes">;
+      if (source.songRelease) {
+        // A released unit song plays its frozen release (`songs.snapshot`): every take and Oak's code as released,
+        // never the newest take's code alone (contracts §5.11 rule 18).
+        const { unitId, releaseId } = source.songRelease;
+        const snapshot = await qc.fetchQuery({
+          ...apiQuery("songs.snapshot", {
+            params: { unitId: unitId as UnitId, releaseId: String(releaseId) },
+          }),
+          staleTime: 0,
+        });
+        stopIfCancelled();
+        request = songReleaseRenderRequest(snapshot);
+      } else {
+        // A loop is rendered for its own length (the renderer takes only a piece that says where it ends).
+        const bars = await pieceLength(source.code, analyzeCode);
+        stopIfCancelled();
+        // The Band as it played at release: `album.source` stores its state, the code is built here.
+        const bundle = content.data ?? (await content.refetch()).data;
+        stopIfCancelled();
+        const own = renderRequestOf(source, {
+          bands: bundle?.bands ?? [],
+          capstone: bundle?.capstones.find((c) => c.id === capstoneId) ?? null,
+          reached: bandReached(progress.data),
+        });
+        request = { ...own, code: renderableCode(source.code, bars) };
+      }
       const piece = await renderPiece({
         ...request,
-        code: renderableCode(source.code, bars),
         signal: c.signal,
         onProgress: (p) => {
           if (!c.signal.aborted) setPhase({ kind: "working", progress: p });

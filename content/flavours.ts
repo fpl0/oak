@@ -72,6 +72,25 @@ export const flavours: readonly FlavourKit[] = [
       pan: { drums: 0.5, bass: 0.5, chords: 0.42, lead: 0.58 },
     },
   }),
+  // Electronic (sound pack v4, docs/design/samples/proposal.md §4): Oak's synthesised 909-style machine, a sawtooth
+  // bass (an acid line under a resonant ladder filter whose envelope opens above the corner, or a sine sub in the
+  // softer sections), sawtooth stabs and pads for the chords, a square pluck for the lead. Dry and club-like: the
+  // least room of the kits, the bass corner low so the filter envelope has somewhere to open.
+  defineFlavour({
+    id: "flavour.electronic",
+    title: "Electronic",
+    drums: "snd.oak909",
+    bass: "snd.wave.sawtooth",
+    chords: "snd.wave.sawtooth",
+    lead: "snd.wave.square",
+    chordDepth: "seventh",
+    production: {
+      room: 0.2,
+      bassLpf: 700,
+      humanizeVelocity: 0.08,
+      pan: { drums: 0.5, bass: 0.5, chords: 0.4, lead: 0.6 },
+    },
+  }),
 ];
 export default flavours;
 
@@ -80,7 +99,8 @@ export const FLAVOUR_RULES: Readonly<
   Record<
     FlavourId,
     {
-      ships: "W2" | "W5";
+      /** The wave a kit shipped in: W2 (pop, jazz-soul), W5 (indie, funk), S1 (electronic, with the unit songs). */
+      ships: "W2" | "W5" | "S1";
       /** Seventh chords from this lesson on; triads before. Absent: always `chordDepth`. */
       seventhsFrom?: LessonId;
       /** Swing (or the 16th feel) from this lesson on; straight before. */
@@ -93,6 +113,8 @@ export const FLAVOUR_RULES: Readonly<
   "flavour.jazz-soul": { ships: "W2", seventhsFrom: "U03.L01", feelFrom: "U03.L01", feel: "swing-8" },
   "flavour.indie": { ships: "W5", feel: "straight" },
   "flavour.funk": { ships: "W5", seventhsFrom: "U06.L01", feel: "16th" },
+  // Sevenths (sixth chords on I and IV, as funk plays them) from U06.L10, "Seventh Colour"; straight throughout.
+  "flavour.electronic": { ships: "S1", seventhsFrom: "U06.L10", feel: "straight" },
 };
 
 /** Production ranges every kit must sit in (contracts §5.10). content/validate checks the kits against them. */

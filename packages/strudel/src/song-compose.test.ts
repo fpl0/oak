@@ -3,7 +3,14 @@
 // drum hits filtered to the parts a source still owns, a learner arrange() mapped by section type, a source's tempo
 // neutralised, the live Make owning today's cells, and the static helpers the app builds on (spec §5.2).
 import { beforeAll, describe, expect, test } from "bun:test";
-import { type CellKey, resolveGrid, type TakeStep, type UnitSongDef } from "@oak/content-kit";
+import {
+  type CellKey,
+  type LintContext,
+  resolveGrid,
+  type TakeStep,
+  type UnitSongDef,
+} from "@oak/content-kit";
+import { lintOak } from "@oak/grader";
 import * as core from "@strudel/core";
 import * as mini from "@strudel/mini";
 import * as tonal from "@strudel/tonal";
@@ -22,13 +29,17 @@ import { PieceRenderError } from "./offline/errors.ts";
 import { validateRequest } from "./offline/request.ts";
 import {
   composeSongPatterns,
+  roleOfTrack,
   type SongBand,
+  type SongCheck,
   songBandFromWire,
   songBandToWire,
   songBandTracks,
   songFormView,
   songLengthBars,
+  songLintContext,
   sourceSectionsOf,
+  trackFacts,
 } from "./song-compose.ts";
 import type { BandSetup, MuteMap } from "./types.ts";
 
@@ -72,6 +83,7 @@ function songOf(sections: [id: string, type: string, bars: number][], code = "")
       "flavour.indie": code,
       "flavour.jazz-soul": code,
       "flavour.funk": code,
+      "flavour.electronic": code,
     },
     plan: [],
     releaseAfter: "U01.CP",
@@ -306,10 +318,58 @@ describe("composeSongPatterns", () => {
   });
 });
 
+describe("review s1a: what a source plays", () => {
+  test("a numbered variant on one track survives another track repeating the plain section", async () => {
+    const def = songOf([
+      ["chorus1", "chorus", 4],
+      ["chorus2", "chorus", 4],
+    ]);
+    const code = [
+      'const drumsChorus = s("bd*4")',
+      'const melChorus = note("c4")',
+      'const melChorus2 = note("e4")',
+      "drums: arrange([4, drumsChorus], [4, drumsChorus])",
+      "mel: arrange([4, melChorus], [4, melChorus2])",
+    ].join("\n");
+    expect(sourceSectionsOf(code)).toEqual([
+      { type: "chorus", startBar: 0, bars: 4 },
+      { type: "chorus", startBar: 4, bars: 4, variant: 2 },
+    ]);
+    const learner = await collectTracks(code);
+    const out = composeSongPatterns({
+      def,
+      lengthBars: 8,
+      oak: [],
+      sources: [
+        {
+          sourceId: "t",
+          lessonId: "U09.L03",
+          tracks: learner.map((t) => ({
+            ...t,
+            role: t.label === "drums" ? ("drums" as const) : ("melody" as const),
+          })),
+          sections: sourceSectionsOf(code),
+        },
+      ],
+      grid: resolveGrid(def, [{ sourceId: "t", cells: ["lead@chorus1", "lead@chorus2"] }]),
+    });
+    const notes = onsets(trackOf(out, "band.take.U09.L03.mel"), 0, 8).map((o) => `${o.bar}:${o.value.note}`);
+    expect(notes).toEqual(["0:c4", "1:c4", "2:c4", "3:c4", "4:e4", "5:e4", "6:e4", "7:e4"]);
+  });
+
+  test("a phrase with one two-note chord among single notes is a tune, not chords", async () => {
+    const [keys] = await collectTracks('keys: note("[c4,e4] d4 e4 f4 g4 a4")');
+    if (!keys) throw new Error("no track");
+    const facts = trackFacts(keys.pattern, 1);
+    expect(facts.chordShare).toBeCloseTo(1 / 6, 10);
+    expect(roleOfTrack("keys", facts)).toBe("melody");
+  });
+});
+
 // --- evaluation: the adapter's song path, in a headless repl like the editor's ----------------------------------
 
 interface Harness {
-  evaluate(code: string, band: SongBand | null, check?: (code: string) => boolean): Promise<Pattern>;
+  evaluate(code: string, band: SongBand | null, check?: SongCheck): Promise<Pattern>;
   session: EvalSession;
   cps(): number;
   setCps(cps: number): void;
@@ -317,7 +377,7 @@ interface Harness {
 }
 
 function harness(): Harness {
-  let pending: { band: SongBand; check?: (code: string) => boolean; code: string } | null = null;
+  let pending: { band: SongBand; check?: SongCheck; code: string } | null = null;
   const h: Harness = {
     session: newSession(),
     mutes: { muted: new Set(), solo: null },
@@ -342,7 +402,7 @@ function harness(): Harness {
         const check = pending.check;
         await evaluateSongBand(h.session, pending.band, {
           liveCode: pending.code,
-          ...(check ? { check: (c: string) => check(c) } : {}),
+          ...(check ? { check } : {}),
         });
       }
     },
@@ -437,6 +497,70 @@ describe("evaluateSongBand", () => {
     const tracks = new Set(onsets(pattern, 0, 4).map((o) => o.track));
     expect(tracks.has("band.oak.kick")).toBe(true);
     expect([...tracks].some((t) => t.startsWith("band.take."))).toBe(false);
+  });
+
+  test("a saved take is checked as the learner's own code, Oak's code as authored Band code", async () => {
+    const ctx: LintContext = {
+      profile: "content",
+      unlocked: new Set(),
+      allowPreview: false,
+      meter: "4/4",
+      key: null,
+    };
+    const check: SongCheck = (code, who) => lintOak(code, songLintContext(ctx, who), []).ok;
+    // `$:` is the learner's to use; authored code names its tracks.
+    const take = 'setcpm(100/4)\n$: s("bd*2")';
+    expect(check(take, "oak")).toBe(false);
+    expect(check(take, "source")).toBe(true);
+    const def = songOf([["verse", "verse", 4]], OAK_DRUMS);
+    const h = harness();
+    const band = bandOf(def, {
+      sources: [{ sourceId: "t1", lessonId: "U01.L01", code: take }],
+      grid: resolveGrid(def, [{ sourceId: "t1", cells: ["kick@verse"] }]),
+    });
+    const pattern = await h.evaluate('hats2: s("oh")', band, check);
+    const tracks = new Set(onsets(pattern, 0, 4).map((o) => o.track));
+    expect(tracks.has("band.take.U01.L01.$0")).toBe(true);
+    expect(tracks.has("band.oak.kick")).toBe(false);
+  });
+
+  test("a part the live Make brings in after a long intro is still its own", async () => {
+    const def = songOf(
+      [
+        ["intro", "intro", 16],
+        ["chorus", "chorus", 4],
+      ],
+      OAK_FULL,
+    );
+    const h = harness();
+    const band = bandOf(def, {
+      live: { sourceId: "live", sections: "all", step: takeStep("all", ["kick"]) },
+    });
+    const code = [
+      'const kickIntro = s("bd*4")',
+      'const kickChorus = s("bd*4")',
+      'const melChorus = note("c5 e5")',
+      "kick: arrange([16, kickIntro], [4, kickChorus])",
+      "mel: arrange([16, silence], [4, melChorus])",
+    ].join("\n");
+    const pattern = await h.evaluate(code, band);
+    const chorus = onsets(pattern, 16, 20);
+    expect(chorus.some((o) => o.track === "mel")).toBe(true);
+    // The learner's tune plays the chorus: Oak's does not play over it.
+    expect(chorus.some((o) => o.track === "band.oak.mel")).toBe(false);
+  });
+
+  test("a label written twice plays only its last pattern, and claims only what that plays", async () => {
+    const def = songOf([["verse", "verse", 4]], OAK_DRUMS);
+    const h = harness();
+    const band = bandOf(def, {
+      live: { sourceId: "live", sections: ["verse"], step: takeStep(["verse"], ["snare"]) },
+    });
+    const pattern = await h.evaluate('drums: s("bd")\ndrums: s("~ sd")', band);
+    const all = onsets(pattern, 0, 4);
+    // Strudel replaces the first `drums:` with the second: only the snare plays, so Oak keeps its kick.
+    expect(all.filter((o) => o.track === "band.oak.kick").length).toBeGreaterThan(0);
+    expect(all.some((o) => o.track === "band.oak.snare")).toBe(false);
   });
 
   test("a source whose code does not run falls back to Oak", async () => {

@@ -246,7 +246,9 @@ export function setlistRows(
               label: "Make",
               amount: makeMin,
               unit: "min",
-              detail: "A short sketch with today's tools",
+              // A take lesson's Make plays inside the unit's song (spec 2026-11-24 §5.5): its line says where.
+              detail:
+                plan.song?.today && !plan.song.side ? plan.song.today : "A short sketch with today's tools",
             },
       );
       break;

@@ -47,7 +47,12 @@ export type CanDoId = `cd.${string}.${string}`;
 export type MilestoneId = `ms.${number}`;
 export type TermId = `term.${string}`;
 export type SongId = `song.${string}`;
-export type FlavourId = "flavour.pop" | "flavour.indie" | "flavour.jazz-soul" | "flavour.funk";
+export type FlavourId =
+  | "flavour.pop"
+  | "flavour.indie"
+  | "flavour.jazz-soul"
+  | "flavour.funk"
+  | "flavour.electronic";
 export type BandId = `band.${string}`;
 /** A unit's song (spec 2026-11-24 §5.1): `usong.U01`, `usong.J1`. Not `song.*`, which is the repertoire. */
 export type UnitSongId = `usong.${UnitId}`;
@@ -82,7 +87,13 @@ export const FEEDBACK_AREAS = [
 ] as const;
 export type FeedbackArea = (typeof FEEDBACK_AREAS)[number];
 
-export const FLAVOUR_IDS = ["flavour.pop", "flavour.indie", "flavour.jazz-soul", "flavour.funk"] as const;
+export const FLAVOUR_IDS = [
+  "flavour.pop",
+  "flavour.indie",
+  "flavour.jazz-soul",
+  "flavour.funk",
+  "flavour.electronic",
+] as const;
 
 /** `subject_kind` of a tutor thread (contracts §10.2). */
 export const SUBJECT_KINDS = [
@@ -131,7 +142,7 @@ export const ID_PATTERNS = {
   milestone: /^ms\.\d{2}$/,
   term: /^term\.[a-z0-9-]+$/,
   song: /^song\.[a-z0-9-]+$/,
-  flavour: /^flavour\.(?:pop|indie|jazz-soul|funk)$/,
+  flavour: /^flavour\.(?:pop|indie|jazz-soul|funk|electronic)$/,
   band: /^band\.[a-z0-9.-]+$/,
   unitSong: /^usong\.(?:U\d{2}|J[1-5]|R[1-3]|A[1-2])$/,
   feedback: new RegExp(`^(?:${FEEDBACK_AREAS.join("|")})(?:\\.[a-z0-9-]+){1,2}$`),

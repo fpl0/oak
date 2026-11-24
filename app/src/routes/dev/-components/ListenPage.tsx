@@ -62,18 +62,20 @@ async function loadExamples(): Promise<{ examples: ListenExample[]; source: "gen
   return { examples: fromLessons(lessons), source: "lessons" };
 }
 
-/** The pack's curated sounds: aliases, soundfonts and the non-machine sample maps (drum machines are banks). */
+/** The pack's curated sounds: aliases (GM and sample-backed), soundfonts, the plain sample maps, breaks and one-shots. */
 async function loadSounds(): Promise<ListenExample[]> {
   const res = await fetch("/sounds/manifest.json", { headers: { Accept: "application/json" } });
   if (!res.ok) throw new Error(`the sound pack manifest answered ${res.status}`);
   const m = (await res.json()) as {
     aliases?: Record<string, unknown>;
+    sampleAliases?: Record<string, unknown>;
     soundfonts?: Record<string, unknown>;
     sampleMaps?: { json: string; tag?: string }[];
   };
   const samples: Record<string, string[]> = {};
   for (const map of m.sampleMaps ?? []) {
-    if (map.tag) continue;
+    // Oak's kits are heard through their banks; breaks and one-shots (v4) are listed by name.
+    if (map.tag && map.tag !== "oak-breaks" && map.tag !== "oak-perc") continue;
     const r = await fetch(map.json, { headers: { Accept: "application/json" } });
     if (!r.ok) continue;
     const names = Object.keys((await r.json()) as Record<string, unknown>);
@@ -85,7 +87,7 @@ async function loadSounds(): Promise<ListenExample[]> {
     ] = names;
   }
   const pack: PackSounds = {
-    aliases: Object.keys(m.aliases ?? {}),
+    aliases: [...Object.keys(m.aliases ?? {}), ...Object.keys(m.sampleAliases ?? {})],
     soundfonts: Object.keys(m.soundfonts ?? {}),
     samples,
   };

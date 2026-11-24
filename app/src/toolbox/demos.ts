@@ -263,6 +263,43 @@ lead: note("<[c3 e3 g3 c4] [bb2 d3 f3 bb3]>").s("sawtooth").bpf(900)`,
     probes: ["filter"],
     hint: "Resonance lifts a peak right at the cutoff: the bass starts to sing. Try .lpq(2) and .lpq(20).",
   },
+  // Sound pack v4 (A1.L01–L03): wavetables, noise, the ladder filter, the synth kick and the pitch envelope.
+  "snd.wt": {
+    code: `setcpm(90/4)
+
+drums: s("bd ~ sd ~")
+mel: note("<[c3 e3 g3 e3] [a2 c3 e3 c3]>").s("wt_organ")`,
+    hint: "wt_organ is one cycle of an organ's wave, stored as a table and played as an oscillator. Try wt_epiano, wt_chip or wt_basic.",
+  },
+  "snd.noise": {
+    code: `setcpm(100/4)
+
+drums: s("bd ~ sd ~")
+fx: s("pink*8").lpf("<800 2000 4000 8000>").gain(.5)`,
+    probes: ["filter"],
+    hint: "Noise holds every frequency at once, so a filter shapes it plainly: each bar the cutoff opens. Try white and brown.",
+  },
+  "tb.ftype": {
+    code: BASS_SAW(`note("<[c2 c2 ~ g1] [bb1 bb1 ~ f1]>").s("sawtooth").lpf(500).lpq(16).ftype("ladder")`),
+    hint: 'The ladder filter squelches when the resonance is high: the acid bass sound. Remove .ftype("ladder") to hear the plain filter.',
+  },
+  "snd.sbd": {
+    code: `setcpm(100/4)
+
+kick: s("sbd ~ sbd ~")
+snare: s("~ sd ~ sd")
+hats: s("hh*8").gain(.4)`,
+    hint: "sbd is a kick made by a synth: a sine that falls in pitch. Compare it with bd.",
+  },
+  "tb.penv": {
+    code: `setcpm(100/4)
+
+kick: note("c2 ~ c2 ~").s("sine").penv(24).pdecay(.08).decay(.4).sustain(0)
+snare: s("~ sd ~ sd")
+hats: s("hh*8").gain(.4)`,
+    probes: ["envelope"],
+    hint: "Each note starts two octaves up and falls in 0.08 s: a sine becomes a kick. Try .penv(12) and .pdecay(.3).",
+  },
   "tb.lpenv": {
     code: BASS_SAW(`note("<[c2 c2 ~ g1] [bb1 bb1 ~ f1]>").s("sawtooth").lpf(300).lpenv(4).lpd(.2)`),
     probes: ["filter"],

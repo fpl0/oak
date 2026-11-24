@@ -20,13 +20,20 @@ import {
   newSession,
   songCps,
 } from "./evaluation.ts";
-import { ADAPTER_FEEDBACK, diagnostic, errorToDiagnostic, hasError, runLint } from "./lint-bridge.ts";
+import {
+  ADAPTER_FEEDBACK,
+  diagnostic,
+  errorToDiagnostic,
+  hasError,
+  type LintOutcome,
+  runLint,
+} from "./lint-bridge.ts";
 import { copyMutes, NO_MUTES } from "./mutes.ts";
 import { WARM_AHEAD_BARS, type WarmAhead } from "./preload.ts";
 import { isCleanRealism, type RealismSpec, realismSpec } from "./realism.ts";
 import { applyRealism } from "./realism-pattern.ts";
 import { captureMessageListeners, type Runtime, removeCaptured } from "./runtime.ts";
-import { songLengthBars } from "./song-compose.ts";
+import { type SongCheck, songLengthBars, songLintContext } from "./song-compose.ts";
 import type { CyclistLike } from "./transport.ts";
 import type { BandSetup, EvalOutcome, MuteMap, PatternPlayer } from "./types.ts";
 
@@ -64,6 +71,27 @@ const PRELOAD_BARS = 16;
 export const clampTranspose = (st: number): number =>
   Math.max(-12, Math.min(12, Math.round(Number.isFinite(st) ? st : 0)));
 
+/** The lint result of a load that has nothing of its own to lint. */
+const NOTHING_TO_LINT: LintOutcome = {
+  ok: true,
+  result: { ok: true, diagnostics: [], used: [], locked: [], lockedTools: [] },
+};
+
+/**
+ * What `load` evaluates, linted: a unit song with no code of its own (Today's and the song page's play) plays alone
+ * over the placeholder `silence`, which is neither the learner's code nor Oak's and is not linted (each code of the
+ * song is checked as it evaluates: `songLintContext`); any other code is linted with the load's context.
+ */
+export function lintForLoad(
+  lint: Runtime["lint"],
+  given: string,
+  band: BandSetup | null | undefined,
+  ctx: LintContext,
+): { code: string; outcome: LintOutcome } {
+  if (!given.trim() && band?.song) return { code: "silence", outcome: NOTHING_TO_LINT };
+  return { code: given, outcome: runLint(lint, given, ctx) };
+}
+
 let playerCount = 0;
 
 export function createPatternPlayer(rt: Runtime): PatternPlayer {
@@ -82,7 +110,7 @@ export function createPatternPlayer(rt: Runtime): PatternPlayer {
   let realism: RealismSpec = realismSpec(0);
   let pendingBand: PreparedBand | null = null;
   /** The Band lint of the current load, for each code of a unit song. */
-  let bandCheck: ((code: string) => boolean) | null = null;
+  let bandCheck: SongCheck | null = null;
   let bandFailure: unknown = null;
   let loadedTracks: string[] = [];
   let loadedBars = 1;
@@ -192,8 +220,8 @@ export function createPatternPlayer(rt: Runtime): PatternPlayer {
     ctx: LintContext,
   ): { ok: true; value: PreparedBand } | { ok: false; error: unknown } {
     if (!band) return { ok: false, error: null };
-    const check = (c: string): boolean => {
-      const linted = runLint(rt.lint, c, { ...ctx, profile: "band", allowPreview: true });
+    const check = (c: string, who: "oak" | "source" = "oak"): boolean => {
+      const linted = runLint(rt.lint, c, songLintContext(ctx, who));
       return linted.ok && linted.result.ok;
     };
     bandCheck = check;
@@ -225,8 +253,14 @@ export function createPatternPlayer(rt: Runtime): PatternPlayer {
       return playing && !disposed;
     },
     load(given, opts) {
-      // A unit song plays alone when the player is given no code of its own (Today's and the song page's play).
-      const code = !given.trim() && opts.band?.song ? "silence" : given;
+      const ctx: LintContext = opts.lint ?? {
+        profile: "content",
+        unlocked: new Set(),
+        allowPreview: true,
+        meter: "4/4",
+        key: null,
+      };
+      const { code, outcome: linted } = lintForLoad(rt.lint, given, opts.band, ctx);
       return rt.mutex.run(async (): Promise<EvalOutcome> => {
         const base: EvalOutcome = {
           ok: false,
@@ -243,14 +277,6 @@ export function createPatternPlayer(rt: Runtime): PatternPlayer {
             diagnostics: [diagnostic(ADAPTER_FEEDBACK.disposed, "error", "The player was closed.", code)],
           };
         }
-        const ctx: LintContext = opts.lint ?? {
-          profile: "content",
-          unlocked: new Set(),
-          allowPreview: true,
-          meter: "4/4",
-          key: null,
-        };
-        const linted = runLint(rt.lint, code, ctx);
         if (!linted.ok) return { ...base, diagnostics: [linted.diagnostic] };
         const lint = linted.result;
         if (!lint.ok || hasError(lint.diagnostics))

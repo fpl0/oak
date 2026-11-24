@@ -5,6 +5,102 @@
     "lessons": [
       {
         "lesson": "A1.L05",
+        "claim": "the ladder filter's drive on the bass",
+        "same": false,
+        "id": "tb.drive",
+        "control": "drive",
+        "value": "=",
+        "base": "note(\"<[c2 ~ c2 g1] [f1 ~ f1 c2]>\").s(\"sawtooth\").lpf(800).ftype(\"ladder\")",
+        "code": "note(\"<[c2 ~ c2 g1] [f1 ~ f1 c2]>\").s(\"sawtooth\").lpf(800).ftype(\"ladder\").drive(3)",
+        "audible": true,
+        "diffDb": -8.1,
+        "repeatDb": "-Infinity",
+        "spectralDb": -11,
+        "spectralRepeatDb": "-Infinity",
+        "width": [
+          0,
+          0
+        ],
+        "levelDb": -1.9,
+        "centroidHz": [
+          243,
+          233
+        ],
+        "balance": [
+          0,
+          0
+        ],
+        "tail": [
+          0.3371,
+          0.3382
+        ]
+      },
+      {
+        "lesson": "A1.L05",
+        "claim": "a crackle bed thickened",
+        "same": false,
+        "id": "tb.density",
+        "control": "density",
+        "value": "=",
+        "base": "s(\"crackle\").density(.05)",
+        "code": "s(\"crackle\").density(.4)",
+        "audible": true,
+        "diffDb": 10.1,
+        "repeatDb": "-Infinity",
+        "spectralDb": 7.8,
+        "spectralRepeatDb": "-Infinity",
+        "width": [
+          0,
+          0
+        ],
+        "levelDb": 9.6,
+        "centroidHz": [
+          11027,
+          11004
+        ],
+        "balance": [
+          0,
+          0
+        ],
+        "tail": [
+          0.277,
+          0.2735
+        ]
+      },
+      {
+        "lesson": "A1.L06",
+        "claim": "the morph table from saw to square",
+        "same": false,
+        "id": "tb.wt",
+        "control": "wt",
+        "value": "=",
+        "base": "n(\"<[4 4 2 4 ~ 2 0 ~] [5 5 3 5 ~ 3 0 ~]>\").scale(\"C4:major\").s(\"wt_morph\").wt(0)",
+        "code": "n(\"<[4 4 2 4 ~ 2 0 ~] [5 5 3 5 ~ 3 0 ~]>\").scale(\"C4:major\").s(\"wt_morph\").wt(1)",
+        "audible": true,
+        "diffDb": -0.2,
+        "repeatDb": "-Infinity",
+        "spectralDb": -1.1,
+        "spectralRepeatDb": "-Infinity",
+        "width": [
+          0,
+          0
+        ],
+        "levelDb": 4.7,
+        "centroidHz": [
+          4864,
+          4364
+        ],
+        "balance": [
+          0,
+          0
+        ],
+        "tail": [
+          0.2513,
+          0.2514
+        ]
+      },
+      {
+        "lesson": "A1.L05",
         "claim": "the Make's threshold: the bass at .distort(.5)",
         "same": false,
         "id": "tb.distort",
@@ -332,9 +428,9 @@
         "code": "note(\"<[c4,e4,g4] [c4,f4,a4]>\").s(\"sawtooth\").lpf(900).gain(.3).phaser(2)",
         "audible": true,
         "diffDb": -3.6,
-        "repeatDb": -149.4,
+        "repeatDb": -152.3,
         "spectralDb": -10.2,
-        "spectralRepeatDb": -168.5,
+        "spectralRepeatDb": -171.8,
         "width": [
           0,
           0
@@ -364,9 +460,9 @@
         "code": "note(\"<[c4,e4,g4] [c4,f4,a4]>\").s(\"sawtooth\").lpf(900).gain(.3).tremolosync(4)",
         "audible": true,
         "diffDb": -3.4,
-        "repeatDb": -156,
+        "repeatDb": -184.2,
         "spectralDb": -4.6,
-        "spectralRepeatDb": -169.9,
+        "spectralRepeatDb": -197,
         "width": [
           0,
           0
@@ -398,7 +494,7 @@
         "diffDb": -14.2,
         "repeatDb": -149.8,
         "spectralDb": -32.7,
-        "spectralRepeatDb": -171.7,
+        "spectralRepeatDb": -171.8,
         "width": [
           0,
           0
@@ -457,10 +553,10 @@
         "base": "note(\"<[c4,e4,g4] [c4,f4,a4]>\").s(\"sawtooth\").gain(.3)",
         "code": "note(\"<[c4,e4,g4] [c4,f4,a4]>\").s(\"sawtooth\").gain(.3).lprate(1)",
         "audible": false,
-        "diffDb": -149.7,
-        "repeatDb": -149.8,
-        "spectralDb": -171.5,
-        "spectralRepeatDb": -171.6,
+        "diffDb": -146.8,
+        "repeatDb": -146.8,
+        "spectralDb": -168.5,
+        "spectralRepeatDb": -168.5,
         "width": [
           0,
           0
@@ -553,26 +649,26 @@
         "base": "note(\"<[c3,g3,e4] [f3,c4,a4]>\").s(\"supersaw\").lpf(2000).gain(.25).detune(0)",
         "code": "note(\"<[c3,g3,e4] [f3,c4,a4]>\").s(\"supersaw\").lpf(2000).gain(.25).detune(.4)",
         "audible": true,
-        "diffDb": 1.8,
-        "repeatDb": 2.2,
-        "spectralDb": -8.8,
-        "spectralRepeatDb": -24,
+        "diffDb": 2.2,
+        "repeatDb": 2.4,
+        "spectralDb": -9.8,
+        "spectralRepeatDb": -24.1,
         "width": [
-          0.362,
-          0.332
+          0.297,
+          0.326
         ],
         "levelDb": -0.3,
         "centroidHz": [
-          1082,
-          1192
+          1078,
+          1157
         ],
         "balance": [
-          0.16,
+          0.11,
           0.12
         ],
         "tail": [
-          0.2954,
-          0.3118
+          0.3432,
+          0.3199
         ]
       },
       {
@@ -617,26 +713,26 @@
         "base": "n(\"<[4 4 2 4 ~ 2 0 ~] [5 5 3 5 ~ 3 0 ~]>\").scale(\"C4:major\").s(\"sawtooth\")",
         "code": "n(\"<[4 4 2 4 ~ 2 0 ~] [5 5 3 5 ~ 3 0 ~]>\").scale(\"C4:major\").s(\"supersaw\")",
         "audible": true,
-        "diffDb": 2.4,
-        "repeatDb": 1.2,
-        "spectralDb": -9.2,
-        "spectralRepeatDb": -15.2,
+        "diffDb": 2.5,
+        "repeatDb": 1.3,
+        "spectralDb": -8.7,
+        "spectralRepeatDb": -13.6,
         "width": [
           0,
-          0.346
+          0.36
         ],
-        "levelDb": -1.7,
+        "levelDb": -1.8,
         "centroidHz": [
           3878,
-          4749
+          4935
         ],
         "balance": [
           0,
-          0.11
+          0.19
         ],
         "tail": [
           0.2503,
-          0.2387
+          0.2214
         ]
       },
       {
@@ -680,10 +776,10 @@
         "base": "n(\"<[4 4 2 4 ~ 2 0 ~] [5 5 3 5 ~ 3 0 ~]>\").scale(\"C4:major\").s(\"piano\")",
         "code": "n(\"<[4 4 2 4 ~ 2 0 ~] [5 5 3 5 ~ 3 0 ~]>\").scale(\"C4:major\").s(\"piano\").fm(4)",
         "audible": false,
-        "diffDb": -145.7,
-        "repeatDb": -144.8,
-        "spectralDb": -166,
-        "spectralRepeatDb": -165,
+        "diffDb": -144.4,
+        "repeatDb": -144.9,
+        "spectralDb": -164.7,
+        "spectralRepeatDb": -165.1,
         "width": [
           0.703,
           0.703
@@ -808,26 +904,26 @@
         "base": "stack(s(\"bd ~ ~ bd ~ ~ bd ~\").gain(.8), s(\"~ sd ~ sd\").gain(.7), n(\"<[0 ~ 0 ~] [5 ~ 5 ~]>\").scale(\"A1:minor\").s(\"fingerbass\").lpf(800), chord(\"<Am7 F^7>\").voicing().s(\"rhodes\").gain(.5))",
         "code": "stack(s(\"bd ~ ~ bd ~ ~ bd ~\").gain(.8), s(\"~ sd ~ sd\").gain(.7), n(\"<[0 ~ 0 ~] [5 ~ 5 ~]>\").scale(\"A1:minor\").s(\"fingerbass\").lpf(800), chord(\"<Am7 F^7>\").voicing().s(\"rhodes\").gain(.5).compressor(\"-20:4:10:.005:.1\"))",
         "audible": true,
-        "diffDb": -1,
-        "repeatDb": -142.3,
-        "spectralDb": -2.8,
-        "spectralRepeatDb": -165.3,
+        "diffDb": -1.6,
+        "repeatDb": -141.8,
+        "spectralDb": -4,
+        "spectralRepeatDb": -164.6,
         "width": [
           0,
           0
         ],
-        "levelDb": 2,
+        "levelDb": 1.8,
         "centroidHz": [
-          4323,
-          4137
+          4333,
+          4184
         ],
         "balance": [
           0,
           0
         ],
         "tail": [
-          0.35,
-          0.3107
+          0.3475,
+          0.3211
         ]
       },
       {
@@ -840,26 +936,26 @@
         "base": "stack(s(\"bd ~ ~ bd ~ ~ bd ~\").gain(.8), s(\"~ sd ~ sd\").gain(.7), n(\"<[0 ~ 0 ~] [5 ~ 5 ~]>\").scale(\"A1:minor\").s(\"fingerbass\").lpf(800), chord(\"<Am7 F^7>\").voicing().s(\"rhodes\").gain(.5))",
         "code": "stack(s(\"bd ~ ~ bd ~ ~ bd ~\").gain(.8), s(\"~ sd ~ sd\").gain(.7), n(\"<[0 ~ 0 ~] [5 ~ 5 ~]>\").scale(\"A1:minor\").s(\"fingerbass\").lpf(800), chord(\"<Am7 F^7>\").voicing().s(\"rhodes\").gain(.5).postgain(.5))",
         "audible": true,
-        "diffDb": -14.3,
-        "repeatDb": -144.8,
-        "spectralDb": -11.6,
-        "spectralRepeatDb": -162.3,
+        "diffDb": -14.9,
+        "repeatDb": -145.4,
+        "spectralDb": -12.1,
+        "spectralRepeatDb": -162.9,
         "width": [
           0,
           0
         ],
         "levelDb": -0.5,
         "centroidHz": [
-          4323,
-          4393
+          4333,
+          4390
         ],
         "balance": [
           0,
           0
         ],
         "tail": [
-          0.35,
-          0.3584
+          0.3475,
+          0.355
         ]
       },
       {
@@ -872,26 +968,26 @@
         "base": "stack(chord(\"<Am7 F^7>\").voicing().s(\"rhodes\").gain(.5).orbit(1), s(\"~ bd ~ ~ bd ~ bd ~\").orbit(2))",
         "code": "stack(chord(\"<Am7 F^7>\").voicing().s(\"rhodes\").gain(.5).orbit(1), s(\"~ bd ~ ~ bd ~ bd ~\").orbit(2).duckorbit(1))",
         "audible": true,
-        "diffDb": -17.7,
-        "repeatDb": -32.9,
-        "spectralDb": -25.2,
-        "spectralRepeatDb": -50.1,
+        "diffDb": -18.3,
+        "repeatDb": -37.6,
+        "spectralDb": -26,
+        "spectralRepeatDb": -55.1,
         "width": [
           0,
           0
         ],
         "levelDb": -0.1,
         "centroidHz": [
-          1866,
-          1848
+          1892,
+          1860
         ],
         "balance": [
           0,
           0
         ],
         "tail": [
-          0.3197,
-          0.322
+          0.3205,
+          0.3245
         ]
       },
       {
@@ -904,26 +1000,26 @@
         "base": "stack(s(\"bd ~ ~ bd ~ ~ bd ~\").gain(.8), s(\"~ sd ~ sd\").gain(.7), n(\"<[0 ~ 0 ~] [5 ~ 5 ~]>\").scale(\"A1:minor\").s(\"fingerbass\").lpf(800), chord(\"<Am7 F^7>\").voicing().s(\"rhodes\").gain(.5))",
         "code": "stack(s(\"bd ~ ~ bd ~ ~ bd ~\").gain(.8), s(\"~ sd ~ sd\").gain(.7), n(\"<[0 ~ 0 ~] [5 ~ 5 ~]>\").scale(\"A1:minor\").s(\"fingerbass\").lpf(800), chord(\"<Am7 F^7>\").voicing().s(\"rhodes\").gain(.5).pan(.25))",
         "audible": true,
-        "diffDb": -15.4,
-        "repeatDb": -145,
-        "spectralDb": -14.6,
-        "spectralRepeatDb": -165,
+        "diffDb": -16.1,
+        "repeatDb": -143.8,
+        "spectralDb": -15.2,
+        "spectralRepeatDb": -164.2,
         "width": [
           0,
-          0.108
+          0.101
         ],
         "levelDb": -0.3,
         "centroidHz": [
-          4323,
-          4372
+          4333,
+          4373
         ],
         "balance": [
           0,
           -0.05
         ],
         "tail": [
-          0.35,
-          0.3554
+          0.3475,
+          0.3523
         ]
       }
     ],
@@ -932,35 +1028,35 @@
         {
           "midi": 56,
           "expectedHz": 207.65,
-          "hz": 207.64,
-          "cents": -0.1,
+          "hz": 207.65,
+          "cents": 0,
           "octave": 0,
-          "clarity": 0.99,
-          "share": 0.999
+          "clarity": 0.971,
+          "share": 0.979
         },
         {
           "midi": 63,
           "expectedHz": 311.13,
-          "hz": 311.29,
-          "cents": 0.9,
+          "hz": 311.09,
+          "cents": -0.2,
           "octave": 0,
           "clarity": 1,
-          "share": 0.996
+          "share": 0.908
         },
         {
           "midi": 68,
           "expectedHz": 415.3,
-          "hz": 416.67,
-          "cents": 5.7,
+          "hz": 415.26,
+          "cents": -0.2,
           "octave": 0,
           "clarity": 1,
-          "share": 1
+          "share": 0.999
         },
         {
           "midi": 80,
           "expectedHz": 830.61,
-          "hz": 829.18,
-          "cents": -3,
+          "hz": 830.59,
+          "cents": 0,
           "octave": 0,
           "clarity": 1,
           "share": 1
@@ -970,38 +1066,38 @@
         {
           "midi": 60,
           "expectedHz": 261.63,
-          "hz": 261.63,
-          "cents": 0,
+          "hz": 261.72,
+          "cents": 0.6,
           "octave": 0,
-          "clarity": 0.981,
-          "share": 0.817
+          "clarity": 0.986,
+          "share": 0.935
         },
         {
           "midi": 65,
           "expectedHz": 349.23,
-          "hz": 351.29,
-          "cents": 10.2,
+          "hz": 348.85,
+          "cents": -1.9,
           "octave": 0,
-          "clarity": 0.945,
-          "share": 0.99
+          "clarity": 0.987,
+          "share": 0.897
         },
         {
           "midi": 69,
           "expectedHz": 440,
-          "hz": 440.04,
-          "cents": 0.2,
+          "hz": 440.39,
+          "cents": 1.5,
           "octave": 0,
-          "clarity": 0.989,
-          "share": 0.786
+          "clarity": 0.975,
+          "share": 0.511
         },
         {
           "midi": 72,
           "expectedHz": 523.25,
-          "hz": 523.3,
-          "cents": 0.2,
+          "hz": 523.69,
+          "cents": 1.5,
           "octave": 0,
-          "clarity": 0.976,
-          "share": 0.789
+          "clarity": 0.975,
+          "share": 0.101
         }
       ],
       "clav": [
@@ -1078,6 +1174,120 @@
           "octave": 0,
           "clarity": 0.992,
           "share": 0.179
+        }
+      ],
+      "marimba": [
+        {
+          "midi": 60,
+          "expectedHz": 261.63,
+          "hz": 261.62,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 1,
+          "share": 1
+        },
+        {
+          "midi": 64,
+          "expectedHz": 329.63,
+          "hz": 329.62,
+          "cents": -0.1,
+          "octave": 0,
+          "clarity": 1,
+          "share": 1
+        },
+        {
+          "midi": 67,
+          "expectedHz": 392,
+          "hz": 391.99,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 1,
+          "share": 1
+        },
+        {
+          "midi": 72,
+          "expectedHz": 523.25,
+          "hz": 523.25,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 1,
+          "share": 1
+        }
+      ],
+      "kalimba": [
+        {
+          "midi": 61,
+          "expectedHz": 277.18,
+          "hz": 277.17,
+          "cents": -0.1,
+          "octave": 0,
+          "clarity": 0.985,
+          "share": 0.998
+        },
+        {
+          "midi": 64,
+          "expectedHz": 329.63,
+          "hz": 329.63,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 0.982,
+          "share": 0.998
+        },
+        {
+          "midi": 68,
+          "expectedHz": 415.3,
+          "hz": 415.28,
+          "cents": -0.1,
+          "octave": 0,
+          "clarity": 0.99,
+          "share": 1
+        },
+        {
+          "midi": 71,
+          "expectedHz": 493.88,
+          "hz": 493.87,
+          "cents": -0.1,
+          "octave": 0,
+          "clarity": 0.961,
+          "share": 1
+        }
+      ],
+      "glockenspiel": [
+        {
+          "midi": 84,
+          "expectedHz": 1046.5,
+          "hz": 1046.54,
+          "cents": 0.1,
+          "octave": 0,
+          "clarity": 0.999,
+          "share": 1
+        },
+        {
+          "midi": 88,
+          "expectedHz": 1318.51,
+          "hz": 1318.49,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 0.994,
+          "share": 1
+        },
+        {
+          "midi": 91,
+          "expectedHz": 1567.98,
+          "hz": 1567.98,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 0.998,
+          "share": 1
+        },
+        {
+          "midi": 96,
+          "expectedHz": 2093,
+          "hz": 2093.04,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 0.96,
+          "share": 1
         }
       ]
     }

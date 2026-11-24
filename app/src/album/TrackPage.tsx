@@ -45,6 +45,9 @@ import { sideLabel } from "../capstone/Ceremony.tsx";
 import { LINER_MAX_WORDS, wordCount } from "../capstone/liner.ts";
 import { ReviewCard } from "../capstone/ReviewCard.tsx";
 import { useTryRevision } from "../capstone/revision.ts";
+import { ReleasePlayButton } from "../song/AlbumSongs.tsx";
+import { useUnitSongs } from "../song/hooks.ts";
+import { songReleaseOfVersion } from "../song/surfaces-model.ts";
 import { bandReached } from "../studio/model.ts";
 import { LinerNotes } from "./AlbumPage.tsx";
 import { ExportButton } from "./ExportButton.tsx";
@@ -98,6 +101,9 @@ function Track({ t, v }: { t: AlbumTrackDetail; v: number | undefined }) {
   const tryRevision = useTryRevision();
   const thread = { subjectKind: "track" as const, subjectId: t.id };
   const versionNo = version?.version ?? null;
+  // A version released from a unit song plays its frozen release (`songs.snapshot`), not its newest take's code.
+  const songs = useUnitSongs();
+  const songRelease = versionNo === null ? null : songReleaseOfVersion(songs.data?.items, t.id, versionNo);
 
   // The tutor's subject is this version: a review asked here is about it and is kept with it (contracts §10.6).
   useEffect(() => {
@@ -193,9 +199,28 @@ function Track({ t, v }: { t: AlbumTrackDetail; v: number | undefined }) {
             <h2 id="trk-listen" className="text-h3">
               Listen
             </h2>
+            {songRelease && (
+              <div className="flex flex-wrap items-center gap-3" data-testid="track-song-release">
+                <ReleasePlayButton
+                  unitId={songRelease.unitId}
+                  release={songRelease.releaseId}
+                  label={`Play version ${version.version} as released`}
+                />
+                <p className="min-w-0 flex-1 text-text-2">
+                  Your song as you released it: Oak's band and every one of your Makes in it.
+                </p>
+                <Link
+                  to="/song/$unitId"
+                  params={{ unitId: songRelease.unitId }}
+                  className={buttonClass("ghost", "sm")}
+                >
+                  Open the song
+                </Link>
+              </div>
+            )}
             {version.hasAudio ? (
               <Listen key={`${t.id}-${version.version}`} track={t} version={version} />
-            ) : (
+            ) : songRelease ? null : (
               <p className="text-text-2">
                 {!pending &&
                 music === null &&
@@ -209,15 +234,18 @@ function Track({ t, v }: { t: AlbumTrackDetail; v: number | undefined }) {
             <ExportButton trackId={t.id} version={version.version} capstoneId={t.capstoneId} />
           </section>
 
-          <CodeSection
-            track={t}
-            version={version}
-            code={code}
-            sketch={sketch.data}
-            open={codeOpen}
-            onOpen={() => setCodeOpen(true)}
-            onModel={onLiveModel}
-          />
+          {/* A song version's code is the whole song (Oak's and every take): the song page shows it, not one take. */}
+          {!songRelease && (
+            <CodeSection
+              track={t}
+              version={version}
+              code={code}
+              sketch={sketch.data}
+              open={codeOpen}
+              onOpen={() => setCodeOpen(true)}
+              onModel={onLiveModel}
+            />
+          )}
 
           <Versions track={t} selected={version.version} sketch={sketch.data} />
 
@@ -231,6 +259,14 @@ function Track({ t, v }: { t: AlbumTrackDetail; v: number | undefined }) {
             {t.capstoneId ? (
               <Link to="/capstone/$id" params={{ id: t.capstoneId }} className={buttonClass("primary")}>
                 <Pencil aria-hidden className="size-4" /> Revise and release version {t.versions.length + 1}
+              </Link>
+            ) : songRelease ? (
+              <Link
+                to="/song/$unitId"
+                params={{ unitId: songRelease.unitId }}
+                className={buttonClass("secondary")}
+              >
+                Open the song
               </Link>
             ) : t.sketchId ? (
               <Link

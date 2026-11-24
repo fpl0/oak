@@ -119,8 +119,9 @@ export function arrangeCalls(text: string): ArrangeCall[] {
 
 /**
  * The learner's sections: one entry per section, its type from the first track that plays it (a track may rest
- * with `silence`). Null when the code has no `arrange()`, when one cannot be read statically, or when two arranged
- * tracks disagree about the number or lengths of the sections (`form.inconsistent-arrange`).
+ * with `silence`), its identifier a numbered variant's when any track has one. Null when the code has no
+ * `arrange()`, when one cannot be read statically, or when two arranged tracks disagree about the number or lengths
+ * of the sections (`form.inconsistent-arrange`).
  */
 export function learnerSectionsOf(code: string): ArrangeSection[] | null {
   const calls = arrangeCalls(stripComments(code));
@@ -132,10 +133,13 @@ export function learnerSectionsOf(code: string): ArrangeSection[] | null {
     if (l.length !== first.length || l.some((s, i) => s.bars !== first[i]?.bars)) return null;
   }
   return first.map((s, i) => {
-    const typed = (lists as ArrangeSection[][])
-      .map((l) => l[i] as ArrangeSection)
-      .find((x) => x.type !== null);
-    return typed ? { ...typed } : { ...s };
+    const at = (lists as ArrangeSection[][]).map((l) => l[i] as ArrangeSection);
+    const typed = at.find((x) => x.type !== null);
+    if (!typed) return { ...s };
+    // A numbered variant (`melChorus2`) on any track names the section, as the grader's `sectionsFromAst` keeps it:
+    // a drum track repeating its plain `drumsChorus` does not hide the melody's second chorus.
+    const numbered = at.find((x) => x.type === typed.type && /\d$/.test(x.ident));
+    return { ...(numbered ?? typed) };
   });
 }
 

@@ -119,6 +119,42 @@ describe("checkSong names what is wrong", () => {
     expect(codesOf(await checkSong(chords))).toContain("usong.flavour-chords");
   });
 
+  test("a flavour whose every track is turned down to nothing is silent", async () => {
+    const muted = withCode(U02, (code) => code.replace(/^(\w+): (.*)$/gm, "$1: $2.gain(0)"), "flavour.funk");
+    expect(codesOf(await checkSong(muted))).toContain("usong.silent");
+    // One part at no volume sounds in none of its sections.
+    const quietKick = withCode(
+      U02,
+      (code) => code.replace(/^(kick: .*)$/m, "$1.postgain(0)"),
+      "flavour.funk",
+    );
+    const issues = await checkSong(quietKick);
+    expect(codesOf(issues)).toContain("usong.sections");
+    expect(errorsOf(issues).join("\n")).toContain('"kick:"');
+  });
+
+  test("a flavour whose chords change quality on the same roots", async () => {
+    // C major to C minor: the same root, another function. A seventh or a sixth on the same triad is a colour.
+    const minor = withCode(
+      U02,
+      swap(
+        'const chordsVerse = note("<[c3,e3,g3] [c3,f3,a3]>")',
+        'const chordsVerse = note("<[c3,eb3,g3] [c3,f3,a3]>")',
+      ),
+      "flavour.pop",
+    );
+    expect(codesOf(await checkSong(minor))).toContain("usong.flavour-chords");
+    const seventh = withCode(
+      U02,
+      swap(
+        'const chordsVerse = note("<[c3,e3,g3] [c3,f3,a3]>")',
+        'const chordsVerse = note("<[c3,e3,g3,b3] [c3,f3,a3]>")',
+      ),
+      "flavour.pop",
+    );
+    expect(codesOf(await checkSong(seventh))).not.toContain("usong.flavour-chords");
+  });
+
   test("a flavour with a track that is not a part", async () => {
     const extra = withCode(U02, (code) => `${code}\nfx: s("~ ~ ~ cp")`, "flavour.indie");
     expect(codesOf(await checkSong(extra))).toContain("usong.tracks");
@@ -130,6 +166,30 @@ describe("checkSongStep names what is wrong", () => {
     const def = await lesson("U02.L02");
     const inG = { ...def, key: { tonic: "G", mode: "major" } } as LessonDef;
     expect(codesOf(await checkSongStep(U02, stepOf(U02, "U02.L02"), inG))).toContain("usong.key");
+  });
+
+  test("an arranged take is held to the keys of the sections it fills, not the others", async () => {
+    const base = await lesson("U02.L02");
+    const make = base.steps.at(-1)?.exercise;
+    if (make?.kind !== "code-make") throw new Error("fixture: U02.L02 has no code Make");
+    // The reference arranges a verse only: it fills the song's verses and leaves the bridge to its owner.
+    const verseOnly =
+      'setcpm(96/4)\n\nconst melVerse = note("c4 e4 g4 a4").s("piano")\nmel: arrange([8, melVerse])';
+    const tests = make.tests.map((t) =>
+      t.expect === "pass" && "code" in t.response ? { ...t, response: { code: verseOnly } } : t,
+    );
+    const arranged = {
+      ...base,
+      steps: [...base.steps.slice(0, -1), { ...base.steps.at(-1), exercise: { ...make, tests } }],
+    } as LessonDef;
+    const step = { ...takeOf(U02, "U02.L02"), sections: "all" as const };
+    const inKey = (id: string) =>
+      ({
+        ...U02,
+        sections: U02.sections.map((s) => (s.id === id ? { ...s, key: { tonic: "A", mode: "minor" } } : s)),
+      }) as UnitSongDef;
+    expect(codesOf(await checkSongStep(inKey("bridge"), step, arranged))).not.toContain("usong.key");
+    expect(codesOf(await checkSongStep(inKey("verse2"), step, arranged))).toContain("usong.key");
   });
 
   test("a startFrom code that already meets today's required rule", async () => {

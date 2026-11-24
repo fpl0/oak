@@ -1,5 +1,5 @@
 // The New song moment (spec 2026-11-24 §5.5): before the first take lesson of a unit whose song is not started, a
-// full page with Oak's song, finished, in four styles, each with ▶, the working title, and "Start this song". It
+// full page with Oak's song, finished, in five styles, each with ▶, the working title, and "Start this song". It
 // opens on the profile's style (the server's answer for a song not started). `StyleCheck` is the one-time card on
 // Today for a song Oak made from earlier lessons (spec §5.6a): keep the style or pick another.
 import type { FlavourId, UnitId, UnitSongDef } from "@oak/api";
@@ -59,7 +59,7 @@ function StylePlay({ def, style, dark }: { def: UnitSongDef; style: SongStyle; d
   );
 }
 
-/** The four styles as wood swatches, one to pick, each with ▶. */
+/** The five styles as wood swatches, one to pick, each with ▶. */
 export function StylePicker({
   def,
   value,
@@ -78,7 +78,9 @@ export function StylePicker({
       aria-label="The song's style"
       className={clsx(
         "grid gap-3",
-        compact ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4",
+        compact
+          ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
+          : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5",
       )}
       data-testid="style-picker"
     >

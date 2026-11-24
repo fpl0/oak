@@ -105,7 +105,10 @@ test("sound quality: aliases, reference tones, jazz kit", async ({ page }) => {
   expect(role("bd").jazzLufs).toBeLessThan(role("bd").popLufs - 3);
   expect(role("sd").jazzLufs).toBeLessThan(role("sd").popLufs - 3);
   expect(role("rd").jazzLufs).toBeGreaterThan(role("hh").jazzLufs + 6);
-  expect(role("cr").jazzLufs).toBe(role("cr").popLufs); // no crash in the brushes kit: the default kit's
-  expect(Math.abs(result.jazzGroove.lufs - result.popGroove.lufs)).toBeLessThan(3);
+  // v4: the rebuilt jazz kit (Virtuosity Drums) has its own crash, not the default kit's
+  expect(role("cr").jazzLufs).not.toBe(role("cr").popLufs);
+  // v4: recorded brushes (Swirly), a feathered kick and a ride kept under its peak ceiling sit about 5 LU under
+  // the pop groove (the MC-303 kit was within 3); the Band's production balances the parts.
+  expect(Math.abs(result.jazzGroove.lufs - result.popGroove.lufs)).toBeLessThan(6);
   expect(result.jazzGroove.peakDb).toBeLessThan(0);
 });

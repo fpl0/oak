@@ -1060,6 +1060,53 @@ export const RECOMMENDED_GOVERNOR = { ...DEFAULT_GOVERNOR, activeMaxIntervalDays
 
 Files: `spikes/s7-srs/FINDINGS.md`, `spikes/s7-srs/srs.ts`, `spikes/s7-srs/governor.ts`, `spikes/s7-srs/sim.ts`, `spikes/s7-srs/simulate.test.ts`, `spikes/s7-srs/srs.test.ts`, `spikes/s7-srs/tsconfig.json`, `spikes/s7-srs/probe-exports.ts`, `spikes/s7-srs/probe-env.ts`, `spikes/s7-srs/probe-api.ts`, `spikes/s7-srs/probe-intervals.ts`, `spikes/s7-srs/probe-gotchas.ts`, `spikes/s7-srs/probe-fact-cost.ts`
 
+## s8-sound-pack-v4 — GREEN
+
+Run 2026-11-24 on the `songs` worktree, for sound pack v4 (`docs/design/samples/proposal.md` §6.1.4). Tools on the
+build machine: ffmpeg 9.0.2, flac 1.5.0, LAME 4.0 (`/opt/homebrew/bin`), Chromium 1254 (Playwright 1.65).
+
+**(a) Determinism of the encoders.** A test tone (0.5 s silence, then a 1 kHz burst) was encoded twice with each
+tool: `lame -V 0` (with and without its info tag), `flac --best --no-padding --no-seektable`, and ffmpeg's FLAC and
+libmp3lame with `-map_metadata -1 -fflags +bitexact`. Every pair was byte-identical. Across machines it is not
+guaranteed: LAME and libFLAC write their version into the stream and their encoders change between releases.
+Decision: **the lock is the source of truth** for derived files. Oak's own audio (drum one-shots, breaks, the tape
+bed, wavetables) is written by Oak's TypeScript FLAC/WAV writers (`scripts/sounds/flac.ts`, `brk.ts`), so its
+bytes depend only on the repository; only the pitched instruments go through the pinned `lame`. FLAC sources are
+decoded with `flac -d`, which is lossless, so the decoded samples do not depend on the flac version. The lock
+records the encoder versions (`encoders`) and a `recipe` hash per derived file (inputs, settings, build code);
+`mirror.ts --rebuild` re-renders every derived file and fails on any byte that differs (green here: 475 files
+rebuilt, 0 differences). On a machine with another LAME, a frozen mirror reuses the files on disk when their bytes
+match the lock and says so when they cannot be reproduced; copy `sounds/pack/v4` from a machine that has them, or
+re-lock with `--update`. `check.ts` always verifies the bytes on disk against the lock.
+
+**(b) Onset offsets in Chromium's `decodeAudioData`.** WAV, both FLACs and the MP3s with LAME's info tag decode
+sample-exact (onset at frame 22051 of 22051, length unchanged). An MP3 **without** the tag starts 1105 frames
+(25 ms) late and is 1224 frames longer. `lame` only writes the tag into a seekable file, never into a pipe, so
+`audio.ts mp3()` encodes to a temporary file. Decision: pitched instruments are MP3 (V0, tag kept); one-shot drums,
+breaks, percussion and textures are 16-bit FLAC (onset-critical, and about half a WAV's size); wavetables are WAV.
+
+**(c) Loops on a sample alias.** Not used: a sample alias stops at the end of its event with its default release
+(superdough holds a sample to the event's end when `release` is set), as the GM aliases did. The organ and the
+strings keep 5–7 s of their recordings instead of looping.
+
+**(d) Safari and FLAC.** Could not verify: Playwright's WebKit build is not installed for this Playwright version.
+The desktop app runs Chromium (Electron), where FLAC is verified.
+
+**Pitch.** Upstream note names follow different conventions; each source's octave was measured (a windowed DFT
+peak near the claimed partial) and fixed in `library.ts` (VSCO and VCSL name middle C "C3"; the FreePats organ's
+16' drawbar sounds an octave below its file names from C3 up). Every pitched sample is retuned to equal
+temperament when its measured partial is more than 2 cents off, high-passed an octave below its note (rumble and
+hum), trimmed with a cosine fade, and levelled to the piano's loudness. The sound-quality harness then passes for
+every alias (±10 c in the claimed octave, no clicks, ±1.5 LU of the piano), with per-alias gains in
+`pack.config.ts`. Sneakybass (the first upright) failed it: its upper notes are too soft against finger noise to
+hold a pitch past 0.3 s, so the upright is D. Smolken's pizz of the same 1958 bass, with p/m/f velocity layers.
+The kalimba's top tines (B4 up) ring for under 0.3 s, too short for the harness's tuning window; they were
+retuned by the build's own measurement and are not measured by the harness.
+
+**Harness runs** (own Vite on port 5662, `OAK_E2E_SHIFT=470`): `audibility.pw.ts`, `quality.pw.ts`, and the
+lesson-loop sections of `wave5.pw.ts` and `wave7.pw.ts` all pass on pack v4. Not re-run: the other `wave{4,5,6,7}`
+sections (band balance, chords, tuning tables of `sound-wave6.json`), which were measured on pack v3's GM fonts.
+
 ## Contracts
 
 ### Author summary

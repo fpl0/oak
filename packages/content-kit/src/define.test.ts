@@ -610,10 +610,11 @@ describe("registries", () => {
       "flavour.indie": code,
       "flavour.jazz-soul": code,
       "flavour.funk": code,
+      "flavour.electronic": code,
     };
     expect(defineBand({ ...band, code: all }).bars).toBe(2);
     expect(rulesOf(() => defineBand({ ...band, roles: ["drums", "bass", "chords"], code: all }))).toEqual(
-      Array(4).fill("band.role-track"),
+      Array(5).fill("band.role-track"),
     );
     const { "flavour.funk": _f, ...three } = all;
     expect(rulesOf(() => defineBand({ ...band, code: three as typeof all }))).toEqual(["schema"]);

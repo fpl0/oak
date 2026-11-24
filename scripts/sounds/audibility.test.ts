@@ -17,7 +17,7 @@ import {
   W6_LESSON_CASES,
   W7_LESSON_CASES,
 } from "../../packages/strudel/src/audibility/cases.ts";
-import { OAK_ALIASES, OAK_KITS } from "./pack.config.ts";
+import { KIT_ALIASES, OAK_ALIASES, OAK_KITS } from "./pack.config.ts";
 
 const ROOT = join(import.meta.dirname, "../..");
 const table = JSON.parse(readFileSync(join(ROOT, "packages/strudel/audibility.json"), "utf8")) as {
@@ -229,8 +229,10 @@ describe("Wave 7: the advanced tracks", () => {
 });
 
 describe("pack aliases and kits against the catalog", () => {
+  /** Group-G rows that are synth sources, not instruments (v4: noise and wavetables, several names each). */
+  const SOURCES = new Set(["snd.noise", "snd.wt"]);
   const instruments = sounds.filter(
-    (t) => t.group === "G" && !t.id.startsWith("snd.wave.") && t.id !== "snd.piano",
+    (t) => t.group === "G" && !t.id.startsWith("snd.wave.") && t.id !== "snd.piano" && !SOURCES.has(t.id),
   );
 
   test("every catalog instrument is a curated alias of the pack, and every alias is in the catalog", () => {
@@ -238,6 +240,14 @@ describe("pack aliases and kits against the catalog", () => {
     expect(instruments.map((t) => t.id).filter((id) => !aliases.includes(id))).toEqual([]);
     const catalog = new Set<string>(sounds.map((t) => t.id));
     expect(aliases.filter((id) => !catalog.has(id))).toEqual([]);
+  });
+
+  test("every retired bank name plays an Oak kit, and keeps its catalog row", () => {
+    for (const [old, kit] of Object.entries(KIT_ALIASES)) {
+      expect([old, kit in OAK_KITS]).toEqual([old, true]);
+      if (/^(Roland|LinnDrum|AkaiLinn)/.test(old))
+        expect([old, sounds.some((t) => t.id === `snd.bank.${old}`)]).toEqual([old, true]);
+    }
   });
 
   test("every Oak kit is a catalog sound", () => {

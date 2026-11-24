@@ -302,6 +302,41 @@ describe("the backfill (spec §5.6a)", () => {
     expect(refined.body.takes[0]?.cells).toEqual(["kick@intro"]);
   });
 
+  test("a start-up after a restore leaves a song that exists as it is", async () => {
+    const h = await server();
+    await start(h);
+    expect((await take(h, "U01.L01")).status).toBe(200);
+    complete(h, "U01.L01");
+    // U01.L02 was finished and its Make saved, but no take was recorded for it.
+    await makeSketch(h, "U01.L02");
+    complete(h, "U01.L02");
+    const archive = new Uint8Array(await (await h.req("GET", "/api/backup/export?audio=0")).arrayBuffer());
+    expect((await h.destructive("POST", "/api/backup/import", "backup.import", "*", archive)).status).toBe(
+      200,
+    );
+    const restored = await song(h);
+    expect(restored.takes.map((t) => t.lessonId)).toEqual(["U01.L01"]);
+    startupTasks(h.server.deps);
+    expect(await song(h)).toEqual(restored);
+    // Another start (a second tab) keeps it as it is too.
+    expect((await start(h, "flavour.indie")).body).toEqual(restored);
+  });
+
+  test("a backfilled take plays at the tempo its code sets", async () => {
+    const h = await server();
+    // The sketch says 100 BPM; its code's setcpm says 96 (a comment's does not count).
+    await makeSketch(h, "U01.L02", '// setcpm(120/4)\nsetcpm(96/4)\nkick: s("bd*4")');
+    complete(h, "U01.L02");
+    await makeSketch(h, "U01.L01", 'kick: s("bd*4")');
+    complete(h, "U01.L01");
+    startupTasks(h.server.deps);
+    const s = await song(h);
+    expect(s.takes.map((t) => [t.lessonId, t.bpm])).toEqual([
+      ["U01.L02", 96],
+      ["U01.L01", 100],
+    ]);
+  });
+
   test("songs.start runs the unit's backfill and keeps the learner's style choice", async () => {
     const h = await server();
     await makeSketch(h, "U01.L01");
@@ -428,6 +463,85 @@ describe("releases (spec §5.4)", () => {
     expect(snap2.bpm).toBe(92);
     expect(snap2.takes.length).toBe(3);
     expect((await h.json<UnitSongSnapshot>("GET", path)).body).toEqual(before);
+  });
+
+  test("a take refined to another tempo or labels is a change since the release", async () => {
+    const h = await server();
+    await start(h, "flavour.funk");
+    const sk = await makeSketch(h, "U01.L01");
+    const body = {
+      lessonId: "U01.L01",
+      ...sk,
+      cells: declared("U01.L01"),
+      labels: { kick: "kick" },
+      bpm: 100,
+    };
+    expect((await h.json("POST", "/api/songs/U01/takes", body)).status).toBe(200);
+    complete(h, "U01.L01");
+    passCheckpoint(h, U01.releaseAfter);
+    const first = await h.json<{ releaseId: number }>("POST", "/api/songs/U01/release", { title: "First" });
+    expect((await song(h)).changedSinceRelease).toBe(false);
+    // The same saved version, now at 120 BPM: the cells are the same, the music is not.
+    const faster = await h.json<UnitSongDetail>("POST", "/api/songs/U01/takes", { ...body, bpm: 120 });
+    expect(faster.body.changedSinceRelease).toBe(true);
+    const second = await h.json<{ releaseId: number }>("POST", "/api/songs/U01/release", { title: "First" });
+    expect(second.body.releaseId).not.toBe(first.body.releaseId);
+    expect((await song(h)).changedSinceRelease).toBe(false);
+    // A label mapped to another part changes what plays where.
+    const relabelled = await h.json<UnitSongDetail>("POST", "/api/songs/U01/takes", {
+      ...body,
+      bpm: 120,
+      labels: { kick: "snare" },
+    });
+    expect(relabelled.body.changedSinceRelease).toBe(true);
+  });
+
+  test("release again names the album track as the newest release", async () => {
+    const h = await server();
+    await songWithTakes(h);
+    passCheckpoint(h, U01.releaseAfter);
+    const r = await h.json<{ albumTrackId: string }>("POST", "/api/songs/U01/release", { title: "First" });
+    await h.json("POST", "/api/songs/U01/flavour", { flavour: "flavour.indie" });
+    expect((await take(h, "U01.L01", { bpm: 92 })).status).toBe(200);
+    const again = await h.json<{ albumTrackId: string; albumVersion: number }>(
+      "POST",
+      "/api/songs/U01/release",
+      {
+        title: "Second",
+      },
+    );
+    expect(again.body).toMatchObject({ albumTrackId: r.body.albumTrackId, albumVersion: 2 });
+    const track = h.server.deps.db
+      .query("SELECT title, flavour FROM album_tracks WHERE id = ?")
+      .get(r.body.albumTrackId) as Record<string, unknown>;
+    expect(track).toEqual({ title: "Second", flavour: "flavour.indie" });
+    const source = await h.json<{ fileName: string }>(
+      "GET",
+      `/api/album/tracks/${r.body.albumTrackId}/versions/2/source`,
+    );
+    expect(source.body.fileName).toContain("second");
+  });
+
+  test("album.source of a released song names the frozen release it plays", async () => {
+    const h = await server();
+    await songWithTakes(h);
+    passCheckpoint(h, U01.releaseAfter);
+    const r = await h.json<{ albumTrackId: string; releaseId: number }>("POST", "/api/songs/U01/release", {
+      title: "First",
+    });
+    expect((await take(h, "U01.L03")).status).toBe(200);
+    const again = await h.json<{ releaseId: number }>("POST", "/api/songs/U01/release", { title: "First" });
+    const v1 = await h.json<{ songRelease?: unknown }>(
+      "GET",
+      `/api/album/tracks/${r.body.albumTrackId}/versions/1/source`,
+    );
+    expect(v1.status).toBe(200);
+    expect(v1.body.songRelease).toEqual({ unitId: "U01", releaseId: r.body.releaseId });
+    const v2 = await h.json<{ songRelease?: unknown }>(
+      "GET",
+      `/api/album/tracks/${r.body.albumTrackId}/versions/2/source`,
+    );
+    expect(v2.body.songRelease).toEqual({ unitId: "U01", releaseId: again.body.releaseId });
   });
 
   test("setFlavour keeps takes and never touches a release snapshot", async () => {

@@ -1,6 +1,7 @@
 // Pure helpers of the adapter: mutex, live budget, logs, mutes, haps, store, coordinator, lint bridge,
 // recorder window, playback plan, pattern-player positions.
 import { describe, expect, test } from "bun:test";
+import type { LintContext, LintDiagnostic, LintResult } from "@oak/content-kit";
 import type { AudioPlan } from "@oak/drills";
 import { createCoordinator } from "./coordinator.ts";
 import { audibleCycle, sortLiveHaps, TRACK_KEY, toLiveHap } from "./haps.ts";
@@ -17,11 +18,11 @@ import { LiveBudget } from "./lru.ts";
 import { limiterMakeupDb } from "./master-bus.ts";
 import { copyMutes, isMuted, trackNameOf } from "./mutes.ts";
 import { EvalMutex, withTimeout } from "./mutex.ts";
-import { barPosition, clampRate, clampTranspose } from "./pattern-player.ts";
+import { barPosition, clampRate, clampTranspose, lintForLoad } from "./pattern-player.ts";
 import { preloadSpecOfNames, schedulePlan } from "./playback.ts";
 import { pickMimeType, recordingWindow } from "./recorder.ts";
 import { createStore, shallowEqual } from "./store.ts";
-import type { LiveHap } from "./types.ts";
+import type { BandSetup, LiveHap } from "./types.ts";
 import { midiToHz, UI_BUS_GAIN } from "./ui-sounds.ts";
 
 describe("EvalMutex", () => {
@@ -293,5 +294,49 @@ describe("pattern player helpers", () => {
     expect(clampRate(2)).toBe(1);
     expect(clampTranspose(14)).toBe(12);
     expect(clampTranspose(-3.4)).toBe(-3);
+  });
+});
+
+describe("PatternPlayer.load of a unit song alone (review s1a)", () => {
+  // A content-profile lint as the real one behaves: code with no tempo line is an error there.
+  const lint = (code: string, ctx: LintContext): LintResult => {
+    const missing = ctx.profile === "content" && !code.includes("setcpm");
+    const diagnostics: LintDiagnostic[] = missing
+      ? [
+          {
+            id: "code.setcpm-missing" as LintDiagnostic["id"],
+            severity: "error",
+            range: { from: 0, to: 0 },
+            line: 1,
+            params: {},
+            message: "There is no tempo line",
+          },
+        ]
+      : [];
+    return { ok: !missing, diagnostics, used: [], locked: [], lockedTools: [] };
+  };
+  const ctx: LintContext = {
+    profile: "content",
+    unlocked: new Set(),
+    allowPreview: true,
+    meter: "4/4",
+    key: null,
+  };
+  const song = { song: {} } as unknown as BandSetup;
+
+  test("a song with no code of its own plays over a placeholder that is not linted", () => {
+    const out = lintForLoad(lint, "", song, ctx);
+    expect(out.code).toBe("silence");
+    expect(out.outcome.ok && out.outcome.result.ok).toBe(true);
+  });
+
+  test("code of its own is linted as before", () => {
+    const out = lintForLoad(lint, 'kick: s("bd")', song, ctx);
+    expect(out.code).toBe('kick: s("bd")');
+    expect(out.outcome.ok && out.outcome.result.ok).toBe(false);
+    expect(lintForLoad(lint, "", null, ctx).outcome.ok).toBe(true);
+    const plain = lintForLoad(lint, "", null, ctx);
+    expect(plain.code).toBe("");
+    expect(plain.outcome.ok && plain.outcome.result.ok).toBe(false);
   });
 });

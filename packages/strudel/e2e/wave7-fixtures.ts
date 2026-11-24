@@ -15,17 +15,18 @@ export const W7_TUNING: Readonly<Record<string, readonly number[]>> = {
   clav: [52, 58, 62, 67],
   // AC2's choir pad, the alto's middle
   choir: [55, 60, 64, 67],
+  // A2.L06's idiomatic timbres (sound pack v4), around the treble staff; the glockenspiel two octaves up
+  marimba: [60, 64, 67, 72],
+  kalimba: [61, 64, 68, 71],
+  glockenspiel: [84, 88, 91, 96],
 };
 
 /**
- * A soundfont zone measured out of tune where a lesson plays it, pinned so it cannot drift further unseen: the
- * muted trumpet's zone F4–A♭4 (0590_JCLive, the zone whose originalPitch is 6600 carries fineTune 10, which the
- * loader adds) sounds 10.2 c sharp, 0.2 c over the ±10 c gate. The fix is a pack change (a derived font with that
- * zone's fineTune 0, or another variant), so pack v4: listed under notDone, not loosened here.
+ * A zone measured out of tune where a lesson plays it, pinned so it cannot drift further unseen. Pack v3's muted
+ * trumpet (0590_JCLive, zone F4–A♭4, 10.2 c sharp) was the one entry; pack v4 replaced it with a recorded harmon
+ * mute (VSCO 2 CE), in tune within ±2 c, so nothing is pinned.
  */
-export const W7_KNOWN_TUNING: Readonly<Record<string, Readonly<Record<number, number>>>> = {
-  mutetpt: { 65: 10.2 },
-};
+export const W7_KNOWN_TUNING: Readonly<Record<string, Readonly<Record<number, number>>>> = {};
 
 /** The comping sounds of the jazz track. */
 export const COMP_SOUNDS = ["piano", "rhodes"] as const;

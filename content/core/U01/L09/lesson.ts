@@ -53,7 +53,7 @@ const DRUM_MATCH = {
 
 export default defineLesson({
   id: "U01.L09",
-  version: 5,
+  version: 6,
   title: "Copy That Groove",
   objective: "I can copy a drum groove by ear and play the same groove at half or double time.",
   key: { tonic: "C", mode: "major" },
@@ -86,7 +86,11 @@ export default defineLesson({
         hints: null,
         tests: [],
         items: [
-          { code: HOOK, caption: "The groove on a LinnDrum, a drum machine from the early 1980s.", bars: 4 },
+          {
+            code: HOOK,
+            caption: "The groove on `LinnDrum`, which in Oak plays a big rock kit, hit with sticks.",
+            bars: 4,
+          },
           {
             code: HALF,
             caption: "The same three lines, each with `.slow(2)`. Keep nodding at the same speed.",
@@ -374,7 +378,7 @@ export default defineLesson({
           },
           {
             id: "new-kit",
-            label: "Picks a drum machine with `.bank()`",
+            label: "Picks another kit with `.bank()`",
             required: false,
             skills: ["R04"],
             rule: "uses",

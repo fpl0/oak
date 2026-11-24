@@ -283,6 +283,21 @@ export class UnitSongsRepo {
   setAlbumUnit(trackId: string, unitId: string): void {
     run(this.db, "UPDATE album_tracks SET unit_id = ? WHERE id = ?", unitId, trackId);
   }
+  /** A song released again: its album track shows the newest release's title and style (older snapshots keep theirs). */
+  setAlbumTrackMeta(trackId: string, title: string, flavour: string): void {
+    run(this.db, "UPDATE album_tracks SET title = ?, flavour = ? WHERE id = ?", title, flavour, trackId);
+  }
+  /** The song release an album version plays (`song_release_id`), or `null` for any other version. */
+  releaseOfAlbumVersion(trackId: string, version: number): { unitId: string; releaseId: number } | null {
+    const r = get<{ unit_id: string; id: number }>(
+      this.db,
+      `SELECT r.unit_id, r.id FROM album_track_versions v JOIN unit_song_releases r ON r.id = v.song_release_id
+       WHERE v.track_id = ? AND v.version = ?`,
+      trackId,
+      version,
+    );
+    return r === null ? null : { unitId: r.unit_id, releaseId: r.id };
+  }
   setVersionRelease(trackId: string, version: number, releaseId: number): void {
     run(
       this.db,

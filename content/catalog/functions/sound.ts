@@ -118,6 +118,52 @@ export const soundFns = defineFns([
       "Moves the filter cutoff at the start of every note, like a pluck or a wah. `lpa` `lpd` `lps` `lpr` shape the movement.",
     example: ex(90, `${SAW}.lpf(300).lpenv(4).lpd(.2)`),
   },
+  // Sound pack v4 (docs/design/samples/proposal.md §5.2)
+  {
+    name: "ftype",
+    tool: "tb.ftype",
+    kind: "control",
+    signature: '.ftype("ladder")',
+    explanation:
+      "Switches the low-pass filter to a ladder model. With `.lpq()` turned up it squelches: the sound of an acid bass line.",
+    example: ex(120, `${SAW}.lpf(500).lpq(16).ftype("ladder")`),
+  },
+  {
+    name: "penv",
+    aliases: ["pattack", "pdecay"],
+    tool: "tb.penv",
+    kind: "control",
+    signature: ".penv(semitones) with .pattack() .pdecay()",
+    explanation:
+      "Bends the pitch at the start of each note. `.penv(24).pdecay(.08)` drops two octaves fast, the way a synth kick falls.",
+    example: ex(100, 'drums: note("c2 ~ c2 ~").s("sine").penv(24).pdecay(.08).decay(.4).sustain(0)'),
+  },
+  {
+    name: "drive",
+    tool: "tb.drive",
+    kind: "control",
+    signature: ".drive(x)",
+    explanation: 'Pushes the ladder filter harder, so it adds grit. Works on `.ftype("ladder")`.',
+    example: ex(120, `${SAW}.lpf(600).lpq(12).ftype("ladder").drive(3)`),
+  },
+  {
+    name: "density",
+    tool: "tb.density",
+    kind: "control",
+    signature: ".density(0 to 1)",
+    explanation: "How many clicks the crackle noise makes: low is a quiet record, high is rain.",
+    example: ex(80, 'fx: s("crackle").density(.3)'),
+  },
+  {
+    name: "wt",
+    aliases: ["wtenv", "wtrate", "wtdepth"],
+    tool: "tb.wt",
+    kind: "control",
+    signature: ".wt(0 to 1) with .wtenv() .wtrate() .wtdepth()",
+    explanation:
+      "Picks the place inside a wavetable, so the timbre can move while the note plays. `.wtrate()` and `.wtdepth()` sweep it.",
+    example: ex(90, 'pad: note("c3 e3 g3 c4").s("wt_morph").wtrate(1).wtdepth(1)'),
+  },
   {
     name: "attack",
     aliases: ["decay", "sustain", "release"],

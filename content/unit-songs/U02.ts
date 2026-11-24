@@ -156,6 +156,8 @@ const v = (mini: string, velocity?: string): string =>
 interface Kit {
   /** `.bank()` for the drum tracks, or "" for the default kit. */
   bank: string;
+  /** A different machine in some sections (electronic: the lo-fi kit in the riff parts and the ending). */
+  banks?: Partial<Record<SectionId, string>>;
   sounds: { bass: string; chords: string; lead: string; vox: string };
   /** At or under the kit's Bands: drums .7 (jazz-soul .65), bass .9, chords .4 (jazz-soul .45). */
   gain: {
@@ -182,6 +184,17 @@ interface Kit {
   /** The chords' rhythm (`struct`) in each section; `chordSound` changes their sound in a section. */
   comp: Readonly<Record<SectionId, string>>;
   chordSound?: Partial<Record<SectionId, string>>;
+  /**
+   * Synth controls by section (electronic): the bass's sound and filter (then the bass's sound is named in each
+   * section, not on the track), the chords' filter and pump, and the two melody lines' envelope and echo.
+   */
+  synth?: {
+    bassSound: Readonly<Record<SectionId, string>>;
+    bass: Readonly<Record<SectionId, string>>;
+    chords: Readonly<Record<SectionId, string>>;
+    lead: string;
+    vox: string;
+  };
 }
 
 // Grooves shared by the kits: the opening's pickup, the quiet part's build, the ending's half time.
@@ -493,11 +506,141 @@ const FUNK: Kit = {
   chordSound: { bridge: "<strings!4 clav!4>" },
 };
 
+// Electronic: the acid line (the TB-303 recipe: a sawtooth under a resonant ladder filter whose envelope opens on an
+// accent pattern), a sine sub, sawtooth stabs and a supersaw pad. The octave jumps fall between the beats; every
+// downbeat is the chord's root, C2 or F2, as in every kit.
+const ACID_C = "c2 ~ c2 c3 c2 ~ c2 ~ c2 ~ c3 c2 c2 ~ ~ c2";
+const ACID_F = "f2 ~ f2 f3 f2 ~ f2 ~ f2 ~ f3 f2 f2 ~ ~ f2";
+const ACID = '.lpq(12).ftype("ladder").lpenv("<3 1.5 2 4>*8").lpd(.14).lps(0).decay(.2).sustain(.4)';
+const SUB = ".decay(1.2).sustain(.7)";
+/** A sawtooth stab whose filter snaps shut. */
+const STAB = ".lpf(1800).lpenv(2).lpd(.12).lps(0).decay(.22).sustain(.3)";
+/** The pump: the on-beat eighth ducked under the kick, as a sidechained record breathes. */
+const PUMP = '.postgain("[.6 1]*4")';
+/** A supersaw pad struck on every beat with a slow attack, so it swells after each kick; its filter drifts. */
+const PAD = ".attack(.12).decay(.4).sustain(.7).lpf(sine.range(900, 2200).slow(8))";
+
+/**
+ * Electronic: Oak's 909-style machine and the lo-fi kit. The riff parts sit on the lo-fi kit, a broken boom-bap beat
+ * over a sine sub and off-beat stabs that leave beat 4 empty; the loud parts go four on the floor on the 909 with the
+ * acid line and pumping stabs; the quiet part swells on a supersaw pad and builds into the acid; the ending is half
+ * time on the lo-fi kit over the sub. A square pluck with a dotted-eighth echo plays the tune, a supersaw lead the
+ * second line. Straight and in triads, like every kit in U02.
+ */
+const ELECTRONIC: Kit = {
+  bank: "oak909",
+  banks: { verse1: "lofikit", verse2: "lofikit", outro: "lofikit" },
+  sounds: { bass: "sawtooth", chords: "sawtooth", lead: "square", vox: "supersaw" },
+  gain: { kick: 0.6, snare: 0.5, hats: 0.35, perc: 0.3, bass: 0.5, chords: 0.28, lead: 0.4, vox: 0.2 },
+  room: 0.2,
+  lpf: 700,
+  chordsPan: 0.4,
+  leadPan: 0.6,
+  kick: {
+    intro: v("<~ ~ [bd*4] [bd*4]>"),
+    verse1: v("bd ~ ~ ~ ~ ~ bd ~ ~ ~ bd ~ ~ ~ ~ ~"),
+    chorus1: v("bd*4"),
+    verse2: v("bd ~ ~ ~ ~ ~ bd ~ ~ ~ bd ~ ~ ~ ~ ~"),
+    bridge: v("<bd!4 [bd ~ bd ~]!2 [bd*4]!2>"),
+    chorus2: v("bd*4"),
+    outro: v("bd ~ ~ ~"),
+    end: v("bd"),
+  },
+  snare: {
+    intro: v(SNARE_PICKUP),
+    verse1: v("<[~ sd ~ sd]!7 [~ sd ~ [sd sd]]>"),
+    chorus1: v("<[~ [sd,cp] ~ [sd,cp]]!7 [~ [sd,cp] [~ sd] [sd sd]]>"),
+    verse2: v("<[~ sd ~ sd]!7 [~ sd ~ [sd sd]]>"),
+    bridge: v(SNARE_BUILD),
+    chorus2: v("<[~ [sd,cp] ~ [sd,cp]]!7 [~ [sd,cp] [~ sd] [sd sd]]>"),
+    outro: v("~ ~ sd ~"),
+    end: null,
+  },
+  hats: {
+    intro: v("<~ ~ [hh hh oh hh]*4 [hh hh oh hh]*4>", V16),
+    verse1: v("hh*8", V8),
+    chorus1: v("[hh hh oh hh]*4", V16),
+    verse2: v("hh*8", V8),
+    bridge: v(HATS_BUILD),
+    chorus2: v("[hh hh oh hh]*4", V16),
+    outro: v("hh*4", V4),
+    end: null,
+  },
+  perc: {
+    intro: null,
+    verse1: v("<cr ~!7>"),
+    chorus1: v("<cr ~!3 cr ~!3>"),
+    verse2: v("<[cr, [~ sh ~ sh]] [~ sh ~ sh]!7>"),
+    bridge: v("<cr ~!5 [~ ~ [lt lt] [ht ht]] [~ ~ [lt lt] [ht ht]]>"),
+    chorus2: v("<cr ~!3 cr ~!3>"),
+    outro: v("<cr ~!7>"),
+    end: v("cr"),
+  },
+  bass: {
+    intro: "<~ ~ [c2@2 c2@2] [f2@2 f2@2]>",
+    verse1: "<[c2@6 c2@2] [f2@6 f2@2]>",
+    chorus1: `<[${ACID_C}] [${ACID_F}]>`,
+    verse2: "<[c2@6 c2@2] [f2@6 f2@2]>",
+    bridge: BASS_BUILD("[c2*8] [f2*8]", `[${ACID_C}] [${ACID_F}]`),
+    chorus2: `<[${ACID_C}] [${ACID_F}]>`,
+    outro: OUTRO_BASS,
+    end: "c2",
+  },
+  comp: {
+    intro: "x*4",
+    verse1: "~ x ~ x ~ x ~ ~",
+    chorus1: "x*8",
+    verse2: "~ x ~ x ~ x ~ ~",
+    bridge: COMP_BUILD,
+    chorus2: "x*8",
+    outro: "~ x ~ x ~ ~ ~ ~",
+    end: "x",
+  },
+  chordSound: { intro: "supersaw", bridge: "<supersaw!4 sawtooth!4>" },
+  synth: {
+    bassSound: {
+      intro: "sine",
+      verse1: "sine",
+      chorus1: "sawtooth",
+      verse2: "sine",
+      bridge: "<sine!4 sawtooth!4>",
+      chorus2: "sawtooth",
+      outro: "sine",
+      end: "sine",
+    },
+    bass: {
+      intro: SUB,
+      verse1: SUB,
+      chorus1: ACID,
+      verse2: SUB,
+      // The whole notes on the sub, then the build on the acid line.
+      bridge:
+        '.lpq(12).ftype("ladder").lpenv("<0!4 3!4>").lpd(.14).lps(0).decay("<1.2!4 .2!4>").sustain("<.7!4 .4!4>")',
+      chorus2: ACID,
+      outro: SUB,
+      end: SUB,
+    },
+    chords: {
+      intro: PAD,
+      verse1: STAB,
+      chorus1: `${STAB}${PUMP}`,
+      verse2: STAB,
+      bridge: '.attack("<.12!4 0!4>").lpf(1800).lpenv(2).lpd(.12).decay(.4).sustain(.5)',
+      chorus2: `${STAB}${PUMP}`,
+      outro: STAB,
+      end: ".lpf(1800).decay(1.5).sustain(.5)",
+    },
+    lead: ".decay(.25).sustain(.3).lpf(2400).delay(.3).delaytime(.47).delayfeedback(.35)",
+    vox: ".unison(5).detune(.2).lpf(3000).decay(.3).sustain(.5)",
+  },
+};
+
 const KITS: Readonly<Record<FlavourId, Kit>> = {
   "flavour.pop": POP,
   "flavour.indie": INDIE,
   "flavour.jazz-soul": JAZZ,
   "flavour.funk": FUNK,
+  "flavour.electronic": ELECTRONIC,
 };
 
 const mapSections = (f: (id: SectionId) => string | null): BySection =>
@@ -506,28 +649,43 @@ const mapSections = (f: (id: SectionId) => string | null): BySection =>
 /** One flavour's song: the tune first, then the chords, the bass and the drums, each one arranged track. */
 function code(flavour: FlavourId): string {
   const k = KITS[flavour];
-  const bank = k.bank ? `.bank("${k.bank}")` : "";
+  const bank = k.bank && !k.banks ? `.bank("${k.bank}")` : "";
+  const syn = k.synth;
   const chords = mapSections((id) => {
     const sound = k.chordSound?.[id] ?? k.sounds.chords;
-    return `note("${CHORD_NOTES[id]}").struct("${k.comp[id]}").s("${sound}")`;
+    return `note("${CHORD_NOTES[id]}").struct("${k.comp[id]}").s("${sound}")${syn?.chords[id] ?? ""}`;
   });
   const bass = mapSections((id) => {
     const line = k.bass[id];
-    return line === null ? null : `note("${line}")`;
+    if (line === null) return null;
+    return syn ? `note("${line}").s("${syn.bassSound[id]}")${syn.bass[id]}` : `note("${line}")`;
   });
+  /** With `banks`, each section names its machine; otherwise the track does, once. */
+  const drums = (by: BySection): BySection =>
+    k.banks
+      ? mapSections((id) => (by[id] === null ? null : `${by[id]}.bank("${k.banks?.[id] ?? k.bank}")`))
+      : by;
   const tracks = [
-    track("mel", MEL, `.s("${k.sounds.lead}").gain(${num(k.gain.lead)}).pan(${num(k.leadPan)})`),
-    track("vox", VOX, `.s("${k.sounds.vox}").gain(${num(k.gain.vox)}).pan(.45).room(${num(k.room)})`),
+    track(
+      "mel",
+      MEL,
+      `.s("${k.sounds.lead}")${syn?.lead ?? ""}.gain(${num(k.gain.lead)}).pan(${num(k.leadPan)})`,
+    ),
+    track(
+      "vox",
+      VOX,
+      `.s("${k.sounds.vox}")${syn?.vox ?? ""}.gain(${num(k.gain.vox)}).pan(.45).room(${num(k.room)})`,
+    ),
     track(
       "chords",
       chords,
       `.velocity("${V4}").gain(${num(k.gain.chords)}).pan(${num(k.chordsPan)}).room(${num(k.room)})`,
     ),
-    track("bass", bass, `.s("${k.sounds.bass}").lpf(${k.lpf}).gain(${num(k.gain.bass)})`),
-    track("kick", k.kick, `${bank}.gain(${num(k.gain.kick)})`),
-    track("snare", k.snare, `${bank}.gain(${num(k.gain.snare)})`),
-    track("hats", k.hats, `${bank}.gain(${num(k.gain.hats)})`),
-    track("perc", k.perc, `${bank}.gain(${num(k.gain.perc)})`),
+    track("bass", bass, `${syn ? "" : `.s("${k.sounds.bass}")`}.lpf(${k.lpf}).gain(${num(k.gain.bass)})`),
+    track("kick", drums(k.kick), `${bank}.gain(${num(k.gain.kick)})`),
+    track("snare", drums(k.snare), `${bank}.gain(${num(k.gain.snare)})`),
+    track("hats", drums(k.hats), `${bank}.gain(${num(k.gain.hats)})`),
+    track("perc", drums(k.perc), `${bank}.gain(${num(k.gain.perc)})`),
   ];
   return [...tracks.flatMap((t) => t.consts), "", ...tracks.map((t) => t.line)].join("\n");
 }

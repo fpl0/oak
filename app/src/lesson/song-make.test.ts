@@ -3,7 +3,7 @@
 // half runs the real grader realm, as grading.test.ts does.
 import { beforeAll, describe, expect, setDefaultTimeout, test } from "bun:test";
 import type { Exercise, SessionId, TakeStep } from "@oak/api";
-import { evaluateForGrading, gradeExercise, initRealm } from "@oak/grader";
+import { evaluateForGrading, gradeExercise, initRealm, normalize } from "@oak/grader";
 import { courseGraph } from "../../../content/index.ts";
 import { unlockedAt } from "../../../content/lib/course.ts";
 import { toolbox } from "../../../content/toolbox.ts";
@@ -23,6 +23,7 @@ import {
   takeIdempotencyKey,
   tempoRangeOf,
   todayLoopOf,
+  trackSummariesOf,
   withSongTempo,
 } from "./song-make.ts";
 
@@ -274,6 +275,16 @@ describe("what a saved take claims", () => {
     ]);
     expect([...pitched.parts].sort()).toEqual(["bass", "lead"]);
     expect(pitched.playsChords).toBe(true);
+  });
+
+  test("a phrase with one two-note chord among single notes does not play chords", async () => {
+    // Six onsets, one of them two notes: a sixth of the onsets is polyphonic, under the quarter that makes chords
+    // (contracts §6.2 rule 1, the grader's polyphonyRatio). Counted by notes it would be 2 of 7.
+    const res = await deps.evaluate('setcpm(100/4)\nkeys: note("[c4,e4] d4 e4 f4 g4 a4")', 1, "4/4");
+    if (!res.ok) throw new Error("the phrase did not run");
+    const keys = trackSummariesOf(normalize(res, { meter: "4/4" })).find((t) => t.label === "keys");
+    expect(keys?.chords).toBe(false);
+    expect(playedPartsOf(TEST_SONG, keys ? [keys] : []).playsChords).toBe(false);
   });
 
   test("the take's cells, labels and tempo come from the evaluated saved code", async () => {

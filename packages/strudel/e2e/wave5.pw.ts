@@ -2,7 +2,7 @@
 // loudness, headphone clarity, the kick kept clear, the bass preset), the riff and comping sounds of U11 with the
 // blue notes and dominant sevenths, every control A1.L01–L04 and U08.L05 teach heard in its own lesson loop, the
 // visual probes' defaults pinned against superdough's real output, Oak's scope on one track, a Band that follows
-// the learner's sections, the Bands of all four flavours as a mix, and a 90-second C3 arrangement that preloads
+// the learner's sections, the Bands of every flavour as a mix, and a 90-second C3 arrangement that preloads
 // with no skipped first note (its CPU headroom moved to wave6.pw.ts, on the CF-A single). Offline renders run through the production prebake on the
 // locked pack (port 5192). Results are written to packages/strudel/sound-wave5.json (committed).
 import { readFileSync, writeFileSync } from "node:fs";
@@ -625,13 +625,19 @@ const keyOfBand = (id: string) =>
   /aeolian|minor|andalusian|ballad/.test(id) ? { tonic: "A", mode: "minor" } : { tonic: "C", mode: "major" };
 const bodyOf = (line: string) => line.replace(/^[A-Za-z_$][\w$]*:\s*/, "");
 
-test("every Band in all four flavours (indie and funk ship in Wave 5) is a balanced mix that never clips", async ({
+test("every Band in every flavour (indie and funk ship in Wave 5, electronic in S1) is a balanced mix that never clips", async ({
   page,
 }) => {
   test.setTimeout(300_000);
   await open(page);
   const flavours = Object.keys(FLAVOUR_RULES);
-  expect(flavours.sort()).toEqual(["flavour.funk", "flavour.indie", "flavour.jazz-soul", "flavour.pop"]);
+  expect(flavours.sort()).toEqual([
+    "flavour.electronic",
+    "flavour.funk",
+    "flavour.indie",
+    "flavour.jazz-soul",
+    "flavour.pop",
+  ]);
   const mixes = bands.flatMap((b) =>
     flavours.map((f) => {
       const key = keyOfBand(b.id);

@@ -77,6 +77,7 @@ export const FLAVOUR_TITLE: Record<FlavourId, string> = {
   "flavour.jazz-soul": "Jazz-soul",
   "flavour.indie": "Indie",
   "flavour.funk": "Funk",
+  "flavour.electronic": "Electronic",
 };
 
 /** The Band roles a brief leaves to the learner's choice: the ones its rubric does not ask the learner to write. */

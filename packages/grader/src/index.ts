@@ -43,7 +43,7 @@ export {
 } from "./analyze/scale-context.ts";
 // --- realm, evaluation, normalization, lint (grader runtime) --------------------------------------
 export { lintBase, lintOak, lintStrict, sectionsFromAst, toolsUsed } from "./lint/index.ts";
-export { drumRole, inferRoles, normalize } from "./normalize/nevent.ts";
+export { drumRole, inferRoles, normalize, SILENT_GAIN } from "./normalize/nevent.ts";
 // Performance steps: targets and pass rules; the pitch/tap measurement itself is @oak/pitch's.
 export {
   minIoiMs,

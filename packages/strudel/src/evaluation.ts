@@ -71,7 +71,11 @@ export function installTrackWrapper(session: EvalSession, mutes: () => MuteMap):
     if (track === null) return injected.call(this, id);
     if (id.includes("$")) session.anonymous++;
     session.tracks.push(track);
-    session.live.push({ label: track, pattern: this });
+    // A label written twice plays only its last pattern (the repl's label map replaces it): the live Make keeps the
+    // first place and the last pattern, as `collectTracks` does, so it never claims a part nothing plays.
+    const again = session.live.find((t) => t.label === track);
+    if (again) again.pattern = this;
+    else session.live.push({ label: track, pattern: this });
     const live = tag(this, track).filterHaps(() => !isMuted(track, mutes()));
     return injected.call(live, id);
   };

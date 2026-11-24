@@ -25,6 +25,7 @@ import {
   isCellKey,
   LABEL_ROLES,
   type LessonId,
+  type LintContext,
   OAK_OWNER,
   ownedBy,
   type PlayedParts,
@@ -193,6 +194,37 @@ function learnerSectionFor(song: PlacedSection, sections: readonly SourceSection
   return same[0] as SourceSection;
 }
 
+/**
+ * The bars of a source that play in the song, as `[from, to)` spans of the source's own bars, merged: each song
+ * section in `owned` plays a loop from its bar 1 for the section's length, or the learner section of its type for
+ * at most that length. What a source plays (its role, the parts it claims) is read over these bars, so a part it
+ * brings in after a long intro still counts.
+ */
+export function playedSpans(
+  def: Pick<UnitSongDef, "sections">,
+  owned: ReadonlySet<SongSectionId>,
+  sections: readonly SourceSection[] | null,
+): [number, number][] {
+  const spans: [number, number][] = [];
+  for (const s of layoutOf(def)) {
+    if (!owned.has(s.id)) continue;
+    if (!sections) {
+      spans.push([0, s.bars]);
+      continue;
+    }
+    const own = learnerSectionFor(s, sections);
+    if (own) spans.push([own.startBar, own.startBar + Math.min(own.bars, s.bars)]);
+  }
+  spans.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const out: [number, number][] = [];
+  for (const [from, to] of spans) {
+    const last = out.at(-1);
+    if (last && from <= last[1]) last[1] = Math.max(last[1], to);
+    else out.push([from, to]);
+  }
+  return out;
+}
+
 /** What a source plays in one song section: its loop from bar 1, or the learner section of that type, looping. */
 function sectionBody(
   pattern: Pattern,
@@ -315,7 +347,7 @@ export interface TrackFacts {
   sounds: string[];
   /** Onsets with a pitch. */
   pitched: number;
-  /** Share of the pitched onsets that start with another pitched onset (chords). */
+  /** Share of the pitched onsets (moments a pitch starts) where two or more pitches start together (chords). */
   chordShare: number;
   /** Median MIDI pitch of the pitched onsets. */
   medianMidi: number | null;
@@ -336,11 +368,29 @@ function midiOf(value: unknown): number | null {
   return null;
 }
 
-/** Reads a track's first `bars` bars (at most 16). A query that throws reads as nothing. */
-export function trackFacts(pattern: Pattern, bars: number): TrackFacts {
+/** The most bars of a track `trackFacts` reads: a song's length at most (`defineUnitSong`). */
+const FACT_BARS = 64;
+
+/**
+ * Reads a track's first `bars` bars, or the `[from, to)` bar spans of it that play (`playedSpans`), 64 bars at most
+ * in all. A query that throws reads as nothing.
+ */
+export function trackFacts(
+  pattern: Pattern,
+  bars: number | readonly (readonly [number, number])[],
+): TrackFacts {
+  const spans: readonly (readonly [number, number])[] =
+    typeof bars === "number" ? [[0, Math.max(1, Math.ceil(bars))]] : bars;
   let haps: Hap[] = [];
   try {
-    haps = pattern.queryArc(0, Math.max(1, Math.min(16, Math.ceil(bars)))).filter((h) => h.hasOnset());
+    let budget = FACT_BARS;
+    for (const [from, to] of spans) {
+      const end = Math.min(to, from + budget);
+      if (end <= from) continue;
+      budget -= end - from;
+      haps.push(...pattern.queryArc(from, end).filter((h) => h.hasOnset()));
+      if (budget <= 0) break;
+    }
   } catch {
     haps = [];
   }
@@ -356,14 +406,16 @@ export function trackFacts(pattern: Pattern, bars: number): TrackFacts {
     const at = Number(h.whole?.begin.valueOf());
     starts.set(at, (starts.get(at) ?? 0) + 1);
   }
+  // Onsets, not notes: a two-note chord among five single notes is one polyphonic onset in six (the grader's
+  // `polyphonyRatio`, contracts §6.2 rule 1).
   let together = 0;
-  for (const n of starts.values()) if (n > 1) together += n;
+  for (const n of starts.values()) if (n > 1) together += 1;
   const sorted = [...pitches].sort((a, b) => a - b);
   return {
     events: haps.length,
     sounds: [...sounds],
     pitched: pitches.length,
-    chordShare: pitches.length === 0 ? 0 : together / pitches.length,
+    chordShare: starts.size === 0 ? 0 : together / starts.size,
     medianMidi: sorted.length === 0 ? null : (sorted[Math.floor(sorted.length / 2)] as number),
   };
 }
@@ -416,6 +468,16 @@ export function playedPartsOfTracks(
 export type SongEvaluator = (code: string) => Promise<{ label: string; pattern: Pattern }[]>;
 /** Whether a code may play (the Band lint, the export's bounds). A source that may not falls back to Oak. */
 export type SongCheck = (code: string, who: "oak" | "source") => boolean;
+
+/**
+ * The lint a unit song's code passes before it plays (spec 2026-11-24 §5.2), for a `SongCheck` built on the one lint:
+ * Oak's code is authored Band code (profile `band`); a learner's saved take is the learner's own code, linted as the
+ * Studio lints it (profile `studio`), so a take that ran when it was saved still plays in the song instead of
+ * falling back to Oak. Previews are allowed for both.
+ */
+export function songLintContext(ctx: LintContext, who: "oak" | "source"): LintContext {
+  return { ...ctx, profile: who === "oak" ? "band" : "studio", allowPreview: true };
+}
 
 /** Oak's code for the song's flavour (pop when the flavour has none), or `null`. */
 export function oakCodeOf(band: Pick<SongBand, "def" | "flavour" | "oakCode">): string | null {
@@ -513,8 +575,11 @@ export function finishSong(
   const { band } = built;
   const def = band.def;
   const lengthBars = songLengthBars(def);
-  const withRole = (t: { label: string; pattern: Pattern }, bars: number) => {
-    const facts = trackFacts(t.pattern, bars);
+  const withRole = (
+    t: { label: string; pattern: Pattern },
+    spans: readonly (readonly [number, number])[],
+  ) => {
+    const facts = trackFacts(t.pattern, spans);
     return { label: t.label, pattern: t.pattern, facts, role: roleOfTrack(t.label, facts) };
   };
   let grid = band.grid;
@@ -522,22 +587,23 @@ export function finishSong(
   let played: PlayedParts | null = null;
   if (band.live && live) {
     const sections = sourceSectionsOf(live.code);
-    const formBars = sections ? sections.reduce((n, s) => n + s.bars, 0) : 4;
-    played = playedPartsOfTracks(
-      def,
-      live.tracks.map((t) => withRole(t, Math.max(4, formBars))),
-    );
     const wanted = new Set(band.live.sections === "all" ? def.sections.map((s) => s.id) : band.live.sections);
     const layout = layoutOf(def).filter((s) => wanted.has(s.id));
     const filled = sections
       ? layout.filter((s) => learnerSectionFor(s, sections) !== null).map((s) => s.id)
       : null;
+    const owned = new Set(filled ?? layout.map((s) => s.id));
+    // What the Make plays, read over every bar of it that plays in the song (not just its first bars).
+    const spans = playedSpans(def, owned, sections);
+    played = playedPartsOfTracks(
+      def,
+      live.tracks.map((t) => withRole(t, spans)),
+    );
     const step: TakeStep = { ...band.live.step, sections: layout.map((s) => s.id) };
     const cells = claimsOf(def, step, played, filled ?? undefined);
     const next = new Map(grid);
     for (const c of cells) if (next.has(c)) next.set(c, LIVE_SOURCE);
     grid = next;
-    const owned = new Set(filled ?? layout.map((s) => s.id));
     place = (pattern) => placeInSections(def, pattern, owned, sections);
   }
   const tracks = composeSongPatterns({
@@ -549,7 +615,8 @@ export function finishSong(
       lessonId: s.lessonId,
       sections: s.sections,
       tracks: s.tracks.map((t) => {
-        const r = withRole(t, s.sections ? s.sections.reduce((n, x) => n + x.bars, 0) : 4);
+        const owned = new Set(ownedBy(grid, s.sourceId).parts.keys());
+        const r = withRole(t, playedSpans(def, owned, s.sections));
         return { label: r.label, role: r.role, pattern: r.pattern };
       }),
     })),

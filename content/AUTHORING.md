@@ -1016,7 +1016,7 @@ kick: arrange([4, kickIntro], [8, kickVerse], [8, kickChorus], [8, kickChorus]).
 mel: arrange([4, silence], [8, melVerse], [8, melChorus], [8, melChorus]).scale("C4:major").s("piano").gain(.5)
 ```
 
-Do not write four flavours by hand. Write one builder that takes the kit (sounds, production numbers, comp and bass grooves) and emits the code, as `content/unit-songs/U01.ts` does (and CF-A's `single()` in `content/capstones.ts`): the notes then cannot drift between flavours.
+Do not write five flavours by hand. Write one builder that takes the kit (sounds, production numbers, comp and bass grooves) and emits the code, as `content/unit-songs/U01.ts` does (and CF-A's `single()` in `content/capstones.ts`): the notes then cannot drift between flavours.
 
 ### 23.3 Sections and parts
 
@@ -1034,17 +1034,17 @@ Do not write four flavours by hand. Write one builder that takes the kit (sounds
 3. **Drum parts list their `sounds`** (required, drum parts only): the sound names that belong to the part, read before any `:` index (`bd:3` is `bd`). A sound belongs to one part only. List every sound Oak's flavours use and every sound the unit's starters, references and hints use, plus the obvious neighbours: snare `sd rim cp`, hats `hh oh`, cymbals and toms `cr rd lt mt ht`. A learner's `drums:` line is then split hit by hit: its kick goes to the kick part, its snare to the snare part.
 4. `name` is the musical name ("Melody"), `plainName` the name before its term ("Tune"), `termId` the term that switches between them. Without a `termId` the `name` shows from the first lesson, so it must be plain English (Kick, Snare, Bass).
 
-### 23.4 The four flavours: what may differ
+### 23.4 The five flavours: what may differ
 
-Every song exists in all four flavours. The learner picks one when the song opens and may change it later; their takes stay.
+Every song exists in all five flavours (pop, indie, jazz-soul, funk, electronic). The learner picks one when the song opens and may change it later; their takes stay.
 
 | The same in every flavour | May differ by flavour |
 |---|---|
 | sections, their order and bars | sounds and banks (the kit's, contracts §5.10) |
 | parts, and the sections each part plays in | the drum groove and the comp rhythm inside a section |
 | chord roots and functions | swing, as the kit's staging allows |
-| the bass roots on the downbeats | chord colour: sixths, sevenths, ninths as the kit's staging allows (jazz-soul from U03, funk from U06) |
-| every pitch of the lead tune | production: room, filter, pan, gain inside §23.5 |
+| the bass roots on the downbeats | chord colour: sixths, sevenths, ninths as the kit's staging allows (jazz-soul from U03, funk from U06, electronic from U06.L10) |
+| every pitch of the lead tune | production: room, filter, pan, gain inside §23.5; synth controls (electronic's acid filter, pad swell, pump) |
 
 A song stays **straight** wherever the unit's takes are straight-subdivision parts the learner writes: all of U01–U02 and U13. A kit without a sound the others use (jazz-soul has no crash) uses its own, and that sound must be in the drum part's `sounds` (U01 puts `rd` in `perc`).
 

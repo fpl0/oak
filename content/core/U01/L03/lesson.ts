@@ -57,7 +57,7 @@ const TAP_FEEDBACK = {
 
 export default defineLesson({
   id: "U01.L03",
-  version: 6,
+  version: 7,
   title: "Backbeat",
   objective: "I can put the kick on 1 and 3 and the snare on 2 and 4, one labelled line per drum.",
   key: { tonic: "C", mode: "major" },
@@ -87,7 +87,7 @@ export default defineLesson({
         hints: null,
         tests: [],
         items: [
-          { code: HOOK, caption: "Three lines of drums on a TR-808.", bars: 4 },
+          { code: HOOK, caption: "Three lines of drums on Oak's 808-style drum machine.", bars: 4 },
           { code: NO_SNARE, caption: "The same groove, one line short.", bars: 4 },
         ],
       },

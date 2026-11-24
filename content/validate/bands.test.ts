@@ -184,7 +184,20 @@ describe("flavour kits", () => {
       lead: "snd.piano",
       chordDepth: "triad",
     });
+    expect(row("flavour.electronic")).toMatchObject({
+      drums: "snd.oak909",
+      bass: "snd.wave.sawtooth",
+      chords: "snd.wave.sawtooth",
+      lead: "snd.wave.square",
+      chordDepth: "seventh",
+    });
+    expect(row("flavour.electronic")?.swing).toBeUndefined();
     expect(FLAVOUR_RULES["flavour.jazz-soul"].seventhsFrom).toBe("U03.L01");
     expect(FLAVOUR_RULES["flavour.funk"].seventhsFrom).toBe("U06.L01");
+    expect(FLAVOUR_RULES["flavour.electronic"]).toEqual({
+      ships: "S1",
+      seventhsFrom: "U06.L10",
+      feel: "straight",
+    });
   });
 });

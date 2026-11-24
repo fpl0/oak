@@ -6,7 +6,7 @@
 //
 // Two things change with the course, per flavour (content/flavours.ts FLAVOUR_RULES, contracts §5.10):
 // jazz-soul plays triads and straight eighths in U01–U02 and four-note chords with swung eighths from U03
-// on; funk adds four-note chords from U06. BandDef holds one code per flavour (the earliest stage), so the
+// on; funk adds four-note chords from U06; electronic from U06.L10 ("Seventh Colour"), straight throughout. BandDef holds one code per flavour (the earliest stage), so the
 // later stages live in BAND_STAGES and `bandCodeAt` picks the one a session has reached. Every player of a
 // Band (lesson, checkpoint, Studio, capstone) should ask `bandCodeAt` rather than read `code[flavour]`.
 import {
@@ -77,7 +77,7 @@ const TRIPLETS = '"[1 .86 .9]*4"';
 const SWING_4 = ".swingBy(1/3, 4)";
 const SWING_3 = ".swingBy(1/3, 3)";
 
-type Flavour = "flavour.pop" | "flavour.jazz-soul" | "flavour.indie" | "flavour.funk";
+type Flavour = "flavour.pop" | "flavour.jazz-soul" | "flavour.indie" | "flavour.funk" | "flavour.electronic";
 interface Kit {
   bank: string;
   bass: string;
@@ -85,6 +85,10 @@ interface Kit {
   drumsGain: number;
   bassGain: number;
   chordsGain: number;
+  /** Synth controls after the bass's `.lpf()` (electronic: the acid filter), or none. */
+  bassFx?: string;
+  /** Synth controls after the chords' `.s()` (electronic: the stab's filter envelope), or none. */
+  chordsFx?: string;
 }
 const KITS: Record<Flavour, Kit> = {
   "flavour.pop": { bank: "", bass: "ebass", chords: "piano", drumsGain: 0.7, bassGain: 0.9, chordsGain: 0.4 },
@@ -111,6 +115,22 @@ const KITS: Record<Flavour, Kit> = {
     drumsGain: 0.7,
     bassGain: 0.9,
     chordsGain: 0.4,
+  },
+  // Electronic (sound pack v4): Oak's 909-style machine, an acid bass and sawtooth stabs. A raw sawtooth is as loud
+  // as a sampled bass at the default gain (packages/strudel/sound-wave5.json: `s("sawtooth").lpf(600)` −22.6 LUFS,
+  // ebass −23) and the ladder's resonance and the envelope add to it, so the synth parts sit lower than the kits of
+  // samples: bass .55, stabs .3, the machine .6 (four kicks a bar, a clap and sixteenth hats). The acid line is the
+  // TB-303's recipe: a sawtooth under the resonant ladder filter (corner at the kit's 700 Hz), an envelope that opens
+  // it on every note by an accent pattern, short notes. The stab is a sawtooth chord whose filter snaps shut.
+  "flavour.electronic": {
+    bank: "oak909",
+    bass: "sawtooth",
+    chords: "sawtooth",
+    drumsGain: 0.6,
+    bassGain: 0.55,
+    chordsGain: 0.3,
+    bassFx: '.lpq(12).ftype("ladder").lpenv("<3 1.5 2 4>*8").lpd(.14).lps(0).decay(.2).sustain(.4)',
+    chordsFx: ".lpf(1800).lpenv(2).lpd(.12).lps(0).decay(.22).sustain(.3)",
   },
 };
 /** A number as Strudel code is written in this repo: `.4`, not `0.4`. */
@@ -155,8 +175,8 @@ function layers(f: Flavour, p: Parts): string {
   const bank = k.bank ? `.bank("${k.bank}")` : "";
   return [
     `drums: s("${p.drums}")${bank}${swing}.velocity(${p.drumsVelocity}).gain(${num(drumsGainOf(k, p.drumsLift))})`,
-    `bass: n(${p.bass}).scale("{{key}}").s("${k.bass}").lpf(${prod.bassLpf}).gain(${num(k.bassGain)})`,
-    `chords: n(${p.chords}).scale("{{key}}").struct("${p.struct}")${swing}.s("${k.chords}").velocity(${p.chordsVelocity}).gain(${num(chordsGainOf(k, p.chordsLift))}).pan(${num(prod.pan.chords ?? 0.42)}).room(${num(prod.room)})`,
+    `bass: n(${p.bass}).scale("{{key}}").s("${k.bass}").lpf(${prod.bassLpf})${k.bassFx ?? ""}.gain(${num(k.bassGain)})`,
+    `chords: n(${p.chords}).scale("{{key}}").struct("${p.struct}")${swing}.s("${k.chords}")${k.chordsFx ?? ""}.velocity(${p.chordsVelocity}).gain(${num(chordsGainOf(k, p.chordsLift))}).pan(${num(prod.pan.chords ?? 0.42)}).room(${num(prod.room)})`,
   ].join("\n");
 }
 
@@ -173,6 +193,25 @@ const COMP = { struct: "x ~ ~ [~ x]", chordsVelocity: PUSH };
  */
 const COMP_SWUNG = { struct: "x ~ [~ x] ~", chordsVelocity: PUSH };
 const STAB = { struct: "~ x ~ [~ x]", chordsVelocity: PUSH };
+/**
+ * Electronic: four on the floor on the 909, a clap on 2 and 4, sixteenth hats that open on every "and". The chords
+ * are stabs on the off-beats, between the kicks, which is the pump a sidechained house record has (each stab rises
+ * as the kick dies away). The bass is an acid line: the bar's root on sixteenths with gaps, never leaving the root, so
+ * it never climbs into the chords (the acid is in the filter, not in the notes).
+ */
+const ELEC_4 = { drums: "bd*4, ~ cp ~ cp, [hh hh oh hh]*4", drumsVelocity: HUMAN_16THS };
+const OFF_STABS = { struct: "[~ x]*4", chordsVelocity: '"[1 .86]*2"' };
+/** One bar of acid on a root: sixteenths with gaps, landing on every beat. */
+const acidCell = (r: number | string): string =>
+  `[${r} ~ ${r} ${r} ${r} ~ ${r} ~ ${r} ~ ${r} ${r} ${r} ~ ~ ${r}]`;
+/** A bar-per-root bass (`"<-14 -11>"`) as acid, one cell a bar. */
+const acidOf = (roots: string): string =>
+  `"<${roots
+    .replace(/^"<|>"$/g, "")
+    .trim()
+    .split(/\s+/)
+    .map((r) => acidCell(r))
+    .join(" ")}>"`;
 
 /** The two-chord vamp (I–IV, a bar each) in every kit, with the given chords for jazz-soul and funk. */
 const vamp = (f: Flavour, chords: { jazz: string; funk: string }, swing = ""): string => {
@@ -196,6 +235,9 @@ const vamp = (f: Flavour, chords: { jazz: string; funk: string }, swing = ""): s
         bass: '"<[-14 ~ -14 -7] [-11 ~ -11 -4]>"',
         chords: chords.funk,
       });
+    // Electronic takes the four-note slot (`funk`) from its own stage on (U06.L10, BAND_STAGES).
+    case "flavour.electronic":
+      return layers(f, { ...ELEC_4, ...OFF_STABS, bass: acidOf('"<-14 -11>"'), chords: chords.funk });
   }
 };
 /** The waltz vamp: bass on 1, chords on 2 and 3 (funk pushes the last one onto the "and" of 3). */
@@ -238,6 +280,15 @@ const waltz = (f: Flavour, chords: { jazz: string; funk: string }, swing = ""): 
         struct: "~ x [~ x]",
         chordsVelocity: WALTZ_3,
       });
+    case "flavour.electronic":
+      return layers(f, {
+        drums: "bd [~ oh] [cp oh]",
+        drumsVelocity: WALTZ_3,
+        bass: '"<[-14 ~ -14 -14 ~ -14] [-11 ~ -11 -11 ~ -11]>"',
+        chords: chords.funk,
+        struct: "~ x x",
+        chordsVelocity: WALTZ_3,
+      });
   }
 };
 /** The eight-bar phrase (only from U03.L11, so jazz-soul is already in four-note chords and swing). */
@@ -257,6 +308,8 @@ const phrase = (f: Flavour, funkChords: string): string => {
       return layers(f, { ...INDIE_4, ...PIANO_4, bass: PHRASE_ROOTS, chords: PHRASE_TRIADS });
     case "flavour.funk":
       return layers(f, { ...FUNK_4, ...STAB, bass: PHRASE_ROOTS, chords: funkChords });
+    case "flavour.electronic":
+      return layers(f, { ...ELEC_4, ...OFF_STABS, bass: acidOf(PHRASE_ROOTS), chords: funkChords });
   }
 };
 /**
@@ -287,6 +340,8 @@ const axis = (f: Flavour, fours: { jazz: string; funk: string } = AXIS_EARLY, sw
         bass: '"<[-14 ~ -14 -7] [-10 ~ -10 -6] [-9 ~ -9 -5] [-11 ~ -11 -7]>"',
         chords: fours.funk,
       });
+    case "flavour.electronic":
+      return layers(f, { ...ELEC_4, ...OFF_STABS, bass: acidOf('"<-14 -10 -9 -11>"'), chords: fours.funk });
   }
 };
 // The first stage keeps the loop as Wave 2 wrote it (content/validate/bands.test.ts pins it): jazz-soul swung
@@ -319,6 +374,16 @@ const doowop = (f: Flavour, fours: { jazz: string; funk: string } = DOOWOP_EARLY
         struct: "[~ x x]*4",
         chordsVelocity: TRIPLETS,
         bass: '"<[-14 ~ -14 -7] [-9 ~ -9 -5] [-11 ~ -11 -7] [-10 ~ -10 -6]>"',
+        chords: fours.funk,
+      });
+    case "flavour.electronic":
+      // In threes: the kick on the beat, the hats' third triplet open, the stabs on the second and third.
+      return layers(f, {
+        drums: "bd*4, ~ cp ~ cp, [hh hh oh]*4",
+        drumsVelocity: TRIPLETS,
+        struct: "[~ x x]*4",
+        chordsVelocity: TRIPLETS,
+        bass: '"<[-14 ~ -14]*4 [-9 ~ -9]*4 [-11 ~ -11]*4 [-10 ~ -10]*4>"',
         chords: fours.funk,
       });
   }
@@ -357,6 +422,9 @@ const rock = (f: Flavour, fours: { jazz: string; funk: string } = ROCK_EARLY, sw
         bass: '"<[-14 ~ -14 -7] [-11 ~ -11 -7] [-10 ~ -10 -6] [-11 ~ -11 -7]>"',
         chords: fours.funk,
       });
+    case "flavour.electronic":
+      // The rock bass's pumping eighths on the saw, the stabs between the kicks.
+      return layers(f, { ...ELEC_4, ...OFF_STABS, bass: ROCK_BASS, chords: fours.funk });
   }
 };
 const ROCK_EARLY = { jazz: ROCK_TRIADS, funk: ROCK_TRIADS };
@@ -410,8 +478,8 @@ function semiLayers(f: Flavour, p: SemiParts): string {
   const bank = k.bank ? `.bank("${k.bank}")` : "";
   return [
     `drums: s("${p.drums}")${bank}${swing}.velocity(${p.drumsVelocity}).gain(${num(drumsGainOf(k, p.drumsLift))})`,
-    `bass: note(${p.bass}).add(${TONIC})${p.bassSwing ?? ""}.s("${k.bass}").lpf(${prod.bassLpf}).gain(${num(k.bassGain)})`,
-    `chords: note(${p.chords}).add(${TONIC}).struct("${p.struct}")${swing}.s("${k.chords}").velocity(${p.chordsVelocity}).gain(${num(chordsGainOf(k, p.chordsLift))}).pan(${num(prod.pan.chords ?? 0.42)}).room(${num(prod.room)})`,
+    `bass: note(${p.bass}).add(${TONIC})${p.bassSwing ?? ""}.s("${k.bass}").lpf(${prod.bassLpf})${k.bassFx ?? ""}.gain(${num(k.bassGain)})`,
+    `chords: note(${p.chords}).add(${TONIC}).struct("${p.struct}")${swing}.s("${k.chords}")${k.chordsFx ?? ""}.velocity(${p.chordsVelocity}).gain(${num(chordsGainOf(k, p.chordsLift))}).pan(${num(prod.pan.chords ?? 0.42)}).room(${num(prod.room)})`,
   ].join("\n");
 }
 
@@ -466,6 +534,8 @@ const aeolian = (f: Flavour): string => {
         bass: aeolianBass((r) => `[${r} ~ ${r} ${r + 12}]`),
         chords: AEOLIAN_FOURS,
       });
+    case "flavour.electronic":
+      return semiLayers(f, { ...ELEC_4, ...OFF_STABS, bass: aeolianBass(acidCell), chords: AEOLIAN_FOURS });
   }
 };
 
@@ -496,6 +566,8 @@ const WALK: BassCell = (r, changed) =>
 /** Root, root, 5th, 5th, 6th, 6th, 5th, 5th: the rock-and-roll shuffle bass. */
 const ROCK_SHUFFLE: BassCell = (r) => `[${[0, 0, 7, 7, 9, 9, 7, 7].map((x) => r + x).join(" ")}]`;
 const FUNK_SHUFFLE: BassCell = (r) => `[${r} ~ ${r + 7} ${r + 10} ~ ${r + 9} ${r + 7} ~]`;
+/** Root and 5th in shuffled eighths, the acid filter doing the rest: the 5th stays under every chord's lowest note. */
+const ACID_SHUFFLE: BassCell = (r) => `[${[0, 0, 7, 0, 0, 7, 0, 7].map((x) => r + x).join(" ")}]`;
 const bluesBass = (plan: readonly Step[], cell: BassCell) =>
   `"<${plan.map((s, i) => cell(BLUES_ROOT[s], i === 0 || plan[i - 1] !== s)).join(" ")}>"`;
 const bluesChords = (plan: readonly Step[]) => `"<${plan.map((s) => DOM7[s]).join(" ")}>"`;
@@ -546,6 +618,17 @@ const blues = (f: Flavour, plan: readonly Step[]): string => {
         ...COMP_SWUNG,
         swing: SWING_4,
       });
+    case "flavour.electronic":
+      // A shuffle is swung in every kit: the acid line shuffles, the kick stays on the floor, the stabs on 2 and 4.
+      return semiLayers(f, {
+        drums: "bd [bd,sd] bd [bd,sd]",
+        drumsVelocity: PUMP_4,
+        bass: bluesBass(plan, ACID_SHUFFLE),
+        bassSwing: SWING_4,
+        chords,
+        struct: "~ x ~ x",
+        chordsVelocity: PUSH,
+      });
   }
 };
 
@@ -583,8 +666,8 @@ function sectionLayers(f: Flavour, p: SectionParts): string {
     `const chordsChorus = n(${p.chords[1]}).struct("${p.struct[1]}")`,
     "",
     `drums: ${SECTION_FORM("drums")}${bank}${swing}.velocity(${p.drumsVelocity}).gain(${num(k.drumsGain)})`,
-    `bass: ${SECTION_FORM("bass")}.scale("{{key}}").s("${k.bass}").lpf(${prod.bassLpf}).gain(${num(k.bassGain)})`,
-    `chords: ${SECTION_FORM("chords")}.scale("{{key}}")${swing}.s("${k.chords}").velocity(${p.chordsVelocity}).gain(${num(k.chordsGain)}).pan(${num(prod.pan.chords ?? 0.42)}).room(${num(prod.room)})`,
+    `bass: ${SECTION_FORM("bass")}.scale("{{key}}").s("${k.bass}").lpf(${prod.bassLpf})${k.bassFx ?? ""}.gain(${num(k.bassGain)})`,
+    `chords: ${SECTION_FORM("chords")}.scale("{{key}}")${swing}.s("${k.chords}")${k.chordsFx ?? ""}.velocity(${p.chordsVelocity}).gain(${num(k.chordsGain)}).pan(${num(prod.pan.chords ?? 0.42)}).room(${num(prod.room)})`,
   ].join("\n");
 }
 const VERSE_ROOTS = '"<-14 -9 -11 -10>"';
@@ -633,6 +716,17 @@ const sections = (f: Flavour): string => {
         ],
         chords: [VERSE_FOURS, CHORUS_FOURS],
         struct: ["~ x ~ [~ x]", "[~ x]*4"],
+        chordsVelocity: PUSH,
+      });
+    case "flavour.electronic":
+      // The verse holds back (the kick, the clap, off-beat hats; the bass on eighths), the chorus opens the hats and
+      // the acid line and doubles the stabs.
+      return sectionLayers(f, {
+        drums: ["bd*4, ~ cp ~ cp, [~ hh]*4", "bd*4, ~ cp ~ cp, [hh hh oh hh]*4"],
+        drumsVelocity: HUMAN_16THS,
+        bass: ['"<[-14 ~ -14 ~] [-9 ~ -9 ~] [-11 ~ -11 ~] [-10 ~ -10 ~]>"', acidOf('"<-11 -10 -14 -14>"')],
+        chords: [VERSE_FOURS, CHORUS_FOURS],
+        struct: ["~ x ~ x", "[~ x]*4"],
         chordsVelocity: PUSH,
       });
   }
@@ -741,6 +835,8 @@ const modal = (f: Flavour, mode: ModeName): string => {
         bass: modalBass(m.roots, (r) => `[${r} ~ ${r} ${r + 12}]`),
         chords: m.fours,
       });
+    case "flavour.electronic":
+      return semiLayers(f, { ...ELEC_4, ...OFF_STABS, bass: modalBass(m.roots, acidCell), chords: m.fours });
   }
 };
 
@@ -792,6 +888,16 @@ const soul68 = (f: Flavour): string => {
         struct: "~ x ~ ~ x ~",
         chordsVelocity: '"1 .86"',
       });
+    case "flavour.electronic":
+      // The snare (not the clap) on the second dotted quarter, as the meter asks; the bass pulses its roots.
+      return layers(f, {
+        drums: "bd ~ ~ sd ~ ~, [~ hh]*6",
+        drumsVelocity: SIX_8THS_16,
+        bass: '"<[-14 ~ -14 -14 ~ -14] [-9 ~ -9 -9 ~ -9] [-11 ~ -11 -11 ~ -11] [-10 ~ -10 -10 ~ -10]>"',
+        chords: DOOWOP_FOURS,
+        struct: "~ x x ~ x x",
+        chordsVelocity: SIX_8THS,
+      });
   }
 };
 
@@ -827,6 +933,9 @@ const twoFiveOne = (f: Flavour): string => {
         // Two-note stabs on the off-beats: 11.3 LU under the bass at the kit's gain, about 9.0 with this lift.
         chordsLift: 1.3,
       });
+    case "flavour.electronic":
+      // Two-note stabs, lifted as funk's are (not measured for this kit).
+      return layers(f, { ...ELEC_4, ...OFF_STABS, bass: TWO_FEEL, chords: GUIDE_TONES, chordsLift: 1.3 });
   }
 };
 
@@ -945,6 +1054,8 @@ const jazzForm = (f: Flavour, chart: Chart): string => {
       });
     case "flavour.funk":
       return semiLayers(f, { drums: "bd ~ sd bd, hh*8", drumsVelocity: HUMAN_8THS, ...parts });
+    case "flavour.electronic":
+      return semiLayers(f, { drums: "bd*4, ~ cp ~ cp, hh*8", drumsVelocity: HUMAN_8THS, ...parts });
   }
 };
 const chartNames = (chart: Chart) =>
@@ -977,6 +1088,8 @@ const iiVIComp = (f: Flavour): string => {
         bass: '"<[-13 ~ -13 -6] [-10 ~ -10 -6] [-14 ~ -14 -7] [-14 ~ -14 -7]>"',
         chords: HIGH_COMP,
       });
+    case "flavour.electronic":
+      return layers(f, { ...ELEC_4, ...COMP, bass: TWO_FEEL, chords: HIGH_COMP });
   }
 };
 
@@ -1031,7 +1144,13 @@ const fiveFour = (f: Flavour): string =>
     chordsLift: 1.4,
   });
 
-const FLAVOURS: readonly Flavour[] = ["flavour.pop", "flavour.jazz-soul", "flavour.indie", "flavour.funk"];
+const FLAVOURS: readonly Flavour[] = [
+  "flavour.pop",
+  "flavour.jazz-soul",
+  "flavour.indie",
+  "flavour.funk",
+  "flavour.electronic",
+];
 const each = (code: (f: Flavour) => string): Record<FlavourId, string> =>
   Object.fromEntries(FLAVOURS.map((f) => [f, code(f)])) as Record<FlavourId, string>;
 const EARLY = { jazz: TWO_TRIADS, funk: TWO_TRIADS };
@@ -1310,6 +1429,8 @@ export interface BandStage {
 }
 const JAZZ_FROM: LessonId = "U03.L01";
 const FUNK_FROM: LessonId = "U06.L01";
+/** Electronic's four-note chords (FLAVOUR_RULES): from U06.L10, "Seventh Colour". */
+const ELEC_FROM: LessonId = "U06.L10";
 const SIXTHS_SWING = "four-note chords (C6, F6) and swung eighths";
 export const BAND_STAGES: Readonly<Record<string, Partial<Record<FlavourId, readonly BandStage[]>>>> = {
   "band.two-chord-vamp": {
@@ -1324,6 +1445,13 @@ export const BAND_STAGES: Readonly<Record<string, Partial<Record<FlavourId, read
       {
         from: FUNK_FROM,
         code: vamp("flavour.funk", { jazz: TWO_TRIADS, funk: TWO_SIXTHS }),
+        what: "four-note chords (C6, F6)",
+      },
+    ],
+    "flavour.electronic": [
+      {
+        from: ELEC_FROM,
+        code: vamp("flavour.electronic", { jazz: TWO_TRIADS, funk: TWO_SIXTHS }),
         what: "four-note chords (C6, F6)",
       },
     ],
@@ -1343,6 +1471,13 @@ export const BAND_STAGES: Readonly<Record<string, Partial<Record<FlavourId, read
         what: "four-note chords (C6, F6)",
       },
     ],
+    "flavour.electronic": [
+      {
+        from: ELEC_FROM,
+        code: waltz("flavour.electronic", { jazz: TWO_TRIADS, funk: TWO_SIXTHS }),
+        what: "four-note chords (C6, F6)",
+      },
+    ],
   },
   "band.axis-4bar": {
     "flavour.jazz-soul": [
@@ -1356,6 +1491,13 @@ export const BAND_STAGES: Readonly<Record<string, Partial<Record<FlavourId, read
       {
         from: FUNK_FROM,
         code: axis("flavour.funk", { jazz: AXIS_TRIADS, funk: AXIS_FOURS }),
+        what: "four-note chords (C6, G7, Am7, F6)",
+      },
+    ],
+    "flavour.electronic": [
+      {
+        from: ELEC_FROM,
+        code: axis("flavour.electronic", { jazz: AXIS_TRIADS, funk: AXIS_FOURS }),
         what: "four-note chords (C6, G7, Am7, F6)",
       },
     ],
@@ -1375,6 +1517,13 @@ export const BAND_STAGES: Readonly<Record<string, Partial<Record<FlavourId, read
         what: "four-note chords (C6, Am7, F6, G7)",
       },
     ],
+    "flavour.electronic": [
+      {
+        from: ELEC_FROM,
+        code: doowop("flavour.electronic", { jazz: DOOWOP_TRIADS, funk: DOOWOP_FOURS }),
+        what: "four-note chords (C6, Am7, F6, G7)",
+      },
+    ],
   },
   "band.three-chord": {
     "flavour.jazz-soul": [
@@ -1391,10 +1540,24 @@ export const BAND_STAGES: Readonly<Record<string, Partial<Record<FlavourId, read
         what: "four-note chords (C6, F6, G7)",
       },
     ],
+    "flavour.electronic": [
+      {
+        from: ELEC_FROM,
+        code: rock("flavour.electronic", { jazz: ROCK_TRIADS, funk: ROCK_FOURS }),
+        what: "four-note chords (C6, F6, G7)",
+      },
+    ],
   },
   "band.phrase-8bar": {
     "flavour.funk": [
       { from: FUNK_FROM, code: phrase("flavour.funk", PHRASE_FOURS), what: "four-note chords (C6, F6, G7)" },
+    ],
+    "flavour.electronic": [
+      {
+        from: ELEC_FROM,
+        code: phrase("flavour.electronic", PHRASE_FOURS),
+        what: "four-note chords (C6, F6, G7)",
+      },
     ],
   },
 };
@@ -1418,7 +1581,7 @@ export function bandCodeAt(
   return code;
 }
 
-/** Two-chord vamp with four-note chords, for jazz-soul and funk from U03/U06 on (FLAVOUR_RULES). */
+/** Two-chord vamp with four-note chords, for jazz-soul, funk and electronic from U03/U06/U06.L10 on (FLAVOUR_RULES). */
 export const SEVENTH_VAMP_CHORDS = TWO_SIXTHS;
 /** The major-seventh vamp the jazz-soul Band does not use under a tune that rests on 1 and 4 (see above). */
 export const MAJOR_SEVENTH_VAMP_CHORDS = TWO_SEVENTHS;

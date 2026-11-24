@@ -9,6 +9,10 @@
 // - `soundAlias` cannot pin a variant and does not lower-case: curated aliases use `registerSound` with
 //   a variant-pinning wrapper, lower-case keys.
 // - `aliasBank` copies entries that exist at call time: it runs after the sample maps.
+// - v4: a sample-backed alias (`rhodes` -> map key `src_rhodes`) is a registered sample sound under the alias
+//   name, so the preloader and `packFileUrls` treat it like any sample; its velocity picks the layer.
+// - v4: retired bank names (`RolandTR909`...) are bank aliases of Oak's CC0 kits (`manifest.kitAliases`),
+//   made after the kits are complete and trimmed, so they copy the finished entries.
 import * as core from "@strudel/core";
 import * as draw from "@strudel/draw";
 import * as mini from "@strudel/mini";
@@ -20,12 +24,38 @@ export interface PackManifest {
   packVersion: string;
   publicRoot: string;
   sampleMaps: { json: string; base: string; tag?: string }[];
-  bankAliases: string;
+  /** v1–v3: the tidal-drum-machines bank alias file. */
+  bankAliases?: string;
   soundfontUrl: string;
   soundfonts: Record<string, { upstreamIndex: number; font: string }[]>;
   aliases: Record<string, AliasEntry>;
   /** `<kit>_<role>` -> linear gain (Oak kits, `.bank("jazzkit")`). Absent in v1 packs. */
   kitGains?: Record<string, number | number[]>;
+  /** v4: `<kit>_<role>` -> velocity layers per variant (the map lists files variant-major) and their split. */
+  kitLayers?: Record<string, { layers: number; split: number[] }>;
+  /** v4: Oak's kits (each completed with the default kit's roles). */
+  kits?: string[];
+  /** v4: retired bank name -> the Oak kit it plays. */
+  kitAliases?: Record<string, string>;
+  /** v4: sample-backed instruments. */
+  sampleAliases?: Record<string, SampleAliasEntry>;
+  /** v4: the pack's credits (rendered by the About page) and the breaks' slice tables. */
+  credits?: string;
+  breaks?: string;
+}
+
+/** A sample-backed alias in the manifest (`scripts/sounds/pack.config.ts`, kind "sample"). */
+export interface SampleAliasEntry {
+  /** The pitched sample map key behind it (`src_<alias>`). */
+  sample: string;
+  /** Velocity layers per pitch (the map lists them softest first). */
+  layers: number;
+  /** Velocity thresholds between layers. */
+  split?: number[];
+  gain?: number;
+  /** Release (s) when the code sets none: the note stops at the end of its event, like the GM aliases. */
+  release: number;
+  range: [number, number];
 }
 
 /** A curated alias in the manifest (`scripts/sounds/pack.config.ts` `OAK_ALIASES`). */
@@ -62,6 +92,11 @@ export interface SoundEntry {
     baseUrl?: string;
     /** Oak aliases: the MIDI range a by-name preload warms. */
     range?: [number, number];
+    /** Wavetables (`wt_*` map keys): the table files. */
+    tables?: string[];
+    /** v4 velocity layers (sample aliases: per pitch; kit roles: per variant, files variant-major). */
+    layers?: number;
+    split?: number[];
   };
 }
 
@@ -124,6 +159,38 @@ export function pinVariant(
     for (const [k, d] of Object.entries(defaults)) if (v[k] === undefined) v[k] = d;
     return entry.onTrigger(t, v, onended, cps);
   };
+}
+
+/** The velocity layer a hap plays: the first layer whose threshold its velocity is below, else the top one. */
+export function layerOf(velocity: unknown, split: readonly number[]): number {
+  const v = typeof velocity === "number" ? velocity : 1;
+  const i = split.findIndex((t) => v < t);
+  return i < 0 ? split.length : i;
+}
+
+/**
+ * A sample alias's trigger: `n` becomes the velocity layer, and the alias's release fills in when the code
+ * sets none (so the note stops at the end of its event).
+ */
+export function sampleAliasTrigger(entry: SoundEntry, a: SampleAliasEntry): OnTrigger {
+  const split = a.layers > 1 ? (a.split ?? []) : [];
+  return (t, value, onended, cps) => {
+    const v: HapValue = { ...value, n: a.layers > 1 ? layerOf(value.velocity, split) : 0 };
+    if (v.release === undefined) v.release = a.release;
+    return entry.onTrigger(t, v, onended, cps);
+  };
+}
+
+/** A kit role with velocity layers: `n` picks the variant, the velocity its layer (files variant-major). */
+export function layeredIndex(
+  n: unknown,
+  velocity: unknown,
+  files: number,
+  layers: number,
+  split: readonly number[],
+): number {
+  const variants = Math.max(1, Math.floor(files / layers));
+  return core.getSoundIndex(n, variants) * layers + layerOf(velocity, split);
 }
 
 /**
@@ -207,9 +274,25 @@ export async function prebake(soundsRoot: string): Promise<PackManifest> {
       await webaudio.samples(map, base, tag ? { prebake: true, tag } : { prebake: true });
     }),
   );
-  await webaudio.aliasBank(manifest.bankAliases);
-  registerOakKits();
-  trimKits(manifest.kitGains ?? {});
+  if (manifest.bankAliases) await webaudio.aliasBank(manifest.bankAliases);
+  const kits = manifest.kits ?? [...OAK_KITS];
+  registerOakKits(kits);
+  trimKits(manifest.kitGains ?? {}, manifest.kitLayers ?? {});
+  registerKitAliases(manifest.kitAliases ?? {});
+
+  for (const [alias, a] of Object.entries(manifest.sampleAliases ?? {})) {
+    const entry = webaudio.getSound(a.sample) as SoundEntry | undefined;
+    if (!entry) throw new Error(`@oak/strudel: sample alias ${alias}: ${a.sample} is not in the pack`);
+    webaudio.registerSound(alias.toLowerCase(), withOutputGain(sampleAliasTrigger(entry, a), a.gain ?? 1), {
+      ...entry.data,
+      type: "sample",
+      prebake: true,
+      tag: "oak",
+      range: a.range,
+      layers: a.layers,
+      split: a.split ?? [],
+    });
+  }
 
   for (const [alias, a] of Object.entries(manifest.aliases)) {
     const original = upstream.get(a.gm);
@@ -241,13 +324,18 @@ export function soundNames(): string[] {
  */
 export async function packFileUrls(soundsRoot: string, manifest: PackManifest): Promise<string[]> {
   const root = soundsRoot.replace(/\/+$/, "");
-  const urls = new Set<string>([`${root}/manifest.json`, manifest.bankAliases]);
+  const urls = new Set<string>([`${root}/manifest.json`]);
+  for (const u of [manifest.bankAliases, manifest.credits, manifest.breaks]) if (u) urls.add(u);
   for (const map of manifest.sampleMaps) urls.add(map.json);
   const add = (u: unknown): void => {
     if (typeof u === "string") urls.add(encodeSoundPath(u));
   };
   for (const entry of Object.values(webaudio.soundMap.get() as Record<string, SoundEntry>)) {
     const data = entry.data;
+    if (data?.type === "wavetable") {
+      for (const u of data.tables ?? []) add(u);
+      continue;
+    }
     if (data?.type !== "sample") continue;
     const samples = data.samples;
     if (Array.isArray(samples)) samples.forEach(add);
@@ -283,18 +371,31 @@ const KIT_ROLES = [
   "tb",
 ] as const;
 
-/** Oak's kits (`.bank("<kit>")`); their samples come from the pack's `oak-kit-<kit>.json` maps. */
-export const OAK_KITS = ["jazzkit"] as const;
+/**
+ * Oak's kits (`.bank("<kit>")`); their samples come from the pack's `oak-kit-<kit>.json` maps. The manifest's
+ * `kits` list wins; this is the v4 set (and what older packs are completed with).
+ */
+export const OAK_KITS = ["jazzkit", "rockkit", "lofikit", "oak909", "oak808"] as const;
 
 /**
- * Every role an Oak kit's map does not define falls back to the default kit (uzu-drumkit), so `.bank("jazzkit")`
- * never goes silent on a role (the brushes kit has no crash; a v1 pack has no kit map at all).
+ * Every role an Oak kit's map does not define falls back to the default kit (uzu-drumkit), so a kit never goes
+ * silent on a role (a v1 pack has no kit map at all).
  */
-export function registerOakKits(): void {
+export function registerOakKits(kits: readonly string[] = OAK_KITS): void {
   const map = webaudio.soundMap.get() as Record<string, unknown>;
-  for (const kit of OAK_KITS)
+  for (const kit of kits)
     for (const role of KIT_ROLES)
       if (map[role] && !map[`${kit}_${role}`]) webaudio.soundAlias(role, `${kit}_${role}`);
+}
+
+/**
+ * Retired bank names play Oak's CC0 kits (`.bank("RolandTR909")` -> oak909, v4). Runs after the kits are
+ * complete and trimmed: superdough's `aliasBank` copies the entries that exist when it is called.
+ */
+export function registerKitAliases(aliases: Record<string, string>): void {
+  const byKit: Record<string, string[]> = {};
+  for (const [old, kit] of Object.entries(aliases)) byKit[kit] = [...(byKit[kit] ?? []), old];
+  if (Object.keys(byKit).length) void webaudio.aliasBank(byKit);
 }
 
 /** The trim of one hit: a role's single gain, or the gain of the variant `n` selects (wrapping like superdough). */
@@ -304,15 +405,37 @@ export function kitGainOf(gain: number | readonly number[], n: unknown): number 
   return gain[core.getSoundIndex(n, gain.length)] ?? 1;
 }
 
-/** Applies the manifest's per-role level trims to the kit sounds (data kept: the preloader reads it). */
-export function trimKits(gains: Record<string, number | number[]>): void {
-  for (const [key, gain] of Object.entries(gains)) {
+/**
+ * Applies the manifest's per-role level trims, and the velocity layers of v4 kits, to the kit sounds (data
+ * kept: the preloader reads it).
+ */
+export function trimKits(
+  gains: Record<string, number | number[]>,
+  layers: Record<string, { layers: number; split: number[] }> = {},
+): void {
+  for (const key of new Set([...Object.keys(gains), ...Object.keys(layers)])) {
     const entry = webaudio.getSound(key) as SoundEntry | undefined;
-    if (!entry || gain === 1) continue;
-    webaudio.registerSound(
-      key,
-      withOutputGain(entry.onTrigger, (v) => kitGainOf(gain, v.n)),
-      entry.data ?? {},
-    );
+    if (!entry) continue;
+    const gain = gains[key] ?? 1;
+    const l = layers[key];
+    const files = Array.isArray(entry.data?.samples) ? entry.data.samples.length : 1;
+    let trigger = entry.onTrigger;
+    if (l && l.layers > 1) {
+      const inner = trigger;
+      trigger = (t, value, onended, cps) =>
+        inner(
+          t,
+          { ...value, n: layeredIndex(value.n, value.velocity, files, l.layers, l.split) },
+          onended,
+          cps,
+        );
+    }
+    if (gain !== 1) trigger = withOutputGain(trigger, (v) => kitGainOf(gain, v.n));
+    if (trigger !== entry.onTrigger)
+      webaudio.registerSound(
+        key,
+        trigger,
+        l && l.layers > 1 ? { ...entry.data, layers: l.layers, split: l.split } : (entry.data ?? {}),
+      );
   }
 }

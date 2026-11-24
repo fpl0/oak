@@ -95,7 +95,7 @@ describe("requests and errors", () => {
     muted.clear();
     expect(request.sampleRate).toBe(48000);
     expect(request.muted).toEqual(["band.bass"]);
-    expect(request.soundsRoot).toBe("/sounds/v3");
+    expect(request.soundsRoot).toBe("/sounds/v4");
   });
   test("empty code, bad sample rates and timeouts fail before creating a realm", () => {
     expect(() => validateRequest({ code: " " })).toThrow(PieceRenderError);

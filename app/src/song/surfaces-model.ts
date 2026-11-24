@@ -1,5 +1,5 @@
 // What the song surfaces say and play, pure (spec docs/superpowers/specs/2026-11-24-unit-songs-design.md §5.5): the
-// four styles, the sentence that says which cells a take holds, the song as it stood after any take, a release's
+// five styles, the sentence that says which cells a take holds, the song as it stood after any take, a release's
 // frozen song, where the song is in its plan, which tracks a part's mute or solo acts on, and which release action
 // the song page offers. Names come from `songViewOf`, so a section or part is named only once its term is met
 // (spec §4.3). Words follow AUTHORING §5, §21 and §22.
@@ -15,11 +15,14 @@ import {
   type UnitSongDef,
   type UnitSongDetail,
   type UnitSongSnapshot,
+  type UnitSongSummary,
   type UnitSongTake,
 } from "@oak/api";
 import { lintStrict } from "@oak/grader";
 import type { MuteMap } from "@oak/strudel";
+import type { RenderPieceRequest } from "@oak/strudel/offline";
 import { oakTrackName, type SongBand, takeTrackName } from "@oak/strudel/song-compose";
+import { songBandSetupOf } from "../lesson/band.ts";
 import { type SongView, songGridOf } from "./model.ts";
 
 // --- styles ---------------------------------------------------------------------------------------------
@@ -31,12 +34,17 @@ export interface SongStyle {
   blurb: string;
 }
 
-/** The four styles a song can play in, in the order the New song moment offers them. */
+/** The five styles a song can play in, in the order the New song moment offers them. */
 export const SONG_STYLES: readonly SongStyle[] = [
   { id: "flavour.pop", name: "Pop", blurb: "Piano and electric bass over a punchy drum kit." },
   { id: "flavour.indie", name: "Indie", blurb: "Clean electric guitar over a dry drum machine." },
   { id: "flavour.jazz-soul", name: "Jazz-soul", blurb: "Electric piano, upright bass and a soft jazz kit." },
   { id: "flavour.funk", name: "Funk", blurb: "Clavinet, finger bass and a classic drum machine." },
+  {
+    id: "flavour.electronic",
+    name: "Electronic",
+    blurb: "A squelchy synth bass and synth chords over a drum machine and a dusty kit.",
+  },
 ];
 
 export function styleName(flavour: FlavourId | string): string {
@@ -146,6 +154,34 @@ export function snapshotBand(snapshot: UnitSongSnapshot): SongBand {
     grid: songGridOf(snapshot.def, asTakes as never),
     ...(oakOk ? { oakCode: snapshot.oakCode } : {}),
   };
+}
+
+/**
+ * The offline render of a released song (album Export, contracts §5.11 rule 18): the frozen snapshot alone, every
+ * take and Oak's code as released, never the newest take's code or today's content. It has no code of its own.
+ */
+export function songReleaseRenderRequest(
+  snapshot: UnitSongSnapshot,
+): Pick<RenderPieceRequest, "code" | "band" | "key" | "mutes"> & { mutes: MuteMap } {
+  return {
+    code: "",
+    band: songBandSetupOf(null, snapshotBand(snapshot)),
+    key: null,
+    mutes: { muted: new Set(), solo: null },
+  };
+}
+
+/** The song release an album version plays (`songs.list` → its releases), or `null` for any other version. */
+export function songReleaseOfVersion(
+  songs: readonly Pick<UnitSongSummary, "unitId" | "releases">[] | undefined,
+  trackId: string,
+  version: number,
+): { unitId: string; releaseId: number } | null {
+  for (const s of songs ?? [])
+    for (const r of s.releases)
+      if (r.albumTrackId === trackId && r.albumVersion === version)
+        return { unitId: s.unitId, releaseId: r.id };
+  return null;
 }
 
 // --- where the song is in its plan ----------------------------------------------------------------------

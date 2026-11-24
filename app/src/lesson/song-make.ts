@@ -308,14 +308,15 @@ export function trackSummariesOf(n: Normalized): TrackSummary[] {
     const role = fixed ?? inferred ?? (pitched.length === 0 ? "drums" : null);
     const starts = new Map<string, number>();
     for (const e of pitched) starts.set(onsetKey(e), (starts.get(onsetKey(e)) ?? 0) + 1);
+    // Polyphonic onsets over all pitched onsets, as the grader's `polyphonyRatio` (contracts §6.2 rule 1).
     let together = 0;
-    for (const k of starts.values()) if (k > 1) together += k;
+    for (const k of starts.values()) if (k > 1) together += 1;
     const sounds = [...new Set(events.map((e) => e.s).filter((s): s is string => typeof s === "string"))];
     out.push({
       label,
       role,
       sounds,
-      chords: role === "chords" || (pitched.length > 0 && together / pitched.length >= 0.25),
+      chords: role === "chords" || (starts.size > 0 && together / starts.size >= 0.25),
     });
   }
   return out;

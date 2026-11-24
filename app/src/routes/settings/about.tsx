@@ -4,6 +4,7 @@ import { useContent } from "../../lib/content.ts";
 import { usePageTitle } from "../../lib/nav.ts";
 import { useHealth } from "../../lib/queries.ts";
 import { ReadOnlyRow, Section } from "../../ui/kit/Field.tsx";
+import { SoundCredits } from "./-components/SoundCredits.tsx";
 
 export const Route = createFileRoute("/settings/about")({ component: AboutPage });
 
@@ -16,6 +17,7 @@ function AboutPage() {
       <article className="rounded-card border border-border bg-surface p-5">
         <About />
       </article>
+      <SoundCredits />
       <Section title="Versions">
         <ReadOnlyRow
           label="App"

@@ -61,47 +61,47 @@
         {
           "midi": 45,
           "expectedHz": 110,
-          "hz": 110.08,
-          "cents": 1.2,
+          "hz": 110.01,
+          "cents": 0.1,
           "octave": 0,
           "clarity": 1,
-          "share": 0.168
+          "share": 0.918
         },
         {
           "midi": 57,
           "expectedHz": 220,
-          "hz": 220.3,
-          "cents": 2.4,
+          "hz": 220,
+          "cents": 0,
           "octave": 0,
           "clarity": 1,
-          "share": 0.745
+          "share": 0.989
         },
         {
           "midi": 69,
           "expectedHz": 440,
-          "hz": 439.76,
-          "cents": -1,
+          "hz": 439.99,
+          "cents": 0,
           "octave": 0,
           "clarity": 1,
-          "share": 0.993
+          "share": 0.987
         }
       ],
       "clicks": [
         {
           "midi": 57,
-          "worstDb": 0.4,
-          "atSec": 0.492
+          "worstDb": 0.6,
+          "atSec": 0.48
         },
         {
           "midi": 45,
-          "worstDb": -0.5,
-          "atSec": 0.15
+          "worstDb": 2,
+          "atSec": 0.216
         }
       ],
       "loudness": {
         "code": "note(\"c4 e4 g4 c5\").s(\"rhodes\")",
-        "lufs": -21.4,
-        "peakDb": -15.5
+        "lufs": -22.1,
+        "peakDb": -14.9
       }
     },
     {
@@ -163,47 +163,47 @@
         {
           "midi": 33,
           "expectedHz": 55,
-          "hz": 54.99,
-          "cents": -0.3,
+          "hz": 54.83,
+          "cents": -5.3,
           "octave": 0,
-          "clarity": 1,
-          "share": 0.921
+          "clarity": 0.995,
+          "share": 0.429
         },
         {
           "midi": 45,
           "expectedHz": 110,
-          "hz": 109.98,
-          "cents": -0.4,
+          "hz": 109.56,
+          "cents": -6.9,
           "octave": 0,
-          "clarity": 1,
-          "share": 0.889
+          "clarity": 0.999,
+          "share": 0.616
         },
         {
           "midi": 57,
           "expectedHz": 220,
-          "hz": 220,
-          "cents": 0,
+          "hz": 219.95,
+          "cents": -0.4,
           "octave": 0,
-          "clarity": 0.999,
-          "share": 0.902
+          "clarity": 0.996,
+          "share": 0.697
         }
       ],
       "clicks": [
         {
           "midi": 45,
-          "worstDb": 2.8,
-          "atSec": 0.341
+          "worstDb": 1.9,
+          "atSec": 0.345
         },
         {
           "midi": 33,
-          "worstDb": -4.4,
+          "worstDb": 1.2,
           "atSec": 0.15
         }
       ],
       "loudness": {
         "code": "note(\"c2 e2 g2 c3\").s(\"upright\")",
-        "lufs": -22.3,
-        "peakDb": -12.4
+        "lufs": -22.1,
+        "peakDb": -7.2
       }
     },
     {
@@ -214,47 +214,47 @@
         {
           "midi": 33,
           "expectedHz": 55,
-          "hz": 55.08,
-          "cents": 2.7,
+          "hz": 54.9,
+          "cents": -3,
           "octave": 0,
-          "clarity": 1,
-          "share": 0.154
+          "clarity": 0.985,
+          "share": 0.022
         },
         {
           "midi": 45,
           "expectedHz": 110,
-          "hz": 110.17,
-          "cents": 2.7,
+          "hz": 109.44,
+          "cents": -8.9,
           "octave": 0,
-          "clarity": 1,
-          "share": 0.2
+          "clarity": 0.995,
+          "share": 0.764
         },
         {
           "midi": 57,
           "expectedHz": 220,
-          "hz": 220.34,
-          "cents": 2.7,
+          "hz": 218.89,
+          "cents": -8.8,
           "octave": 0,
-          "clarity": 1,
-          "share": 0.392
+          "clarity": 0.998,
+          "share": 0.533
         }
       ],
       "clicks": [
         {
           "midi": 45,
-          "worstDb": 1.7,
-          "atSec": 0.287
+          "worstDb": 1.5,
+          "atSec": 0.411
         },
         {
           "midi": 33,
-          "worstDb": 0.4,
-          "atSec": 0.15
+          "worstDb": 0.1,
+          "atSec": 0.153
         }
       ],
       "loudness": {
         "code": "note(\"c2 e2 g2 c3\").s(\"ebass\")",
-        "lufs": -22,
-        "peakDb": -11.8
+        "lufs": -22.1,
+        "peakDb": -9.6
       }
     },
     {
@@ -265,47 +265,47 @@
         {
           "midi": 45,
           "expectedHz": 110,
-          "hz": 110.06,
-          "cents": 1,
+          "hz": 109.91,
+          "cents": -1.5,
           "octave": 0,
-          "clarity": 1,
-          "share": 0.573
+          "clarity": 0.998,
+          "share": 0.465
         },
         {
           "midi": 57,
           "expectedHz": 220,
-          "hz": 220.13,
-          "cents": 1,
+          "hz": 220.24,
+          "cents": 1.9,
           "octave": 0,
-          "clarity": 0.999,
-          "share": 0.75
+          "clarity": 0.997,
+          "share": 0.873
         },
         {
           "midi": 69,
           "expectedHz": 440,
-          "hz": 440.88,
-          "cents": 3.5,
+          "hz": 439.8,
+          "cents": -0.8,
           "octave": 0,
           "clarity": 0.999,
-          "share": 0.255
+          "share": 0.931
         }
       ],
       "clicks": [
         {
           "midi": 57,
-          "worstDb": 2.4,
-          "atSec": 0.434
+          "worstDb": 3.9,
+          "atSec": 0.456
         },
         {
           "midi": 45,
-          "worstDb": -1.9,
+          "worstDb": 0.6,
           "atSec": 0.15
         }
       ],
       "loudness": {
         "code": "note(\"c4 e4 g4 c5\").s(\"organ\")",
-        "lufs": -22,
-        "peakDb": -14.9
+        "lufs": -22.1,
+        "peakDb": -10.2
       }
     },
     {
@@ -316,47 +316,47 @@
         {
           "midi": 45,
           "expectedHz": 110,
-          "hz": 110.15,
-          "cents": 2.4,
+          "hz": 110.52,
+          "cents": 8.2,
           "octave": 0,
-          "clarity": 1,
-          "share": 0.95
+          "clarity": 0.999,
+          "share": 0.458
         },
         {
           "midi": 57,
           "expectedHz": 220,
-          "hz": 220.29,
-          "cents": 2.2,
+          "hz": 220.02,
+          "cents": 0.2,
           "octave": 0,
           "clarity": 1,
-          "share": 0.998
+          "share": 0.601
         },
         {
           "midi": 69,
           "expectedHz": 440,
-          "hz": 440.64,
-          "cents": 2.5,
+          "hz": 439.49,
+          "cents": -2,
           "octave": 0,
-          "clarity": 1,
-          "share": 0.995
+          "clarity": 0.999,
+          "share": 0.82
         }
       ],
       "clicks": [
         {
           "midi": 57,
-          "worstDb": 0.2,
-          "atSec": 0.458
+          "worstDb": 0.1,
+          "atSec": 0.437
         },
         {
           "midi": 45,
-          "worstDb": -4.2,
-          "atSec": 0.15
+          "worstDb": 0.8,
+          "atSec": 0.151
         }
       ],
       "loudness": {
         "code": "note(\"c4 e4 g4 c5\").s(\"jazzgtr\")",
-        "lufs": -22,
-        "peakDb": -10.9
+        "lufs": -22.1,
+        "peakDb": -3.3
       }
     },
     {
@@ -367,47 +367,47 @@
         {
           "midi": 45,
           "expectedHz": 110,
-          "hz": 110.1,
-          "cents": 1.6,
+          "hz": 110.12,
+          "cents": 1.9,
           "octave": 0,
-          "clarity": 1,
-          "share": 0.605
+          "clarity": 0.99,
+          "share": 0.82
         },
         {
           "midi": 57,
           "expectedHz": 220,
-          "hz": 219.85,
-          "cents": -1.2,
+          "hz": 219.98,
+          "cents": -0.1,
           "octave": 0,
-          "clarity": 1,
-          "share": 0.87
+          "clarity": 0.993,
+          "share": 0.529
         },
         {
           "midi": 69,
           "expectedHz": 440,
-          "hz": 439.77,
-          "cents": -0.9,
+          "hz": 439.95,
+          "cents": -0.2,
           "octave": 0,
-          "clarity": 0.999,
-          "share": 0.804
+          "clarity": 0.995,
+          "share": 0.467
         }
       ],
       "clicks": [
         {
           "midi": 57,
-          "worstDb": 1.3,
-          "atSec": 0.451
+          "worstDb": 2.6,
+          "atSec": 0.304
         },
         {
           "midi": 45,
-          "worstDb": -4.1,
-          "atSec": 0.153
+          "worstDb": 2.4,
+          "atSec": 0.293
         }
       ],
       "loudness": {
         "code": "note(\"c4 e4 g4 c5\").s(\"cleangtr\")",
-        "lufs": -22,
-        "peakDb": -13.9
+        "lufs": -22.1,
+        "peakDb": -12
       }
     },
     {
@@ -469,47 +469,47 @@
         {
           "midi": 45,
           "expectedHz": 110,
-          "hz": 109.94,
-          "cents": -0.9,
+          "hz": 110.15,
+          "cents": 2.3,
           "octave": 0,
-          "clarity": 0.993,
-          "share": 0.95
+          "clarity": 0.992,
+          "share": 0.178
         },
         {
           "midi": 57,
           "expectedHz": 220,
-          "hz": 219.78,
-          "cents": -1.7,
+          "hz": 220.26,
+          "cents": 2,
           "octave": 0,
-          "clarity": 0.985,
-          "share": 0.837
+          "clarity": 0.955,
+          "share": 0.461
         },
         {
           "midi": 69,
           "expectedHz": 440,
-          "hz": 441.25,
-          "cents": 4.9,
+          "hz": 440.39,
+          "cents": 1.5,
           "octave": 0,
           "clarity": 0.991,
-          "share": 0.062
+          "share": 0.993
         }
       ],
       "clicks": [
         {
           "midi": 57,
-          "worstDb": 1.9,
-          "atSec": 0.245
+          "worstDb": 2.3,
+          "atSec": 0.228
         },
         {
           "midi": 45,
-          "worstDb": -3.5,
-          "atSec": 0.15
+          "worstDb": 2,
+          "atSec": 0.187
         }
       ],
       "loudness": {
         "code": "note(\"c4 e4 g4 c5\").s(\"strings\")",
-        "lufs": -22,
-        "peakDb": -13.7
+        "lufs": -22.1,
+        "peakDb": -11.7
       }
     },
     {
@@ -562,38 +562,38 @@
         {
           "midi": 57,
           "expectedHz": 220,
-          "hz": 220.47,
-          "cents": 3.7,
+          "hz": 219.97,
+          "cents": -0.2,
           "octave": 0,
-          "clarity": 1,
-          "share": 0.895
+          "clarity": 0.997,
+          "share": 0.26
         },
         {
           "midi": 69,
           "expectedHz": 440,
-          "hz": 440.72,
-          "cents": 2.8,
+          "hz": 440,
+          "cents": 0,
           "octave": 0,
-          "clarity": 1,
-          "share": 0.996
+          "clarity": 0.999,
+          "share": 0.561
         }
       ],
       "clicks": [
         {
           "midi": 69,
-          "worstDb": 0.7,
-          "atSec": 0.29
+          "worstDb": 1,
+          "atSec": 0.488
         },
         {
           "midi": 57,
-          "worstDb": -4.4,
-          "atSec": 0.154
+          "worstDb": 0.7,
+          "atSec": 0.151
         }
       ],
       "loudness": {
         "code": "note(\"c4 e4 g4 c5\").s(\"tenor\")",
-        "lufs": -21.9,
-        "peakDb": -15.9
+        "lufs": -22,
+        "peakDb": -14.2
       }
     },
     {
@@ -604,47 +604,47 @@
         {
           "midi": 33,
           "expectedHz": 55,
-          "hz": 55.09,
-          "cents": 2.9,
+          "hz": 55.05,
+          "cents": 1.7,
           "octave": 0,
           "clarity": 1,
-          "share": 0.529
+          "share": 0.017
         },
         {
           "midi": 45,
           "expectedHz": 110,
-          "hz": 110.22,
-          "cents": 3.5,
+          "hz": 109.78,
+          "cents": -3.5,
           "octave": 0,
           "clarity": 1,
-          "share": 0.426
+          "share": 0.884
         },
         {
           "midi": 57,
           "expectedHz": 220,
-          "hz": 220.45,
-          "cents": 3.5,
+          "hz": 219.43,
+          "cents": -4.5,
           "octave": 0,
           "clarity": 1,
-          "share": 0.697
+          "share": 0.959
         }
       ],
       "clicks": [
         {
           "midi": 45,
-          "worstDb": 2,
-          "atSec": 0.218
+          "worstDb": 1.9,
+          "atSec": 0.197
         },
         {
           "midi": 33,
-          "worstDb": -2.1,
-          "atSec": 0.151
+          "worstDb": 1.8,
+          "atSec": 0.161
         }
       ],
       "loudness": {
         "code": "note(\"c2 e2 g2 c3\").s(\"fingerbass\")",
-        "lufs": -23.2,
-        "peakDb": -12.1
+        "lufs": -22.1,
+        "peakDb": -11.5
       }
     },
     {
@@ -655,38 +655,38 @@
         {
           "midi": 57,
           "expectedHz": 220,
-          "hz": 219.87,
-          "cents": -1,
+          "hz": 219.91,
+          "cents": -0.7,
           "octave": 0,
-          "clarity": 0.994,
-          "share": 0.206
+          "clarity": 0.992,
+          "share": 0.189
         },
         {
           "midi": 69,
           "expectedHz": 440,
-          "hz": 440.36,
-          "cents": 1.4,
+          "hz": 440.21,
+          "cents": 0.8,
           "octave": 0,
           "clarity": 0.999,
-          "share": 0.373
+          "share": 0.34
         }
       ],
       "clicks": [
         {
           "midi": 69,
           "worstDb": 1.2,
-          "atSec": 0.153
+          "atSec": 0.155
         },
         {
           "midi": 57,
-          "worstDb": -2.3,
-          "atSec": 0.151
+          "worstDb": 0.6,
+          "atSec": 0.188
         }
       ],
       "loudness": {
         "code": "note(\"c4 e4 g4 c5\").s(\"trumpet\")",
-        "lufs": -22.3,
-        "peakDb": -12.4
+        "lufs": -22.1,
+        "peakDb": -12.1
       }
     },
     {
@@ -697,38 +697,38 @@
         {
           "midi": 57,
           "expectedHz": 220,
-          "hz": 220.01,
-          "cents": 0,
+          "hz": 219.8,
+          "cents": -1.5,
           "octave": 0,
-          "clarity": 0.986,
-          "share": 0.817
+          "clarity": 0.933,
+          "share": 0.953
         },
         {
           "midi": 69,
           "expectedHz": 440,
-          "hz": 440.04,
-          "cents": 0.2,
+          "hz": 440.39,
+          "cents": 1.5,
           "octave": 0,
-          "clarity": 0.989,
-          "share": 0.786
+          "clarity": 0.975,
+          "share": 0.511
         }
       ],
       "clicks": [
         {
           "midi": 69,
-          "worstDb": 1.5,
-          "atSec": 0.276
+          "worstDb": 4.3,
+          "atSec": 0.227
         },
         {
           "midi": 57,
-          "worstDb": -0.8,
-          "atSec": 0.151
+          "worstDb": 4.1,
+          "atSec": 0.216
         }
       ],
       "loudness": {
         "code": "note(\"c4 e4 g4 c5\").s(\"mutetpt\")",
-        "lufs": -21.9,
-        "peakDb": -17.2
+        "lufs": -22.1,
+        "peakDb": -12.9
       }
     },
     {
@@ -739,47 +739,47 @@
         {
           "midi": 57,
           "expectedHz": 220,
-          "hz": 219.99,
-          "cents": -0.1,
+          "hz": 220,
+          "cents": 0,
           "octave": 0,
-          "clarity": 0.99,
-          "share": 0.999
+          "clarity": 0.962,
+          "share": 0.981
         },
         {
           "midi": 69,
           "expectedHz": 440,
-          "hz": 441.45,
-          "cents": 5.7,
+          "hz": 439.96,
+          "cents": -0.2,
           "octave": 0,
-          "clarity": 1,
+          "clarity": 0.999,
           "share": 1
         },
         {
           "midi": 81,
           "expectedHz": 880,
-          "hz": 878.49,
-          "cents": -3,
+          "hz": 879.98,
+          "cents": 0,
           "octave": 0,
-          "clarity": 0.999,
+          "clarity": 1,
           "share": 1
         }
       ],
       "clicks": [
         {
           "midi": 69,
-          "worstDb": 0.5,
-          "atSec": 0.177
+          "worstDb": 2,
+          "atSec": 0.282
         },
         {
           "midi": 57,
-          "worstDb": -3.2,
-          "atSec": 0.15
+          "worstDb": 0,
+          "atSec": 0.282
         }
       ],
       "loudness": {
         "code": "note(\"c4 e4 g4 c5\").s(\"vibes\")",
-        "lufs": -21.7,
-        "peakDb": -10.5
+        "lufs": -22.1,
+        "peakDb": -10.4
       }
     },
     {
@@ -934,6 +934,141 @@
         "lufs": -21.4,
         "peakDb": -12.7
       }
+    },
+    {
+      "id": "snd.marimba",
+      "sound": "marimba",
+      "wave3": false,
+      "tuning": [
+        {
+          "midi": 57,
+          "expectedHz": 220,
+          "hz": 220.02,
+          "cents": 0.2,
+          "octave": 0,
+          "clarity": 1,
+          "share": 1
+        },
+        {
+          "midi": 69,
+          "expectedHz": 440,
+          "hz": 439.99,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 1,
+          "share": 1
+        },
+        {
+          "midi": 81,
+          "expectedHz": 880,
+          "hz": 879.99,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 1,
+          "share": 1
+        }
+      ],
+      "clicks": [
+        {
+          "midi": 69,
+          "worstDb": 1.1,
+          "atSec": 0.18
+        },
+        {
+          "midi": 57,
+          "worstDb": 0.2,
+          "atSec": 0.151
+        }
+      ],
+      "loudness": {
+        "code": "note(\"c4 e4 g4 c5\").s(\"marimba\")",
+        "lufs": -22.1,
+        "peakDb": -12.7
+      }
+    },
+    {
+      "id": "snd.kalimba",
+      "sound": "kalimba",
+      "wave3": false,
+      "tuning": [
+        {
+          "midi": 61,
+          "expectedHz": 277.18,
+          "hz": 277.17,
+          "cents": -0.1,
+          "octave": 0,
+          "clarity": 0.985,
+          "share": 0.998
+        },
+        {
+          "midi": 69,
+          "expectedHz": 440,
+          "hz": 439.98,
+          "cents": -0.1,
+          "octave": 0,
+          "clarity": 0.99,
+          "share": 1
+        }
+      ],
+      "clicks": [
+        {
+          "midi": 69,
+          "worstDb": 4.4,
+          "atSec": 0.683
+        },
+        {
+          "midi": 61,
+          "worstDb": 6.3,
+          "atSec": 0.286
+        }
+      ],
+      "loudness": {
+        "code": "note(\"c4 e4 g4 c5\").s(\"kalimba\")",
+        "lufs": -21.8,
+        "peakDb": -3.8
+      }
+    },
+    {
+      "id": "snd.glockenspiel",
+      "sound": "glockenspiel",
+      "wave3": false,
+      "tuning": [
+        {
+          "midi": 81,
+          "expectedHz": 880,
+          "hz": 880.01,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 0.985,
+          "share": 1
+        },
+        {
+          "midi": 93,
+          "expectedHz": 1760,
+          "hz": 1760.02,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 0.999,
+          "share": 1
+        }
+      ],
+      "clicks": [
+        {
+          "midi": 93,
+          "worstDb": 0.3,
+          "atSec": 0.335
+        },
+        {
+          "midi": 81,
+          "worstDb": 0.1,
+          "atSec": 0.39
+        }
+      ],
+      "loudness": {
+        "code": "note(\"c6 e6 g6 c7\").s(\"glockenspiel\")",
+        "lufs": -22.1,
+        "peakDb": -12.2
+      }
     }
   ],
   "drones": [
@@ -1024,91 +1159,91 @@
     {
       "role": "bd",
       "popLufs": -14.1,
-      "jazzLufs": -21,
-      "jazzPeakDb": -6.5
+      "jazzLufs": -17.7,
+      "jazzPeakDb": -3.9
     },
     {
       "role": "sd",
       "popLufs": -14,
-      "jazzLufs": -19,
-      "jazzPeakDb": -4.3
+      "jazzLufs": -20.4,
+      "jazzPeakDb": -2.4
     },
     {
       "role": "sd:1",
       "popLufs": -17.1,
-      "jazzLufs": -20,
-      "jazzPeakDb": -0.4
+      "jazzLufs": -17.6,
+      "jazzPeakDb": -2.4
     },
     {
       "role": "sd:2",
       "popLufs": -16.8,
-      "jazzLufs": -21,
-      "jazzPeakDb": -11.6
+      "jazzLufs": -19.9,
+      "jazzPeakDb": -8.6
     },
     {
       "role": "rim",
       "popLufs": -21.9,
-      "jazzLufs": -21.1,
-      "jazzPeakDb": -9.3
+      "jazzLufs": -22,
+      "jazzPeakDb": -2.4
     },
     {
       "role": "hh",
       "popLufs": -29.1,
-      "jazzLufs": -30,
-      "jazzPeakDb": -9.2
+      "jazzLufs": -36.7,
+      "jazzPeakDb": -16.4
     },
     {
       "role": "oh",
       "popLufs": -21.9,
-      "jazzLufs": -24.9,
-      "jazzPeakDb": -10.6
+      "jazzLufs": -25.3,
+      "jazzPeakDb": -8.1
     },
     {
       "role": "rd",
       "popLufs": -28,
-      "jazzLufs": -20.2,
-      "jazzPeakDb": -6.3
+      "jazzLufs": -28.3,
+      "jazzPeakDb": -5.6
     },
     {
       "role": "rd:1",
       "popLufs": -28,
-      "jazzLufs": -20.2,
-      "jazzPeakDb": -7.7
+      "jazzLufs": -22.4,
+      "jazzPeakDb": -6.8
     },
     {
       "role": "lt",
       "popLufs": -15.9,
-      "jazzLufs": -18.9,
-      "jazzPeakDb": -3.9
+      "jazzLufs": -18,
+      "jazzPeakDb": -4.5
     },
     {
       "role": "mt",
       "popLufs": -15,
-      "jazzLufs": -19,
-      "jazzPeakDb": -3
+      "jazzLufs": -17.3,
+      "jazzPeakDb": -5.4
     },
     {
       "role": "ht",
       "popLufs": -13.7,
-      "jazzLufs": -18.9,
-      "jazzPeakDb": -4.1
+      "jazzLufs": -18.2,
+      "jazzPeakDb": -3
     },
     {
       "role": "cr",
       "popLufs": -21.7,
-      "jazzLufs": -21.7,
-      "jazzPeakDb": -11.5
+      "jazzLufs": -21.3,
+      "jazzPeakDb": -11.9
     }
   ],
   "jazzGroove": {
     "code": "s(\"bd ~ sd ~, rd*8, ~ hh ~ hh\").bank(\"jazzkit\")",
-    "lufs": -15.3,
-    "peakDb": -1.7
+    "lufs": -20.7,
+    "peakDb": -1.3
   },
   "popGroove": {
     "code": "s(\"bd ~ sd ~, hh*8\")",
     "lufs": -15.5,
     "peakDb": -1.1
   },
-  "jazzVsPopDb": 1.2
+  "jazzVsPopDb": 1.6
 }

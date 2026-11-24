@@ -14,7 +14,7 @@ const CODE = [
 ].join("\n");
 const ALL_CODE = Object.fromEntries(FLAVOUR_IDS.map((f) => [f, CODE])) as UnitSongDef["code"];
 
-/** One 4/4 song: two sections (4 + 8 bars), two parts, all four flavours, one take step and one side step. */
+/** One 4/4 song: two sections (4 + 8 bars), two parts, every flavour, one take step and one side step. */
 const minimal = (): UnitSongDef => ({
   id: "usong.U01",
   unit: "U01",

@@ -101,7 +101,7 @@ const EXAMPLES: Record<IdKind, { ok: string[]; bad: string[] }> = {
   term: { ok: ["term.cadence", "term.half-step"], bad: ["term.", "term.Cadence", "term.a.b"] },
   song: { ok: ["song.aura-lee"], bad: ["song.", "song.Aura"] },
   flavour: {
-    ok: ["flavour.pop", "flavour.indie", "flavour.jazz-soul", "flavour.funk"],
+    ok: ["flavour.pop", "flavour.indie", "flavour.jazz-soul", "flavour.funk", "flavour.electronic"],
     bad: ["flavour.rock", "flavor.pop", "flavour.jazz"],
   },
   band: { ok: ["band.axis-8bar", "band.two-chord-vamp"], bad: ["band.", "band.Axis"] },

@@ -3505,6 +3505,12 @@ export const AlbumSourceSchema = z.object({
   mutes: z.record(z.string(), z.boolean()),
   /** A safe file name for the download, without extension: "oak-side-a-03-first-light-v2". */
   fileName: z.string(),
+  /**
+   * Unit songs (contracts §5.11 rule 18): a version released from a unit song names its frozen release; it plays and
+   * exports from `songs.snapshot` (Oak's code, the definition and every take as released), never from `code`, which
+   * is only the newest take's. Absent on every other version.
+   */
+  songRelease: z.object({ unitId: z.string(), releaseId: z.number().int().positive() }).optional(),
 });
 export type AlbumSource = z.infer<typeof AlbumSourceSchema>;
 

@@ -48,6 +48,7 @@ const SONG: UnitSongDef = {
     "flavour.indie": "",
     "flavour.jazz-soul": "",
     "flavour.funk": "",
+    "flavour.electronic": "",
   },
   plan: [],
   releaseAfter: "U01.CP",

@@ -1,5 +1,5 @@
 // A small unit song for the app's song tests (not content): a 4/4 song in C, five sections (intro, verse, a one-bar
-// stop, two choruses) and five parts, valid for `defineUnitSong` in all four flavours. Self-contained, so the tests
+// stop, two choruses) and five parts, valid for `defineUnitSong` in every flavour. Self-contained, so the tests
 // do not move when the real songs in content/unit-songs are rewritten.
 import {
   defineUnitSong,

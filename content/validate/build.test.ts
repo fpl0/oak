@@ -58,7 +58,7 @@ describe("build", () => {
       edges: unknown[];
     };
     expect(graph.nodes.length).toBe(143);
-    expect(JSON.parse(readFileSync(join(tmp, "a", "toolbox.json"), "utf8")).length).toBe(213);
+    expect(JSON.parse(readFileSync(join(tmp, "a", "toolbox.json"), "utf8")).length).toBe(234);
     expect(readFileSync(join(tmp, "a", "tutor", "catalog.md"), "utf8")).toContain("## `scale`");
   });
   test("ids.ts is valid TypeScript with one union per kind", async () => {

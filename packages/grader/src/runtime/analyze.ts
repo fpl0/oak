@@ -7,8 +7,10 @@ import {
   buildSong,
   finishSong,
   type SongBandWire,
+  type SongCheck,
   type SongEvaluator,
   songBandFromWire,
+  songLintContext,
 } from "@oak/strudel/song-compose";
 import { bpmToCps, cpsToBpm } from "@oak/theory";
 import { arrangedTotal, sectionsFromAst } from "../lint/ast.ts";
@@ -245,7 +247,10 @@ async function evaluateSong(
       R.tempoProblems = saved.problems;
     }
   };
-  const check = lint ? (src: string) => lintOak(src, { ...lint, profile: "band" }, R.toolbox).ok : undefined;
+  // Oak's code is authored Band code; a saved take is the learner's own code (`songLintContext`), as in playback.
+  const check: SongCheck | undefined = lint
+    ? (src, who) => lintOak(src, songLintContext(lint, who), R.toolbox).ok
+    : undefined;
   const built = await buildSong(song, evaluate, check);
   const live = song.live
     ? { tracks: [...learner.tracks].map(([label, pattern]) => ({ label, pattern })), code }

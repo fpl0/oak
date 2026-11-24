@@ -38,7 +38,13 @@ import { useCourseProgress, useHealth, useProfile, useUnlocks, useVoiceState } f
 import { retryLine } from "../lib/retry.ts";
 import { ActivityClock, logStep } from "../lib/telemetry.ts";
 import { currentSessionId, reportBlockDone, useSession } from "../session/store.ts";
-import { type NewSongGate, type SongMakeState, useNewSongGate, useSongMake } from "../song/hooks.ts";
+import {
+  type NewSongGate,
+  type SongMakeState,
+  useNewSongGate,
+  useSongMake,
+  useSongOfLesson,
+} from "../song/hooks.ts";
 import { NewSong } from "../song/NewSong.tsx";
 import { SongCard } from "../song/SongCard.tsx";
 import {
@@ -571,8 +577,11 @@ function PlayerCore(props: CoreProps) {
     (s) => snapshotOf(s),
     (a, b) => JSON.stringify(a) === JSON.stringify(b),
   );
-  // The tutor also reads the key, the step's own labels and the last answer that is not code (wave3.md §4.3).
+  // The tutor also reads the key, the step's own labels and the last answer that is not code (wave3.md §4.3), and
+  // the song the lesson builds (contracts §5.11 rule 19: its chip; the server adds the song itself).
   const stepAnswer = useStepAnswer();
+  const lessonSong = useSongOfLesson(def.id);
+  const songTitle = lessonSong.song ? (lessonSong.detail?.title ?? lessonSong.song.title) : null;
   useEffect(() => {
     if (!snap) return;
     publishLesson(snap);
@@ -584,9 +593,10 @@ function PlayerCore(props: CoreProps) {
         key: exKey ?? def.key,
         labels: stepDef ? stepLabels(stepDef) : null,
         answer: stepAnswer.stepId === snap.stepId ? stepAnswer.answer : null,
+        song: songTitle === null ? null : { title: songTitle },
       }),
     );
-  }, [snap, def, stepAnswer]);
+  }, [snap, def, stepAnswer, songTitle]);
   useEffect(
     () => () => {
       clearLesson(def.id);

@@ -34,6 +34,7 @@ import {
   MODAL_BANDS,
   MODAL_GUARDS,
   SECTION_BANDS,
+  SEVENTH_VAMP_CHORDS,
   TONIC_BANDS,
 } from "./index.ts";
 
@@ -101,6 +102,19 @@ describe("stages (FLAVOUR_RULES, contracts §5.10)", () => {
     );
     for (const f of ["flavour.pop", "flavour.indie"])
       for (const b of bands) expect(bandCodeAt(b.id, f, at("U17.L04"))).toBe(b.code[f as never] as string);
+  });
+  test("electronic: triads and straight until U06.L10, four-note chords from U06.L10, never swung", () => {
+    const first = bandById.get(vamp)?.code["flavour.electronic"] as string;
+    expect(bandCodeAt(vamp, "flavour.electronic", at("U06.L09"))).toBe(first);
+    const later = bandCodeAt(vamp, "flavour.electronic", at("U06.L11"));
+    expect(later).not.toBe(first);
+    expect(later).toContain(SEVENTH_VAMP_CHORDS);
+    for (const b of bands)
+      expect([b.id, bandCodeAt(b.id, "flavour.electronic", at("U06.L09")).includes("swingBy")]).toEqual([
+        b.id,
+        // The forms that swing in every kit: the shuffles, the jazz forms and the neo-soul loop's light sixteenths.
+        /blues|jazz-blues|rhythm-changes|neo-soul/.test(b.id),
+      ]);
   });
   test("an unknown flavour plays pop; an unknown band is an error", () => {
     expect(bandCodeAt(vamp, "flavour.unknown", at("U03.L02"))).toBe(
@@ -429,7 +443,7 @@ describe("music over every flavour (U03–U07 lessons and the checkpoint Makes)"
     for (const cp of ["U03.CP", "U04.CP", "U05.CP", "U06.CP", "U07.CP"])
       expect(shown.some((s) => s.owner === cp)).toBe(true);
   });
-  for (const flavour of ["flavour.jazz-soul", "flavour.indie", "flavour.funk"])
+  for (const flavour of ["flavour.jazz-soul", "flavour.indie", "flavour.funk", "flavour.electronic"])
     test(`no ${flavour} Band adds a half-step clash the pop Band does not have`, async () => {
       const found: string[] = [];
       for (const s of shown) {

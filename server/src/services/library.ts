@@ -217,9 +217,14 @@ export class LibraryService {
     if (v === null) throw notFound(`track ${trackId} v${version}`);
     const sk = this.#repos.sketches.version(v.sketchId, v.sketchVersion);
     if (sk === null) throw notFound(`sketch ${v.sketchId} v${v.sketchVersion}`);
+    // A released unit song (spec 2026-11-24 §5.4): the version plays its frozen snapshot (`songs.snapshot`), never
+    // the newest take's code alone; `code` stays that take's for older readers. The snapshot's codes are
+    // strict-linted by the app when it is flagged for review (a failing take falls back to Oak, not the export).
+    const songRelease = this.#repos.unitSongs.releaseOfAlbumVersion(trackId, version);
     // Code from an imported backup runs only after the strict lint (contracts §11.3, §11.10). The offline
     // renderer reads this code with the base lint only, so a version that fails it is not handed out at all.
     if (
+      songRelease === null &&
       (sk.flags.reviewBeforeRun === true || v.flags.reviewBeforeRun === true) &&
       lintStrict(sk.code).some((d) => d.severity === "error")
     )
@@ -247,6 +252,7 @@ export class LibraryService {
       key: sk.key ?? null,
       mutes,
       fileName: `oak-${side}-${no}${slug === "" ? "" : `-${slug}`}-v${version}`,
+      ...(songRelease === null ? {} : { songRelease }),
     };
   }
   track(id: string): AlbumTrackDetail {

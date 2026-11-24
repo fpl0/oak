@@ -42,6 +42,14 @@ describe("the lesson's public snapshot", () => {
     expect(s.thread).toEqual({ subjectKind: "lesson", subjectId: "U01.L02" });
     expect(chipsOf(s).map((c) => c.id)).toEqual(["step", "code", "hints"]);
   });
+
+  test("a lesson in a unit song names its song, so the tutor shows the song chip", () => {
+    const s = lessonSubject(snap, { song: { title: "Count me in" } });
+    expect(s.song).toEqual({ title: "Count me in" });
+    expect(chipsOf(s).map((c) => c.id)).toEqual(["step", "song", "code", "hints"]);
+    expect(chipsOf(s).find((c) => c.id === "song")?.label).toBe("Song · Count me in");
+    expect(lessonSubject(snap, { song: null })).not.toHaveProperty("song");
+  });
 });
 
 describe("what the tutor reads of a Wave 3 step", () => {

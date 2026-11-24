@@ -299,6 +299,29 @@ describe("setlist details", () => {
   test("no warm-up row when nothing is due", () => {
     expect(setlistRows(PLANS.noWarmup, titleOf).map((r) => r.key)).toEqual(["new", "make", "coda"]);
   });
+
+  test("the Make row of a take lesson says what it plays in the song", () => {
+    const song = {
+      unitId: "U01",
+      songId: "usong.U01",
+      title: "Count me in",
+      flavour: "flavour.pop",
+      status: "open",
+      takesCount: 2,
+      lessonIndex: 3,
+      lessonsInSong: 9,
+      today: "Your backbeat takes over the second part of the song.",
+      side: false,
+    } as const;
+    const make = (plan: Parameters<typeof setlistRows>[0]) =>
+      setlistRows(plan, titleOf).find((r) => r.key === "make")?.detail;
+    expect(make(fixturePlan({ song }))).toBe("Your backbeat takes over the second part of the song.");
+    // A side step's Make stays a sketch of its own; a lesson in no song is unchanged.
+    expect(make(fixturePlan({ song: { ...song, today: null, side: true } }))).toBe(
+      "A short sketch with today's tools",
+    );
+    expect(make(fixturePlan({}))).toBe("A short sketch with today's tools");
+  });
 });
 
 describe("helpers", () => {

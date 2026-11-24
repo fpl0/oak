@@ -1,7 +1,16 @@
 // The prebake's alias and kit wrappers, and the preloader's pitch plan for soundfonts. No audio runs: the
 // triggers are stand-ins that record what they receive.
 import { describe, expect, test } from "bun:test";
-import { kitGainOf, pinVariant, type SoundEntry, withOutputGain } from "./pack.ts";
+import {
+  kitGainOf,
+  layeredIndex,
+  layerOf,
+  OAK_KITS,
+  pinVariant,
+  type SoundEntry,
+  sampleAliasTrigger,
+  withOutputGain,
+} from "./pack.ts";
 import { DEFAULT_FONT_RANGE, FONT_WARM_STEP, fontWarmNotes } from "./preload.ts";
 
 function recorder() {
@@ -105,5 +114,61 @@ describe("fontWarmNotes", () => {
 
   test("a reversed range is accepted", () => {
     expect(fontWarmNotes([67, 24])).toEqual(fontWarmNotes([24, 67]));
+  });
+});
+
+describe("v4 velocity layers", () => {
+  test("a hap plays the first layer whose threshold its velocity is below; no velocity is the top layer", () => {
+    expect(layerOf(undefined, [0.6])).toBe(1);
+    expect(layerOf(1, [0.6])).toBe(1);
+    expect(layerOf(0.6, [0.6])).toBe(1);
+    expect(layerOf(0.3, [0.6])).toBe(0);
+    expect(layerOf(0.2, [0.4, 0.8])).toBe(0);
+    expect(layerOf(0.5, [0.4, 0.8])).toBe(1);
+    expect(layerOf(0.9, [0.4, 0.8])).toBe(2);
+    expect(layerOf(0.1, [])).toBe(0);
+  });
+
+  test("a kit role's files are variant-major: n picks the variant (wrapping), velocity the layer", () => {
+    // 3 variants x 2 layers = 6 files
+    expect(layeredIndex(0, 1, 6, 2, [0.6])).toBe(1);
+    expect(layeredIndex(0, 0.3, 6, 2, [0.6])).toBe(0);
+    expect(layeredIndex(2, 1, 6, 2, [0.6])).toBe(5);
+    expect(layeredIndex(2, 0.45, 6, 2, [0.6])).toBe(4);
+    expect(layeredIndex(4, 1, 6, 2, [0.6])).toBe(3);
+    expect(layeredIndex(undefined, undefined, 6, 2, [0.6])).toBe(1);
+  });
+
+  test("a sample alias picks its layer from the velocity and fills its release only when the code sets none", () => {
+    const { seen, entry } = recorder();
+    const a = {
+      sample: "src_rhodes",
+      layers: 2,
+      split: [0.6],
+      release: 0.35,
+      range: [29, 96] as [number, number],
+    };
+    const trigger = sampleAliasTrigger(entry, a);
+    trigger(0, { s: "rhodes", note: 60 }, () => {});
+    trigger(0, { s: "rhodes", note: 60, velocity: 0.4, n: 7 }, () => {});
+    trigger(0, { s: "rhodes", note: 60, release: 2 }, () => {});
+    expect(seen.map((v) => v.n)).toEqual([1, 0, 1]);
+    expect(seen.map((v) => v.release)).toEqual([0.35, 0.35, 2]);
+  });
+
+  test("a one-layer sample alias always plays its only file", () => {
+    const { seen, entry } = recorder();
+    const trigger = sampleAliasTrigger(entry, {
+      sample: "src_tenor",
+      layers: 1,
+      release: 0.15,
+      range: [44, 88],
+    });
+    trigger(0, { s: "tenor", note: 60, n: 3, velocity: 0.2 }, () => {});
+    expect(seen[0]?.n).toBe(0);
+  });
+
+  test("the v4 kits are the runtime's default kit list", () => {
+    expect([...OAK_KITS]).toEqual(["jazzkit", "rockkit", "lofikit", "oak909", "oak808"]);
   });
 });

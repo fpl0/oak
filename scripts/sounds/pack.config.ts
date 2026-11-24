@@ -6,8 +6,27 @@
 // v2 (Wave 3): `acgtr` alias; per-alias gain/release (loudness-matched, no click at note ends); the Oak
 // jazz kit (`.bank("jazzkit")`, brushes and ride from the Roland MC-303 bank of tidal-drum-machines).
 // v3 (Wave 4): `brk`, Oak's own one-bar break (scripts/sounds/brk.ts, CC0), in the `oak-rendered` map.
+// v4 (unit songs): a CC0/CC-BY library (docs/design/samples/proposal.md). Sample-backed aliases behind the
+// existing names (rhodes, upright, ebass, fingerbass, organ, cleangtr, jazzgtr, strings, trumpet, mutetpt,
+// tenor, vibes) and new ones (marimba, kalimba, glockenspiel); kits jazzkit (rebuilt from Virtuosity and
+// Swirly), rockkit, lofikit, oak909 and oak808 (synthesised by Oak); six rendered breaks; hand percussion,
+// textures and foley; wavetables; credits.json, CREDITS.md and LICENSES/. The tidal-drum-machines banks and
+// the MC-303 jazz kit are retired: their names play the closest CC0 kit (KIT_ALIASES).
 
-export const PACK_VERSION = "v3";
+import { BREAKS } from "./breaks.ts";
+import {
+  AKWF_TABLES,
+  type Credit,
+  type DrumRole,
+  type Licence,
+  ONE_SHOTS,
+  PITCHED,
+  RECORDED_KITS,
+  SOURCES,
+} from "./library.ts";
+import { OAK_TABLES } from "./wavetables.ts";
+
+export const PACK_VERSION = "v4";
 
 /** Public URL prefix the app serves the pack from. Every rewritten `_base` starts with this. */
 export const PUBLIC_ROOT = `/sounds/${PACK_VERSION}`;
@@ -16,6 +35,30 @@ export const PUBLIC_ROOT = `/sounds/${PACK_VERSION}`;
 export const SAMPLE_CDN = "https://strudel.b-cdn.net";
 /** Default soundfontUrl in @strudel/soundfonts/fontloader.mjs. */
 export const SOUNDFONT_CDN = "https://felixroos.github.io/webaudiofontdata/sound";
+
+/**
+ * The pack's hard size limit, enforced by check.ts (a failure, not a warning). Owner decision for v4:
+ * quality first, up to about 80 MiB; the limit is the v4 pack's size (51.3 MiB) plus 10%, rounded up.
+ */
+export const BUDGET_BYTES = 57 * 1024 * 1024;
+
+/**
+ * The one dated exception (2026-11-24): the General MIDI WebAudioFont presets the pack already shipped
+ * (felixroos/webaudiofontdata, MIT for the conversion) whose source SoundFont's own licence could not be
+ * verified (JCLive, Aspirin, LK_AcousticSteel, GeneralUser GS). Kept so `gm_*` names and the GM-backed aliases
+ * (acgtr, clav, pad, choir) keep playing; no new file may use it. Retire each when a CC0 replacement lands.
+ */
+export const LEGACY_GM = "LicenseRef-legacy-webaudiofont-unverified";
+
+/** Licences a pack file may carry (check.ts); CC-BY entries must also carry their attribution. */
+export const LICENCE_ALLOW_LIST: readonly string[] = [
+  "CC0-1.0",
+  "Unlicense",
+  "MIT",
+  "CC-BY-3.0",
+  "CC-BY-4.0",
+  LEGACY_GM,
+];
 
 /** Drum roles Oak teaches (PLAN.md 12: "The drum set includes sh, cb and tb"). */
 export const DRUM_ROLES = [
@@ -33,16 +76,7 @@ export const DRUM_ROLES = [
   "sh",
   "cb",
   "tb",
-] as const;
-
-/** tidal-drum-machines banks kept (out of 71 upstream). */
-export const DRUM_BANKS = ["RolandTR909", "RolandTR808", "LinnDrum", "AkaiLinn", "RolandTR707"] as const;
-
-/**
- * Upstream banks carry up to 25 variations per role (TR808 bd/sd/cr). We keep the first N so that
- * `s("bd:0..N-1")` matches strudel.cc; higher indices wrap (superdough getSoundIndex is modulo).
- */
-export const MAX_VARIANTS_PER_ROLE = 4;
+] as const satisfies readonly DrumRole[];
 
 export interface SampleMapSpec {
   /** file name of the map, both upstream (`${SAMPLE_CDN}/${json}`) and in the pack */
@@ -51,71 +85,79 @@ export interface SampleMapSpec {
   dir: string;
   /** which keys to keep, and how many variations of each */
   keep: (key: string) => number;
+  credit: Credit;
 }
 
 const drumRoles = new Set<string>(DRUM_ROLES);
-const drumBanks = new Set<string>(DRUM_BANKS);
 
+/** Maps copied byte-for-byte from the Strudel CDN (unchanged since v1). */
 export const SAMPLE_MAPS: SampleMapSpec[] = [
   // Salamander Grand Piano V3 (CC-BY 3.0, Alexander Holm) - one velocity layer, 29 pitches
-  { json: "piano.json", dir: "piano/", keep: () => Number.POSITIVE_INFINITY },
+  {
+    json: "piano.json",
+    dir: "piano/",
+    keep: () => Number.POSITIVE_INFINITY,
+    credit: {
+      title: "Salamander Grand Piano V3",
+      author: "Alexander Holm",
+      url: "https://github.com/sfzinstruments/SalamanderGrandPiano",
+      licence: "CC-BY-3.0",
+      licenceUrl: "https://creativecommons.org/licenses/by/3.0/",
+      attribution:
+        "Salamander Grand Piano V3 by Alexander Holm, CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); one velocity layer, selected and re-encoded (MP3) as served by the Strudel project.",
+    },
+  },
   // uzu-drumkit (Unlicense): default bd/sd/hh... kit. Its "brk" (a recording of the Amen break, whose
   // licence is not Oak's to give) and "misc" are pruned; Oak's `brk` is rendered (scripts/sounds/brk.ts).
   {
     json: "uzu-drumkit.json",
     dir: "uzu-drumkit/",
     keep: (key) => (drumRoles.has(key) ? Number.POSITIVE_INFINITY : 0),
-  },
-  // tidal-drum-machines: 5 banks x Oak roles x first MAX_VARIANTS_PER_ROLE files. "perc"/"misc"/"fx" pruned.
-  {
-    json: "tidal-drum-machines.json",
-    dir: "tidal-drum-machines/machines/",
-    keep: (key) => {
-      const i = key.indexOf("_");
-      const bank = key.slice(0, i);
-      const role = key.slice(i + 1);
-      return drumBanks.has(bank) && drumRoles.has(role) ? MAX_VARIANTS_PER_ROLE : 0;
+    credit: {
+      title: "uzu-drumkit",
+      author: "TidalCycles contributors",
+      url: "https://github.com/tidalcycles/uzu-drumkit",
+      licence: "Unlicense",
+      licenceUrl: "https://unlicense.org/",
     },
   },
 ];
 
-/** Upstream `aliasBank` map (RolandTR909 -> TR909 ...); pruned to DRUM_BANKS. */
-export const BANK_ALIAS_JSON = "tidal-drum-machines-alias.json";
-
 /**
  * gm_* instruments and the variant indices (positions in @strudel/soundfonts/gm.mjs) that are mirrored.
- * Index 0 is always kept so plain `s("gm_xxx")` sounds like strudel.cc. The other entries are the curated
- * variants an Oak alias pins (see OAK_ALIASES). gm_electric_bass_finger index 1 is the upstream typo
+ * Index 0 is kept for every name the pack has always had, so `s("gm_xxx")` keeps playing; other indices only
+ * where a GM-backed alias pins one. gm_electric_bass_finger index 1 is the upstream typo
  * ("0330_FluidR3_GM_sf2_fible", HTTP 404) and must never be listed.
  */
 export const GM_VARIANTS: Record<string, number[]> = {
-  gm_piano: [0], // 0000_JCLive
-  gm_epiano1: [0, 1], // 0040_JCLive, 0040_FluidR3_GM (rhodes)
-  gm_drawbar_organ: [0, 3], // 0160_JCLive (sounds an octave low), 0160_FluidR3_GM (organ)
-  gm_acoustic_bass: [0, 1], // 0320_JCLive, 0320_FluidR3_GM (upright)
-  gm_electric_bass_finger: [0, 3], // 0330_JCLive (fingerbass), 0330_GeneralUserGS  (NOT 1)
-  gm_electric_bass_pick: [0, 1], // 0340_JCLive (ebass), 0340_FluidR3_GM
-  gm_electric_guitar_jazz: [0, 3], // 0260_JCLive (jazzgtr), 0260_FluidR3_GM
-  gm_electric_guitar_clean: [0], // 0270_Aspirin (cleangtr; 0270_Stratocaster sounded an octave low, +12 c)
-  gm_overdriven_guitar: [0], // 0290_FluidR3_GM (crunch; 0290_LesPaul's zones above E4 die within 0.3 s)
-  gm_acoustic_guitar_steel: [0, 5], // 0253_Acoustic_Guitar (−14 c at A2), 0250_LK_AcousticSteel (acgtr)
-  gm_string_ensemble_1: [0], // 0480_Aspirin (strings; 0480_JCLive was +10..+13 c)
-  gm_brass_section: [0, 3], // 0610_JCLive (+6..+8 c), 0610_FluidR3_GM (horns)
-  gm_tenor_sax: [0, 3], // 0660_JCLive (tenor), 0660_GeneralUserGS
-  gm_trumpet: [0, 1], // 0560_FluidR3_GM (trumpet), 0560_JCLive
-  gm_choir_aahs: [0, 2], // 0520_Aspirin (choir; 0520_Soul_Ahhs was −5..+14 c), 0520_FluidR3_GM
+  gm_piano: [0],
+  gm_epiano1: [0],
+  gm_drawbar_organ: [0],
+  gm_acoustic_bass: [0],
+  gm_electric_bass_finger: [0],
+  gm_electric_bass_pick: [0],
+  gm_electric_guitar_jazz: [0],
+  gm_electric_guitar_clean: [0],
+  gm_overdriven_guitar: [0], // 0290_FluidR3_GM (crunch)
+  gm_acoustic_guitar_steel: [0, 5], // 0250_LK_AcousticSteel (acgtr)
+  gm_string_ensemble_1: [0],
+  gm_brass_section: [0, 3], // 0610_FluidR3_GM (horns)
+  gm_tenor_sax: [0],
+  gm_trumpet: [0],
+  gm_choir_aahs: [0], // 0520_Aspirin (choir)
   gm_clavinet: [0], // 0070_JCLive (clav)
   gm_pad_warm: [0], // 0890_JCLive (pad)
-  gm_muted_trumpet: [0], // 0590_JCLive (mutetpt)
-  gm_vibraphone: [0, 3], // 0110_JCLive (sounds two octaves high), 0110_FluidR3_GM (vibes)
-  gm_flute: [0, 2], // 0730_JCLive, 0730_FluidR3_GM
+  gm_muted_trumpet: [0],
+  gm_vibraphone: [0],
+  gm_flute: [0],
 };
 
-/**
- * A curated Oak instrument: the gm font it pins and how it is played. Written into the pack manifest, so the
- * prebake, the preloader and the sound-quality harness read the same table.
- */
-export interface AliasSpec {
+/** The FluidR3 fonts (Frank Wen, MIT); every other mirrored font is the legacy exception. */
+export const FLUIDR3_FONT = /_FluidR3_GM_sf2_file$/;
+
+/** A General MIDI alias: the gm font it pins and how it is played. */
+export interface GmAliasSpec {
+  kind?: "gm";
   gm: string;
   /** Upstream variant index in gm.mjs (must be mirrored in GM_VARIANTS). */
   variant: number;
@@ -128,91 +170,115 @@ export interface AliasSpec {
 }
 
 /**
- * Curated Oak instrument names. Variants, gains and releases come from the sound-quality harness
- * (`packages/strudel/e2e/quality.pw.ts`, results in `packages/strudel/sound-quality.json`): every alias's
- * first partial within ±10 cents of equal temperament at A2/A3/A4 (A1/A2/A3 for basses), in the octave it
- * claims, no click at note ends, loudness within ±1.5 LU of the piano. Wave 4 also matches the chord
- * instruments on triads (packages/strudel/e2e/wave4.pw.ts, ±3 LU of the piano's chords): rhodes 0.56 → 0.6
- * and acgtr 2.26 → 1.95 (its chords peaked at −0.9 dBFS), both still within ±1.5 LU on a melody.
+ * A sample-backed alias: a pitched sample map (key `src_<alias>`, never taught) played through the alias name,
+ * with a fixed gain, a default release (so a note stops at the end of its event, like the GM aliases did) and
+ * velocity layers (the map lists each pitch's layers softest first; `split` holds the velocity thresholds).
+ */
+export interface SampleAliasSpec {
+  kind: "sample";
+  gain?: number;
+  release: number;
+  range: [number, number];
+  /** Velocity thresholds between layers (one fewer than the layers). */
+  split?: number[];
+}
+
+export type AliasSpec = GmAliasSpec | SampleAliasSpec;
+
+/** Velocity below this plays the soft layer of a two-layer sound (kits and instruments alike). */
+export const SOFT_BELOW = 0.6;
+
+/** A sample alias; `layered` is true for two layers (split at SOFT_BELOW) or the thresholds of more. */
+const sample = (
+  release: number,
+  range: [number, number],
+  layered: boolean | number[] = false,
+  gain?: number,
+): SampleAliasSpec => ({
+  kind: "sample",
+  release,
+  range,
+  ...(layered === true ? { split: [SOFT_BELOW] } : Array.isArray(layered) ? { split: layered } : {}),
+  ...(gain !== undefined ? { gain } : {}),
+});
+
+/**
+ * Curated Oak instrument names. The GM ones keep the variants, gains and releases the sound-quality harness
+ * measured (`packages/strudel/e2e/quality.pw.ts`, `packages/strudel/sound-quality.json`). The sample ones are
+ * levelled at build time to the piano's loudness (mirror.ts), retuned to equal temperament, and stop at the
+ * end of their event with the release given here.
  */
 export const OAK_ALIASES: Record<string, AliasSpec> = {
-  rhodes: { gm: "gm_epiano1", variant: 1, gain: 0.6 },
-  upright: { gm: "gm_acoustic_bass", variant: 1, range: [24, 67] },
-  ebass: { gm: "gm_electric_bass_pick", variant: 0, gain: 1.13, range: [24, 67] },
-  fingerbass: { gm: "gm_electric_bass_finger", variant: 0, range: [24, 67] },
-  organ: { gm: "gm_drawbar_organ", variant: 3, gain: 1.46 },
+  // gains: the phrase's loudness against the piano's (sound-quality.json, ±1.5 LU), measured on the v4 pack
+  rhodes: sample(0.35, [29, 96], true, 0.87),
+  upright: sample(0.12, [24, 67], [0.45, 0.85], 0.79),
+  ebass: sample(0.1, [24, 67], false, 0.82),
+  fingerbass: sample(0.1, [24, 67], false, 0.84),
+  organ: sample(0.08, [36, 96], false, 0.84),
   acgtr: { gm: "gm_acoustic_guitar_steel", variant: 5, gain: 1.95, range: [40, 88] },
-  jazzgtr: { gm: "gm_electric_guitar_jazz", variant: 0, gain: 1.19, range: [40, 88] },
-  cleangtr: { gm: "gm_electric_guitar_clean", variant: 0, gain: 0.69, range: [40, 88] },
+  jazzgtr: sample(0.25, [37, 88], true, 0.86),
+  cleangtr: sample(0.25, [36, 88], true, 0.69),
   crunch: { gm: "gm_overdriven_guitar", variant: 0, gain: 0.58, range: [40, 88] },
-  strings: { gm: "gm_string_ensemble_1", variant: 0, gain: 0.86 },
+  strings: sample(0.45, [36, 96], true, 0.69),
   horns: { gm: "gm_brass_section", variant: 3, range: [48, 84] },
-  trumpet: { gm: "gm_trumpet", variant: 0, range: [52, 88] },
-  tenor: { gm: "gm_tenor_sax", variant: 0, gain: 0.67, range: [44, 80] },
-  vibes: { gm: "gm_vibraphone", variant: 3, range: [53, 89] },
-  mutetpt: { gm: "gm_muted_trumpet", variant: 0, gain: 0.59, range: [52, 84] },
+  trumpet: sample(0.15, [52, 88], true, 0.68),
+  tenor: sample(0.15, [44, 88], false, 0.79),
+  vibes: sample(0.9, [53, 89], true, 0.77),
+  mutetpt: sample(0.15, [52, 84], true, 0.61),
   clav: { gm: "gm_clavinet", variant: 0, gain: 0.72 },
   pad: { gm: "gm_pad_warm", variant: 0 },
   choir: { gm: "gm_choir_aahs", variant: 0 },
+  marimba: sample(0.3, [41, 96], false, 0.93),
+  kalimba: sample(0.5, [59, 96]),
+  glockenspiel: sample(0.6, [79, 108], false, 0.68),
 };
 
-/** One role of an Oak kit: upstream files (paths inside the kit's sample map) and a level trim. */
-export interface KitRole {
-  files: string[];
-  /**
-   * Linear gain of every hit of this role, or one per file (in `n` order): the upstream samples are all
-   * peak-normalised, so the kit's balance is set here (sound-quality.json, "jazzkit").
-   */
-  gain: number | number[];
-}
+export const isSampleAlias = (a: AliasSpec): a is SampleAliasSpec => a.kind === "sample";
 
-export interface KitSpec {
-  /** The upstream sample map the files come from (provenance: each file must be listed there). */
-  json: string;
-  /** Its directory below SAMPLE_CDN, reused in the pack (files are shared with that map's mirror). */
-  dir: string;
-  source: string;
-  licence: string;
-  roles: Partial<Record<(typeof DRUM_ROLES)[number], KitRole>>;
-}
+/** The sample map key behind a sample alias. */
+export const srcKey = (alias: string): string => `src_${alias}`;
 
-const MC303 = "RolandMC303/rolandmc303";
+/** Oak's kits, `.bank("<name>")`: recorded (library.ts) or synthesised (drummachine.ts). */
+export const OAK_KITS = {
+  jazzkit: { kind: "recorded", label: "Virtuosity Drums (sticks) and Swirly Drums (brushes)" },
+  rockkit: { kind: "recorded", label: "Big Rusty Drums" },
+  lofikit: { kind: "recorded", label: "Virtuosity Drums' lo-fi microphone through Oak's lo-fi chain" },
+  oak909: { kind: "synth", label: "Oak's synthesised 909-style drum machine" },
+  oak808: { kind: "synth", label: "Oak's synthesised 808-style drum machine" },
+} as const satisfies Record<string, { kind: "recorded" | "synth"; label: string }>;
+
+export type OakKit = keyof typeof OAK_KITS;
 
 /**
- * Oak's own kits, `.bank("<name>")`. Roles a kit does not define fall back to the default kit (uzu-drumkit).
- * jazzkit: the brushes, ride, cross-stick and acoustic toms of the Roland MC-303 bank in tidal-drum-machines
- * (the upstream the pack already mirrors for TR-909/808/707, LinnDrum and AkaiLinn).
+ * Retired bank names and the CC0 kit each now plays (owner decision, v4): saved code and every lesson that
+ * names them keeps sounding. Case does not matter (superdough lower-cases sound names), so `tr909` and `TR909`
+ * are the same alias.
  */
-export const OAK_KITS: Record<string, KitSpec> = {
-  jazzkit: {
-    json: "tidal-drum-machines.json",
-    dir: "tidal-drum-machines/machines/",
-    source:
-      "tidal-drum-machines (github.com/ritchse/tidal-drum-machines) via strudel.b-cdn.net, Roland MC-303 bank",
-    licence: "as the rest of tidal-drum-machines in this pack (redistributed by the Strudel project)",
-    roles: {
-      bd: { files: [`${MC303}-bd/Drybd2.wav`], gain: 0.59 },
-      sd: {
-        files: [`${MC303}-sd/Brushtap.wav`, `${MC303}-sd/Brushslp.wav`, `${MC303}-perc/Brushswi.wav`],
-        gain: [0.76, 1.19, 0.33],
-      },
-      rim: { files: [`${MC303}-rim/Rimsd2.wav`, `${MC303}-rim/Rimsd1.wav`], gain: 0.43 },
-      hh: { files: [`${MC303}-hh/Realch1.wav`, `${MC303}-hh/Realch2.wav`], gain: 0.59 },
-      oh: { files: [`${MC303}-oh/Roomoh.wav`, `${MC303}-oh/Realoh1.wav`], gain: [0.37, 0.2] },
-      rd: { files: [`${MC303}-rd/Ridecymb.wav`, `${MC303}-rd/Ridecym2.wav`], gain: [0.6, 0.5] },
-      lt: { files: [`${MC303}-lt/Aclotom1.wav`], gain: 0.8 },
-      mt: { files: [`${MC303}-mt/Acmidtom.wav`], gain: 0.89 },
-      ht: { files: [`${MC303}-ht/Achitom1.wav`], gain: 0.78 },
-      sh: { files: [`${MC303}-sh/Shaker.wav`], gain: 0.34 },
-      tb: { files: [`${MC303}-tb/Tambouri.wav`], gain: 0.41 },
-      cb: { files: [`${MC303}-cb/Cowbell.wav`], gain: 0.37 },
-      cp: { files: [`${MC303}-cp/Realclap.wav`], gain: 0.59 },
-    },
-  },
+export const KIT_ALIASES: Record<string, OakKit> = {
+  RolandTR909: "oak909",
+  TR909: "oak909",
+  RolandTR808: "oak808",
+  TR808: "oak808",
+  RolandTR707: "oak909",
+  TR707: "oak909",
+  LinnDrum: "rockkit",
+  AkaiLinn: "lofikit",
+  Linn: "lofikit",
 };
 
 /** The derived sample map of an Oak kit (keys `<kit>_<role>`), at the pack root. */
 export const kitJson = (kit: string): string => `oak-kit-${kit}.json`;
+
+/** Oak's rendered breaks (breaks.ts), beside `brk`. */
+export const BREAK_NAMES = Object.keys(BREAKS);
+/** One-shot maps (hand percussion, textures, foley) and the tape bed Oak renders. */
+export const ONE_SHOT_NAMES = [...Object.keys(ONE_SHOTS), "tape"];
+/** Wavetables: AKWF single cycles and Oak's morph tables. */
+export const WAVETABLE_NAMES = [...Object.keys(AKWF_TABLES), ...Object.keys(OAK_TABLES)];
+/** Every pitched sample instrument (keys of library.ts PITCHED). */
+export const PITCHED_NAMES = Object.keys(PITCHED);
+export const RECORDED_KIT_NAMES = Object.keys(RECORDED_KITS);
+export { SOURCES };
 
 export interface LockFile {
   path: string;
@@ -221,6 +287,17 @@ export interface LockFile {
   sha256: string;
   /** true when the file is generated/rewritten by mirror.ts instead of copied byte-for-byte */
   derived?: true;
+  /** derived files: hash of everything the file is computed from (inputs, settings, build code) */
+  recipe?: string;
+  /** the credit (credits.json id) every derived or copied audio file is covered by */
+  credit?: string;
+}
+
+/** An upstream file a derived file is computed from (not shipped; cached in sounds/pack/.sources/). */
+export interface LockSource {
+  url: string;
+  bytes: number;
+  sha256: string;
 }
 
 export interface PackLock {
@@ -228,8 +305,26 @@ export interface PackLock {
   publicRoot: string;
   totalBytes: number;
   fileCount: number;
+  /** encoder versions the derived audio was built with (the lock is the source of truth, docs/spikes.md) */
+  encoders?: Record<string, string>;
   groups: Record<string, { files: number; bytes: number }>;
+  /** licence metadata per source (the same entries as credits.json) */
+  credits?: Record<string, CreditEntry>;
+  sources?: LockSource[];
   files: LockFile[];
+}
+
+/** One credits.json entry. */
+export interface CreditEntry extends Omit<Credit, "licence"> {
+  licence: Licence | typeof LEGACY_GM;
+  /** Commit or archive hash the files were taken from. */
+  pinned?: string;
+  /** What Oak did to the files. */
+  modified: string;
+  /** Oak sounds built from it. */
+  sounds: string[];
+  /** Per-file origins (freesound pages behind Sonic Pi samples). */
+  origins?: string[];
 }
 
 export interface PackManifest {
@@ -237,13 +332,17 @@ export interface PackManifest {
   publicRoot: string;
   /** sample maps to pass to superdough `samples(json, base)` */
   sampleMaps: { json: string; base: string; tag?: string }[];
-  /** argument for superdough `aliasBank(url)` */
-  bankAliases: string;
+  /** argument for superdough `aliasBank(url)` (absent from v4: KIT_ALIASES are in `kitAliases`) */
+  bankAliases?: string;
+  /** retired bank name -> the Oak kit it plays (v4) */
+  kitAliases?: Record<string, string>;
+  /** Oak kits the runtime completes with the default kit's roles (v4) */
+  kits?: string[];
   /** argument for `setSoundfontUrl` (no trailing slash; loader appends `/${font}.js`) */
   soundfontUrl: string;
   /** gm name -> mirrored fonts, in upstream order */
   soundfonts: Record<string, { upstreamIndex: number; font: string }[]>;
-  /** curated alias -> pinned font, and how it is played */
+  /** curated GM alias -> pinned font, and how it is played */
   aliases: Record<
     string,
     {
@@ -255,6 +354,23 @@ export interface PackManifest {
       range?: [number, number];
     }
   >;
+  /** curated sample alias -> its sample map key and how it is played (v4) */
+  sampleAliases?: Record<
+    string,
+    {
+      sample: string;
+      layers: number;
+      split?: number[];
+      gain?: number;
+      release: number;
+      range: [number, number];
+    }
+  >;
   /** `<kit>_<role>` -> linear gain of an Oak kit's role (the kit's map is one of `sampleMaps`) */
   kitGains?: Record<string, number | number[]>;
+  /** `<kit>_<role>` -> velocity layers per variant and their split (v4; the map lists files variant-major) */
+  kitLayers?: Record<string, { layers: number; split: number[] }>;
+  /** credits.json and breaks.json (v4) */
+  credits?: string;
+  breaks?: string;
 }

@@ -15,14 +15,20 @@ setDefaultTimeout(60_000);
 
 /** Wave 4's lessons are all after U03.L01 and U06.L01 in every order: every stage has been reached. */
 const AT_U07 = () => true;
-/** Wave 5: indie and funk ship, so every flavour's Band is held to the same production defaults. */
+/** Wave 5: indie and funk ship, so every flavour's Band is held to the same production defaults; electronic (S1) too. */
 const SHIPPED = Object.entries(FLAVOUR_RULES)
-  .filter(([, r]) => ["W2", "W3", "W4", "W5"].includes(r.ships))
+  .filter(([, r]) => ["W2", "W3", "W4", "W5", "S1"].includes(r.ships))
   .map(([id]) => id);
 
 describe("Band production at U05–U11", () => {
-  test("by U08 every flavour exists: pop and jazz-soul (W2), indie and funk (W5)", () => {
-    expect(SHIPPED.sort()).toEqual(["flavour.funk", "flavour.indie", "flavour.jazz-soul", "flavour.pop"]);
+  test("by U08 every flavour exists: pop and jazz-soul (W2), indie and funk (W5), electronic (S1)", () => {
+    expect(SHIPPED.sort()).toEqual([
+      "flavour.electronic",
+      "flavour.funk",
+      "flavour.indie",
+      "flavour.jazz-soul",
+      "flavour.pop",
+    ]);
   });
 
   for (const band of bands) {

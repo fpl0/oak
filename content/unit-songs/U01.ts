@@ -15,8 +15,8 @@
 // - The chorus is the hook, high (F4–E5): a falling three-note cell, E D C, D C B, C B A, sung over I V vi IV.
 //   Chords and bass move to eighths, the snare doubles with a clap, the hats open, a crash every four bars.
 // - The bridge drops to half-time over vi IV V V: kick on 1, snare on 3, a ride (pop), a tambourine (indie) or a
-//   shaker (funk) in place of the hats (jazz-soul keeps its ride), long tune notes, and a snare roll into the last
-//   chorus.
+//   shaker (funk, electronic) in place of the hats (jazz-soul keeps its ride), long tune notes, and a snare roll into
+//   the last chorus.
 // - The ending plays the hook's cell over I IV V and stops on one held C.
 //
 // Clashes (AUTHORING §13, spec §5.1), read from the evaluated events and `bun run theory read`/`interval`: every tune
@@ -27,7 +27,7 @@
 // G (D3 G3 B3), Am (E3 A3 C4). The bass plays its roots on C2–A2 under them; fifths and octave pops reach A3. The
 // tune sits on top, C4–E5.
 //
-// One builder writes all four flavours (AUTHORING §23.2), so the roots, the bass downbeats and the tune cannot drift.
+// One builder writes all five flavours (AUTHORING §23.2), so the roots, the bass downbeats and the tune cannot drift.
 // A flavour changes only the kit, the grooves inside a section (kick, hats, comp and bass rhythm) and production.
 // Gains stay at or under the Bands' kit gains (content/bands/index.ts KITS: drums .7, bass .9, chords .4/.45).
 import {
@@ -167,6 +167,8 @@ type BassBar = (r: number, i: number, count: number) => string;
 interface Kit {
   /** `.bank()` name, or "" for the default kit. */
   bank: string;
+  /** A different machine in some sections (electronic: the lo-fi kit in the opening and the bridge). */
+  banks?: Partial<Record<Kind, string>>;
   kick: DrumBars;
   snare: DrumBars;
   hats: DrumBars;
@@ -182,14 +184,25 @@ interface Kit {
     chords: number;
     lead: number;
   };
-  bass: { sound: string; lpf: number; groove: Record<Kind, BassBar> };
+  bass: {
+    sound: string;
+    lpf: number;
+    groove: Record<Kind, BassBar>;
+    /** Another sound in some sections, and synth controls per section (electronic: acid or sub). */
+    sounds?: Partial<Record<Kind, string>>;
+    fx?: Partial<Record<Kind, string>>;
+  };
   chords: {
     sound: string;
     pan: number;
     comp: Record<Kind, string[]>;
     accents: Partial<Record<Kind, string>>;
+    /** As for the bass (electronic: sawtooth stabs, a supersaw pad). */
+    sounds?: Partial<Record<Kind, string>>;
+    fx?: Partial<Record<Kind, string>>;
   };
-  lead: { sound: string; pan: number };
+  /** `fx`: synth controls after the lead's sound (electronic: the square pluck and its echo). */
+  lead: { sound: string; pan: number; fx?: string };
   room: number;
 }
 
@@ -241,6 +254,17 @@ const POP_CHORUS_BASS: BassBar = (r) => `${r}*8`;
 const INDIE_CHORUS_BASS: BassBar = (r) => `[${r} ${r + 7}]*4`;
 const JAZZ_CHORUS_BASS: BassBar = (r) => `[${r} ${r + 4} ${r + 7} ${r + 4}]`;
 const FUNK_CHORUS_BASS: BassBar = (r) => `[${r} ~ ~ ${r} ~ ~ ${r} ~ ${r} ~ ~ ${r} ~ ${r + 7} ~ ~]`;
+/** Electronic: the acid line of the chorus, on every sixteenth but two, the octave on the off-beat sixteenths. */
+const ACID_CHORUS: BassBar = (r) =>
+  `[${r} ${r} ${r + 7} ${r} ~ ${r} ${r + 7} ${r} ${r} ~ ${r + 7} ${r} ${r} ${r} ${r + 7} ~]`;
+/** The TB-303 recipe: a resonant ladder filter whose envelope opens on an accent pattern, short notes. */
+const ACID = '.lpq(12).ftype("ladder").lpenv("<3 1.5 2 4>*8").lpd(.14).lps(0).decay(.2).sustain(.4)';
+/** The chorus: the same line with the envelope opened wider on the accents. */
+const ACID_OPEN = '.lpq(14).ftype("ladder").lpenv("<4 2 3 6>*8").lpd(.16).lps(0).decay(.2).sustain(.4)';
+/** A sawtooth stab whose filter snaps shut. */
+const STAB = ".lpf(1800).lpenv(2).lpd(.12).lps(0).decay(.22).sustain(.3)";
+/** A supersaw pad that swells after each kick (a slow attack, struck on every beat), its filter drifting. */
+const PAD = ".attack(.12).decay(.4).sustain(.7).lpf(sine.range(900, 2200).slow(8))";
 
 const KITS: Record<FlavourId, Kit> = {
   // The default kit, electric bass, piano chords and a piano tune: a pop-rock band.
@@ -472,6 +496,95 @@ const KITS: Record<FlavourId, Kit> = {
     lead: { sound: "organ", pan: 0.58 },
     room: 0.2,
   },
+  // Electronic: Oak's 909-style machine for the verse, the choruses and the ending, the lo-fi kit (a dusty crate kit)
+  // for the opening and the half-time bridge. Four on the floor and a clap from the verse on, sixteenth hats that open
+  // on every "and". The bass is an acid line, a sawtooth under a resonant ladder filter whose envelope opens on an
+  // accent pattern, on the chord's root with octave jumps between the beats; in the opening and the bridge a sine sub
+  // holds the roots instead. The chords are sawtooth stabs between the kicks in the verse, eighths in the chorus whose
+  // on-beat ones are ducked (the pump of a sidechained record), and a supersaw pad that swells after every kick in the
+  // opening and the bridge, its filter drifting. The tune is a square pluck with a dotted-eighth echo. Straight and in
+  // triads (FLAVOUR_RULES: sevenths from U06.L10).
+  "flavour.electronic": {
+    bank: "oak909",
+    banks: { intro: "lofikit", bridge: "lofikit" },
+    kick: {
+      intro: bars(4, "bd ~ ~ [~ bd] ~ ~ bd ~", "bd ~ ~ [~ bd] bd ~ bd bd"),
+      verse: bars(8, "bd*4"),
+      break: ["bd ~ ~ ~"],
+      chorus: bars(8, "bd*4"),
+      bridge: KICK_BUILD,
+      outro: bars(4, "bd*4", "bd ~ ~ ~"),
+    },
+    snare: {
+      ...SNARE_EDGES,
+      intro: bars(4, "~ sd ~ sd", "~ sd ~ [sd sd]"),
+      verse: bars(8, "~ cp ~ cp", "~ cp ~ [cp cp]"),
+      chorus: SNARE_CLAP.chorus,
+      outro: SNARE_CLAP.outro,
+    },
+    hats: {
+      intro: bars(4, "[~ hh]*4"),
+      verse: bars(8, "[hh hh oh hh]*4"),
+      chorus: bars(8, "[hh hh oh hh]*4"),
+      outro: bars(4, "[hh hh oh hh]*4", "~"),
+    },
+    perc: { ...CRASHES, intro: ["~", "~", "~", "~"], bridge: bars(4, "sh*8") },
+    accents: {
+      snare: { ...CLAP_LEVEL, verse: ".85" },
+      hats: { intro: "[.8 .6]*4", verse: SIXTEENTHS, chorus: SIXTEENTHS, outro: SIXTEENTHS },
+      perc: { bridge: EIGHTHS },
+    },
+    gains: { kick: 0.6, snare: 0.5, hats: 0.35, perc: 0.35, bass: 0.5, chords: 0.28, lead: 0.4 },
+    bass: {
+      sound: "sawtooth",
+      lpf: 700,
+      groove: {
+        intro: HALVES,
+        verse: (r) => `[${r} ~ ${r} ${r + 7} ${r} ~ ${r} ~ ${r} ~ ${r + 7} ${r} ${r} ~ ~ ${r}]`,
+        break: STOP,
+        chorus: ACID_CHORUS,
+        bridge: bridgeInto(WHOLE, ACID_CHORUS),
+        outro: ending(ACID_CHORUS),
+      },
+      sounds: { intro: "sine", bridge: "sine" },
+      fx: {
+        intro: ".decay(1.2).sustain(.6)",
+        verse: ACID,
+        break: ACID,
+        chorus: ACID_OPEN,
+        bridge: ".decay(1.2).sustain(.6)",
+        outro: ACID,
+      },
+    },
+    chords: {
+      sound: "sawtooth",
+      pan: 0.4,
+      comp: {
+        intro: bars(4, "x*4"),
+        verse: bars(8, "[~ x]*4"),
+        break: ["x ~ ~ ~"],
+        chorus: bars(8, "x*8"),
+        bridge: bars(4, "x*4"),
+        outro: bars(4, "x*8", "x"),
+      },
+      accents: { chorus: "[.6 1]*4", outro: "[.6 1]*4" },
+      sounds: { intro: "supersaw", bridge: "supersaw" },
+      fx: {
+        intro: PAD,
+        verse: STAB,
+        break: STAB,
+        chorus: STAB,
+        bridge: PAD,
+        outro: STAB,
+      },
+    },
+    lead: {
+      sound: "square",
+      pan: 0.6,
+      fx: ".decay(.25).sustain(.3).lpf(2400).delay(.3).delaytime(.45).delayfeedback(.35)",
+    },
+    room: 0.2,
+  },
 };
 
 const KINDS: Kind[] = ["intro", "verse", "break", "chorus", "bridge", "outro"];
@@ -482,7 +595,9 @@ const velocity = (accent: string | undefined): string =>
 /** Oak's whole song in one flavour: seven labelled tracks, one arrange() each, no tempo line (spec §5.1). */
 function code(f: FlavourId): string {
   const k = KITS[f];
-  const bank = k.bank ? `.bank("${k.bank}")` : "";
+  const bank = k.bank && !k.banks ? `.bank("${k.bank}")` : "";
+  /** With `banks`, each section names its machine; otherwise the track does, once. */
+  const sectionBank = (kind: Kind) => (k.banks ? `.bank("${k.banks[kind] ?? k.bank}")` : "");
   const drum = (label: "kick" | "snare" | "hats" | "perc") =>
     track(
       label,
@@ -490,30 +605,38 @@ function code(f: FlavourId): string {
         KINDS.flatMap((kind) => {
           const b = k[label][kind];
           if (!b || b.every((x) => x === "~")) return [];
-          return [[kind, `s("${perBar(b)}")${velocity(k.accents[label]?.[kind])}`]];
+          return [[kind, `s("${perBar(b)}")${sectionBank(kind)}${velocity(k.accents[label]?.[kind])}`]];
         }),
       ),
       `${bank}.gain(${num(k.gains[label])})`,
     );
+  /** A section's own sound and synth controls, when the kit changes them by section; else the track's sound. */
+  const voiced = (part: Kit["bass"] | Kit["chords"], kind: Kind) =>
+    part.fx || part.sounds ? `.s("${part.sounds?.[kind] ?? part.sound}")${part.fx?.[kind] ?? ""}` : "";
+  const tailSound = (part: Kit["bass"] | Kit["chords"]) =>
+    part.fx || part.sounds ? "" : `.s("${part.sound}")`;
   const bass = track(
     "bass",
     Object.fromEntries(
       KINDS.map((kind) => {
         const chords = chordsOf(kind);
-        return [kind, `n("${perBar(chords.map((c, i) => k.bass.groove[kind](c.root, i, chords.length)))}")`];
+        return [
+          kind,
+          `n("${perBar(chords.map((c, i) => k.bass.groove[kind](c.root, i, chords.length)))}")${voiced(k.bass, kind)}`,
+        ];
       }),
     ),
-    `.scale("C2:major").s("${k.bass.sound}").lpf(${k.bass.lpf}).gain(${num(k.gains.bass)})`,
+    `.scale("C2:major")${tailSound(k.bass)}.lpf(${k.bass.lpf}).gain(${num(k.gains.bass)})`,
   );
   const chords = track(
     "chords",
     Object.fromEntries(
       KINDS.map((kind) => [
         kind,
-        `n("${perBar(chordsOf(kind).map((c) => c.voicing))}").struct("${perBar(k.chords.comp[kind])}")${velocity(k.chords.accents[kind])}`,
+        `n("${perBar(chordsOf(kind).map((c) => c.voicing))}").struct("${perBar(k.chords.comp[kind])}")${voiced(k.chords, kind)}${velocity(k.chords.accents[kind])}`,
       ]),
     ),
-    `.scale("C3:major").s("${k.chords.sound}").gain(${num(k.gains.chords)}).pan(${num(k.chords.pan)}).room(${num(k.room)})`,
+    `.scale("C3:major")${tailSound(k.chords)}.gain(${num(k.gains.chords)}).pan(${num(k.chords.pan)}).room(${num(k.room)})`,
   );
   const mel = track(
     "mel",
@@ -523,7 +646,7 @@ function code(f: FlavourId): string {
         return tune ? [[kind, `n("${perBar(tune)}")`]] : [];
       }),
     ),
-    `.scale("C4:major").s("${k.lead.sound}").gain(${num(k.gains.lead)}).pan(${num(k.lead.pan)}).room(${num(k.room)})`,
+    `.scale("C4:major").s("${k.lead.sound}")${k.lead.fx ?? ""}.gain(${num(k.gains.lead)}).pan(${num(k.lead.pan)}).room(${num(k.room)})`,
   );
   const tracks = [drum("kick"), drum("snare"), drum("hats"), drum("perc"), bass, chords, mel];
   return [...tracks.flatMap((t) => t.consts), "", ...tracks.map((t) => t.line)].join("\n");

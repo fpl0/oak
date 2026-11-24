@@ -55,6 +55,8 @@ export const WOODS: Record<FlavourId | "default", Wood> = {
   "flavour.jazz-soul": { theme: "bark", bg: "#2A201A", early: "#3A2C22", line: "#C79F78", ink: "#F2E6D4" },
   "flavour.indie": { theme: "paper", bg: "#E5E4D7", early: "#D5D6C3", line: "#66744F", ink: "#23251E" },
   "flavour.funk": { theme: "bark", bg: "#2B1A21", early: "#3B2430", line: "#D58C6C", ink: "#F6E6DD" },
+  // Smoked oak: a near-black, cool-grained wood with a pale steel-blue line.
+  "flavour.electronic": { theme: "bark", bg: "#1C2024", early: "#272D33", line: "#8FB4C4", ink: "#E8EEF2" },
 };
 
 export type Prim =

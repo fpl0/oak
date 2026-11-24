@@ -401,6 +401,71 @@ export const TRACK_TOOL_DEMOS: Readonly<Record<string, ToolDemo>> = {
     panels: { spectrum: true },
     hint: "Press Play: the spectrum shows where the sound sits, low on the left, high on the right. The Registers switch draws the register bands under it and each part's range: the bass low, the chords in the middle, the tune on top, each with room of its own.",
   },
+  // Sound pack v4: grit and movement (A1.L05–L06), breaks and found sounds (A2.L04), timbres (A2.L06), Latin
+  // percussion (R3).
+  "tb.drive": {
+    code: pop(
+      120,
+      'bass: note("<[c2 c2 eb2 g1] [c2 ~ bb1 g1]>").s("sawtooth").lpf(600).lpq(12).ftype("ladder").drive(3)',
+    ),
+    hint: 'Drive pushes the ladder filter into grit. Try .drive(0) and .drive(5); it works only with .ftype("ladder").',
+  },
+  "tb.density": {
+    code: pop(80, 'fx: s("crackle").density(.3)', 'chords: chord("<Am F>").voicing().s("rhodes").gain(.5)'),
+    hint: "Crackle is sparse clicks; .density sets how many. Low sounds like an old record, high like rain.",
+  },
+  "snd.textures": {
+    code: pop(80, 'fx: s("vinyl").gain(.8)', 'chords: chord("<Am F>").voicing().s("rhodes").gain(.5)'),
+    hint: "vinyl is the surface noise of a record; tape is a tape hiss bed. Under a loop they make it sound old.",
+  },
+  "tb.wt": {
+    code: pop(90, 'pad: note("<[c3,e3,g3] [a2,c3,e3]>").s("wt_morph").wtrate(.5).wtdepth(1).gain(.6)'),
+    hint: "wt_morph runs from a saw to a square; .wtrate and .wtdepth sweep through it, so the timbre moves. Try .wt(0) and .wt(1).",
+  },
+  "snd.breaks": {
+    code: [
+      "setcpm(100/4)",
+      "",
+      'drums: s("brkfunk").loopAt(2)',
+      'bass: note("<[a1 ~ a1 c2] [f1 ~ f1 g1]>").s("fingerbass")',
+      'chords: chord("<Am F>").voicing().struct("~ x ~ x").s("rhodes").gain(.45)',
+    ].join("\n"),
+    hint: "brkfunk is two bars recorded at 100, so .loopAt(2) fits it at its own tempo. Try brkboombap, brkhouse or brklofi, each at its own tempo.",
+  },
+  "snd.foley": {
+    code: [
+      "setcpm(96/4)",
+      "",
+      'drums: s("brk").loopAt(1)',
+      'fx: s("~ foley ~ snap").chop(2)',
+      'bass: note("<[a1 ~ a1 c2] [f1 ~ f1 g1]>").s("fingerbass")',
+    ].join("\n"),
+    hint: "Found sounds as percussion: foley, snap, impact, swoosh and scratch, chopped like a break.",
+  },
+  "snd.marimba": {
+    code: pop(100, 'mel: n("<[0 2 4 2] [4 5 7 4]>").scale("C4:major").s("marimba")'),
+    hint: "A marimba: wooden bars, a soft attack and a short ring. Try kalimba or glockenspiel on the same line.",
+  },
+  "snd.kalimba": {
+    code: pop(100, 'mel: n("<[0 2 4 2] [4 5 7 4]>").scale("C4:major").s("kalimba")'),
+    hint: "A kalimba: plucked metal tines, the sound of many lo-fi and indie riffs.",
+  },
+  "snd.glockenspiel": {
+    code: pop(100, 'mel: n("<[0 2 4 2] [4 5 7 4]>").scale("C5:major").s("glockenspiel")'),
+    hint: "A glockenspiel: small metal bars, high and bright. It sounds two octaves above the written note on a real one.",
+  },
+  "snd.drum.clave": {
+    code: pop(100, 'perc: s("clave ~ ~ clave ~ ~ clave ~ ~ ~ clave ~ clave ~ ~ ~")'),
+    hint: "The claves play the son clave: three hits, then two. Every other part lines up with it.",
+  },
+  "snd.drum.conga": {
+    code: pop(100, 'perc: s("~ ~ conga conga ~ ~ conga ~").n("<0 3>")'),
+    hint: "The conga's open tones land on the last eighth of each bar: the tumbao.",
+  },
+  "snd.drum.bongo": {
+    code: pop(100, 'perc: s("bongo*8").n("0 1 3 1 0 1 4 1")'),
+    hint: "The bongos keep a steady eighth-note pattern: high and low drums, accented on the beat.",
+  },
   "snd.brk": {
     code: [
       "setcpm(96/4)",

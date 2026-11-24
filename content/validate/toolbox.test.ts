@@ -25,8 +25,8 @@ const METER_OF: Record<string, MeterId> = {
 const meterAt = (code: string): MeterId => METER_OF[/setcpm\([^)]*\/(\d+)\)/.exec(code)?.[1] ?? "4"] ?? "4/4";
 
 describe("rows", () => {
-  test("213 rows (contracts §3.2's 212 and tb.feature.chord-symbols, c14); every site is a real session", () => {
-    expect(toolbox.length).toBe(213);
+  test("234 rows (contracts §3.2's 212, tb.feature.chord-symbols (c14) and sound pack v4's 21); every site is a real session", () => {
+    expect(toolbox.length).toBe(234);
     for (const t of toolbox)
       for (const s of unlockSites(t)) expect([t.id, g.nodes.has(s)]).toEqual([t.id, true]);
   });

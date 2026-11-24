@@ -46,7 +46,7 @@ import { scopeRequests } from "./pack.ts";
 import { playOnce } from "./play-once.ts";
 import { WARM_AHEAD_BARS, type WarmAhead } from "./preload.ts";
 import { captureMessageListeners, type Runtime, removeCaptured } from "./runtime.ts";
-import { songLengthBars } from "./song-compose.ts";
+import { songLengthBars, songLintContext } from "./song-compose.ts";
 import { type CyclistLike, queryLiveHaps } from "./transport.ts";
 import type {
   BandSetup,
@@ -299,9 +299,12 @@ export function createEditor(rt: Runtime, root: HTMLElement, opts: EditorOptions
   function lintNow(code: string) {
     return runLint(rt.lint, code, lintCtx);
   }
-  /** The Band's own lint (profile `band`, previews allowed): Band code, and each code of a unit song. */
-  function bandCheck(bandCode: string): boolean {
-    const linted = runLint(rt.lint, bandCode, { ...lintCtx, profile: "band", allowPreview: true });
+  /**
+   * The Band's own lint (profile `band`, previews allowed) for Band code and Oak's code of a unit song; a song's
+   * saved take is linted as the learner's own code (`songLintContext`).
+   */
+  function bandCheck(bandCode: string, who: "oak" | "source" = "oak"): boolean {
+    const linted = runLint(rt.lint, bandCode, songLintContext(lintCtx, who));
     return linted.ok && linted.result.ok;
   }
   let lintCache: { code: string; diagnostics: LintDiagnostic[] } | null = null;

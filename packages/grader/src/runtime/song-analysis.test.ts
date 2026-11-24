@@ -41,7 +41,13 @@ const DEF = {
     part("snare", "snare", "drums", ["sd"]),
     part("hats", "hats", "drums", ["hh", "oh"]),
   ],
-  code: { "flavour.pop": OAK, "flavour.indie": OAK, "flavour.jazz-soul": OAK, "flavour.funk": OAK },
+  code: {
+    "flavour.pop": OAK,
+    "flavour.indie": OAK,
+    "flavour.jazz-soul": OAK,
+    "flavour.funk": OAK,
+    "flavour.electronic": OAK,
+  },
   plan: [],
   releaseAfter: "U01.CP",
 } as unknown as UnitSongDef;

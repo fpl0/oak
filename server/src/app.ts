@@ -122,9 +122,9 @@ export function startupTasks(d: AppDeps): void {
   // Wave 6 (wave6.md §5.3, §5.5): a learner already past a track gate, or past the end of the core, gets the rows
   // with their instant and no announcement.
   d.services.tracks.backfill();
-  // Unit songs (spec 2026-11-24 §5.6a): every unit with a completed take lesson gets its song, and each completed take
-  // lesson without a take gets one from its latest Make sketch (a learner whose Makes predate songs). Idempotent; a
-  // failure never stops the server.
+  // Unit songs (spec 2026-11-24 §5.6a): every unit with a completed take lesson and no song gets its song, with one
+  // take per completed take lesson from its latest Make sketch (a learner whose Makes predate songs). A song that
+  // exists is never changed here (a restored backup stays as it was). Idempotent; a failure never stops the server.
   try {
     d.services.unitSongs.backfill();
   } catch (e) {

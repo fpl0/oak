@@ -28,6 +28,8 @@ export interface LessonSubjectExtra {
   key?: KeySpec | null;
   labels?: LabelState | null;
   answer?: TutorAnswer | null;
+  /** Unit songs (contracts §5.11 rule 19): the song the lesson builds, for the tutor's song chip. */
+  song?: { title: string } | null;
 }
 
 /** The tutor subject of a lesson snapshot (contracts §10.2: subject `lesson`, the context names the step). */
@@ -46,6 +48,7 @@ export function lessonSubject(l: LessonSnapshot, extra: LessonSubjectExtra = {})
     ...(extra.key !== undefined ? { key: extra.key } : {}),
     ...(extra.labels ? { labels: extra.labels } : {}),
     ...(extra.answer ? { answer: extra.answer } : {}),
+    ...(extra.song ? { song: { title: extra.song.title } } : {}),
   };
 }
 

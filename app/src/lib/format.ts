@@ -57,4 +57,5 @@ export const FLAVOUR_LABEL: Record<string, string> = {
   "flavour.indie": "Indie",
   "flavour.jazz-soul": "Jazz / soul",
   "flavour.funk": "Funk",
+  "flavour.electronic": "Electronic",
 };

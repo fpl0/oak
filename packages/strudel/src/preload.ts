@@ -4,7 +4,7 @@
 import * as core from "@strudel/core";
 import * as soundfonts from "@strudel/soundfonts";
 import * as webaudio from "@strudel/webaudio";
-import type { HapValue, SoundEntry } from "./pack.ts";
+import { type HapValue, layeredIndex, layerOf, type SoundEntry } from "./pack.ts";
 import type { PreloadReport, PreloadSpec } from "./types.ts";
 
 export type WarmResult = "warmed" | "synth" | "missing";
@@ -40,9 +40,16 @@ export async function warmValue(value: HapValue): Promise<WarmResult> {
   if (key === null) return "synth";
   const sound = webaudio.getSound(key) as SoundEntry | undefined;
   if (!sound) return "missing";
-  const { type, samples, fonts } = sound.data ?? {};
+  const { type, samples, fonts, layers, split } = sound.data ?? {};
   if (type === "sample") {
-    await webaudio.getSampleBuffer({ ...value, s: key }, samples);
+    // A v4 layered sound plays the file its velocity picks (pack.ts sampleAliasTrigger / trimKits).
+    const n =
+      layers && layers > 1
+        ? Array.isArray(samples)
+          ? layeredIndex(value.n, value.velocity, samples.length, layers, split ?? [])
+          : layerOf(value.velocity, split ?? [])
+        : value.n;
+    await webaudio.getSampleBuffer({ ...value, s: key, n }, samples);
     return "warmed";
   }
   if (type === "soundfont" && fonts && fonts.length > 0) {
@@ -70,18 +77,37 @@ export function valuesOfSpec(spec: PreloadSpec["sounds"][number]): HapValue[] {
     typeof data.samples === "object" &&
     !Array.isArray(data.samples)
   ) {
-    // A pitched map ({ "c3": [...], "e3": [...] }): warm every file of it.
-    return Object.keys(data.samples).map((note) => ({ ...base, note }));
+    // A pitched map ({ "c3": [...], "e3": [...] }): warm every file of it (every velocity layer).
+    return Object.keys(data.samples).flatMap((note) =>
+      layerVelocities(data).map((v) => withVelocity({ ...base, note }, v)),
+    );
   }
   if (data?.type === "sample" && Array.isArray(data.samples) && spec.n === undefined) {
-    // A drum role by name: every variant `n` can select (a kit's brush swirl is `sd:2`).
-    return data.samples.map((_, n) => ({ ...base, n }));
+    // A drum role by name: every variant `n` can select (a kit's brush swirl is `sd:2`), every layer.
+    const per = data.layers && data.layers > 1 ? data.layers : 1;
+    return Array.from({ length: Math.ceil(data.samples.length / per) }, (_, n) =>
+      layerVelocities(data).map((v) => withVelocity({ ...base, n }, v)),
+    ).flat();
   }
   if (data?.type === "soundfont") return fontWarmNotes(data.range).map((note) => ({ ...base, note }));
   return [base];
 }
 
-const valueKey = (v: HapValue): string => JSON.stringify([v.bank, v.s, v.n, v.note, v.freq]);
+/** A value at a layer's velocity (1, the default, is left unset so unlayered values stay as they were). */
+const withVelocity = (v: HapValue, velocity: number): HapValue => (velocity === 1 ? v : { ...v, velocity });
+
+/** One velocity per layer of a layered sound (the softest layer's below its threshold), else just 1. */
+function layerVelocities(data: NonNullable<SoundEntry["data"]>): number[] {
+  if (!data.layers || data.layers < 2) return [1];
+  const split = data.split ?? [];
+  return Array.from({ length: data.layers }, (_, i) =>
+    i >= split.length ? 1 : ((i === 0 ? 0 : (split[i - 1] as number)) + (split[i] as number)) / 2,
+  );
+}
+
+/** Values that load the same file are warmed once (velocity is in the key: below a split it picks a soft layer). */
+const valueKey = (v: HapValue): string =>
+  JSON.stringify([v.bank, v.s, v.n, v.note, v.freq, typeof v.velocity === "number" ? v.velocity : 1]);
 
 /** Warms every distinct value, at most `concurrency` at a time. Never rejects: a failed load counts as missing. */
 export async function warmAll(

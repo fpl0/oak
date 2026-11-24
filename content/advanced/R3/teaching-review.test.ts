@@ -24,7 +24,13 @@ const lesson = (id: string): LessonDef => {
   return l.def;
 };
 const mdx = (id: string) => lessons.find((x) => x.def.id === id)?.mdxSource ?? "";
-const FLAVOURS = ["flavour.pop", "flavour.jazz-soul", "flavour.indie", "flavour.funk"] as const;
+const FLAVOURS = [
+  "flavour.pop",
+  "flavour.jazz-soul",
+  "flavour.indie",
+  "flavour.funk",
+  "flavour.electronic",
+] as const;
 const frac = (s: string) => {
   const [n, d] = s.split("/").map(Number);
   return d ? (n as number) / d : (n as number);
