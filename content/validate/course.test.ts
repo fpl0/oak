@@ -114,12 +114,15 @@ describe("IDs (contracts §1.1, §11.7)", () => {
     }
     expect(missing).toEqual([]);
   });
-  test("exercise IDs are unique inside a lesson; step IDs are S1, S2, … in order", () => {
+  // §11.7 rule 1: a step inserted later takes the next free number and is never renumbered, so the array order may
+  // differ from the numbers (A2.L04's S7 sits before its Make, S6); the numbers are still S1…Sn with none missing.
+  test("exercise IDs are unique inside a lesson; step IDs are S1…Sn, each once", () => {
     for (const l of authored) {
       const ids = exercisesOf(l).map(({ e }) => e.id);
       expect([l.def.id, ids.length]).toEqual([l.def.id, new Set(ids).size]);
       const stepIds: string[] = l.def.steps.map((s) => s.id);
-      expect([l.def.id, ...stepIds]).toEqual([l.def.id, ...stepIds.map((_, i) => `S${i + 1}`)]);
+      const sorted = [...stepIds].sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)));
+      expect([l.def.id, ...sorted]).toEqual([l.def.id, ...stepIds.map((_, i) => `S${i + 1}`)]);
     }
   });
 });

@@ -64,7 +64,41 @@ function ready(): Promise<unknown> {
   const loaded: Promise<unknown> = scope ?? core.evalScope(core, miniScope, tonal);
   scope = loaded;
   // Re-apply the tempo stubs on every call: another realm in the same test process may have replaced them.
-  return loaded.then(() => core.evalScope(stubs));
+  return loaded.then(() => {
+    installVisualStubs();
+    return core.evalScope(stubs);
+  });
+}
+
+// Draw/editor methods (`.scope()`, `.pianoroll()`…) exist only with @strudel/draw loaded; here they are the identity,
+// as in the grader's realm (runtime/realm.ts VISUAL_METHODS). Installed only where core has no method of that name,
+// and again on every call, since a realm's restore may have removed them.
+const VISUAL_STUBS = [
+  "pianoroll",
+  "punchcard",
+  "spiral",
+  "pitchwheel",
+  "wordfall",
+  "scope",
+  "tscope",
+  "fscope",
+  "spectrum",
+  "markcss",
+  "draw",
+  "onPaint",
+  "animate",
+];
+function installVisualStubs(): void {
+  const proto = core.Pattern.prototype as unknown as Record<string, unknown>;
+  for (const name of VISUAL_STUBS) {
+    for (const key of [name, `_${name}`]) {
+      if (typeof proto[key] !== "function") {
+        proto[key] = function (this: unknown) {
+          return this;
+        };
+      }
+    }
+  }
 }
 
 function midiOf(value: unknown): number | null {

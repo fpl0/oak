@@ -87,7 +87,7 @@ describe("hooks", () => {
 describe("made something", () => {
   test("A2.L01's Make invites a part of the learner's own and a suggestion reads it", () => {
     const make = (byId("A2.L01").steps as AnyStep[]).at(-1);
-    expect(make.exercise.prompt).toContain("Then make it yours");
+    expect(make.exercise.prompt).toContain("Then add a fourth line");
     const rule = make.exercise.rubric.find((r: { id: string }) => r.id === "a-fourth-part");
     expect(rule).toMatchObject({ required: false, rule: "tracks", min: 4 });
     expect(make.exercise.rubric.filter((r: { required: boolean }) => r.required)).toHaveLength(1);
