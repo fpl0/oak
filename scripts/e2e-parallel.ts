@@ -472,7 +472,10 @@ function list(shift: number, rest: string[]): Listing {
   );
   if (listing.status !== 0)
     throw new Error(`playwright test --list failed:\n${listing.stderr}${listing.stdout}`);
-  return JSON.parse(listing.stdout) as Listing;
+  // A spec that imports Strudel at load time prints its banner ("@strudel/core loaded") to stdout ahead of the
+  // JSON report: parse from the report's first line.
+  const at = listing.stdout.search(/^\{/m);
+  return JSON.parse(at > 0 ? listing.stdout.slice(at) : listing.stdout) as Listing;
 }
 
 /**
