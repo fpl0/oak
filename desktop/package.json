@@ -2,7 +2,7 @@
   "name": "oak-desktop",
   "productName": "Oak",
   "private": true,
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Oak — learn music theory by writing music in Strudel.",
   "author": "Filipe Lima",
   "license": "AGPL-3.0-or-later",
