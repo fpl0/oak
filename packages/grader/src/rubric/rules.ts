@@ -1823,7 +1823,7 @@ const matches: Impl<"matches"> = (r, n, ctx) => {
 
 export type CustomRule = (n: Normalized, ctx: RubricContext, params: Record<string, unknown>) => RuleEval;
 
-const CUSTOM_DEPS: CorrectionDeps = {
+export const CUSTOM_DEPS: CorrectionDeps = {
   pieceSlots,
   ruleKeys,
   pieceBars,
