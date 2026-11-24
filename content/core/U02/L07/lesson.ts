@@ -60,7 +60,7 @@ const DRIFT_FEEDBACK = {
 
 export default defineLesson({
   id: "U02.L07",
-  version: 4,
+  version: 5,
   title: "Sing It Back",
   objective:
     "I can match a note with my voice, hear whether a note goes up or down, and sing back a short phrase.",
@@ -339,7 +339,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a short call on the `mel:` line with every note inside your voice's range, the lowest to highest notes Oak measured when you set up the mic. Leave a bar of `~` after it, then sing the call back in that gap. Done when no note is out of your range.",
+          "Write a short call on the `mel:` line for the quiet part of your song, with every note inside your voice's range, the lowest to highest notes Oak measured when you set up the mic. Leave a bar of `~` after it, then sing the call back in that gap. Done when no note is out of your range.",
         skills: [
           { skill: "V01", w: 0.5 },
           { skill: "P02", w: 0.5 },

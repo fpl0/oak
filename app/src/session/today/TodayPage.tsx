@@ -28,6 +28,7 @@ import {
 } from "../../lib/queries.ts";
 import { routeOfItem } from "../../lib/session-route.ts";
 import { ownOpenSession } from "../../lib/tab-session.ts";
+import { SongHero } from "../../song/SongHero.tsx";
 import { useHotkeys } from "../../ui/keys/KeymapProvider.tsx";
 import { Button, buttonClass } from "../../ui/kit/Button.tsx";
 import { Card, Chip, Page, Skeleton } from "../../ui/kit/basics.tsx";
@@ -483,6 +484,8 @@ export function TodayPage() {
       {view?.after?.firstDay && !courseAfter && view.state !== "done" && <FirstDayLine />}
       <div className="grid gap-6 lg:grid-cols-12">
         <section aria-labelledby="setlist-h" className="flex flex-col gap-4 lg:col-span-8">
+          {/* Unit songs (spec 2026-11-24 §5.5 "Today"): the song of the planned lesson, above the setlist. */}
+          {planData?.song && view && view.state !== "first-run" && <SongHero plan={planData} />}
           <Card className="p-5" data-testid="today-card" data-state={view?.state}>
             {plan.isError ? (
               <ErrorState error={plan.error} onRetry={() => void plan.refetch()} />

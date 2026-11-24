@@ -39,7 +39,7 @@ const NOTE_FEEDBACK = {
 
 export default defineLesson({
   id: "U02.L03",
-  version: 4,
+  version: 5,
   title: "Half & Whole Steps",
   objective:
     "I can find half and whole steps on the keyboard and name a black key as a sharp or a flat of its neighbours.",
@@ -357,7 +357,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a riff on the `mel:` line with at least **one note on a black key**, written with `#` or `b`, such as `f#4` or `bb4`. Listen to it with the band. Done when a black key sounds in the riff.",
+          "Your riff from The White Keys is in the editor, for the fourth part of your song. Give it at least **one note on a black key**, written with `#` or `b`, such as `f#4` or `bb4`. Listen to it with the band. Done when a black key sounds in the riff.",
         skills: [
           { skill: "P04", w: 0.5 },
           { skill: "P03", w: 0.5 },
@@ -396,8 +396,8 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "The riff needs one note on a black key, and the starter uses white keys only. Which of its notes could slide to a black key next to it?",
-          "A `#` after the letter raises a note by a half step and a `b` lowers it. Try it on the last note, `a4`.",
+          "The riff needs one note on a black key, and yours uses white keys only. Which of its notes could slide to a black key next to it?",
+          "A `#` after the letter raises a note by a half step and a `b` lowers it. Try it on one note of your riff: an `e4` becomes `eb4`, an `a4` becomes `bb4`.",
           "End bar 1 on `bb4`, the black key below `b4`, and start bar 2 on `a4`: `<[c4 e4 g4 bb4] [a4 g4 f4 c4]>`. Over the band, the `bb4` sags into the `a4`.",
         ),
         tests: [

@@ -41,7 +41,7 @@ const ON_ONE = HOOK.indexOf("[hh hh]") + 1;
 
 export default defineLesson({
   id: "U01.L04",
-  version: 3,
+  version: 4,
   title: "Two per Beat",
   objective: "I can split a beat in two with [ ] and write hats that play twice on every beat.",
   key: { tonic: "C", mode: "major" },
@@ -378,7 +378,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a groove where at least one line splits a beat in two with `[ ]`: two sounds in one beat, or one sound on the second half of a beat.",
+          "Write the groove for both loud parts of your song. Split at least one beat in two with `[ ]`, on any line: two sounds in one beat, or one sound on the second half of a beat.",
         skills: [{ skill: "R05", w: 1 }],
         code: { starter: QUARTER_GROOVE },
         bars: [1, 2],

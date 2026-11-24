@@ -21,6 +21,7 @@ import type { WorkbenchProps } from "../workbench/Workbench.tsx";
 import type { GradeEnv } from "./grading.ts";
 import { howTo } from "./how-to.ts";
 import { STEP_KIND_LABEL } from "./model.ts";
+import type { SongStepHost } from "./song-make.ts";
 
 export interface StepHost {
   mode: "lesson" | "checkpoint";
@@ -57,6 +58,11 @@ export interface StepHost {
   voice: { quiet: boolean; labels: "numbers" | "syllables" | null };
   /** What every Workbench of this step shares: lesson context, graded lint, views, the Band. */
   workbench: Omit<WorkbenchProps, "id" | "code">;
+  /**
+   * Unit songs (spec 2026-11-24 §5.3): the Make's place in its unit's song (a take, a side step, or a take whose song
+   * is being read); absent for every other step and for a lesson in no song.
+   */
+  song?: SongStepHost | null;
   /** A live check on a Make (never posted). */
   preview(result: GradeResult | null): void;
   /** Registers the renderer's Check for `Mod+Shift+Enter` (one at a time). */

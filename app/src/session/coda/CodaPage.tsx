@@ -8,6 +8,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { clsx } from "clsx";
 import { ArrowRight, Ear } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { unitSongs } from "../../../../content/unit-songs/index.ts";
 import { useContent } from "../../lib/content.ts";
 import { lessonTitles } from "../../lib/content-model.ts";
 import { usePageTitle } from "../../lib/nav.ts";
@@ -26,6 +27,7 @@ import {
   useUnlocks,
 } from "../../lib/queries.ts";
 import { ownOpenSession } from "../../lib/tab-session.ts";
+import { SongGrew, SongRelease, songReleasedBy } from "../../song/SongGrew.tsx";
 import { askListeningNote, useTutorContext } from "../../tutor/context.ts";
 import { useHotkeys } from "../../ui/keys/KeymapProvider.tsx";
 import { Button, buttonClass } from "../../ui/kit/Button.tsx";
@@ -99,6 +101,9 @@ const SESSION_ENDED_KEYS = [
   "capstones.gate",
   "gym.plan",
   "ladder.get",
+  // Unit songs: a take lesson adds a take; a checkpoint may make a song releasable.
+  "songs.get",
+  "songs.list",
 ];
 
 const STATUS_TONE = { emerging: "amber", solid: "accent", strong: "accent", fading: "neutral" } as const;
@@ -331,6 +336,7 @@ function CodaBody({ summary, ended }: { summary: SessionSummary; ended: EndedRec
     setMoment(summary.unlocks.filter((u) => listed.get(u.itemId) === false).map((u) => u.itemId));
   }, [moment, unlocks, summary.unlocks]);
   const ceremony = moment !== null && moment.length > 0;
+  const releaseUnit = songReleasedBy(summary.session.mapItemId, unitSongs);
 
   return (
     <div className="flex flex-col gap-4">
@@ -352,7 +358,20 @@ function CodaBody({ summary, ended }: { summary: SessionSummary; ended: EndedRec
 
       <ReleaseCard session={summary.session} />
 
-      {summary.sketchesSaved[0] && <SketchCard sketchId={summary.sketchesSaved[0]} />}
+      {/* Unit songs (spec 2026-11-24 §5.5 "Coda"): a take lesson's Make grew the unit's song; any other sketch is a
+          sketch. The day that completes a song's release point (a checkpoint) offers the release. */}
+      {summary.sketchesSaved[0] &&
+        (summary.session.kind === "lesson" && summary.session.mapItemId ? (
+          <SongGrew
+            lessonId={summary.session.mapItemId}
+            fallback={<SketchCard sketchId={summary.sketchesSaved[0]} />}
+          />
+        ) : (
+          <SketchCard sketchId={summary.sketchesSaved[0]} />
+        ))}
+      {releaseUnit && !(summary.session.kind === "lesson" && summary.sketchesSaved[0]) && (
+        <SongRelease unitId={releaseUnit} />
+      )}
 
       <LadderCard session={summary.session} gym={summary.gym} />
       <OwnAudioCard session={summary.session} gym={summary.gym} />

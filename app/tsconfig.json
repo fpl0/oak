@@ -11,5 +11,5 @@
     }
   },
   "include": ["src", "vite.config.ts", "playwright.config.ts", "e2e", "../types/strudel.d.ts", "../types/abcjs-ext.d.ts", "../types/signalsmith-stretch.d.ts"],
-  "exclude": ["node_modules", "src/workbench", "src/routes/dev", "**/*.test.ts", "**/*.bun.ts"]
+  "exclude": ["node_modules", "src/workbench", "src/routes/dev", "**/*.test.ts", "**/*.test.tsx", "**/*.bun.ts"]
 }

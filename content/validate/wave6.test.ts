@@ -44,8 +44,9 @@ const wave6Lessons = units
 
 describe("contracts 1.6", () => {
   test("the version, the session counts and the landmarks", () => {
-    // 1.7 (the corrections pass) changed no count or landmark held here.
-    expect(CONTRACTS_VERSION).toBe("1.8");
+    // 1.7 (the corrections pass) and 1.9 (unit songs) changed no count or
+    // landmark held here.
+    expect(CONTRACTS_VERSION).toBe("1.9");
     expect(SESSION_COUNTS).toMatchObject({
       coreLessons: 125,
       coreCapstoneSessions: 30,

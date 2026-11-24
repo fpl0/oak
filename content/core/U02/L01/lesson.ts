@@ -24,7 +24,7 @@ const HOOK = mel("<[c3 ~ c4 c5] [~ c5 c4 c3]>");
 
 export default defineLesson({
   id: "U02.L01",
-  version: 3,
+  version: 4,
   title: "High & Low",
   objective: "I can hear which of two notes is higher and move a line up or down by an octave in code.",
   key: { tonic: "C", mode: "major" },
@@ -293,7 +293,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a piano riff on the `mel:` line that plays `c` at **three or more** different heights, such as `c3`, `c4` and `c5`. Done when at least three different numbers follow the `c`s.",
+          "Write the riff that opens your song: a piano riff on the `mel:` line that plays `c` at **three or more** different heights, such as `c3`, `c4` and `c5`. It plays the first four bars, in place of Oak's tune. Done when at least three different numbers follow the `c`s.",
         skills: [{ skill: "P01", w: 1 }],
         code: { starter: mel("c3 ~ c4 ~") },
         bars: [1, 4],

@@ -38,7 +38,7 @@ const NOTE_FEEDBACK = {
 
 export default defineLesson({
   id: "U02.L02",
-  version: 3,
+  version: 4,
   title: "The White Keys",
   objective: "I can name the white keys a to g, give each its octave number, and find c4, number 60.",
   key: { tonic: "C", mode: "major" },
@@ -345,7 +345,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a riff on the `mel:` line with at least **four different white-key notes**. The starter has two, `c4` and `e4`. Done when four or more different notes play.",
+          "Write a riff on the `mel:` line with at least **four different white-key notes**. It takes over the tune in the second part of your song. The starter has two, `c4` and `e4`. Done when four or more different notes play.",
         skills: [
           { skill: "P02", w: 0.5 },
           { skill: "P05", w: 0.5 },

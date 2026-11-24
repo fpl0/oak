@@ -7,22 +7,23 @@
 // grader realm and in the app with the browser GraderHost.
 
 import { decks } from "@content/families.ts";
-import type {
-  AttemptResponse,
-  Exercise,
-  GradeResult,
-  HintRung,
-  KeySpec,
-  LearnerProfile,
-  LintContext,
-  MeterId,
-  ParamValues,
-  PickupSpec,
-  SingEx,
-  SwingSpec,
-  TapEx,
-  Trial,
-  UnlockableId,
+import {
+  type AttemptResponse,
+  type Exercise,
+  type GradeResult,
+  type HintRung,
+  type KeySpec,
+  type LearnerProfile,
+  type LintContext,
+  type MeterId,
+  type ParamValues,
+  type PickupSpec,
+  type SingEx,
+  type SwingSpec,
+  stripMarkers,
+  type TapEx,
+  type Trial,
+  type UnlockableId,
 } from "@oak/api";
 import {
   createRegistry,
@@ -685,6 +686,37 @@ export interface GradeOptions {
   globalId?: string;
   /** The widget's measured takes (`lessonTakes` in inputs.tsx). */
   takeOf?: TakeLookup;
+  /**
+   * Unit songs (spec §5.3): a Make inside a song opens with the learner's earlier take or Oak's copy at the song's
+   * tempo. Code equal to one of these is unchanged (`make.unchanged`), as the authored starter is (`openingsOf`).
+   */
+  unchangedFrom?: readonly string[];
+}
+
+const sameCode = (a: string, b: string) => {
+  const norm = (s: string) =>
+    s
+      .split("\n")
+      .map((l) => l.trimEnd())
+      .join("\n")
+      .trim();
+  return norm(stripMarkers(a).code) === norm(b);
+};
+
+/**
+ * A Make's exercise with the code it opened with as its starter when the learner's code is exactly that opening
+ * (spec §5.3: `make.unchanged` compares with the code the Make opened with, not only the authored starter). Nothing
+ * else of the exercise changes: the starter is read by `make.unchanged` alone, so the rubric grades as before.
+ */
+export function withOpeningStarter(
+  ex: Exercise,
+  code: string,
+  openings: readonly string[] | undefined,
+): Exercise {
+  if (ex.kind !== "code-make" || !openings || openings.length === 0) return ex;
+  if (sameCode(ex.code.starter, code)) return ex;
+  const opening = openings.find((o) => o.trim() !== "" && sameCode(o, code));
+  return opening === undefined ? ex : { ...ex, code: { ...ex.code, starter: opening } };
 }
 
 /** Grades one response to one exercise. Failures in the learner's code come back as `status: 'error'`. */
@@ -696,7 +728,11 @@ export async function gradeStep(
   o: GradeOptions,
 ): Promise<GradeResult> {
   const base = withParams(exercise, o.params);
-  const ex = o.trials ? withTrials(base, o.trials) : withTrial(base, o.trial ?? null);
+  const drawn = o.trials ? withTrials(base, o.trials) : withTrial(base, o.trial ?? null);
+  const ex =
+    "code" in response && typeof response.code === "string"
+      ? withOpeningStarter(drawn, response.code, o.unchangedFrom)
+      : drawn;
   const graderResponse = await toGraderResponse(deps, env, ex, response, o.takeOf);
   const key = ex.key ?? env.key;
   const meter = ex.meter ?? env.meter;

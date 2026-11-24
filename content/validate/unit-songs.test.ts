@@ -80,15 +80,18 @@ describe("checkSong names what is wrong", () => {
   test("a flavour whose lead plays another pitch", async () => {
     const fixture = withCode(
       U02,
-      swap('n("<[2 4 2 0] [3 5 7 5]>")', 'n("<[2 4 2 4] [3 5 7 5]>")'),
+      swap(
+        'const melVerse = note("<[c4 ~ e4 g4 ~ a4 g4 ~]',
+        'const melVerse = note("<[c4 ~ e4 g4 ~ a4 c5 ~]',
+      ),
       "flavour.indie",
     );
     expect(codesOf(await checkSong(fixture))).toContain("usong.flavour-notes");
   });
 
   test("a held lead note a half step above a chord tone", async () => {
-    // F4 held for the whole bar over C E G: a half step above E.
-    const fixture = withCode(U02, swap('n("<[4 ~ ~ ~] [5 ~ ~ ~]>")', 'n("<[3@4] [5 ~ ~ ~]>")'));
+    // F4 held for the whole bar over C E G (the quiet part's first bar): a half step above E.
+    const fixture = withCode(U02, swap('note("<[c5 a4 g4 ~] ~', 'note("<[f4@4] ~'));
     const issues = await checkSong(fixture);
     expect(codesOf(issues)).toContain("usong.clash");
     expect(codesOf(issues)).not.toContain("usong.flavour-notes");
@@ -101,13 +104,16 @@ describe("checkSong names what is wrong", () => {
   test("a flavour whose bass lands on another root, or whose chords change root", async () => {
     const bass = withCode(
       U02,
-      swap('const bassVerse = n("<0 3>")', 'const bassVerse = n("<0 4>")'),
+      swap('const bassVerse = note("<[c2', 'const bassVerse = note("<[d2'),
       "flavour.funk",
     );
     expect(codesOf(await checkSong(bass))).toContain("usong.flavour-roots");
     const chords = withCode(
       U02,
-      swap('const chordsVerse = n("<[0,2,4] [0,3,5]>")', 'const chordsVerse = n("<[0,2,4] [1,4,6]>")'),
+      swap(
+        'const chordsVerse = note("<[c3,e3,g3] [c3,f3,a3]>")',
+        'const chordsVerse = note("<[c3,e3,g3] [d3,f3,a3]>")',
+      ),
       "flavour.pop",
     );
     expect(codesOf(await checkSong(chords))).toContain("usong.flavour-chords");
@@ -184,7 +190,7 @@ describe("checkSongStep names what is wrong", () => {
   });
 
   test("a take that plays chords clashes with the Oak tune it keeps, and claims it otherwise", async () => {
-    // Held C#, F and G# against Oak's verse tune (E G E C): F is a half step above E, C# above C.
+    // Held C#, F and G# against Oak's verse riff (C E G A G): C# is a half step above C, G# above G.
     const base = await lesson("U02.L02");
     const make = base.steps.at(-1)?.exercise;
     if (make?.kind !== "code-make") throw new Error("fixture: U02.L02 has no code Make");

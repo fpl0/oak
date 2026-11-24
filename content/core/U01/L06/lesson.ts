@@ -51,7 +51,7 @@ const SOUND_MATCH = {
 
 export default defineLesson({
   id: "U01.L06",
-  version: 3,
+  version: 4,
   title: "Sixteenths & 1-e-&-a",
   objective: "I can count a beat as 1-e-&-a and write four sounds to a beat.",
   key: { tonic: "C", mode: "major" },
@@ -321,7 +321,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a groove where beat 1 is counted out in full: a drum sound starts on 1, on e, on & and on a, on any lines. The starter's hats play only two per beat.",
+          "Write the groove for the last loud part of your song, with beat 1 counted out in full: a drum sound starts on 1, on e, on & and on a, on any lines.",
         skills: [{ skill: "R07", w: 1 }],
         code: { starter: code(KICK, BACKBEAT, hats("hh*8")) },
         bars: [1, 2],
@@ -361,7 +361,7 @@ export default defineLesson({
         ],
         hints: ladder(
           "Beat 1 needs a sound on each of its four counts: 1, e, & and a. Which line could play four times as often as the beat?",
-          "The hats play eight times in the bar now: two per beat. Beat 1 needs four.",
+          "Count the sounds that start in beat 1, on all lines together. Eighth-note hats give it two; it needs four.",
           "`hh*16` covers every beat. `[hh hh hh hh] hh hh hh` covers beat 1 alone.",
         ),
         tests: [

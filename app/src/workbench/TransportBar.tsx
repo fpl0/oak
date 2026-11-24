@@ -59,6 +59,8 @@ export interface TransportBarProps {
   loopBars: number;
   keySpec: KeySpec | null;
   tracks: readonly string[];
+  /** The words on a track's chip (a unit song: "Kick (Oak)", "drums (yours, from …)"). Default: the label. */
+  trackLabel?(track: string): string;
   /** Wave 5: a badge per track label ("Swing 8ths" on a swung track, contracts §6.10). */
   badges?: ReadonlyMap<string, string>;
   mutes: MuteMap;
@@ -294,7 +296,7 @@ export function TransportBar(p: TransportBarProps) {
                 title={`Mute ${t}`}
                 data-testid={`mute-${t}`}
               >
-                {t.startsWith("band.") ? `${t.slice(5)} (band)` : t}
+                {p.trackLabel ? p.trackLabel(t) : t.startsWith("band.") ? `${t.slice(5)} (band)` : t}
               </button>
               {p.badges?.get(t) ? (
                 <span

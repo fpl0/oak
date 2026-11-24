@@ -185,7 +185,7 @@ describe("songs.recordTake", () => {
     expect((await take(h, "U01.L08", { cells: [] })).status).toBe(400);
     // A cell outside the step's sections, a part the song does not have, a sketch of another lesson.
     expect((await take(h, "U01.L01", { cells: ["kick@chorus1"] })).status).toBe(400);
-    expect((await take(h, "U01.L01", { cells: ["tuba@verse"] })).status).toBe(400);
+    expect((await take(h, "U01.L01", { cells: ["tuba@intro"] })).status).toBe(400);
     expect((await take(h, "U01.L01", { labels: { kick: "tuba" } })).status).toBe(400);
     const other = await makeSketch(h, "U01.L02");
     expect(
@@ -242,10 +242,10 @@ describe("songs.recordTake", () => {
     // Another key for the same saved version (a second tab) refines that take instead of adding one.
     const refined = await h.json<UnitSongDetail>("POST", "/api/songs/U01/takes", {
       ...body,
-      cells: ["kick@verse"],
+      cells: ["kick@intro"],
       idempotencyKey: "take-U01-L01-0002",
     });
-    const expected: unknown[] = [[a.body.takes[0]?.id, ["kick@verse"]]];
+    const expected: unknown[] = [[a.body.takes[0]?.id, ["kick@intro"]]];
     expect(refined.body.takes.map((t): unknown => [t.id, t.cells])).toEqual(expected);
   });
 
@@ -292,14 +292,14 @@ describe("the backfill (spec §5.6a)", () => {
       lessonId: first.lessonId,
       sketchId: first.sketchId,
       sketchVersion: first.sketchVersion,
-      cells: ["kick@verse"],
+      cells: ["kick@intro"],
       labels: { kick: "kick" },
       bpm: 100,
     });
     expect(refined.body.takes.map((t) => [t.id, t.backfilled])).toEqual(
       s.takes.map((t, i) => [t.id, i !== 0]),
     );
-    expect(refined.body.takes[0]?.cells).toEqual(["kick@verse"]);
+    expect(refined.body.takes[0]?.cells).toEqual(["kick@intro"]);
   });
 
   test("songs.start runs the unit's backfill and keeps the learner's style choice", async () => {

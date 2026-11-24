@@ -53,7 +53,7 @@ const DRUM_MATCH = {
 
 export default defineLesson({
   id: "U01.L09",
-  version: 4,
+  version: 5,
   title: "Copy That Groove",
   objective: "I can copy a drum groove by ear and play the same groove at half or double time.",
   key: { tonic: "C", mode: "major" },
@@ -354,7 +354,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a groove, then change its speed with `.slow(2)` for half-time or `.fast(2)` for double-time, on one line or on all of them. Done when at least one line plays at a new speed.",
+          "Write the groove for the quiet part of your song, the four bars before the last loud part. Change its speed with `.slow(2)` for half-time or `.fast(2)` for double-time, on one line or on all of them. Done when at least one line plays at a new speed.",
         skills: [
           { skill: "R05", w: 0.5 },
           { skill: "E01", w: 0.5 },

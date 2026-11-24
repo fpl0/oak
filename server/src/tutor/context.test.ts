@@ -2,11 +2,12 @@ import { describe, expect, test } from "bun:test";
 import { buildOakContext, escapeReserved, renderUserTurn, userTurnBlocks } from "./context.ts";
 import type { Rung } from "./domain.ts";
 import { prepareTurn } from "./prepare.ts";
-import { findLeaks, forbiddenKeys, leakMarkers } from "./redaction.ts";
+import { findLeaks, forbiddenKeys, leakMarkers, lessonContextView } from "./redaction.ts";
 import { makePorts } from "./testing/fakes.ts";
 import {
   GRADE,
   LEARNER_CODE,
+  LESSON,
   LESSON_ID,
   REVIEW_SOURCE,
   SOLUTION_CODE,
@@ -157,6 +158,45 @@ describe("<oak_context>", () => {
     expect(prep.user.learnerCode).toBe(REVIEW_SOURCE.code);
     expect(prep.user.text).toBe("I am not sure about the ending.");
     expect(prep.ctx.effort).toBe("high");
+  });
+});
+
+describe("unit songs (contracts §5.11 rule 19)", () => {
+  const SONG = {
+    title: "Porch light",
+    flavour: "flavour.indie",
+    yours: ["kick@verse", "kick@chorus", "snare@verse"],
+    today: "Your kick and snare take over the verse.",
+  };
+
+  test("lesson context names the song, the learner's cells and today's line", async () => {
+    const ports = makePorts();
+    ports.lessons.lessons.set(LESSON_ID, { ...LESSON, song: SONG });
+    const prep = await prepareTurn(request(), ports);
+    expect(prep.user.oakContext).toContain(
+      'song: "Porch light" · style flavour.indie · yours: kick@verse, kick@chorus, snare@verse · today: Your kick and snare take over the verse.',
+    );
+    // get_lesson_context carries the same song, at any rung.
+    expect(lessonContextView({ ...LESSON, song: SONG }, STEP, null, 0).song).toEqual(SONG);
+    expect(
+      lessonContextView({ ...LESSON, song: { ...SONG, yours: [], today: null } }, null, null, 0).song,
+    ).toEqual({
+      ...SONG,
+      yours: [],
+      today: null,
+    });
+    // A song not started yet, or a side step: no cells, no line.
+    ports.lessons.lessons.set(LESSON_ID, { ...LESSON, song: { ...SONG, yours: [], today: null } });
+    const fresh = await prepareTurn(request(), ports);
+    expect(fresh.user.oakContext).toContain(
+      'song: "Porch light" · style flavour.indie · yours: none · today: none',
+    );
+  });
+
+  test("a lesson in no song has no song line and no song key", async () => {
+    const { text } = await contextAt(2);
+    expect(text).not.toContain("song:");
+    expect("song" in lessonContextView(LESSON, STEP, null, 0)).toBe(false);
   });
 });
 

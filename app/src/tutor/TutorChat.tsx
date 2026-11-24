@@ -194,6 +194,7 @@ const CHIP_SEES: Record<ContextChip["id"], string> = {
   track: "This album track and its code.",
   transcription: "This transcription's code and checklist.",
   form: "The sections of the music on screen and their bars, named as the section ribbon names them.",
+  song: "The song this lesson builds: its title, its style, what you already play in it and today's line.",
 };
 
 function Chips({ subject }: { subject: TutorSubject }) {

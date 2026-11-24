@@ -54,3 +54,21 @@ export function makeStartNote(source: MakeSource, own: OwnSketch, lessonTitle: s
     ? `This opens with your own sketch${where}, “${own.title}”.`
     : `This is Oak's copy. Your sketch${where}, “${own.title}”, is kept as it is.`;
 }
+
+/**
+ * Unit songs (spec 2026-11-24 §5.3): the line above a take Make that opens with the learner's code of an earlier
+ * lesson of the song (`startFrom`), or with Oak's copy beside it. `tempo` is the song's tempo when the first line was
+ * set to it.
+ */
+export function songStartNote(source: MakeSource, lessonTitle: string, tempo: number | null): string {
+  const line =
+    tempo === null ? "" : ` The first line is set to your song's tempo, ${tempo} beats per minute.`;
+  return source === "sketch"
+    ? `This opens with your code from “${lessonTitle}”, as your song plays it.${line}`
+    : `This is Oak's copy. Your code from “${lessonTitle}” is kept as it is.${line}`;
+}
+
+/** The tempo line of a take Make that opens with Oak's copy and nothing of the learner's to start from. */
+export function songTempoNote(tempo: number): string {
+  return `The first line is set to your song's tempo, ${tempo} beats per minute.`;
+}

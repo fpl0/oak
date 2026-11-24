@@ -192,6 +192,14 @@ export function buildOakContext(ctx: TurnContext): string {
       `key: ${stepKey ?? "none"} · meter: ${step?.meter ?? lesson.meter ?? "none"} · bpm: ${lesson.bpm ?? "none"}`,
     );
   } else if (step?.key) lines.push(`key: ${step.key}`);
+  // Unit songs (contracts §5.11 rule 19): the song this lesson builds, so the tutor can talk about "your song".
+  if (lesson?.song) {
+    const s = lesson.song;
+    const yours = s.yours.length > 0 ? s.yours.map((c) => inline(c, 40)).join(", ") : "none";
+    lines.push(
+      `song: "${inline(s.title, 80)}" · style ${inline(s.flavour, 40)} · yours: ${yours} · today: ${s.today === null ? "none" : inline(s.today, 300)}`,
+    );
+  }
   // Wave 5: the key's mode in full (degrees, do-based syllables, minor numerals), so a minor step is never read
   // in its relative major (wave5.md §10 item 12).
   const scale = keyScaleLine(stepKey ?? ctx.review?.facts?.key ?? null, vocab);

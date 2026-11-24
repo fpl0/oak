@@ -5,13 +5,45 @@
 // (`CHECKPOINT_MAKE_BANDS`), else the Band of its unit's last Make.
 import type { BandId, BandRef, CheckpointId, FlavourId, KeySpec, LessonDef, SessionId } from "@oak/api";
 import type { BandSetup } from "@oak/strudel";
+import { type SongBand, songBandTracks } from "@oak/strudel/song-compose";
 import { bandById, bandCodeAt } from "../../../content/bands/index.ts";
 import { CHECKPOINT_MAKE_BANDS } from "../../../content/checkpoints.ts";
 import { courseGraph } from "../../../content/index.ts";
 import { atOrBefore } from "../../../content/lib/course.ts";
 import { keyArg } from "./model.ts";
 
+/**
+ * The Band a step plays. With `song` (a take step's Make inside its unit song, spec §5.3), the setup plays the song
+ * instead (`songBandSetupOf`); its `code` stays the step's own Band, the Make's "Today's code".
+ */
 export function bandSetupOf(
+  ref: BandRef | false | undefined,
+  o: { flavour: FlavourId; key: KeySpec; bpm: number; at?: SessionId | null; song?: SongBand | null },
+): BandSetup | null {
+  const own = plainBandSetupOf(ref, o);
+  return o.song ? songBandSetupOf(own, o.song) : own;
+}
+
+/** A step with no Band of its own (`band: false`, U13's Makes) plays the song alone: this id only names it. */
+const SONG_ONLY_BAND = "band.unit-song" as BandId;
+
+/**
+ * Unit songs (spec §5.2): the setup that plays a song on every path (`BandSetup.song`). `code` stays the step's own
+ * Band (empty when it has none: the song then plays alone), so the same setup without `song` is the Make's "Today's
+ * code". `tracks` are the song's track names (`oak.kick`, `take.U01.L01.drums`): the Band parts the Workbench hears.
+ */
+export function songBandSetupOf(own: BandSetup | null, song: SongBand): BandSetup {
+  return {
+    band: own?.band ?? SONG_ONLY_BAND,
+    flavour: song.flavour,
+    code: own?.code ?? "",
+    followsLearnerKey: false,
+    tracks: songBandTracks(song),
+    song,
+  };
+}
+
+function plainBandSetupOf(
   ref: BandRef | false | undefined,
   o: { flavour: FlavourId; key: KeySpec; bpm: number; at?: SessionId | null },
 ): BandSetup | null {

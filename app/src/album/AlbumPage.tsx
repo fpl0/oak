@@ -19,6 +19,7 @@ import {
   useCourseProgress,
   useWholeCourse,
 } from "../lib/queries.ts";
+import { AlbumSongs } from "../song/AlbumSongs.tsx";
 import { AlbumCover } from "../ui/AlbumCover.tsx";
 import { Button, buttonClass, IconButton } from "../ui/kit/Button.tsx";
 import { Chip, Page, Skeleton } from "../ui/kit/basics.tsx";
@@ -234,6 +235,8 @@ export function AlbumPage() {
       )}
 
       <div className="flex flex-col gap-10">
+        {/* Unit songs (spec 2026-11-24 §5.5 "Album"): every unit's song, open or released. */}
+        <AlbumSongs />
         {sides.map((side) => (
           <section key={side.side} aria-labelledby={`side-${side.side}`} data-side={side.side}>
             <div className="mb-3 flex items-baseline gap-3 border-b border-border pb-2">

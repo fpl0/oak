@@ -19,7 +19,9 @@ import type { Repos } from "../db/repos/index.ts";
 import type { StoredTranscription } from "../db/repos/library.ts";
 import { checkSlots } from "../services/capstone-sessions.ts";
 import { checkKeyOf, checkOf, songChecks } from "../services/song-ladder.ts";
+import type { UnitSongsService } from "../services/unit-songs.ts";
 import type {
+  LessonSong,
   LessonSource,
   ReviewSource,
   ReviewTarget,
@@ -304,6 +306,26 @@ export function stepSource(lessonId: string, step: StepDef): StepSource {
   };
 }
 
+/** Unit songs (contracts §5.11 rule 19): the song a lesson is in, as `LessonSource.song`. */
+export interface LessonSongPort {
+  songOf(lessonId: string): LessonSong | null;
+}
+
+/**
+ * The song of a lesson from the unit-songs service: its title and style (the profile's while it is new), every cell
+ * the learner's takes play (deduped, in take order) and this lesson's `today` line (`null` on a side step).
+ */
+export function lessonSongPort(songs: Pick<UnitSongsService, "planSong" | "get">): LessonSongPort {
+  return {
+    songOf(lessonId) {
+      const plan = songs.planSong(lessonId);
+      if (plan === null) return null;
+      const yours = plan.status === "new" ? [] : songs.get(plan.unitId).takes.flatMap((t) => t.cells);
+      return { title: plan.title, flavour: plan.flavour, yours: [...new Set(yours)], today: plan.today };
+    },
+  };
+}
+
 export class LessonContextAdapter implements LessonContextPort {
   constructor(
     private readonly content: ContentIndex,
@@ -312,10 +334,13 @@ export class LessonContextAdapter implements LessonContextPort {
     private readonly facts?: ReviewFactsPort,
     /** Wave 7: a song's melody (JC3, JC4) and two versions compared (AC1); absent: neither. */
     private readonly w7?: ReviewW7Port,
+    /** Unit songs: the song a lesson is in; absent: no lesson carries a song. */
+    private readonly songs?: LessonSongPort,
   ) {}
 
   async lesson(lessonId: string): Promise<LessonSource | null> {
     const def = this.content.lessonDef(lessonId);
+    const song = this.songs?.songOf(lessonId) ?? null;
     if (def !== null)
       return {
         id: def.id,
@@ -324,6 +349,7 @@ export class LessonContextAdapter implements LessonContextPort {
         key: keyText(def.key),
         meter: def.meter,
         bpm: def.bpm,
+        ...(song === null ? {} : { song }),
       };
     const site = this.content.lessonSite(lessonId);
     if (site === null) return null;
@@ -334,6 +360,7 @@ export class LessonContextAdapter implements LessonContextPort {
       key: null,
       meter: site.unit.meter ?? null,
       bpm: null,
+      ...(song === null ? {} : { song }),
     };
   }
 

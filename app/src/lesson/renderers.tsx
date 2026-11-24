@@ -13,6 +13,7 @@ import { Button } from "../ui/kit/Button.tsx";
 import { Kbd } from "../ui/kit/basics.tsx";
 import { Callout } from "../ui/kit/Controls.tsx";
 import { LoadingState } from "../ui/kit/QueryState.tsx";
+import type { LoopRegion } from "../workbench/loop-math.ts";
 import { Workbench } from "../workbench/Workbench.tsx";
 import { ByEarPanel } from "./byear.tsx";
 import { CheckButton, quietIn, StepFeedback, useCheck } from "./check.tsx";
@@ -33,12 +34,29 @@ import {
   starterOf,
 } from "./inputs.tsx";
 import { LeadSheetView, leadSheetOf } from "./lead-sheet.tsx";
-import { fromSketchOf, type MakeSource, makeStart, makeStartNote, ownSketchOf } from "./make-start.ts";
+import {
+  fromSketchOf,
+  type MakeSource,
+  makeStart,
+  makeStartNote,
+  type OwnSketch,
+  ownSketchOf,
+  songStartNote,
+  songTempoNote,
+} from "./make-start.ts";
 import { answerSpecOf, revealCode, withTrialOptions } from "./model.ts";
 import { CodeMusic } from "./music.tsx";
 import { PassiveListenRenderer } from "./passive.tsx";
 import { failedChecks, isByEar, makeTitle, targetRollShown } from "./rules.ts";
 import { SingRenderer } from "./sing.tsx";
+import {
+  SideStepNote,
+  type SongLoopNow,
+  type SongMode,
+  SongModeSwitch,
+  SongPlayControls,
+  SongStrip,
+} from "./song-make-ui.tsx";
 import { ByEarParts, StagedRenderer } from "./staged.tsx";
 import { hasParts, isStaged } from "./stages.ts";
 import { useTargetMarks } from "./target-marks.ts";
@@ -569,29 +587,41 @@ function MakeRenderer() {
   const h = useStepHost();
   const ex = h.exercise as Extract<Exercise, { kind: "code-make" | "compose-brief" }>;
   const starter = starterOf(ex);
-  // d15: a Make that builds on an earlier lesson's sketch opens with the learner's own, when they saved one.
-  const from = fromSketchOf(ex);
+  // Unit songs (spec §5.3): a take step's Make plays inside its song and opens with Oak's copy at the song's tempo or
+  // with the learner's take of the step's `startFrom` lesson; a side step stays a sketch of its own.
+  const song = h.song?.kind === "take" ? h.song : null;
+  const sideStep = h.song?.kind === "side" ? h.song : null;
+  // d15: a Make that builds on an earlier lesson's sketch opens with the learner's own, when they saved one. Inside a
+  // song the opening comes from `startFrom` instead (AUTHORING §23.9 rule 5).
+  const from = song ? null : fromSketchOf(ex);
   const sketchQ = useLessonSketch(from);
   const content = useContent();
-  const own = from !== null && sketchQ.isSuccess ? ownSketchOf(sketchQ.data) : null;
+  const ownSketch = from !== null && sketchQ.isSuccess ? ownSketchOf(sketchQ.data) : null;
+  const own: OwnSketch | null = song?.own
+    ? { sketchId: song.own.lessonId, title: song.own.title, code: song.own.code }
+    : ownSketch;
+  const oakCode = song ? song.oakCopy : starter.code;
   // The editor waits for the answer only when it would otherwise open with Oak's copy and then change.
-  const waiting = from !== null && h.code === null && sketchQ.isPending && sketchQ.fetchStatus !== "idle";
-  const start = makeStart({ starter: starter.code, own, current: h.code });
+  const waiting =
+    h.song?.kind === "pending" ||
+    (from !== null && h.code === null && sketchQ.isPending && sketchQ.fetchStatus !== "idle");
+  const start = makeStart({ starter: oakCode, own, current: h.code });
   const code = start.code;
   const [chosen, setChosen] = useState<MakeSource | null>(null);
   const side = chosen ?? start.source;
   // Each copy as the learner left it in this visit: switching back and forth never loses an edit.
   const kept = useRef<Record<MakeSource, string | null>>({ sketch: null, oak: null });
   const setCode = h.setCode;
-  const ownCode = own?.code ?? null;
+  const opened = start.code;
   useEffect(() => {
-    // The step holds the sketch from the start (Wrap up and the saved sketch read the step's code).
-    if (ownCode !== null && h.code === null) setCode(ownCode);
-  }, [ownCode, h.code, setCode]);
+    // The step holds what the editor opened with from the start (Wrap up, the tutor and the saved sketch read the
+    // step's code): the learner's sketch or take, or Oak's copy at the song's tempo.
+    if (!waiting && h.code === null && opened !== starter.code) setCode(opened);
+  }, [waiting, opened, h.code, setCode, starter.code]);
   const switchTo = (to: MakeSource) => {
     if (!own || to === side) return;
     kept.current[side] = code;
-    h.setCode(kept.current[to] ?? (to === "oak" ? starter.code : own.code));
+    h.setCode(kept.current[to] ?? (to === "oak" ? oakCode : own.code));
     setChosen(to);
   };
   const fromTitle =
@@ -600,7 +630,32 @@ function MakeRenderer() {
   // The starter's marked spot (`⟪4⟫`: "change the highlighted number") gets the dashed target box until the
   // learner edits; the whole Make stays editable. Without it the prompt pointed at a highlight nobody could see.
   // (It looked the editor up by the Workbench's id, not the editor's `oak_…_0_` id, so the box never appeared.)
-  useTargetMarks(editorId, starter.editable, code === starter.code, h.result);
+  useTargetMarks(editorId, song ? song.oakEditable : starter.editable, code === oakCode, h.result);
+  // "In your song | Today's code": the song with today's code in it (looping where it plays), or the code alone over
+  // the lesson's own Band, as Makes played before songs.
+  const [mode, setMode] = useState<SongMode>("song");
+  const inSong = song !== null && mode === "song";
+  const [loopReq, setLoopReq] = useState<{ seq: number; region: LoopRegion | null; play?: boolean } | null>(
+    null,
+  );
+  const [loopNow, setLoopNow] = useState<SongLoopNow | null>(null);
+  const request = loopReq ?? { seq: 0, region: inSong ? (song?.loop ?? null) : null };
+  const ask = (region: LoopRegion | null, play?: boolean) =>
+    setLoopReq({ seq: request.seq + 1, region, ...(play === undefined ? {} : { play }) });
+  const switchMode = (next: SongMode) => {
+    if (next === mode || !song) return;
+    setMode(next);
+    ask(next === "song" ? song.loop : null);
+  };
+  const workbench = inSong
+    ? {
+        ...h.workbench,
+        band: song.setup,
+        // The Workbench reads, draws and loops the whole song; the editor's own tempo still wins when it sets one.
+        lessonCtx: { ...h.workbench.lessonCtx, loopBars: song.lengthBars, defaultBpm: song.bpm },
+        trackLabel: song.chipLabel,
+      }
+    : h.workbench;
   const [title, setTitle] = useState(() => makeTitle(ex, h.lesson));
   const seq = useRef(0);
   const r = h.result;
@@ -629,34 +684,79 @@ function MakeRenderer() {
     h.setCheck(() => void live(code));
     return () => h.setCheck(null);
   });
+  const startNote =
+    own && song
+      ? songStartNote(side, own.title, song.tempoSet ? song.bpm : null)
+      : own
+        ? makeStartNote(side, own, fromTitle)
+        : null;
   return (
     <StepLayout
       stage={
         waiting ? (
-          <LoadingState label="Looking for your sketch" />
-        ) : (
-          <Workbench
-            {...h.workbench}
-            id={editorId}
-            tutorBars
-            code={code}
-            // Switching copies puts the other one into the editor even when its text equals the last prop.
-            {...(own ? { codeKey: side } : {})}
-            onChange={(c) => h.setCode(c)}
-            onEvaluated={(o) => {
-              // A refused run (a locked tool) is graded too, so the list says why in words.
-              if (o.ok) h.markDone();
-              void live(o.code);
-            }}
+          <LoadingState
+            label={song || h.song?.kind === "pending" ? "Opening your song" : "Looking for your sketch"}
           />
+        ) : (
+          <div className="flex min-w-0 flex-col gap-2">
+            {song ? (
+              <div className="flex min-w-0 flex-col gap-2" data-testid="song-make" data-mode={mode}>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <SongModeSwitch mode={mode} onChange={switchMode} />
+                  {inSong ? (
+                    <SongPlayControls
+                      looping={loopNow?.on ?? request.region !== null}
+                      hasToday={song.loop !== null}
+                      onWhole={() => ask(null, true)}
+                      onToday={() => ask(song.loop, true)}
+                    />
+                  ) : null}
+                </div>
+                {inSong ? (
+                  <SongStrip
+                    view={song.view}
+                    loop={loopNow ?? (request.region ? { on: true, region: request.region } : null)}
+                    onLoop={(s) => ask(s ? { from: s.startBar, bars: s.bars } : null, s !== null)}
+                  />
+                ) : (
+                  <p className="text-sm text-text-2" data-testid="song-today-only">
+                    {song.todays
+                      ? "Today's code plays over the lesson's band, as you wrote it."
+                      : "Today's code plays alone, as you wrote it."}
+                  </p>
+                )}
+              </div>
+            ) : null}
+            <Workbench
+              {...workbench}
+              id={editorId}
+              tutorBars
+              code={code}
+              // Switching copies puts the other one into the editor even when its text equals the last prop.
+              {...(own ? { codeKey: side } : {})}
+              {...(song ? { loopRequest: request, onLoopChange: (l: SongLoopNow) => setLoopNow(l) } : {})}
+              onChange={(c) => h.setCode(c)}
+              onEvaluated={(o) => {
+                // A refused run (a locked tool) is graded too, so the list says why in words.
+                if (o.ok) h.markDone();
+                void live(o.code);
+              }}
+            />
+          </div>
         )
       }
       answer={
         <>
+          {sideStep ? <SideStepNote reason={sideStep.reason} /> : null}
+          {song && !own && song.tempoSet ? (
+            <p className="text-sm text-text-2" data-testid="make-start-note" data-source="oak">
+              {songTempoNote(song.bpm)}
+            </p>
+          ) : null}
           {own && start.choice ? (
             <Callout
               tone="info"
-              title={side === "sketch" ? "Your own sketch" : "Oak's copy"}
+              title={side === "sketch" ? (song ? "Your own code" : "Your own sketch") : "Oak's copy"}
               actions={
                 side === "sketch" ? (
                   <Button size="sm" onClick={() => switchTo("oak")} data-testid="make-oak-copy">
@@ -664,13 +764,13 @@ function MakeRenderer() {
                   </Button>
                 ) : (
                   <Button size="sm" onClick={() => switchTo("sketch")} data-testid="make-own-sketch">
-                    Use my sketch
+                    {song ? "Use my code" : "Use my sketch"}
                   </Button>
                 )
               }
             >
               <span data-testid="make-start-note" data-source={side}>
-                {makeStartNote(side, own, fromTitle)}
+                {startNote}
               </span>
             </Callout>
           ) : null}

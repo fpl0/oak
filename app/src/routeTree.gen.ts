@@ -41,6 +41,7 @@ import { Route as SettingsKeysRouteImport } from "./routes/settings/keys";
 import { Route as SettingsLearningRouteImport } from "./routes/settings/learning";
 import { Route as SettingsTutorRouteImport } from "./routes/settings/tutor";
 import { Route as SettingsVoiceRouteImport } from "./routes/settings/voice";
+import { Route as SongUnitIdRouteImport } from "./routes/song/$unitId";
 import { Route as StudioIndexRouteImport } from "./routes/studio/index";
 import { Route as StudioSketchIdRouteImport } from "./routes/studio/$sketchId";
 import { Route as ToolboxIndexRouteImport } from "./routes/toolbox/index";
@@ -209,6 +210,11 @@ const SettingsVoiceRoute = SettingsVoiceRouteImport.update({
   path: "/voice",
   getParentRoute: () => SettingsRouteRoute,
 } as any);
+const SongUnitIdRoute = SongUnitIdRouteImport.update({
+  id: "/song/$unitId",
+  path: "/song/$unitId",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const StudioIndexRoute = StudioIndexRouteImport.update({
   id: "/studio/",
   path: "/studio/",
@@ -273,6 +279,7 @@ export interface FileRoutesByFullPath {
   "/settings/learning": typeof SettingsLearningRoute;
   "/settings/tutor": typeof SettingsTutorRoute;
   "/settings/voice": typeof SettingsVoiceRoute;
+  "/song/$unitId": typeof SongUnitIdRoute;
   "/studio/$sketchId": typeof StudioSketchIdRoute;
   "/toolbox/$toolId": typeof ToolboxToolIdRoute;
   "/transcribe/$projectId": typeof TranscribeProjectIdRoute;
@@ -313,6 +320,7 @@ export interface FileRoutesByTo {
   "/settings/learning": typeof SettingsLearningRoute;
   "/settings/tutor": typeof SettingsTutorRoute;
   "/settings/voice": typeof SettingsVoiceRoute;
+  "/song/$unitId": typeof SongUnitIdRoute;
   "/studio/$sketchId": typeof StudioSketchIdRoute;
   "/toolbox/$toolId": typeof ToolboxToolIdRoute;
   "/transcribe/$projectId": typeof TranscribeProjectIdRoute;
@@ -355,6 +363,7 @@ export interface FileRoutesById {
   "/settings/learning": typeof SettingsLearningRoute;
   "/settings/tutor": typeof SettingsTutorRoute;
   "/settings/voice": typeof SettingsVoiceRoute;
+  "/song/$unitId": typeof SongUnitIdRoute;
   "/studio/$sketchId": typeof StudioSketchIdRoute;
   "/toolbox/$toolId": typeof ToolboxToolIdRoute;
   "/transcribe/$projectId": typeof TranscribeProjectIdRoute;
@@ -398,6 +407,7 @@ export interface FileRouteTypes {
     | "/settings/learning"
     | "/settings/tutor"
     | "/settings/voice"
+    | "/song/$unitId"
     | "/studio/$sketchId"
     | "/toolbox/$toolId"
     | "/transcribe/$projectId"
@@ -438,6 +448,7 @@ export interface FileRouteTypes {
     | "/settings/learning"
     | "/settings/tutor"
     | "/settings/voice"
+    | "/song/$unitId"
     | "/studio/$sketchId"
     | "/toolbox/$toolId"
     | "/transcribe/$projectId"
@@ -479,6 +490,7 @@ export interface FileRouteTypes {
     | "/settings/learning"
     | "/settings/tutor"
     | "/settings/voice"
+    | "/song/$unitId"
     | "/studio/$sketchId"
     | "/toolbox/$toolId"
     | "/transcribe/$projectId"
@@ -513,6 +525,7 @@ export interface RootRouteChildren {
   PracticeReviewRoute: typeof PracticeReviewRoute;
   SessionCodaRoute: typeof SessionCodaRoute;
   SessionReviveRoute: typeof SessionReviveRoute;
+  SongUnitIdRoute: typeof SongUnitIdRoute;
   StudioSketchIdRoute: typeof StudioSketchIdRoute;
   ToolboxToolIdRoute: typeof ToolboxToolIdRoute;
   TranscribeProjectIdRoute: typeof TranscribeProjectIdRoute;
@@ -752,6 +765,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof SettingsVoiceRouteImport;
       parentRoute: typeof SettingsRouteRoute;
     };
+    "/song/$unitId": {
+      id: "/song/$unitId";
+      path: "/song/$unitId";
+      fullPath: "/song/$unitId";
+      preLoaderRoute: typeof SongUnitIdRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     "/studio/": {
       id: "/studio/";
       path: "/studio";
@@ -852,6 +872,7 @@ const rootRouteChildren: RootRouteChildren = {
   PracticeReviewRoute: PracticeReviewRoute,
   SessionCodaRoute: SessionCodaRoute,
   SessionReviveRoute: SessionReviveRoute,
+  SongUnitIdRoute: SongUnitIdRoute,
   StudioSketchIdRoute: StudioSketchIdRoute,
   ToolboxToolIdRoute: ToolboxToolIdRoute,
   TranscribeProjectIdRoute: TranscribeProjectIdRoute,

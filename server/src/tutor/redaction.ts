@@ -8,7 +8,15 @@
 //  - a withheld field is ABSENT, not null, so "no `expected` field below its rung" can be tested;
 //  - the level comes from server state (`disclosureLevel`). It is never model or browser input.
 import { type AnswerForm, answerForms, answerLeaks, maskAnswers } from "./answer-guard.ts";
-import type { GradeSnapshot, LessonSource, RawIssue, Rung, StepSource, StepState } from "./domain.ts";
+import type {
+  GradeSnapshot,
+  LessonSong,
+  LessonSource,
+  RawIssue,
+  Rung,
+  StepSource,
+  StepState,
+} from "./domain.ts";
 import type { AnswerPolicy } from "./types.ts";
 import { keyPlanLine } from "./vocabulary.ts";
 
@@ -173,6 +181,8 @@ export interface LessonContextView {
     meter: string | null;
     bpm: number | null;
   };
+  /** Unit songs (contracts §5.11 rule 19): present only when the lesson is in a song. */
+  song?: LessonSong;
   step: {
     id: string;
     kind: string;
@@ -226,6 +236,13 @@ export function lessonContextView(
     },
     step: null,
   };
+  if (lesson.song)
+    view.song = {
+      title: lesson.song.title,
+      flavour: lesson.song.flavour,
+      yours: [...lesson.song.yours],
+      today: lesson.song.today,
+    };
   if (step === null) return view;
 
   // Known mistakes: from level 2 the variant the learner's attempt matched; all of them, with

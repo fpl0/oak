@@ -59,7 +59,7 @@ const MAKE_STARTER = code(line("mel", "<[c4 e4 g4 e4] [f4 a4 g4 e4]>", "piano"))
 
 export default defineLesson({
   id: "U02.L06",
-  version: 4,
+  version: 5,
   title: "Tones & Timbres",
   objective:
     "I can play the same line on different instruments and synth waves, and double it on a second sound.",
@@ -347,7 +347,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Add a second labelled line, such as `vox:`, that plays the same notes as `mel:` at the same time on **another sound**, at the same height or one or two octaves away. Done when every bar of `mel:` is doubled.",
+          "Your melody from The Treble Staff is in the editor, for the first loud part of your song. Add a second labelled line, such as `vox:`, that plays the same notes as `mel:` at the same time on **another sound**, at the same height or one or two octaves away. Done when every bar of `mel:` is doubled.",
         skills: [{ skill: "D01", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [1, 4],
@@ -384,7 +384,7 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "The brief needs two lines playing the same notes on two sounds, and the starter has one. What must the second line copy?",
+          "The brief needs two lines playing the same notes on two sounds, and your code has one. What must the second line copy?",
           "Copy the `mel` line, label the copy `vox`, and change its sound.",
           '`vox` with the same notes, `.s("sine")` and `.gain(.4)` is already enough. Change the notes after that if you like.',
         ),

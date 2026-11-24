@@ -47,7 +47,7 @@ const MAKE_STARTER = mel(ODE);
 
 export default defineLesson({
   id: "U02.L08",
-  version: 4,
+  version: 5,
   title: "Playing from the Page",
   objective: "I can read a short tune off the treble staff into code and put it in a room with reverb.",
   key: { tonic: "C", mode: "major" },
@@ -305,7 +305,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Arrange Ode to Joy, the starter, or When the Saints. Pick its sound with `.s()` and how long its notes ring with `.clip()`, and put it in a room with `.room()` and a number above 0, such as `.room(.4)`. Done when the tune rings in a room you can hear.",
+          "Arrange Ode to Joy, the starter, or When the Saints for the ending of your song. Pick its sound with `.s()` and how long its notes ring with `.clip()`, and put it in a room with `.room()` and a number above 0, such as `.room(.4)`. Done when the tune rings in a room you can hear.",
         skills: [{ skill: "D05", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],

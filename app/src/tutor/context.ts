@@ -41,7 +41,8 @@ export interface ContextChip {
     | "transcription"
     | "key"
     | "labels"
-    | "form";
+    | "form"
+    | "song";
   label: string;
 }
 
@@ -183,6 +184,12 @@ export interface TutorSubject {
    * chips switch their lens on without bars.
    */
   track?: TrackMarks | null;
+  /**
+   * Unit songs (contracts §5.11 rule 19): the song the lesson builds, set by the lesson page from `SessionPlan.song`
+   * or `songs.get`. Only its chip comes from here: the server adds the song (style, the learner's cells, today's line)
+   * to the lesson context itself.
+   */
+  song?: { title: string } | null;
 }
 
 export interface TutorAsk {
@@ -447,6 +454,7 @@ export const GENERAL_SUBJECT: TutorSubject = {
 export function chipsOf(s: TutorSubject, lenses: LabelState | null = null): ContextChip[] {
   const chips: ContextChip[] = [];
   if (s.lessonId && s.stepId) chips.push({ id: "step", label: `${s.lessonId} · ${s.stepId}` });
+  if (s.lessonId && s.song) chips.push({ id: "song", label: `Song · ${s.song.title}` });
   if (s.sketchId) chips.push({ id: "sketch", label: s.title });
   if (s.capstoneId) chips.push({ id: "capstone", label: `Capstone ${s.capstoneId}` });
   if (s.thread.subjectKind === "track") chips.push({ id: "track", label: s.title });

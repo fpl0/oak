@@ -31,7 +31,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { id: "practice", label: "Practice", to: "/practice", gKey: "P", match: under("/practice") },
   { id: "studio", label: "Studio", to: "/studio", gKey: "S", match: under("/studio") },
   { id: "transcribe", label: "Transcribe", to: "/transcribe", gKey: "R", match: under("/transcribe") },
-  { id: "album", label: "Album", to: "/album", gKey: "A", match: under("/album") },
+  // A unit song's page (`/song/$unitId`) lives with the album: its Songs shelf links there.
+  {
+    id: "album",
+    label: "Album",
+    to: "/album",
+    gKey: "A",
+    match: (p) => under("/album")(p) || under("/song")(p),
+  },
   { id: "toolbox", label: "Toolbox", to: "/toolbox", gKey: "B", match: under("/toolbox") },
   { id: "progress", label: "Progress", to: "/progress", gKey: "C", match: under("/progress") },
   { id: "settings", label: "Settings", to: "/settings/audio", gKey: ",", match: under("/settings") },

@@ -246,6 +246,14 @@ export interface WorkbenchProps {
    * "Start from Oak's copy" pressed after the learner edited a Make that opened with Oak's copy or their sketch).
    */
   codeKey?: string | number;
+  /**
+   * Unit songs (spec 2026-11-24 §5.3): the host's loop. Read when the Workbench is created (a Make inside its song
+   * starts looping where today's code plays) and again whenever `seq` changes: `region` loops those bars, `null` plays
+   * the whole piece. Whatever is playing restarts with it (a changed Band included); `play` starts it when nothing is.
+   */
+  loopRequest?: { seq: number; region: LoopRegion | null; play?: boolean };
+  /** The words on a track's mute chip (a unit song tells today's code, yours and Oak's apart). Default: the label. */
+  trackLabel?(track: string): string;
 }
 
 interface RunIssue {
@@ -380,8 +388,10 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
     [code, props.lessonCtx.loopBars],
   );
   const loopControls = (props.loopControls ?? true) && variant !== "mini";
-  const [loopOn, setLoopOn] = useState(false);
-  const [regionRaw, setRegion] = useState<LoopRegion>(() => defaultRegion(loopBars));
+  const [loopOn, setLoopOn] = useState(() => (props.loopRequest?.region ?? null) !== null);
+  const [regionRaw, setRegion] = useState<LoopRegion>(
+    () => props.loopRequest?.region ?? defaultRegion(loopBars),
+  );
   const region = clampRegion(regionRaw, loopBars);
   const [metronomeOn, setMetronomeOn] = useState(false);
   // A lead sheet is drawn from the analysed staff (its melody and the chords); the analysis engraves the full one.
@@ -787,6 +797,19 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
     if (handle.playing || loop.playing) void loop.start(code);
   };
   const anyPlaying = playing || loop.playing;
+  /**
+   * Plays the loop from the code as it is, when the editor itself did not just run it: the run is reported as an
+   * editor Run is (the host's `onEvaluated`, the "didn't run" banner), so a Make that loops from the start (a unit
+   * song's) still ticks its list and counts as run.
+   */
+  const startLoop = async (code: string) => {
+    const out = await loop.start(code);
+    if (out) {
+      setRunIssue(runIssueOf(out));
+      propsRef.current.onEvaluated?.(out);
+    }
+    return out;
+  };
 
   const metronome = useMemo(() => new Metronome(oak, meter), [oak, meter]);
   useEffect(() => {
@@ -816,6 +839,30 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
     const next = stepRegion(region, step, loopBars);
     return next.from !== region.from || next.bars !== region.bars;
   };
+  // Unit songs: the host asks for a loop (a section of the song) or the whole piece, and what plays follows.
+  const loopSeq = useRef(props.loopRequest?.seq);
+  useEffect(() => {
+    const req = propsRef.current.loopRequest;
+    if (!req || req.seq === loopSeq.current) return;
+    loopSeq.current = req.seq;
+    const on = req.region !== null;
+    const r = req.region ? clampRegion(req.region, loopBars) : region;
+    setLoopOn(on);
+    if (req.region) setRegion(r);
+    reportLoop(on, r);
+    if (!handle || handle.disposed) return;
+    const busyNow = handle.playing || loop.playing;
+    if (!busyNow && req.play !== true) return;
+    void (async () => {
+      await oak.unlock();
+      if (on) await startLoop(handle.getCode());
+      else {
+        if (loop.playing) loop.stop();
+        await handle.play();
+      }
+    })();
+    // Only a new request acts: the rest is read as it is now.
+  }, [props.loopRequest?.seq]);
   // --- Wave 5: the form (section ribbon, form map, section loop) ---------------------------------------
   const lines = model?.lines ?? null;
   const sections = lines?.sections ?? [];
@@ -952,7 +999,7 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
       await oak.unlock();
       if (loop.playing) loop.stop();
       else if (handle.playing) handle.stop();
-      else if (loopOn) await loop.start(handle.getCode());
+      else if (loopOn) await startLoop(handle.getCode());
       else await handle.play();
     } finally {
       setBusy(false);
@@ -1556,6 +1603,7 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
         loopBars={loopBars}
         keySpec={keySpec}
         tracks={tracks}
+        {...(props.trackLabel ? { trackLabel: props.trackLabel } : {})}
         badges={badges}
         mutes={mutes}
         onMute={(t) => applyMutes(toggleMute(mutes, t))}

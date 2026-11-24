@@ -86,6 +86,12 @@ describe("subject", () => {
       "Hints 1/4",
     ]);
   });
+
+  test("a lesson in a unit song shows the song after the step (contracts §5.11 rule 19)", () => {
+    const labels = chipsOf({ ...lesson, song: { title: "Porch light" } }).map((c) => c.label);
+    expect(labels.slice(0, 2)).toEqual(["U01.L02 · S2", "Song · Porch light"]);
+    expect(chipsOf({ ...lesson, song: null }).some((c) => c.id === "song")).toBe(false);
+  });
 });
 
 describe("asks", () => {

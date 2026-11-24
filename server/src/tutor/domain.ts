@@ -81,6 +81,20 @@ export interface LessonSource {
   key: string | null;
   meter: string | null;
   bpm: number | null;
+  /** Unit songs (contracts §5.11 rule 19): the song this lesson belongs to. Absent: the lesson is in no song. */
+  song?: LessonSong | null;
+}
+
+/** The unit song a lesson is in, as the tutor reads it, so it can talk about "your song". */
+export interface LessonSong {
+  /** The learner's title for the song (Oak's working title before the song starts). */
+  title: string;
+  /** The song's style (`flavour.pop`, `flavour.indie`, …). */
+  flavour: string;
+  /** The cells the learner's takes play (`part@section`), in the order the takes were made. */
+  yours: string[];
+  /** This lesson's `today` line; `null` on a side step. */
+  today: string | null;
 }
 
 export type StepGrading = "graded" | "make" | "ungraded";

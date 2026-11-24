@@ -79,13 +79,16 @@ export const INITIAL_VIEW: RunnerView = {
   ended: null,
 };
 
-/** Routes on which session time counts: the host, the Coda, and the routes a block may be played on. */
+/**
+ * Routes on which session time counts: the host, the Coda, the routes a block may be played on, and the unit song's
+ * page (`/song/…`, opened from the lesson card or the Coda mid-session).
+ */
 export function isSessionSurface(path: string): boolean {
   return (
     path === "/session" ||
     path === "/session/" ||
     path === "/session/coda" ||
-    /^\/(learn|checkpoint|capstone|transcribe|practice|studio)(\/|$)/.test(path)
+    /^\/(learn|checkpoint|capstone|transcribe|practice|studio|song)(\/|$)/.test(path)
   );
 }
 

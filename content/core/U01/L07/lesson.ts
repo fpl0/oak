@@ -53,7 +53,7 @@ const FILL_LAST: string[][] = GROOVES.flatMap((a) =>
 
 export default defineLesson({
   id: "U01.L07",
-  version: 3,
+  version: 4,
   title: "Four-Bar Phrases & Fills",
   objective: "I can write a four-bar drum phrase with < > and end it with a fill.",
   key: { tonic: "C", mode: "major" },
@@ -318,7 +318,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a four-bar drum phrase with `< >`, so that at least one line plays two or more different bars before it repeats. End the phrase with a fill in bar 4.",
+          "Write a four-bar drum phrase for the second part of your song, with `< >`, so that at least one line plays two or more different bars before it repeats. End the phrase with a fill in bar 4.",
         skills: [
           { skill: "R04", w: 0.5 },
           { skill: "R07", w: 0.5 },

@@ -52,7 +52,7 @@ const SAME_OR_NOT = [
 
 export default defineLesson({
   id: "U02.L05",
-  version: 3,
+  version: 4,
   title: "Moving Melodies",
   objective: "I can give a note its number and move a whole line up or down by half steps with .transpose().",
   key: { tonic: "C", mode: "major" },
@@ -453,7 +453,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Play the riff a second time, moved higher or lower with `.transpose()` and a number other than 0: on a second labelled line, or in a second bar with `< >`. Keep the riff itself playing too. Done when the copy keeps the riff's shape at a new height.",
+          "Your melody from The Treble Staff is in the editor, for the last loud part of your song. Play it a second time, moved with `.transpose()` and a number other than 0: on a second labelled line, or in a second bar with `< >`. Keep the melody playing too. Done when the copy keeps its shape at a new height.",
         skills: [{ skill: "P06", w: 1 }],
         code: { starter: riff() },
         bars: [1, 4],
@@ -488,9 +488,9 @@ export default defineLesson({
           },
         ],
         hints: ladder(
-          "The riff must play twice: once as written, once moved. Where could the second copy go?",
+          "The melody must play twice: once as written, once moved. Where could the second copy go?",
           'Copy the `mel` line to a new line labelled `vox` (a second melody line), and put `.transpose()` before its `.s("piano")`.',
-          "`.transpose(12)` on the copy doubles the riff an octave up. Other numbers give other colours.",
+          "`.transpose(12)` on the copy doubles the melody an octave up. Other numbers give other colours.",
         ),
         tests: [
           {

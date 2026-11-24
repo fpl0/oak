@@ -44,7 +44,7 @@ const TAP_FEEDBACK = {
 
 export default defineLesson({
   id: "U01.L02",
-  version: 3,
+  version: 4,
   title: "Count to Four",
   objective: "I can find beat 1, count a bar of four, and leave a beat silent without losing my place.",
   key: { tonic: "C", mode: "major" },
@@ -376,7 +376,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a one-bar groove with at least one silent beat: one whole beat where every line rests, the hats included. A `~` on the drums line alone is not enough while the hats keep playing. Use any drums you have: `bd`, `sd`, `hh`, `oh`, `cr`, `rd`, `cp`, `rim`.",
+          "Write the one-bar groove for your song's stop, the bar just before the first loud part. Give it at least one silent beat: one whole beat where every line rests, the hats included. A `~` on the drums line alone is not enough while the hats keep playing.",
         skills: [
           { skill: "R06", w: 0.6 },
           { skill: "R03", w: 0.4 },

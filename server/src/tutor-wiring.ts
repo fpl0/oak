@@ -18,7 +18,7 @@ import type { TutorPorts } from "./tutor/ports.ts";
 import type { TutorService } from "./tutor/service-types.ts";
 import { FakeTutorBackend, type FakeTutorOptions } from "./tutor-adapters/fake-backend.ts";
 import { GraderAdapter } from "./tutor-adapters/grader.ts";
-import { LessonContextAdapter } from "./tutor-adapters/lessons.ts";
+import { LessonContextAdapter, lessonSongPort } from "./tutor-adapters/lessons.ts";
 import { ProgressAdapter } from "./tutor-adapters/progress.ts";
 import { reviewFactsPort, reviewW7Port } from "./tutor-adapters/review-facts.ts";
 import {
@@ -94,6 +94,7 @@ export function createTutorWiring(d: TutorWiringDeps): TutorWiring {
     d.repos,
     reviewFactsPort(d.graders, d.repos),
     reviewW7Port(d.graders, d.repos),
+    lessonSongPort(d.services.unitSongs),
   );
   const ports: TutorPorts = {
     grader: new GraderAdapter(d.graders.tutor, d.repos, d.content),

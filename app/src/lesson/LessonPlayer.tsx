@@ -38,6 +38,9 @@ import { useCourseProgress, useHealth, useProfile, useUnlocks, useVoiceState } f
 import { retryLine } from "../lib/retry.ts";
 import { ActivityClock, logStep } from "../lib/telemetry.ts";
 import { currentSessionId, reportBlockDone, useSession } from "../session/store.ts";
+import { type NewSongGate, type SongMakeState, useNewSongGate, useSongMake } from "../song/hooks.ts";
+import { NewSong } from "../song/NewSong.tsx";
+import { SongCard } from "../song/SongCard.tsx";
 import {
   askChat,
   askExplain,
@@ -156,6 +159,8 @@ export function LessonPlayer({ lessonId, step, preview, from }: LessonPlayerProp
   const voice = useVoiceState();
   // Quiet mode switched in another tab reaches this step at once (no Sing, no mic).
   useVoiceSync();
+  // Unit songs (spec §5.5): a take lesson of a song not started opens with the New song moment (`newSongMoment`).
+  const songGate = useNewSongGate(lessonId, { enabled: preview !== true });
   const meta = bundle.data?.syllabus?.units.flatMap((u) => u.lessons).find((l) => l.id === lessonId) ?? null;
   const title = loaded.data?.def.title ?? meta?.title ?? lessonId;
   usePageTitle(title);
@@ -233,6 +238,14 @@ export function LessonPlayer({ lessonId, step, preview, from }: LessonPlayerProp
         </EmptyState>
       </Page>
     );
+  if (songGate.pending && !locked)
+    return (
+      <Page width="narrow">
+        <LoadingState label="Opening the lesson" />
+      </Page>
+    );
+  const moment = songGate.show && !locked ? newSongMoment(songGate) : null;
+  if (moment) return <Page>{moment}</Page>;
   return (
     <ServicesGate load={lessonServices} auto>
       <PlayerCore
@@ -270,6 +283,16 @@ export function LessonPlayer({ lessonId, step, preview, from }: LessonPlayerProp
   );
 }
 
+/**
+ * Unit songs (spec §5.5): what a take lesson shows before its first step while the learner has not started the unit's
+ * song: the New song moment (app/src/song/NewSong.tsx). It posts `songs.start` with the picked style, then
+ * `gate.onStarted()` opens the lesson. Without a unit (no song) the lesson opens at once.
+ */
+function newSongMoment(gate: NewSongGate): ReactNode {
+  if (!gate.unitId) return null;
+  return <NewSong unitId={gate.unitId} onStarted={gate.onStarted} />;
+}
+
 /** The next side lesson of the track (its ID and title), for a side lesson's complete screen. */
 function nextSideOf(id: string, bundle: ContentBundle | null): { id: string; title: string } | null {
   const metas = bundle?.syllabus?.units.flatMap((u) => u.lessons) ?? [];
@@ -277,6 +300,11 @@ function nextSideOf(id: string, bundle: ContentBundle | null): { id: string; tit
   const next = nextSideLesson(id, sideIds.length > 0 ? sideIds : SIDE_LESSON_IDS);
   if (!next) return null;
   return { id: next, title: metas.find((l) => l.id === next)?.title ?? next };
+}
+
+/** A take Make's codes that count as unchanged (spec §5.3: `make.unchanged` against what the Make opened with). */
+function unchangedOf(take: { unchangedFrom: string[] } | null): { unchangedFrom?: readonly string[] } {
+  return take && take.unchangedFrom.length > 0 ? { unchangedFrom: take.unchangedFrom } : {};
 }
 
 /** Every step's server state: `lessons.steps`, or one `steps.state` per step until that endpoint exists. */
@@ -396,6 +424,12 @@ function PlayerCore(props: CoreProps) {
       bpm: def.bpm,
       at: def.id as SessionId,
     });
+  // Unit songs (spec §5.3): the Make of a take step plays inside its song, recomputed from the song every time the
+  // lesson opens; a side step's Make stays a sketch of its own.
+  const songMake = useSongMake(def, { flavour: props.flavour });
+  const songRef = useRef<SongMakeState>(songMake);
+  songRef.current = songMake;
+  const songTakeOf = () => (songRef.current.kind === "take" ? songRef.current : null);
 
   const actorRef = useRef<ActorRefFrom<typeof lessonMachine> | null>(null);
   const deps = useRef<LessonDeps>(
@@ -409,9 +443,17 @@ function PlayerCore(props: CoreProps) {
           contentHash: `${def.id}@${def.version}:${bundle?.version ?? "source"}`,
           activeMs: () => clock.current.peek(),
           band: (stepId) => {
-            const b = bandOf(def.steps.find((s) => s.id === stepId));
+            const step = def.steps.find((s) => s.id === stepId);
+            const b = bandOf(step);
+            if (!b) return null;
             // The parts the step leaves out stay muted in the sketch (Studio plays what the lesson played).
-            return b ? { bandId: b.band, flavour: b.flavour, mutes: bandMutesOf(b) } : null;
+            const take = step?.kind === "make" ? songTakeOf() : null;
+            return {
+              bandId: b.band,
+              flavour: b.flavour,
+              mutes: bandMutesOf(b),
+              ...(take ? { song: { unitId: take.unitId, takeIds: take.takeIds.slice(-256) } } : {}),
+            };
           },
           ranOk: (stepId) => actorRef.current?.getSnapshot().context.done[stepId] === true,
           gradeMake: async (code) => {
@@ -422,9 +464,30 @@ function PlayerCore(props: CoreProps) {
               envRef.current,
               s.exercise,
               { code },
-              { params: {}, attemptNo: 1, rung: 0, extraReplays: 0 },
+              {
+                params: {},
+                attemptNo: 1,
+                rung: 0,
+                extraReplays: 0,
+                ...unchangedOf(songTakeOf()),
+              },
             ).catch(() => null);
           },
+          songTake: () => {
+            const take = songTakeOf();
+            const make = def.steps.find((x) => x.kind === "make")?.exercise;
+            if (!take) return null;
+            return {
+              def: take.def,
+              step: take.step,
+              unitId: take.unitId,
+              meter: make?.meter ?? def.meter,
+              bars: make?.kind === "code-make" ? make.bars[1] : 4,
+              songBpm: take.bpm,
+              backfilled: (take.detail?.takes ?? []).filter((t) => t.backfilled),
+            };
+          },
+          evaluate: browserGrader.evaluate,
           onAttempt: (stepId, id) => attemptIds.current.set(stepId, id),
         }),
   ).current;
@@ -934,6 +997,7 @@ function PlayerCore(props: CoreProps) {
         trial,
         trials,
         takeOf: lessonTakes,
+        ...(step.kind === "make" ? unchangedOf(songTakeOf()) : {}),
       });
     } catch (e) {
       actor.send({ type: "CHECK_FAILED", message: e instanceof Error ? e.message : String(e) });
@@ -957,6 +1021,7 @@ function PlayerCore(props: CoreProps) {
       extraReplays: 0,
       trial,
       trials,
+      ...(step.kind === "make" ? unchangedOf(songTakeOf()) : {}),
     });
   };
 
@@ -1054,6 +1119,8 @@ function PlayerCore(props: CoreProps) {
           onReplay={featureSwitch.replay}
         />
       )}
+      {/* Unit songs (spec §5.5 "Lesson"): the song card above the first step of this visit. */}
+      {ctx.index === (openedAt ?? ctx.range[0]) && <SongCard lessonId={def.id} />}
       {props.side && ctx.index === (openedAt ?? ctx.range[0]) && (
         <div data-testid="side-lesson-note" className="mt-3">
           <Callout
@@ -1140,6 +1207,7 @@ function PlayerCore(props: CoreProps) {
     env,
     voice: props.voice,
     workbench: workbenchBase(step),
+    song: step.kind === "make" && songMake.kind !== "none" ? songMake : null,
     trial,
     trials,
     code: ctx.code[step.id] ?? null,

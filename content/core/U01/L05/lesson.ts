@@ -43,7 +43,7 @@ const DRUM_LENGTHS = {
 
 export default defineLesson({
   id: "U01.L05",
-  version: 3,
+  version: 4,
   title: "Seeing Rhythm",
   objective:
     "I can read quarter, eighth, half and whole notes on the percussion staff and hold a sound with @ or _.",
@@ -315,7 +315,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a groove that mixes long and short sounds. Hold at least one sound with `@` or `_`, so it lasts two beats or more, or twice as long as another sound on its line in the same bar.",
+          "Write the groove for your song's ending, mixing long and short sounds. Hold at least one sound with `@` or `_`, so it lasts two beats or more, or twice as long as another sound on its line in the same bar.",
         skills: [
           { skill: "N01", w: 0.7 },
           { skill: "R06", w: 0.3 },

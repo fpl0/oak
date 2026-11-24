@@ -12,12 +12,22 @@ import {
   type LessonDef,
   OakApiError,
   type StepState,
+  type UnitId,
 } from "@oak/api";
 import type { QueryClient } from "@tanstack/react-query";
 import { callApi } from "../lib/api.ts";
 import { idempotencyKey } from "../lib/idempotency.ts";
 import type { LessonDeps } from "./machine.ts";
 import { localRung, revealNeeds } from "./model.ts";
+import { recordSongTake, refineBackfilledTakes, type SongTakeInput, type SongTakeIo } from "./song-make.ts";
+
+/**
+ * A take step's song as the Save needs it: everything of `SongTakeInput` but the saved code and sketch, and the
+ * song's takes that Oak backfilled (refined from their code after the save).
+ */
+export type SongTakeContext = Omit<SongTakeInput, "lessonId" | "code" | "sketchId" | "sketchVersion"> & {
+  backfilled: Parameters<typeof refineBackfilledTakes>[1]["takes"];
+};
 
 export interface ServerDepsOptions {
   qc: QueryClient;
@@ -31,13 +41,24 @@ export interface ServerDepsOptions {
    * The Band a step plays, as the Make's sketch keeps it: `mutes` are the Band's parts the step leaves out
    * (`ui.band.tracks`), so Studio plays the sketch with what the learner heard in the lesson.
    */
-  band: (
-    stepId: string,
-  ) => { bandId: BandId; flavour: FlavourId; mutes?: ("drums" | "bass" | "chords")[] } | null;
+  band: (stepId: string) => {
+    bandId: BandId;
+    flavour: FlavourId;
+    mutes?: string[];
+    /** Unit songs: the Make played inside its song, over these takes. */
+    song?: { unitId: UnitId; takeIds: number[] };
+  } | null;
   /** Whether the Make's code has run successfully at least once (a sketch qualifies a streak day then). */
   ranOk: (stepId: string) => boolean;
   /** Grades the Make's code when no check of it is current. */
   gradeMake: (code: string) => Promise<GradeResult | null>;
+  /**
+   * Unit songs (spec §5.3): a take step's song, read when the Make is saved. The saved code then becomes a take of the
+   * song (`songs.recordTake`), with the cells it claims computed from the code evaluated once (`recordSongTake`).
+   */
+  songTake?: () => SongTakeContext | null;
+  /** Evaluates code without a lint (the browser grader host), for the take's claims. */
+  evaluate?: SongTakeIo["evaluate"];
   onAttempt?: (stepId: string, attemptId: number) => void;
 }
 
@@ -75,13 +96,56 @@ export function serverDeps(o: ServerDepsOptions): LessonDeps {
         analysis: null,
         note: null,
         tutorAssisted,
-        band: band ? { bandId: band.bandId, flavour: band.flavour, mutes: band.mutes ?? [] } : null,
+        band: band
+          ? {
+              bandId: band.bandId,
+              flavour: band.flavour,
+              mutes: band.mutes ?? [],
+              ...(band.song ? { song: band.song } : {}),
+            }
+          : null,
         flags: { lockedTools: [], previewTools: [] },
         ranOk: o.ranOk(stepId),
       },
     });
     invalidate("sketches.list", "streak.get");
-    return saved.sketch.id;
+    return { id: saved.sketch.id, version: saved.sketch.currentVersion };
+  };
+
+  /**
+   * The saved Make as a take of its song (spec §5.3, contracts §5.11 rule 15), after the lesson is complete: a take
+   * never stands for a Save that did not finish. One idempotency key per saved version, so a retry records it once.
+   * A take that cannot be recorded leaves the lesson complete; the server's backfill records it later.
+   */
+  const recordTake = async (code: string, saved: { id: string; version: number }) => {
+    const song = o.songTake?.();
+    if (!song || !o.evaluate || !isLessonId(id)) return;
+    const io: SongTakeIo = {
+      evaluate: o.evaluate,
+      post: (unitId, body) => callApi("songs.recordTake", { params: { unitId: unitId as UnitId }, body }),
+    };
+    const { backfilled, ...take } = song;
+    const recorded = await recordSongTake(io, {
+      ...take,
+      lessonId: id,
+      code,
+      sketchId: saved.id,
+      sketchVersion: saved.version,
+    }).then(
+      () => true,
+      (e: unknown) => {
+        console.warn("oak: the take was not recorded in the song", e);
+        return false;
+      },
+    );
+    invalidate("songs.get", "songs.list");
+    // The takes Oak made from earlier lessons' sketches learn the cells their code really plays (spec §5.6a), after
+    // the lesson has moved on: the complete screen does not wait for them.
+    if (recorded && backfilled.length > 0)
+      void refineBackfilledTakes(io, { ...take, takes: backfilled }).then(
+        () => invalidate("songs.get", "songs.list"),
+        (e: unknown) => console.warn("oak: the song's earlier takes were not refined", e),
+      );
   };
 
   return {
@@ -129,7 +193,8 @@ export function serverDeps(o: ServerDepsOptions): LessonDeps {
             idempotencyKey: makeKey(f.stepId, f.code),
           },
         }).catch(() => null);
-      const sketchId = await createSketch(f.stepId, f.code, f.title, f.tutorAssisted);
+      const saved = await createSketch(f.stepId, f.code, f.title, f.tutorAssisted);
+      const sketchId = saved.id;
       let complete: LessonCompleteResult | null = null;
       if (isLessonId(id))
         complete = await callApi("lessons.complete", {
@@ -142,6 +207,7 @@ export function serverDeps(o: ServerDepsOptions): LessonDeps {
             splitPart: o.splitPart() === "B" ? "B" : null,
           },
         });
+      await recordTake(f.code, saved);
       invalidate(
         "lessons.progress",
         "skills.map",
@@ -153,7 +219,7 @@ export function serverDeps(o: ServerDepsOptions): LessonDeps {
       return { sketchId, result: complete };
     },
     async quickSketch(q) {
-      const sketchId = await createSketch(q.stepId, q.code, q.title, false);
+      const sketchId = (await createSketch(q.stepId, q.code, q.title, false)).id;
       if (q.part === "A")
         await callApi("lessons.complete", {
           params: { id },

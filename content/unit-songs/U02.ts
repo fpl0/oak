@@ -1,188 +1,544 @@
-// S1 placeholder: Task 11 replaces it.
+// Song 2, "The riff song" (docs/design/songs/makes-core-a.md §8, U02; AUTHORING §23). C major, 4/4, 96 BPM, one
+// chord a bar, C then F, in every section: every U02 Make was written over the two-chord vamp, and a learner's loop
+// restarts at the start of each section it plays in, so its first bar always lands on C and its second on F.
+// The sections differ by arrangement, not by chords: an opening where the riff plays over the chords and the drums
+// and bass come in at bar 3; a riff part with a light groove and a comp that leaves beat 4 empty; a loud part with
+// the tune up on the staff and doubled, a crash, a busier groove, bass and comp; the riff part again with one bent
+// note and a hand percussion part; a quiet part that drops to whole notes and call and echo, then builds back up;
+// the loud part again, its double an octave down; an ending in half-time that brings the opening riff back; and one
+// last bar on C (F to C) so the record stops at home.
 //
-// Song 2, "the riff song" (docs/design/songs/makes-core-a.md §8, U02): C major, straight, 96 BPM, I–IV throughout
-// (every U02 Make was tuned to C then F). Oak plays every part, and the learner takes over the tune section by
-// section. The form, the parts and the takeover plan follow the proposal; the music is a plain sketch of it, valid
-// for every check (spec §5.1, §8): four flavours with the same roots, bass downbeats and tune, all on chord tones.
+// Oak's tune models each lesson before the learner takes it over (so the song is already the lesson's sound):
+// c alone at three heights in the opening (U02.L01), four white keys in the riff part (L02), one black key, B flat,
+// in the second riff part (L03), a tune on the staff, F4 to F5, in the loud parts (L04), a copy moved an octave
+// down (L05) and a double on another sound (L06), call and echo in the quiet part (L07), a tune in a room at the
+// end (L08). The learner writes only the tune in this unit, so the plan hands over the tune section by section.
+//
+// Every flavour plays the same notes (tune, bass roots, chords); a flavour changes sounds, drum grooves, comp and
+// bass rhythms only. U01–U02 stay straight with triads in every flavour (content/flavours.ts FLAVOUR_RULES). Gains
+// stay at or under the kit's Bands (content/bands/index.ts KITS). Held notes avoid a half step against the chords
+// (AUTHORING §13), and the comps leave beat 4 of the riff parts and beats 3–4 of the ending empty, so the lessons'
+// own answers (a B flat on beat 4, Ode to Joy's F on beat 3) never rub against a sounding chord tone.
 import {
   defineUnitSong,
   FLAVOUR_IDS,
   type FlavourId,
+  type SongPartId,
   type TakeStep,
   type UnitSongSection,
 } from "@oak/content-kit";
 
-const SECTIONS: UnitSongSection[] = [
+const SECTIONS = [
   { id: "intro", type: "intro", bars: 4 },
-  { id: "verse", type: "verse", bars: 8 },
+  { id: "verse1", type: "verse", bars: 8 },
   { id: "chorus1", type: "chorus", bars: 8 },
-  { id: "bridge", type: "bridge", bars: 4 },
+  { id: "verse2", type: "verse", bars: 8 },
+  { id: "bridge", type: "bridge", bars: 8 },
   { id: "chorus2", type: "chorus", bars: 8 },
-  { id: "outro", type: "outro", bars: 4 },
-];
+  { id: "outro", type: "outro", bars: 8 },
+  // The last bar: the band lands on C together and lets it ring.
+  { id: "end", type: "outro", bars: 1 },
+] as const satisfies readonly UnitSongSection[];
+type SectionId = (typeof SECTIONS)[number]["id"];
+/** What one track plays in each section: a Strudel expression, or `null` where it rests. */
+type BySection = Readonly<Record<SectionId, string | null>>;
 
-/** Each kit's sounds and production numbers (content/flavours.ts), and how it plays the drums and chords. */
-interface Kit {
-  bank: string;
-  crash: string;
-  bass: string;
-  chords: string;
-  lead: string;
-  room: number;
-  lpf: number;
-  chordsPan: number;
-  leadPan: number;
-  comp: string;
-  bassGroove: string;
-  chorusHats: string;
-}
-const KITS: Record<FlavourId, Kit> = {
-  "flavour.pop": {
-    bank: "",
-    crash: "cr",
-    bass: "ebass",
-    chords: "piano",
-    lead: "piano",
-    room: 0.25,
-    lpf: 800,
-    chordsPan: 0.42,
-    leadPan: 0.58,
-    comp: "x x x x",
-    bassGroove: "x ~ x ~",
-    chorusHats: "hh*8",
-  },
-  "flavour.indie": {
-    bank: "LinnDrum",
-    crash: "cr",
-    bass: "ebass",
-    chords: "cleangtr",
-    lead: "acgtr",
-    room: 0.3,
-    lpf: 750,
-    chordsPan: 0.38,
-    leadPan: 0.62,
-    comp: "x ~ x ~",
-    bassGroove: "x ~ x x",
-    chorusHats: "hh*8",
-  },
-  // Jazz-soul stays straight with triads in U01–U02 (content/flavours.ts FLAVOUR_RULES); its kit has no crash.
-  "flavour.jazz-soul": {
-    bank: "jazzkit",
-    crash: "rd",
-    bass: "upright",
-    chords: "rhodes",
-    lead: "vibes",
-    room: 0.35,
-    lpf: 900,
-    chordsPan: 0.4,
-    leadPan: 0.6,
-    comp: "x ~ ~ [~ x]",
-    bassGroove: "x ~ x ~",
-    chorusHats: "hh*8",
-  },
-  "flavour.funk": {
-    bank: "RolandTR808",
-    crash: "cr",
-    bass: "fingerbass",
-    chords: "clav",
-    lead: "organ",
-    room: 0.2,
-    lpf: 850,
-    chordsPan: 0.42,
-    leadPan: 0.58,
-    comp: "~ x ~ [~ x]",
-    bassGroove: "x ~ [~ x] ~",
-    chorusHats: "hh*16",
-  },
-};
-
-const num = (x: number): string => String(x).replace(/^0\./, ".");
 const cap = (s: string): string => `${s.slice(0, 1).toUpperCase()}${s.slice(1)}`;
+/** A number as Strudel code is written in this repo: `.4`, not `0.4`. */
+const num = (x: number): string => String(x).replace(/^0\./, ".");
 
-/** One labelled track: a const per section type it plays (`melVerse`), `silence` where it rests, one arrange(). */
-function track(label: string, bySection: Readonly<Record<string, string>>, tail: string) {
+/**
+ * One labelled track in the STYLE §10 shape: a const per distinct section pattern, named by the section's type
+ * (`melVerse`; `melVerse2` for a second verse that plays something else), `silence` where it rests, and one
+ * `arrange()` over every section of the song.
+ */
+function track(label: string, by: BySection, tail: string): { consts: string[]; line: string } {
+  const named = new Map<string, string>(); // pattern → const name
+  const taken = new Set<string>();
   const consts: string[] = [];
-  const entries = SECTIONS.map(({ bars, type }) => {
-    const pattern = bySection[type];
-    if (pattern === undefined) return `[${bars}, silence]`;
-    const name = `${label}${cap(type)}`;
-    if (!consts.some((c) => c.startsWith(`const ${name} =`))) consts.push(`const ${name} = ${pattern}`);
-    return `[${bars}, ${name}]`;
+  const entries = SECTIONS.map((section, i) => {
+    const pattern = by[section.id];
+    if (pattern === null) return `[${section.bars}, silence]`;
+    const key = `${section.type}\u0000${pattern}`;
+    let name = named.get(key);
+    if (name === undefined) {
+      const base = `${label}${cap(section.type)}`;
+      const nth = SECTIONS.slice(0, i + 1).filter((s) => s.type === section.type).length;
+      name = taken.has(base) ? `${base}${nth}` : base;
+      taken.add(name);
+      named.set(key, name);
+      consts.push(`const ${name} = ${pattern}`);
+    }
+    return `[${section.bars}, ${name}]`;
   });
   return { consts, line: `${label}: arrange(${entries.join(", ")})${tail}` };
 }
 
-const TYPES = ["intro", "verse", "chorus", "bridge", "outro"] as const;
-/** I–IV, a bar each, in every section: chords by degree in C3 (C E G, then C F A), roots in C2. */
-const each = (pattern: (type: (typeof TYPES)[number]) => string): Record<string, string> =>
-  Object.fromEntries(TYPES.map((t) => [t, pattern(t)]));
+// ---- The tune (every flavour) -------------------------------------------------------------------------------
+//
+// Note names, eighth notes to a bar. The riff climbs the chord and steps one higher, then comes back: C E G A G over
+// C, F A C D C over F. The opening plays its rhythm on c alone, at c4, c5 and c6. The loud part's tune sits on the
+// staff (F4 to F5), leans on the "and" of 2 and of 3, and every note it holds longer than a beat is a chord tone
+// (the one-beat D over C passes from E to C). The quiet part
+// calls in one bar and echoes it in the next; every call uses only C, D, G and A, which fit both chords.
 
-function code(f: FlavourId): string {
-  const k = KITS[f];
+const C_RIFF = "c4 ~ c5 c5 ~ c6 c5 ~";
+const C_RIFF_CUT = "c4 ~ c5 c5 ~ c6 ~ ~";
+const RIFF_ON_C = "c4 ~ e4 g4 ~ a4 g4 ~";
+const RIFF_ON_C_BENT = "c4 ~ e4 g4 ~ bb4 g4 ~";
+const RIFF_ON_F = "f4 ~ a4 c5 ~ d5 c5 ~";
+const RIFF_ON_F_CUT = "f4 ~ a4 c5 ~ ~ ~ ~";
+const bars = (...b: string[]): string => `<${b.map((x) => `[${x}]`).join(" ")}>`;
+const riff = (onC: string): string =>
+  bars(onC, RIFF_ON_F, onC, RIFF_ON_F, onC, RIFF_ON_F, onC, RIFF_ON_F_CUT);
+const TUNE = bars(
+  "e5@3 d5@2 c5@3",
+  "a4@3 c5@2 a4@3",
+  "g4@3 c5@2 e5@3",
+  "f4@3 a4@2 c5@3",
+  "e5@3 d5@2 c5@3",
+  "a4@3 c5@2 f5@3",
+  "e5@3 d5@2 c5@3",
+  "a4@6 ~@2",
+);
+const CALLS = ["c5 a4 g4 ~", "g4 a4 c5 ~", "d5 c5 a4 ~", "g4 a4 c5 d5"];
+
+const MEL: BySection = {
+  intro: `note("${bars(C_RIFF, C_RIFF, C_RIFF, C_RIFF_CUT)}").room(.3)`,
+  verse1: `note("${riff(RIFF_ON_C)}").room(.25)`,
+  chorus1: `note("${TUNE}").room(.3)`,
+  verse2: `note("${riff(RIFF_ON_C_BENT)}").room(.25)`,
+  bridge: `note("${bars(...CALLS.flatMap((c) => [c, "~"]))}").room(.4)`.replace(/\[~\]/g, "~"),
+  chorus2: `note("${TUNE}").room(.3)`,
+  outro: `note("${bars(C_RIFF, C_RIFF, C_RIFF, C_RIFF_CUT, C_RIFF, "c4 ~ c5 ~ ~ ~ ~ ~", "c4 ~ c5 ~ ~ ~ ~ ~", "c5")}").room(.5)`,
+  end: null,
+};
+/** The second line: the tune doubled on another sound, an octave down in the last loud part, the quiet part's echo. */
+const VOX: BySection = {
+  intro: null,
+  verse1: null,
+  chorus1: `note("${TUNE}")`,
+  verse2: null,
+  bridge: `note("${bars(...CALLS.flatMap((c) => ["~", c]))}")`.replace(/\[~\]/g, "~"),
+  chorus2: `note("${TUNE}").transpose(-12)`,
+  outro: null,
+  end: null,
+};
+
+// ---- Chords (every flavour: the same notes, the rhythm is the kit's) ------------------------------------------
+//
+// C then F, close and low: C E G to C F A (C stays, E and G step up), and in the loud parts E G C to F A C (C stays
+// on top). No chord note sits above C4, so the tune, from C4 up, has the register above the chords to itself.
+
+const LOW = "<[c3,e3,g3] [c3,f3,a3]>";
+const HIGH = "<[e3,g3,c4] [f3,a3,c4]>";
+const LAST = "[c3,e3,g3,c4]";
+const CHORD_NOTES: Readonly<Record<SectionId, string>> = {
+  intro: LOW,
+  verse1: LOW,
+  chorus1: HIGH,
+  verse2: LOW,
+  bridge: LOW,
+  chorus2: HIGH,
+  outro: LOW,
+  end: LAST,
+};
+
+// ---- The kits -----------------------------------------------------------------------------------------------
+
+/** Accents spread over the slots of the pattern to their left (STYLE §11 rule 7), as the Bands write them. */
+const V8 = "[1 .86 .94 .86]*2";
+const V16 = "[1 .86 .94 .86]*4";
+const V4 = "1 .86 .92 .86";
+const v = (mini: string, velocity?: string): string =>
+  velocity ? `s("${mini}").velocity("${velocity}")` : `s("${mini}")`;
+
+interface Kit {
+  /** `.bank()` for the drum tracks, or "" for the default kit. */
+  bank: string;
+  sounds: { bass: string; chords: string; lead: string; vox: string };
+  /** At or under the kit's Bands: drums .7 (jazz-soul .65), bass .9, chords .4 (jazz-soul .45). */
+  gain: {
+    kick: number;
+    snare: number;
+    hats: number;
+    perc: number;
+    bass: number;
+    chords: number;
+    lead: number;
+    vox: number;
+  };
+  /** content/flavours.ts production: the chords' room, the bass low-pass, pans. */
+  room: number;
+  lpf: number;
+  chordsPan: number;
+  leadPan: number;
+  kick: BySection;
+  snare: BySection;
+  hats: BySection;
+  perc: BySection;
+  /** Bass notes; the downbeat of every bar is the chord's root, C2 or F2, in every kit. */
+  bass: BySection;
+  /** The chords' rhythm (`struct`) in each section; `chordSound` changes their sound in a section. */
+  comp: Readonly<Record<SectionId, string>>;
+  chordSound?: Partial<Record<SectionId, string>>;
+}
+
+// Grooves shared by the kits: the opening's pickup, the quiet part's build, the ending's half time.
+const SNARE_PICKUP = "<~ ~ ~ [~ ~ ~ ~ ~ ~ sd sd]>";
+const SNARE_BUILD = "<~!4 [~ ~ sd ~]!2 [sd*8] [sd*16]>";
+const HATS_BUILD = "<[hh*4]!4 [hh*8]!2 [hh*16]!2>";
+const BASS_BUILD = (four: string, eight: string): string => `<c2 f2 c2 f2 ${four} ${eight}>`;
+const COMP_BUILD = "<x!4 [x x x x]!2 [x*8]!2>";
+const OUTRO_BASS = "<[c2@3 ~] [f2@3 ~]>";
+
+/** Pop: the default kit, piano, picked bass. The riff parts pump the piano on 1, 2 and 3; the loud parts in eighths. */
+const POP: Kit = {
+  bank: "",
+  sounds: { bass: "ebass", chords: "piano", lead: "piano", vox: "strings" },
+  gain: { kick: 0.7, snare: 0.6, hats: 0.4, perc: 0.35, bass: 0.85, chords: 0.4, lead: 0.5, vox: 0.3 },
+  room: 0.25,
+  lpf: 800,
+  chordsPan: 0.42,
+  leadPan: 0.58,
+  kick: {
+    intro: v("<~ ~ [bd ~ bd ~] [bd ~ bd ~]>"),
+    verse1: v("bd ~ ~ bd bd ~ ~ ~"),
+    chorus1: v("bd ~ ~ bd bd ~ ~ ~"),
+    verse2: v("bd ~ ~ bd bd ~ ~ ~"),
+    bridge: v("<bd!4 [bd ~ bd ~]!2 [bd bd bd bd]!2>"),
+    chorus2: v("bd ~ ~ bd bd ~ ~ ~"),
+    outro: v("bd ~ ~ bd ~ ~ ~ ~"),
+    end: v("bd"),
+  },
+  snare: {
+    intro: v(SNARE_PICKUP),
+    verse1: v("<[~ sd ~ sd]!7 [~ sd ~ [sd sd]]>"),
+    chorus1: v("<[~ [sd,cp] ~ [sd,cp]]!7 [~ [sd,cp] [~ sd] [sd sd]]>"),
+    verse2: v("<[~ sd ~ sd]!7 [~ sd ~ [sd sd]]>"),
+    bridge: v(SNARE_BUILD),
+    chorus2: v("<[~ [sd,cp] ~ [sd,cp]]!7 [~ [sd,cp] [~ sd] [sd sd]]>"),
+    outro: v("~ ~ sd ~"),
+    end: null,
+  },
+  hats: {
+    intro: v("<~ ~ [hh*8] [hh*8]>", V8),
+    verse1: v("hh*8", V8),
+    chorus1: v("[hh hh hh oh]*2", V8),
+    verse2: v("hh*8", V8),
+    bridge: v(HATS_BUILD),
+    chorus2: v("[hh hh hh oh]*2", V8),
+    outro: v("hh*4", V4),
+    end: null,
+  },
+  perc: {
+    intro: null,
+    verse1: v("<cr ~!7>"),
+    chorus1: v("<[cr, [~ tb ~ tb]] [~ tb ~ tb]!3 [cr, [~ tb ~ tb]] [~ tb ~ tb]!3>"),
+    verse2: v("<[cr, [~ tb ~ tb]] [~ tb ~ tb]!7>"),
+    bridge: v("<cr ~!3 [sh*8]!4>"),
+    chorus2: v("<[cr, tb*8] [tb*8]!3 [cr, tb*8] [tb*8]!3>"),
+    outro: v("<cr ~!7>"),
+    end: v("cr"),
+  },
+  bass: {
+    intro: "<~ ~ [c2 c2] [f2 f2]>",
+    verse1: "<[c2@3 c2 c2@3 e2] [f2@3 f2 f2@3 g2]>",
+    chorus1: "<[c2 c2 c2 c2 c2 c2 c2 e2] [f2 f2 f2 f2 f2 f2 f2 g2]>",
+    verse2: "<[c2@3 c2 c2@3 e2] [f2@3 f2 f2@3 g2]>",
+    bridge: BASS_BUILD("[c2*8] [f2*8]", "[c2*8] [f2*8]"),
+    chorus2: "<[c2 c2 c2 c2 c2 c2 c2 e2] [f2 f2 f2 f2 f2 f2 f2 g2]>",
+    outro: OUTRO_BASS,
+    end: "c2",
+  },
+  comp: {
+    intro: "x x",
+    verse1: "x x x ~",
+    chorus1: "x*8",
+    verse2: "x x x ~",
+    bridge: COMP_BUILD,
+    chorus2: "x*8",
+    outro: "x ~",
+    end: "x",
+  },
+};
+
+/** Indie: LinnDrum, clean guitar, acoustic lead. The riff parts sit back (snare on 3); the loud parts go four on the floor. */
+const INDIE: Kit = {
+  bank: "LinnDrum",
+  sounds: { bass: "ebass", chords: "cleangtr", lead: "acgtr", vox: "triangle" },
+  gain: { kick: 0.7, snare: 0.6, hats: 0.4, perc: 0.35, bass: 0.85, chords: 0.4, lead: 0.5, vox: 0.25 },
+  room: 0.3,
+  lpf: 750,
+  chordsPan: 0.38,
+  leadPan: 0.62,
+  kick: {
+    intro: v("<~ ~ [bd ~ bd ~] [bd ~ bd ~]>"),
+    verse1: v("bd ~ ~ ~ ~ bd ~ ~"),
+    chorus1: v("bd*4"),
+    verse2: v("bd ~ ~ ~ ~ bd ~ ~"),
+    bridge: v("<bd!4 [bd ~ ~ ~ ~ bd ~ ~]!2 [bd*4]!2>"),
+    chorus2: v("bd*4"),
+    outro: v("bd ~ ~ ~"),
+    end: v("bd"),
+  },
+  snare: {
+    intro: v(SNARE_PICKUP),
+    verse1: v("<[~ ~ sd ~]!7 [~ ~ sd [sd sd]]>"),
+    chorus1: v("<[~ sd ~ sd]!7 [~ sd [~ sd] [sd sd]]>"),
+    verse2: v("<[~ ~ sd ~]!7 [~ ~ sd [sd sd]]>"),
+    bridge: v(SNARE_BUILD),
+    chorus2: v("<[~ sd ~ sd]!7 [~ sd [~ sd] [sd sd]]>"),
+    outro: v("~ ~ sd ~"),
+    end: null,
+  },
+  hats: {
+    intro: v("<~ ~ [hh*8] [hh*8]>", V8),
+    verse1: v("hh*8", V8),
+    chorus1: v("[hh oh]*4", V8),
+    verse2: v("hh*8", V8),
+    bridge: v(HATS_BUILD),
+    chorus2: v("[hh oh]*4", V8),
+    outro: v("hh*4", V4),
+    end: null,
+  },
+  perc: {
+    intro: null,
+    verse1: v("<cr ~!7>"),
+    chorus1: v("<[cr, [~ tb ~ tb]] [~ tb ~ tb]!3 [cr, [~ tb ~ tb]] [~ tb ~ tb]!3>"),
+    verse2: v("<[cr, [~ tb ~ tb]] [~ tb ~ tb]!7>"),
+    bridge: v("<cr ~!3 [sh*8]!4>"),
+    chorus2: v("<[cr, tb*8] [tb*8]!3 [cr, tb*8] [tb*8]!3>"),
+    outro: v("<cr ~!7>"),
+    end: v("cr"),
+  },
+  bass: {
+    intro: "<~ ~ [c2 c2] [f2 f2]>",
+    verse1: "<[c2@5 c2@3] [f2@5 f2@3]>",
+    chorus1: "<[c2 c3]*4 [f2 f3]*4>",
+    verse2: "<[c2@5 c2@3] [f2@5 f2@3]>",
+    bridge: BASS_BUILD("[c2*8] [f2*8]", "[c2 c3]*4 [f2 f3]*4"),
+    chorus2: "<[c2 c3]*4 [f2 f3]*4>",
+    outro: OUTRO_BASS,
+    end: "c2",
+  },
+  comp: {
+    intro: "x ~ ~ ~ x ~ ~ ~",
+    verse1: "x ~ x ~ x x ~ ~",
+    chorus1: "x*8",
+    verse2: "x ~ x ~ x x ~ ~",
+    bridge: COMP_BUILD,
+    chorus2: "x*8",
+    outro: "x ~ x ~ ~ ~ ~ ~",
+    end: "x",
+  },
+};
+
+/**
+ * Jazz-soul: Oak's brushes kit, Rhodes, upright bass, vibes. Straight and in triads until U03 (FLAVOUR_RULES). The riff
+ * parts on cross-stick and hats, the loud parts on the snare and the ride; the bass walks root and fifth.
+ */
+const JAZZ: Kit = {
+  bank: "jazzkit",
+  sounds: { bass: "upright", chords: "rhodes", lead: "vibes", vox: "jazzgtr" },
+  gain: { kick: 0.6, snare: 0.55, hats: 0.35, perc: 0.35, bass: 0.85, chords: 0.45, lead: 0.55, vox: 0.35 },
+  room: 0.35,
+  lpf: 900,
+  chordsPan: 0.4,
+  leadPan: 0.6,
+  kick: {
+    intro: v("<~ ~ [bd ~ bd ~] [bd ~ bd ~]>"),
+    verse1: v("bd ~ ~ bd ~ ~ ~ ~"),
+    chorus1: v("bd ~ ~ bd bd ~ ~ ~"),
+    verse2: v("bd ~ ~ bd ~ ~ ~ ~"),
+    bridge: v("<bd!4 [bd ~ ~ bd ~ ~ ~ ~]!2 [bd ~ ~ bd bd ~ ~ ~]!2>"),
+    chorus2: v("bd ~ ~ bd bd ~ ~ ~"),
+    outro: v("bd ~ ~ bd ~ ~ ~ ~"),
+    end: v("bd"),
+  },
+  snare: {
+    intro: v(SNARE_PICKUP),
+    verse1: v("<[~ rim ~ rim]!7 [~ rim ~ [sd sd]]>"),
+    chorus1: v("<[~ sd ~ sd]!7 [~ sd [~ sd] [sd sd]]>"),
+    verse2: v("<[~ rim ~ rim]!7 [~ rim ~ [sd sd]]>"),
+    bridge: v("<~!4 [~ ~ rim ~]!2 [~ sd ~ sd] [sd*8]>"),
+    chorus2: v("<[~ sd ~ sd]!7 [~ sd [~ sd] [sd sd]]>"),
+    outro: v("~ ~ rim ~"),
+    end: null,
+  },
+  hats: {
+    intro: v("<~ ~ [hh*8] [hh*8]>", V8),
+    verse1: v("hh*8", V8),
+    chorus1: v("~ hh ~ hh"),
+    verse2: v("hh*8", V8),
+    bridge: v("<[~ hh ~ hh]!4 [hh*8]!4>"),
+    chorus2: v("~ hh ~ hh"),
+    outro: v("~ hh ~ hh"),
+    end: null,
+  },
+  // The kit has no crash: the ride marks the downbeats and carries the loud parts.
+  perc: {
+    intro: null,
+    verse1: v("<rd ~!7>"),
+    chorus1: v("rd*8", V8),
+    verse2: v("<[rd, [~ sh ~ sh]] [~ sh ~ sh]!7>"),
+    bridge: v("<rd ~!3 [sh*8]!4>"),
+    chorus2: v("[rd*8, [~ sh]*4]"),
+    outro: v("<rd ~!7>"),
+    end: v("rd"),
+  },
+  bass: {
+    intro: "<~ ~ [c2 g2] [f2 c3]>",
+    verse1: "<[c2@3 c2 g2@3 ~] [f2@3 f2 c3@3 ~]>",
+    chorus1: "<[c2@3 c2 e2@2 g2@2] [f2@3 f2 a2@2 c3@2]>",
+    verse2: "<[c2@3 c2 g2@3 ~] [f2@3 f2 c3@3 ~]>",
+    bridge: BASS_BUILD("[c2@3 c2 g2@3 ~] [f2@3 f2 c3@3 ~]", "[c2@3 c2 e2@2 g2@2] [f2@3 f2 a2@2 c3@2]"),
+    chorus2: "<[c2@3 c2 e2@2 g2@2] [f2@3 f2 a2@2 c3@2]>",
+    outro: OUTRO_BASS,
+    end: "c2",
+  },
+  comp: {
+    intro: "x x",
+    verse1: "x@3 x@3 ~@2",
+    chorus1: "x@3 x@3 x@2",
+    verse2: "x@3 x@3 ~@2",
+    bridge: "<x!4 [x@3 x@3 ~@2]!2 [x@3 x@3 x@2]!2>",
+    chorus2: "x@3 x@3 x@2",
+    outro: "x@3 x ~@4",
+    end: "x",
+  },
+};
+
+const FUNK_KICK = "bd ~ ~ bd ~ ~ bd ~ ~ ~ bd ~ ~ ~ ~ ~";
+const FUNK_BASS_C = "c2 ~ ~ c2 ~ ~ c3 ~ ~ ~ c2 ~ ~ ~ ~ ~";
+const FUNK_BASS_F = "f2 ~ ~ f2 ~ ~ f3 ~ ~ ~ f2 ~ ~ ~ ~ ~";
+const FUNK_PUSH_C = "c2 ~ c3 c2 ~ ~ c3 ~ c2 ~ c2 ~ c3 ~ ~ ~";
+const FUNK_PUSH_F = "f2 ~ f3 f2 ~ ~ f3 ~ f2 ~ f2 ~ f3 ~ ~ ~";
+const FUNK_BACKBEAT = "~ ~ ~ ~ sd ~ ~ ~ ~ ~ ~ ~ sd ~ ~ ~";
+const FUNK_CLAP = "~ ~ ~ ~ [sd,cp] ~ ~ ~ ~ ~ ~ ~ [sd,cp] ~ ~ ~";
+
+/**
+ * Funk: the 808, clavinet, finger bass, organ lead, horns on the second line. Sixteenths, straight; the kick and the
+ * octave-popping bass lock on 1, the "a" of 1, the "and" of 2 and the "and" of 3. In the quiet part strings hold the
+ * chords before the clavinet comes back for the build.
+ */
+const FUNK: Kit = {
+  bank: "RolandTR808",
+  sounds: { bass: "fingerbass", chords: "clav", lead: "organ", vox: "horns" },
+  gain: { kick: 0.7, snare: 0.6, hats: 0.35, perc: 0.3, bass: 0.85, chords: 0.4, lead: 0.4, vox: 0.3 },
+  room: 0.2,
+  lpf: 850,
+  chordsPan: 0.42,
+  leadPan: 0.58,
+  kick: {
+    intro: v(`<~ ~ [${FUNK_KICK}]!2>`),
+    verse1: v(FUNK_KICK),
+    chorus1: v("bd ~ ~ bd ~ ~ bd ~ bd ~ bd ~ ~ ~ ~ ~"),
+    verse2: v(FUNK_KICK),
+    bridge: v(`<bd!4 [${FUNK_KICK}]!2 [bd ~ bd ~ bd ~ bd ~]!2>`),
+    chorus2: v("bd ~ ~ bd ~ ~ bd ~ bd ~ bd ~ ~ ~ ~ ~"),
+    outro: v("bd ~ ~ ~ ~ ~ bd ~ ~ ~ ~ ~ ~ ~ ~ ~"),
+    end: v("bd"),
+  },
+  snare: {
+    intro: v("<~ ~ ~ [~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ sd sd sd sd]>"),
+    verse1: v(`<[${FUNK_BACKBEAT}]!7 [~ ~ ~ ~ sd ~ ~ ~ ~ ~ ~ ~ sd ~ sd sd]>`),
+    chorus1: v(`<[${FUNK_CLAP}]!7 [~ ~ ~ ~ [sd,cp] ~ ~ ~ ~ ~ sd ~ sd sd sd sd]>`),
+    verse2: v(`<[${FUNK_BACKBEAT}]!7 [~ ~ ~ ~ sd ~ ~ ~ ~ ~ ~ ~ sd ~ sd sd]>`),
+    bridge: v(SNARE_BUILD),
+    chorus2: v(`<[${FUNK_CLAP}]!7 [~ ~ ~ ~ [sd,cp] ~ ~ ~ ~ ~ sd ~ sd sd sd sd]>`),
+    outro: v("~ ~ sd ~"),
+    end: null,
+  },
+  hats: {
+    intro: v("<~ ~ [hh*16] [hh*16]>", V16),
+    verse1: v("hh*16", V16),
+    chorus1: v("[hh hh hh hh hh hh oh hh]*2", V16),
+    verse2: v("hh*16", V16),
+    bridge: v(HATS_BUILD),
+    chorus2: v("[hh hh hh hh hh hh oh hh]*2", V16),
+    outro: v("hh*8", V8),
+    end: null,
+  },
+  perc: {
+    intro: null,
+    verse1: v("<cr ~!7>"),
+    chorus1: v("<[cr, [~ cb ~ cb]] [~ cb ~ cb]!3 [cr, [~ cb ~ cb]] [~ cb ~ cb]!3>"),
+    verse2: v("<[cr, [~ cb ~ cb]] [~ cb ~ cb]!7>"),
+    bridge: v("<cr ~!3 [sh*8]!4>"),
+    chorus2: v("<[cr, [~ cb]*4] [[~ cb]*4]!3 [cr, [~ cb]*4] [[~ cb]*4]!3>"),
+    outro: v("<cr ~!7>"),
+    end: v("cr"),
+  },
+  bass: {
+    intro: `<~ ~ [${FUNK_BASS_C}] [${FUNK_BASS_F}]>`,
+    verse1: `<[${FUNK_BASS_C}] [${FUNK_BASS_F}]>`,
+    chorus1: `<[${FUNK_PUSH_C}] [${FUNK_PUSH_F}]>`,
+    verse2: `<[${FUNK_BASS_C}] [${FUNK_BASS_F}]>`,
+    bridge: BASS_BUILD(`[${FUNK_BASS_C}] [${FUNK_BASS_F}]`, `[${FUNK_PUSH_C}] [${FUNK_PUSH_F}]`),
+    chorus2: `<[${FUNK_PUSH_C}] [${FUNK_PUSH_F}]>`,
+    outro: OUTRO_BASS,
+    end: "c2",
+  },
+  comp: {
+    intro: "~ ~ x ~ ~ ~ x ~ ~ ~ x ~ ~ ~ ~ ~",
+    verse1: "~ ~ x ~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~ ~",
+    chorus1: "x ~ x ~ ~ x ~ x ~ ~ x ~ x ~ ~ ~",
+    verse2: "~ ~ x ~ ~ ~ x ~ ~ x ~ ~ ~ ~ ~ ~",
+    bridge: "<x!4 [x x x x]!2 [x ~ x ~ ~ x ~ x ~ ~ x ~ x ~ ~ ~]!2>",
+    chorus2: "x ~ x ~ ~ x ~ x ~ ~ x ~ x ~ ~ ~",
+    outro: "x ~ ~ x ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~",
+    end: "x",
+  },
+  chordSound: { bridge: "<strings!4 clav!4>" },
+};
+
+const KITS: Readonly<Record<FlavourId, Kit>> = {
+  "flavour.pop": POP,
+  "flavour.indie": INDIE,
+  "flavour.jazz-soul": JAZZ,
+  "flavour.funk": FUNK,
+};
+
+const mapSections = (f: (id: SectionId) => string | null): BySection =>
+  Object.fromEntries(SECTIONS.map((s) => [s.id, f(s.id)])) as Record<SectionId, string | null>;
+
+/** One flavour's song: the tune first, then the chords, the bass and the drums, each one arranged track. */
+function code(flavour: FlavourId): string {
+  const k = KITS[flavour];
   const bank = k.bank ? `.bank("${k.bank}")` : "";
+  const chords = mapSections((id) => {
+    const sound = k.chordSound?.[id] ?? k.sounds.chords;
+    return `note("${CHORD_NOTES[id]}").struct("${k.comp[id]}").s("${sound}")`;
+  });
+  const bass = mapSections((id) => {
+    const line = k.bass[id];
+    return line === null ? null : `note("${line}")`;
+  });
   const tracks = [
-    track(
-      "kick",
-      {
-        intro: 's("bd ~ ~ ~")',
-        verse: 's("bd ~ bd ~")',
-        chorus: 's("bd ~ [~ bd] ~")',
-        bridge: 's("bd ~ ~ ~")',
-        outro: 's("bd ~ ~ ~")',
-      },
-      `${bank}.gain(.75)`,
-    ),
-    track(
-      "snare",
-      { verse: 's("~ sd ~ sd")', chorus: 's("~ sd ~ sd")', bridge: 's("~ ~ sd ~")' },
-      `${bank}.gain(.7)`,
-    ),
-    track(
-      "hats",
-      { intro: 's("hh*4")', verse: 's("hh*8")', chorus: `s("${k.chorusHats}")`, bridge: 's("hh*4")' },
-      `${bank}.gain(.4)`,
-    ),
-    track(
-      "perc",
-      {
-        intro: `s("<${k.crash} ~ ~ ~>")`,
-        chorus: `s("<${k.crash} ~ ~ ~ ~ ~ ~ ~>")`,
-        outro: `s("<${k.crash} ~ ~ ~>")`,
-      },
-      `${bank}.gain(.45)`,
-    ),
-    track(
-      "bass",
-      each((t) => `n("<0 3>").struct("${t === "outro" ? "x ~ ~ ~" : k.bassGroove}")`),
-      `.scale("C2:major").s("${k.bass}").lpf(${k.lpf}).gain(.9)`,
-    ),
+    track("mel", MEL, `.s("${k.sounds.lead}").gain(${num(k.gain.lead)}).pan(${num(k.leadPan)})`),
+    track("vox", VOX, `.s("${k.sounds.vox}").gain(${num(k.gain.vox)}).pan(.45).room(${num(k.room)})`),
     track(
       "chords",
-      each((t) => `n("<[0,2,4] [0,3,5]>").struct("${t === "outro" ? "x ~ ~ ~" : k.comp}")`),
-      `.scale("C3:major").s("${k.chords}").gain(.4).pan(${num(k.chordsPan)}).room(${num(k.room)})`,
+      chords,
+      `.velocity("${V4}").gain(${num(k.gain.chords)}).pan(${num(k.chordsPan)}).room(${num(k.room)})`,
     ),
-    // The riff sits on chord tones over C then F: C and its octave; E G E C | F A C A; C G E | A F C.
-    track(
-      "mel",
-      {
-        intro: 'n("[0 ~ 7 ~]")',
-        verse: 'n("<[2 4 2 0] [3 5 7 5]>")',
-        chorus: 'n("<[7 ~ 4 2] [5 ~ 3 0]>")',
-        bridge: 'n("<[4 ~ ~ ~] [5 ~ ~ ~]>")',
-        outro: 'n("<[7 ~ 4 ~] [5 ~ ~ ~] [4 ~ 2 ~] [0 ~ ~ ~]>")',
-      },
-      `.scale("C4:major").s("${k.lead}").gain(.5).pan(${num(k.leadPan)}).room(${num(k.room)})`,
-    ),
+    track("bass", bass, `.s("${k.sounds.bass}").lpf(${k.lpf}).gain(${num(k.gain.bass)})`),
+    track("kick", k.kick, `${bank}.gain(${num(k.gain.kick)})`),
+    track("snare", k.snare, `${bank}.gain(${num(k.gain.snare)})`),
+    track("hats", k.hats, `${bank}.gain(${num(k.gain.hats)})`),
+    track("perc", k.perc, `${bank}.gain(${num(k.gain.perc)})`),
   ];
   return [...tracks.flatMap((t) => t.consts), "", ...tracks.map((t) => t.line)].join("\n");
 }
 
 const take = (
   lesson: TakeStep["lesson"],
-  sections: TakeStep["sections"],
+  sections: SectionId[],
+  parts: SongPartId[],
+  startFrom: TakeStep["startFrom"],
   today: string,
-  startFrom: TakeStep["startFrom"] = "oak",
-): TakeStep => ({ lesson, kind: "take", sections, parts: ["lead"], startFrom, today });
+): TakeStep => ({ lesson, kind: "take", sections, parts, startFrom, today });
 
 export const U02_SONG = defineUnitSong({
   id: "usong.U02",
@@ -192,8 +548,12 @@ export const U02_SONG = defineUnitSong({
   meter: "4/4",
   key: { tonic: "C", mode: "major" },
   bpm: 96,
-  sections: SECTIONS,
+  sections: [...SECTIONS],
   parts: [
+    { id: "lead", label: "mel", role: "melody", name: "Melody", plainName: "Tune" },
+    { id: "vox", label: "vox", role: "melody", name: "Second line", plainName: "Second line" },
+    { id: "chords", label: "chords", role: "chords", name: "Chords", plainName: "Chords" },
+    { id: "bass", label: "bass", role: "bass", name: "Bass", plainName: "Bass" },
     { id: "kick", label: "kick", role: "drums", sounds: ["bd"], name: "Kick", plainName: "Kick" },
     {
       id: "snare",
@@ -209,28 +569,70 @@ export const U02_SONG = defineUnitSong({
       label: "perc",
       role: "drums",
       sounds: ["cr", "rd", "lt", "mt", "ht", "sh", "cb", "tb"],
-      name: "Cymbals and toms",
-      plainName: "Cymbals and toms",
+      name: "Cymbals and percussion",
+      plainName: "Cymbals and percussion",
     },
-    { id: "bass", label: "bass", role: "bass", name: "Bass", plainName: "Bass" },
-    { id: "chords", label: "chords", role: "chords", name: "Chords", plainName: "Chords" },
-    { id: "lead", label: "mel", role: "melody", name: "Melody", plainName: "Tune" },
   ],
   code: Object.fromEntries(FLAVOUR_IDS.map((f) => [f, code(f)])) as Record<FlavourId, string>,
+  // By part (AUTHORING §23.6): the learner writes the tune, so each step hands over the tune of one or two sections,
+  // and the second line wherever Oak's double or echo would sound against the learner's own tune.
   plan: [
-    take("U02.L01", ["intro"], "Your high and low notes open the song."),
-    take("U02.L02", ["verse"], "Your four-note tune takes over the second part of the song."),
+    take(
+      "U02.L01",
+      ["intro"],
+      ["lead"],
+      "oak",
+      "Your riff on c opens the song, in place of Oak's tune in the first four bars.",
+    ),
+    take(
+      "U02.L02",
+      ["verse1"],
+      ["lead"],
+      "oak",
+      "Your white-key riff takes over the tune in the second part of the song.",
+    ),
     take(
       "U02.L03",
-      ["verse"],
-      "Your tune from the last lesson gets one black key, still in the second part.",
+      ["verse2"],
+      ["lead"],
       "U02.L02",
+      "Your riff from The White Keys comes back in the fourth part, with one black key in it.",
     ),
-    take("U02.L04", ["chorus1"], "A tune you read off the page takes over the first big part."),
-    take("U02.L05", ["chorus2"], "A moved copy of your tune answers in the last big part."),
-    take("U02.L06", ["chorus1", "chorus2"], "A second sound doubles your tune in both big parts."),
-    take("U02.L07", ["bridge"], "A short call, with room for you to sing back, fills the quiet part."),
-    take("U02.L08", ["outro"], "Your tune, with a room sound around it, ends the song."),
+    take(
+      "U02.L04",
+      ["chorus1"],
+      ["lead", "vox"],
+      "oak",
+      "Your own tune, higher than the riffs, takes over the first loud part of the song.",
+    ),
+    take(
+      "U02.L05",
+      ["chorus2"],
+      ["lead", "vox"],
+      "U02.L04",
+      "Your tune from The Treble Staff plays the last loud part too, with a moved copy beside it.",
+    ),
+    take(
+      "U02.L06",
+      ["chorus1"],
+      ["lead", "vox"],
+      "U02.L04",
+      "Your tune in the first loud part gets a second line: the same notes on another sound.",
+    ),
+    take(
+      "U02.L07",
+      ["bridge"],
+      ["lead", "vox"],
+      "oak",
+      "Your short call fills the quiet part before the last loud part, with gaps for you to sing back.",
+    ),
+    take(
+      "U02.L08",
+      ["outro"],
+      ["lead"],
+      "oak",
+      "A tune you read off the page, placed in a room, ends your song.",
+    ),
   ],
   releaseAfter: "U02.CP",
 });

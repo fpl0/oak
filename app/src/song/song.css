@@ -1,0 +1,115 @@
+/* The unit song's surfaces (spec 2026-11-24 §5.5): Oak's cells pencilled in, the learner's inked, the playhead, and
+   the one moment of the Coda, where the cells a lesson took fill in bar by bar. Durations are the motion tokens
+   (120 / 200 / 360 ms); reduced motion (system or Settings → Appearance) shows the end state at once. */
+
+/* Oak's cells: an outline with a faint pencil hatch, so they read as "still Oak's" next to the filled ones. */
+.oak-song-oak {
+  background-image: repeating-linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--oak-text-3) 16%, transparent) 0 1px,
+    transparent 1px 5px
+  );
+}
+
+/* The learner's cells: solid in the part's colour, with a thin lighter top edge so a row reads as one strip. */
+.oak-song-yours {
+  box-shadow: inset 0 1px 0 color-mix(in oklab, white 22%, transparent);
+}
+
+/* Today's cells: the cells this lesson takes. */
+.oak-song-today {
+  background: color-mix(in oklab, var(--oak-accent) 16%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--oak-accent);
+}
+
+/* The section under the playhead brightens its cells a little. */
+.oak-song-cell[data-playing="1"] {
+  filter: brightness(1.12) saturate(1.1);
+}
+
+/* The playhead: a thin acorn line with a soft glow, moved by script (left %), never by a CSS transition. */
+.oak-song-playhead {
+  background: var(--oak-accent-2);
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--oak-accent-2) 30%, transparent),
+    0 0 10px color-mix(in oklab, var(--oak-accent-2) 45%, transparent);
+}
+
+/* The Coda's moment: a cell the lesson just took fills from its first bar to its last, one after another. */
+.oak-song-fresh {
+  transform-origin: 0 50%;
+  animation: oak-song-fill var(--oak-dur-slow, 360ms) var(--oak-ease-out, cubic-bezier(0.2, 0.8, 0.2, 1)) both;
+  animation-delay: calc(var(--i, 0) * 90ms + 240ms);
+}
+@keyframes oak-song-fill {
+  from {
+    transform: scaleX(0);
+    opacity: 0.4;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* A fresh cell keeps a ring for a moment after it fills, then lets it go. */
+.oak-song-fresh::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  box-shadow: 0 0 0 2px var(--oak-accent-2);
+  opacity: 0;
+  animation: oak-song-ring 1400ms var(--oak-ease-out, cubic-bezier(0.2, 0.8, 0.2, 1)) both;
+  animation-delay: calc(var(--i, 0) * 90ms + 600ms);
+}
+@keyframes oak-song-ring {
+  0% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* The play button breathes while its song plays (a slow ring, not a spinner). */
+.oak-song-breathe::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  border: 1.5px solid var(--oak-accent);
+  opacity: 0;
+  animation: oak-song-breathe 2400ms ease-out infinite;
+}
+@keyframes oak-song-breathe {
+  0% {
+    opacity: 0.6;
+    transform: scale(0.92);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
+
+[data-motion="reduced"] .oak-song-fresh,
+[data-motion="reduced"] .oak-song-fresh::after,
+[data-motion="reduced"] .oak-song-breathe::before {
+  animation: none;
+}
+[data-motion="reduced"] .oak-song-fresh::after,
+[data-motion="reduced"] .oak-song-breathe::before {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) .oak-song-fresh,
+  :root:not([data-motion="full"]) .oak-song-fresh::after,
+  :root:not([data-motion="full"]) .oak-song-breathe::before {
+    animation: none;
+  }
+  :root:not([data-motion="full"]) .oak-song-fresh::after,
+  :root:not([data-motion="full"]) .oak-song-breathe::before {
+    opacity: 0;
+  }
+}

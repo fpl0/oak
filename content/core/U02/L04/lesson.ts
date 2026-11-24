@@ -41,7 +41,7 @@ const NOTE_FEEDBACK = {
 
 export default defineLesson({
   id: "U02.L04",
-  version: 3,
+  version: 4,
   title: "The Treble Staff",
   objective: "I can read and write notes from c4 to f5 on the treble staff and play them in code.",
   key: { tonic: "C", mode: "major" },
@@ -302,7 +302,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a melody on the `mel:` line that stays on the staff: every note from `e4`, the bottom line, to `f5`, the top line, so no ledger lines. Done when no note is below `e4` or above `f5`.",
+          "Write a melody on the `mel:` line for the first loud part of your song, and keep it on the staff: every note from `e4`, the bottom line, to `f5`, the top line, so no ledger lines. Done when no note is below `e4` or above `f5`.",
         skills: [{ skill: "N02", w: 1 }],
         code: { starter: mel("c4 e4 g4 c5") },
         bars: [1, 4],

@@ -57,7 +57,7 @@ const TAP_FEEDBACK = {
 
 export default defineLesson({
   id: "U01.L03",
-  version: 5,
+  version: 6,
   title: "Backbeat",
   objective: "I can put the kick on 1 and 3 and the snare on 2 and 4, one labelled line per drum.",
   key: { tonic: "C", mode: "major" },
@@ -387,7 +387,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write your own backbeat, one line per drum, on any kit. The snare plays on beats 2 and 4 and not on 1 or 3. Everything else is yours.",
+          "Write the backbeat for your song's second part, one line per drum, on any kit. The snare plays on beats 2 and 4 and not on 1 or 3. Everything else is yours.",
         skills: [{ skill: "R04", w: 1 }],
         code: { starter: code(KICK, HATS) },
         bars: [1, 2],

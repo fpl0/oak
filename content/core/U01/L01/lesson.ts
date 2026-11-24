@@ -42,7 +42,7 @@ const TAP_FEEDBACK = {
 
 export default defineLesson({
   id: "U01.L01",
-  version: 3,
+  version: 4,
   title: "Heartbeat",
   objective: "I can find the beat, set a tempo with setcpm, and write a one-bar beat on one line.",
   key: { tonic: "C", mode: "major" },
@@ -378,7 +378,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a one-bar drum beat at a tempo you choose. The starter plays one kick per bar: give each of the four beats its own sound. Done when a sound starts on every beat.",
+          "Write the one-bar drum beat that opens your song, at a tempo you choose. The starter plays one kick per bar: give each of the four beats its own sound. Done when a sound starts on every beat.",
         skills: [
           { skill: "R01", w: 0.5 },
           { skill: "R02", w: 0.25 },
