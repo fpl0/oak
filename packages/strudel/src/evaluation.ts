@@ -2,12 +2,24 @@
 // - the `.p` wrapper installed in `beforeEval` (repl.evaluate re-injects `Pattern.prototype.p` first, so
 //   this is the one place it is this repl's fresh collector): it tags every hap with its track and applies
 //   UI mute and solo as a LIVE filter, never a code rewrite (contracts §6.2 rule 3);
-// - the Band layer, evaluated separately and stacked as `band.<label>` (contracts §5.10);
+// - the Band layer, evaluated separately and stacked as `band.<label>` (contracts §5.10), or a unit song (spec §5.2):
+//   Oak's code and the saved takes evaluated separately, composed by song-compose.ts once the evaluation's own code
+//   (the live Make) is known, and stacked as `band.oak.<label>` and `band.take.<lessonId>.<label>`;
 // - the final `editPattern` step: Band stack, mute of untagged and Band haps, transposition, painter.
+import { bpmToCps } from "@oak/theory";
 import * as core from "@strudel/core";
 import { transpiler } from "@strudel/transpiler";
+import type { PreparedBand } from "./band.ts";
 import { TRACK_KEY } from "./haps.ts";
 import { isMuted, trackNameOf } from "./mutes.ts";
+import {
+  type BuiltSong,
+  buildSong,
+  type FinishedSong,
+  finishSong,
+  type SongBand,
+  type SongCheck,
+} from "./song-compose.ts";
 import type { MuteMap } from "./types.ts";
 
 type Pattern = Strudel.Pattern;
@@ -20,10 +32,22 @@ export interface EvalSession {
   /** The repl's own evaluation error (onEvalError), if any. */
   error: unknown;
   anonymous: number;
+  /** The learner's tracks as the `.p` wrapper saw them, untagged: what a song's live Make plays. */
+  live: { label: string; pattern: Pattern }[];
+  /**
+   * A unit song evaluated in `beforeEval` (`evaluateSongBand`). It is composed in `finalizePattern`, once the
+   * evaluation's own tracks are known, and fills `band` then.
+   */
+  song: {
+    built: BuiltSong;
+    liveCode: string;
+    finished: FinishedSong | null;
+    band: EvalSession["band"];
+  } | null;
 }
 
 export function newSession(): EvalSession {
-  return { tracks: [], band: [], error: null, anonymous: 0 };
+  return { tracks: [], band: [], error: null, anonymous: 0, live: [], song: null };
 }
 
 type ContextFn = (fn: (context: Record<string, unknown>) => Record<string, unknown>) => Pattern;
@@ -47,6 +71,7 @@ export function installTrackWrapper(session: EvalSession, mutes: () => MuteMap):
     if (track === null) return injected.call(this, id);
     if (id.includes("$")) session.anonymous++;
     session.tracks.push(track);
+    session.live.push({ label: track, pattern: this });
     const live = tag(this, track).filterHaps(() => !isMuted(track, mutes()));
     return injected.call(live, id);
   };
@@ -82,6 +107,114 @@ export async function evaluateBand(
     const clean = withContext(pattern, (context) => ({ ...context, locations: [], [TRACK_KEY]: track }));
     session.band.push({ track, pattern: clean });
   }
+}
+
+/** The repl's tempo functions: a song's sources are evaluated with them stubbed (spec §5.2, the song's tempo applies). */
+const TEMPO_FUNCTIONS = ["setcpm", "setcps", "setCpm", "setCps"] as const;
+
+/** Replaces the global tempo functions by no-ops until the returned function restores them. */
+function neutraliseTempo(): () => void {
+  const g = globalThis as Record<string, unknown>;
+  const saved = TEMPO_FUNCTIONS.map((name) => [name, Object.getOwnPropertyDescriptor(g, name)] as const);
+  for (const name of TEMPO_FUNCTIONS) g[name] = () => core.silence;
+  return () => {
+    for (const [name, descriptor] of saved) {
+      if (descriptor) Object.defineProperty(g, name, descriptor);
+      else delete g[name];
+    }
+  };
+}
+
+/**
+ * Evaluates code with a private `.p` collector (nothing reaches the repl's label map) and returns its labelled
+ * tracks, untagged, in source order with the repl's naming (`$:` → `$0`, `_x` muted, a repeated label keeps its
+ * first place and its last pattern). Code with no label is one track, `main`. `neutralTempo`: its `setcpm` and
+ * `setcps` do nothing. Throws when the code does not evaluate.
+ */
+export async function collectTracks(
+  code: string,
+  opts: { neutralTempo?: boolean } = {},
+): Promise<{ label: string; pattern: Pattern }[]> {
+  const proto = core.Pattern.prototype as Record<string, unknown>;
+  const saved = proto.p;
+  const collected = new Map<string, Pattern>();
+  let anonymous = 0;
+  proto.p = function (this: Pattern, id: unknown): Pattern {
+    if (typeof id !== "string") return this;
+    const { track } = trackNameOf(id, anonymous);
+    if (track === null) return core.silence as Pattern;
+    if (id.includes("$")) anonymous++;
+    collected.set(track, this);
+    return this;
+  };
+  const restore = opts.neutralTempo ? neutraliseTempo() : null;
+  let result: { pattern?: unknown } | undefined;
+  try {
+    result = (await core.evaluate(code, transpiler, { id: "oak_song_", emitWidgets: false })) as {
+      pattern?: unknown;
+    };
+  } finally {
+    proto.p = saved;
+    restore?.();
+  }
+  if (collected.size === 0 && core.isPattern(result?.pattern))
+    collected.set("main", result?.pattern as Pattern);
+  return [...collected].map(([label, pattern]) => ({ label, pattern }));
+}
+
+/** The scheduler's cycles per second for a song's tempo in its meter. */
+export function songCps(band: Pick<SongBand, "bpm" | "def">): number {
+  return bpmToCps(band.bpm, band.def.meter);
+}
+
+/**
+ * The unit-song counterpart of `evaluateBand`: evaluates Oak's code and every saved take that still owns a cell, each
+ * with a private collector and its own tempo neutralised, and keeps them on the session; `finalizePattern` composes
+ * them with the evaluation's own code (`liveCode`, the live Make). `check` is the Band lint (or the export's
+ * bounds): Oak's code failing it throws, a source failing it falls back to Oak. The caller sets the song's tempo
+ * (`songCps`) before the evaluation's own code runs, so a learner `setcpm` still wins.
+ */
+export async function evaluateSongBand(
+  session: EvalSession,
+  band: SongBand,
+  opts: { check?: SongCheck; liveCode?: string } = {},
+): Promise<void> {
+  const built = await buildSong(band, (code) => collectTracks(code, { neutralTempo: true }), opts.check);
+  session.song = { built, liveCode: opts.liveCode ?? "", finished: null, band: [] };
+}
+
+/** Evaluates what `prepareBandFor` prepared: Band code with its roles, or a unit song. */
+export async function evaluatePreparedBand(
+  prepared: PreparedBand,
+  session: EvalSession,
+  check?: SongCheck,
+): Promise<void> {
+  if (prepared.kind === "song")
+    await evaluateSongBand(session, prepared.song, {
+      liveCode: prepared.liveCode,
+      ...(check ? { check } : {}),
+    });
+  else await evaluateBand(prepared.code, prepared.roles, session);
+}
+
+/** Composes a session's song once (`finishSong`), tags its tracks, and returns it. */
+function composeSessionSong(session: EvalSession, learner: Pattern): NonNullable<EvalSession["song"]> | null {
+  const song = session.song;
+  if (!song) return null;
+  if (!song.finished) {
+    const live = song.built.band.live
+      ? {
+          tracks: session.live.length > 0 ? session.live : [{ label: "main", pattern: learner }],
+          code: song.liveCode,
+        }
+      : null;
+    song.finished = finishSong(song.built, live);
+    song.band = song.finished.tracks.map(({ track, pattern }) => ({
+      track,
+      pattern: withContext(pattern, (context) => ({ ...context, locations: [], [TRACK_KEY]: track })),
+    }));
+  }
+  return song;
 }
 
 /** A MIDI number for a note value: numbers pass, names go through Strudel's own `noteToMidi`. */
@@ -137,11 +270,19 @@ export function tapTrack(pattern: Pattern, scopeTrack: () => string | null): Pat
 }
 
 /**
- * The `editPattern` step: stack the Band, mute untagged (`main`) and Band haps live, transpose live.
+ * The `editPattern` step: compose a unit song, stack the Band, mute untagged (`main`) and Band haps live, transpose
+ * live.
  * The painter is added by the caller, last, so that nothing after it drops the painters.
  */
 export function finalizePattern(pattern: Pattern, opts: FinalizeOptions): Pattern {
   let out = pattern;
+  // A unit song: the evaluation's own code is the live Make, placed into today's sections; Oak and the saved takes
+  // are composed around it.
+  const song = composeSessionSong(opts.session, pattern);
+  if (song) {
+    opts.session.band = song.band;
+    if (song.finished?.place) out = song.finished.place(out);
+  }
   if (opts.session.band.length > 0)
     out = core.stack(out, ...opts.session.band.map((b) => b.pattern)) as Pattern;
   out = out.filterHaps((hap) => {

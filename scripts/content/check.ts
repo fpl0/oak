@@ -21,6 +21,7 @@ import { syllabus } from "../../content/syllabus.ts";
 import { type CheckSection, checkLesson } from "../../content/validate/checks.ts";
 import { backends } from "../../content/validate/harness.ts";
 import { checkCapstone, checkCheckpoint } from "../../content/validate/owners.ts";
+import { unitSongSection } from "../../content/validate/unit-songs.ts";
 
 const MAX_SHOWN = 8;
 const args = process.argv.slice(2);
@@ -157,11 +158,15 @@ for (const cp of checkpoints)
       `${cp.id} ${cp.title}  ${relative(process.cwd(), cps.files.get(cp.id) ?? `content/core/${cp.id.split(".")[0]}/CP/checkpoint.ts`)}`,
       await checkCheckpoint(cp),
     ) && ok;
-for (const l of targets)
+// Section 16, "Unit song" (spec 2026-11-24 §8), for a lesson in a unit song: the song, its plan and this lesson's step.
+const lessonOf = async (id: string) => lessons.find((x) => x.def.id === id && !x.sample)?.def ?? null;
+for (const l of targets) {
+  const song = l.sample ? null : await unitSongSection(l.def, { lessonOf });
   ok =
-    print(
-      `${l.def.id} ${l.def.title}${l.sample ? " (sample)" : ""}  ${relative(process.cwd(), l.file)}`,
-      await checkLesson(l),
-    ) && ok;
+    print(`${l.def.id} ${l.def.title}${l.sample ? " (sample)" : ""}  ${relative(process.cwd(), l.file)}`, [
+      ...(await checkLesson(l)),
+      ...(song ? [song] : []),
+    ]) && ok;
+}
 console.log(`\n${ok ? PASS : FAIL}  backends: ${JSON.stringify(backends())}`);
 process.exit(ok ? 0 : 1);

@@ -94,6 +94,11 @@ export interface SessionPlanCoursePort {
   trackPosition?(trackId: "J" | "R" | "A"): { sessionIndex: number; sessionsTotal: number };
   /** Wave 7 (wave7.md §5.8): the whole course's stage. */
   courseStage?(): NonNullable<SessionPlan["course"]>;
+  /**
+   * Unit songs (spec 2026-11-24 §5.5): the song of a lesson (its title, style, takes and today's line), or `null` when
+   * the lesson is in no song. Absent: plans carry no `song`.
+   */
+  songOf?(lessonId: LessonId): SessionPlan["song"];
 }
 export interface SessionPlanLearnerPort {
   profile(): { targetMinutes: 15 | 20 | 25; timeZone: string; rolloverHour: number };
@@ -240,7 +245,7 @@ export class SessionPlanService {
    * session has not ended), never as its New block.
    */
   today(now: Date, targetMinutes?: 15 | 20 | 25): SessionPlan {
-    const plan = this.#today(now, targetMinutes);
+    const plan = this.#withSong(this.#today(now, targetMinutes));
     const side = this.deps.course.sideLesson?.(plan) ?? null;
     if (side === null || side === undefined) return { ...plan, sideLesson: null };
     const alternatives =
@@ -248,6 +253,14 @@ export class SessionPlanService {
         ? [...plan.alternatives, { kind: "lesson" as const, mapItemId: side.lessonId, title: side.title }]
         : plan.alternatives;
     return { ...plan, alternatives, sideLesson: side };
+  }
+
+  /** Unit songs (spec 2026-11-24 §5.5): a planned lesson that is in a song carries that song; no key otherwise. */
+  #withSong(plan: SessionPlan): SessionPlan {
+    if (plan.kind !== "lesson" || plan.mapItemId === null || this.deps.course.songOf === undefined)
+      return plan;
+    const song = this.deps.course.songOf(plan.mapItemId as LessonId) ?? null;
+    return song === null ? plan : { ...plan, song };
   }
 
   #today(now: Date, targetMinutes?: 15 | 20 | 25): SessionPlan {

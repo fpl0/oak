@@ -15,7 +15,8 @@ export async function renderPiece(request: RenderPieceRequest): Promise<Rendered
   if (request.signal?.aborted) throw new PieceRenderError("aborted", "The export was cancelled.");
   // Read the source here, before a frame exists: a refusal costs no realm, and a piece that could never end
   // never reaches the frame, which shares this page's main thread (bounds.ts).
-  checkSource(data.code);
+  // A unit song's length is the song's form: the code itself (the live Make, or none) needs no form of its own.
+  checkSource(data.code, false, !data.band?.song);
   const frameUrl = localUrl(request.frameUrl ?? "/offline-render.html", location.href);
   data.soundsRoot = localUrl(data.soundsRoot, location.href);
   return new Promise((resolve, reject) => {

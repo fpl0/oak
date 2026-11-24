@@ -10,11 +10,11 @@ import * as draw from "@strudel/draw";
 import { transpiler } from "@strudel/transpiler";
 import * as webaudio from "@strudel/webaudio";
 import * as WT from "worker-timers";
-import { bandCodeFor } from "./band.ts";
+import { type PreparedBand, prepareBandFor } from "./band.ts";
 import { formBarsOf } from "./band-form.ts";
 import {
   type EvalSession,
-  evaluateBand,
+  evaluatePreparedBand,
   finalizePattern,
   installTrackWrapper,
   newSession,
@@ -46,6 +46,7 @@ import { scopeRequests } from "./pack.ts";
 import { playOnce } from "./play-once.ts";
 import { WARM_AHEAD_BARS, type WarmAhead } from "./preload.ts";
 import { captureMessageListeners, type Runtime, removeCaptured } from "./runtime.ts";
+import { songLengthBars } from "./song-compose.ts";
 import { type CyclistLike, queryLiveHaps } from "./transport.ts";
 import type {
   BandSetup,
@@ -109,7 +110,7 @@ export function createEditor(rt: Runtime, root: HTMLElement, opts: EditorOptions
   const readOnly = new Compartment();
   const drawWindow = opts.drawWindow ?? [-2, 2];
   const releaseCoordinator: { fn: (() => void) | null } = { fn: null };
-  let pendingBand: { code: string; roles: string[] } | null = null;
+  let pendingBand: PreparedBand | null = null;
   let bandFailure: unknown = null;
   /** The background warm of a long piece's later bars (cancelled by the next evaluation and by dispose). */
   let ahead: WarmAhead | null = null;
@@ -159,14 +160,18 @@ export function createEditor(rt: Runtime, root: HTMLElement, opts: EditorOptions
           );
         },
         beforeEval: async () => {
+          // A unit song keeps its own tempo and meter until the learner's `setcpm` runs (spec §5.2).
+          const song = pendingBand?.kind === "song" ? pendingBand.song : null;
           const { defaultBpm, meter } = opts.lessonCtx;
-          if (defaultBpm > 0) mirror.repl.setCps(bpmToCps(defaultBpm, meter));
+          const bpm = song ? song.bpm : defaultBpm;
+          if (bpm > 0) mirror.repl.setCps(bpmToCps(bpm, song ? song.def.meter : meter));
           installTrackWrapper(session, () => mutes);
           if (pendingBand) {
             try {
-              await evaluateBand(pendingBand.code, pendingBand.roles, session);
+              await evaluatePreparedBand(pendingBand, session, bandCheck);
             } catch (err) {
               session.band = [];
+              session.song = null;
               bandFailure = err;
             }
           }
@@ -294,6 +299,11 @@ export function createEditor(rt: Runtime, root: HTMLElement, opts: EditorOptions
   function lintNow(code: string) {
     return runLint(rt.lint, code, lintCtx);
   }
+  /** The Band's own lint (profile `band`, previews allowed): Band code, and each code of a unit song. */
+  function bandCheck(bandCode: string): boolean {
+    const linted = runLint(rt.lint, bandCode, { ...lintCtx, profile: "band", allowPreview: true });
+    return linted.ok && linted.result.ok;
+  }
   let lintCache: { code: string; diagnostics: LintDiagnostic[] } | null = null;
   function runLintCached(code: string): LintDiagnostic[] {
     if (lintCache?.code === code) return lintCache.diagnostics;
@@ -387,13 +397,13 @@ export function createEditor(rt: Runtime, root: HTMLElement, opts: EditorOptions
       pendingBand = null;
       bandFailure = null;
       if (band) {
-        const bandCode = bandCodeFor(band, {
+        const prepared = prepareBandFor(band, {
           key: opts.lessonCtx.key,
           defaultBpm: opts.lessonCtx.defaultBpm,
           learnerCode: code,
         });
-        const bandLint = runLint(rt.lint, bandCode, { ...lintCtx, profile: "band", allowPreview: true });
-        if (bandLint.ok && bandLint.result.ok) pendingBand = { code: bandCode, roles: [...band.tracks] };
+        // A song checks each of its codes as it evaluates them (`bandCheck`); a broken take falls back to Oak.
+        if (prepared.kind === "song" || bandCheck(prepared.code)) pendingBand = prepared;
         else bandFailure = new Error("the Band code did not pass its check");
       }
       // 4. Evaluate without starting; then warm what the first two cycles trigger; then start.
@@ -442,9 +452,11 @@ export function createEditor(rt: Runtime, root: HTMLElement, opts: EditorOptions
         // A song in sections (a 90-second C3) brings sounds and pitches the first bars never play: warm them,
         // in order, while the first bars play, so the chorus's first crash or pad note is never skipped.
         const pattern = lastPattern;
+        const songBars = session.song ? songLengthBars(session.song.built.band.def) : null;
         void warm.then(() => {
           if (disposed || lastPattern !== pattern) return;
-          const bars = Math.min(formBarsOf(code) ?? WARM_AHEAD_BARS, WARM_AHEAD_BARS);
+          const form = songBars ?? formBarsOf(code);
+          const bars = Math.min(form ?? WARM_AHEAD_BARS, WARM_AHEAD_BARS);
           ahead = rt.warmAhead(pattern, from + 2, from + Math.max(2, bars));
         });
         if (!repl.scheduler.started) {

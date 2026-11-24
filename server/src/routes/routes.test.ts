@@ -48,7 +48,7 @@ describe("meta", () => {
     }>("GET", "/api/health");
     expect(r.status).toBe(200);
     expect(r.body.ok).toBe(true);
-    expect(r.body.schemaVersion).toBe(10);
+    expect(r.body.schemaVersion).toBe(11);
     expect(r.body.contentVersion).toBe("fixture-1");
     expect(r.body.tutor).toBe("unreachable");
     expect(r.body.dev).toBe(false);

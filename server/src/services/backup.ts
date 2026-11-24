@@ -396,6 +396,8 @@ export class BackupService {
  * Every imported sketch and album version runs only after the strict lint (§11.3): flag it for review. Wave 5
  * (carry-over c2): so does every imported transcription version (`review_before_run`, until the learner confirms
  * it), and an imported lesson attempt is marked `imported` (the voicing gate never hands its code back as typed).
+ * Unit songs (spec 2026-11-24 §5.4): a take plays its sketch version, flagged above (`UnitSongTake.reviewBeforeRun`
+ * reads that flag); a release snapshot holds code of its own (Oak's and every take's), so it is flagged too.
  */
 export function markForReview(db: Db): void {
   const empty = '{"lockedTools":[],"previewTools":[]}';
@@ -406,6 +408,7 @@ export function markForReview(db: Db): void {
   }
   db.run("UPDATE transcription_versions SET review_before_run = 1");
   db.run("UPDATE step_attempts SET imported = 1 WHERE code IS NOT NULL");
+  db.run("UPDATE unit_song_releases SET review_before_run = 1");
 }
 
 /** JSON gives numbers, strings, booleans and nulls; SQLite STRICT tables want 0/1 for booleans. */

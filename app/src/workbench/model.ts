@@ -491,7 +491,7 @@ export interface ModelOptions {
    * harmony (chord band, numerals, function) reads only these: a Band bass that does not play must not turn the
    * learner's IV into IV⁶₄ on the chord band. The roll still draws every Band part. Absent: all of them.
    */
-  bandHeard?: readonly ("drums" | "bass" | "chords")[] | null;
+  bandHeard?: readonly string[] | null;
 }
 
 function meterSpec(m: MeterId | MeterSpec): MeterSpec {

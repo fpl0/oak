@@ -16,6 +16,7 @@ import type {
 } from "@oak/content-kit";
 import type { AudioPlan } from "@oak/drills";
 import type { RealismSpec } from "./realism.ts";
+import type { SongBand } from "./song-compose.ts";
 
 export interface Readable<T> {
   get(): T;
@@ -82,7 +83,18 @@ export interface BandSetup {
   /** The Band's code for this flavour, with `{{key}}` and `{{bpm}}` already substituted. Read-only, strict-linted. */
   code: string;
   followsLearnerKey: boolean;
-  tracks: ("drums" | "bass" | "chords")[];
+  /**
+   * The labels of the Band that play (`drums`, `bass`, `chords`, or any part label); empty: all of them. With a
+   * `song`, the song's track names without `band.` (`songBandTracks`: `oak.kick`, `take.U01.L01.drums`), which the
+   * Workbench reads as the Band parts heard.
+   */
+  tracks: string[];
+  /**
+   * A unit song as it stands (spec §5.2). When set, every playback path plays the song, composed by
+   * `@oak/strudel/song-compose` around the evaluation's own code, instead of `code`; `code` stays the lesson's own
+   * Band (the Make's "Today's code").
+   */
+  song?: SongBand;
 }
 
 /** Hooks into the CodeMirror 6 extensions Oak appends to every mirror. */
@@ -284,7 +296,8 @@ export interface PatternPlayer {
        * Wave 4 (docs/design/wave4.md §3.5): play a Band under the hidden code, on the same scheduler (the circle
        * of fifths' key preview, a ladder item over a backing). Its tracks come back as `band.<label>` in
        * `tracks` and mute like any other. A Band that fails its lint or its evaluation is dropped with an
-       * `adapter.band` warning; the hidden code still plays.
+       * `adapter.band` warning; the hidden code still plays. A unit song (`band.song`) is composed around the code
+       * (the live Make, when the song has one); with an empty `code` the song plays alone.
        */
       band?: BandSetup | null;
       /**

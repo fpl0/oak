@@ -8,6 +8,7 @@
     ".": "./src/index.ts",
     "./offline": "./src/offline/index.ts",
     "./offline/frame": "./src/offline/frame.ts",
+    "./song-compose": "./src/song-compose.ts",
     "./reference": "./src/reference.ts",
     "./probes": "./src/probes.ts",
     "./early-jazz": "./src/early-jazz.ts",

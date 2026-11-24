@@ -870,6 +870,10 @@ export class CourseAdapter implements SessionPlanCoursePort {
     private readonly content: ContentIndex,
     private readonly services: Services,
   ) {}
+  /** Unit songs (spec 2026-11-24 §5.5): `SessionPlan.song` for a planned lesson in a song. */
+  songOf(lessonId: LessonId): SessionPlan["song"] {
+    return this.services.unitSongs?.planSong(lessonId) ?? null;
+  }
   #title(id: string): string {
     return (
       this.content.lessonDef(id)?.title ??

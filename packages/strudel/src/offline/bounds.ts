@@ -122,8 +122,10 @@ export const largestNumber = (code: string): number => readSource(code).largest;
 /**
  * Read the source before running it (bound 1): the bars of its form when it may be rendered, otherwise a typed
  * refusal. `authored` reads Band code with the strict profile; a Band has no form of its own (it follows the piece).
+ * `form: false` reads a learner's code that needs no form of its own: a unit song's take or live Make, whose length
+ * is the song's (spec §5.2).
  */
-export function checkSource(code: string, authored = false): number | null {
+export function checkSource(code: string, authored = false, form = !authored): number | null {
   const diagnostics = (authored ? lintStrict : lintBase)(code).filter((d) => d.severity === "error");
   if (diagnostics.length)
     throw new PieceRenderError(
@@ -142,14 +144,14 @@ export function checkSource(code: string, authored = false): number | null {
       "too-long",
       `The ${authored ? "Band" : "piece"} writes the number ${formatNumber(largest)}; an export takes numbers up to ${formatNumber(MAX_LITERAL)}, so it would never finish.`,
     );
-  if (authored) return null;
-  const form = sectionsFromAst(code);
-  const bars = form && ("totalBars" in form ? form.totalBars : form.arrangedBars);
+  if (authored || !form) return null;
+  const sections = sectionsFromAst(code);
+  const bars = sections && ("totalBars" in sections ? sections.totalBars : sections.arrangedBars);
   if (!bars)
     throw new PieceRenderError(
       "length",
-      form && "inconsistent" in form
-        ? form.inconsistent.detail
+      sections && "inconsistent" in sections
+        ? sections.inconsistent.detail
         : "Give the piece an arrangement: one arrange() per sectioned track, so the export knows where it ends.",
     );
   if (!Number.isInteger(bars) || bars <= 0)

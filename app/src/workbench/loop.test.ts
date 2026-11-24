@@ -2,14 +2,10 @@
 import { describe, expect, test } from "bun:test";
 import { METERS } from "@oak/theory";
 import {
-  bandCodeForTracks,
-  bandTrackAlias,
   clampRegion,
-  codeWithBand,
   defaultRegion,
   isWholeLoop,
   loopPosition,
-  mutesForLoop,
   regionLabel,
   stepRegion,
   tutorBarsRegion,
@@ -71,24 +67,6 @@ describe("loop region", () => {
     expect(loopPosition(1.5, r)).toBe(3.5);
     expect(loopPosition(2, r)).toBe(2);
     expect(loopPosition(7.25, r)).toBe(3.25);
-  });
-
-  test("a looping Band joins as renamed tracks; mutes follow the rename", () => {
-    const band = {
-      code: 'drums: s("bd ~ sd ~")\nbass: n("<-14 -11>").scale("C4:major").s("ebass")\nchords: n("0").s("piano")',
-      tracks: ["drums", "bass"],
-    };
-    const out = codeWithBand('setcpm(90/4)\n\ndrums: s("hh*8")\n', band);
-    expect(out).toContain('drums: s("hh*8")');
-    expect(out).toContain('oakbandDrums: s("bd ~ sd ~")');
-    expect(out).toContain("oakbandBass: n(");
-    expect(out).not.toContain("chords:");
-    expect(out).not.toContain("oakbandChords");
-    expect(codeWithBand("x", null)).toBe("x");
-    expect(bandTrackAlias("drums")).toBe("oakbandDrums");
-    const m = mutesForLoop({ muted: new Set(["band.bass", "drums"]), solo: "band.drums" });
-    expect([...m.muted].sort()).toEqual(["drums", "oakbandBass"]);
-    expect(m.solo).toBe("oakbandDrums");
   });
 });
 
@@ -203,18 +181,5 @@ describe("shortcut sheet rows", () => {
       "Shift+Q",
       "Shift+D",
     ]);
-  });
-});
-
-describe("bandCodeForTracks (wave 5 gate: the analysis shows only the Band parts a step asked for)", () => {
-  const band = 'drums: s("bd sd")\nbass: n("0").s("ebass")\nchords: n("[0,2,4]").s("piano")';
-  test("keeps the asked roles and every unlabelled line", () => {
-    expect(bandCodeForTracks(band, ["drums"])).toBe('drums: s("bd sd")');
-    expect(bandCodeForTracks(`setcpm(90/4)\n${band}`, ["drums", "bass"])).toBe(
-      'setcpm(90/4)\ndrums: s("bd sd")\nbass: n("0").s("ebass")',
-    );
-  });
-  test("no roles named: the whole Band", () => {
-    expect(bandCodeForTracks(band, [])).toBe(band);
   });
 });

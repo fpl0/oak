@@ -16,6 +16,7 @@ import { skills } from "./skills.ts";
 import { syllabus } from "./syllabus.ts";
 import { terms } from "./terms.ts";
 import { toolbox } from "./toolbox.ts";
+import { unitSongs } from "./unit-songs/index.ts";
 
 export const registries = {
   syllabus,
@@ -28,6 +29,7 @@ export const registries = {
   milestones,
   flavours,
   bands,
+  unitSongs,
   capstones,
   checkpoints: checkpointMetas,
   repertoire,

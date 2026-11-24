@@ -35,6 +35,7 @@ describe("IDs", () => {
     ...ids("flavour", R.flavours),
     ...ids("band", R.bands),
     ...ids("song", R.repertoire),
+    ...ids("unitSong", R.unitSongs),
     ...R.syllabus.defaultOrder.filter((s) => s.startsWith("GYM.")).map((id) => ["gymSession", id] as const),
   ];
   test("every ID matches its grammar", () => {

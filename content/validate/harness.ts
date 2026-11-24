@@ -130,6 +130,8 @@ export interface GradeOutcome {
   note?: string;
   /** What the learner would read (the grader's rendered feedback), for `content:check --verbose`. */
   messages?: string[];
+  /** Each rubric rule and whether the code met it (a Make's rules), when the grader got that far. */
+  rubric?: { ruleId: string; required: boolean; ok: boolean }[];
 }
 
 const NEUTRAL_PROFILE = {
@@ -343,11 +345,36 @@ async function gradeOnce(
     score: result.score,
     feedback: result.diagnostics.map((d) => d.id),
     messages: result.messages.map((m) => m.text),
+    ...(result.rubric
+      ? { rubric: result.rubric.map((r) => ({ ruleId: r.ruleId, required: r.required, ok: r.ok })) }
+      : {}),
     backend: "package",
     ...(result.status === "error" && test.expect !== "error"
       ? { note: result.messages.map((m) => m.text).join(" / ") || "evaluation error" }
       : {}),
   };
+}
+
+// --- reading code as the grader reads it -------------------------------------------------------
+
+/**
+ * Evaluates code in the grader realm (no lint) and normalizes it: each event with its track, drum role and MIDI
+ * number, and the roles of contracts §6.2 (`roles.chords` names the track that plays chords). The unit-song checks
+ * read a Make's reference code this way, as the app reads a take (content/validate/unit-songs.ts).
+ */
+export async function normalizedCode(
+  code: string,
+  o: { meter: MeterId; key?: KeySpec | null; bars: number },
+): Promise<{ ok: true; n: grader.Normalized } | { ok: false; error: string }> {
+  await ensureRealm();
+  const res = await grader.evaluateForGrading(code, {
+    mode: "lesson",
+    bars: o.bars,
+    lint: null,
+    meter: o.meter,
+  });
+  if (!res.ok) return { ok: false, error: res.error.message };
+  return { ok: true, n: grader.normalize(res, o.key ? { meter: o.meter, key: o.key } : { meter: o.meter }) };
 }
 
 // --- notation -----------------------------------------------------------------------------------

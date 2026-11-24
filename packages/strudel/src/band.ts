@@ -1,7 +1,11 @@
 // Band-layer code preparation (contracts §5.10). The Band is evaluated separately from the learner's code
-// and its tracks are collected as `band.<label>`. This file holds the pure text part.
+// and its tracks are collected as `band.<label>`. This file holds the pure text part, and the one choice every
+// playback path makes the same way (`prepareBandFor`): a unit song plays as composed by song-compose.ts, never
+// through `bandCodeFor` (it keeps its own key, form and register, spec §5.2), and a plain Band as `bandCodeFor`
+// prepares it.
 import type { KeySpec } from "@oak/content-kit";
 import { arrangeCalls, followLearnerForm } from "./band-form.ts";
+import type { SongBand } from "./song-compose.ts";
 import { stringArgsOf, stripComments } from "./sounds-in.ts";
 import type { BandSetup } from "./types.ts";
 
@@ -243,6 +247,27 @@ export function bandCodeFor(band: BandSetup, ctx: BandContext): string {
 const PLAN_MARK = "\u0001";
 
 const escapeRe = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** What an evaluation plays for a Band setup: Band code and the labels it keeps, or a unit song. */
+export type PreparedBand =
+  | { kind: "code"; code: string; roles: string[] }
+  | {
+      kind: "song";
+      song: SongBand;
+      /** The evaluation's own code: the live Make when the song has one. */
+      liveCode: string;
+    };
+
+/**
+ * The one preparation every playback path uses (editor, pattern player, offline export, Workbench analysis): a setup
+ * with a `song` plays the song (composed around the evaluation's own code), any other setup the Band code as
+ * `bandCodeFor` prepares it, keeping only `tracks` (all labels when `tracks` is empty). The caller lints Band code
+ * with the Band profile; a song checks its own codes when it is evaluated (`evaluateSongBand`).
+ */
+export function prepareBandFor(band: BandSetup, ctx: BandContext): PreparedBand {
+  if (band.song) return { kind: "song", song: band.song, liveCode: ctx.learnerCode };
+  return { kind: "code", code: bandCodeFor(band, ctx), roles: [...band.tracks] };
+}
 
 /** The Band tracks an evaluation keeps: only the roles the step asked for. */
 export function bandTrackName(label: string): string {

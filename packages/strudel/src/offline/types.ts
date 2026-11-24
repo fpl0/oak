@@ -2,7 +2,10 @@ import type { KeySpec } from "@oak/content-kit";
 import type { BandSetup, MuteMap } from "../types.ts";
 
 export interface RenderPieceRequest {
-  /** The editor's complete source, unchanged. One cycle is one bar. */
+  /**
+   * The editor's complete source, unchanged. One cycle is one bar. With a unit song (`band.song`) it may be empty:
+   * the song plays alone, and its length is the song's form.
+   */
   code: string;
   /** Resolved selection from the same content snapshot as the live editor. */
   band?: BandSetup | null;

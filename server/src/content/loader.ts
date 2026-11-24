@@ -1,7 +1,7 @@
 // Loads the content set for the server. Two inputs, one result:
 //  - the content SOURCES (`content/syllabus.ts`, `skills.ts`, `families.ts`, `toolbox.ts`, `terms.ts`,
-//    `candos.ts`, `milestones.ts`, every `lesson.ts`, `checkpoint.ts`, `capstone.ts`, `song.ts`): typed truth,
-//    imported directly (Bun runs TypeScript);
+//    `candos.ts`, `milestones.ts`, `unit-songs/index.ts`, every `lesson.ts`, `checkpoint.ts`, `capstone.ts`,
+//    `song.ts`): typed truth, imported directly (Bun runs TypeScript);
 //  - `content/.generated/` (written by `bun run content:build`): `index.json` for `contentVersion`,
 //    `toolbox.json` when the source table is missing, `tutor/` for the system-prefix text.
 // A file that is missing or fails to import becomes a `ContentProblem`; the server still starts.
@@ -21,6 +21,7 @@ import {
   type SyllabusDef,
   type TermEntry,
   type ToolEntry,
+  type UnitSongDef,
 } from "@oak/content-kit";
 import {
   type ContentProblem,
@@ -130,6 +131,10 @@ export async function loadContent(options: LoadOptions): Promise<ContentSource> 
     (o) => typeof o.id === "string" && idKind(o.id) === "capstone" && Array.isArray(o.sessionDefs),
   ) as unknown as CapstoneDef[];
 
+  // The unit songs (spec 2026-11-24 §5.1): the registry `content/unit-songs/index.ts`, its songs validated by
+  // `defineUnitSong` at import (a broken song fails the import and becomes a problem, like any registry).
+  const unitSongs = byKind<UnitSongDef>(await load("unit-songs/index.ts", false), "unitSong");
+
   // Per-folder files.
   const lessons: LessonDef[] = [];
   const checkpoints: CheckpointDef[] = [];
@@ -216,6 +221,7 @@ export async function loadContent(options: LoadOptions): Promise<ContentSource> 
     lessons,
     checkpoints,
     capstones,
+    unitSongs,
     tutorPrefix,
     problems,
   };

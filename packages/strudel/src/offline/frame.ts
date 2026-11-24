@@ -2,23 +2,43 @@
 import * as core from "@strudel/core";
 import { transpiler } from "@strudel/transpiler";
 import * as webaudio from "@strudel/webaudio";
-import { bandCodeFor } from "../band.ts";
-import { evaluateBand, finalizePattern, installTrackWrapper, newSession } from "../evaluation.ts";
+import { prepareBandFor } from "../band.ts";
+import {
+  evaluatePreparedBand,
+  finalizePattern,
+  installTrackWrapper,
+  newSession,
+  songCps,
+} from "../evaluation.ts";
 import { friendlyEvalError } from "../friendly.ts";
 import { missingSoundOf } from "../logs.ts";
 import { type HapValue, prebake } from "../pack.ts";
 import { warmAll } from "../preload.ts";
+import { songLengthBars } from "../song-compose.ts";
 import { boundedQuery, checkSource } from "./bounds.ts";
 import { PieceRenderError, renderFailure } from "./errors.ts";
 import { attachOfflineMaster } from "./master.ts";
-import { renderLength, trimAndMeasure } from "./math.ts";
+import { MAX_PIECE_BARS, renderLength, trimAndMeasure } from "./math.ts";
 import { orderedMix } from "./mix.ts";
 import { seedRandom, seedWorklet } from "./random.ts";
 import type { FrameRequest, PiecePcm } from "./types.ts";
 
 interface OfflineRepl {
   evaluate(code: string, autostart: boolean): Promise<Strudel.Pattern | undefined>;
+  setCps(cps: number): void;
   scheduler: { cps: number };
+}
+
+/** A song's bars, refused like a piece's form when it is longer than an export takes. */
+function renderableSongBars(bars: number): number {
+  if (!Number.isInteger(bars) || bars <= 0)
+    throw new PieceRenderError("length", "The song needs whole bars in every section.");
+  if (bars > MAX_PIECE_BARS)
+    throw new PieceRenderError(
+      "too-long",
+      `The song has ${bars} bars; exports support at most ${MAX_PIECE_BARS}.`,
+    );
+  return bars;
 }
 
 /**
@@ -43,8 +63,11 @@ async function waitForReverb(): Promise<void> {
 }
 
 async function render(request: FrameRequest, progress: (p: number) => void): Promise<PiecePcm> {
-  // Bound 1 and 2 (bounds.ts): read before anything runs; the form's bars are the render's length.
-  const bars = checkSource(request.code) as number;
+  // Bound 1 and 2 (bounds.ts): read before anything runs; the form's bars are the render's length. A unit song's
+  // length is the song's form (spec §5.2); the code itself (the live Make, or none) needs no form of its own.
+  const song = request.band?.song ?? null;
+  const own = checkSource(request.code, false, song === null);
+  const bars = song ? renderableSongBars(songLengthBars(song.def)) : (own as number);
   seedRandom();
   const missing = new Set<string>();
   webaudio.setLogger((message: unknown) => {
@@ -67,13 +90,27 @@ async function render(request: FrameRequest, progress: (p: number) => void): Pro
     beforeEval: async () => {
       installTrackWrapper(session, () => mutes);
       if (request.band) {
-        const code = bandCodeFor(request.band, {
+        const prepared = prepareBandFor(request.band, {
           key: request.key,
           defaultBpm: 120,
           learnerCode: request.code,
         });
-        checkSource(code, true);
-        await evaluateBand(code, request.band.tracks, session);
+        if (prepared.kind === "song") {
+          // The song's tempo until the code sets one; Oak's code is read as authored, a take as the learner's.
+          repl.setCps(songCps(prepared.song));
+          await evaluatePreparedBand(prepared, session, (code, who) => {
+            try {
+              checkSource(code, who === "oak", false);
+              return true;
+            } catch (error) {
+              if (who === "oak") throw error;
+              return false;
+            }
+          });
+        } else {
+          checkSource(prepared.code, true);
+          await evaluatePreparedBand(prepared, session);
+        }
       }
     },
     editPattern: (pattern: Strudel.Pattern) => finalizePattern(pattern, { session, mutes: () => mutes }),

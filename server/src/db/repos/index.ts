@@ -11,6 +11,7 @@ import { GymRepo, SessionsRepo } from "./sessions.ts";
 import { SrsRepo } from "./srs.ts";
 import { StreakRepo } from "./streak.ts";
 import { TutorRepo } from "./tutor.ts";
+import { UnitSongsRepo } from "./unit-songs.ts";
 import { IdempotencyRepo, SungNotesRepo, VoiceRepo } from "./voice.ts";
 import { CapstoneSessionsRepo, LadderRepo } from "./wave4.ts";
 import { CoreStateRepo, TakesRepo, TrackGatesRepo } from "./wave6.ts";
@@ -53,6 +54,8 @@ export interface Repos {
   trackFocus: TrackFocusRepo;
   courseState: CourseStateRepo;
   capstoneVersions: CapstoneVersionsRepo;
+  /** Unit songs (0011). */
+  unitSongs: UnitSongsRepo;
 }
 
 export function createRepos(db: Db, defaults: { timezone: string; now: () => Date }): Repos {
@@ -90,6 +93,7 @@ export function createRepos(db: Db, defaults: { timezone: string; now: () => Dat
     trackFocus: new TrackFocusRepo(db),
     courseState: new CourseStateRepo(db),
     capstoneVersions: new CapstoneVersionsRepo(db),
+    unitSongs: new UnitSongsRepo(db),
   };
 }
 
@@ -116,6 +120,7 @@ export {
   TermsRepo,
   TranscriptionsRepo,
   TutorRepo,
+  UnitSongsRepo,
   UnlocksRepo,
   VoiceRepo,
 };

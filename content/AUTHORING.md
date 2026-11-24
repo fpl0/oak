@@ -978,3 +978,169 @@ A `feedbackText` override names the place, the problem and the fix in the lesson
 ### 22.7 What the clarity pass did not change
 
 Grading is untouched: rules, matchers, targets, tolerances, tests, IDs, code, examples and `required` flags stay as they were. Text changes bump `LessonDef.version` (contracts §11.7), never an exercise version.
+
+## 23. Unit songs (the songs pass of 2026-11-24)
+
+The owner, six lessons into the course, found it "very bare" and asked for "building up something bigger as we advance the lectures as opposed to the disparate concepts we are exercising in each lesson". So every unit except U00 is now **one song**. When the unit starts, Oak plays the whole song, finished, in the learner's style. Each lesson's Make takes over **cells** of it (a part in a section): "your groove now plays the second part". Oak keeps playing every cell nobody has taken, and the song is released to the album when the unit ends.
+
+The binding rules are contracts §5.11; the design and its reasons are `docs/superpowers/specs/2026-11-24-unit-songs-design.md` (read §4, §5.1–§5.3, §7 and §8 before you write a song). Start from the unit's proposal in `docs/design/songs/makes-core-{a,b,c}.md` §8 (form, harmony, takeover order); you may change it. `content/unit-songs/U01.ts` is the worked example. A unit song task writes three things: `content/unit-songs/<UNIT>.ts`, the Make of every take lesson (prose, prompt, version bump), and, rarely, a re-keyed Make (§23.11).
+
+**Grading is untouched.** The grader sees the learner's Make code only, as before. You never change a rubric rule, matcher, test or `required` flag for a song, except when you re-key a Make (§23.11). Everything below is about what is heard and shown, not about what passes.
+
+### 23.1 What the learner's code is, and what Oak does with it
+
+1. The Make's editor holds only the learner's code for today's cells: a loop, the same kind of code the lesson already grades. Oak's song engine places that loop into the sections of the step's `sections`, and plays everything else.
+2. A loop restarts at the start of every section it plays in (`arrange()` semantics, contracts §6.3 item 7). A four-bar loop with a fill in its last bar, placed in an 8-bar section, plays the fill in bars 4 and 8; placed in a one-bar stop, only its first bar sounds. **Give each section a length that is a whole multiple of the loops placed in it.**
+3. The rubric reads the loop, not the song. "The last bar differs" means the loop's last bar. Write the prompt and the checklist in the loop's terms ("the fourth bar of your loop"), and let the song card show where it plays.
+4. From U09.L02 a learner's code may contain `arrange()`. Its sections map onto the song's by type: its verse fills every song section of type `verse`, `chorus2` the second chorus when there is one. The song's form stays the one you wrote (decision 90); the Make's **Today's code** switch plays the learner's form as written.
+5. The song plays at the newest take's tempo, so the learner owns the tempo from U01.L01. Keep each starter's first line a plain `setcpm(<n>/<beats>)`: the app sets that number to the song's tempo when the Make opens, when the Make accepts that tempo.
+
+### 23.2 Oak's song: the code shape
+
+`code` holds Oak's whole song once per flavour. The schema refuses any other shape.
+
+- **No tempo line.** The song plays at the learner's tempo, else `bpm`.
+- **One labelled track per part**, its label the part's `label` (STYLE §2, lowercase, never `$:`), each label once.
+- **Section consts named `<label><Section>`** after the section's *type* (`kickVerse`, `melChorus`; a digit for a variant, `chordsChorus2`), and **one `arrange()` per track** listing every section of the song, in order, with its bars. A part that rests in a section uses `silence`.
+- **A section key is a key plan after `arrange()`**, counted in bars of the whole song (STYLE §9, contracts §6.8 item 4); section consts stay bare degree patterns. A `chord("…")` track needs a lifted const with the new symbols instead.
+- Profile `band`: it must pass the strict lint and may use locked tools (a preview context).
+
+```js
+const kickIntro = s("bd ~ ~ ~")
+const kickVerse = s("bd ~ bd ~")
+const kickChorus = s("bd ~ [~ bd] ~")
+const melVerse = n("<[2 4 2 0] [3 5 7 5]>")
+const melChorus = n("<[7 ~ 4 2] [6 ~ 4 ~] [5 ~ 2 0] [5 ~ 3 ~]>")
+
+kick: arrange([4, kickIntro], [8, kickVerse], [8, kickChorus], [8, kickChorus]).gain(.75)
+mel: arrange([4, silence], [8, melVerse], [8, melChorus], [8, melChorus]).scale("C4:major").s("piano").gain(.5)
+```
+
+Do not write four flavours by hand. Write one builder that takes the kit (sounds, production numbers, comp and bass grooves) and emits the code, as `content/unit-songs/U01.ts` does (and CF-A's `single()` in `content/capstones.ts`): the notes then cannot drift between flavours.
+
+### 23.3 Sections and parts
+
+**Sections**, in form order:
+
+1. `id` is a slug, unique in the song (`intro`, `verse1`, `chorus2`). Takes are stored by it: once the song has shipped, never rename or reuse a section id. A removed id falls back to Oak, and the take history keeps it.
+2. `type` is the section kind, one of the STYLE §10 words (`intro verse pre chorus bridge solo break head vamp lift outro ballad drive a b c`) or `prechorus`. It names the section once the learner has its term, and it is what a learner's `arrange()` maps onto.
+3. `bars` is a whole multiple of 4, or 1 for a one-bar stop (type `break`) or a pickup bar. The song is at most **64 bars** in all (the Workbench analysis limit).
+4. `key` only where the section leaves the song's key: a key change, a modal section, a minor bridge.
+
+**Parts:**
+
+1. `id` is a slug, unique and stable like a section id. `label` is a STYLE §2 label in a role it allows (`kick snare hats perc drums` are drums, `bass` bass, `chords` chords, `pad` pad or chords, `mel vox` melody, `keys gtr horns` chords, melody or pad). `fx` is never a part.
+2. Give the song a part for every label the unit's references use, so the grid shows what the learner wrote. A learner track is matched to the part with its exact label first, then to the first part of its role; a track that matches no part plays wherever its take owns any cell of the section.
+3. **Drum parts list their `sounds`** (required, drum parts only): the sound names that belong to the part, read before any `:` index (`bd:3` is `bd`). A sound belongs to one part only. List every sound Oak's flavours use and every sound the unit's starters, references and hints use, plus the obvious neighbours: snare `sd rim cp`, hats `hh oh`, cymbals and toms `cr rd lt mt ht`. A learner's `drums:` line is then split hit by hit: its kick goes to the kick part, its snare to the snare part.
+4. `name` is the musical name ("Melody"), `plainName` the name before its term ("Tune"), `termId` the term that switches between them. Without a `termId` the `name` shows from the first lesson, so it must be plain English (Kick, Snare, Bass).
+
+### 23.4 The four flavours: what may differ
+
+Every song exists in all four flavours. The learner picks one when the song opens and may change it later; their takes stay.
+
+| The same in every flavour | May differ by flavour |
+|---|---|
+| sections, their order and bars | sounds and banks (the kit's, contracts §5.10) |
+| parts, and the sections each part plays in | the drum groove and the comp rhythm inside a section |
+| chord roots and functions | swing, as the kit's staging allows |
+| the bass roots on the downbeats | chord colour: sixths, sevenths, ninths as the kit's staging allows (jazz-soul from U03, funk from U06) |
+| every pitch of the lead tune | production: room, filter, pan, gain inside §23.5 |
+
+A song stays **straight** wherever the unit's takes are straight-subdivision parts the learner writes: all of U01–U02 and U13. A kit without a sound the others use (jazz-soul has no crash) uses its own, and that sound must be in the drum part's `sounds` (U01 puts `rd` in `perc`).
+
+### 23.5 Loudness and clashes
+
+1. **The learner's part sits on top.** Start every Oak part from the gains of the same kit's Bands (`KITS` in `content/bands/index.ts`) and stay at or under them. Oak's lead sits under a learner's line at default gain. A part the learner takes over must never be the quietest thing in its section: a part more than 24 dB under the loudest is treated as not heard (§20.2 rule 3). Listen to every flavour before you hand over (§15.3).
+2. **No held clash.** Oak's lead tune and bass never hold a note, a beat or more, a half step from a chord tone sounding with it (the §13 clash rule). The scan runs per flavour, so a flavour's added seventh or ninth must clear it too: no major 7th under a tune that lands on 1 or 4, the rule `band.axis-4bar` already follows (§8).
+3. Every sentence about the song's music is checked by running it (§20.2 rule 5): evaluate the code, or `bun run theory …`, and read the events.
+
+### 23.6 The plan: one step per lesson
+
+`plan` has one entry per lesson of the unit, in syllabus order (the unit's array order: U05.L09 comes after U05.L04), each lesson exactly once. Checkpoint Makes are never in the plan; they stay standalone. Each entry is a **take** or a **side** step.
+
+A take step says where its code plays (`sections`, or `'all'`), which parts it takes (`parts`), how the Make opens (`startFrom`, §23.9) and one line for Today (`today`, §23.10).
+
+**U01–U04: plan by part.** The learner writes one part at a time (drums in U01, the lead in U02–U03, a second voice in U04), so a step takes named parts in named sections: U01.L01 takes `kick` and `snare` in the verse; U01.L03, one line per drum, takes `kick`, `snare` and `hats` there.
+
+**From U05: plan by section.** From U05 most starters already hold chords, a bass and a tune, because the required rule reads them. Those given lines play in the song **as the learner's**, in plain default sounds (decision 88): the claim rules (§23.7) take every cell they play. So hand the learner whole sections ("the chorus is yours"): list in `parts` every part the starter and the reference play, and expect Oak's drums to be the only Oak part left in those sections. Do not plan a U05-on step as "the bass only" when its starter also plays chords: the chords take the section anyway.
+
+`releaseAfter` is the unit's checkpoint when it has one, else its last lesson. Capstones stay separate singles and are never a song's `releaseAfter`. It must come after the last take step.
+
+### 23.7 What a take claims (and what that means for you)
+
+In each section it plays in, a take claims:
+
+| A take claims | So, as the author |
+|---|---|
+| the parts in its `parts` | list what the step hands over |
+| every part its code actually plays, read from the saved code: drum hits by `sounds`, pitched tracks by label, then role | `parts` must include every part the passing reference plays (CI); a learner who goes past the brief (a snare in a kick lesson) takes that part too, in those sections only |
+| when its code plays chords, every Oak pitched part (bass, chords, melody, pad) in those sections, except those in `oakKeeps` | a chord take silences Oak's bass and tune there; Oak's drums keep playing |
+
+Later takes override earlier ones cell by cell. An earlier `drums:` line keeps only the drums it still owns: when a later step takes the kick, the earlier line's kick hits stop and its snare plays on. A take claims only the sections it filled; a section it leaves empty keeps its owner. A skipped lesson (an optional or split lesson the learner never played) leaves its cells to Oak, so the song is whole whatever the route.
+
+### 23.8 `oakKeeps`
+
+A take that plays chords silences Oak's pitched parts in its sections (decision 89). When one of them fits the learner's chords, because the take keeps Oak's roots (U05.L01's verse chords on the Band's roots), name it in `oakKeeps` and Oak keeps playing it there. Only pitched parts, never a part the step takes. CI clash-scans the reference against every part you keep: keep only what you have checked by running it.
+
+### 23.9 `startFrom`, and the "already passes" rule
+
+1. `startFrom: 'oak'` opens the Make with the lesson's authored starter, as before.
+2. `startFrom: '<lesson>'` opens it with the learner's saved Make code of that earlier take step **of this song**, with "Start from Oak's copy" beside it. With no take of that lesson, the Make opens with the starter. Name only a lesson completed before this one in every legal order: never a side step, an optional lesson or a lesson that may be skipped.
+3. **The "already passes" rule.** The earlier step's passing reference, opened here, must lint and evaluate in this lesson's unlock context **and must not already meet today's required rule**. Otherwise a learner who changes nothing would pass with yesterday's work. `make.unchanged` compares with the code the Make opened with, so an unchanged earlier loop fails, but a learner who only renames a line would still pass; CI therefore refuses the step.
+4. The starter stays a complete starter and every test still grades against it: `startFrom` changes the opening code, not the exercise.
+5. A take step's opening code comes from `startFrom`, not from `fromSketch`. U06.L10, U10.L06, U11.L07 and U15.L06 carry a `fromSketch`; when the lesson it names is a take step of the same song, use it as `startFrom`; when it names another unit's lesson (U06.L10 from U05.L01, U15.L06 from U12.L04), start from `'oak'` and rewrite the prose that promises "your loop from …", or make the step a side step. Say which in your report.
+
+### 23.10 `today` lines
+
+The `today` line is shown on Today above the setlist and on the lesson card above step 1: **before the lesson starts**. So:
+
+1. At most 20 words, one sentence, instructional and concrete: what the learner's code will do in the song, today. "Your drum line plays the kick and snare in the second part of the song."
+2. **Only words the learner already has**: terms of earlier lessons, never this lesson's new terms (they come later, in its pass texts) and never a later lesson's (check 14's rules, §7). Section names are terms (verse and chorus at U09.L02, bridge at U09.L03): until then name a section by its place ("the opening", "the second part", "the last loud part", "the ending"), never "verse" or "chorus". Name a part by its `plainName` until its term is introduced.
+3. The §5 voice: no exclamation marks, no "let's", "simply", "easy", "awesome", sentence case. Not the prompt again: the prompt is the task, the today line is where it lands in the song.
+
+### 23.11 Side steps, keys and meters, re-keying
+
+**Side steps.** A Make that cannot live in the song is `{ kind: 'side', reason }`. It stays today's standalone sketch over its own Band, and the lesson card shows `reason`: one plain line in the learner's words ("This lesson counts three to a bar and the song counts four, so this beat stays a sketch of its own."). Known now: U01.L08 and U07.L09 (3/4), U13.L04 (6/8), most of R2 (odd meters), and U10.L09 and U11.L01 (their unit's proposal says why). A song has one meter and one tempo line, so another meter is always a side step.
+
+**Keys.** A take step's Make must be in the key of every section it plays in. Fit the song to the lessons first: a section that carries the lesson's key (`sections[].key`: U03.L05–L07, U10, U14, U17). Oak never follows the learner's key in a song (decision 91); a learner who changes key past the brief changes only their own cells.
+
+**Re-keying a Make** (spec §7.3) is the last resort, for a Make whose point survives in the song's key when a side step would lose a song step. It is a grading change:
+
+1. Bump the exercise's `version` (contracts §11.7) and the lesson's `version`. Old passes are honoured.
+2. Move everything: the exercise `key`, the starter, the reference, **every test**, hints, `feedbackText`, the flavour swaps, and every sentence of prose that names a note or a key. Check 13 (theory) must pass.
+3. Keep the corrections-pass standard (§20.2): the reference, three other right answers, the unchanged starter failing, a wrong answer that uses the right function, two realistic mistakes.
+4. Check every claim about the new key by running it.
+
+### 23.12 Rewriting a take lesson's Make
+
+1. The task is about the song, and §22 still decides how it is said: one task in **Your task**, exact, the place and the amount, only taught words. "Put a kick on the second half of beat 2 in your song's second part." The prose may say where the loop will play; it never explains the song engine.
+2. Name sections as §23.10 does, by place until their term. The song card and the grid are drawn by the app from data: never write them in the MDX.
+3. Checklist labels stay true to what the rule checks (§22.3), which is the loop, never the song ("in the chorus" is false of a rule that reads the loop).
+4. Bump `LessonDef.version` for every prose or prompt change. The exercise `version` moves only when grading does (§23.11).
+
+### 23.13 The checks, and how to run them without the suites
+
+During the songs work the full suites are **not** run (the owner, 2026-11-24: they take too long). Never run `bun run test`, `bun run check`, `bun run test:content`, `bun run e2e` or `bun test` without file paths; the full suites run once, at the end of the work. This replaces §12's "run `test:content` before you hand over" for song tasks. Run only these:
+
+| Command | When |
+|---|---|
+| `bun run content:check <lessonId>` | every lesson of the unit, after every change to it or to the song. For a lesson in a song it also runs the unit song checks: the song's, and the plan step's |
+| `bun test ./content/validate/unit-songs.test.ts ./content/unit-songs/index.test.ts` | after writing or changing a song file: every song, every plan and every take step |
+| `bun run content:build` | after adding a song file (its `usong.<UNIT>` id joins `content/ids.lock.json`) |
+| `bun run theory …` | to check a claim about harmony or a clash before you write it |
+
+What the checks hold a song and a plan to (contracts §5.11, spec §8), with the issue each failure names:
+
+| Check | Issue | Usual fix |
+|---|---|---|
+| every flavour evaluates, is not silent, lints in profile `band`, has events for each part in every section it plays | `usong.silent` | a const left as `silence`, a sound missing from the kit |
+| sections, parts, chord roots, bass downbeat roots and lead pitches agree across flavours | `usong.flavour-notes` | build the flavours from one builder (§23.2) |
+| lead and bass hold no note a half step from a sounding chord tone, per flavour; with `oakKeeps`, the reference against the kept parts | `usong.clash` | move the note to a chord tone, or drop the part from `oakKeeps` |
+| take Makes in the song's meter and in the key of every section they play in | `usong.key` | a section key, a side step, or a re-key (§23.11) |
+| `parts` include every part the passing reference plays | `usong.parts` | add the part, or check the drum `sounds` |
+| the `startFrom` reference lints and evaluates here and does not already meet today's required rule | `usong.start-passes` | start from `'oak'`, or from an earlier step |
+| `today` passes the lesson's voice and terms checks | `usong.terms` | §23.10 |
+
+The schema (`defineUnitSong`) refuses the rest at import, each with its path: a missing flavour, duplicate ids or labels, an unknown section or part in a step or in `oakKeeps`, sounds on a pitched part or none on a drum part, a section that is not a multiple of 4 bars, over 64 bars, a tempo line in Oak's code, a track that is not arranged in the song's sections, a lesson in the plan twice or from another unit, a `startFrom` that is not an earlier take step, a `today` line over 20 words, `releaseAfter` before the last take step.
+
+A song is done when `content:check` passes every lesson of the unit, the two test files above are green for it, and a music review agent has re-derived its harmony and clash claims with `bun run theory …` and found nothing.

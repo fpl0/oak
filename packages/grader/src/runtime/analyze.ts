@@ -2,8 +2,15 @@
 // (contracts §6.4). Never throws for a problem in the code: lint errors, syntax errors, query errors,
 // too much work and silence come back as `{ ok: false }` or as diagnostics. State is reset before every
 // request and the realm is healed after it.
-import type { Diagnostic, LintDiagnostic, LintResult, MeterId } from "@oak/content-kit";
-import { cpsToBpm } from "@oak/theory";
+import type { Diagnostic, LintContext, LintDiagnostic, LintResult, MeterId } from "@oak/content-kit";
+import {
+  buildSong,
+  finishSong,
+  type SongBandWire,
+  type SongEvaluator,
+  songBandFromWire,
+} from "@oak/strudel/song-compose";
+import { bpmToCps, cpsToBpm } from "@oak/theory";
 import { arrangedTotal, sectionsFromAst } from "../lint/ast.ts";
 import { checkChord, splitChord } from "../lint/chords.ts";
 import { lintOak } from "../lint/oak.ts";
@@ -20,8 +27,8 @@ import { captureInto } from "./console.ts";
 import { errorMessage, GraderError } from "./errors.ts";
 import { type Evaluated, evaluateCode, periodOfEvents, type QuerySource, queryCycles } from "./evaluate.ts";
 import { FUEL, startFuel, stopFuel } from "./fuel.ts";
-import { DEFAULT_CPS, ensureRealm, R, restoreRealm } from "./realm.ts";
-import { core, tonal } from "./strudel.ts";
+import { DEFAULT_CPS, ensureRealm, R, restoreRealm, TRACK_KEY } from "./realm.ts";
+import { core, type Hap, type Pat, tonal } from "./strudel.ts";
 
 /** One request at a time per realm: the collector, the tempo and the fuel meter are realm-global. */
 let queue: Promise<unknown> = Promise.resolve();
@@ -116,13 +123,31 @@ async function evaluateOnce(code: string, opts: EvalOptions): Promise<EvalResult
     cpsSet = R.cpsSet;
     const tempoProblems = [...R.tempoProblems];
     let band: Evaluated | null = null;
-    if (opts.band) {
+    let learnerPattern = learner.pattern;
+    if (opts.song) {
+      // A unit song, composed exactly as the adapter plays it; the learner's code is the live Make when it has one.
+      let song: { band: Evaluated; place: ((p: Pat) => Pat) | null; cps: number };
+      try {
+        song = await evaluateSong(opts.song, learner, code, opts.lint);
+      } catch (e) {
+        const err = classify(e, "eval");
+        throw new GraderError(err.kind, `Song: ${err.message}`);
+      }
+      band = song.band;
+      if (song.place) learnerPattern = song.place(learner.pattern);
+      // The learner's tempo wins; the song's applies when the learner set none (a take's own tempo never does).
+      if (!cpsSet) {
+        cps = song.cps;
+        cpsSet = true;
+      }
+    } else if (opts.band) {
       try {
         band = await evaluateCode(opts.band, "band.");
       } catch (e) {
         const err = classify(e, "eval");
         throw new GraderError(err.kind, `Band code: ${err.message}`);
       }
+      if (opts.bandTracks && opts.bandTracks.length > 0) band = onlyTracks(band, opts.bandTracks);
       // The learner's tempo wins; the Band's applies only when the learner set none.
       if (!cpsSet && R.cpsSet) {
         cps = R.cps;
@@ -136,7 +161,7 @@ async function evaluateOnce(code: string, opts: EvalOptions): Promise<EvalResult
     fromCycle = Math.max(0, Math.floor(opts.fromBar ?? 1) - 1);
     tracks = [...learner.tracks.keys(), ...(band ? [...band.tracks.keys()] : [])];
     const sources: QuerySource[] = [
-      { pattern: learner.pattern, code, roles: learner.roles, fallbackTrack: "main" },
+      { pattern: learnerPattern, code, roles: learner.roles, fallbackTrack: "main" },
       ...(band
         ? [{ pattern: band.pattern, code: opts.band ?? "", roles: band.roles, fallbackTrack: "band.main" }]
         : []),
@@ -180,6 +205,62 @@ async function evaluateOnce(code: string, opts: EvalOptions): Promise<EvalResult
     truncated,
     fuelUsed: FUEL.used,
     ms: performance.now() - t0,
+  };
+}
+
+/** Tags a track's haps with its name (a hap already tagged keeps its tag), as `evaluateCode` does. */
+const tagTrack = (pattern: Pat, track: string): Pat =>
+  pattern.withHap((h: Hap) =>
+    h.context?.[TRACK_KEY] ? h : h.setContext({ ...h.context, [TRACK_KEY]: track }),
+  );
+
+/** The Band with only the labels a step asked for, filtered by the label each track registered. */
+function onlyTracks(band: Evaluated, labels: readonly string[]): Evaluated {
+  const keep = new Set(labels.map((l) => `band.${l}`));
+  const tracks = new Map([...band.tracks].filter(([k]) => keep.has(k)));
+  return { ...band, tracks, pattern: core.stack(...[...tracks].map(([k, p]) => tagTrack(p, k))) };
+}
+
+/**
+ * A unit song in the realm: Oak's code and every saved take evaluated like any code (a take's own tempo is undone),
+ * a take that fails the Band lint or its evaluation handed back to Oak, then composed with the learner's tracks as
+ * the live Make (`@oak/strudel/song-compose`, the adapter's own composer). The song's tracks lose their source
+ * locations: they are offsets into other codes than the learner's.
+ */
+async function evaluateSong(
+  wire: SongBandWire,
+  learner: Evaluated,
+  code: string,
+  lint: LintContext | null,
+): Promise<{ band: Evaluated; place: ((p: Pat) => Pat) | null; cps: number }> {
+  const song = songBandFromWire(wire);
+  const evaluate: SongEvaluator = async (src) => {
+    const saved = { cps: R.cps, cpsSet: R.cpsSet, problems: [...R.tempoProblems] };
+    try {
+      const evaluated = await evaluateCode(src);
+      return [...evaluated.tracks].map(([label, pattern]) => ({ label, pattern }));
+    } finally {
+      R.cps = saved.cps;
+      R.cpsSet = saved.cpsSet;
+      R.tempoProblems = saved.problems;
+    }
+  };
+  const check = lint ? (src: string) => lintOak(src, { ...lint, profile: "band" }, R.toolbox).ok : undefined;
+  const built = await buildSong(song, evaluate, check);
+  const live = song.live
+    ? { tracks: [...learner.tracks].map(([label, pattern]) => ({ label, pattern })), code }
+    : null;
+  const finished = finishSong(built, live);
+  const tracks = new Map<string, Pat>();
+  for (const t of finished.tracks)
+    tracks.set(
+      t.track,
+      t.pattern.withHap((h: Hap) => h.setContext({ ...h.context, locations: [], [TRACK_KEY]: t.track })),
+    );
+  return {
+    band: { tracks, pattern: core.stack(...tracks.values()), miniLocations: [], roles: [] },
+    place: finished.place,
+    cps: bpmToCps(song.bpm, song.def.meter),
   };
 }
 

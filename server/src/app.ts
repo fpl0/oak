@@ -15,6 +15,7 @@ import { libraryRoutes } from "./routes/library.ts";
 import { metaRoutes } from "./routes/meta.ts";
 import { opsRoutes } from "./routes/ops.ts";
 import { practiceRoutes } from "./routes/practice.ts";
+import { songRoutes } from "./routes/songs.ts";
 import { tutorRoutes, tutorTurnRoutes } from "./routes/tutor.ts";
 import { ladderGenerator, patternStimulus } from "./seams.ts";
 import { anthropicKeyValidator, type KeyValidator, redactSecrets, Secrets } from "./secrets.ts";
@@ -81,6 +82,7 @@ export function buildApp(d: AppDeps): Hono {
   courseRoutes(mount, d);
   practiceRoutes(mount, d);
   libraryRoutes(mount, d);
+  songRoutes(mount, d);
   tutorRoutes(mount, d);
   opsRoutes(mount, d);
   tutorTurnRoutes(app, d);
@@ -103,7 +105,10 @@ export function buildApp(d: AppDeps): Hono {
   return app;
 }
 
-/** Start-up chores: the first-launch-of-the-day backup and the unlock backfill (contracts §11.7 rule 5, §11.10). */
+/**
+ * Start-up chores: the first-launch-of-the-day backup, the unlock backfill (contracts §11.7 rule 5, §11.10) and the
+ * unit songs' backfill (spec 2026-11-24 §5.6a).
+ */
 export function startupTasks(d: AppDeps): void {
   const day = new LearnerTime(d.services.ctx).day();
   if (d.config.dbPath !== ":memory:") {
@@ -117,6 +122,14 @@ export function startupTasks(d: AppDeps): void {
   // Wave 6 (wave6.md §5.3, §5.5): a learner already past a track gate, or past the end of the core, gets the rows
   // with their instant and no announcement.
   d.services.tracks.backfill();
+  // Unit songs (spec 2026-11-24 §5.6a): every unit with a completed take lesson gets its song, and each completed take
+  // lesson without a take gets one from its latest Make sketch (a learner whose Makes predate songs). Idempotent; a
+  // failure never stops the server.
+  try {
+    d.services.unitSongs.backfill();
+  } catch (e) {
+    d.log(`unit song backfill failed: ${e instanceof Error ? e.message : String(e)}`);
+  }
 }
 
 /**

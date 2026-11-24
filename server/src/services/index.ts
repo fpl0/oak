@@ -26,6 +26,7 @@ import { SideLessonsService } from "./side-lessons.ts";
 import { StreakService } from "./streak.ts";
 import { TrackPlanService } from "./track-plan.ts";
 import { TracksService } from "./tracks.ts";
+import { UnitSongsService } from "./unit-songs.ts";
 import { UnlocksService } from "./unlocks.ts";
 import { VoiceService } from "./voice.ts";
 
@@ -55,6 +56,8 @@ export interface Services {
   tracks: TracksService;
   /** Wave 7: the tracks as sessions, the learner's focus, the whole course (wave7.md §5). */
   trackPlan: TrackPlanService;
+  /** Unit songs (spec 2026-11-24 §5.4): each unit's song, its takes, the backfill, releases. */
+  unitSongs: UnitSongsService;
 }
 
 export interface ServiceOptions {
@@ -138,6 +141,7 @@ export function createServices(ctx: ServiceContext, opts: ServiceOptions): Servi
     ...(opts.stimulus === undefined ? {} : { stimulus: opts.stimulus }),
     ...(opts.ladder === undefined ? {} : { ladder: opts.ladder }),
   });
+  const unitSongs = new UnitSongsService(ctx, { gates, library });
   const release = new CapstoneReleaseService(ctx, {
     course,
     gates,
@@ -200,6 +204,7 @@ export function createServices(ctx: ServiceContext, opts: ServiceOptions): Servi
     sideLessons,
     tracks,
     trackPlan,
+    unitSongs,
   };
   return services;
 }

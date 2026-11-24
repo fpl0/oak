@@ -1,6 +1,7 @@
 // `soundsIn(code)`: the sounds a piece of code names, read from its `s()`, `sound()` and `.bank()`
 // string arguments. A coarse, static reading for lesson-level preloading; an editor that is about to
 // play preloads exactly what its pattern triggers (preload.ts, `warmPattern`).
+import { stripComments } from "./comments.ts";
 import type { PreloadSpec } from "./types.ts";
 
 type SoundSpec = PreloadSpec["sounds"][number];
@@ -10,43 +11,8 @@ const REST = new Set(["~", "-", "_"]);
 const LEAF = /[A-Za-z][A-Za-z0-9_]*(?::\d+)?/g;
 const NOTE = /^[a-gA-G][#bs]*-?\d$/;
 
-/** Strips line and block comments, keeping offsets and string contents intact. */
-export function stripComments(code: string): string {
-  let out = "";
-  let i = 0;
-  let quote: string | null = null;
-  while (i < code.length) {
-    const ch = code[i] as string;
-    const next = code[i + 1];
-    if (quote) {
-      out += ch;
-      if (ch === "\\" && next !== undefined) {
-        out += next;
-        i += 2;
-        continue;
-      }
-      if (ch === quote) quote = null;
-      i++;
-    } else if (ch === '"' || ch === "'" || ch === "`") {
-      quote = ch;
-      out += ch;
-      i++;
-    } else if (ch === "/" && next === "/") {
-      while (i < code.length && code[i] !== "\n") {
-        out += " ";
-        i++;
-      }
-    } else if (ch === "/" && next === "*") {
-      const end = code.indexOf("*/", i + 2);
-      const stop = end < 0 ? code.length : end + 2;
-      for (; i < stop; i++) out += code[i] === "\n" ? "\n" : " ";
-    } else {
-      out += ch;
-      i++;
-    }
-  }
-  return out;
-}
+// `stripComments` lives in comments.ts (no DOM types), so the unit-song composer stays isomorphic.
+export { stripComments };
 
 /** Top-level statements: split at newlines that are outside brackets and strings. */
 export function statementsOf(code: string): string[] {

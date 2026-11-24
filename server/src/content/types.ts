@@ -14,6 +14,7 @@ import type {
   SyllabusDef,
   TermEntry,
   ToolEntry,
+  UnitSongDef,
 } from "@oak/content-kit";
 
 export interface ContentProblem {
@@ -43,6 +44,11 @@ export interface ContentSource {
   lessons: readonly LessonDef[];
   checkpoints: readonly CheckpointDef[];
   capstones: readonly CapstoneDef[];
+  /**
+   * The unit songs (`content/unit-songs/index.ts`, spec 2026-11-24 §5.1): one per unit that has one. Absent from
+   * older fixtures (treated as empty).
+   */
+  unitSongs?: readonly UnitSongDef[];
   /** The generated syllabus and Strudel catalog text of the tutor's system prefix. */
   tutorPrefix: { syllabus: string; catalog: string };
   /** What the loader could not read. Shown by `GET /api/dev/content-report`. */
@@ -88,6 +94,7 @@ export function emptyContent(problems: readonly ContentProblem[] = []): ContentS
     lessons: [],
     checkpoints: [],
     capstones: [],
+    unitSongs: [],
     tutorPrefix: { syllabus: "", catalog: "" },
     problems,
   };

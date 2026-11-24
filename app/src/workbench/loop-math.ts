@@ -1,8 +1,8 @@
 // Loop region maths (ux §3.4 "Transport bar": `Loop ⟲ bars 1–2`; ux §7.10: `L` loop, `[`/`]` shrink/extend,
 // `Shift+[`/`Shift+]` move). A region is whole bars inside the analysed loop. While the region loops, the
 // workbench plays the code through the adapter's hidden PatternPlayer, whose A–B loop is
-// `.ribbon(fromBar, bars)`: the code text is never changed. Pure: tested in loop-math.test.ts.
-import type { MuteMap } from "@oak/strudel";
+// `.ribbon(fromBar, bars)`: the code text is never changed, and the Band (or the unit song) plays as the player's
+// own Band layer, the same one the editor plays (use-loop.ts). Pure: tested in loop.test.ts.
 
 export interface LoopRegion {
   /** 0-based first bar. */
@@ -69,48 +69,4 @@ export function tutorBarsRegion(d: { from: number; to: number }, pickup: boolean
 /** True when the region covers the whole loop (looping it changes nothing audible). */
 export function isWholeLoop(r: LoopRegion, loopBars: number): boolean {
   return r.from === 0 && r.bars >= Math.floor(loopBars);
-}
-
-/**
- * The hidden player has no Band layer of its own, so a looping Band is evaluated with the code as extra
- * labelled tracks. Band labels are renamed (`drums:` → `oakbandDrums:`) so they never replace one of the
- * learner's own tracks with the same name; `bandTrackAlias` maps the UI's `band.drums` to that name.
- */
-export const BAND_ALIAS_PREFIX = "oakband";
-
-export function bandTrackAlias(label: string): string {
-  return `${BAND_ALIAS_PREFIX}${label.charAt(0).toUpperCase()}${label.slice(1)}`;
-}
-
-const BAND_LABEL = /^(\s*)([a-z][A-Za-z0-9]*)(\s*:)/gm;
-
-/** The Band's code with only the labelled lines of the roles a step asked for (all of them when it names none). */
-export function bandCodeForTracks(code: string, tracks: readonly string[]): string {
-  if (tracks.length === 0) return code;
-  return code
-    .split("\n")
-    .filter((line) => {
-      const m = /^\s*([a-z][A-Za-z0-9]*)\s*:/.exec(line);
-      return !m || tracks.includes(m[1] as string);
-    })
-    .join("\n");
-}
-
-/** The learner's code followed by the Band's lines with renamed labels (only the roles asked for). */
-export function codeWithBand(code: string, band: { code: string; tracks: readonly string[] } | null): string {
-  if (!band || band.code.trim() === "") return code;
-  const lines = [bandCodeForTracks(band.code, band.tracks)];
-  const renamed = lines.join("\n").replace(BAND_LABEL, (_all, lead: string, label: string, colon: string) => {
-    return `${lead}${bandTrackAlias(label)}${colon}`;
-  });
-  return `${code.replace(/\s+$/, "")}\n\n${renamed}\n`;
-}
-
-/** The UI's mute map (Band tracks as `band.<label>`) in the names the looping player registers. */
-export function mutesForLoop(mutes: MuteMap): MuteMap {
-  const alias = (t: string) => (t.startsWith("band.") ? bandTrackAlias(t.slice(5)) : t);
-  return {
-    muted: new Set([...mutes.muted].map(alias)),
-    solo: mutes.solo === null ? null : alias(mutes.solo),
-  };
 }

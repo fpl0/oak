@@ -210,7 +210,7 @@
 
 **Files:**
 - Create: `content/validate/unit-songs.test.ts`, `content/validate/unit-songs.ts` (the checks, shared with `content:check`)
-- Modify: `scripts/content/check.ts` (new section "15. Unit song" for a lesson in a song), `content/validate/harness.ts` (export what the checks need)
+- Modify: `scripts/content/check.ts` (new section "16. Unit song" for a lesson in a song), `content/validate/harness.ts` (export what the checks need)
 
 **Interfaces:**
 - Consumes: Tasks 1–4; harness `evaluate`, `lint` (profile `band`), `grade`; the clash scan used by `test:content`.
@@ -231,8 +231,8 @@
     - `parts` missing a played part → `usong.parts`;
     - a `today` line with an untaught term → `usong.terms`.
 - [ ] **Step 2:** `bun test ./content/validate/unit-songs.test.ts`. Expected: FAIL.
-- [ ] **Step 3: Implement**, then add section 15 to `content:check`.
-- [ ] **Step 4:** Run the test (placeholders from Task 3 must pass), then `bun run content:check U01.L05`. Expected: PASS, with a "15. Unit song" line.
+- [ ] **Step 3: Implement**, then add section 16 to `content:check`.
+- [ ] **Step 4:** Run the test (placeholders from Task 3 must pass), then `bun run content:check U01.L05`. Expected: PASS, with a "16. Unit song" line.
 
 ### Task 7: the Make inside the song (app, lesson)
 

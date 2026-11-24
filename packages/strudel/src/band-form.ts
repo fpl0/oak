@@ -11,7 +11,7 @@
 // section of the same type (`chorus2` is a chorus), so a Band chorus always lands under the learner's chorus.
 // Reading is static (no evaluation) and mirrors the grader's `sectionsFromAst` convention: section names come
 // from `<role><Section>` identifiers, `silence` rests, and the tracks must agree or the Band keeps its own form.
-import { stripComments } from "./sounds-in.ts";
+import { stripComments } from "./comments.ts";
 
 export interface ArrangeSection {
   /** The identifier in the code (`melChorus2`), or `silence`. */

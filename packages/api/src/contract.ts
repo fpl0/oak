@@ -2,7 +2,7 @@
 // The server mounts handlers from this table (zValidator on `params`, `query`, `body`); the client
 // (./client.ts) types calls from it. One entry per endpoint, no codegen.
 
-import { SUBJECT_KINDS } from "@oak/content-kit";
+import { SUBJECT_KINDS, schemas } from "@oak/content-kit";
 import { z } from "zod";
 import * as D from "./dto.ts";
 import {
@@ -50,6 +50,8 @@ const p = <K extends string>(...names: K[]) =>
   z.strictObject(Object.fromEntries(names.map((n) => [n, id])) as Record<K, typeof id>);
 const list = <T extends z.ZodType>(item: T) => z.object({ items: z.array(item) });
 const flag = z.enum(["0", "1"]);
+/** `/songs/:unitId`: a unit id (`U01`, `J1`); anything else is a 400. */
+const unitParams = z.strictObject({ unitId: schemas.idSchema("unit") });
 
 export const contract = {
   // --- meta ---
@@ -777,7 +779,83 @@ export const contract = {
     params: p("id", "v"),
     res: D.AlbumSourceSchema,
   },
+
+  // --- Unit songs (docs/superpowers/specs/2026-11-24-unit-songs-design.md §5.4): each unit is one song the learner
+  // takes over lesson by lesson. Every write answers the song as it now stands. ---
+  /** The learner's songs (started, open or released), in course order, without their takes. */
+  "songs.list": { method: "GET", path: "/songs", res: list(D.UnitSongSummarySchema) },
+  /** A unit's song with its takes and their code; `status: "new"` while the learner has not started it. */
+  "songs.get": { method: "GET", path: "/songs/:unitId", params: unitParams, res: D.UnitSongDetailSchema },
+  /** Start the unit's song in a style (the New song moment); also records the unit's earlier Makes (backfill). */
+  "songs.start": {
+    method: "POST",
+    path: "/songs/:unitId/start",
+    params: unitParams,
+    body: D.UnitSongStartSchema,
+    res: D.UnitSongDetailSchema,
+  },
+  /** Change the song's style: the takes stay, Oak's parts switch style; a release keeps its own. */
+  "songs.setFlavour": {
+    method: "POST",
+    path: "/songs/:unitId/flavour",
+    params: unitParams,
+    body: D.UnitSongFlavourSetSchema,
+    res: D.UnitSongDetailSchema,
+  },
+  "songs.rename": {
+    method: "POST",
+    path: "/songs/:unitId/title",
+    params: unitParams,
+    body: D.UnitSongRenameSchema,
+    res: D.UnitSongDetailSchema,
+  },
+  /** The one-time style card of a backfilled song was seen. */
+  "songs.ackStyle": {
+    method: "POST",
+    path: "/songs/:unitId/style-seen",
+    params: unitParams,
+    res: D.UnitSongDetailSchema,
+  },
+  /** A take Make saved (after `sketches.create`): the cells its code claims. Idempotent per key and per version. */
+  "songs.recordTake": {
+    method: "POST",
+    path: "/songs/:unitId/takes",
+    params: unitParams,
+    body: D.UnitSongTakeCreateSchema,
+    res: D.UnitSongDetailSchema,
+  },
+  /** Release (or release again) to the album as a frozen snapshot; refused until the song's `releaseAfter` is done. */
+  "songs.release": {
+    method: "POST",
+    path: "/songs/:unitId/release",
+    params: unitParams,
+    body: D.UnitSongReleaseRequestSchema,
+    res: D.UnitSongReleaseResultSchema,
+  },
+  /** A release exactly as it was frozen: what album playback and export compose. */
+  "songs.snapshot": {
+    method: "GET",
+    path: "/songs/:unitId/releases/:releaseId",
+    params: z.strictObject({
+      unitId: unitParams.shape.unitId,
+      releaseId: z.string().regex(/^[1-9]\d{0,9}$/),
+    }),
+    res: D.UnitSongSnapshotSchema,
+  },
 } as const satisfies Record<string, EndpointDef>;
+
+/** The unit song endpoints (spec 2026-11-24 §5.4). */
+export const UNIT_SONG_ENDPOINTS = [
+  "songs.list",
+  "songs.get",
+  "songs.start",
+  "songs.setFlavour",
+  "songs.rename",
+  "songs.ackStyle",
+  "songs.recordTake",
+  "songs.release",
+  "songs.snapshot",
+] as const satisfies readonly (keyof typeof contract)[];
 
 /**
  * The Wave 7 endpoints of docs/design/wave7.md §5. Each answers a typed 501 until built; `routes.test.ts` lists the

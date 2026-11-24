@@ -3,20 +3,22 @@
 // the page or the learner. Rate is a cps scale, transposition a live `note` shift on pitched haps, the A–B loop
 // `.ribbon(fromBar, bars)`, realism (contracts §6.12) a deterministic layer on the pattern; all four change the
 // playing pattern at once, no re-evaluation. A Band (contracts §5.10) is evaluated next to the code and plays on
-// the same scheduler, exactly as under an editor.
+// the same scheduler, exactly as under an editor; so is a unit song (spec §5.2: the Today and song-page play buttons,
+// the Workbench's section loop), composed by song-compose.ts around the loaded code.
 import type { KeySpec, LintContext, LintDiagnostic } from "@oak/content-kit";
 import * as core from "@strudel/core";
 import { transpiler } from "@strudel/transpiler";
 import * as webaudio from "@strudel/webaudio";
 import * as WT from "worker-timers";
-import { bandCodeFor, firstScaleOf } from "./band.ts";
+import { firstScaleOf, type PreparedBand, prepareBandFor } from "./band.ts";
 import { formBarsOf } from "./band-form.ts";
 import {
   type EvalSession,
-  evaluateBand,
+  evaluatePreparedBand,
   finalizePattern,
   installTrackWrapper,
   newSession,
+  songCps,
 } from "./evaluation.ts";
 import { ADAPTER_FEEDBACK, diagnostic, errorToDiagnostic, hasError, runLint } from "./lint-bridge.ts";
 import { copyMutes, NO_MUTES } from "./mutes.ts";
@@ -24,6 +26,7 @@ import { WARM_AHEAD_BARS, type WarmAhead } from "./preload.ts";
 import { isCleanRealism, type RealismSpec, realismSpec } from "./realism.ts";
 import { applyRealism } from "./realism-pattern.ts";
 import { captureMessageListeners, type Runtime, removeCaptured } from "./runtime.ts";
+import { songLengthBars } from "./song-compose.ts";
 import type { CyclistLike } from "./transport.ts";
 import type { BandSetup, EvalOutcome, MuteMap, PatternPlayer } from "./types.ts";
 
@@ -32,6 +35,7 @@ interface ReplLike {
   state: { pattern?: Strudel.Pattern; miniLocations?: [number, number][] };
   evaluate(code: string, autostart?: boolean): Promise<unknown>;
   setPattern(pattern: Strudel.Pattern, autostart?: boolean): Promise<unknown>;
+  setCps(cps: number): void;
   start(): Promise<void>;
   stop(): void;
 }
@@ -76,7 +80,9 @@ export function createPatternPlayer(rt: Runtime): PatternPlayer {
   let session: EvalSession = newSession();
   let release: (() => void) | null = null;
   let realism: RealismSpec = realismSpec(0);
-  let pendingBand: { code: string; roles: string[] } | null = null;
+  let pendingBand: PreparedBand | null = null;
+  /** The Band lint of the current load, for each code of a unit song. */
+  let bandCheck: ((code: string) => boolean) | null = null;
   let bandFailure: unknown = null;
   let loadedTracks: string[] = [];
   let loadedBars = 1;
@@ -105,12 +111,15 @@ export function createPatternPlayer(rt: Runtime): PatternPlayer {
         },
         id: `oak_${id.replace(":", "-")}_`,
         beforeEval: async () => {
+          // A unit song plays at its own tempo until the loaded code sets one (spec §5.2).
+          if (pendingBand?.kind === "song") repl.setCps(songCps(pendingBand.song));
           installTrackWrapper(session, () => mutes);
           if (pendingBand) {
             try {
-              await evaluateBand(pendingBand.code, pendingBand.roles, session);
+              await evaluatePreparedBand(pendingBand, session, bandCheck ?? undefined);
             } catch (err) {
               session.band = [];
+              session.song = null;
               bandFailure = err;
             }
           }
@@ -171,24 +180,31 @@ export function createPatternPlayer(rt: Runtime): PatternPlayer {
     return out;
   }
 
-  /** The Band code to evaluate under the hidden code, checked with the Band's own lint profile. */
+  /**
+   * The Band to evaluate under the hidden code (`prepareBandFor`, as under an editor), checked with the Band's own
+   * lint profile; a unit song checks each of its codes as it evaluates them.
+   */
   function prepareBand(
     band: BandSetup | null,
     code: string,
     cps: number,
     key: KeySpec | null | undefined,
     ctx: LintContext,
-  ): { ok: true; value: { code: string; roles: string[] } } | { ok: false; error: unknown } {
+  ): { ok: true; value: PreparedBand } | { ok: false; error: unknown } {
     if (!band) return { ok: false, error: null };
-    const bandCode = bandCodeFor(band, {
+    const check = (c: string): boolean => {
+      const linted = runLint(rt.lint, c, { ...ctx, profile: "band", allowPreview: true });
+      return linted.ok && linted.result.ok;
+    };
+    bandCheck = check;
+    const prepared = prepareBandFor(band, {
       key: key ?? keyOfBandCode(band.code),
       defaultBpm: cps > 0 ? Math.round(cps * 60 * BEATS_PER_BAR * 1000) / 1000 : 120,
       learnerCode: code,
     });
-    const linted = runLint(rt.lint, bandCode, { ...ctx, profile: "band", allowPreview: true });
-    if (!linted.ok || !linted.result.ok)
+    if (prepared.kind === "code" && !check(prepared.code))
       return { ok: false, error: new Error("the Band code did not pass its check") };
-    return { ok: true, value: { code: bandCode, roles: [...band.tracks] } };
+    return { ok: true, value: prepared };
   }
 
   const source = {
@@ -208,7 +224,9 @@ export function createPatternPlayer(rt: Runtime): PatternPlayer {
     get playing() {
       return playing && !disposed;
     },
-    load(code, opts) {
+    load(given, opts) {
+      // A unit song plays alone when the player is given no code of its own (Today's and the song page's play).
+      const code = !given.trim() && opts.band?.song ? "silence" : given;
       return rt.mutex.run(async (): Promise<EvalOutcome> => {
         const base: EvalOutcome = {
           ok: false,
@@ -272,7 +290,8 @@ export function createPatternPlayer(rt: Runtime): PatternPlayer {
         ahead = null;
         if (effective) await rt.preloadPattern(effective, 0, loadedBars);
         // A source longer than the bars warmed up front: the rest is warmed in order while it plays.
-        const pieceBars = Math.min(Math.max(opts.bars, formBarsOf(code) ?? 0), WARM_AHEAD_BARS);
+        const form = session.song ? songLengthBars(session.song.built.band.def) : formBarsOf(code);
+        const pieceBars = Math.min(Math.max(opts.bars, form ?? 0), WARM_AHEAD_BARS);
         if (effective && pieceBars > loadedBars) ahead = rt.warmAhead(effective, loadedBars, pieceBars);
         if (!playing) rt.transport.setActive(source);
         return {

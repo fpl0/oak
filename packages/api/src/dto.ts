@@ -1,7 +1,14 @@
 // Shared domain DTOs: what crosses the wire between the app and the server. Each is a zod schema plus
 // its inferred type. Field names are camelCase; the SQLite columns they come from are in
 // docs/design/interfaces.md. Absent values are `null` in responses (never a missing key).
-import { DEGREES, FLAVOUR_IDS, type LearnerProfile, schemas, type TrackId } from "@oak/content-kit";
+import {
+  DEGREES,
+  FLAVOUR_IDS,
+  type LearnerProfile,
+  schemas,
+  type TrackId,
+  type UnitSongDef,
+} from "@oak/content-kit";
 import { z } from "zod";
 import {
   BACKEND_IDS,
@@ -1371,6 +1378,186 @@ export const WholeCourseSchema = z.object({
 });
 export type WholeCourse = z.infer<typeof WholeCourseSchema>;
 
+// --- unit songs (docs/superpowers/specs/2026-11-24-unit-songs-design.md §5.4) ---------------------------------
+
+/**
+ * `new`: the unit has a song in the content that the learner has not started (no row yet); `open`: started, takes
+ * going in; `released`: released to the album at least once (later takes still update it, `changedSinceRelease`).
+ */
+export const UNIT_SONG_STATUSES = ["new", "open", "released"] as const;
+export type UnitSongStatus = (typeof UNIT_SONG_STATUSES)[number];
+const unitId = idSchema("unit");
+/** A song's title as the learner names it: 1 to 60 characters once trimmed. */
+const songTitle = z.string().trim().min(1).max(60);
+/** A cell of the song's grid, `<part>@<section>` (content-kit `CellKey`): both are slugs. */
+const songCell = z
+  .string()
+  .regex(/^[a-z][a-z0-9-]*@[a-z][a-z0-9-]*$/, "a cell is <part>@<section>")
+  .max(130);
+/** A take's track labels → the song part each plays (`null`: no part; it goes past the brief). */
+const songLabels = z
+  .record(z.string().min(1).max(64), z.string().max(64).nullable())
+  .refine((r) => Object.keys(r).length <= 64, "at most 64 track labels");
+
+/** Today's line about the song of the lesson it plans (`SessionPlan.song`). */
+export const UnitSongPlanSchema = z.object({
+  unitId,
+  songId: idSchema("unitSong"),
+  /** The learner's title for the song (Oak's working title while it is `new`). */
+  title: z.string(),
+  /** The song's style (the profile's while it is `new`: what the New song moment offers first). */
+  flavour,
+  status: z.enum(UNIT_SONG_STATUSES),
+  /** Takes in the song now. */
+  takesCount: z.number().int().nonnegative(),
+  /** Where the planned lesson is in the song's plan (1-based) and how many lessons the plan has: "lesson 4 of 9". */
+  lessonIndex: z.number().int().positive(),
+  lessonsInSong: z.number().int().positive(),
+  /** The take step's `today` line; `null` for a side step. */
+  today: z.string().nullable(),
+  /** The lesson is a side step: its Make stays a sketch of its own (the content's `reason` says why). */
+  side: z.boolean(),
+});
+export type UnitSongPlan = z.infer<typeof UnitSongPlanSchema>;
+
+/** One take of a song: a lesson's Make, the sketch version it plays and the cells it claims (`unit_song_takes`). */
+export const UnitSongTakeSchema = z.object({
+  id: z.number().int().positive(),
+  lessonId,
+  sketchId: z.string(),
+  sketchVersion: z.number().int().positive(),
+  /** The code of that sketch version (the take plays it; the server never copies or changes it). */
+  code: z.string(),
+  /** The cells it claims, in song order (content-kit `CellKey`). Later takes override earlier ones. */
+  cells: z.array(songCell),
+  labels: songLabels,
+  /** The tempo of its code; the song plays at the newest take's tempo (spec §5.2). */
+  bpm: z.number().positive(),
+  /**
+   * Oak recorded it from an earlier lesson-make sketch (spec §5.6a): `cells` are the step's sections × declared parts,
+   * until the app saves this version again with the cells it computed from the code.
+   */
+  backfilled: z.boolean(),
+  /** The sketch version came from a backup import: its code runs only after the strict lint (contracts §11.3). */
+  reviewBeforeRun: z.boolean(),
+  createdAt: Instant,
+});
+export type UnitSongTake = z.infer<typeof UnitSongTakeSchema>;
+
+/** One release of a song to the album (`unit_song_releases`, without its snapshot). */
+export const UnitSongReleaseSchema = z.object({
+  id: z.number().int().positive(),
+  /** The album track it became; `null` once the learner deleted that track. */
+  albumTrackId: z.string().nullable(),
+  albumVersion: z.number().int().positive(),
+  flavour,
+  title: z.string(),
+  createdAt: Instant,
+});
+export type UnitSongRelease = z.infer<typeof UnitSongReleaseSchema>;
+
+const unitSongFields = {
+  unitId,
+  songId: idSchema("unitSong"),
+  /** The `UnitSongDef.version` the song was last arranged with (at start, a style change or a take). */
+  songVersion: z.number().int().nonnegative(),
+  /** The song's version in the content now; `null` when the content no longer has it. */
+  contentVersion: z.number().int().positive().nullable(),
+  flavour,
+  title: z.string(),
+  status: z.enum(UNIT_SONG_STATUSES),
+  /** Released, and a take or the style changed since the newest release: the song page offers "Release again". */
+  changedSinceRelease: z.boolean(),
+  /** `releaseAfter` is complete and the song has a take: `songs.release` will accept it. */
+  releasable: z.boolean(),
+  /** Oak made (part of) it from earlier lessons' sketches (spec §5.6a). */
+  backfilled: z.boolean(),
+  /** The learner picked or saw the song's style (Today's one-time style card shows while backfilled and not seen). */
+  styleSeen: z.boolean(),
+  takesCount: z.number().int().nonnegative(),
+  /** Oldest first. */
+  releases: z.array(UnitSongReleaseSchema),
+};
+/** `songs.list`: a song without its takes. */
+export const UnitSongSummarySchema = z.object(unitSongFields);
+export type UnitSongSummary = z.infer<typeof UnitSongSummarySchema>;
+/** `songs.get` and every song write: the song with its takes in order (a `new` song has none). */
+export const UnitSongDetailSchema = z.object({ ...unitSongFields, takes: z.array(UnitSongTakeSchema) });
+export type UnitSongDetail = z.infer<typeof UnitSongDetailSchema>;
+
+export const UnitSongStartSchema = z.strictObject({
+  flavour,
+  /** See `IdempotencyKeySchema`. A second start without the key returns the song as it is. */
+  idempotencyKey: IdempotencyKeySchema.optional(),
+});
+export type UnitSongStart = z.infer<typeof UnitSongStartSchema>;
+export const UnitSongFlavourSetSchema = z.strictObject({ flavour });
+export const UnitSongRenameSchema = z.strictObject({ title: songTitle });
+export const UnitSongTakeCreateSchema = z.strictObject({
+  /** A take step of this unit's song. */
+  lessonId,
+  /** The lesson-make sketch version the Make just saved (`sketches.create`). */
+  sketchId: z.string().min(1).max(64),
+  sketchVersion: z.number().int().positive(),
+  /** `claimsOf(def, step, playedParts, filled)` (content-kit): only cells in the step's sections. */
+  cells: z.array(songCell).max(1024),
+  labels: songLabels,
+  bpm: z.number().positive().max(400),
+  /** See `IdempotencyKeySchema` (`[A-Za-z0-9_-]`, so not `take:U01.L05:…`). Saving the same version again refines it. */
+  idempotencyKey: IdempotencyKeySchema.optional(),
+});
+export type UnitSongTakeCreate = z.infer<typeof UnitSongTakeCreateSchema>;
+export const UnitSongReleaseRequestSchema = z.strictObject({
+  title: songTitle,
+  idempotencyKey: IdempotencyKeySchema.optional(),
+});
+export type UnitSongReleaseRequest = z.infer<typeof UnitSongReleaseRequestSchema>;
+export const UnitSongReleaseResultSchema = z.object({
+  albumTrackId: z.string(),
+  albumVersion: z.number().int().positive(),
+  releaseId: z.number().int().positive(),
+  song: UnitSongDetailSchema,
+});
+export type UnitSongReleaseResult = z.infer<typeof UnitSongReleaseResultSchema>;
+
+/** A take as a release froze it: its claim and its code at release. */
+export const UnitSongSnapshotTakeSchema = z.object({
+  takeId: z.number().int().positive(),
+  lessonId,
+  sketchId: z.string(),
+  sketchVersion: z.number().int().positive(),
+  code: z.string(),
+  cells: z.array(songCell),
+  labels: songLabels,
+  bpm: z.number().positive(),
+});
+export type UnitSongSnapshotTake = z.infer<typeof UnitSongSnapshotTakeSchema>;
+/**
+ * `songs.snapshot`: a release exactly as it was frozen (spec §5.4). Album playback and export compose from this, never
+ * from the current content or takes: `def` is the whole `UnitSongDef` at release (stored as it was, so it is not
+ * re-validated here), `oakCode` its `code[flavour]`, `takes` in order.
+ */
+export const UnitSongSnapshotSchema = z.object({
+  id: z.number().int().positive(),
+  unitId,
+  albumTrackId: z.string().nullable(),
+  albumVersion: z.number().int().positive(),
+  songId: idSchema("unitSong"),
+  songVersion: z.number().int().nonnegative(),
+  flavour,
+  title: z.string(),
+  bpm: z.number().positive(),
+  oakCode: z.string(),
+  def: z.custom<UnitSongDef>((v) => typeof v === "object" && v !== null && !Array.isArray(v), {
+    message: "a song definition",
+  }),
+  takes: z.array(UnitSongSnapshotTakeSchema),
+  /** Set by a backup import: every code in it runs only after the strict lint (contracts §11.3). */
+  reviewBeforeRun: z.boolean(),
+  createdAt: Instant,
+});
+export type UnitSongSnapshot = z.infer<typeof UnitSongSnapshotSchema>;
+
 export const SessionPlanSchema = z.object({
   day: Day,
   targetMinutes: TargetMinutesSchema,
@@ -1462,6 +1649,11 @@ export const SessionPlanSchema = z.object({
   trackOffers: z.array(TrackOfferSchema).optional(),
   focus: z.enum(TRACK_FOCUS).optional(),
   course: z.enum(COURSE_STAGES).optional(),
+  /**
+   * Unit songs (spec 2026-11-24 §5.5): the song of the lesson Today plans, when that lesson is in one (a take or a
+   * side step). Absent otherwise, and from an older server.
+   */
+  song: UnitSongPlanSchema.nullable().optional(),
 });
 export type SessionPlan = z.infer<typeof SessionPlanSchema>;
 
@@ -1584,7 +1776,16 @@ export const SKETCH_ORIGINS = [
 const bandState = z.strictObject({
   bandId: idSchema("band"),
   flavour,
-  mutes: z.array(z.enum(["drums", "bass", "chords"])),
+  /**
+   * The tracks the step left out, by label: a Band's roles (`drums`, `bass`, `chords`) or, inside a unit song, the
+   * song's part labels (`kick`, `mel`…). Unit songs (2026-11-24) widened it from the three Band roles.
+   */
+  mutes: z.array(z.string().max(64)),
+  /**
+   * Unit songs (spec 2026-11-24 §5.2): the Make played inside its unit's song, over these takes (`unit_song_takes`
+   * ids, in order). Absent for a plain Band.
+   */
+  song: z.strictObject({ unitId, takeIds: z.array(z.number().int().positive()).max(256) }).optional(),
 });
 const sketchFlags = z.strictObject({
   lockedTools: z.array(z.string()),

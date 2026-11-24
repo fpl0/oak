@@ -105,6 +105,10 @@ const EXAMPLES: Record<IdKind, { ok: string[]; bad: string[] }> = {
     bad: ["flavour.rock", "flavor.pop", "flavour.jazz"],
   },
   band: { ok: ["band.axis-8bar", "band.two-chord-vamp"], bad: ["band.", "band.Axis"] },
+  unitSong: {
+    ok: ["usong.U01", "usong.U17", "usong.J1", "usong.R3", "usong.A2"],
+    bad: ["song.U01", "usong.u01", "usong.U1", "usong.J6", "usong.", "usong.U01.L01"],
+  },
   feedback: {
     ok: ["rhythm.missing", "code.locked-tool", "lint.strict.this", "eval.truncated", "form.section-period"],
     bad: ["rhythm", "tb.scale", "pitch.n-without-scale", "rhythm.a.b.c", "Rhythm.missing"],

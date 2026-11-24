@@ -1,14 +1,15 @@
 // Static analysis mode (architecture §2.2 "Analysis path"): evaluate WITHOUT playing through the browser
 // grader host, so the roll and the staff show code that has not been run. Debounced on edits (300 ms),
 // immediate after an evaluation. A failed analysis keeps the last good model on screen (Strudel keeps
-// playing the last good pattern too) and reports the error beside it.
+// playing the last good pattern too) and reports the error beside it. The Band is what the editor plays: a plain
+// Band through `bandCodeFor` (key and form follow, register fold) with its tracks kept by label, a unit song
+// composed in the grader's realm by the adapter's own composer (spec §5.2).
 
 import type { KeySpec, LintContext, MeterId, PickupSpec } from "@oak/content-kit";
 import type { GraderErrorInfo, GraderHost } from "@oak/grader";
 import type { StaffKind } from "@oak/notation";
-import type { BandSetup } from "@oak/strudel";
+import { type BandSetup, bandCodeFor, type SongBand, songBandToWire } from "@oak/strudel";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { bandCodeForTracks } from "./loop-math.ts";
 import { buildModel, type WorkbenchModel } from "./model.ts";
 
 export interface AnalysisOptions {
@@ -23,7 +24,9 @@ export interface AnalysisOptions {
   /** A declared pickup (Wave 4): the harmony's bars and the staff's first bar follow it. */
   pickup?: PickupSpec | null;
   /** The Band parts heard (the step's tracks less the muted ones); the harmony reads only these. */
-  bandHeard?: readonly ("drums" | "bass" | "chords")[] | null;
+  bandHeard?: readonly string[] | null;
+  /** The tempo a Band's leftover `{{bpm}}` takes when the code sets none (`lessonCtx.defaultBpm`). Default 120. */
+  defaultBpm?: number;
   /** Wave 7: chord symbols on the staff in jazz glyphs (`tb.feature.jazz-glyphs`). */
   chordStyle?: "lead-sheet" | "jazz";
 }
@@ -39,6 +42,14 @@ export interface AnalysisState {
 }
 
 const INITIAL: AnalysisState = { model: null, code: null, error: null, errorCode: null, pending: false };
+
+/** What makes a song analyse differently: its version and style, tempo, takes, who owns each cell, today's Make. */
+function songShape(song: SongBand): string {
+  const grid = [...song.grid].map(([cell, owner]) => `${cell}=${owner}`).join(",");
+  const live = song.live ? `${song.live.step.lesson}:${[song.live.sections].flat().join("+")}` : "";
+  const takes = song.sources.map((s) => `${s.sourceId}:${s.code.length}`).join(",");
+  return `${song.def.id}@${song.def.version}|${song.flavour}|${song.bpm}|${takes}|${grid}|${live}|${song.oakCode?.length ?? ""}`;
+}
 
 export function useAnalysis(
   grader: GraderHost | null,
@@ -65,8 +76,16 @@ export function useAnalysis(
         bars: o.bars,
         lint: o.lint,
         meter: o.meter,
-        // Only the parts the step asked for: the roll, the chips and the harmony show what plays.
-        ...(o.band ? { band: bandCodeForTracks(o.band.code, o.band.tracks) } : {}),
+        // What the editor plays: the roll, the chips and the harmony show it. A plain Band keeps only the parts
+        // the step asked for (by label); a unit song is composed around this code as the live Make.
+        ...(o.band?.song
+          ? { song: songBandToWire(o.band.song) }
+          : o.band
+            ? {
+                band: bandCodeFor(o.band, { key: o.key, defaultBpm: o.defaultBpm ?? 120, learnerCode: src }),
+                bandTracks: o.band.tracks,
+              }
+            : {}),
       };
       grader
         .analyze(src, evalOpts, ctl.signal)
@@ -111,7 +130,7 @@ export function useAnalysis(
   // (the learner's unlocked set often arrives after the first analysis: without this the "locked" errors of an
   // empty set stay on screen).
   const lintKey = `${opts.lint.profile}|${opts.lint.allowPreview}|${[...opts.lint.unlocked].sort().join(",")}`;
-  const shape = `${opts.bars}|${opts.meter}|${opts.key?.tonic}:${opts.key?.mode}|${opts.band?.code ?? ""}:${opts.band?.tracks.join("+") ?? ""}|${opts.staff}|${opts.staffLabels}|${opts.pickup ? opts.pickup.units.join("/") : ""}|${opts.bandHeard?.join("+") ?? "*"}|${opts.chordStyle ?? ""}|${lintKey}`;
+  const shape = `${opts.bars}|${opts.meter}|${opts.key?.tonic}:${opts.key?.mode}|${opts.band?.code ?? ""}:${opts.band?.tracks.join("+") ?? ""}|${opts.band?.song ? songShape(opts.band.song) : ""}|${opts.staff}|${opts.staffLabels}|${opts.pickup ? opts.pickup.units.join("/") : ""}|${opts.bandHeard?.join("+") ?? "*"}|${opts.chordStyle ?? ""}|${lintKey}`;
   const lastShape = useRef(shape);
   useEffect(() => {
     if (lastShape.current === shape) return;

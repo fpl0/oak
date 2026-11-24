@@ -24,8 +24,17 @@ import { createTransport } from "./transport.ts";
 import type { AudioState, EditorHandle, OakStrudel, OakStrudelOptions, StrudelLog } from "./types.ts";
 import { createUiSoundBus } from "./ui-sounds.ts";
 
+// The Band code a plain Band plays (key and form follow, register fold), for paths outside the adapter (the
+// Workbench analysis), and the one preparation every path shares (unit songs: spec §5.2).
+export {
+  type BandContext,
+  bandCodeFor,
+  type PreparedBand,
+  prepareBandFor,
+} from "./band.ts";
 export { buildVocabulary, completionSiteAt, completionsFor } from "./completion.ts";
 export type { InternalEditor } from "./editor.ts";
+export { evaluateSongBand, songCps } from "./evaluation.ts";
 export { type FriendlyError, friendlyEvalError } from "./friendly.ts";
 export { isMuted, NO_MUTES } from "./mutes.ts";
 // Wave 5 seam (docs/design/wave5.md §3.4): visual probes and a fake scope tap (also "@oak/strudel/probes").
@@ -55,6 +64,34 @@ export {
   referenceValue,
   tonicPlan,
 } from "./reference.ts";
+// Unit songs (spec §5.2): the composer, also "@oak/strudel/song-compose" for the grader's realm.
+export {
+  composeSongPatterns,
+  LIVE_SOURCE,
+  labelsOf,
+  OAK_TRACK_PREFIX,
+  oakCodeOf,
+  oakTrackName,
+  placeInSections,
+  playedPartsOfTracks,
+  roleOfTrack,
+  type SongBand,
+  type SongBandWire,
+  type SongLive,
+  type SongSource,
+  type SongTrackRole,
+  type SourceSection,
+  songBandFromWire,
+  songBandToWire,
+  songBandTracks,
+  songFormView,
+  songLengthBars,
+  sourceSectionsOf,
+  TAKE_TRACK_PREFIX,
+  type TrackFacts,
+  takeTrackName,
+  trackFacts,
+} from "./song-compose.ts";
 export { soundsIn } from "./sounds-in.ts";
 export * from "./types.ts";
 export { LIMITER, limiterMakeupDb };

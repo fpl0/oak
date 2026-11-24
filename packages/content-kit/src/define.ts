@@ -2,7 +2,7 @@
 // then freeze. A failure throws `ContentDefinitionError` listing every issue with its path.
 // Rules that need the registries (unknown IDs, unlock-before-use, budgets, tests) are content CI's job;
 // `checkLessonAuthoring` below holds the ones CI can run on a lesson alone.
-import type { z } from "zod";
+import { prettifyError, type z } from "zod";
 import { AUTHORING_CAPS, lessonBudget } from "./budget.ts";
 import { parseLessonId } from "./ids.ts";
 import { collectParamRefs, StarterMarkerError, stripMarkers } from "./params.ts";
@@ -29,6 +29,7 @@ import type {
   TermEntry,
   ToolEntry,
   UnitDef,
+  UnitSongDef,
 } from "./schema/index.ts";
 import {
   CODE_KINDS,
@@ -40,6 +41,7 @@ import {
   MODE_DEGREES,
   STEP_EXERCISE_KINDS,
   trackCustomParamIssues,
+  unitSongSchema,
 } from "./schema/index.ts";
 import {
   BandDefSchema,
@@ -1638,6 +1640,21 @@ export function defineBand(def: BandDef): BandDef {
     }
     return issues;
   });
+}
+
+/**
+ * A unit's song (spec 2026-11-24 §5.1): the schema and its cross-field rules, then frozen. Unlike the other
+ * define* helpers it throws the `ZodError` itself: `issues` carry their paths (`plan.3.sections.0`), and the
+ * message lists them readably ("✖ … → at plan[3].sections[0]") for content:check and the server's load report.
+ */
+export function defineUnitSong(def: UnitSongDef): UnitSongDef {
+  const result = unitSongSchema.safeParse(def);
+  if (!result.success) {
+    const message = `unit song ${def?.id} is not valid:\n${prettifyError(result.error)}`;
+    Object.defineProperty(result.error, "message", { value: message, configurable: true, writable: true });
+    throw result.error;
+  }
+  return deepFreeze(def);
 }
 
 export const defineFlavour = (def: FlavourKit): FlavourKit =>

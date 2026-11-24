@@ -12,10 +12,10 @@ const repos = () => {
 };
 
 describe("schema", () => {
-  test("0001 to 0010 create every table of interfaces.md §7 plus Waves 2 to 7, and set user_version", () => {
+  test("0001 to 0011 create every table of interfaces.md §7 plus Waves 2 to 7 and unit songs, and set user_version", () => {
     const db = openDb(":memory:");
-    expect(schemaVersion(db)).toBe(10);
-    expect(latestVersion()).toBe(10);
+    expect(schemaVersion(db)).toBe(11);
+    expect(latestVersion()).toBe(11);
     const expected = [
       "settings",
       "learner_profile",
@@ -76,9 +76,64 @@ describe("schema", () => {
       "track_focus",
       "course_state",
       "capstone_versions",
+      // Unit songs (0011): each unit's song, the takes that fill it, its frozen releases.
+      "unit_songs",
+      "unit_song_takes",
+      "unit_song_releases",
     ];
     expect(tableNames(db).sort()).toEqual([...expected].sort());
     expect(all<{ foreign_keys: number }>(db, "PRAGMA foreign_keys")[0]?.foreign_keys).toBe(1);
+  });
+
+  test("0011 only adds tables and columns: the album rows gain their unit and release", () => {
+    const db = openDb(":memory:");
+    const cols = (t: string) => all<{ name: string }>(db, `PRAGMA table_info(${t})`).map((c) => c.name);
+    expect(cols("album_tracks")).toContain("unit_id");
+    expect(cols("album_track_versions")).toContain("song_release_id");
+    expect(cols("unit_songs")).toEqual([
+      "unit_id",
+      "song_id",
+      "song_version",
+      "flavour",
+      "title",
+      "status",
+      "backfilled",
+      "style_seen",
+      "created_at",
+      "released_at",
+    ]);
+    expect(cols("unit_song_takes")).toEqual(
+      expect.arrayContaining([
+        "unit_id",
+        "lesson_id",
+        "sketch_id",
+        "sketch_version",
+        "cells_json",
+        "labels_json",
+      ]),
+    );
+    expect(cols("unit_song_releases")).toEqual(
+      expect.arrayContaining(["album_track_id", "album_version", "oak_code", "def_json", "takes_json"]),
+    );
+    // A database at 0010 with a learner's sketches and album keeps every row through 0011.
+    const old = openDb(":memory:", { migrate: false });
+    const migs = loadMigrations();
+    migrate(old, migs.slice(0, 10));
+    old.run(
+      "INSERT INTO sketches (id, title, origin_kind, origin_id, created_at, updated_at) VALUES ('sk_1', 'm', 'lesson-make', 'U01.L01', 't', 't')",
+    );
+    old.run(
+      "INSERT INTO sketch_versions (sketch_id, version, code, created_at) VALUES ('sk_1', 1, 's(\"bd\")', 't')",
+    );
+    old.run(
+      "INSERT INTO album_tracks (id, side, track_no, title, cover_seed, created_at) VALUES ('trk_1', 'Bside', 1, 'B', 'c', 't')",
+    );
+    old.run(
+      "INSERT INTO album_track_versions (track_id, version, sketch_id, sketch_version, created_at) VALUES ('trk_1', 1, 'sk_1', 1, 't')",
+    );
+    expect(migrate(old, migs)).toEqual([11]);
+    for (const t of ["sketches", "sketch_versions", "album_tracks", "album_track_versions"])
+      expect([t, all<{ n: number }>(old, `SELECT COUNT(*) AS n FROM ${t}`)[0]?.n]).toEqual([t, 1]);
   });
 
   test("the contracts §11.11 amendments are in place", () => {
@@ -134,7 +189,7 @@ describe("schema", () => {
     try {
       const path = join(dir, "oak.db");
       const db = openDb(path);
-      db.run("PRAGMA user_version = 11");
+      db.run("PRAGMA user_version = 12");
       db.close();
       expect(() => openDb(path)).toThrow(/newer than this build/);
     } finally {

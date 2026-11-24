@@ -100,7 +100,7 @@ const DEFAULT_KEY: KeySpec = { tonic: "C", mode: "major" };
  */
 export function versionBandOf(band: unknown, key: KeySpec | null, ctx: ExportBandContext): BandSetup | null {
   const setup = exportBandOf(band, key, ctx);
-  const muted = new Set(storedBandOf(band)?.mutes ?? []);
+  const muted = new Set<string>(storedBandOf(band)?.mutes ?? []);
   if (!setup || muted.size === 0) return setup;
   const tracks = setup.tracks.filter((t) => !muted.has(t));
   return tracks.length > 0 ? { ...setup, tracks } : null;

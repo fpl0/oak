@@ -2,12 +2,14 @@
 // region plays through the hidden PatternPlayer (`.ribbon(fromBar, bars)`, no editor, nothing in the DOM):
 // the code text is never touched, the region, the mutes and the practice tempo change live, and the
 // coordinator stops the editor (and anything else) when the loop starts. The playhead is driven from the
-// transport clock mapped into the region, so the roll, the staff and the bar counter follow the loop.
+// transport clock mapped into the region, so the roll, the staff and the bar counter follow the loop. The Band, or
+// a unit song (spec §5.2), plays as the player's own Band layer, prepared exactly as under the editor
+// (`prepareBandFor`): the Band's text is never glued into the learner's, and its tracks mute as `band.<label>`.
 import type { LintContext } from "@oak/content-kit";
 import type { BandSetup, EditorHandle, EvalOutcome, MuteMap, OakStrudel, PatternPlayer } from "@oak/strudel";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { WorkbenchClock } from "./clock.ts";
-import { codeWithBand, type LoopRegion, loopPosition, mutesForLoop } from "./loop-math.ts";
+import { type LoopRegion, loopPosition } from "./loop-math.ts";
 
 export interface UseLoopOptions {
   oak: OakStrudel;
@@ -72,14 +74,12 @@ export function useLoopPlayback(opts: UseLoopOptions): LoopPlayback {
       await o.oak.unlock();
       player.current ??= o.oak.createPatternPlayer();
       const p = player.current;
-      const load = (text: string) => p.load(text, { bars: o.loopBars, cps: 0, lint: o.lint });
-      let outcome = await load(codeWithBand(code, o.band));
-      // A Band that cannot join (for example a locked tool under a graded lint) never silences the learner.
-      if (!outcome.ok && o.band) outcome = await load(code);
+      // A Band that cannot join is dropped by the player with a warning: it never silences the learner.
+      const outcome = await p.load(code, { bars: o.loopBars, cps: 0, lint: o.lint, band: o.band });
       if (!outcome.ok) return outcome;
       const now = optsRef.current;
       p.setLoop({ fromBar: now.region.from, bars: now.region.bars });
-      p.setMutes(mutesForLoop(now.mutes));
+      p.setMutes(now.mutes);
       p.setRate(now.rate);
       now.handle?.stop();
       await p.play();
@@ -101,7 +101,7 @@ export function useLoopPlayback(opts: UseLoopOptions): LoopPlayback {
     player.current?.setLoop({ fromBar: opts.region.from, bars: opts.region.bars });
   }, [opts.region.from, opts.region.bars]);
   useEffect(() => {
-    player.current?.setMutes(mutesForLoop(opts.mutes));
+    player.current?.setMutes(opts.mutes);
   }, [opts.mutes]);
   useEffect(() => {
     player.current?.setRate(opts.rate);

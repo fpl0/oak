@@ -133,6 +133,16 @@ export function opsRoutes(mount: Mounter, d: AppDeps): void {
     const result = s.backup.import(bytes);
     // Unlocks may have moved since the backup was made; grant what its completed sessions earn (§11.7 rule 5).
     s.unlocks.backfill();
+    // Unit songs (spec 2026-11-24 §5.6a): a backup from before songs (schema < 11) carries completed lessons and no
+    // songs; they are backfilled now, as at the first start-up after the update. A backup that already had songs is
+    // restored exactly as it was (its next start-up runs the backfill like any other day).
+    if (result.migratedFrom !== null) {
+      try {
+        s.unitSongs.backfill();
+      } catch (e) {
+        d.log(`unit song backfill after import failed: ${e instanceof Error ? e.message : String(e)}`);
+      }
+    }
     return result;
   });
 

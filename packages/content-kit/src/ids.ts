@@ -49,6 +49,8 @@ export type TermId = `term.${string}`;
 export type SongId = `song.${string}`;
 export type FlavourId = "flavour.pop" | "flavour.indie" | "flavour.jazz-soul" | "flavour.funk";
 export type BandId = `band.${string}`;
+/** A unit's song (spec 2026-11-24 §5.1): `usong.U01`, `usong.J1`. Not `song.*`, which is the repertoire. */
+export type UnitSongId = `usong.${UnitId}`;
 export type FeedbackId = `${FeedbackArea}.${string}`;
 /** Anything the unlock table can grant or the lint can lock. */
 export type UnlockableId = ToolId | SoundId | ScaleId | ChordFamilyId;
@@ -131,6 +133,7 @@ export const ID_PATTERNS = {
   song: /^song\.[a-z0-9-]+$/,
   flavour: /^flavour\.(?:pop|indie|jazz-soul|funk)$/,
   band: /^band\.[a-z0-9.-]+$/,
+  unitSong: /^usong\.(?:U\d{2}|J[1-5]|R[1-3]|A[1-2])$/,
   feedback: new RegExp(`^(?:${FEEDBACK_AREAS.join("|")})(?:\\.[a-z0-9-]+){1,2}$`),
 } as const satisfies Record<string, RegExp>;
 
@@ -168,6 +171,7 @@ export interface IdTypes {
   song: SongId;
   flavour: FlavourId;
   band: BandId;
+  unitSong: UnitSongId;
   feedback: FeedbackId;
 }
 
