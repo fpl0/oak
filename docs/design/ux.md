@@ -254,7 +254,7 @@ The only reminder is an optional **Add to calendar** button that generates a loc
   - Versions dropdown,
   - Export (code `.js`, audio, lead sheet),
   - **Add to album as B-side**.
-- **New sketch from…** Blank; Today's lesson; or an unlocked template ("Four-chord pop", "12-bar shuffle", "Dorian funk vamp", "Jazz blues in F"). Templates unlock with capstones; until a template's starter song is written (content/toolbox.ts has no code for them yet), an unlocked one is listed as "coming soon" and is not offered as a start.
+- **New sketch from…** Blank; Today's lesson; or an unlocked template ("Four-chord pop", "12-bar shuffle", "Dorian funk vamp", "Jazz blues in F"). Templates unlock with capstones. An unlocked one is a choice of "Start from" like the others: it makes a sketch with its starter song (app/src/studio/templates.ts), tempo, meter and key, titled after it; a locked one says which capstone's release unlocks it. Its Toolbox page plays the song and starts a sketch from it.
 - **Autosave:** every successful Run creates a version; `Cmd+S` names a snapshot.
 - **Layers:** gutter icons on each `$:` line toggle mute and solo. The code text is never changed: the adapter rewrites labels at equal length (`$:` → `_:`) so highlight offsets stay valid.
 - **Lenses** (unlocked analysis overlays on the roll): Chord-tone %, Function bands, Form map, Range.

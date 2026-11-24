@@ -163,6 +163,29 @@ export function grewSentence(
 type SongViewPartRef = { id: SongPartId; name: string };
 
 /**
+ * The grid of "Your song grew", drawn as its sentence (`grewSentence`) says: a block today's take holds and plays is
+ * today's; a block it holds whose part its code does not play is drawn as a rest, since nothing sounds there now (the
+ * take silenced Oak's part and plays none of its own). `fresh` is today's blocks, in grid order (they fill in bar by
+ * bar). `played` `null` (not known): every block it holds is today's, as the sentence names every part as played.
+ */
+export function grewView(
+  view: SongView,
+  held: readonly string[],
+  played: ReadonlySet<SongPartId> | null,
+): { view: SongView; fresh: Set<string> } {
+  const heldSet = new Set(held);
+  const fresh = new Set<string>();
+  const cells = view.cells.map((c): SongView["cells"][number] => {
+    const key = `${c.part}@${c.section}`;
+    if (!heldSet.has(key)) return c;
+    if (played && !played.has(c.part)) return { part: c.part, section: c.section, owner: "oak", rests: true };
+    fresh.add(key);
+    return { ...c, owner: "today" };
+  });
+  return { view: { ...view, cells }, fresh };
+}
+
+/**
  * The parts a saved take's code plays, read from what was recorded with it: every labelled line that plays a part
  * (`labels`), and the drum parts whose sounds a line that plays several parts names (`drums: s("bd sd")`). `null` when
  * the take has no labels recorded (a take Oak backfilled before its code was read).

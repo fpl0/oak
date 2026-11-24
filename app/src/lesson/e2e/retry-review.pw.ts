@@ -6,7 +6,7 @@ import type { Page } from "@playwright/test";
 import { expect, stepIs, test } from "./support.ts";
 import { api, seed as reseedTo } from "./w3support.ts";
 
-const PRACTICE = "Practice: this take does not change your result.";
+const PRACTICE = "Practice: this try does not change your result.";
 const step$ = (page: Page) => page.getByTestId("lesson-step");
 const retry$ = (page: Page) => step$(page).getByTestId("result-retry");
 const feedback$ = (page: Page) => page.getByTestId("step-feedback");

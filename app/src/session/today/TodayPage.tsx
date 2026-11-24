@@ -64,7 +64,7 @@ import {
   todayView,
 } from "../today-model.ts";
 import { type OfferRow, offerPlan, offersFromTracks, trackDay } from "../tracks-day.ts";
-import { AlbumStrip, LastSketchCard, NextUnlockCard, OakGlanceCard } from "./Glance.tsx";
+import { AlbumStrip, LastSketchCard, NextUnlockCard, OakGlanceCard, SongReadyCard } from "./Glance.tsx";
 import { InlineCodeText, SideOfferLine } from "./SideOffer.tsx";
 import { CftStrip, FirstDayLine, OpenToYou, OtherTabLine, TracksLine } from "./TodayWave6.tsx";
 import { CourseFirstDayLine, KeepPlayingLine, TrackOffers, TrackSessionLine } from "./TodayWave7.tsx";
@@ -717,6 +717,7 @@ export function TodayPage() {
         </section>
 
         <aside className="flex flex-col gap-4 lg:col-span-4" aria-label="At a glance">
+          <SongReadyCard />
           <NextUnlockCard />
           <OakGlanceCard />
           <AlbumStrip />

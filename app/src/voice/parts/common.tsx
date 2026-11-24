@@ -184,7 +184,7 @@ export function PartActions({
         id: "take.stop",
         keys: "Escape",
         scope: "global",
-        description: "Stop the take",
+        description: "Stop listening",
         allowInInput: true,
         when: () => onStop !== null,
         run: () => onStop?.(),

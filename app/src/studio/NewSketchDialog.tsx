@@ -1,6 +1,6 @@
-// "New sketch from…" (ux §2.3): Blank, today's Make, or over a Band (pop or jazz-soul kit, in a key). The
-// later templates ("Four-chord pop", …) are listed with the capstone that unlocks them (contracts §3.2 A); their
-// starter songs are not written yet, so an unlocked one says "coming soon" rather than offering itself.
+// "New sketch from…" (ux §2.3): Blank, today's Make, over a Band (pop or jazz-soul kit, in a key), or a song
+// template ("Four-chord pop", …; studio/templates.ts). An unlocked template is one more choice of the same radio
+// group; a locked one says which capstone's release unlocks it (contracts §3.2 A).
 import type { Sketch, SketchCreate } from "@oak/api";
 import type { FlavourId, KeySpec, MeterId } from "@oak/content-kit";
 import { useNavigate } from "@tanstack/react-router";
@@ -20,6 +20,7 @@ import { SegmentedControl } from "../ui/kit/Controls.tsx";
 import { Dialog } from "../ui/kit/Dialog.tsx";
 import { toast } from "../ui/kit/Toast.tsx";
 import { BandOptions } from "./BandOptions.tsx";
+import { writeLength } from "./draft.ts";
 import { focusOnOpen } from "./focus.ts";
 import {
   BLANK_CODE,
@@ -34,8 +35,16 @@ import {
   TONICS,
 } from "./model.ts";
 import { useUnlockedSet } from "./queries.ts";
+import {
+  type StarterSong,
+  starterSong,
+  templateDetail,
+  templateSketchBody,
+  templateTitle,
+} from "./templates.ts";
 
-type Start = "blank" | "make" | "band";
+/** Blank, the last Make, over a Band, or a template's id (`tb.template.…`). */
+type Start = "blank" | "make" | "band" | (string & {});
 
 export function NewSketchDialog({
   open,
@@ -71,6 +80,8 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
 
   const [start, setStart] = useState<Start>("blank");
   const [title, setTitle] = useState(() => nextSketchTitle(sketches));
+  // Until the learner types a title, choosing a template names the sketch after it.
+  const [titleTyped, setTitleTyped] = useState(false);
   const [meter, setMeter] = useState<MeterId>("4/4");
   const fitting = bandsForMeter(bands, meter, bandMeter);
   const [bandId, setBandId] = useState<string>(fitting[0]?.id ?? "");
@@ -81,6 +92,13 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
   const templates = (content.data?.toolbox ?? []).filter(
     (t) => t.kind === "template" && t.id.startsWith("tb.template.") && !t.code.startsWith("recipe"),
   );
+  const song: StarterSong | null = starterSong(start);
+  const choose = (value: Start) => {
+    setStart(value);
+    if (titleTyped) return;
+    const s = starterSong(value);
+    setTitle(s ? templateTitle(s.name, sketches) : nextSketchTitle(sketches));
+  };
 
   const submit = async () => {
     let body: SketchCreate;
@@ -94,7 +112,9 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
       tutorAssisted: false,
       ranOk: false,
     };
-    if (start === "make" && makeVersion && lastMake) {
+    if (song) {
+      body = templateSketchBody(song, base.title, base.sessionId);
+    } else if (start === "make" && makeVersion && lastMake) {
       body = {
         ...base,
         code: makeVersion.code,
@@ -132,6 +152,8 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
     }
     try {
       const saved = await create.mutateAsync({ body });
+      // The template's whole song loops: 8 or 12 bars, not the Studio's default 4.
+      if (song) writeLength(saved.sketch.id, song.bars);
       onClose();
       void navigate({ to: "/studio/$sketchId", params: { sketchId: saved.sketch.id } });
     } catch (e) {
@@ -139,10 +161,12 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
     }
   };
 
-  const option = (value: Start, label: string, detail: string, disabled = false) => (
+  const option = (value: Start, label: string, detail: string, disabled = false, compact = false) => (
     <label
+      key={value}
       className={clsx(
-        "flex cursor-pointer items-start gap-3 rounded-control border p-3",
+        "flex cursor-pointer items-start gap-3 rounded-control border",
+        compact ? "px-3 py-2" : "p-3",
         start === value ? "border-accent bg-lane-in" : "border-border hover:bg-surface-2",
         disabled && "cursor-not-allowed opacity-60",
       )}
@@ -153,7 +177,7 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
         value={value}
         checked={start === value}
         disabled={disabled}
-        onChange={() => setStart(value)}
+        onChange={() => choose(value)}
         className="mt-1 accent-[var(--oak-accent)]"
       />
       <span className="min-w-0">
@@ -177,7 +201,10 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
           ref={focusOnOpen}
           value={title}
           maxLength={120}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            setTitleTyped(true);
+          }}
           className="h-9 rounded-control border border-border bg-surface px-2 text-base text-text"
         />
       </label>
@@ -197,98 +224,106 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
           "Over a Band",
           "A read-only backing in your key and tempo; you write the parts on top.",
         )}
+        {start === "band" ? (
+          <div className="grid gap-3 rounded-control border border-border p-3 sm:grid-cols-2">
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="text-text-2">Meter</span>
+              <select
+                value={meter}
+                onChange={(e) => {
+                  const m = e.target.value as MeterId;
+                  setMeter(m);
+                  setBandId(bandsForMeter(bands, m, bandMeter)[0]?.id ?? "");
+                }}
+                className="h-8 rounded-control border border-border bg-surface px-2 text-text"
+              >
+                <option value="4/4">4/4</option>
+                <option value="3/4">3/4</option>
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="text-text-2">Band</span>
+              <select
+                value={band?.id ?? ""}
+                onChange={(e) => setBandId(e.target.value)}
+                className="h-8 rounded-control border border-border bg-surface px-2 text-text"
+              >
+                <BandOptions fitting={fitting} />
+              </select>
+            </label>
+            <div className="flex flex-col gap-1 text-sm">
+              <span className="text-text-2" id={`${ids}-flavour`}>
+                Style
+              </span>
+              <SegmentedControl<FlavourId>
+                label="Style"
+                size="sm"
+                value={flavour}
+                options={STUDIO_FLAVOURS.map((f) => ({ value: f.id, label: f.label }))}
+                onChange={setFlavour}
+              />
+            </div>
+            <div className="flex flex-col gap-1 text-sm">
+              <span className="text-text-2">Key</span>
+              <span className="flex gap-2">
+                <select
+                  aria-label="Key: tonic"
+                  value={key.tonic}
+                  onChange={(e) => setKey({ ...key, tonic: e.target.value })}
+                  className="h-8 rounded-control border border-border bg-surface px-2 text-text"
+                >
+                  {TONICS.map((t) => (
+                    <option key={t} value={t}>
+                      {t.replace("#", "♯").replace(/(?<=[A-G])b/, "♭")}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  aria-label="Key: mode"
+                  value={key.mode}
+                  onChange={(e) => setKey({ ...key, mode: e.target.value as KeySpec["mode"] })}
+                  className="h-8 rounded-control border border-border bg-surface px-2 text-text"
+                >
+                  {MODES.map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </span>
+            </div>
+          </div>
+        ) : null}
+        {templates.length > 0 ? (
+          <>
+            <p className="mt-1 text-sm font-medium text-text-2">Templates</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {templates.map((t) => {
+                const s = starterSong(t.id);
+                if (s && unlocked.has(t.id as never))
+                  return option(t.id, s.name, templateDetail(s), false, true);
+                return (
+                  <p
+                    key={t.id}
+                    className="flex items-start gap-2 rounded-control border border-dashed border-border px-3 py-2 text-sm text-text-2"
+                    data-testid="template-locked"
+                  >
+                    <Lock aria-hidden className="mt-0.5 size-3.5 shrink-0 text-text-3" />
+                    <span className="min-w-0">
+                      <span className="block font-medium">
+                        {s?.name ?? t.code.replace(/^Studio template /, "").replaceAll('"', "")}
+                      </span>
+                      <span className="block text-text-3">
+                        Unlocks when you release {siteTitle(unlockSite(t), titles)}
+                      </span>
+                    </span>
+                  </p>
+                );
+              })}
+            </div>
+          </>
+        ) : null}
       </fieldset>
-      {start === "band" ? (
-        <div className="grid gap-3 rounded-control border border-border p-3 sm:grid-cols-2">
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-text-2">Meter</span>
-            <select
-              value={meter}
-              onChange={(e) => {
-                const m = e.target.value as MeterId;
-                setMeter(m);
-                setBandId(bandsForMeter(bands, m, bandMeter)[0]?.id ?? "");
-              }}
-              className="h-8 rounded-control border border-border bg-surface px-2 text-text"
-            >
-              <option value="4/4">4/4</option>
-              <option value="3/4">3/4</option>
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-text-2">Band</span>
-            <select
-              value={band?.id ?? ""}
-              onChange={(e) => setBandId(e.target.value)}
-              className="h-8 rounded-control border border-border bg-surface px-2 text-text"
-            >
-              <BandOptions fitting={fitting} />
-            </select>
-          </label>
-          <div className="flex flex-col gap-1 text-sm">
-            <span className="text-text-2" id={`${ids}-flavour`}>
-              Style
-            </span>
-            <SegmentedControl<FlavourId>
-              label="Style"
-              size="sm"
-              value={flavour}
-              options={STUDIO_FLAVOURS.map((f) => ({ value: f.id, label: f.label }))}
-              onChange={setFlavour}
-            />
-          </div>
-          <div className="flex flex-col gap-1 text-sm">
-            <span className="text-text-2">Key</span>
-            <span className="flex gap-2">
-              <select
-                aria-label="Key: tonic"
-                value={key.tonic}
-                onChange={(e) => setKey({ ...key, tonic: e.target.value })}
-                className="h-8 rounded-control border border-border bg-surface px-2 text-text"
-              >
-                {TONICS.map((t) => (
-                  <option key={t} value={t}>
-                    {t.replace("#", "♯").replace(/(?<=[A-G])b/, "♭")}
-                  </option>
-                ))}
-              </select>
-              <select
-                aria-label="Key: mode"
-                value={key.mode}
-                onChange={(e) => setKey({ ...key, mode: e.target.value as KeySpec["mode"] })}
-                className="h-8 rounded-control border border-border bg-surface px-2 text-text"
-              >
-                {MODES.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-              </select>
-            </span>
-          </div>
-        </div>
-      ) : null}
-      {templates.length > 0 ? (
-        <div className="text-sm">
-          <p className="mb-1 font-medium text-text-2">Templates</p>
-          <ul className="flex flex-col gap-1">
-            {templates.map((t) => {
-              const site = unlockSite(t);
-              const open = unlocked.has(t.id as never);
-              return (
-                <li key={t.id} className="flex items-center gap-2 text-text-2">
-                  {open ? null : <Lock aria-hidden className="size-3.5 text-text-3" />}
-                  <span>{t.code.replace(/^Studio template /, "").replaceAll('"', "")}</span>
-                  <span className="text-text-3">
-                    {/* Earned, but its starter song is not written yet: say so, never "unlocked" with no way in. */}
-                    {open ? "coming soon" : `unlocks when you release ${siteTitle(site, titles)}`}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ) : null}
       <div className="flex justify-end gap-2">
         <Button variant="ghost" onClick={onClose}>
           Cancel

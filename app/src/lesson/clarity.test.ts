@@ -25,6 +25,9 @@ describe("howTo", () => {
           expect(how).toContain("Start tapping");
           if (ex.mode === "along") expect(how).toContain(`${ex.bars} bar`);
           expect(how).toMatch(/Space|F\*\* for the first lane/);
+          // "take" is studio jargon (and the internal name of a song contribution): the line says the bars end.
+          expect(how).not.toMatch(/\btakes?\b/i);
+          if (ex.mode !== "along") expect(how).toContain("When the bars are up, press **Check**.");
         }
       }
     expect(taps).toBeGreaterThan(10);

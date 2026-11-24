@@ -1,7 +1,7 @@
 // The catalog's "†" (audibility still to be confirmed, contracts §3.2 rule 7) never reaches a learner's label.
 import { describe, expect, test } from "bun:test";
 import { toolbox } from "../../../content/toolbox.ts";
-import { shownMeaning, shownToolLabel } from "./label.ts";
+import { shownMeaning, shownToolLabel, shownToolMeaning } from "./label.ts";
 
 describe("tool labels on the Toolbox", () => {
   test("no label a learner sees carries the catalog's †", () => {
@@ -37,5 +37,21 @@ describe("sounds on the Toolbox", () => {
     }
     // Anything but a sound keeps its meaning as written.
     expect(shownMeaning(of("tb.gain"))).toBe(of("tb.gain").catalog.meaning);
+  });
+});
+
+describe("templates on the Toolbox", () => {
+  test("a Studio template says in one sentence what its song is, never that it is coming", () => {
+    const rows = toolbox.filter(
+      (t) => t.kind === "template" && t.id.startsWith("tb.template.") && !t.code.startsWith("recipe"),
+    );
+    expect(rows.length).toBe(4);
+    for (const t of rows) {
+      const m = shownToolMeaning(t);
+      expect(m, t.id).not.toMatch(/coming soon|cannot be opened|released/i);
+      expect(m.split(/\.\s/).length, t.id).toBe(1);
+    }
+    const pop = rows.find((t) => t.id === "tb.template.four-chord-pop");
+    expect(pop && shownToolMeaning(pop)).toContain("I–V–vi–IV");
   });
 });

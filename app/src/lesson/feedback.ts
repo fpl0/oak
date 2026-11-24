@@ -211,7 +211,7 @@ export function summaryOf(
     if (ids.includes("sing.bleed"))
       return "The microphone hears the playback. Wired headphones fix that; then try again.";
     if (ids.some((id) => id.startsWith("sing.")))
-      return "Oak couldn't follow that take. Try it again, one steady note at a time.";
+      return "Oak couldn't follow your singing. Sing it again, one steady note at a time.";
     if (ids.some((id) => id.startsWith("tap.")))
       return "Oak didn't catch your taps. Tap with Space on each beat, then try again.";
   }

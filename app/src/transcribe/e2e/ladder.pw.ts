@@ -170,9 +170,7 @@ test("L1: a wrong groove fails bar by bar, the right one passes and shows the so
   await expect(page.getByTestId("result-retry")).toHaveCount(0);
   await checkIt(page);
   await expect(page.getByTestId("verdict")).toContainText("That's it", { timeout: 60_000 });
-  await expect(page.getByTestId("result-line")).toHaveText(
-    "Practice: this take does not change your result.",
-  );
+  await expect(page.getByTestId("result-line")).toHaveText("Practice: this try does not change your result.");
   await expect(page.getByTestId("next-item")).toBeVisible();
   for (const s of SCREENSHOT_MATRIX) {
     await page.setViewportSize({ width: s.width, height: s.height });

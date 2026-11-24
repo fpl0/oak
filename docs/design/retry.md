@@ -66,7 +66,7 @@ and waits for Continue (§2.5).
 
 One green primary per state: a held Continue is drawn secondary (the kit does it). Lines, from `lib/retry.ts`:
 
-- `PRACTICE_LINE` — "Practice: this take does not change your result."
+- `PRACTICE_LINE` — "Practice: this try does not change your result."
 - `REVEALED_LINE` — "Answer shown: a pass now finishes the step but does not count as known."
 - `CHECKPOINT_LINE` — "Your last saved answer is the one that counts."
 - `MEASURE_LINE` — "A new measurement replaces this one only if it works."

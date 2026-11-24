@@ -5,7 +5,10 @@
 // A1.L05–L07 from U09.CP — no minor keys, no dominant sevenths, no swing, no sevenths; A2 from U10.CP — no dominant
 // sevenths, no swingBy). Each was linted at its site and played in headless Strudel, and the musical claim of each
 // hint read off the events (demos-w7.test.ts). Where a lens shows the tool at work, the hint says which.
+import { starterSong } from "../studio/templates.ts";
 import type { ToolDemo } from "./demos.ts";
+
+const JAZZ_BLUES_F = starterSong("tb.template.jazz-blues-f") as NonNullable<ReturnType<typeof starterSong>>;
 
 /** A jazz trio in C (J1.L01's): the ride and hi-hat on the jazz kit, an upright bass in two, Rhodes comping. */
 const RIDE = 'drums: s("rd [rd rd] rd [rd rd], ~ hh ~ hh").swingBy(1/3, 4).bank("jazzkit")';
@@ -171,18 +174,11 @@ export const TRACK_TOOL_DEMOS: Readonly<Record<string, ToolDemo>> = {
     ),
     hint: "The muted trumpet: a trumpet with a mute in its bell, close and buzzing. It plays a blues riff in F over the first four bars of the jazz blues, with a walking bass under it.",
   },
+  // The Studio template's starter song (studio/templates.ts), so the example and a sketch from it are one song.
   "tb.template.jazz-blues-f": {
-    code: [
-      "setcpm(132/4)",
-      "",
-      'const changes = "<F7 Bb7 F7 [Cm7 F7] Bb7 Bo7 F7 D7 Gm7 C7 [F7 D7] [Gm7 C7]>"',
-      "",
-      RIDE,
-      'chords: chord(changes).dict("lefthand").voicing().struct("x ~ ~ x ~ x ~ ~").swingBy(1/3, 4).s("rhodes").gain(.55)',
-      'bass: chord(changes).rootNotes(2).struct("x x x x").s("upright")',
-    ].join("\n"),
-    bars: 12,
-    hint: "The jazz blues in F, twelve bars: the blues' F7, B♭7 and C7, with a ii–V into bar 5 (Cm7 F7), a passing B°7, and the ii–Vs of the last four bars. Write a head over it, or walk the bass.",
+    code: JAZZ_BLUES_F.code,
+    bars: JAZZ_BLUES_F.bars,
+    hint: JAZZ_BLUES_F.hint,
   },
   // --- R1 Metric weight, swing ratios, the one, interlock, displacement ------------------------------------------
   "tb.swing.patterned": {

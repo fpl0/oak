@@ -365,7 +365,7 @@ export function SingRenderer(props: ExerciseRendererProps) {
               onSubmit={() => void check()}
               rung={h.rung}
               idBase={`l-${h.step.id.toLowerCase()}-${h.seriesNo}-sing`}
-              label={`Your take: ${ex.prompt.replace(/[`*]/g, "")}`}
+              label={`Your singing: ${ex.prompt.replace(/[`*]/g, "")}`}
             />
           </AnswerEnvProvider>
           <StepFeedback detail />

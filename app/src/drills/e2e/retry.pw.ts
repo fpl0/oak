@@ -13,7 +13,7 @@ import { stack } from "./playwright.config.ts";
 
 const SHOTS = fileURLToPath(new URL("./screenshots", import.meta.url));
 const HEADERS = { "X-Oak": "1", Origin: stack.baseURL, "Content-Type": "application/json" };
-const PRACTICE_LINE = "Practice: this take does not change your result.";
+const PRACTICE_LINE = "Practice: this try does not change your result.";
 const RETRY = "Alt+KeyR";
 
 type Choice = { ui: "choice"; options: { id: string; label: string }[] };

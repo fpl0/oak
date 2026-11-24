@@ -3,7 +3,7 @@
 // green), and the per-note credit from `gradeSungLive` while singing and `gradeSung` at the end: the fill, the tick
 // and the grade come from the one rule. Wave 3: degree patterns and sight-singing — targets labelled with numbers or
 // syllables (`SingEnv.labels`), the tolerance from the server's ladder (`tolCents`), a count-in with numerals, the
-// reference (home, and a few chords that set it), "Hear it" (after the take in sight mode) and "Hear my take" (the
+// reference (home, and a few chords that set it), "Hear it" (after the take in sight mode) and "Hear my singing" (the
 // tracked pitches played back; never audio). Quiet mode or no usable mic: "listen and self-check" (contracts §8.5),
 // which reports quiet evidence and records nothing. Wave 4: the live trace wears the degree colour of the target it is
 // in band of (neutral out of band), each coloured run labelled with its degree.
@@ -666,7 +666,7 @@ export function SingCaptureAnswer(p: AnswerWidgetProps<"mic">) {
                 onClick={playTake}
                 disabled={disabled}
               >
-                Hear my take
+                Hear my singing
               </Button>
             ) : null}
             {phase !== "singing" && !locked ? (

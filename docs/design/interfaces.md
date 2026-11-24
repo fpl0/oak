@@ -1745,7 +1745,7 @@ exercises to be retried!") made one control and one rule binding: docs/design/re
   `result-continue` (or the surface's own), `result-line`.
 - **Label and key.** `RETRY_LABEL` "Try again", `RETRY_KEYS` `Alt+R` (physical `KeyR`, global, allowed in inputs and the
   editor; shown ⌥R on macOS). The shortcut sheet lists it under "Answers" (`ui/keys/sheet.ts`): "Alt+R Try again (after
-  any result: a check, a trial, a take, a measurement)" and "Enter" on a focused Continue.
+  any result: a check, a trial, tapping or singing, a measurement)" and "Enter" on a focused Continue.
 - **Focus.** On a new result: stays in an editable field (not a read-only one); else Continue when open; else Try
   again. After Try again: `retryFocus()`.
 - **What a retry counts for** (server-decided; retry.md §3): `server/src/services/retry.ts` `countAttempt` (a lesson

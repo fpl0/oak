@@ -166,7 +166,7 @@ test("with a microphone, keyboard only: every result can be tried again, and onl
   await expect(result).toHaveAttribute("data-passed", "1", { timeout: 25_000 });
   await expect(page.getByText("That note is 1: home.")).toBeVisible();
   // The pass did not move on: Continue has the focus, Try again is beside it, and nothing was cut short. The take
-  // that counted is not called practice (the line read "this take does not change your result" under it).
+  // that counted is not called practice (the line read "this try does not change your result" under it).
   await expectStep(page, "first-sing");
   await expect(partContinue(page)).toBeFocused();
   await expect(page.getByTestId("result-line")).toHaveCount(0);
@@ -181,11 +181,9 @@ test("with a microphone, keyboard only: every result can be tried again, and onl
   });
   await expect(page.getByTestId("take-stop")).toBeVisible({ timeout: 10_000 });
   await expect(page.getByTestId("first-sing-takes").locator("li")).toHaveCount(3, { timeout: 25_000 });
-  await expect(page.getByTestId("first-sing-takes").locator("li").nth(2)).toContainText("Take 3 · practice");
+  await expect(page.getByTestId("first-sing-takes").locator("li").nth(2)).toContainText("Try 3 · practice");
   await expect(page.getByTestId("first-sing-takes").locator("li").nth(2)).toContainText("on the note");
-  await expect(page.getByTestId("result-line")).toHaveText(
-    "Practice: this take does not change your result.",
-  );
+  await expect(page.getByTestId("result-line")).toHaveText("Practice: this try does not change your result.");
   await expect(page.getByTestId("first-sing-takes").locator("li").nth(0)).toContainText("no steady note");
   await expect(partContinue(page)).toBeFocused();
   // Only the first passing take was saved.

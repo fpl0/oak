@@ -8,7 +8,7 @@ import { expect, type Page, test } from "@playwright/test";
 import { stack } from "./playwright.config.ts";
 
 const HEADERS = { "X-Oak": "1", Origin: stack.baseURL, "Content-Type": "application/json" };
-const PRACTICE_LINE = "Practice: this take does not change your result.";
+const PRACTICE_LINE = "Practice: this try does not change your result.";
 
 const hook = <T>(page: Page, name: string): Promise<T> =>
   page.evaluate((n) => (globalThis as Record<string, unknown>)[n], name) as Promise<T>;

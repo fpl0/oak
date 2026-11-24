@@ -130,11 +130,13 @@ export function InlineMd({ text, className }: { text: string; className?: string
       // bracket or quote right before it hugs it the same way: "(rd)", not "( rd)".
       const punct = CLOSING_PUNCT.exec(text.slice(last))?.[0] ?? "";
       const opened = /[([“‘]$/u.test(text.slice(0, at));
+      // Paper: the chip's fill is the same tone as the task card's and the callouts' bg-lane-in (1.0:1), so a
+      // hairline in the control border draws its edge on every surface. Bark keeps its fill alone, as before.
       const chip = (
         <code
           key={k++}
           className={clsx(
-            "rounded bg-surface-2 py-0.5 font-mono text-[0.9em]",
+            "rounded bg-surface-2 py-0.5 font-mono text-[0.9em] ring-1 ring-control-border ring-inset dark:ring-0",
             opened ? "pl-0.5" : "pl-1",
             punct ? "pr-0.5" : "pr-1",
           )}

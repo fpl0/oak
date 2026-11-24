@@ -21,9 +21,9 @@ export function howTo(
       const keys =
         ex.lanes && ex.lanes.length > 1 ? "**F** for the first lane and **J** for the second" : "**Space**";
       if (ex.mode === "echo")
-        return `Press **Start tapping**. Listen to the pattern, then tap it back with ${keys} (or click the pad). When the take ends, press **Check**.`;
+        return `Press **Start tapping**. Listen to the pattern, then tap it back with ${keys} (or click the pad). When the bars are up, press **Check**.`;
       if (ex.mode === "read")
-        return `Press **Start tapping**. After ${clicks}, tap the written rhythm with ${keys} (or click the pad) for ${plural(ex.bars, "bar")}. When the take ends, press **Check**.`;
+        return `Press **Start tapping**. After ${clicks}, tap the written rhythm with ${keys} (or click the pad) for ${plural(ex.bars, "bar")}. When the bars are up, press **Check**.`;
       return `Press **Start tapping**. After ${clicks}, the music plays for ${plural(ex.bars, "bar")}. Tap with ${keys} (or click the pad) as the task says. When it stops, press **Check**.`;
     }
     case "sing":

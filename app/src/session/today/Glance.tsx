@@ -6,13 +6,15 @@ import type { NextUnlock } from "@oak/api";
 import { ALBUM_SIDES } from "@oak/api";
 import { Link } from "@tanstack/react-router";
 import { clsx } from "clsx";
-import { Sprout } from "lucide-react";
+import { Disc3, Sprout } from "lucide-react";
 import { TrackCover } from "../../album/TrackCover.tsx";
 import { useContent } from "../../lib/content.ts";
 import { useAlbum, useBootstrap, useCourseProgress, useNextUnlocks, useSketches } from "../../lib/queries.ts";
 import { useUnlockedSet } from "../../lib/unlocked.ts";
 import { useMediaQuery } from "../../lib/use-media.ts";
 import { OakGlance as MapGlance } from "../../map/index.ts";
+import { takeStepsOf } from "../../song/AlbumSongs.tsx";
+import { useUnitSongs } from "../../song/hooks.ts";
 import { Markdown } from "../../tutor/Markdown.tsx";
 import { AcornIcon, LeafIcon, RingIcon } from "../../ui/icons/index.tsx";
 import { Card, Skeleton } from "../../ui/kit/basics.tsx";
@@ -20,6 +22,7 @@ import { capstoneDayTitle } from "../capstone-day.ts";
 import { goalGradient } from "../coda-model.ts";
 import { isWritten, unitTitleOf } from "../edge.ts";
 import { albumStripSlotsAB, doneItems, nextUnlocksFrom } from "../progress-model.ts";
+import { songReadyLine } from "../today-model.ts";
 import { toolName as toolLabel } from "../tool-name.ts";
 
 function CardTitle({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
@@ -99,6 +102,33 @@ export function NextUnlockCard() {
           .
         </p>
       )}
+    </Card>
+  );
+}
+
+/**
+ * A finished song waiting for the album (spec 2026-11-24 §5.5): one quiet line at the top of the right column, so it
+ * sits beside the session card and never pushes Start down. It goes once the song is released (`songReadyLine`).
+ */
+export function SongReadyCard() {
+  const songs = useUnitSongs();
+  const line = songReadyLine(songs.data?.items ?? [], takeStepsOf);
+  if (!line) return null;
+  return (
+    <Card className="p-4" data-testid="today-song-ready">
+      <p className="flex items-start gap-2 text-sm text-text-2">
+        <Disc3 aria-hidden className="mt-0.5 size-4 shrink-0 text-accent" />
+        <span>{line.text}</span>
+      </p>
+      <Link
+        to="/song/$unitId"
+        params={{ unitId: line.unitId }}
+        className="mt-1 ml-6 inline-flex min-h-6 items-center text-sm text-link underline-offset-2 hover:underline"
+        aria-label={`Open “${line.title}” to release it`}
+        data-testid="today-song-ready-open"
+      >
+        Open the song
+      </Link>
     </Card>
   );
 }

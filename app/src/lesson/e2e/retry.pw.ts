@@ -23,7 +23,7 @@ import {
 import { api, fakeMicSingingC, reseedFresh, seed, setQuiet } from "./w3support.ts";
 import { answerWidget, type PartLike } from "./walk.ts";
 
-const PRACTICE = "Practice: this take does not change your result.";
+const PRACTICE = "Practice: this try does not change your result.";
 const MAKE_CODE = (
   u01cp.make.tests.find((t) => t.expect === "pass")?.response as { code: string } | undefined
 )?.code as string;

@@ -43,6 +43,11 @@ test("an empty sketchbook says what to do; New sketch → Blank opens it in the 
   // No lesson Make yet: that start is offered but explained, not clickable.
   await expect(dialog.getByRole("radio", { name: /Make/ })).toBeDisabled();
   await expect(dialog).toContainText("Finish a lesson's Make and you can carry it on here.");
+  // The templates wait for their capstones, each named by its title; none is offered yet.
+  await expect(dialog.getByTestId("template-locked")).toHaveCount(4);
+  await expect(dialog.getByTestId("template-locked").first()).toContainText("Four-chord pop");
+  await expect(dialog.getByTestId("template-locked").first()).toContainText("Unlocks when you release");
+  await expect(dialog.getByRole("radio", { name: /Four-chord pop/ })).toHaveCount(0);
   await dialog.getByLabel("Title").fill("First free sketch");
   await dialog.getByRole("button", { name: "Create sketch" }).click();
   await expect(page).toHaveURL(/\/studio\/sk/);

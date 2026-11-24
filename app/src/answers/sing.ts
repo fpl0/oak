@@ -111,7 +111,7 @@ export function cadenceChords(tonic: number, mode: "major" | "minor" = "major"):
 }
 
 /**
- * "Hear my take": the pitch the learner sang on each target, in the target's octave (target + error), at the
+ * "Hear my singing": the pitch the learner sang on each target, in the target's octave (target + error), at the
  * target's time. Missed notes are silent. Nothing here is audio: only the tracked pitches.
  */
 export function takeNotes(

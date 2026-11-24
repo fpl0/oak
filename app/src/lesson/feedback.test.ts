@@ -67,6 +67,11 @@ describe("summaryOf", () => {
     expect(line).toContain("didn't hear a voice");
     expect(line).not.toContain("Code");
   });
+  test("a sung attempt Oak could not follow says 'your singing', never 'take'", () => {
+    const r = result("error", ["sing.pitch-lost"]);
+    const line = summaryOf(viewFor(r, 0, false, render), r);
+    expect(line).toBe("Oak couldn't follow your singing. Sing it again, one steady note at a time.");
+  });
   test("mic bleed and missed taps get their own lines", () => {
     const b = result("error", ["sing.bleed"]);
     expect(summaryOf(viewFor(b, 0, false, render), b)).toContain("headphones");

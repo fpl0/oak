@@ -105,6 +105,15 @@ test("a locked tool: its unlock condition and a teaser you can hear but not open
   await expect(page.getByTestId("unlock-condition")).toContainText("“Restless Neighbours”");
   await page.goto("/toolbox/tb.voicing");
   await expect(page.getByTestId("unlock-condition")).toContainText("90% or more");
+  // A locked Studio template: what its song is, the capstone that unlocks it, and its song to hear.
+  await page.goto("/toolbox/tb.template.four-chord-pop");
+  await expect(page.getByText("A pop song in G on I–V–vi–IV")).toBeVisible();
+  await expect(page.getByText(/coming soon/i)).toHaveCount(0);
+  await expect(page.getByTestId("unlock-condition")).toContainText("“C2 Four-Chord Song”");
+  await page.getByRole("button", { name: "Hear it" }).click();
+  await expect(page.getByTestId("teaser")).toHaveAttribute("aria-pressed", "true", { timeout: 20_000 });
+  expect(await rms(page, 1200)).toBeGreaterThan(0.005);
+  await page.getByTestId("teaser").click();
   await page.goto("/toolbox/tb.nope");
   await expect(page.getByText("Not in the toolbox")).toBeVisible();
 });

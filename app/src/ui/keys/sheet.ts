@@ -111,7 +111,7 @@ export const CORE_SECTIONS: readonly SheetSection[] = [
     rows: [
       ["Enter", "Check"],
       // docs/design/retry.md §2: every judged exercise, after any result.
-      ["Alt+R", "Try again (after any result: a check, a trial, a take, a measurement)"],
+      ["Alt+R", "Try again (after any result: a check, a trial, tapping or singing, a measurement)"],
       ["Enter", "Continue, when it has the focus after a result"],
       ["1", "Pick an option, a degree or a numeral (1 to 9)"],
       ["Shift+1", "Hear an option (1 to 9)"],

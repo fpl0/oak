@@ -1,9 +1,19 @@
 // What Today shows (ux §1.4): one decision — start the session — and the state around it. Pure, so every plan
 // and return state is unit-tested from fixture plans (today-model.test.ts). The page (TodayPage.tsx) renders it.
-import type { Bootstrap, OnboardingState, SessionDay, SessionPlan, SideLessons, WarmupItem } from "@oak/api";
+import type {
+  Bootstrap,
+  OnboardingState,
+  SessionDay,
+  SessionPlan,
+  SideLessons,
+  UnitId,
+  UnitSongSummary,
+  WarmupItem,
+} from "@oak/api";
 import { learnerDay } from "@oak/srs";
 import { otherOpenSessions, ownOpenSession, tabId } from "../lib/tab-session.ts";
 import { FLOW, STEP_META } from "../onboarding/flow.ts";
+import { songStage } from "../song/surfaces-model.ts";
 import type { CapstoneDay } from "./capstone-day.ts";
 import type { CftDay } from "./cft-day.ts";
 import { type CourseEdge, edgeLead } from "./edge.ts";
@@ -561,5 +571,28 @@ export function keepAlivePlan(plan: SessionPlan): SessionPlan {
       plannedSec: first?.estSec ?? 0,
       moreAvailable: false,
     },
+  };
+}
+
+/**
+ * Today's line about a finished song (spec 2026-11-24 §5.5): a song ready for the album and not on it, by the stage
+ * the song page and the album's FirstTrack use (`songStage`; a song taken off the album is not "ready"). Several:
+ * the newest (the last in course order, `songs.list`'s order) is named and the others counted. `null` for none.
+ */
+export function songReadyLine(
+  songs: readonly Pick<UnitSongSummary, "unitId" | "title" | "releasable" | "releases" | "lessonsCount">[],
+  stepsOf: (unitId: UnitId) => number,
+): { unitId: UnitId; title: string; text: string } | null {
+  const ready = songs.filter(
+    (s) => songStage(s, { done: s.lessonsCount, of: stepsOf(s.unitId) }) === "ready",
+  );
+  const newest = ready.at(-1);
+  if (!newest) return null;
+  const more = ready.length - 1;
+  const rest = more === 0 ? "" : ` ${more === 1 ? "One more song is" : `${more} more songs are`} ready too.`;
+  return {
+    unitId: newest.unitId,
+    title: newest.title,
+    text: `Your song “${newest.title}” is finished. Release it to your album.${rest}`,
   };
 }

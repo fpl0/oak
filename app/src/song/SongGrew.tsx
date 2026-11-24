@@ -22,6 +22,7 @@ import {
   changedSinceLine,
   detailBefore,
   grewSentence,
+  grewView,
   newestTakeOfLesson,
   partsPlayedByTake,
   releaseOffer,
@@ -99,13 +100,11 @@ export function SongGrew({
     );
   const view = songViewOf(def, detail, introduced);
   const held = cellsHeldBy(def, detail, mine.id);
-  // Today's cells fill in section by section, from the first bar of the song on (the grid's own order).
-  const heldSet = new Set<string>(held);
-  const fresh = new Set<string>(
-    view.cells.map((c) => `${c.part}@${c.section}`).filter((k) => heldSet.has(k)),
-  );
+  const played = partsPlayedByTake(def, mine);
+  // The grid says what the sentence says: a part the take holds but does not play is drawn resting, not as today's.
+  const grown = grewView(view, held, played);
   const before = detailBefore(detail, mine.id);
-  const sentence = grewSentence(view, held, partsPlayedByTake(def, mine));
+  const sentence = grewSentence(view, held, played);
   return (
     <>
       <Card className="flex flex-col gap-4 p-5 animate-fade-in" data-testid="coda-song-grew">
@@ -130,9 +129,9 @@ export function SongGrew({
           </div>
         </div>
         <GrewGrid
-          view={view}
+          today={grown.view}
           before={songViewOf(def, before, introduced)}
-          fresh={fresh}
+          fresh={grown.fresh}
           beforeId={beforeId(def.unit, mine.id)}
           unit={def.unit}
         />
@@ -183,27 +182,25 @@ export function SongGrew({
 /**
  * The grid of "Your song grew": today's blocks are saved, so they are drawn filled in their part's colour inside the
  * accent outline of "Today" (yours, and today's), and the legend's Today swatch looks the same; they fill in bar by bar
- * (at once under reduced motion). While "Before today" plays, the grid shows the song before today, so the picture
+ * (at once under reduced motion). A block today's take holds but does not play rests, as the sentence says
+ * (`grewView`). While "Before today" plays, the grid shows the song before today, so the picture
  * matches what is heard; the legend and the status line keep their room, so nothing below moves.
  */
 function GrewGrid({
-  view,
+  today,
   before,
   fresh,
   beforeId: playingBefore,
   unit,
 }: {
-  view: SongView;
+  /** The song with today's blocks (`grewView`). */
+  today: SongView;
   before: SongView;
   fresh: ReadonlySet<string>;
   beforeId: string;
   unit: string;
 }) {
   const hearingBefore = useSongPlay(playingBefore).playing;
-  const today: SongView = {
-    ...view,
-    cells: view.cells.map((c) => (fresh.has(`${c.part}@${c.section}`) ? { ...c, owner: "today" } : c)),
-  };
   return (
     <div
       className="flex flex-col gap-1"

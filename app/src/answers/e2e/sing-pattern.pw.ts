@@ -1,6 +1,6 @@
 // A sung degree pattern with Chromium's fake microphone singing 1 3 5 in A (A3 C♯4 E4, one per second after the
 // two-second count-in): the count-in shows its numerals, every target passes within the server-ladder band (±50¢),
-// "Hear my take" appears, and the stand-in host checks it right. Quiet mode: listen and self-check, reported as quiet
+// "Hear my singing" appears, and the stand-in host checks it right. Quiet mode: listen and self-check, reported as quiet
 // evidence, never voice.
 import { expect, test } from "@playwright/test";
 import { useUiPrefs } from "../../../../e2e/support/ui.ts";
@@ -26,7 +26,7 @@ test("singing 1 3 5 in tune passes every target", async ({ page }) => {
     await expect(notes.getByRole("listitem", { name: new RegExp(`^degree ${d}, .*in tune$`) })).toHaveCount(
       1,
     );
-  await expect(w.getByRole("button", { name: "Hear my take" })).toBeVisible();
+  await expect(w.getByRole("button", { name: "Hear my singing" })).toBeVisible();
   // The trace wore each target's degree colour while in tune (wave3.md §0 carry-over, ux §4.3).
   await expect(w.locator("canvas")).toHaveAttribute("data-trace-degrees", "1 3 5");
   await w.getByRole("button", { name: "Check" }).focus();

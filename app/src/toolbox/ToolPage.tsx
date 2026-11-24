@@ -13,10 +13,13 @@ import { lessonTitles } from "../lib/content-model.ts";
 import { formatDate } from "../lib/format.ts";
 import { usePageTitle } from "../lib/nav.ts";
 import { getOak } from "../lib/oak.ts";
-import { useCourseProgress, useSketchCreate, useUnlocks } from "../lib/queries.ts";
+import { useCourseProgress, useSketchCreate, useSketches, useUnlocks } from "../lib/queries.ts";
 import { appWorkbenchServices } from "../lib/workbench-services.ts";
+import { currentSessionId } from "../session/store.ts";
 import { InlineCodeText } from "../session/today/SideOffer.tsx";
+import { writeLength } from "../studio/draft.ts";
 import { useUnlockedSet } from "../studio/queries.ts";
+import { starterSong, templateSketchBody, templateTitle } from "../studio/templates.ts";
 import { Button, buttonClass } from "../ui/kit/Button.tsx";
 import { Card, Chip, EmptyState, Page } from "../ui/kit/basics.tsx";
 import { Dialog } from "../ui/kit/Dialog.tsx";
@@ -107,7 +110,8 @@ function ToolDetail({ tool, unlockedAt }: { tool: ToolEntry; unlockedAt: string 
   const done = new Set(
     (progress.data?.lessons ?? []).filter((l) => l.status === "completed").map((l) => l.lessonId as string),
   );
-  const hasDemo = tool.catalog.demo.trim() !== "" || toolDemo(tool.id) !== null;
+  const hasDemo =
+    tool.catalog.demo.trim() !== "" || toolDemo(tool.id) !== null || starterSong(tool.id) !== null;
 
   return (
     <Page width="narrow">
@@ -376,11 +380,14 @@ function LiveExample({ tool }: { tool: ToolEntry }) {
   const create = useSketchCreate();
   const { unlocked } = useUnlockedSet();
   // Waves 5 and 6: the tools of U08–U17 and A1 play inside a short groove (demos.ts), with their panel or probe.
-  const wave5 = toolDemo(tool.id);
+  // A Studio template plays its starter song (studio/templates.ts), and starts a sketch from it.
+  const song = starterSong(tool.id);
+  const wave5 = toolDemo(tool.id) ?? (song ? { code: song.code, bars: song.bars, hint: song.hint } : null);
   const demo = wave5?.code ?? tool.catalog.demo;
   const [code, setCode] = useState(demo);
-  const meter = wave5?.meter ?? demoMeter(demo);
-  const key = demoKey(demo) as { tonic: string; mode: "major" } | null;
+  const meter = song?.meter ?? wave5?.meter ?? demoMeter(demo);
+  const key = (song?.key ?? demoKey(demo)) as { tonic: string; mode: "major" } | null;
+  const sketches = useSketches();
   // A feature's page shows the feature at work: roll and staff side by side, its panel open, its lens switch.
   const feature =
     FEATURE_DEMOS[tool.id] ?? (wave5?.panels ? { panels: wave5.panels, hint: wave5.hint } : null);
@@ -388,7 +395,15 @@ function LiveExample({ tool }: { tool: ToolEntry }) {
 
   const openInStudio = async () => {
     try {
-      const saved = await create.mutateAsync({ body: toolSketchBody(tool, code, wave5?.meter) });
+      const body = song
+        ? templateSketchBody(
+            { ...song, code },
+            templateTitle(song.name, sketches.data?.items ?? []),
+            currentSessionId(),
+          )
+        : toolSketchBody(tool, code, wave5?.meter);
+      const saved = await create.mutateAsync({ body });
+      if (song) writeLength(saved.sketch.id, song.bars);
       void navigate({ to: "/studio/$sketchId", params: { sketchId: saved.sketch.id } });
     } catch (e) {
       toast.error("Couldn't open it in the Studio", errorWords(e));
@@ -398,7 +413,9 @@ function LiveExample({ tool }: { tool: ToolEntry }) {
   return (
     <Card className="flex flex-col gap-3 p-4" data-testid="tool-example">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-sans text-sm font-semibold text-text-2">Try it: change a number and press Run</h2>
+        <h2 className="font-sans text-sm font-semibold text-text-2">
+          {song ? "Hear it: press Play" : "Try it: change a number and press Run"}
+        </h2>
         <Button
           variant="primary"
           size="sm"
@@ -407,7 +424,7 @@ function LiveExample({ tool }: { tool: ToolEntry }) {
           onClick={() => void openInStudio()}
           data-testid="open-in-studio"
         >
-          Open in Studio
+          {song ? "Start a sketch from it" : "Open in Studio"}
         </Button>
       </div>
       {feature || wave5 ? (
@@ -448,7 +465,7 @@ function LiveExample({ tool }: { tool: ToolEntry }) {
 /**
  * What a learner can do with a locked tool before it unlocks. Code (and the sounds, scales and chords it names)
  * already plays in the Studio with a hint; a lens or a feature is part of the app and only appears once unlocked;
- * a template has nothing to add to its unlock condition.
+ * a template has nothing to add to its unlock condition (its song can be heard, not opened).
  */
 function lockedNote(tool: ToolEntry, titles: ReadonlyMap<string, string>): string | null {
   const where = sitesOf(tool)
@@ -485,8 +502,8 @@ function LockedTeaser({ tool, titles }: { tool: ToolEntry; titles: ReadonlyMap<s
       const oak = await getOak();
       await oak.unlock();
       player.current ??= oak.createPatternPlayer();
-      const out = await player.current.load(tool.catalog.demo, {
-        bars: 2,
+      const out = await player.current.load(starterSong(tool.id)?.code ?? tool.catalog.demo, {
+        bars: starterSong(tool.id)?.bars ?? 2,
         cps: 0,
         lint: { profile: "content", unlocked: new Set(), allowPreview: true, meter: "4/4", key: null },
       });
@@ -524,7 +541,7 @@ function LockedTeaser({ tool, titles }: { tool: ToolEntry; titles: ReadonlyMap<s
         <p className="mt-1 text-sm text-text-2">{lockedNote(tool, titles)}</p>
       ) : null}
       {/* A lens is something to see: an audio-only teaser would play sound and show nothing of it. */}
-      {tool.catalog.demo.trim() && tool.kind !== "lens" ? (
+      {(tool.catalog.demo.trim() || starterSong(tool.id)) && tool.kind !== "lens" ? (
         <div className="mt-3">
           <Button
             size="sm"
@@ -540,7 +557,7 @@ function LockedTeaser({ tool, titles }: { tool: ToolEntry; titles: ReadonlyMap<s
             onClick={() => void hear()}
             data-testid="teaser"
           >
-            {playing ? "Stop" : "Hear an example"}
+            {playing ? "Stop" : starterSong(tool.id) ? "Hear it" : "Hear an example"}
           </Button>
         </div>
       ) : null}

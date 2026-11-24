@@ -333,7 +333,7 @@ function FirstSing({ profile, onDone, onSkip, context, back }: PartProps) {
               className="flex items-baseline justify-between gap-4 border-b border-border py-2 text-sm last:border-b-0"
             >
               <span className="text-text-2">
-                Take {t.n}
+                Try {t.n}
                 {t.practice ? " · practice" : ""}
               </span>
               <span className="font-medium">{takeWords(t)}</span>
@@ -400,7 +400,7 @@ function FirstSing({ profile, onDone, onSkip, context, back }: PartProps) {
         // A practice take after the pass holds Continue only until it ends: the note already counts, and says so.
         continueNote={
           counted
-            ? "Your note already counts. Continue opens when this take ends."
+            ? "Your note already counts. Continue opens when you finish singing."
             : "Sing the note back to go on, or set it up later."
         }
         // Said under a take that was practice: never under the take that counted (it read as "your note didn't

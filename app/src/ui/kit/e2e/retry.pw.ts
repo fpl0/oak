@@ -11,7 +11,7 @@ import { useUiPrefs } from "../../../../../e2e/support/ui.ts";
 import { contrastIssuesIn } from "../../review/e2e/contrast-check.ts";
 
 const SHOTS = fileURLToPath(new URL("./screenshots", import.meta.url));
-const PRACTICE = "Practice: this take does not change your result.";
+const PRACTICE = "Practice: this try does not change your result.";
 
 test.beforeEach(async ({ page }) => {
   await page.routeWebSocket(/.*/, () => {});

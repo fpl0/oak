@@ -12,7 +12,7 @@ export const RETRY_KEYS = "Alt+R";
 export const CONTINUE_LABEL = "Continue";
 
 /** The line shown with the control when the next take cannot change what was recorded. */
-export const PRACTICE_LINE = "Practice: this take does not change your result.";
+export const PRACTICE_LINE = "Practice: this try does not change your result.";
 /** After a reveal, before the step has passed (contracts §5.3: rung 4 multiplies the score by 0). */
 export const REVEALED_LINE = "Answer shown: a pass now finishes the step but does not count as known.";
 /** A checkpoint item before hand-in: answers are saved, never judged on screen (contracts §7.6). */
