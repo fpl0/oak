@@ -205,7 +205,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [focus, path, href]);
   useTutorBridge();
   return (
-    <div className="flex h-dvh w-full overflow-hidden bg-bg text-text" data-mode={focus ? "focus" : "shell"}>
+    // `relative` here and on <main>: an absolutely positioned descendant with no positioned ancestor (every `sr-only`
+    // label is one) is laid out against the document, not its scroller. A long page then made the document itself
+    // thousands of pixels tall under this fixed-height shell, and the window grew a second scrollbar that scrolled
+    // the whole shell away (the Oak's Course view: 175 status labels).
+    <div
+      className="relative flex h-dvh w-full overflow-hidden bg-bg text-text"
+      data-mode={focus ? "focus" : "shell"}
+    >
       <a
         href="#main"
         className="sr-only-focusable absolute top-2 left-2 z-[70] rounded-control bg-accent px-3 py-2 text-on-accent"
@@ -216,7 +223,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-w-0 flex-1 flex-col">
         {focus ? <FocusBar /> : <TopBar />}
         <div className="flex min-h-0 flex-1">
-          <main id="main" tabIndex={-1} className="min-w-0 flex-1 overflow-auto outline-none">
+          <main id="main" tabIndex={-1} className="relative min-w-0 flex-1 overflow-auto outline-none">
             {children}
           </main>
           <TutorPanel />

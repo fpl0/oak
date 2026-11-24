@@ -94,6 +94,12 @@ for (const scheme of ["light", "dark"] as const) {
               // Focus routes hide the NavRail (ux §2.1).
               await expect(page.getByRole("navigation", { name: "Main" })).toHaveCount(r.focus ? 0 : 1);
               await expect(page.locator("[data-state=error]")).toHaveCount(0);
+              // The page scrolls inside the shell (#main); the window itself never does. A label positioned against
+              // the document once made it thousands of pixels tall, with a second scrollbar that moved the shell.
+              const overflow = await page.evaluate(
+                () => document.documentElement.scrollHeight - window.innerHeight,
+              );
+              expect(overflow, `${r.path}: the window scrolls by ${overflow}px`).toBeLessThanOrEqual(1);
               expect(problems, `${r.path}: console`).toEqual([]);
             } finally {
               await context.close();
