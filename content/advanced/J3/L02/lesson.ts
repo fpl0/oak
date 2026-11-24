@@ -93,7 +93,7 @@ const NONE = { roll: false, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "J3.L02",
-  version: 3,
+  version: 4,
   title: "Drop-2 & Spread",
   objective: "I can open a close voicing into a drop-2 voicing and carry a tune on its top note.",
   key: { tonic: "C", mode: "major" },
@@ -417,7 +417,7 @@ export default defineLesson({
         role: "practice",
         title: "Drop-2 ii–V–I",
         prompt:
-          "Voice the Rhodes in drop-2 under the vibes, over Dm7 G7 Cmaj7 Cmaj7. Required: build each chord close under the tune's note, then drop its second note from the top an octave. Also on the checklist: the vibes tune plays, and a tempo of 100 to 160. Keep C B B E or write your own tune.",
+          "Voice the Rhodes in drop-2 under the vibes for the four bars in C of your song, the first and the last time through: Dm7 G7 Cmaj7 Cmaj7. Build each chord close under the tune's note, then drop its second note from the top an octave. Keep the tune C B B E or write your own.",
         skills: [{ skill: "J09", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },

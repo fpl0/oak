@@ -117,7 +117,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J2.L02",
-  version: 3,
+  version: 4,
   title: "Minor ii–V–i",
   objective:
     "I can hear and write a minor ii–V–i: a half-diminished ii, a V with its 9th bent down, a minor home.",
@@ -427,7 +427,7 @@ export default defineLesson({
     {
       id: "S6",
       kind: "make",
-      title: "Your minor ballad",
+      title: "Your minor bridge",
       minutes: 2.75,
       ui: { panels: ROLL, rollLabels: "none", band: DRUMS, initialPanels: ["chords"] },
       exercise: {
@@ -437,7 +437,7 @@ export default defineLesson({
         role: "practice",
         title: "Minor ii–V–i",
         prompt:
-          "Turn the bright starter into four or eight bars in D minor. Required: the chords play a minor ii–V–i. Also on the checklist: the V carries its ♭9, and the vibes line ends on D over the minor home. Home can be Dm7, Dm6 or Dm with a major 7th (`Dm^7`).",
+          "Turn the bright starter into your song's bridge, in D minor. Make the chords a minor ii–V–i, home on Dm7, Dm6 or Dm with a major 7th (`Dm^7`). Done when the chords play a half-diminished ii, a dominant V and a minor home, in that order. Also on the checklist: the V's ♭9, and the vibes ending on D.",
         skills: [{ skill: "J06", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },

@@ -1403,6 +1403,14 @@
       "kind": "example"
     },
     {
+      "id": "A1.L01@wavetables",
+      "kind": "example"
+    },
+    {
+      "id": "A1.L02@acid-and-riser",
+      "kind": "example"
+    },
+    {
       "id": "A1.L02@hook",
       "kind": "example"
     },
@@ -1416,6 +1424,10 @@
     },
     {
       "id": "A1.L03@hook",
+      "kind": "example"
+    },
+    {
+      "id": "A1.L03@synth-kick",
       "kind": "example"
     },
     {
@@ -1435,11 +1447,19 @@
       "kind": "example"
     },
     {
+      "id": "A1.L05@old-record",
+      "kind": "example"
+    },
+    {
       "id": "A1.L06@hook",
       "kind": "example"
     },
     {
       "id": "A1.L06@how-fast",
+      "kind": "example"
+    },
+    {
+      "id": "A1.L06@morph",
       "kind": "example"
     },
     {
@@ -1488,6 +1508,10 @@
     },
     {
       "id": "A2.L04@look-inside",
+      "kind": "example"
+    },
+    {
+      "id": "A2.L04@three-fits",
       "kind": "example"
     },
     {
@@ -1787,6 +1811,10 @@
       "kind": "example"
     },
     {
+      "id": "R3.L02@on-the-claves",
+      "kind": "example"
+    },
+    {
       "id": "R3.L02@son-groove",
       "kind": "example"
     },
@@ -1800,6 +1828,10 @@
     },
     {
       "id": "R3.L03@three-lines",
+      "kind": "example"
+    },
+    {
+      "id": "R3.L04@hand-drums",
       "kind": "example"
     },
     {
@@ -3304,6 +3336,10 @@
     },
     {
       "id": "A2.L04/flip-the-break",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L04/its-own-tempo",
       "kind": "exercise"
     },
     {
@@ -12784,6 +12820,10 @@
       "kind": "step"
     },
     {
+      "id": "A2.L04/S7",
+      "kind": "step"
+    },
+    {
       "id": "A2.L05/S1",
       "kind": "step"
     },
@@ -18822,6 +18862,46 @@
     {
       "id": "U17",
       "kind": "unit"
+    },
+    {
+      "id": "usong.A1",
+      "kind": "unitSong"
+    },
+    {
+      "id": "usong.A2",
+      "kind": "unitSong"
+    },
+    {
+      "id": "usong.J1",
+      "kind": "unitSong"
+    },
+    {
+      "id": "usong.J2",
+      "kind": "unitSong"
+    },
+    {
+      "id": "usong.J3",
+      "kind": "unitSong"
+    },
+    {
+      "id": "usong.J4",
+      "kind": "unitSong"
+    },
+    {
+      "id": "usong.J5",
+      "kind": "unitSong"
+    },
+    {
+      "id": "usong.R1",
+      "kind": "unitSong"
+    },
+    {
+      "id": "usong.R2",
+      "kind": "unitSong"
+    },
+    {
+      "id": "usong.R3",
+      "kind": "unitSong"
     },
     {
       "id": "usong.U01",

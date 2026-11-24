@@ -133,7 +133,7 @@ const thinAgainstThick = (label: string): RubricRule => ({
 
 export default defineLesson({
   id: "A2.L02",
-  version: 3,
+  version: 4,
   title: "Texture & Density",
   objective: "I can thin a section out and fill another, so the full one lands.",
   key: { tonic: "A", mode: "minor" },
@@ -463,7 +463,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Eight bars: a verse and a chorus, both thin. Make the chorus land: give the chorus consts more notes per bar, or a part that plays only there, or thin the verse further. Keep the tune as it is. Done when the verse and the chorus clearly differ in how many notes play per bar.",
+          "Eight bars: a verse and a chorus, both thin. Your chorus plays your song's first chorus. Make it land: give the chorus consts more notes per bar, or a part that plays only there. Keep the tune as it is. Done when the verse and the chorus clearly differ in how many notes play per bar.",
         skills: [
           { skill: "D09", w: 0.7 },
           { skill: "F05", w: 0.3 },

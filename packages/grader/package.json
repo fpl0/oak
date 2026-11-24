@@ -10,6 +10,7 @@
     "./host/bun": "./src/host/bun.bun.ts",
     "./worker": "./src/worker.ts",
     "./proc": "./src/proc.bun.ts",
-    "./testing": "./src/testing.ts"
+    "./testing": "./src/testing.ts",
+    "./song": "./src/song/index.ts"
   }
 }

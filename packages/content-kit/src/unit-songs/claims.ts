@@ -1,7 +1,7 @@
 // The claims model of unit songs (spec docs/superpowers/specs/2026-11-24-unit-songs-design.md §5.2, §5.6). A song is
 // a grid of cells, one per part × section. Takes are applied in order and a later take overrides an earlier one cell
-// by cell; every cell nobody has taken is Oak's. Pure: no Strudel, no I/O. The composer (@oak/strudel), the server
-// and the app all ask this module who owns what, so they never disagree.
+// by cell; every cell nobody has taken is Oak's. Pure: no Strudel, no I/O. The composer (@oak/grader/song, re-exported
+// as @oak/strudel/song-compose), the server and the app all ask this module who owns what, so they never disagree.
 import type { SongPartId, SongPartRole, SongSectionId, TakeStep, UnitSongDef } from "../schema/index.ts";
 
 /** One cell of the grid: `<part>@<section>` (`kick@verse`). Part and section ids are slugs, so `@` never occurs in them. */
@@ -10,9 +10,9 @@ export type CellKey = `${SongPartId}@${SongSectionId}`;
 /** The owner of every cell that no take holds. A take's `sourceId` is never `"oak"`. */
 export const OAK_OWNER = "oak" as const;
 
-/** What a take's code actually plays, as read from its evaluated tracks (the app computes it; see `partOfDrumSound`). */
+/** What a take's code actually plays, as read from its evaluated tracks (the app computes it; see `drumPartsOfSound`). */
 export interface PlayedParts {
-  /** Every part the code plays: drum hits by sound (`partOfDrumSound`), pitched tracks by label and role (`partOfTrack`). */
+  /** Every part the code plays: drum hits by sound (`drumPartsOfSound`), pitched tracks by label and role (`partOfTrack`). */
   parts: ReadonlySet<SongPartId>;
   /** The code plays chords (a track whose role is chords): it then takes Oak's pitched parts, except `oakKeeps`. */
   playsChords: boolean;
@@ -42,16 +42,76 @@ export function stepSectionIds(def: UnitSongDef, step: Pick<TakeStep, "sections"
   return ids.filter((id) => wanted.has(id));
 }
 
+/** The percussion names a song's drum parts list (`cb` cowbell, `tb` tambourine, `sh` shaker, `perc`, `misc`). */
+const PERCUSSION: readonly string[] = ["perc", "cb", "tb", "sh", "misc"];
+
 /**
- * The drum part a hit belongs to: the part whose `sounds` hold the sound's name (`bd:3` is `bd`). A name written
- * with its bank (`RolandTR909_bd`) is read by what follows the last `_`. `null` when no part owns it.
+ * Sound pack v4 hits that a song's parts may not list (the songs were written with the kit names), read as the sounds
+ * they stand in for: a conga, bongo or clave hit and the foley one-shots are percussion, `sbd` (a synthesised kick)
+ * is a kick. Asked only when no part lists the name itself, so no listed name changes part.
+ */
+const STANDS_FOR: Readonly<Record<string, readonly string[]>> = {
+  conga: PERCUSSION,
+  bongo: PERCUSSION,
+  clave: PERCUSSION,
+  foley: PERCUSSION,
+  snap: PERCUSSION,
+  impact: PERCUSSION,
+  swoosh: PERCUSSION,
+  scratch: PERCUSSION,
+  sbd: ["bd"],
+};
+
+/**
+ * Sound pack v4's breaks: each is a whole kit playing (kick, snare, hats, a tambourine or shaker), so a break hit
+ * belongs to every drum part of the song. `brk`, the older break, keeps its meaning: it belongs to a part only when
+ * one lists it.
+ */
+export const BREAK_SOUNDS: readonly string[] = [
+  "brkfunk",
+  "brkboombap",
+  "brkjungle",
+  "brkhouse",
+  "brkjazz",
+  "brklofi",
+];
+
+/**
+ * Every drum part a hit belongs to (contracts §5.11 rule 9), in song order:
+ *
+ * 1. the part whose `sounds` hold the sound's name (`bd:3` is `bd`; a name written with its bank, `RolandTR909_bd`,
+ *    is read by what follows the last `_`);
+ * 2. else, for a sound pack v4 name no part lists: a break (`BREAK_SOUNDS`) belongs to every drum part; a conga,
+ *    bongo, clave or foley hit to the part that owns the song's percussion (`cb`, `tb`, `sh`…, else the part
+ *    labelled `perc`); `sbd` to the part that owns `bd`.
+ *
+ * Empty when no part owns it.
+ */
+export function drumPartsOfSound(def: UnitSongDef, sound: string): SongPartId[] {
+  const name = (sound.split(":")[0] ?? "").trim();
+  if (name === "") return [];
+  const drums = def.parts.filter((p) => p.role === "drums");
+  const owner = (n: string) => drums.find((p) => (p.sounds ?? []).includes(n));
+  const bare = name.includes("_") ? name.slice(name.lastIndexOf("_") + 1) : null;
+  const listed = owner(name) ?? (bare === null ? undefined : owner(bare));
+  if (listed) return [listed.id];
+  const base = BREAK_SOUNDS.includes(name) || STANDS_FOR[name] ? name : (bare ?? name);
+  if (BREAK_SOUNDS.includes(base)) return drums.map((p) => p.id);
+  const standsFor = STANDS_FOR[base];
+  if (!standsFor) return [];
+  const part =
+    drums.find((p) => (p.sounds ?? []).some((s) => standsFor.includes(s))) ??
+    (standsFor === PERCUSSION ? drums.find((p) => p.label === "perc") : undefined);
+  return part ? [part.id] : [];
+}
+
+/**
+ * The drum part a hit belongs to, when it is exactly one (`drumPartsOfSound`): `bd:3` is the part that lists `bd`.
+ * `null` when no part owns it, and for a break, which belongs to every drum part (ask `drumPartsOfSound`).
  */
 export function partOfDrumSound(def: UnitSongDef, sound: string): SongPartId | null {
-  const name = (sound.split(":")[0] ?? "").trim();
-  if (name === "") return null;
-  const owner = (n: string) => def.parts.find((p) => p.role === "drums" && (p.sounds ?? []).includes(n));
-  const part = owner(name) ?? (name.includes("_") ? owner(name.slice(name.lastIndexOf("_") + 1)) : undefined);
-  return part?.id ?? null;
+  const parts = drumPartsOfSound(def, sound);
+  return parts.length === 1 ? (parts[0] as SongPartId) : null;
 }
 
 /** The part roles a track's inferred role may fall back to, in order (a chords track fills a pad part too). */
@@ -63,7 +123,7 @@ const FALLBACK_ROLES: Readonly<Record<"drums" | "bass" | "chords" | "melody", re
 };
 
 /**
- * The part a learner's track plays (for pitched tracks; drum tracks are split hit by hit with `partOfDrumSound`):
+ * The part a learner's track plays (for pitched tracks; drum tracks are split hit by hit with `drumPartsOfSound`):
  * the part with exactly this label, else the first part with the track's role (contracts §6.2 rule 1 infers it),
  * else `null` (the track goes past the brief and plays wherever its source owns a cell of the section).
  */

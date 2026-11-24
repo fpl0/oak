@@ -127,7 +127,7 @@ const NOTES_OF_G: RubricRule = {
 
 export default defineLesson({
   id: "A2.L03",
-  version: 3,
+  version: 4,
   title: "Counter-Melody & Re-Voicing per Section",
   objective: "I can write a second line that answers the tune instead of copying it.",
   key: { tonic: "A", mode: "minor" },
@@ -484,7 +484,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write a counter-melody in the empty `vox` line. Start notes where the tune holds or rests, move the other way when both move, and never copy the tune. Keep it in its own register, under the tune. Any sound works. Done when the `vox` line moves on its own at least half the time.",
+          "Write a counter-melody in the empty `vox` line. Start notes where the tune holds or rests, move the other way when both move, and never copy the tune. Keep it under the tune. Any sound works. This loop plays your song's second verse. Done when the `vox` line moves on its own at least half the time.",
         skills: [
           { skill: "D09", w: 0.6 },
           { skill: "M07", w: 0.4 },

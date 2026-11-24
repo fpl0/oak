@@ -11,7 +11,11 @@
 //
 // It starts from a loop like the learner's own (C1's shape: kick, snare, hats, a note-name bass and a two-bar
 // riff) with every pitched part on a sine, and ends with that loop voiced on waves whose harmonics the learner
-// chose. The Band plays the chords only (the learner's code has the drums, bass and riff).
+// chose. The Band plays the chords only (the learner's code has the drums, bass and riff). The Make also shows Oak's
+// wavetables (`snd.wt`, unlocked here): the riff on four single cycles while the scope draws each one.
+//
+// Unit song (content/unit-songs/A1.ts, "Turn the dial"): the Make's loop takes the first verse of the A1 song (kick,
+// snare, hats, bass and riff, under Oak's chords); it opens with the authored starter.
 //
 // How it is graded: S5 checks the `.partials()` list with `arg-matches` (four harmonics switched on) while an
 // `events` match keeps the riff's notes; S6 names a wave by ear; the Make requires two or more harmonics chosen
@@ -61,6 +65,12 @@ const BUILD_STARTER = code(...DRUMS, riff('.s("sawtooth").partials([1, ⟪0, 0, 
 const built = (list: string) => code(...DRUMS, riff(`.s("sawtooth").partials([${list}])`));
 const BUILD_SOLUTION = built("1, 1, 1, 1");
 
+/**
+ * S7: the riff on four of Oak's wavetables in turn, a bar each, the scope drawing each one's single cycle (`snd.wt`,
+ * unlocked here: a wave is one repeating cycle, and a wavetable is a cycle cut from another sound).
+ */
+const TABLES = code(riff('.s("<wt_organ wt_epiano wt_chip wt_voice>").scope()'));
+
 /** S6: the bass line on a square, heard without the code. */
 const BASS_ON = (wave: string) => code(...DRUMS, bass(`.s("${wave}")`));
 
@@ -70,7 +80,7 @@ const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L01",
-  version: 3,
+  version: 4,
   title: "Waves & Harmonics",
   objective: "I can see a wave's shape, hear its harmonics, and choose them with `.partials()`.",
   key: { tonic: "C", mode: "major" },
@@ -396,13 +406,14 @@ export default defineLesson({
       title: "Voice your loop",
       minutes: 2.75,
       ui: { panels: ROLL, band: CHORDS },
+      example: { id: "wavetables", code: TABLES, bars: 4 },
       exercise: {
         kind: "code-make",
         id: "voice-your-loop",
         version: 1,
         role: "practice",
         prompt:
-          "The bass and the riff are on a sine. Give each a wave with harmonics: sawtooth, square or triangle. On at least one, add a `.partials([…])` list with two or more harmonics on. Aim for a full bass under a riff that cuts through; balance them with `.gain()`. Done when that part sounds with two or more harmonics.",
+          "The bass and the riff are on a sine. Give each a wave with harmonics: a sawtooth, a square, a triangle or a wavetable. On a sawtooth, square or triangle, add a `.partials([…])` list with two or more harmonics on. Your loop then plays your song's first part after the opening. Done when that part has two or more harmonics.",
         skills: [{ skill: "D02", w: 1 }],
         code: { starter: THIN },
         bars: [2, 8],

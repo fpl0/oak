@@ -158,12 +158,29 @@ const make = (...lines: string[]) => code(...lines);
 const MAKE_FACES: RubricRule = {
   id: "montuno-faces-the-clave",
   label:
-    "In every two bars the piano's two bars differ, and at least 3 of its chords land with a rimshot, more than land between them",
+    "In every two bars the piano's two bars differ, and at least 3 of its chords land with a clave hit, more than land between them",
   required: true,
   skills: ["R18"],
   rule: "custom",
   fn: "clave-aligned",
   params: { track: "keys", clave: "perc", min: 3 },
+};
+/**
+ * The hand drums (`conga` and `bongo`, unlocked here; sound pack v4): the conga on beat 2 and on beat 4 and its "and",
+ * the bongos on every eighth, louder on the beats, over the clave and the cowbell.
+ */
+const CONGAS = 'perc3: s("~ ~ conga ~ ~ ~ conga conga").gain(.6)';
+const BONGOS = 'perc4: s("bongo*8").velocity("[.9 .5]*4").gain(.4)';
+const HAND_DRUMS = code(CLAVE, BELL, CONGAS, BONGOS);
+/** Not required: congas or bongos in the band, the sounds this lesson unlocks. */
+const WITH_HAND_DRUMS: RubricRule = {
+  id: "hand-drums",
+  label: "Congas or bongos play in a line you can hear: the sound `conga` or `bongo`",
+  required: false,
+  skills: ["R18"],
+  rule: "uses",
+  tool: ["snd.drum.conga", "snd.drum.bongo"],
+  min: 1,
 };
 /** In F: the montuno over F then C7, the tumbao on C then F (the next chord's root on beat 4). */
 const F_MONTUNO = "<[[f4,a4] ~ ~ [a4,c5] ~ [f4,a4] [a4,c5] ~] [~ ~ [g4,bb4] ~ [e4,g4] ~ ~ [a4,c5]]>";
@@ -174,7 +191,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R3.L04",
-  version: 3,
+  version: 4,
   title: "Montuno & Tumbao Layering",
   objective: "I can layer a montuno and a tumbao on the clave.",
   key: { tonic: "C", mode: "major" },
@@ -513,14 +530,16 @@ export default defineLesson({
         rollLabels: "none",
         band: { band: "band.son-montuno", tracks: ["drums"] },
       },
+      example: { id: "hand-drums", code: HAND_DRUMS, bars: 2 },
       exercise: {
         kind: "code-make",
         id: "your-son",
-        version: 1,
+        // v2 (unit songs): the checklist gains the congas or bongos, the sounds this lesson unlocks (not required).
+        version: 2,
         role: "practice",
         title: "Son montuno",
         prompt:
-          "Write the son's piano and bass over the clave 3-2 and the band's drums. Required: a two-bar piano figure that faces the clave, its two bars different. Also on the checklist: a tumbao bass, on the “and” of 2 and beat 4 but not beat 1, and the cowbell on all four beats. Any two chords work.",
+          "Write the piano and the bass for your song's vamp, over the clave 3-2 and Oak's drums. Give the piano a two-bar figure that faces the clave, C in bar 1 and G7 in bar 2, its two bars different. Also on the checklist: a tumbao bass, the cowbell on all four beats, and congas or bongos.",
         skills: [
           { skill: "R18", w: 0.6 },
           { skill: "B04", w: 0.4 },
@@ -556,6 +575,7 @@ export default defineLesson({
             ],
             perBar: true,
           },
+          WITH_HAND_DRUMS,
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
@@ -608,6 +628,11 @@ export default defineLesson({
                 keys(MONTUNO),
               ).replace(`setcpm(${BPM}/4)`, "setcpm(108/4)"),
             },
+            expect: "pass",
+          },
+          {
+            name: "beyond the brief: the tumbao, the montuno, congas and bongos",
+            response: { code: make(CLAVE, BELL, bass(TUMBAO), keys(MONTUNO), CONGAS, BONGOS) },
             expect: "pass",
           },
           {

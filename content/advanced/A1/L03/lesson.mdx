@@ -47,7 +47,11 @@ Listen for the same two edges as in the opening, now with no code to read.
 </Step>
 
 <Step id="S7">
-Three side lessons in, you choose each note's harmonics, its filter and now its shape in time. A punchy part and a floating part sit well together, so try a different shape on each. The filter pluck from last lesson can ride on the same part as a loudness pluck.
+Three side lessons in, you choose each note's harmonics, its filter and now its shape in time. A shape can move the pitch too: `.penv()` starts each note higher and `.pdecay()` sets how fast it falls back. A kick drum is a low sine that falls two octaves in a blink, with a fast pluck on its loudness; `sbd` is Oak's ready-made synth kick, a wave whose pitch falls the same way. Bar 1 plays the sine kick, bar 2 `sbd`. <CodeRef fn="penv" />
+
+<Example id="synth-kick" views="code" />
+
+In your song, this loop plays the part right after the first loud one, where Oak's bass and chords play short, plucked notes. A punchy part and a floating part sit well together, so try a different shape on each; a sine kick with its own loudness pluck, as in bar 1, counts as a shape too.
 
 <Make exercise="shape-your-loop" />
 

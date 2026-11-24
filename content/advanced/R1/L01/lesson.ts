@@ -145,7 +145,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R1.L01",
-  version: 3,
+  version: 4,
   title: "Metric Weight",
   objective:
     "I can hear which places in a bar are strong, and make a line pull against them by leaving a strong place empty.",
@@ -466,7 +466,7 @@ export default defineLesson({
         role: "practice",
         title: "Bass that pulls",
         prompt:
-          "Make the bass pull against the beat; the band plays the chords. Required: at least four bass notes on light places, each with the heavier place after it silent. Also on the checklist: the bass still plays beat 1, and the hi-hat's “e”s and “a”s whisper. Try other notes of the chord too.",
+          "Make the bass pull against the beat. Required: at least four bass notes on light places, each with the heavier place after it silent. Your drums and bass then play your song's verse, under Oak's chords and tune. Also on the checklist: the bass still plays beat 1, and the hi-hat's “e”s and “a”s whisper.",
         skills: [{ skill: "R10", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

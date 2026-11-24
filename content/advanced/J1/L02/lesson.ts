@@ -136,7 +136,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J1.L02",
-  version: 3,
+  version: 4,
   title: "Reading 7th-Chord Symbols",
   objective:
     "I can read a jazz chart's chord symbols, sixths and sus chords included, and play them in code.",
@@ -468,7 +468,7 @@ export default defineLesson({
         role: "practice",
         title: "Chart in F",
         prompt:
-          "Write your own four-bar chart in F in `changes`. Required: at least one sixth chord and one sus chord. Also on the checklist: end on the home chord, built on F. For more, add bars, or a swung vibes line whose long notes sit in their chords.",
+          "Write the four-bar chart in F that plays the second half of both bridges of your song: rewrite `changes`. Required: at least one sixth chord and one sus chord. Also on the checklist: end on the home chord, built on F. For more, add a swung vibes line whose long notes sit in their chords.",
         skills: [
           { skill: "J01", w: 0.5 },
           { skill: "C09", w: 0.5 },

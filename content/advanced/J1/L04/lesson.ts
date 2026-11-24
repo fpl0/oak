@@ -110,7 +110,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J1.L04",
-  version: 3,
+  version: 4,
   title: "Guide-Tone Lines",
   objective:
     "I can sing and write the guide-tone lines of a ii–V–I, play them with the guide-tone dictionary, and land a tune on them.",
@@ -455,7 +455,7 @@ export default defineLesson({
         role: "practice",
         title: "Guide-tone tune",
         prompt:
-          "Rewrite the vibes tune. Required: on the first beat of each bar, where the chord changes, land on that chord's 3rd or 7th, at most a whole step from the last landing. Between the changes, go anywhere. Also on the checklist: swing the vibes the way the ride swings.",
+          "Rewrite the vibes tune for the first half of both bridges in your song. Required: on the first beat of each bar, where the chord changes, land on that chord's 3rd or 7th, at most a whole step from the last landing. Between the changes, go anywhere. Also on the checklist: swing the vibes the way the ride swings.",
         skills: [{ skill: "J07", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },

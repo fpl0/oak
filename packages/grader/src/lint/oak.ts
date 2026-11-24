@@ -86,7 +86,18 @@ interface Scan {
 
 const EXTRA_LABELS = ["fx"];
 const LABELS = new Set<string>([...TRACK_LABELS, ...EXTRA_LABELS]);
-const DRUMS = new Set("bd sd hh oh cp rim rm lt mt ht cr rd sh cb tb perc misc fx".split(" "));
+/**
+ * Unpitched sample names: `n` on them picks a sample, not a pitch. The second line is sound pack v4's hand
+ * percussion, one-shots, beds and breaks (added; nothing on the first line changes).
+ */
+const DRUMS = new Set(
+  [
+    "bd sd hh oh cp rim rm lt mt ht cr rd sh cb tb perc misc fx",
+    "clave conga bongo foley snap impact swoosh scratch drone vinyl tape brkfunk brkboombap brkjungle brkhouse brkjazz brklofi",
+  ]
+    .join(" ")
+    .split(" "),
+);
 const SILENT_CONTROLS = new Set("leslie lrate lsize amp squiz triode ring".split(" "));
 const TEMPO_CALLS = new Set(["setcpm", "setCpm", "setcps", "setCps"]);
 const STATEMENT_CALLS = new Set([

@@ -128,7 +128,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J5.L02",
-  version: 3,
+  version: 4,
   title: "Backdoor",
   objective: "I can bring a tune home through the backdoor: the minor iv, the dominant on ♭7, then home.",
   key: C,
@@ -402,7 +402,7 @@ export default defineLesson({
         key: F,
         title: "Late-night loop in F",
         prompt:
-          "The loop is Fmaj7, Dm7, Gm7, C7. Required: bring it home to Fmaj7 through the back door, the minor iv7 and then the dominant seventh a whole step below home. Also on the checklist: the bass plays each chord's root, and a tritone substitute somewhere else in the loop.",
+          "The loop is Fmaj7, Dm7, Gm7, C7: the last A section of your song. Required: bring it home to Fmaj7 through the back door, the minor iv7 and then the dominant seventh a whole step below home. Also on the checklist: the bass plays each chord's root, and a tritone substitute somewhere else in the loop.",
         skills: [{ skill: "J13", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },

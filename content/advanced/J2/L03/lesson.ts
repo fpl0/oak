@@ -104,7 +104,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J2.L03",
-  version: 3,
+  version: 4,
   title: "Extensions",
   objective: "I can add 9ths, 11ths and 13ths to a chord and know which held notes clash.",
   key: { tonic: "Eb", mode: "major" },
@@ -425,7 +425,7 @@ export default defineLesson({
         role: "practice",
         title: "E♭ ballad",
         prompt:
-          "Rewrite the vibes tune, which sits on chord tones only. Required: in every four bars, at least two long or on-beat notes ring on a 9th or a 13th of their chord. Also on the checklist: no clash held over its chord. A clash may pass quickly. For contrast, let other bars land on a guide tone.",
+          "Rewrite the vibes tune, which sits on chord tones only, for your song's ballad. In every four bars, make at least two long or on-beat notes ring on a 9th or a 13th of their chord. Keep the chords and the bass as they are. Also on the checklist: no clash held over its chord. A clash may pass quickly.",
         skills: [{ skill: "J02", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },

@@ -10,7 +10,7 @@ export const LINT_TEMPLATES = {
   "lint.base.with": "`with` is not available in Strudel code.",
   "lint.base.identifier": "`{name}` is not available in Strudel code.",
   "lint.base.member": "`.{name}` is not available in Strudel code.",
-  "lint.base.remote-samples": 'Samples come from Oak\'s own sound pack: remove the `samples("{url}")` call.',
+  "lint.base.remote-samples": 'Samples come from Oak\'s own sound pack: remove the `{call}("{url}")` call.',
   "lint.strict.computed-member": "Computed access `[…]` is only allowed with a number: {what}.",
   "lint.strict.this": "`this` is not allowed here.",
   "lint.strict.reserved-string": '"{word}" is not allowed in this code.',

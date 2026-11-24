@@ -125,7 +125,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J2.L01",
-  version: 3,
+  version: 4,
   title: "All Twelve Keys",
   objective: "I can move a ii–V–I round the cycle of fourths and play it in any key.",
   key: { tonic: "C", mode: "major" },
@@ -420,7 +420,7 @@ export default defineLesson({
         role: "practice",
         title: "ii–V–I tour",
         prompt:
-          "Take your trio on tour with `tour`. Required: start in any key, and every four bars move the comping a 4th higher, through at least three keys. Also on the checklist: the vibes lick moves with the trio, and a tempo between 120 and 200. For more, give the vibes a lick of your own.",
+          "Write your song's first solo, twelve bars: take your trio on tour with `tour`. Start in any key, and every four bars move the whole trio a 4th higher, through at least three keys. Done when the comping's four bars come back a 4th higher at least twice. The song plays your first twelve bars.",
         skills: [{ skill: "J05", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },

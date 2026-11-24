@@ -139,7 +139,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R1.L04",
-  version: 3,
+  version: 4,
   title: "Interlock",
   objective: "I can make bass, clav and guitar fit into each other's gaps, so together they play one rhythm.",
   key: { tonic: "C", mode: "minor" },
@@ -476,7 +476,7 @@ export default defineLesson({
         role: "practice",
         title: "Funk machine",
         prompt:
-          "Bass, clav and guitar all play the same three places, like one heavy part. Required: give each part at least two places of its own, share few places apart from beat 1, and fill 8 or more of the 16 places together. Also on the checklist: the bass with the kick, and a clav that pulls against the beat.",
+          "Move the clav and guitar off the bass's three places. Required: give each part at least two places of its own, share few places apart from beat 1, and fill 8 or more of the 16 places together. They then play your song's break. Also on the checklist: the bass with the kick, a clav that pulls.",
         skills: [
           { skill: "R14", w: 0.5 },
           { skill: "B04", w: 0.5 },

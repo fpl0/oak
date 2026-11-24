@@ -55,7 +55,11 @@ No code and no picture this time: only your ear, and a cutoff that moves once.
 </Step>
 
 <Step id="S8">
-Last lesson you added harmonics to this loop. Now you can take them away again, make the cutoff ring, and move it on every note. Start from the raw loop, or change a part's wave first: a sawtooth gives a low-pass the most to cut.
+Last lesson you added harmonics to this loop. Now you can take them away again, make the cutoff ring, and move it on every note. Two sounds of dance music are built from these tools and two more that open here. An acid bass is a sawtooth under a ladder filter, `.ftype("ladder")`, with a high resonance and an `.lpenv()`: each note squelches open and shut. A riser is noise, every frequency at once (`s("pink")`, or `white` and `brown`), under a low-pass whose cutoff climbs: here `.lpa()` makes the cutoff take the whole of bar 2 to open. <CodeRef fn="ftype" />
+
+<Example id="acid-and-riser" views="code" />
+
+In your song, this loop plays the first loud part, where Oak's bass (in jazz-soul, its Rhodes) already squelches open on every note. A sawtooth gives a low-pass the most to cut, so the bass is the place to try the ladder.
 
 <Make exercise="filter-your-loop" />
 

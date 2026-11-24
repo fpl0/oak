@@ -8,7 +8,14 @@
 // mini-notation, no chords by name, no `arrange()`.
 //
 // It starts from the A1 loop as A1.L01 leaves it (a raw sawtooth bass, a square riff, nothing taken away) and
-// ends with that loop filtered: a round bass under a plucked riff. The Band plays the chords only.
+// ends with that loop filtered: a round bass under a plucked riff. The Band plays the chords only. The Make also shows
+// the two sounds this lesson unlocks (`tb.ftype`, `snd.noise`): an acid bass, a sawtooth under the resonant ladder
+// filter with a filter envelope, and a riser, pink noise under a low-pass whose envelope takes the whole bar to open.
+//
+// Unit song (content/unit-songs/A1.ts, "Turn the dial"): the Make's loop takes the first chorus of the A1 song, and
+// opens with the learner's loop from A1.L01 (`startFrom`; the authored starter is "Oak's copy").
+// Make v2: the prompt invites the acid bass (in every style the song's chorus squelches on the ladder), and the
+// checklist gains a suggestion, not required: the ladder filter or a noise sound (`uses tb.ftype | snd.noise`).
 //
 // How it is graded: S4 and S6 are "match this sound" steps on the `controls` matcher (the cutoff within half
 // an octave; the filter envelope's depth and decay), with `edit-only-regions` keeping the notes; S5 (not
@@ -65,13 +72,31 @@ const pluckWith = (tail: string) => code(...DRUMS, riff(`.s("sawtooth").lpf(300)
 const PLUCK_STARTER = pluckWith("⟪⟫");
 const PLUCK_SOLUTION = pluckWith(".lpenv(4).lpd(.2)");
 
+/**
+ * S8: the two sounds of dance music made of this lesson's tools. Bar 1 and bar 2: the bass on a sawtooth under the
+ * ladder filter, its resonance high and its envelope opening on every note (the acid squelch). Bar 2: a riser, pink
+ * noise held for the bar under a low-pass whose envelope takes the whole bar (2.4 s at 100 BPM) to open five octaves.
+ */
+const ACID_AND_RISER = code(
+  ...DRUMS,
+  bass('.s("sawtooth").lpf(300).lpq(18).ftype("ladder").lpenv(4).lpd(.15)'),
+  'fx: s("<~ pink>").lpf(300).lpenv(5).lpa(2.4).gain(.3)',
+);
+
+/** The Make, beyond the brief: an acid bass as in S8 (the ladder filter, `tb.ftype`) under the riff on a low-pass. */
+const ACID = code(
+  ...DRUMS,
+  bass('.s("sawtooth").lpf(300).lpq(16).ftype("ladder").lpenv(4).lpd(.15)'),
+  riff('.s("square").lpf(2000).gain(.8)'),
+);
+
 const NONE = { roll: false, staff: false, keyboard: false } as const;
 const ROLL = { roll: true, staff: false, keyboard: false } as const;
 const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L02",
-  version: 3,
+  version: 4,
   title: "Filters & Filter Envelopes",
   objective: "I can darken a sound with `.lpf()`, make it ring with `.lpq()` and pluck it with `.lpenv()`.",
   key: { tonic: "C", mode: "major" },
@@ -441,13 +466,16 @@ export default defineLesson({
       title: "Filter your loop",
       minutes: 2.75,
       ui: { panels: ROLL, band: CHORDS },
+      example: { id: "acid-and-riser", code: ACID_AND_RISER, bars: 2 },
       exercise: {
         kind: "code-make",
         id: "filter-your-loop",
-        version: 1,
+        // v2 (unit songs): the checklist gains the ladder filter or a noise sound, the two things this lesson
+        // unlocks (not required), and the prompt invites the acid bass the song's first loud part is built on.
+        version: 2,
         role: "practice",
         prompt:
-          "This is the raw loop: a sawtooth bass and a square riff with nothing taken away. Put the bass under a low-pass with `.lpf()` so the riff sits on top. Then give one part an `.lpenv()` above 0, so its sound opens on every note. Or bring a loop of your own.",
+          "This is your loop from Waves & Harmonics, or Oak's raw copy. Put the bass under a low-pass with `.lpf()`. Then give one part an `.lpenv()` other than 0, so its sound opens on every note. For an acid bass, add `.ftype(\"ladder\")` and a high `.lpq()`. Your loop then plays your song's first loud part.",
         skills: [{ skill: "D03", w: 1 }],
         code: { starter: RAW },
         bars: [2, 8],
@@ -479,6 +507,15 @@ export default defineLesson({
             rule: "uses",
             tool: "tb.lpq",
           },
+          {
+            id: "ladder-or-noise",
+            label: 'The ladder filter, `.ftype("ladder")`, or a noise sound such as `pink`',
+            required: false,
+            skills: ["D03"],
+            rule: "uses",
+            tool: ["tb.ftype", "snd.noise"],
+            min: 1,
+          },
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
@@ -502,6 +539,11 @@ export default defineLesson({
             expect: "pass",
           },
           { name: "beyond the brief: both parts filtered", response: { code: FILTERED }, expect: "pass" },
+          {
+            name: "beyond the brief: an acid bass on the ladder filter",
+            response: { code: ACID },
+            expect: "pass",
+          },
           {
             // Corrections gate: `uses` passed it; an envelope of depth 0 opens nothing.
             name: "an envelope of 0: the tool written, nothing moves",

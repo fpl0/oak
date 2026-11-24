@@ -118,7 +118,7 @@ const DRUMS = { band: "band.blues-12bar", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J4.L02",
-  version: 3,
+  version: 4,
   title: "Jazz Blues in F",
   objective:
     "I can play and chart a jazz blues: the twelve bars with ii–Vs, a diminished chord and a turnaround in them.",
@@ -402,7 +402,7 @@ export default defineLesson({
         key: F,
         title: "Jazz blues in F",
         prompt:
-          "Turn the plain blues into a jazz blues in F. Required: `changes` plays the twelve bars with the jazz blues chords. Also on the checklist: a tune of your own on the muted trumpet (`mutetpt`), landing on chord tones on the strong beats. The tempo, a walking bass and the comping rhythm are yours.",
+          "Turn the plain blues into a jazz blues in F; your song plays these twelve bars three times. Done when `changes` plays the twelve bars with the jazz blues chords. Also on the checklist: a tune of your own on the muted trumpet (`mutetpt`), on chord tones on strong beats. The tempo, bass and comping are yours.",
         skills: [{ skill: "J11", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },

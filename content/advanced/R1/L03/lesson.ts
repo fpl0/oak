@@ -139,7 +139,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R1.L03",
-  version: 3,
+  version: 4,
   title: "The One",
   objective: "I can write a 16th-note funk beat with ghost notes that lands together on the downbeat.",
   key: { tonic: "E", mode: "minor" },
@@ -468,7 +468,7 @@ export default defineLesson({
         role: "practice",
         title: "Funk pocket",
         prompt:
-          "Make the Em7 pocket funk. Required: at least four quiet snare hits on the “e”s and “a”s, with 2 and 4 loud. Also on the checklist: bass and kick on beat 1 of every bar, a kick that pulls against the beat, and the clav on the keys line.",
+          "Make the Em7 pocket funk. Required: at least four quiet snare hits on the “e”s and “a”s, with 2 and 4 loud. Your loop then plays both choruses of your song. Also on the checklist: bass and kick on beat 1 of every bar, a kick that pulls against the beat, the clav on the keys line.",
         skills: [{ skill: "R14", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

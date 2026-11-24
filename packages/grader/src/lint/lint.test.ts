@@ -136,6 +136,24 @@ describe("STYLE §12: forbidden constructs, authored vs graded", () => {
 
   test("n() with a drum sound is a sample index, not a missing scale; a section const may defer its scale", () => {
     expect(found(`${T}drums: n("0 1").s("bd")`)["code.n-without-scale"]).toBeUndefined();
+    // Sound pack v4's hand percussion, one-shots, beds and breaks pick a sample with `n` too.
+    for (const s of [
+      "clave",
+      "conga",
+      "bongo",
+      "foley",
+      "snap",
+      "impact",
+      "swoosh",
+      "scratch",
+      "drone",
+      "vinyl",
+    ])
+      expect([s, found(`${T}perc: n("0 1").s("${s}")`)["code.n-without-scale"]]).toEqual([s, undefined]);
+    for (const s of ["tape", "brkfunk", "brkboombap", "brkjungle", "brkhouse", "brkjazz", "brklofi"])
+      expect([s, found(`${T}drums: n("0 1").s("${s}")`)["code.n-without-scale"]]).toEqual([s, undefined]);
+    // A pitched sound still needs its scale.
+    expect(found(`${T}mel: n("0 1").s("marimba")`)["code.n-without-scale"]).toBe("error");
     expect(
       found(`${T}const melA = n("0 2")\nmel: arrange([2, melA]).scale("C4:major")`)["code.n-without-scale"],
     ).toBeUndefined();

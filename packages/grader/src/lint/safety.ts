@@ -131,8 +131,11 @@ export function isRemoteLocation(value: string): boolean {
   return /^(?:[a-z][a-z0-9+.-]*:|[\\/]{2})/i.test(v);
 }
 
-/** Calls that load sounds from a location: `samples(map | url, base?)`, `aliasBank(url)`. */
-const SAMPLE_LOADERS: ReadonlySet<string> = new Set(["samples", "aliasBank"]);
+/**
+ * Calls that load sounds from a location: `samples(map | url, base?)`, `aliasBank(url)`, and superdough's
+ * `tables(url, frameLen?, json?)` (wavetables, sound pack v4: Oak's own are served with the pack).
+ */
+const SAMPLE_LOADERS: ReadonlySet<string> = new Set(["samples", "aliasBank", "tables"]);
 
 function calleeName(n: AstNode): string {
   const callee = child(n, "callee");
@@ -220,7 +223,8 @@ export function baseFindings(ast: AstNode): SafetyFinding[] {
         if (SAMPLE_LOADERS.has(calleeName(n))) {
           for (const a of children(n, "arguments"))
             for (const s of stringsIn(a))
-              if (isRemoteLocation(s.value)) add("lint.base.remote-samples", s.node, { url: s.value });
+              if (isRemoteLocation(s.value))
+                add("lint.base.remote-samples", s.node, { url: s.value, call: calleeName(n) });
         }
         break;
       }

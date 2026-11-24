@@ -42,6 +42,24 @@ const DRUM_MAP: Readonly<Record<string, DrumRole>> = {
   misc: "perc",
   fx: "perc",
   brk: "perc",
+  // Sound pack v4 (added, nothing above changes): hand percussion and foley one-shots are percussion, the six
+  // breaks are drums as `brk` is, and `sbd` (a synthesised kick) is a kick. Beds (`vinyl`, `tape`, `drone`) and
+  // wavetables (`wt_*`) are not drum hits.
+  conga: "perc",
+  bongo: "perc",
+  clave: "perc",
+  foley: "perc",
+  snap: "perc",
+  impact: "perc",
+  swoosh: "perc",
+  scratch: "perc",
+  brkfunk: "perc",
+  brkboombap: "perc",
+  brkjungle: "perc",
+  brkhouse: "perc",
+  brkjazz: "perc",
+  brklofi: "perc",
+  sbd: "kick",
 };
 
 export function drumRole(s: string, bank?: string): DrumRole | null {

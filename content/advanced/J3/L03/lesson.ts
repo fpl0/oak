@@ -97,7 +97,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "J3.L03",
-  version: 3,
+  version: 4,
   title: "Comping Rhythms",
   objective: "I can comp a ii–V–I with the Charleston rhythm and with pushes into the next bar.",
   key: { tonic: "Bb", mode: "major" },
@@ -531,7 +531,7 @@ export default defineLesson({
         role: "practice",
         title: "Comping in B♭",
         prompt:
-          "Give the held Rhodes chords a rhythm that talks with the ride: the Charleston, pushes into the next bar, or hits that change from bar to bar with `< >`. Required: at least three chords start off the beat, with no chord on the beat after them. Also on the checklist: a vibes line, and a tempo of 120 to 200.",
+          "Give the held Rhodes chords a rhythm that talks with the ride, in the four bars in B♭ of your song, each time through: the Charleston, pushes into the next bar, or hits that change from bar to bar with `< >`. Done when at least three chords start off the beat, with no chord on the beat after them.",
         skills: [
           { skill: "H06", w: 0.6 },
           { skill: "R10", w: 0.4 },

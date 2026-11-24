@@ -124,7 +124,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J5.L03",
-  version: 3,
+  version: 4,
   title: "Secondary ii–Vs & Diminished Passing Chords",
   objective: "I can aim a ii–V at any chord of a tune, so it sounds like a little home of its own.",
   key: C,
@@ -471,7 +471,7 @@ export default defineLesson({
         key: G,
         title: "Aimed tune in G",
         prompt:
-          "The loop is Gmaj7, Em7, Am7, D7. Required: aim a ii–V at one of its chords other than home, sharing the bar before it. Also on the checklist: the bass plays each chord's root, and a diminished seventh between two chords a whole step apart. Keep the tune, and check that its long notes agree with each new chord.",
+          "The loop is Gmaj7, Em7, Am7, D7: your song's first A section. Required: aim a ii–V at a chord other than home, sharing the bar before it. Also on the checklist: the bass plays each chord's root, and a diminished seventh between chords a whole step apart. Keep the tune; check that its long notes agree with each new chord.",
         skills: [{ skill: "J14", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },

@@ -14,6 +14,10 @@
 // It keeps the A1 loop as A1.L04 left it (a plucked, filtered sawtooth bass; the snare in a big room) in C major
 // at 100 BPM over `band.two-chord-vamp`'s chords, and adds a held pad, because a source is heard on notes that last.
 //
+// Unit song (content/unit-songs/A1.ts, "Turn the dial"): the Make's loop takes the last chorus of the A1 song, where
+// Oak's chords keep playing under the learner's pad (`oakKeeps`); it opens with the authored starter, whose bell riff
+// and pad the earlier loops do not have.
+//
 // The corrections-pass standard (AUTHORING §20.2):
 // - S4 grades what is heard: the riff's notes (`events`), the FM ratio (`controls` on `fmh`) and an FM depth in the
 //   target's window on a sound FM can bend (`control-set` on `fmi`, the value key `.fm()` writes, with its
@@ -105,7 +109,7 @@ const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L07",
-  version: 3,
+  version: 4,
   title: "FM & Supersaw",
   objective: "I can build a bright or bell-like sound with FM, and hear what makes a supersaw wide.",
   key: { tonic: "C", mode: "major" },
@@ -563,7 +567,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The riff is on a plain sine and the pad is still. Give at least one part an FM sound you can hear: a bright lead, a hollow bass, a bell over the chords. Set how far with `.fm()` and how fast with `.fmh()`, by ear. Then, if you like, put the pad on a wide supersaw.",
+          "The riff is on a plain sine and the pad is still. Give at least one part an FM sound you can hear: a bright lead, a hollow bass, a bell. Set how far with `.fm()` and how fast with `.fmh()`, by ear. A supersaw pad is up to you. Your loop then plays your song's last chorus.",
         skills: [{ skill: "D07", w: 1 }],
         code: { starter: PLAIN },
         bars: [2, 8],

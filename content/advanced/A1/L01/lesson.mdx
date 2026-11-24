@@ -47,7 +47,11 @@ Each wave is a recipe of harmonics, and the ear can learn to tell the recipes ap
 </Step>
 
 <Step id="S7">
-At the start of this lesson a wave was a name in `.s()`. Now you can open it and choose what it keeps. A bass with harmonics carries on headphones and small speakers alike, because the ear hears its low note through the harmonics above it.
+At the start of this lesson a wave was a name in `.s()`. Now you can open it and choose what it keeps. A sawtooth is one shape repeated at the note's frequency, and Oak keeps more shapes than the four you know: wavetables, each a single cycle cut from another sound, such as `wt_organ`, `wt_epiano`, `wt_chip` and `wt_voice`. Here the riff plays on those four, a bar each, while the scope draws each shape.
+
+<Example id="wavetables" views="code" />
+
+A wavetable's harmonics are fixed by its shape, so `.partials()` is for the sawtooth, the square and the triangle. In your song, this loop plays the first part after the opening, under Oak's chords. A bass with harmonics carries on headphones and small speakers alike, because the ear hears its low note through the harmonics above it.
 
 <Make exercise="voice-your-loop" />
 

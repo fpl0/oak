@@ -1,10 +1,10 @@
 // The Workbench analysis of a unit song (spec docs/superpowers/specs/2026-11-24-unit-songs-design.md §5.2): the grader
-// realm composes the song with the adapter's own composer (`@oak/strudel/song-compose`), so the roll, the chord band
-// and the staff show what plays. Also the Band's label filter (`bandTracks`), which replaces the Workbench's old line
-// filter. In-process realm, no lockdown (as runtime.test.ts).
+// realm composes the song with the one composer (song/compose.ts, which the adapter re-exports), so the roll, the
+// chord band and the staff show what plays. Also the Band's label filter (`bandTracks`), which replaces the
+// Workbench's old line filter. In-process realm, no lockdown (as runtime.test.ts).
 import { beforeAll, describe, expect, setDefaultTimeout, test } from "bun:test";
 import { resolveGrid, type TakeStep, type UnitSongDef } from "@oak/content-kit";
-import { type SongBand, songBandToWire } from "@oak/strudel/song-compose";
+import { type SongBand, songBandToWire } from "../song/compose.ts";
 import type { EvalSuccess, OakEvent } from "../types.ts";
 import { evaluateForGrading } from "./analyze.ts";
 import { initRealm } from "./realm.ts";

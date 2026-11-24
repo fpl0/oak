@@ -106,7 +106,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R1.L05",
-  version: 3,
+  version: 4,
   title: "Displacement & Laid-Back Feel",
   objective:
     "I can move a figure to another place in the bar, and tell a moved rhythm from a groove that leans back.",
@@ -407,7 +407,7 @@ export default defineLesson({
         role: "practice",
         title: "Figure, moved",
         prompt:
-          "Write a short figure of your own, two to four hits, on the clav or a percussion line. Required: it comes back in another bar moved to another place in the bar, an eighth, a beat or a dotted eighth later. Also on the checklist: the snare leans back a few milliseconds, and the bass stays on beat 1.",
+          "Write your own figure, two to four hits, on the clav or a percussion line. Required: it comes back in another bar moved to another place in the bar, an eighth, a beat or a dotted eighth later. Your loop then plays your song's lift. Also on the checklist: the snare a few milliseconds late, the bass on beat 1.",
         skills: [{ skill: "R15", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

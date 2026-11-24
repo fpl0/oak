@@ -109,7 +109,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J1.L03",
-  version: 3,
+  version: 4,
   title: "The Major ii–V–I",
   objective: "I can hear a ii–V–I as one gesture and write one in a major key.",
   key: C_MAJOR,
@@ -436,7 +436,7 @@ export default defineLesson({
         role: "practice",
         title: "Two landings",
         prompt:
-          "Rewrite `changes` as eight bars. Required: at least one ii–V–I, a minor seventh, then the dominant seventh a 4th above it, then home. Also on the checklist: a second ii–V–I into another key (F is close). For more, a sixth chord as home, a vibes line or another tempo.",
+          "Rewrite `changes` as the eight bars of your song's solo section. Required: at least one ii–V–I, a minor seventh, then the dominant seventh a 4th above it, then home. Also on the checklist: a second ii–V–I into another key (F is close). For more, a sixth chord as home, or a vibes line to solo over your chords.",
         skills: [{ skill: "J04", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },

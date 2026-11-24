@@ -119,7 +119,7 @@ const KEYS = { roll: false, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "J3.L01",
-  version: 3,
+  version: 4,
   title: "Rootless A/B Voicings",
   objective:
     "I can voice a ii–V–I with rootless A and B voicings, by hand and with the left-hand dictionary.",
@@ -523,7 +523,7 @@ export default defineLesson({
         role: "practice",
         title: "Rootless ii–V–I",
         prompt:
-          "Turn the shells into rootless voicings. Required: four notes a chord, no root, the lowest note alternating A B A or B A B, each chord sounding on beat 1 of its bar. Write them by hand or with the dictionary. Also on the checklist: a tempo of 100 to 180, and a vibes line on top.",
+          "Turn the shells into rootless voicings for your song's opening and the first four bars of each time through, all in F. Each chord is four notes, no root, sounding on beat 1 of its bar, the lowest note alternating A B A or B A B. Write them by hand or with the dictionary.",
         skills: [{ skill: "J09", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },

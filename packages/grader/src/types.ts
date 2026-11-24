@@ -28,7 +28,7 @@ import type {
   SwingSpec,
   ToolEntry,
 } from "@oak/content-kit";
-import type { SongBandWire } from "@oak/strudel/song-compose";
+import type { SongBandWire } from "./song/compose.ts";
 
 // --- raw events ---------------------------------------------------------------------------------
 
@@ -168,7 +168,7 @@ export interface EvalOptions {
   bandTracks?: readonly string[];
   /**
    * A unit song (spec docs/superpowers/specs/2026-11-24-unit-songs-design.md §5.2) in place of `band`: composed
-   * exactly as the adapter plays it (`@oak/strudel/song-compose`), its tracks collected as `band.oak.<label>` and
+   * exactly as the adapter plays it (song/compose.ts, the one composer), its tracks collected as `band.oak.<label>` and
    * `band.take.<lessonId>.<label>`. With a live Make the evaluated code is placed into today's sections. The Workbench
    * analysis only: grading never passes it (spec §4.1).
    */

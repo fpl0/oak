@@ -102,7 +102,7 @@ const DRUMS = { band: "band.aeolian-4bar", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "A2.L05",
-  version: 3,
+  version: 4,
   title: "Mix & Dynamics",
   objective: "I can balance a mix: the tune on top, every part with its own level, side and room.",
   key: { tonic: "A", mode: "minor" },
@@ -433,7 +433,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Every part plays at `.gain(.5)` from the middle. Mix it: set the chords 3 to 18 dB under the tune, still heard. Then put the pad a little under the chords, give the chords a side with `.pan()`, and add room where it helps. Done when the tune leads and the chords sit under it.",
+          "Every part plays at `.gain(.5)` from the middle. Mix it: set the chords 3 to 18 dB under the tune, still heard. Then put the pad under the chords, give the chords a side with `.pan()`, and add room where it helps. It plays your song's last chorus. Done when the tune leads and the chords sit under it.",
         skills: [{ skill: "D10", w: 1 }],
         code: { starter: LEVEL },
         bars: [4, 8],

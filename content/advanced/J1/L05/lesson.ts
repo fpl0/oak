@@ -101,7 +101,7 @@ const DRUMS_BASS = { band: "band.two-five-one", tracks: ["drums", "bass"] } as c
 
 export default defineLesson({
   id: "J1.L05",
-  version: 3,
+  version: 4,
   title: "Shells",
   objective: "I can voice a ii–V–I in shells, root, 3rd and 7th, and comp it in a swinging trio.",
   key: { tonic: "C", mode: "major" },
@@ -399,7 +399,7 @@ export default defineLesson({
         role: "practice",
         title: "Shell comping",
         prompt:
-          "Comp the ii–V–I in C (Dm7, G7, Cmaj7, Cmaj7) with shells you write as note names. Required: each chord is the root at the bottom with its 3rd and 7th above. Also on the checklist: at least two chords off the beat, with the beat after them silent, such as on the and of 2 or the and of 4.",
+          "Comp your song's three A sections: write the ii–V–I in C (Dm7, G7, Cmaj7, Cmaj7) as shells in note names. Required: each chord is the root at the bottom with its 3rd and 7th above. Also on the checklist: at least two chords off the beat, with the beat after each silent, such as the and of 2.",
         skills: [{ skill: "J08", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },

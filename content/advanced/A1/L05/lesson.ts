@@ -7,6 +7,14 @@
 // what those unlock and the core through U09.CP, but no minor keys, dominant sevenths, the blues, swing or
 // sevenths. It starts from the A1 loop as A1.L04 leaves it (a plucked, filtered sawtooth bass; the riff on a
 // square with echoes on orbit 2; the snare in a big room) and ends with that loop, or the learner's own, gritty.
+// The Make also shows the lo-fi tools this lesson unlocks beside the two above (`tb.drive`, `tb.density`,
+// `snd.textures`): the ladder bass pushed with `.drive()`, crushed hats, and a crackle bed thinned with `.density()`.
+//
+// Unit song (content/unit-songs/A1.ts, "Turn the dial"): the Make's loop takes the opening and the ending of the A1
+// song, which Oak plays as an old record (the band through a low-pass, its chords crushed, a crackle bed); it opens
+// with the learner's loop from A1.L04 (`startFrom`; the authored starter is "Oak's copy").
+// Make v2: the prompt invites `.drive()` and a crackle bed, and the checklist gains a suggestion, not required:
+// `.drive()` or a noise bed (`uses tb.drive | snd.noise | snd.textures`). The required rule is unchanged.
 //
 // Superdough facts the lesson rests on (superdough@1.3.0, computed on its own curves): `.distort(x)` is the
 // S-curve (1 + k)v / (1 + k|v|) with k = e^x − 1, after the filter; on the plucked bass it adds new partials at
@@ -71,13 +79,27 @@ const FEWER_BITS = code(KICK, SNARE, hats(), riff('.crush("<16 4>")'));
 /** S6: the placed loop twice; the second time the riff is crushed to four bits. */
 const CRUSHED_SECOND_TIME = code(KICK, SNARE, hats(), bass(), riff('.crush("<16 16 4 4>")'));
 
+/**
+ * S7: an old record, made of this lesson's other tools. The bass under the ladder filter of Filters, pushed with
+ * `.drive()` and turned down to match; the hats crushed to five bits; a crackle bed, its clicks thinned with
+ * `.density()`.
+ */
+const OLD_RECORD = code(
+  KICK,
+  SNARE,
+  hats(".crush(5)"),
+  `bass: note("${BASS_NOTES}").s("sawtooth").lpf(500).lpq(8).ftype("ladder").drive(3).decay(.2).sustain(0).gain(.5)`,
+  riff(),
+  'fx: s("crackle").density(.2).gain(.5)',
+);
+
 const NONE = { roll: false, staff: false, keyboard: false } as const;
 const ROLL = { roll: true, staff: false, keyboard: false } as const;
 const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L05",
-  version: 3,
+  version: 4,
   title: "Grit",
   objective:
     "I can add warmth or grit to a part with saturation and a bitcrusher, and keep it in proportion.",
@@ -396,13 +418,16 @@ export default defineLesson({
       title: "Dirty it up",
       minutes: 2.75,
       ui: { panels: ROLL, band: CHORDS },
+      example: { id: "old-record", code: OLD_RECORD, bars: 2 },
       exercise: {
         kind: "code-make",
         id: "dirty-it-up",
-        version: 1,
+        // v2 (unit songs): the checklist gains `.drive()` or a noise bed, the lo-fi tools this lesson unlocks (not
+        // required), and the prompt invites them for the song's opening and ending.
+        version: 2,
         role: "practice",
         prompt:
-          "This loop is clean. Give at least one part grit you can hear: saturate it with `.distort()`, or crush it with `.crush()` or `.coarse()`. Try a bass that growls, crushed hats, a riff like an old record. Turn a saturated part down with `.gain()` so it does not win by being louder.",
+          "This is your loop from Space, or Oak's copy. Give at least one part grit you can hear: saturate it with `.distort()`, or crush it with `.crush()` or `.coarse()`. Turn a saturated part down with `.gain()` so it does not win by being louder. `.drive()` and a `crackle` bed are up to you. Your loop opens and closes your song.",
         skills: [{ skill: "D06", w: 1 }],
         code: { starter: CLEAN },
         bars: [2, 8],
@@ -448,6 +473,15 @@ export default defineLesson({
             rule: "uses",
             tool: "tb.distorttype",
           },
+          {
+            id: "drive-or-a-bed",
+            label: "`.drive()`, or a bed of noise such as `crackle`, `vinyl` or `tape`",
+            required: false,
+            skills: ["D06"],
+            rule: "uses",
+            tool: ["tb.drive", "snd.noise", "snd.textures"],
+            min: 1,
+          },
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
@@ -486,6 +520,11 @@ export default defineLesson({
             expect: "pass",
           },
           { name: "beyond the brief: the hook", response: { code: GRITTY }, expect: "pass" },
+          {
+            name: "beyond the brief: an old record, the ladder bass driven, crushed hats and a crackle bed",
+            response: { code: OLD_RECORD },
+            expect: "pass",
+          },
           {
             name: "right function, too little: saturation you cannot hear",
             response: { code: code(KICK, SNARE, hats(), bass(".distort(.2)"), riff()) },

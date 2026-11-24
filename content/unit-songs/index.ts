@@ -1,6 +1,7 @@
 // The unit songs (spec docs/superpowers/specs/2026-11-24-unit-songs-design.md §5.1, §6): one song per unit, in
 // content/unit-songs/<UNIT>.ts, each validated by `defineUnitSong` when it is imported. Isomorphic: the app, the
 // server (server/src/content/loader.ts) and content CI import this registry directly.
+// biome-ignore-all assist/source/organizeImports: the songs are imported in course order, as `unitSongs` lists them.
 import type { LessonId, TakeoverStep, UnitId, UnitSongDef, UnitSongId } from "@oak/content-kit";
 import { U01_SONG } from "./U01.ts";
 import { U02_SONG } from "./U02.ts";
@@ -19,6 +20,16 @@ import { U14_SONG } from "./U14.ts";
 import { U15_SONG } from "./U15.ts";
 import { U16_SONG } from "./U16.ts";
 import { U17_SONG } from "./U17.ts";
+import { J1_SONG } from "./J1.ts";
+import { J2_SONG } from "./J2.ts";
+import { J3_SONG } from "./J3.ts";
+import { J4_SONG } from "./J4.ts";
+import { J5_SONG } from "./J5.ts";
+import { R1_SONG } from "./R1.ts";
+import { R2_SONG } from "./R2.ts";
+import { R3_SONG } from "./R3.ts";
+import { A1_SONG } from "./A1.ts";
+import { A2_SONG } from "./A2.ts";
 
 export const unitSongs: readonly UnitSongDef[] = Object.freeze([
   U01_SONG,
@@ -38,6 +49,16 @@ export const unitSongs: readonly UnitSongDef[] = Object.freeze([
   U15_SONG,
   U16_SONG,
   U17_SONG,
+  J1_SONG,
+  J2_SONG,
+  J3_SONG,
+  J4_SONG,
+  J5_SONG,
+  R1_SONG,
+  R2_SONG,
+  R3_SONG,
+  A1_SONG,
+  A2_SONG,
 ]);
 
 export const unitSongById: ReadonlyMap<UnitSongId, UnitSongDef> = new Map(unitSongs.map((s) => [s.id, s]));

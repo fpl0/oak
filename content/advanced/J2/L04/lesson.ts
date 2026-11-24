@@ -102,7 +102,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J2.L04",
-  version: 3,
+  version: 4,
   title: "Chord-Scales",
   objective:
     "I can choose a scale that fits each chord of a ii–V–I and play a line that follows the changes.",
@@ -373,7 +373,7 @@ export default defineLesson({
         role: "practice",
         title: "Two-key solo",
         prompt:
-          "The chords now go from G into B♭, but the line still runs the G scales in bars 5 to 8. Required: make the line follow the chords into B♭, so its notes fit each chord's scale. Also on the checklist: the line swings, and a ♯11 rings at least twice. Then make it your own.",
+          "Change the line's scales in bars 5 to 8: the chords move into B♭ there, but the line still runs the G scales. These eight bars are your song's second solo. Done when at least 9 in 10 of the line's long or on-beat notes fit the scale of their chord.",
         skills: [{ skill: "J03", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },

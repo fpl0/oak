@@ -186,7 +186,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R2.L04",
-  version: 3,
+  version: 4,
   title: "Polyrhythm 3:2, 4:3",
   objective: "I can play three even notes against two in the same bar, and hear four against three.",
   key: { tonic: "C", mode: "minor" },
@@ -472,7 +472,7 @@ export default defineLesson({
         role: "practice",
         title: "Three against two",
         prompt:
-          "Play three against two; every part of the starter plays the two. Required: the cowbell plays three even notes a bar against the kick's two, in the same bars, for four bars or more. Also on the checklist: the bass on the kick's two, and a hi-hat playing four against the cowbell's three.",
+          "Change the cowbell's string (`perc:`) so it plays three even notes a bar against the kick's two; every part of the starter plays the two. Keep the kick as it is. Done when the three and the two sound in the same bars for four bars or more. Your loop then plays both verses of your song.",
         skills: [{ skill: "R17", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

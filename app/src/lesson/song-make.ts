@@ -11,12 +11,12 @@
 import {
   type CodeRange,
   claimsOf,
+  drumPartsOfSound,
   type Exercise,
   LABEL_ROLES,
   type LessonId,
   type MeterId,
   type PlayedParts,
-  partOfDrumSound,
   partOfTrack,
   type SideStep,
   type SongPartId,
@@ -263,7 +263,7 @@ export interface TrackSummary {
 }
 
 /**
- * The parts some code plays (claims model `PlayedParts`): every drum hit by its sound (`partOfDrumSound`), a drum
+ * The parts some code plays (claims model `PlayedParts`): every drum hit by its sound (`drumPartsOfSound`), a drum
  * track with an exact part label (`kick:`) for its part, a pitched track by its label then its role
  * (`partOfTrack`); and whether it plays chords.
  */
@@ -273,8 +273,7 @@ export function playedPartsOf(def: UnitSongDef, tracks: readonly TrackSummary[])
   for (const t of tracks) {
     let byHits = false;
     for (const s of t.sounds) {
-      const p = partOfDrumSound(def, s);
-      if (p) {
+      for (const p of drumPartsOfSound(def, s)) {
         parts.add(p);
         byHits = true;
       }
@@ -330,7 +329,7 @@ function labelPartOf(def: UnitSongDef, t: TrackSummary): SongPartId | null {
   const exact = def.parts.find((p) => p.label === t.label);
   if (exact) return exact.id;
   if (t.role === "drums") {
-    const hit = new Set(t.sounds.map((s) => partOfDrumSound(def, s)).filter((p) => p !== null));
+    const hit = new Set(t.sounds.flatMap((s) => drumPartsOfSound(def, s)));
     return hit.size === 1 ? ([...hit][0] as SongPartId) : null;
   }
   return partOfTrack(def, { label: t.label, role: t.role });

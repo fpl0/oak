@@ -128,7 +128,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R2.L05",
-  version: 3,
+  version: 4,
   title: "Polymeter & Implied Metric Modulation",
   objective:
     "I can write a part whose cycle is not a bar long, so it drifts and meets the bar again, and hear a beat seem to change speed while the bar stays the same.",
@@ -405,7 +405,7 @@ export default defineLesson({
         role: "practice",
         title: "Drift",
         prompt:
-          "Make the kick drift; the snare and hi-hat keep the bar. Required: a kick cycle in curly brackets of three or five steps at four a bar, so it crosses the bar line and meets beat 1 again a few bars later. Also on the checklist: a drifting bass, and a tempo of 90 to 130.",
+          "Rewrite the kick's string as a cycle in curly brackets of three or five steps at four a bar (`%4`), so it crosses the bar line and meets beat 1 again a few bars later. Keep the snare and hi-hat as they are: they keep the bar. Your loop then plays the bridge and the ending of your song.",
         skills: [{ skill: "R17", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

@@ -30,6 +30,60 @@ describe("drumRole", () => {
     expect(drumRole("piano")).toBeNull();
     expect(drumRole("gm_acoustic_bass")).toBeNull();
   });
+
+  test("sound pack v4: hand percussion, foley and breaks are percussion, sbd a kick; old names keep their roles", () => {
+    // Every name the table had before v4, with the role it had (unchanged).
+    const before: Record<string, string> = {
+      bd: "kick",
+      kick: "kick",
+      sd: "snare",
+      snare: "snare",
+      cp: "clap",
+      clap: "clap",
+      rim: "rim",
+      rm: "rim",
+      hh: "hatClosed",
+      ch: "hatClosed",
+      oh: "hatOpen",
+      lt: "tom",
+      mt: "tom",
+      ht: "tom",
+      cr: "crash",
+      crash: "crash",
+      rd: "ride",
+      ride: "ride",
+      sh: "shaker",
+      cb: "perc",
+      tb: "perc",
+      perc: "perc",
+      misc: "perc",
+      fx: "perc",
+      brk: "perc",
+    };
+    for (const [name, role] of Object.entries(before)) {
+      expect([name, drumRole(name)]).toEqual([name, role]);
+      // The v4 kits are banks: `oak909_bd`, `jazzkit_rd` read by their voice.
+      for (const kit of ["oak909", "oak808", "rockkit", "lofikit", "jazzkit"])
+        expect([kit, name, drumRole(`${kit}_${name}`, kit)]).toEqual([kit, name, role]);
+    }
+    for (const s of ["conga", "bongo:2", "clave", "foley:10", "snap", "impact", "swoosh", "scratch:1"])
+      expect([s, drumRole(s)]).toEqual([s, "perc"]);
+    for (const s of ["brkfunk", "brkboombap", "brkjungle", "brkhouse", "brkjazz", "brklofi"])
+      expect([s, drumRole(s)]).toEqual([s, "perc"]);
+    expect(drumRole("sbd")).toBe("kick");
+    // Beds, pitched instruments and wavetables are not drum hits.
+    for (const s of [
+      "vinyl",
+      "tape",
+      "drone",
+      "marimba",
+      "kalimba",
+      "glockenspiel",
+      "wt_basic",
+      "wt_fmsweep",
+    ])
+      expect([s, drumRole(s)]).toEqual([s, null]);
+  });
 });
 
 describe("normalize", () => {

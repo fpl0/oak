@@ -132,7 +132,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J5.L01",
-  version: 3,
+  version: 4,
   title: "Tritone Substitution",
   objective: "I can swap a V7 for the dominant a tritone away and hear the bass slide home.",
   key: C,
@@ -439,7 +439,7 @@ export default defineLesson({
         key: Bb,
         title: "Turnaround with a slide",
         prompt:
-          "The turnaround is B♭maj7, G7, Cm7, F7. Required: replace at least one of its dominants with its tritone substitute. Also on the checklist: the bass plays each new chord's root, so it slides, and a third line of your own, such as a vibes line.",
+          "The turnaround is B♭maj7, G7, Cm7, F7: the opening of your song, under Oak's top line. Required: replace at least one of its dominants with its tritone substitute. Also on the checklist: the bass plays each new chord's root, so it slides, and a third line of your own, such as a vibes line.",
         skills: [{ skill: "J13", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },

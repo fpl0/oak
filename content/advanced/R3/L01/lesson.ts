@@ -189,7 +189,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R3.L01",
-  version: 3,
+  version: 4,
   title: "Tresillo & Cinquillo",
   objective: "I can write the tresillo and the cinquillo, by hand and with (k,n), and hear which is which.",
   key: { tonic: "C", mode: "major" },
@@ -487,7 +487,7 @@ export default defineLesson({
         role: "practice",
         title: "Tresillo groove",
         prompt:
-          "Put the bass on the tresillo; the band plays drums and two chords, C then G7. Required: the bass plays the tresillo in every bar, on C in one bar and G in the next. Also on the checklist: a cinquillo on the cowbell, and a tempo of 90 to 120.",
+          "Write the bass for both verses of your song, over C then G7: the tresillo, on C in one bar and G in the next. Done when it plays eighths 1, 4 and 7 of every bar, and not 2, 3, 5 or 6. Also on the checklist: a cinquillo on the cowbell, a tempo of 90 to 120.",
         skills: [{ skill: "R18", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],

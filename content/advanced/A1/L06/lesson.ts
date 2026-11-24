@@ -8,6 +8,15 @@
 // unlock and the core through U09.CP (stacks with `,`), but no minor keys, dominant sevenths, the blues, swing or
 // sevenths. The word "modulation" is U17's (a key change) and is not used here. The A1 loop as A1.L04 left it
 // gains a held pad and a long-note lead in place of the riff, because movement is heard on notes that last.
+// The Make also shows the movement this lesson unlocks beside the four (`tb.wt`): the pad on `wt_morph`, a wavetable
+// of many shapes in a row, swept by an LFO (`.wtrate()` times a second, `.wtdepth()` how far). The required rule
+// counts the four movements only, and the prose says so.
+//
+// Unit song (content/unit-songs/A1.ts, "Turn the dial"): the Make's loop takes both build-ups of the A1 song, where
+// Oak's chords keep pulsing under the learner's pad (`oakKeeps`); it opens with the authored starter, because the
+// earlier loops have no pad and no long-note lead.
+// Make v2: the prompt invites a `wt_morph` pad swept by `.wtrate()`, and the checklist gains a suggestion, not
+// required: a wavetable sweep (`uses tb.wt`). The required rule is unchanged, so a sweep alone does not pass.
 //
 // Superdough facts the lesson rests on (superdough@1.3.0): `getVibratoOscillator` builds the vibrato only when
 // `vib` > 0, `vibmod` semitones each way (0.5 when left out); the phaser only with a rate and a depth above 0
@@ -75,13 +84,27 @@ const THREE_MOVES = code(
 /** S6: the pad over the drums, its brightness moved by a slow wave. */
 const WHAT_MOVES = code(KICK, SNARE, HATS, pad(".lprate(1).lpdepth(.8)").replace(".lpf(900)", ".lpf(700)"));
 
+/** S7: the pad on a wavetable whose shape an LFO sweeps once a second, the lead still. */
+const MORPH = code(
+  ...RHYTHM,
+  `pad: note("${PAD_CHORDS}").s("wt_morph").wtrate(1).wtdepth(1).gain(.3)`,
+  lead(),
+);
+
+/** The Make, beyond the brief: the pad on `wt_morph`, its shape swept (`tb.wt`), under a lead with vibrato. */
+const MORPHING = code(
+  ...RHYTHM,
+  `pad: note("${PAD_CHORDS}").s("wt_morph").wtrate(.5).wtdepth(1).gain(.3)`,
+  lead(".vib(5).vibmod(.25)"),
+);
+
 const NONE = { roll: false, staff: false, keyboard: false } as const;
 const ROLL = { roll: true, staff: false, keyboard: false } as const;
 const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L06",
-  version: 3,
+  version: 4,
   title: "Movement",
   objective:
     "I can make a sound move while it plays, with vibrato, a phaser, tremolo or a slow filter sweep.",
@@ -435,13 +458,16 @@ export default defineLesson({
       title: "Make it move",
       minutes: 2.75,
       ui: { panels: ROLL, band: CHORDS },
+      example: { id: "morph", code: MORPH, bars: 2 },
       exercise: {
         kind: "code-make",
         id: "make-it-move",
-        version: 1,
+        // v2 (unit songs): the checklist gains a wavetable sweep, the movement this lesson unlocks (not required),
+        // and the prompt invites it.
+        version: 2,
         role: "practice",
         prompt:
-          "The pad and the long-note lead are both perfectly still. Make at least one of them move while its notes hold: vibrato on the lead, a phaser on the pad, a slow filter sweep, or a level that pulses with the beat. Choose how fast and how far by ear.",
+          "The pad and the long-note lead are both still. Make at least one of them move while its notes hold: vibrato on the lead, a phaser on the pad, a slow filter sweep, or a level that pulses with the beat. A `wt_morph` pad swept by `.wtrate()` can join them. Your loop then plays both build-ups of your song.",
         skills: [{ skill: "D07", w: 1 }],
         code: { starter: STILL },
         bars: [2, 8],
@@ -490,6 +516,14 @@ export default defineLesson({
             fn: "control-set",
             params: { control: "vib", call: "vib", example: "5", track: "mel" },
           },
+          {
+            id: "a-wavetable-sweep",
+            label: "A wavetable sweep: `.wtrate()`, `.wtdepth()`, `.wtenv()` or `.wt()` on a part",
+            required: false,
+            skills: ["D07"],
+            rule: "uses",
+            tool: "tb.wt",
+          },
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
@@ -526,6 +560,11 @@ export default defineLesson({
             expect: "pass",
           },
           { name: "beyond the brief: the hook", response: { code: MOVING }, expect: "pass" },
+          {
+            name: "beyond the brief: the pad on a swept wavetable, the lead with vibrato",
+            response: { code: MORPHING },
+            expect: "pass",
+          },
           {
             name: "right function, nothing to move: a sweep on the lead, which has no filter",
             response: { code: code(...RHYTHM, pad(), lead(".lprate(1)")) },

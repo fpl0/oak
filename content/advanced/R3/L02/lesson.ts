@@ -130,13 +130,26 @@ const earPart = (id: string, prompt: string, pattern: string, answer: EarAnswer)
  */
 const make = (...lines: string[]) => code(...lines);
 const MAKE_STARTER = make(perc(SON_32), 'mel: note("e4 g4 d5 g4").s("piano")');
+/** The clave on the claves (`clave`, unlocked here): the instrument the rhythm is named after, over the hats. */
+const SON_32_CLAVES = SON_32.replace(/rim/g, "clave");
+const ON_THE_CLAVES = code(`perc: s("${SON_32_CLAVES}").gain(.8)`, HATS);
+/** Not required: the clave played on the claves, the sound this lesson unlocks (unit songs, sound pack v4). */
+const ON_CLAVES: RubricRule = {
+  id: "on-the-claves",
+  label: "The claves play in a line you can hear: the sound `clave`",
+  required: false,
+  skills: ["R18"],
+  rule: "uses",
+  tool: "snd.drum.clave",
+  min: 1,
+};
 /** A tune of the learner's kind over C then G7: E G C on the three-side, B G on the two-side. */
 const MAKE_MEL = 'mel: note("<[e4 ~ ~ g4 ~ ~ c5 ~] [~ ~ b4 ~ g4 ~ ~ ~]>").s("piano")';
 /** The Make's one rule: the tune meets the clave as written, more than it would meet the clave turned round. */
 const FACES_CLAVE: RubricRule = {
   id: "tune-faces-clave",
   label:
-    "In every two bars the tune's two bars differ, and at least 3 of its notes land with a rimshot, more than land between them",
+    "In every two bars the tune's two bars differ, and at least 3 of its notes land with a clave hit, more than land between them",
   required: true,
   skills: ["R18"],
   rule: "custom",
@@ -152,7 +165,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R3.L02",
-  version: 3,
+  version: 4,
   title: "Clave Direction",
   objective: "I can hear which way a clave runs and write a tune that faces it.",
   key: { tonic: "C", mode: "major" },
@@ -475,20 +488,23 @@ export default defineLesson({
         rollLabels: "none",
         band: { band: "band.son-montuno", tracks: ["drums", "bass", "chords"] },
       },
+      example: { id: "on-the-claves", code: ON_THE_CLAVES, bars: 2 },
       exercise: {
         kind: "code-make",
         id: "your-tune-on-the-clave",
-        version: 1,
+        // v2 (unit songs): the checklist gains the claves, `clave`, the sound this lesson unlocks (not required).
+        version: 2,
         role: "practice",
         title: "Tune on the clave",
         prompt:
-          "Write a two-bar piano tune that faces your clave; the band plays drums, bass, and C then G7. Pick the rimshot's clave: son or rumba, 3-2 or 2-3. Required: at least three tune notes land with rimshots in every two bars, and the tune's two bars differ. Also on the checklist: a tempo of 90 to 120.",
+          "Write a two-bar piano tune for your song's chorus, over C then G7, that faces your clave on `perc`: son or rumba, 3-2 or 2-3. Done when at least three tune notes land with clave hits in every two bars, and its two bars differ. Also on the checklist: the sound `clave`, a tempo of 90 to 120.",
         skills: [{ skill: "R18", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],
         saveAs: "sketch",
         rubric: [
           FACES_CLAVE,
+          ON_CLAVES,
           {
             id: "groove-tempo",
             label: "`setcpm` sets a tempo between 90 and 120 beats a minute",
@@ -544,6 +560,11 @@ export default defineLesson({
                 'mel: note("<[g4 ~ ~ e4 ~ ~ c5@2] [~ ~ d5 ~ b4 ~ a4 g4]>").s("piano")',
               ).replace(`setcpm(${BPM}/4)`, "setcpm(112/4)"),
             },
+            expect: "pass",
+          },
+          {
+            name: "the clave on the claves, a tune on its five hits",
+            response: { code: make(`perc: s("${SON_32_CLAVES}").gain(.8)`, MAKE_MEL) },
             expect: "pass",
           },
           {

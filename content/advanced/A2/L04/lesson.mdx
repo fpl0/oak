@@ -38,8 +38,16 @@ The drums alone this time, so every beat is plain. Count along.
 <OnPass>The two middle beats swapped. You found it by the loud hits: the ear hangs a groove on its kick and snare, so moving one piece changes the whole feel.</OnPass>
 </Step>
 
+<Step id="S7">
+Oak's pack has six more breaks, each two bars long and each recorded at its own tempo: `brkfunk` at 100 beats a minute, `brkboombap` at 90, `brkjungle` at 170, `brkhouse` at 124, `brkjazz` at 140 and `brklofi` at 80. Your song runs at 90.
+
+<Example id="three-fits" views="code,roll" />
+
+<OnPass>`brkboombap` was recorded at 90, so each piece fills its beat. The jungle break was recorded at 170: each of its pieces ends just past halfway through our beat, and a gap follows. `.splice()` stretches every piece to its beat by playing it slower, and slower is lower: half the speed is an octave down, twice the speed an octave up, the doubling of Waves & Harmonics. To keep a break's own sound, pick one recorded at your tempo.</OnPass>
+</Step>
+
 <Step id="S6">
-Your drum parts used to be hits placed one at a time. Now a whole recorded bar is material to cut and rearrange. Eight or sixteen pieces give you smaller steps to move. For an older sound, try `.crush()` from Grit or a low `.lpf()` on the break.
+Your drum parts used to be hits placed one at a time. Now a recorded break is material to cut and rearrange, and this one drives the break section of your song, over Oak's bass and chords. Producers also cut found sounds in between the drums: the pack has `snap`, `swoosh`, `impact`, `scratch`, `drone`, and `foley`, eleven recorded knocks and slaps picked with `.n()`. Sixteen pieces give you smaller steps to move.
 
 <Make exercise="flip-the-break" />
 

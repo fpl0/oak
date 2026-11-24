@@ -23,8 +23,23 @@
 //   written out, another level).
 // - The Make's one required rule is `slices-reordered`: the break is cut into four or more pieces that play in an
 //   order other than the recording's own. The starter, the right function in the recording's order, two halves,
-//   `.chop(4)` alone and the drums turned down until they are not heard all fail.
+//   `.chop(8)` alone, found sounds added over the break as recorded and the drums turned down until they are not
+//   heard all fail.
 // Feedback below rung 4 never names the answer.
+//
+// Sound pack v4 and the unit song (AUTHORING §23; content/unit-songs/A2.ts): this lesson unlocks Oak's six two-bar
+// breaks (`snd.breaks`: funk 100, boom-bap 90, jungle 170, house 124, jazz 140, lo-fi 80, their pieces in
+// sounds/pack/v4/breaks.json) and the found sounds (`snd.foley`: snap, swoosh, impact, scratch, drone and eleven
+// `foley` knocks). S1–S5 keep `brk`, one bar at 96, as the first thing to cut up. S7 (added with the songs, placed
+// before the Make, which keeps its id S6: step ids are never renumbered, contracts §11.7) plays the breaks against the
+// song's 90 BPM: `brkboombap`, recorded at 90, fills each beat as it is; `brkjungle`, recorded at
+// 170, sliced the same way runs out halfway through each beat; `.splice()` fits it by slowing it, and slower is lower
+// (twice the speed is an octave up, A1.L01's doubling). The Make (exercise version 2) is re-keyed to that tempo and
+// break, because it plays in the song's break section at the song's tempo: the boom-bap break cut into its eight beats
+// (`.slice(8, "<[0 1 2 3] [4 5 6 7]>")`, the recording's own order, as the starter), the tune, and an empty `perc`
+// line for found sounds in the gaps, the broken-cut habit of cutting knocks and slaps in between the drums (a
+// suggestion, `uses snd.foley`). Version 1 played `brk` at 96 BPM; at 96 the song would run 6 BPM fast from this take
+// on, and `brk` plays no part of the song's kit (a v4 break plays every drum part, contracts §5.11 rule 9).
 import { defineLesson, type HintLadder } from "@oak/content-kit";
 
 const BPM = 96;
@@ -68,9 +83,28 @@ const SWAP_SOLUTION = swapped(drums("0 2 1 3"));
 /** S5: the stimulus, the middle swapped, drums alone so the order is plain. */
 const MIDDLE_SWAPPED = code(drums("0 2 1 3"));
 
-/** The Make: the tune over the break as recorded; the Band plays the bass and the chords. */
-const MAKE_STARTER = code(RECORDED, TUNE);
-const flipped = (line: string) => code(line, TUNE);
+/** S7 and the Make (S6) play at the song's tempo, 90 BPM: the tempo `brkboombap` was recorded at (breaks.json). */
+const SONG_BPM = 90;
+const songCode = (...lines: string[]) => `setcpm(${SONG_BPM}/4)\n\n${lines.join("\n")}`;
+/** A two-bar break cut into its eight beats, played in the recording's order: bar 1's four beats, then bar 2's. */
+const OWN_ORDER = "<[0 1 2 3] [4 5 6 7]>";
+
+/** S7: two bars of each, at 90 BPM: the break recorded at 90, the one recorded at 170 cut the same way, and fitted. */
+const AT_ITS_TEMPO = songCode(
+  `const fits = s("brkboombap").slice(8, "${OWN_ORDER}")`,
+  `const rushed = s("brkjungle").slice(8, "${OWN_ORDER}")`,
+  `const fitted = s("brkjungle").splice(8, "${OWN_ORDER}")`,
+  "",
+  "drums: arrange([2, fits], [2, rushed], [2, fitted])",
+);
+
+/** The Make: the boom-bap break in its own order, an empty line for found sounds, the tune; the Band plays the rest. */
+const boombap = (order: string, tail = "") => `drums: s("brkboombap").slice(8, "${order}")${tail}`;
+const NO_FOUND_SOUNDS = 'perc: s("~")';
+const MAKE_STARTER = songCode(boombap(OWN_ORDER), NO_FOUND_SOUNDS, TUNE);
+const flipped = (drumsLine: string, perc = NO_FOUND_SOUNDS) => songCode(drumsLine, perc, TUNE);
+/** Found sounds in the gaps: a snap after beat 2, a swoosh into the next bar. */
+const FOUND = 'perc: s("~ ~ ~ snap ~ ~ ~ [~ swoosh]").gain(.6)';
 
 const NONE = { roll: false, staff: false, keyboard: false } as const;
 const ROLL = { roll: true, staff: false, keyboard: false } as const;
@@ -78,7 +112,7 @@ const BAND = { band: "band.aeolian-4bar", tracks: ["bass", "chords"] } as const;
 
 export default defineLesson({
   id: "A2.L04",
-  version: 3,
+  version: 4,
   title: "Sampling",
   objective: "I can cut a drum recording into pieces and play them back in an order of my own.",
   key: { tonic: "A", mode: "minor" },
@@ -344,6 +378,67 @@ export default defineLesson({
       },
     },
     {
+      id: "S7",
+      kind: "investigate",
+      title: "Its own tempo",
+      minutes: 1,
+      ui: { panels: ROLL },
+      example: { id: "three-fits", code: AT_ITS_TEMPO, bars: 6 },
+      exercise: {
+        kind: "run-investigate",
+        id: "its-own-tempo",
+        version: 1,
+        role: "practice",
+        bpm: SONG_BPM,
+        prompt:
+          "Count the beats as it plays, at 90 beats a minute. Bars 1–2 play `brkboombap`, recorded at 90; bars 3–4 play `brkjungle`, recorded at 170, cut the same way; bars 5–6 fit it with `.splice()`. Answer two questions: which break fills its beats as recorded, and how much higher `.speed(2)` plays a piece.",
+        skills: [{ skill: "D11", w: 1 }],
+        feedbackText: {
+          "investigate.wrong":
+            "Not quite. Listen to bars 3–4: each piece ends before its beat does, and a gap follows. Then think of Waves & Harmonics: twice as fast is twice the repeats a second.",
+        },
+        hints: ladder(
+          "Listen for the bars where the drums leave a gap before the next beat comes. Which break plays there?",
+          "A break recorded faster than the song runs out before its beat ends. Twice the speed doubles how many times a second every note repeats.",
+          "Doubling the repeats a second lifts a note one octave. Count the half steps in one octave.",
+        ),
+        code: { starter: AT_ITS_TEMPO },
+        mustPlayLoops: 1,
+        questions: [
+          {
+            q: "choice",
+            prompt: "Which break fills each beat just as it was recorded?",
+            options: [
+              { id: "boombap", label: "Bars 1–2: `brkboombap`" },
+              { id: "jungle", label: "Bars 3–4: `brkjungle`, cut the same way" },
+              { id: "both", label: "Both" },
+            ],
+            correct: ["boombap"],
+          },
+          {
+            q: "number",
+            prompt: "`.speed(2)` plays a piece twice as fast. How many half steps higher does it sound?",
+            correct: 12,
+          },
+        ],
+        tests: [
+          { name: "both right", response: { answer: { choice: ["boombap"], number: 12 } }, expect: "pass" },
+          {
+            name: "the jungle break for the one that fits",
+            response: { answer: { choice: ["jungle"], number: 12 } },
+            expect: "fail",
+            feedback: ["investigate.wrong"],
+          },
+          {
+            name: "twice as fast counted as two half steps",
+            response: { answer: { choice: ["boombap"], number: 2 } },
+            expect: "fail",
+            feedback: ["investigate.wrong"],
+          },
+        ],
+      },
+    },
+    {
       id: "S6",
       kind: "make",
       title: "Flip the break",
@@ -352,10 +447,11 @@ export default defineLesson({
       exercise: {
         kind: "code-make",
         id: "flip-the-break",
-        version: 1,
+        version: 2,
         role: "practice",
+        bpm: SONG_BPM,
         prompt:
-          "On the `drums` line, cut the break into four, eight or sixteen pieces with `.slice()` and play them in an order other than the recording's. Try repeating a kick, moving a snare or stuttering the last beat. Keep the tune. Done when the pieces play in a new order.",
+          "Play the eight pieces on the `drums` line in a new order: repeat a kick, move a snare or play a piece twice in a row. Found sounds (`snap`, `swoosh`, `impact`) on the `perc` line are up to you. This loop plays in your song's break. Done when the pieces play in an order other than the recording's.",
         skills: [{ skill: "D11", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
@@ -369,8 +465,17 @@ export default defineLesson({
             rule: "custom",
             fn: "slices-reordered",
             // The break cut into four or more pieces: the grader reads the cut (1 / (end − begin)), so
-            // `.slice(4, "0 1 0 3")` (the brief's "repeat a kick") is four pieces and two halves still fail.
+            // `.slice(8, "<[0 1 0 3] [4 5 6 7]>")` (the brief's "repeat a kick") is eight pieces and two halves fail.
             params: { track: "drums", minSlices: 4 },
+          },
+          {
+            id: "found-sounds",
+            label:
+              "A found sound heard in your code: `snap`, `swoosh`, `impact`, `scratch`, `drone` or `foley`",
+            required: false,
+            skills: ["D11"],
+            rule: "uses",
+            tool: "snd.foley",
           },
           {
             id: "tune-on-top",
@@ -382,14 +487,19 @@ export default defineLesson({
             roles: ["drums", "melody"],
           },
         ],
-        // The override serves every rule of the rubric, the suggestion included, so it stays neutral.
+        // The override serves every rule of the rubric, the suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "A new drummer on the same kit plays the same pieces in a different order. Which line decides the order?",
-          "Cut the break with `.slice()`: the first number is how many pieces, the pattern is the order they play in.",
-          'With four pieces, "0 1 2 3" is the recording as it was. Change one number and listen.',
+          "A new drummer on the same kit plays the same pieces in a different order. Which numbers decide the order?",
+          'The pattern in `.slice()` names one piece a beat: "<[0 1 2 3] [4 5 6 7]>" plays bar 1 of the break, then bar 2. Piece 0 holds the first kick, piece 1 the first snare.',
+          "Change one number in the first bar's four, so a piece plays where another one was recorded. Then add a `snap` on the `perc` line.",
         ),
         tests: [
+          {
+            name: "minimal: the middle two beats of each bar swapped",
+            response: { code: flipped(boombap("<[0 2 1 3] [4 6 5 7]>")) },
+            expect: "pass",
+          },
           {
             name: "the starter as it is",
             response: { code: MAKE_STARTER },
@@ -397,55 +507,66 @@ export default defineLesson({
             feedback: ["rubric.unmet"],
           },
           {
-            name: "minimal: the middle swapped",
-            response: { code: flipped(drums("0 2 1 3")) },
-            expect: "pass",
-          },
-          {
             name: "the kick repeated on beat 3",
-            response: { code: flipped(drums("0 1 0 3")) },
+            response: { code: flipped(boombap("<[0 1 0 3] [4 5 6 7]>")) },
             expect: "pass",
           },
           {
-            name: "eight pieces with a stutter",
-            response: { code: flipped('drums: s("brk").slice(8, "0 1 2 3 0 1 [6 6] 7")') },
-            expect: "pass",
-          },
-          {
-            name: "splice instead of slice",
-            response: { code: flipped('drums: s("brk").splice(4, "0 2 1 3")') },
-            expect: "pass",
-          },
-          {
-            name: "beyond the brief: a new order every bar, sixteen pieces at the end, some room",
+            name: "sixteen pieces with a stutter, and found sounds in the gaps",
             response: {
               code: flipped(
-                'drums: s("brk").slice(16, "<[0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15] [0 1 2 3 4 5 6 7 0 1 2 3 12 13 14 15] [0 1 2 3 8 9 10 11 4 5 6 7 12 13 14 15] [0 1 2 3 4 5 6 7 8 9 10 11 12 12 12 12]>").room(.2)',
+                'drums: s("brkboombap").slice(16, "<[0 1 2 3 4 5 6 7] [8 9 10 11 [12 12] 13 14 15]>")',
+                FOUND,
               ),
             },
             expect: "pass",
           },
           {
-            name: "the right function, the recording's own order",
-            response: { code: flipped(drums("0 1 2 3")) },
+            name: "splice instead of slice",
+            response: { code: flipped('drums: s("brkboombap").splice(8, "<[0 2 1 3] [4 5 6 7]>")') },
+            expect: "pass",
+          },
+          {
+            name: "beyond the brief: the funk break fitted with splice, a stutter, foley knocks and room",
+            response: {
+              code: flipped(
+                'drums: s("brkfunk").splice(16, "<[0 1 2 3 0 1 6 7] [8 9 10 11 12 13 [14 14] [15 15]]>").room(.2)',
+                'perc: s("~ ~ ~ foley ~ ~ foley ~").n("<3 7>").gain(.5)',
+              ),
+            },
+            expect: "pass",
+          },
+          {
+            name: "the right function, the recording's own order in sixteen pieces",
+            response: {
+              code: flipped(
+                'drums: s("brkboombap").slice(16, "<[0 1 2 3 4 5 6 7] [8 9 10 11 12 13 14 15]>")',
+              ),
+            },
             expect: "fail",
             feedback: ["rubric.unmet"],
           },
           {
             name: "the right function, two pieces only",
-            response: { code: flipped('drums: s("brk").slice(2, "1 0")') },
+            response: { code: flipped('drums: s("brkboombap").slice(2, "<1 0>")') },
             expect: "fail",
             feedback: ["rubric.unmet"],
           },
           {
-            name: "cut into four with chop, still in order",
-            response: { code: flipped('drums: s("brk").chop(4)') },
+            name: "cut into eight with chop, still in order",
+            response: { code: flipped('drums: s("brkboombap").loopAt(2).chop(8)') },
+            expect: "fail",
+            feedback: ["rubric.unmet"],
+          },
+          {
+            name: "found sounds added, the break left in its own order",
+            response: { code: flipped(boombap(OWN_ORDER), FOUND) },
             expect: "fail",
             feedback: ["rubric.unmet"],
           },
           {
             name: "flipped, then turned down until it is not heard",
-            response: { code: flipped(drums("0 2 1 3", ".gain(.02)")) },
+            response: { code: flipped(boombap("<[0 2 1 3] [4 6 5 7]>", ".gain(.02)")) },
             expect: "fail",
             feedback: ["rubric.unmet"],
           },

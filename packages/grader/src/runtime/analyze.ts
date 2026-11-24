@@ -3,6 +3,11 @@
 // too much work and silence come back as `{ ok: false }` or as diagnostics. State is reset before every
 // request and the realm is healed after it.
 import type { Diagnostic, LintContext, LintDiagnostic, LintResult, MeterId } from "@oak/content-kit";
+import { bpmToCps, cpsToBpm } from "@oak/theory";
+import { arrangedTotal, sectionsFromAst } from "../lint/ast.ts";
+import { checkChord, splitChord } from "../lint/chords.ts";
+import { lintOak } from "../lint/oak.ts";
+import { sortOakEvents } from "../normalize/hap.ts";
 import {
   buildSong,
   finishSong,
@@ -11,12 +16,7 @@ import {
   type SongEvaluator,
   songBandFromWire,
   songLintContext,
-} from "@oak/strudel/song-compose";
-import { bpmToCps, cpsToBpm } from "@oak/theory";
-import { arrangedTotal, sectionsFromAst } from "../lint/ast.ts";
-import { checkChord, splitChord } from "../lint/chords.ts";
-import { lintOak } from "../lint/oak.ts";
-import { sortOakEvents } from "../normalize/hap.ts";
+} from "../song/compose.ts";
 import {
   defaultFuel,
   type EvalOptions,
@@ -226,7 +226,7 @@ function onlyTracks(band: Evaluated, labels: readonly string[]): Evaluated {
 /**
  * A unit song in the realm: Oak's code and every saved take evaluated like any code (a take's own tempo is undone),
  * a take that fails the Band lint or its evaluation handed back to Oak, then composed with the learner's tracks as
- * the live Make (`@oak/strudel/song-compose`, the adapter's own composer). The song's tracks lose their source
+ * the live Make (song/compose.ts, the one composer the adapter also plays). The song's tracks lose their source
  * locations: they are offsets into other codes than the learner's.
  */
 async function evaluateSong(

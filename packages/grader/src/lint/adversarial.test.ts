@@ -53,6 +53,24 @@ describe("remote sample loading", () => {
     }
     expect(lintStrict('samples({ bd: ["bd/kick.wav", "bd/k2.wav"] }, "/sounds/v1/")')).toEqual([]);
   });
+
+  test("sound pack v4: tables() (wavetables) is a loader like samples(): remote refused, local kept", () => {
+    for (const code of [
+      'tables("https://evil.example/wt.wav", 2048)',
+      'tables("github:someone/wavetables")',
+      'tables(["//evil.example/a.wav"], 2048, true)',
+    ])
+      expect([code, ids(lintBase(code))]).toEqual([code, ["lint.base.remote-samples"]]);
+    expect(lintBase('tables("/sounds/v4/wavetables/wt_morph.wav", 2048)')).toEqual([]);
+    expect(ids(lintStrict('const u = "https://evil.example/wt.wav"\ntables(u)'))).toEqual(
+      expect.arrayContaining(["lint.strict.construct"]),
+    );
+    // The message names the call it is about.
+    const [d] = lintBase('tables("https://evil.example/wt.wav")');
+    expect(d?.message).toContain('`tables("https://evil.example/wt.wav")`');
+    const [s] = lintBase('samples("github:someone/samples")');
+    expect(s?.message).toContain('`samples("github:someone/samples")`');
+  });
 });
 
 describe("strict: Strudel's registration functions", () => {

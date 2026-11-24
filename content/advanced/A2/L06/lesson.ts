@@ -75,21 +75,21 @@ const piece = (x: Sections, melTail = ".gain(.6)") => {
   return `${TEMPO}${consts.join("\n")}\n\n${lines.join("\n")}`;
 };
 
-/** The ballad: a kick on the one and a rim click, the bass once a bar, strings held, the tune on a piano in a room. */
+/** The ballad: a kick on the one and a rim click, the bass once a bar, strings held, the tune on a kalimba in a room. */
 const BALLAD = {
   kick: 's("bd ~ ~ ~")',
   snare: 's("~ ~ rim ~")',
   bass: `note("${ROOTS}").s("sawtooth").lpf(500)`,
   chords: `n("${CHORD_DEGREES}").scale("A3:minor").s("strings")`,
-  mel: 'tune.scale("A4:minor").s("piano").room(.4)',
+  mel: 'tune.scale("A4:minor").s("kalimba").room(.4)',
 } as const;
-/** The drive: four on the floor and claps on the 909, off-beat hats, eighth-note bass, piano stabs, a short square. */
+/** The drive: four on the floor and claps on the 909, off-beat hats, eighth-note bass, marimba stabs, a short square. */
 const DRIVE = {
   kick: `s("bd*4")${TR909}`,
   snare: `s("~ cp ~ cp")${TR909}`,
   hats: `s("[~ hh]*4")${TR909}`,
   bass: `note("${ROOTS_EIGHTHS}").s("sawtooth").lpf(500)`,
-  chords: `n("${CHORD_STABS}").scale("A3:minor").s("piano")`,
+  chords: `n("${CHORD_STABS}").scale("A3:minor").s("marimba")`,
   mel: 'tune.scale("A4:minor").s("square").lpf(2500).decay(.15).sustain(0)',
 } as const;
 
@@ -162,7 +162,7 @@ const BAND_CHORDS = { band: "band.aeolian-4bar", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A2.L06",
-  version: 3,
+  version: 4,
   title: "Genre Translation",
   objective: "I can arrange one tune in two styles: a ballad and a driving version.",
   key: { tonic: "A", mode: "minor" },
@@ -293,7 +293,7 @@ export default defineLesson({
       exercise: {
         kind: "code-modify",
         id: "drive-the-drums",
-        version: 1,
+        version: 2,
         role: "check",
         prompt:
           "The drive's kick, `kickDrive`, still plays the ballad's one hit a bar. Change it so the kick lands on all four beats of every bar in bars 5 to 8. Leave the ballad's consts and the tune as they are.",
@@ -383,7 +383,7 @@ export default defineLesson({
       exercise: {
         kind: "identify",
         id: "same-tune",
-        version: 1,
+        version: 2,
         role: "check",
         prompt:
           "Listen to a ballad, then a driving version, and follow the top line through both. Pick what the second half does with the tune.",
@@ -440,10 +440,10 @@ export default defineLesson({
       exercise: {
         kind: "code-make",
         id: "two-ways",
-        version: 1,
+        version: 2,
         role: "practice",
         prompt:
-          "The tune plays in a `ballad` section and a `drive` section, arranged the same way. Make them two styles: change at least two of the drums, how busy the bass is, the sounds and the register, in one section's consts. Keep the tune's notes and rhythm in both. Done when the two halves sound like two styles.",
+          "Make the `ballad` and `drive` sections, now arranged the same way, two styles: change at least two of the drums, how busy the bass is, the sounds (try `kalimba`, `marimba`, `glockenspiel`) and the register, in one section's consts. Keep the tune's notes and rhythm. Both play in your song. Done when the two halves sound like two styles.",
         skills: [
           { skill: "D09", w: 0.5 },
           { skill: "F06", w: 0.5 },
@@ -471,6 +471,14 @@ export default defineLesson({
             rule: "custom",
             fn: "parts-enter",
             params: { min: 1 },
+          },
+          {
+            id: "a-new-sound",
+            label: "One of this lesson's new sounds in a section: `kalimba`, `marimba` or `glockenspiel`",
+            required: false,
+            skills: ["D09"],
+            rule: "uses",
+            tool: ["snd.kalimba", "snd.marimba", "snd.glockenspiel"],
           },
           {
             id: "drive-denser",
@@ -535,6 +543,20 @@ export default defineLesson({
             expect: "pass",
           },
           { name: "beyond the brief: the hook", response: { code: HOOK }, expect: "pass" },
+          {
+            name: "beyond the brief: a kalimba ballad, a glockenspiel an octave over the drive's tune",
+            response: {
+              code: make({
+                kick: [SAME.kick, `s("bd*4")${TR909}`],
+                bass: [SAME.bass, `note("${ROOTS_EIGHTHS}").s("sawtooth").lpf(500)`],
+                mel: [
+                  'tune.scale("A4:minor").s("kalimba").room(.4)',
+                  'stack(tune.scale("A4:minor").s("triangle"), tune.scale("A5:minor").s("glockenspiel").gain(.5))',
+                ],
+              }),
+            },
+            expect: "pass",
+          },
           {
             name: "two tunes: the drive's notes changed",
             response: {

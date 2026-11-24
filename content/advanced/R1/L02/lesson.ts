@@ -146,7 +146,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R1.L02",
-  version: 3,
+  version: 4,
   title: "Swing Ratios",
   objective:
     "I can set how hard a groove swings, from straight to hard swing, on the eighths or the sixteenths.",
@@ -453,7 +453,7 @@ export default defineLesson({
         role: "practice",
         title: "Neo-soul lean",
         prompt:
-          "Swing your sixteenths; the band plays the chords. Required: the hi-hat's sixteenth pairs lean long-short, from a light 3:2 to the triplet's 2:1. Put the same swing on every line that plays sixteenths with it. Also on the checklist: the swing changes from bar to bar, and a tempo of 76 to 96.",
+          "Swing your sixteenths. Required: the hi-hat's sixteenth pairs lean long-short, from a light 3:2 to the triplet's 2:1. Put the same swing on every line that plays sixteenths with it. Your drums and bass then play your song's bridge. Also on the checklist: the swing changes from bar to bar, and a tempo of 76 to 96.",
         skills: [{ skill: "R13", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

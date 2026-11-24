@@ -76,7 +76,7 @@ const DRUMS = { band: "band.aeolian-4bar", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "A2.L01",
-  version: 3,
+  version: 4,
   title: "Roles & Registers",
   objective: "I can give each part its own height, so the low end stays clear, and see it on the spectrum.",
   key: { tonic: "A", mode: "minor" },
@@ -428,7 +428,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The chords and the tune play an octave too low. Move the chords up so no chord note is below C3. Put the tune from C4 up and keep the bass below C3. Then make it yours with a fourth line, such as an FM bell or a supersaw pad. Done when the chords sit from C3 up.",
+          "The chords and the tune play an octave too low. Move the chords up so no chord note is below C3. Put the tune from C4 up; keep the bass below C3. Then add a fourth line, such as an FM bell or a supersaw pad. It plays your song's first verse. Done when the chords sit from C3 up.",
         skills: [{ skill: "D08", w: 1 }],
         code: { starter: CROWDED },
         bars: [4, 8],

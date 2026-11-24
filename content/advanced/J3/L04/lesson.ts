@@ -172,7 +172,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "J3.L04",
-  version: 3,
+  version: 4,
   title: "Walking Bass",
   objective:
     "I can walk a bass line through a set of changes: the root on beat 1, a chord tone on beat 3, and beat 4 leaning into the next bar.",
@@ -417,7 +417,7 @@ export default defineLesson({
         role: "practice",
         title: "Walking in G",
         prompt:
-          "Walk the bass. Required: a note on every beat, the root on beat 1, and beat 4 a step or a half step from the next bar's first note. Also on the checklist: a chord tone on beat 3 in every bar, and a tempo of 120 to 200. Approach some bars from above, some from below.",
+          "Walk the bass in the four bars in G of your song, each time through. Done when every bar has a note on each beat, the root on beat 1, and on beat 4 a note a step or a half step from the next bar's first note. Approach some bars from above, some from below.",
         skills: [{ skill: "B05", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },

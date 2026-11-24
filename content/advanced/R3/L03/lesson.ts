@@ -241,7 +241,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R3.L03",
-  version: 3,
+  version: 4,
   title: "Euclidean Rhythms & Rotation",
   objective:
     "I can write a rhythm from two numbers, start it from another step, and hear which numbers made it.",
@@ -635,7 +635,7 @@ export default defineLesson({
         role: "practice",
         title: "Bell section",
         prompt:
-          "Build your bell section; the band plays bass and C then G7. Required: the bell line, `perc`, plays five hits over sixteen steps, started on any step. Also on the checklist: a second line, `perc2`, that skips beat 1, and the bossa rim on the bell. For more, a kick or a shaker with its own numbers.",
+          "Build the percussion of your song's break; Oak plays the bass and C then G7 under it. Put five hits on the bell line, `perc`, spread over sixteen steps and started on any step, in every bar. Also on the checklist: a second line, `perc2`, that skips beat 1, and the bossa rim on the bell.",
         skills: [{ skill: "R18", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [2, 8],

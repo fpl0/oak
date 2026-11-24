@@ -6,6 +6,7 @@ import {
   type CellKey,
   cellKey,
   claimsOf,
+  drumPartsOfSound,
   ownedBy,
   type PlayedParts,
   parseCellKey,
@@ -176,6 +177,95 @@ describe("parts of a learner's tracks", () => {
     expect(partOfDrumSound(SONG, "oh:1")).toBe("hats");
     expect(partOfDrumSound(SONG, "cb")).toBeNull();
     expect(partOfDrumSound(SONG, "")).toBeNull();
+  });
+
+  /** SONG with the percussion part every unit song has (kick, snare, hats, perc). */
+  const KIT: UnitSongDef = {
+    ...SONG,
+    parts: [
+      ...SONG.parts.slice(0, 3),
+      {
+        id: "perc",
+        label: "perc",
+        role: "drums",
+        sounds: ["cr", "rd", "lt", "mt", "ht", "sh", "cb", "tb"],
+        name: "Percussion",
+        plainName: "Percussion",
+      },
+      ...SONG.parts.slice(3),
+    ],
+  };
+  const KIT_NAMES =
+    "bd sd hh oh cp rim rm lt mt ht cr rd sh cb tb perc misc fx brk piano sawtooth gm_piano wt_basic";
+
+  test("sound pack v4: every name a song could list before reads exactly as before", () => {
+    // The answers of partOfDrumSound before the v4 names were added: by `sounds` only, the bank read after `_`.
+    const before = (def: UnitSongDef, sound: string) => {
+      const name = (sound.split(":")[0] ?? "").trim();
+      if (name === "") return null;
+      const owner = (n: string) => def.parts.find((p) => p.role === "drums" && (p.sounds ?? []).includes(n));
+      const part =
+        owner(name) ?? (name.includes("_") ? owner(name.slice(name.lastIndexOf("_") + 1)) : undefined);
+      return part?.id ?? null;
+    };
+    for (const def of [SONG, KIT])
+      for (const base of KIT_NAMES.split(" "))
+        for (const sound of [base, `${base}:2`, `oak909_${base}`, `RolandTR808_${base}`]) {
+          expect([sound, partOfDrumSound(def, sound)]).toEqual([sound, before(def, sound)]);
+          const one = before(def, sound);
+          expect([sound, drumPartsOfSound(def, sound)]).toEqual([sound, one === null ? [] : [one]]);
+        }
+  });
+
+  test("sound pack v4: hand percussion and foley are the percussion part, sbd the kick, a break every drum part", () => {
+    for (const s of ["conga", "bongo:3", "clave", "foley:7", "snap", "impact", "swoosh", "scratch"])
+      expect([s, partOfDrumSound(KIT, s)]).toEqual([s, "perc"]);
+    expect(partOfDrumSound(KIT, "sbd")).toBe("kick");
+    for (const s of ["brkfunk", "brkboombap", "brkjungle", "brkhouse", "brkjazz", "brklofi:1"]) {
+      expect([s, drumPartsOfSound(KIT, s)]).toEqual([s, ["kick", "snare", "hats", "perc"]]);
+      // Not one part: partOfDrumSound says so.
+      expect([s, partOfDrumSound(KIT, s)]).toEqual([s, null]);
+    }
+    // Beds and wavetables are not drum hits.
+    for (const s of ["vinyl", "tape", "drone", "wt_basic"])
+      expect([s, drumPartsOfSound(KIT, s)]).toEqual([s, []]);
+  });
+
+  test("sound pack v4: a part that lists the name keeps it; a song with no percussion part leaves a conga unowned", () => {
+    const listed: UnitSongDef = {
+      ...KIT,
+      parts: KIT.parts.map((p) =>
+        p.id === "snare" ? { ...p, sounds: [...(p.sounds ?? []), "clave", "brkfunk"] } : p,
+      ),
+    };
+    expect(partOfDrumSound(listed, "clave")).toBe("snare");
+    expect(drumPartsOfSound(listed, "brkfunk")).toEqual(["snare"]);
+    expect(partOfDrumSound(listed, "conga")).toBe("perc");
+    // SONG has kick, snare and hats only: nothing owns percussion, and nothing is labelled perc.
+    expect(partOfDrumSound(SONG, "conga")).toBeNull();
+    expect(drumPartsOfSound(SONG, "brkfunk")).toEqual(["kick", "snare", "hats"]);
+    // A part labelled perc that lists none of the kit's percussion names still takes it.
+    const bare: UnitSongDef = {
+      ...SONG,
+      parts: [
+        ...SONG.parts,
+        { id: "shaker", label: "perc", role: "drums", sounds: ["cr"], name: "Perc", plainName: "Perc" },
+      ],
+    };
+    expect(partOfDrumSound(bare, "bongo")).toBe("shaker");
+  });
+
+  test("a break claims every drum part in the sections it plays; a conga line claims the percussion part", () => {
+    const hits = (sounds: string[]): PlayedParts => played(sounds.flatMap((s) => drumPartsOfSound(KIT, s)));
+    expect(claimsOf(KIT, take({ sections: ["verse"], parts: [] }), hits(["brkhouse"]))).toEqual([
+      "kick@verse",
+      "snare@verse",
+      "hats@verse",
+      "perc@verse",
+    ]);
+    expect(claimsOf(KIT, take({ sections: ["verse"], parts: [] }), hits(["conga", "conga:3"]))).toEqual([
+      "perc@verse",
+    ]);
   });
 
   test("partOfTrack prefers the exact label", () => {

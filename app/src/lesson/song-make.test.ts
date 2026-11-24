@@ -167,8 +167,9 @@ describe("where a take Make starts", () => {
     const anyTake = songMakeOf("U01.L01");
     expect(anyTake?.step.kind).toBe("take");
     expect(anyTake?.def.unit).toBe("U01");
-    expect(songMakeOf("U03.L01")).toBeNull();
-    expect(songSideOf("U03.L01")).toBeNull();
+    // U00 is onboarding and never has a song (spec §6).
+    expect(songMakeOf("U00.L02")).toBeNull();
+    expect(songSideOf("U00.L02")).toBeNull();
     expect(newSongGateOf(L01_STEP, testDetail([], { status: "new" }))).toBe(true);
     expect(newSongGateOf(L01_STEP, testDetail([]))).toBe(false);
     expect(newSongGateOf(null, testDetail([], { status: "new" }))).toBe(false);

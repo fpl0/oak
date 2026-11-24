@@ -110,7 +110,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J5.L04",
-  version: 3,
+  version: 4,
   title: "Reharm Techniques",
   objective: "I can reharmonize a tune with several jazz devices and keep its melody note for note.",
   key: C,
@@ -416,7 +416,7 @@ export default defineLesson({
         key: C,
         title: "Aura Lee, reharmonized",
         prompt:
-          "Reharmonize the verse, now over Cmaj7, D7, G7, Cmaj7. Required: at least two different devices from these four: a tritone substitute, a backdoor, a secondary ii–V, a passing diminished chord, with the tune unchanged. Also on the checklist: three devices, and tune notes that fit the new chords.",
+          "Reharmonize the verse, your song's solo, now over Cmaj7, D7, G7, Cmaj7. Required: at least two different devices from these four: a tritone substitute, a backdoor, a secondary ii–V, a passing diminished chord, with the tune unchanged. Also on the checklist: three devices, and tune notes that fit the new chords.",
         skills: [{ skill: "J14", w: 1 }],
         swing: SWUNG,
         code: { starter: PLAIN },

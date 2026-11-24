@@ -184,7 +184,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R3.L05",
-  version: 3,
+  version: 4,
   title: "Rhythm Master Lab",
   objective: "I can take down syncopated, swung and odd-meter rhythms by ear.",
   key: { tonic: "C", mode: "major" },
@@ -482,7 +482,7 @@ export default defineLesson({
         role: "practice",
         title: "Displaced son",
         prompt:
-          "Displace the cowbell. Required: bars 1 and 2 play its figure; bars 3 and 4 play the same figure moved later, by an eighth or a sixteenth. Keep the clave, the bass and the piano. Also on the checklist: the clave holds 3-2 through all four bars, and a `hats` line with ghost notes.",
+          "Displace the tape's cowbell, `perc2`: bars 1 and 2 play its figure as it is, bars 3 and 4 the same figure moved later by an eighth or a sixteenth. Keep the clave, the bass and the piano. Also on the checklist: the clave 3-2 through all four bars, and a `hats` line with ghost notes.",
         skills: [
           { skill: "R15", w: 0.6 },
           { skill: "E14", w: 0.4 },

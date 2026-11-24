@@ -1,6 +1,8 @@
 // The four Strudel packages the grader may import (core, mini, tonal, transpiler), behind one typed
 // facade. The packages ship no types: every member used by the grader is declared here, and nothing else
-// in this package imports "@strudel/*" directly (the lint's mini-notation reader goes through `miniAst`).
+// in this package imports "@strudel/*" directly (the lint's mini-notation reader goes through `miniAst`),
+// except the unit-song composer (song/compose.ts), which the browser's main thread also loads and so takes
+// `@strudel/core` alone rather than this facade's four packages.
 import * as coreModule from "@strudel/core";
 import * as miniModule from "@strudel/mini";
 import * as tonalModule from "@strudel/tonal";

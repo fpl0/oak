@@ -20,6 +20,7 @@ import { join } from "node:path";
 import {
   type CellKey,
   claimsOf,
+  drumPartsOfSound,
   type Exercise,
   FLAVOUR_IDS,
   type FlavourId,
@@ -27,7 +28,6 @@ import {
   type LessonDef,
   type LessonId,
   type MeterId,
-  partOfDrumSound,
   partOfTrack,
   R,
   type SessionId,
@@ -819,9 +819,9 @@ async function readCode(
   for (const e of r.n.all) {
     if (e.midi === null) {
       if (!e.s) continue;
-      const part = partOfDrumSound(def, e.s);
-      if (part) played.add(part);
-      else if (e.drum) unowned.add(e.s);
+      const parts = drumPartsOfSound(def, e.s);
+      for (const part of parts) played.add(part);
+      if (parts.length === 0 && e.drum) unowned.add(e.s);
       continue;
     }
     const role = roleOf.get(e.track) ?? null;

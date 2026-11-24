@@ -152,7 +152,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J4.L01",
-  version: 3,
+  version: 4,
   title: "Turnarounds",
   objective: "I can end a tune with I–vi–ii–V or the brighter iii–VI–ii–V and send it back to the top.",
   key: Eb,
@@ -449,7 +449,7 @@ export default defineLesson({
         key: Eb,
         title: "Turnaround in E♭",
         prompt:
-          "Write eight bars in E♭ in `changes`. Required: bars 5 to 8 turn around through iii–VI–ii–V, back to the top; the starter turns with I–vi–ii–V. Also on the checklist: one or two chords a bar, and a vibes line. The first four bars are yours.",
+          "Write your song's bridge, eight bars in E♭ in `changes`. Make bars 5 to 8 turn around through iii–VI–ii–V, back to the top; the starter turns there with I–vi–ii–V. The first four bars are yours. Done when the chords play iii–VI–ii–V in that order. Also on the checklist: one or two chords a bar, and a vibes line.",
         skills: [{ skill: "J10", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },

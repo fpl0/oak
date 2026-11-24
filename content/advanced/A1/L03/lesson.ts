@@ -9,7 +9,15 @@
 // inside mini-notation, no chords by name, no `arrange()`.
 //
 // It starts from the A1 loop as A1.L02 leaves it (filtered, every note in its default shape) and ends with a
-// bass that punches and stops under a riff that swells in and rings on. The Band plays the chords only.
+// bass that punches and stops under a riff that swells in and rings on. The Band plays the chords only. The Make also
+// shows the two things this lesson unlocks beside the envelope (`tb.penv`, `snd.sbd`): a kick made from a sine whose
+// pitch falls two octaves in 0.08 s with a loudness pluck, and `sbd`, Oak's ready-made synth kick, a wave whose pitch
+// falls the same way.
+//
+// Unit song (content/unit-songs/A1.ts, "Turn the dial"): the Make's loop takes the second verse of the A1 song, and
+// opens with the learner's loop from A1.L02 (`startFrom`; the authored starter is "Oak's copy").
+// Make v2: the prompt invites a synth kick, and the checklist gains a suggestion, not required: `sbd` or a pitch
+// envelope (`uses snd.sbd | tb.penv`). The required rule is unchanged.
 //
 // How it is graded: S4 and S5 are "match this sound" steps on the `controls` matcher, which applies
 // superdough's envelope rules to what the code leaves out (`.decay(.2)` alone falls to nothing; `.attack()`
@@ -67,13 +75,32 @@ const padWith = (tail: string) => code(...DRUMS, riffLong(`.s("square")${tail}.g
 const PAD_STARTER = padWith("⟪⟫");
 const PAD_SOLUTION = padWith(".attack(.3).release(.8)");
 
+/**
+ * S7: a kick made by a synth. Bar 1: a c2 sine with a pitch envelope (`.penv(24)`: each note starts two octaves up and
+ * falls to c2 in 0.08 s) and a loudness pluck. Bar 2: `sbd`, Oak's synth kick, a triangle whose pitch falls the same way.
+ */
+const SYNTH_KICK = code(
+  'kick: note("<[c2 ~ c2 ~] ~>").s("sine").penv(24).pdecay(.08).decay(.4).sustain(0)',
+  'kick2: s("<~ [sbd ~ sbd ~]>")',
+  'snare: s("~ sd ~ sd")',
+  'hats: s("hh*8").gain(.5)',
+);
+
+/** The Make, beyond the brief: the kick made from a sine with a pitch envelope (`tb.penv`), the bass plucked. */
+const SYNTH_KICK_LOOP = code(
+  'kick: note("c2 ~ c2 ~").s("sine").penv(24).pdecay(.08).decay(.4).sustain(0)',
+  ...DRUMS.slice(1),
+  bass('.s("sawtooth").lpf(500).decay(.2).sustain(0)'),
+  riff('.s("square").lpf(2000).gain(.8)'),
+);
+
 const NONE = { roll: false, staff: false, keyboard: false } as const;
 const ROLL = { roll: true, staff: false, keyboard: false } as const;
 const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L03",
-  version: 3,
+  version: 4,
   title: "Envelopes",
   objective:
     "I can shape how each note starts, falls, holds and ends with `.attack() .decay() .sustain() .release()`.",
@@ -386,13 +413,16 @@ export default defineLesson({
       title: "Shape your loop",
       minutes: 2.75,
       ui: { panels: ROLL, band: CHORDS },
+      example: { id: "synth-kick", code: SYNTH_KICK, bars: 2 },
       exercise: {
         kind: "code-make",
         id: "shape-your-loop",
-        version: 1,
+        // v2 (unit songs): the checklist gains a synth kick, `sbd` or a pitch envelope, the two things this lesson
+        // unlocks beside the envelope (not required), and the prompt invites it.
+        version: 2,
         role: "practice",
         prompt:
-          "Every note of this loop has its default shape. Give the bass one shape and the riff another: a punchy pluck on one, a slow swell or a long tail on the other. A loop of your own works too. Done when at least one part's new shape is clearly heard.",
+          "This is your loop from Filters & Filter Envelopes, or Oak's copy. Give the bass one shape and the riff another: a punchy pluck on one, a swell or a long tail on the other. A synth kick (`sbd`, or a sine with `.penv()`) is optional. Your loop plays after your song's first loud part. Done when one shape is heard.",
         skills: [{ skill: "D04", w: 1 }],
         code: { starter: FILTERED },
         bars: [2, 8],
@@ -428,6 +458,15 @@ export default defineLesson({
             rule: "uses",
             tool: "tb.lpenv",
           },
+          {
+            id: "a-synth-kick",
+            label: "The synth kick `sbd`, or a pitch envelope, `.penv()`",
+            required: false,
+            skills: ["D04"],
+            rule: "uses",
+            tool: ["snd.sbd", "tb.penv"],
+            min: 1,
+          },
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
@@ -455,6 +494,11 @@ export default defineLesson({
             expect: "pass",
           },
           { name: "beyond the brief: pluck and swell", response: { code: SHAPED }, expect: "pass" },
+          {
+            name: "beyond the brief: a sine kick with a pitch envelope, the bass plucked",
+            response: { code: SYNTH_KICK_LOOP },
+            expect: "pass",
+          },
           {
             name: "the riff swelling in, on a line of its own",
             response: {
