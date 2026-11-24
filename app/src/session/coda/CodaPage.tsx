@@ -362,16 +362,20 @@ function CodaBody({ summary, ended }: { summary: SessionSummary; ended: EndedRec
           sketch. The day that completes a song's release point (a checkpoint) offers the release. */}
       {summary.sketchesSaved[0] &&
         (summary.session.kind === "lesson" && summary.session.mapItemId ? (
+          // SongGrew shows the release point's Release card itself, under the song or the sketch card.
           <SongGrew
             lessonId={summary.session.mapItemId}
+            sketchIds={summary.sketchesSaved}
+            release={releaseUnit}
             fallback={<SketchCard sketchId={summary.sketchesSaved[0]} />}
           />
         ) : (
           <SketchCard sketchId={summary.sketchesSaved[0]} />
         ))}
-      {releaseUnit && !(summary.session.kind === "lesson" && summary.sketchesSaved[0]) && (
-        <SongRelease unitId={releaseUnit} />
-      )}
+      {releaseUnit &&
+        !(summary.session.kind === "lesson" && summary.session.mapItemId && summary.sketchesSaved[0]) && (
+          <SongRelease unitId={releaseUnit} />
+        )}
 
       <LadderCard session={summary.session} gym={summary.gym} />
       <OwnAudioCard session={summary.session} gym={summary.gym} />

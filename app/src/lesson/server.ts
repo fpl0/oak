@@ -19,7 +19,17 @@ import { callApi } from "../lib/api.ts";
 import { idempotencyKey } from "../lib/idempotency.ts";
 import type { LessonDeps } from "./machine.ts";
 import { localRung, revealNeeds } from "./model.ts";
-import { recordSongTake, refineBackfilledTakes, type SongTakeInput, type SongTakeIo } from "./song-make.ts";
+import {
+  isTransientTakeError,
+  refineBackfilledTakes,
+  retryTakePost,
+  type SongTakeInput,
+  type SongTakeIo,
+  songTakeBody,
+} from "./song-make.ts";
+
+/** When a take that did not reach the server is tried again: after 1 s, 4 s and 15 s (a server restart). */
+const TAKE_RETRY_MS = [1000, 4000, 15000] as const;
 
 /**
  * A take step's song as the Save needs it: everything of `SongTakeInput` but the saved code and sketch, and the
@@ -115,7 +125,10 @@ export function serverDeps(o: ServerDepsOptions): LessonDeps {
   /**
    * The saved Make as a take of its song (spec §5.3, contracts §5.11 rule 15), after the lesson is complete: a take
    * never stands for a Save that did not finish. One idempotency key per saved version, so a retry records it once.
-   * A take that cannot be recorded leaves the lesson complete; the server's backfill records it later.
+   * A take that cannot be recorded leaves the lesson complete. The complete screen waits for the first try only; a
+   * transient failure (the local server restarting, a network blip) is tried again in the background with the same
+   * body and key, and the song's reads refresh when it lands. The Coda says so when the take is still missing
+   * (`SongGrew`): the Make stays a sketch, and redoing the lesson puts it in the song.
    */
   const recordTake = async (code: string, saved: { id: string; version: number }) => {
     const song = o.songTake?.();
@@ -125,27 +138,37 @@ export function serverDeps(o: ServerDepsOptions): LessonDeps {
       post: (unitId, body) => callApi("songs.recordTake", { params: { unitId: unitId as UnitId }, body }),
     };
     const { backfilled, ...take } = song;
-    const recorded = await recordSongTake(io, {
-      ...take,
-      lessonId: id,
-      code,
-      sketchId: saved.id,
-      sketchVersion: saved.version,
-    }).then(
-      () => true,
-      (e: unknown) => {
-        console.warn("oak: the take was not recorded in the song", e);
-        return false;
-      },
-    );
-    invalidate("songs.get", "songs.list");
-    // The takes Oak made from earlier lessons' sketches learn the cells their code really plays (spec §5.6a), after
-    // the lesson has moved on: the complete screen does not wait for them.
-    if (recorded && backfilled.length > 0)
-      void refineBackfilledTakes(io, { ...take, takes: backfilled }).then(
-        () => invalidate("songs.get", "songs.list"),
-        (e: unknown) => console.warn("oak: the song's earlier takes were not refined", e),
-      );
+    const recorded = (ok: boolean) => {
+      invalidate("songs.get", "songs.list");
+      // The takes Oak made from earlier lessons' sketches learn the cells their code really plays (spec §5.6a), after
+      // the lesson has moved on: the complete screen does not wait for them.
+      if (ok && backfilled.length > 0)
+        void refineBackfilledTakes(io, { ...take, takes: backfilled }).then(
+          () => invalidate("songs.get", "songs.list"),
+          (e: unknown) => console.warn("oak: the song's earlier takes were not refined", e),
+        );
+    };
+    let post: (() => Promise<unknown>) | null = null;
+    try {
+      const body = await songTakeBody(io.evaluate, {
+        ...take,
+        lessonId: id,
+        code,
+        sketchId: saved.id,
+        sketchVersion: saved.version,
+      });
+      post = () => io.post(take.unitId, body);
+      await post();
+      recorded(true);
+    } catch (e) {
+      console.warn("oak: the take was not recorded in the song", e);
+      recorded(false);
+      if (post && isTransientTakeError(e))
+        void retryTakePost(post, { delaysMs: TAKE_RETRY_MS }).then((ok) => {
+          if (ok) recorded(true);
+          else console.warn("oak: the take was still not recorded in the song after retrying");
+        });
+    }
   };
 
   return {

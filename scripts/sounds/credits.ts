@@ -14,7 +14,14 @@ export const LICENSE_FILES: Record<string, string> = {
   "Unlicense.txt": "https://unlicense.org/UNLICENSE",
   "FluidR3-MIT.md":
     "https://raw.githubusercontent.com/musescore/MuseScore/2782c43d211c210ec5f20ce0dbc5dbda49e967e6/share/sound/FluidR3Mono_License.md",
+  // the MIT notice of the WebAudioFont conversion every GM preset file is (Copyright (c) 2017 Srgy Surkv)
+  "webaudiofontdata-MIT.txt":
+    "https://raw.githubusercontent.com/felixroos/webaudiofontdata/23ca907d4370a04fd89ca483a92915e4d6159ab9/LICENSE",
 };
+
+/** The conversion's notice, which MIT requires to ship with the preset files. */
+const WEBAUDIOFONT_NOTICE =
+  "WebAudioFont conversion Copyright (c) 2017 Srgy Surkv, MIT licence (LICENSES/webaudiofontdata-MIT.txt).";
 
 const MP3 =
   "selected notes and velocity layers; trimmed; levelled; retuned to equal temperament; MP3 (LAME V0)";
@@ -24,6 +31,7 @@ const HITS = "selected hits; microphones mixed to mono one-shots; trimmed; level
 const MODIFIED: Record<string, string> = {
   jrhodes: MP3,
   sneakybass: MP3,
+  smolken: MP3,
   shinyguitar: MP3,
   bassyr: MP3,
   fsbsclean: `${MP3}; folded to mono`,
@@ -100,8 +108,7 @@ export function buildCredits(sounds: Map<string, Set<string>>): CreditItem[] {
         url: "https://github.com/felixroos/webaudiofontdata",
         licence: "MIT",
         licenceUrl: "https://opensource.org/license/mit",
-        attribution:
-          "Fluid (R3) SoundFont, Copyright (c) 2000-2002, 2008 Frank Wen, MIT licence (LICENSES/FluidR3-MIT.md).",
+        attribution: `Fluid (R3) SoundFont, Copyright (c) 2000-2002, 2008 Frank Wen, MIT licence (LICENSES/FluidR3-MIT.md). ${WEBAUDIOFONT_NOTICE}`,
         pinned: "https://felixroos.github.io/webaudiofontdata/sound/",
         modified: "unchanged",
         sounds: list("gm-fluidr3"),
@@ -116,6 +123,7 @@ export function buildCredits(sounds: Map<string, Set<string>>): CreditItem[] {
         url: "https://github.com/felixroos/webaudiofontdata",
         licence: LEGACY_GM,
         licenceUrl: "https://github.com/felixroos/webaudiofontdata",
+        attribution: WEBAUDIOFONT_NOTICE,
         pinned: "https://felixroos.github.io/webaudiofontdata/sound/",
         modified:
           "unchanged. Kept from earlier packs so gm_* names and the acgtr, clav, pad and choir sounds keep playing; the source SoundFonts' own licences could not be verified, and each is to be replaced by a CC0 recording.",

@@ -125,18 +125,22 @@ export const SAMPLE_MAPS: SampleMapSpec[] = [
 
 /**
  * gm_* instruments and the variant indices (positions in @strudel/soundfonts/gm.mjs) that are mirrored.
- * Index 0 is kept for every name the pack has always had, so `s("gm_xxx")` keeps playing; other indices only
- * where a GM-backed alias pins one. gm_electric_bass_finger index 1 is the upstream typo
- * ("0330_FluidR3_GM_sf2_fible", HTTP 404) and must never be listed.
+ * Index 0 is kept for every name the pack has always had, so `s("gm_xxx")` keeps playing. Other indices are
+ * kept where a GM-backed alias pins one, and where v3 mirrored a FluidR3 (MIT) variant: v3's toolbox printed
+ * names such as `gm_vibraphone:3` and `gm_drawbar_organ:3`, and an unmirrored `n` wraps onto index 0, a
+ * different preset (organ an octave low, vibraphone two octaves high). v3's legacy variants (gm_trumpet:1,
+ * gm_tenor_sax:3, gm_electric_bass_finger:3) are not restored: no new file may use the legacy exception.
+ * gm_electric_bass_finger index 1 is the upstream typo ("0330_FluidR3_GM_sf2_fible", HTTP 404) and must never
+ * be listed.
  */
 export const GM_VARIANTS: Record<string, number[]> = {
   gm_piano: [0],
-  gm_epiano1: [0],
-  gm_drawbar_organ: [0],
-  gm_acoustic_bass: [0],
+  gm_epiano1: [0, 1], // 0040_FluidR3_GM (v3's rhodes)
+  gm_drawbar_organ: [0, 3], // 0160_FluidR3_GM (v3's organ)
+  gm_acoustic_bass: [0, 1], // 0320_FluidR3_GM (v3's upright)
   gm_electric_bass_finger: [0],
-  gm_electric_bass_pick: [0],
-  gm_electric_guitar_jazz: [0],
+  gm_electric_bass_pick: [0, 1], // 0340_FluidR3_GM
+  gm_electric_guitar_jazz: [0, 3], // 0260_FluidR3_GM
   gm_electric_guitar_clean: [0],
   gm_overdriven_guitar: [0], // 0290_FluidR3_GM (crunch)
   gm_acoustic_guitar_steel: [0, 5], // 0250_LK_AcousticSteel (acgtr)
@@ -144,12 +148,12 @@ export const GM_VARIANTS: Record<string, number[]> = {
   gm_brass_section: [0, 3], // 0610_FluidR3_GM (horns)
   gm_tenor_sax: [0],
   gm_trumpet: [0],
-  gm_choir_aahs: [0], // 0520_Aspirin (choir)
+  gm_choir_aahs: [0, 2], // 0520_Aspirin (choir), 0520_FluidR3_GM
   gm_clavinet: [0], // 0070_JCLive (clav)
   gm_pad_warm: [0], // 0890_JCLive (pad)
   gm_muted_trumpet: [0],
-  gm_vibraphone: [0],
-  gm_flute: [0],
+  gm_vibraphone: [0, 3], // 0110_FluidR3_GM (v3's vibes)
+  gm_flute: [0, 2], // 0730_FluidR3_GM
 };
 
 /** The FluidR3 fonts (Frank Wen, MIT); every other mirrored font is the legacy exception. */

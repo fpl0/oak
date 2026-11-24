@@ -35,6 +35,8 @@ import {
   cellsHeldBy,
   cellsSentence,
   detailUpTo,
+  isOnAlbum,
+  lessonsInSong,
   ownedCount,
   partMutes,
   releaseOffer,
@@ -115,7 +117,7 @@ function SongBody({ def, detail }: { def: UnitSongDef; detail: UnitSongDetail })
   const onLoop = (s: { startBar: number; bars: number } | null) => {
     const loop = s ? { fromBar: s.startBar, bars: s.bars } : null;
     if (play.playing || play.loading) setSongLoop(id, loop);
-    else if (loop) void playSong(id, band, { loop, mutes: mutesOf });
+    else if (loop) void playSong(id, band, { loop, mutes: mutesOf, title: detail.title });
   };
   const toggle = (part: SongPartId, what: "mute" | "solo") =>
     setParts((p) => {
@@ -126,6 +128,7 @@ function SongBody({ def, detail }: { def: UnitSongDef; detail: UnitSongDetail })
       return { ...p, muted };
     });
   const count = ownedCount(view);
+  const lessons = lessonsInSong(def, detail);
   const at = play.bar === null ? null : sectionAtBar(view, play.bar);
   const atLabel = at ? view.sections.find((s) => s.id === at)?.label : null;
 
@@ -138,13 +141,13 @@ function SongBody({ def, detail }: { def: UnitSongDef; detail: UnitSongDetail })
           tones={ringTonesOf(def, detail.takes)}
           size={212}
           className="rounded-[16px] shadow-card"
-          label={`The cover of “${detail.title}”: ${detail.takes.length} ${detail.takes.length === 1 ? "ring" : "rings"}, one per lesson in the song`}
+          label={`The cover of “${detail.title}”: ${detail.takes.length} ${detail.takes.length === 1 ? "ring" : "rings"}, one per Make saved into it`}
         />
         <div className="flex min-w-0 flex-col gap-3">
           <TitleEditor unitId={def.unit} title={detail.title} />
           <p className="text-text-2 tabular-nums" data-testid="song-page-meta">
-            {detail.status === "released" ? "On the album" : "Still growing"} · {detail.takesCount} of{" "}
-            {def.plan.length} lessons in it · {count.yours} of {count.total} cells yours
+            {isOnAlbum(detail) ? "On the album" : "Still growing"} · {lessons.done} of {lessons.of} lessons in
+            it · {count.yours} of {count.total} cells yours
           </p>
           <StyleSwitch unitId={def.unit} flavour={detail.flavour} playingId={id} />
         </div>
@@ -158,7 +161,7 @@ function SongBody({ def, detail }: { def: UnitSongDef; detail: UnitSongDetail })
             label="Play the song"
             ariaLabel={`Play “${detail.title}”`}
             look="round"
-            options={{ mutes: mutesOf }}
+            options={{ mutes: mutesOf, title: detail.title }}
             data-testid="song-page-play"
           />
           <div className="min-w-0">
@@ -338,6 +341,8 @@ function StyleSwitch({
   playingId: string;
 }) {
   const set = useSetSongFlavour();
+  // While the change is on its way the song still reads the old style: the line names the one asked for.
+  const asked = set.variables?.body.flavour ?? flavour;
   return (
     <div className="flex flex-col gap-1.5">
       <SegmentedControl
@@ -351,11 +356,16 @@ function StyleSwitch({
         }}
         options={SONG_STYLES.map((s) => ({ value: s.id, label: s.name }))}
       />
-      <p className="text-xs text-text-3">
+      <p className="text-xs text-text-3" data-testid="song-style-line">
         {set.isPending
-          ? `Changing to ${styleName(flavour)}…`
+          ? `Changing to ${styleName(asked)}…`
           : "Your lines keep their sound in every style. Oak's parts change."}
       </p>
+      {set.isError && (
+        <p role="alert" className="text-sm text-issue" data-testid="song-style-error">
+          The style is still {styleName(flavour)}: {set.error.message}
+        </p>
+      )}
     </div>
   );
 }

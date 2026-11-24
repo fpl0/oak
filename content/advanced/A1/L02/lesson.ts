@@ -13,7 +13,8 @@
 // filter with a filter envelope, and a riser, pink noise under a low-pass whose envelope takes the whole bar to open.
 //
 // Unit song (content/unit-songs/A1.ts, "Turn the dial"): the Make's loop takes the first chorus of the A1 song, and
-// opens with the learner's loop from A1.L01 (`startFrom`; the authored starter is "Oak's copy").
+// opens with the authored starter (`startFrom: 'oak'`: the lesson before is an optional side lesson the
+// learner may have skipped, AUTHORING §23.9 rule 2).
 // Make v2: the prompt invites the acid bass (in every style the song's chorus squelches on the ladder), and the
 // checklist gains a suggestion, not required: the ladder filter or a noise sound (`uses tb.ftype | snd.noise`).
 //
@@ -475,7 +476,7 @@ export default defineLesson({
         version: 2,
         role: "practice",
         prompt:
-          "This is your loop from Waves & Harmonics, or Oak's raw copy. Put the bass under a low-pass with `.lpf()`. Then give one part an `.lpenv()` other than 0, so its sound opens on every note. For an acid bass, add `.ftype(\"ladder\")` and a high `.lpq()`. Your loop then plays your song's first loud part.",
+          'This is the raw loop: a sawtooth bass and a square riff with nothing taken away. Put the bass under a low-pass with `.lpf()`. Then give one part an `.lpenv()` other than 0, so its sound opens on every note. For an acid bass, add `.ftype("ladder")` and a high `.lpq()`. Your loop then plays your song\'s first loud part.',
         skills: [{ skill: "D03", w: 1 }],
         code: { starter: RAW },
         bars: [2, 8],

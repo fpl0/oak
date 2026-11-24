@@ -18,8 +18,9 @@
 // the grader package (`@oak/grader/song`) because the grader may not import the adapter (docs/design/interfaces.md
 // §2); the adapter re-exports it unchanged as `@oak/strudel/song-compose`. `@strudel/core` is imported directly, not
 // through runtime/strudel.ts, so the browser's main thread never loads the grader's mini/tonal/transpiler facade
-// for it. Track names are `band.oak.<label>` and `band.take.<lessonId>.<label>`: they start with `band.`, so `'*'`
-// and roles never match them (contracts §6.2 rule 5).
+// for it. Track names are `band.oak.<label>` and `band.take.<lessonId>.<label>` (`…<label>#<n>` for an older take of a
+// lesson the song has several takes of): they start with `band.`, so `'*'` and roles never match them (contracts §6.2
+// rule 5).
 import {
   type CellKey,
   cellKey,
@@ -104,6 +105,8 @@ export interface ComposeSource {
   sourceId: string;
   /** Names its tracks: `band.take.<lessonId>.<label>`. */
   lessonId: string;
+  /** Its take number when it is an older take of its lesson (`olderTakeNumbers`): its tracks get `#<take>`. */
+  take?: number;
   tracks: readonly SongTrackInput[];
   /** Its own `arrange()` (`sourceSectionsOf`), or `null` for a loop. */
   sections: readonly SourceSection[] | null;
@@ -123,8 +126,28 @@ export interface ComposedTrack {
 export const OAK_TRACK_PREFIX = "band.oak.";
 export const TAKE_TRACK_PREFIX = "band.take.";
 export const oakTrackName = (label: string): string => `${OAK_TRACK_PREFIX}${label}`;
-export const takeTrackName = (lessonId: string, label: string): string =>
-  `${TAKE_TRACK_PREFIX}${lessonId}.${label}`;
+/**
+ * A take's track: `band.take.<lessonId>.<label>`, with `#<take>` when the take is an older one of a lesson the song has
+ * several takes of (`olderTakeNumbers`), so two takes of one lesson never share a track name (the analysis keys its
+ * tracks by name, mutes and solos act on names).
+ */
+export const takeTrackName = (lessonId: string, label: string, take?: number): string =>
+  `${TAKE_TRACK_PREFIX}${lessonId}.${label}${take ? `#${take}` : ""}`;
+
+/**
+ * The take number of every source that is not the newest take of its lesson in the song (sources oldest first):
+ * 1 for the oldest. The newest keeps the plain name. A replayed lesson's older take, which keeps the cells the new one
+ * did not claim, plays as `band.take.U01.L03.drums#1` beside the new `band.take.U01.L03.drums`.
+ */
+export function olderTakeNumbers(
+  sources: readonly { sourceId: string; lessonId: string }[],
+): Map<string, number> {
+  const byLesson = new Map<string, string[]>();
+  for (const s of sources) byLesson.set(s.lessonId, [...(byLesson.get(s.lessonId) ?? []), s.sourceId]);
+  const out = new Map<string, number>();
+  for (const ids of byLesson.values()) for (const [i, id] of ids.slice(0, -1).entries()) out.set(id, i + 1);
+  return out;
+}
 
 /** Total bars of the song's form. */
 export function songLengthBars(def: Pick<UnitSongDef, "sections">): number {
@@ -323,7 +346,8 @@ export function composeSongPatterns(input: ComposeInput): ComposedTrack[] {
         });
         return [s.bars, kept];
       });
-      if (plays) out.push({ track: takeTrackName(src.lessonId, t.label), pattern: arrange(sections) });
+      if (plays)
+        out.push({ track: takeTrackName(src.lessonId, t.label, src.take), pattern: arrange(sections) });
     }
   }
   return out;
@@ -381,40 +405,74 @@ function midiOf(value: unknown): number | null {
 /** The most bars of a track `trackFacts` reads: a song's length at most (`defineUnitSong`). */
 const FACT_BARS = 64;
 
+type Spans = readonly (readonly [number, number])[];
+
+/** The `[from, to)` bar ranges `trackFacts` reads: the first `bars` bars, or the spans, 64 bars at most in all. */
+function factRanges(bars: number | Spans): [number, number][] {
+  const spans: Spans = typeof bars === "number" ? [[0, Math.max(1, Math.ceil(bars))]] : bars;
+  const out: [number, number][] = [];
+  let budget = FACT_BARS;
+  for (const [from, to] of spans) {
+    const end = Math.min(to, from + budget);
+    if (end <= from) continue;
+    budget -= end - from;
+    out.push([from, end]);
+    if (budget <= 0) break;
+  }
+  return out;
+}
+
 /**
  * Reads a track's first `bars` bars, or the `[from, to)` bar spans of it that play (`playedSpans`), 64 bars at most
  * in all. A query that throws reads as nothing.
  */
-export function trackFacts(
-  pattern: Pattern,
-  bars: number | readonly (readonly [number, number])[],
-): TrackFacts {
-  const spans: readonly (readonly [number, number])[] =
-    typeof bars === "number" ? [[0, Math.max(1, Math.ceil(bars))]] : bars;
-  let haps: Hap[] = [];
+export function trackFacts(pattern: Pattern, bars: number | Spans): TrackFacts {
+  let onsets: { begin: number; value: unknown }[] = [];
   try {
-    let budget = FACT_BARS;
-    for (const [from, to] of spans) {
-      const end = Math.min(to, from + budget);
-      if (end <= from) continue;
-      budget -= end - from;
-      haps.push(...pattern.queryArc(from, end).filter((h) => h.hasOnset()));
-      if (budget <= 0) break;
-    }
+    for (const [from, to] of factRanges(bars))
+      for (const h of pattern.queryArc(from, to))
+        if (h.hasOnset()) onsets.push({ begin: Number(h.whole?.begin.valueOf()), value: h.value });
   } catch {
-    haps = [];
+    onsets = [];
   }
+  return factsOfOnsets(onsets);
+}
+
+/** An evaluated onset as the grader reports it (`OakEvent`): enough of it for `trackFactsOfEvents`. */
+export interface FactEvent {
+  /** Its track (`drums`, `$0`, `main`; `band.*` is not the code's own). */
+  track: string;
+  /** Where it starts, in bars (`OakEvent.beginF`). */
+  beginF: number;
+  /** `value.s` and `value.note` as Strudel carries them. */
+  s: string | null;
+  note: string | number | null;
+}
+
+/**
+ * `trackFacts` over a track's evaluated onsets instead of its pattern (the app reads a saved take from the grader's
+ * events): the same bars, the same reading, so a saved take claims what the live Make claimed.
+ */
+export function trackFactsOfEvents(events: readonly FactEvent[], bars: number | Spans): TrackFacts {
+  const ranges = factRanges(bars);
+  return factsOfOnsets(
+    events
+      .filter((e) => ranges.some(([from, to]) => e.beginF >= from - 1e-9 && e.beginF < to - 1e-9))
+      .map((e) => ({ begin: e.beginF, value: { s: e.s, note: e.note } })),
+  );
+}
+
+function factsOfOnsets(onsets: readonly { begin: number; value: unknown }[]): TrackFacts {
   const sounds = new Set<string>();
   const pitches: number[] = [];
   const starts = new Map<number, number>();
-  for (const h of haps) {
+  for (const h of onsets) {
     const s = soundOf(h.value);
     if (s !== null) sounds.add(s);
     const midi = midiOf(h.value);
     if (midi === null) continue;
     pitches.push(midi);
-    const at = Number(h.whole?.begin.valueOf());
-    starts.set(at, (starts.get(at) ?? 0) + 1);
+    starts.set(h.begin, (starts.get(h.begin) ?? 0) + 1);
   }
   // Onsets, not notes: a two-note chord among five single notes is one polyphonic onset in six (the grader's
   // `polyphonyRatio`, contracts §6.2 rule 1).
@@ -422,7 +480,7 @@ export function trackFacts(
   for (const n of starts.values()) if (n > 1) together += 1;
   const sorted = [...pitches].sort((a, b) => a - b);
   return {
-    events: haps.length,
+    events: onsets.length,
     sounds: [...sounds],
     pitched: pitches.length,
     chordShare: starts.size === 0 ? 0 : together / starts.size,
@@ -467,6 +525,91 @@ export function playedPartsOfTracks(
     }
   }
   return { parts, playsChords };
+}
+
+// --- what a Make claims: one reading for the live Make and its saved take --------------------------------------
+
+/** Where a Make's code plays in the song: the sections it fills and the bars of it that play there. */
+export interface MakeReading {
+  /** The step, its sections narrowed to today's (song order). */
+  step: TakeStep;
+  /** The sections the code fills: today's, or those its own `arrange()` names (U09.L02 on). */
+  owned: ReadonlySet<SongSectionId>;
+  /** `owned` when the code has its own `arrange()`, else `undefined` (a loop fills every section of the step). */
+  filled: SongSectionId[] | undefined;
+  /** Its own `arrange()` (`sourceSectionsOf`), or `null` for a loop. */
+  sections: SourceSection[] | null;
+  /** The bars of the code that play in the song (`playedSpans`): what it plays is read over these. */
+  spans: [number, number][];
+  /** The bars to evaluate to read every span (the end of the last one), 1 at least. */
+  bars: number;
+}
+
+/**
+ * Where a Make plays in the song, read statically from its code: `sections` are today's sections (the step's, or the
+ * live band's `live.sections`). The live Make (`finishSong`) and the take its Save records read it the same way.
+ */
+export function makeReading(
+  def: UnitSongDef,
+  sections: readonly SongSectionId[] | "all",
+  step: TakeStep,
+  code: string,
+): MakeReading {
+  const own = sourceSectionsOf(code);
+  const wanted = new Set(sections === "all" ? def.sections.map((s) => s.id) : sections);
+  const layout = layoutOf(def).filter((s) => wanted.has(s.id));
+  const filled = own ? layout.filter((s) => learnerSectionFor(s, own) !== null).map((s) => s.id) : undefined;
+  const owned = new Set(filled ?? layout.map((s) => s.id));
+  const spans = playedSpans(def, owned, own);
+  return {
+    step: { ...step, sections: layout.map((s) => s.id) },
+    owned,
+    filled,
+    sections: own,
+    spans,
+    bars: Math.max(1, Math.ceil(spans.at(-1)?.[1] ?? 1)),
+  };
+}
+
+/** What a Make plays and the cells it takes. */
+export interface MakeClaims {
+  /** Its tracks with the role the claims model reads (`roleOfTrack`) and what they play over the spans. */
+  tracks: { label: string; role: SongTrackRole | null; facts: TrackFacts }[];
+  played: PlayedParts;
+  /** `claimsOf`: the step's declared parts, every part it plays, Oak's pitched parts when it plays chords. */
+  cells: CellKey[];
+}
+
+/** The cells a Make takes from what its tracks play over `reading.spans` (`trackFacts` / `trackFactsOfEvents`). */
+export function makeClaims(
+  def: UnitSongDef,
+  reading: MakeReading,
+  tracks: readonly { label: string; facts: TrackFacts }[],
+): MakeClaims {
+  const read = tracks.map((t) => ({ label: t.label, facts: t.facts, role: roleOfTrack(t.label, t.facts) }));
+  const played = playedPartsOfTracks(def, read);
+  return { tracks: read, played, cells: claimsOf(def, reading.step, played, reading.filled) };
+}
+
+/**
+ * `makeClaims` from the grader's evaluation of the code alone (its `events`, queried from bar 1 over at least
+ * `reading.bars` bars): the code's own tracks (`band.*` left out), read as the live Make's patterns are.
+ */
+export function makeClaimsOfEvents(
+  def: UnitSongDef,
+  reading: MakeReading,
+  events: readonly FactEvent[],
+): MakeClaims {
+  const byTrack = new Map<string, FactEvent[]>();
+  for (const e of events) {
+    if (e.track.startsWith("band.")) continue;
+    byTrack.set(e.track, [...(byTrack.get(e.track) ?? []), e]);
+  }
+  return makeClaims(
+    def,
+    reading,
+    [...byTrack].map(([label, evs]) => ({ label, facts: trackFactsOfEvents(evs, reading.spans) })),
+  );
 }
 
 // --- the whole song: build (async, per realm) and finish (sync) -------------------------------------------------
@@ -593,26 +736,20 @@ export function finishSong(
   let place: FinishedSong["place"] = null;
   let played: PlayedParts | null = null;
   if (band.live && live) {
-    const sections = sourceSectionsOf(live.code);
-    const wanted = new Set(band.live.sections === "all" ? def.sections.map((s) => s.id) : band.live.sections);
-    const layout = layoutOf(def).filter((s) => wanted.has(s.id));
-    const filled = sections
-      ? layout.filter((s) => learnerSectionFor(s, sections) !== null).map((s) => s.id)
-      : null;
-    const owned = new Set(filled ?? layout.map((s) => s.id));
+    const reading = makeReading(def, band.live.sections, band.live.step, live.code);
     // What the Make plays, read over every bar of it that plays in the song (not just its first bars).
-    const spans = playedSpans(def, owned, sections);
-    played = playedPartsOfTracks(
+    const claim = makeClaims(
       def,
-      live.tracks.map((t) => withRole(t, spans)),
+      reading,
+      live.tracks.map((t) => ({ label: t.label, facts: trackFacts(t.pattern, reading.spans) })),
     );
-    const step: TakeStep = { ...band.live.step, sections: layout.map((s) => s.id) };
-    const cells = claimsOf(def, step, played, filled ?? undefined);
+    played = claim.played;
     const next = new Map(grid);
-    for (const c of cells) if (next.has(c)) next.set(c, LIVE_SOURCE);
+    for (const c of claim.cells) if (next.has(c)) next.set(c, LIVE_SOURCE);
     grid = next;
-    place = (pattern) => placeInSections(def, pattern, owned, sections);
+    place = (pattern) => placeInSections(def, pattern, reading.owned, reading.sections);
   }
+  const takes = olderTakeNumbers(band.sources);
   const tracks = composeSongPatterns({
     def,
     lengthBars,
@@ -620,6 +757,7 @@ export function finishSong(
     sources: built.sources.map((s) => ({
       sourceId: s.sourceId,
       lessonId: s.lessonId,
+      ...(takes.has(s.sourceId) && { take: takes.get(s.sourceId) as number }),
       sections: s.sections,
       tracks: s.tracks.map((t) => {
         const owned = new Set(ownedBy(grid, s.sourceId).parts.keys());
@@ -656,6 +794,7 @@ export function labelsOf(code: string): string[] {
  */
 export function songBandTracks(band: SongBand): string[] {
   const out: string[] = [];
+  const takes = olderTakeNumbers(band.sources);
   for (const p of band.def.parts) {
     const oakOwns = band.def.sections.some(
       (s) => (band.grid.get(cellKey(p.id, s.id)) ?? OAK_OWNER) === OAK_OWNER,
@@ -665,7 +804,7 @@ export function songBandTracks(band: SongBand): string[] {
   for (const s of band.sources) {
     if (ownedBy(band.grid, s.sourceId).parts.size === 0) continue;
     for (const label of labelsOf(s.code)) {
-      const name = takeTrackName(s.lessonId, label).slice("band.".length);
+      const name = takeTrackName(s.lessonId, label, takes.get(s.sourceId)).slice("band.".length);
       if (!out.includes(name)) out.push(name);
     }
   }

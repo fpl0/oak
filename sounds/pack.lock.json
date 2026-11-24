@@ -1,16 +1,16 @@
 {
   "packVersion": "v4",
   "publicRoot": "/sounds/v4",
-  "totalBytes": 53730054,
-  "fileCount": 623,
+  "totalBytes": 56338809,
+  "fileCount": 632,
   "encoders": {
     "lame": "LAME 64bits version 4.0 (https://lame.sourceforge.io)",
     "flac": "flac 1.5.0"
   },
   "groups": {
     "credits": {
-      "files": 7,
-      "bytes": 76637
+      "files": 8,
+      "bytes": 78691
     },
     "breaks": {
       "files": 8,
@@ -38,7 +38,7 @@
     },
     "manifest": {
       "files": 1,
-      "bytes": 11686
+      "bytes": 12390
     },
     "maps": {
       "files": 2,
@@ -129,8 +129,8 @@
       "bytes": 2316190
     },
     "soundfonts": {
-      "files": 22,
-      "bytes": 6479446
+      "files": 30,
+      "bytes": 9085443
     }
   },
   "credits": {
@@ -154,7 +154,7 @@
       "licence": "CC0-1.0",
       "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
       "pinned": "sfzinstruments/dsmolken.double-bass@c2985eb647109d2a8f30a70071e3e163339d7396",
-      "modified": "trimmed; levelled",
+      "modified": "selected notes and velocity layers; trimmed; levelled; retuned to equal temperament; MP3 (LAME V0)",
       "sounds": [
         "upright"
       ]
@@ -376,14 +376,22 @@
       "url": "https://github.com/felixroos/webaudiofontdata",
       "licence": "MIT",
       "licenceUrl": "https://opensource.org/license/mit",
-      "attribution": "Fluid (R3) SoundFont, Copyright (c) 2000-2002, 2008 Frank Wen, MIT licence (LICENSES/FluidR3-MIT.md).",
+      "attribution": "Fluid (R3) SoundFont, Copyright (c) 2000-2002, 2008 Frank Wen, MIT licence (LICENSES/FluidR3-MIT.md). WebAudioFont conversion Copyright (c) 2017 Srgy Surkv, MIT licence (LICENSES/webaudiofontdata-MIT.txt).",
       "pinned": "https://felixroos.github.io/webaudiofontdata/sound/",
       "modified": "unchanged",
       "sounds": [
         "crunch",
+        "gm_acoustic_bass",
         "gm_brass_section",
+        "gm_choir_aahs",
+        "gm_drawbar_organ",
+        "gm_electric_bass_pick",
+        "gm_electric_guitar_jazz",
+        "gm_epiano1",
+        "gm_flute",
         "gm_overdriven_guitar",
         "gm_trumpet",
+        "gm_vibraphone",
         "horns"
       ]
     },
@@ -393,6 +401,7 @@
       "url": "https://github.com/felixroos/webaudiofontdata",
       "licence": "LicenseRef-legacy-webaudiofont-unverified",
       "licenceUrl": "https://github.com/felixroos/webaudiofontdata",
+      "attribution": "WebAudioFont conversion Copyright (c) 2017 Srgy Surkv, MIT licence (LICENSES/webaudiofontdata-MIT.txt).",
       "pinned": "https://felixroos.github.io/webaudiofontdata/sound/",
       "modified": "unchanged. Kept from earlier packs so gm_* names and the acgtr, clav, pad and choir sounds keep playing; the source SoundFonts' own licences could not be verified, and each is to be replaced by a CC0 recording.",
       "sounds": [
@@ -3003,8 +3012,8 @@
     {
       "path": "v4/CREDITS.md",
       "sourceUrl": "generated:scripts/sounds/credits.ts",
-      "bytes": 11183,
-      "sha256": "033633a2e6b03b298e559801e14b73183569322e45448b88235c49152a6623b3",
+      "bytes": 11623,
+      "sha256": "45e572fb9f6f573860e3cc2f4bb74151325da8e31d8ada5eea7a0c51da46738b",
       "derived": true
     },
     {
@@ -3036,6 +3045,12 @@
       "sourceUrl": "https://unlicense.org/UNLICENSE",
       "bytes": 1212,
       "sha256": "b5065838cbac452dfc855ba6e6e031481ad2c68406f70d21ead9321374653e6c"
+    },
+    {
+      "path": "v4/LICENSES/webaudiofontdata-MIT.txt",
+      "sourceUrl": "https://raw.githubusercontent.com/felixroos/webaudiofontdata/23ca907d4370a04fd89ca483a92915e4d6159ab9/LICENSE",
+      "bytes": 1067,
+      "sha256": "8fbf2c4fdb4aa665343f1ab08a1c4243e7c33a1c992ea746b27519fcedfa1d8f"
     },
     {
       "path": "v4/breaks.json",
@@ -3101,8 +3116,8 @@
     {
       "path": "v4/credits.json",
       "sourceUrl": "generated:scripts/sounds/credits.ts",
-      "bytes": 15807,
-      "sha256": "dffeaa8922e5f8c6a2419e286128477e327c17c8873fdb1eae4510698550e86b",
+      "bytes": 16354,
+      "sha256": "151d837ca109ccbbaf39e8513a73595ab1c654f88d9d3160260ea247ccafd481",
       "derived": true
     },
     {
@@ -4206,8 +4221,8 @@
     {
       "path": "v4/manifest.json",
       "sourceUrl": "generated:scripts/sounds/pack.config.ts",
-      "bytes": 11686,
-      "sha256": "15b73d08e8bd135c803e9a8dd9fd93bd9566cc295b5ec1069806ba8659752dd4",
+      "bytes": 12390,
+      "sha256": "c0ac7b405c79d0cfdbc1daef9f60bd89f3a0fd8349eb8a85f1334cec4cdf72b7",
       "derived": true
     },
     {
@@ -8181,6 +8196,13 @@
       "credit": "gm-legacy"
     },
     {
+      "path": "v4/webaudiofontdata/sound/0040_FluidR3_GM_sf2_file.js",
+      "sourceUrl": "https://felixroos.github.io/webaudiofontdata/sound/0040_FluidR3_GM_sf2_file.js",
+      "bytes": 500194,
+      "sha256": "b95098107f7e73cddee951637f24f455ca4ad26b4484bf55df5b6fbdcafbda74",
+      "credit": "gm-fluidr3"
+    },
+    {
       "path": "v4/webaudiofontdata/sound/0040_JCLive_sf2_file.js",
       "sourceUrl": "https://felixroos.github.io/webaudiofontdata/sound/0040_JCLive_sf2_file.js",
       "bytes": 290213,
@@ -8195,11 +8217,25 @@
       "credit": "gm-legacy"
     },
     {
+      "path": "v4/webaudiofontdata/sound/0110_FluidR3_GM_sf2_file.js",
+      "sourceUrl": "https://felixroos.github.io/webaudiofontdata/sound/0110_FluidR3_GM_sf2_file.js",
+      "bytes": 71096,
+      "sha256": "00f93f05980ad2fa0f24fefc336122a9e423b7d219cc3d7050c0d397c1715921",
+      "credit": "gm-fluidr3"
+    },
+    {
       "path": "v4/webaudiofontdata/sound/0110_JCLive_sf2_file.js",
       "sourceUrl": "https://felixroos.github.io/webaudiofontdata/sound/0110_JCLive_sf2_file.js",
       "bytes": 37672,
       "sha256": "1af2189ac227b5a261ebc4984d4c7085d75b19a5b3a821338f001d3d7729eaf1",
       "credit": "gm-legacy"
+    },
+    {
+      "path": "v4/webaudiofontdata/sound/0160_FluidR3_GM_sf2_file.js",
+      "sourceUrl": "https://felixroos.github.io/webaudiofontdata/sound/0160_FluidR3_GM_sf2_file.js",
+      "bytes": 38861,
+      "sha256": "d92842129c792db9984ea5827e3c6630c03bda428ebae75036e3fa99559274ba",
+      "credit": "gm-fluidr3"
     },
     {
       "path": "v4/webaudiofontdata/sound/0160_JCLive_sf2_file.js",
@@ -8223,6 +8259,13 @@
       "credit": "gm-legacy"
     },
     {
+      "path": "v4/webaudiofontdata/sound/0260_FluidR3_GM_sf2_file.js",
+      "sourceUrl": "https://felixroos.github.io/webaudiofontdata/sound/0260_FluidR3_GM_sf2_file.js",
+      "bytes": 294496,
+      "sha256": "fbe0e0c9d4e66b529507ccea40ed520251ca377b9eb930345823c3aa9f25d7ad",
+      "credit": "gm-fluidr3"
+    },
+    {
       "path": "v4/webaudiofontdata/sound/0260_JCLive_sf2_file.js",
       "sourceUrl": "https://felixroos.github.io/webaudiofontdata/sound/0260_JCLive_sf2_file.js",
       "bytes": 810598,
@@ -8244,6 +8287,13 @@
       "credit": "gm-fluidr3"
     },
     {
+      "path": "v4/webaudiofontdata/sound/0320_FluidR3_GM_sf2_file.js",
+      "sourceUrl": "https://felixroos.github.io/webaudiofontdata/sound/0320_FluidR3_GM_sf2_file.js",
+      "bytes": 268523,
+      "sha256": "23492feddf76b97fc735f60aaa9ea0b8671b35c2998851b2087fcf3217f583fc",
+      "credit": "gm-fluidr3"
+    },
+    {
       "path": "v4/webaudiofontdata/sound/0320_JCLive_sf2_file.js",
       "sourceUrl": "https://felixroos.github.io/webaudiofontdata/sound/0320_JCLive_sf2_file.js",
       "bytes": 41100,
@@ -8256,6 +8306,13 @@
       "bytes": 24041,
       "sha256": "4e51bf05a4050c64895c922b01e7b25abb48a93d32f35c0bc7604085589e0d4b",
       "credit": "gm-legacy"
+    },
+    {
+      "path": "v4/webaudiofontdata/sound/0340_FluidR3_GM_sf2_file.js",
+      "sourceUrl": "https://felixroos.github.io/webaudiofontdata/sound/0340_FluidR3_GM_sf2_file.js",
+      "bytes": 557009,
+      "sha256": "79a0508ae7f031b697b3d200f0fcee02856303040ebaae45f03d4eb66d5821a7",
+      "credit": "gm-fluidr3"
     },
     {
       "path": "v4/webaudiofontdata/sound/0340_JCLive_sf2_file.js",
@@ -8277,6 +8334,13 @@
       "bytes": 99647,
       "sha256": "1925e221cca3ae8628b0670ec45d14406261077fcc0269d3b7077350a887e8df",
       "credit": "gm-legacy"
+    },
+    {
+      "path": "v4/webaudiofontdata/sound/0520_FluidR3_GM_sf2_file.js",
+      "sourceUrl": "https://felixroos.github.io/webaudiofontdata/sound/0520_FluidR3_GM_sf2_file.js",
+      "bytes": 703066,
+      "sha256": "252531f2873b7fdfe1d94c9da72965fbe43ce6f73a2799e6aec44044475517bc",
+      "credit": "gm-fluidr3"
     },
     {
       "path": "v4/webaudiofontdata/sound/0560_FluidR3_GM_sf2_file.js",
@@ -8312,6 +8376,13 @@
       "bytes": 121670,
       "sha256": "0e83e5ebc8661284ed0d5cf90ca8f691ee92808b8c2780e61866ad18ed630096",
       "credit": "gm-legacy"
+    },
+    {
+      "path": "v4/webaudiofontdata/sound/0730_FluidR3_GM_sf2_file.js",
+      "sourceUrl": "https://felixroos.github.io/webaudiofontdata/sound/0730_FluidR3_GM_sf2_file.js",
+      "bytes": 172752,
+      "sha256": "eeb6c1e8263d5635032309256f2364178caedc0f07cff1e89d333ebc82ff05f3",
+      "credit": "gm-fluidr3"
     },
     {
       "path": "v4/webaudiofontdata/sound/0730_JCLive_sf2_file.js",

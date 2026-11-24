@@ -9,7 +9,7 @@
 // - the intro walks down the Andalusian cadence i VII VI V over the bass A G F E (U10.L07);
 // - the first verse is the four-chord loop moved to A minor, i v VI iv, its tune coming home on A (U10.L02);
 // - the second verse is i iv VI v, its tune leaning on me, le and te, C F G (U10.L03);
-// - the four bars before each chorus lift on minor's major chords, VI VII III, then V (U10.L04);
+// - the four bars before the first two choruses lift on minor's major chords, VI VII III, then V (U10.L04);
 // - the first two choruses circle on the Aeolian loop i VI III VII (U10.L05), and the last one lands on a major V
 //   that goes home, its tune climbing G♯ to A (U10.L06);
 // - the bridge is the first verse's loop a minor third higher, in C minor (U10.L01's key and loop, i v VI iv); the
@@ -192,7 +192,7 @@ const nameOf = (midi: number, flats: boolean): string =>
 // Eight slots to a bar (`@` holds). Every note held a beat or more is a note of its chord; the steps between are
 // eighths. The verses sit low (A3–A4), each bar starting off the beat; the first verse's question stops open on D
 // over Dm and its answer comes home on A (U10.L02), the second verse climbs to te and leans le onto sol over Em (C F G,
-// U10.L03). The four bars before each chorus climb the major chords' own notes. The chorus hook is a 3+3+2 figure
+// U10.L03). The four bars before the first two choruses climb the major chords' own notes. The chorus hook is a 3+3+2 figure
 // round C5 (E D C over Am, C A C over F), peaking on G5 in bar 7; the last chorus lands, E D B G♯ over E, then A. The
 // bridge rises through C minor's chords in long notes; the ending climbs E F♯ G♯ A over E and Am (U10.L08).
 
@@ -642,8 +642,8 @@ const KICK_808 = ".decay(.35).sustain(0)";
 const PAD = ".attack(.12).decay(.4).sustain(.7).lpf(sine.range(900, 2200).slow(8)).postgain(.6)";
 
 /**
- * Electronic: the lo-fi kit in the intro, the verses and the ending; Oak's 909 in the four bars before each chorus
- * and in the choruses; Oak's 808 in the bridge. The verses sit on a boom-bap beat over a sine sub and off-beat stabs;
+ * Electronic: the lo-fi kit in the intro, the verses and the ending; Oak's 909 in the two four-bar lifts into the
+ * choruses and in the choruses; Oak's 808 in the bridge. The verses sit on a boom-bap beat over a sine sub and off-beat stabs;
  * the four bars before a chorus build (kick in quarters then eighths, the acid's filter and the stabs' cutoff opening
  * over the four bars); the choruses go four on the floor with the acid line and pumping stabs; the bridge swells on
  * a supersaw pad over the 808 in half time. A square pluck with a dotted-eighth echo plays the tune, a supersaw the
@@ -904,7 +904,7 @@ export const U10_SONG = defineUnitSong({
       ["pre1", "pre2"],
       ["chords", "bass"],
       "oak",
-      "Your minor loop with two major chords plays the four bars before each chorus, so the song rises into it.",
+      "Your minor loop with two major chords plays the four bars leading into the first two choruses.",
     ),
     take(
       "U10.L05",

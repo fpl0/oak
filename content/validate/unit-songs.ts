@@ -49,6 +49,7 @@ import { checkpointMetas } from "../checkpoints.ts";
 import { courseGraph, registries } from "../index.ts";
 import { atOrBefore } from "../lib/course.ts";
 import { CONTENT_ROOT } from "../lib/load.bun.ts";
+import { PASSABLE_LESSONS } from "../syllabus.ts";
 import { termById } from "../terms.ts";
 import { songStepOf } from "../unit-songs/index.ts";
 import { plain, voiceIssues } from "./authoring.ts";
@@ -953,6 +954,27 @@ async function startFromIssues(
   const there = def.plan.findIndex((s) => s.lesson === from);
   if (there < 0 || def.plan[there]?.kind !== "take" || (here >= 0 && there >= here)) {
     add("usong.start-from", `${from} is not an earlier take step of ${def.id}`);
+    return out;
+  }
+  // AUTHORING §23.9 rule 2: only a lesson completed before this one in every legal order. The app opens a track
+  // lesson past an optional one (gates.ts rule 5) and past a passable one, so neither may open today's Make, even
+  // where the course graph chains them.
+  const meta = registries.syllabus.units.flatMap((u) => u.lessons).find((l) => l.id === from);
+  const graph = courseGraph();
+  const skippable = meta?.optional === true || meta?.side === true || PASSABLE_LESSONS.includes(from);
+  if (
+    skippable ||
+    (graph.nodes.has(step.lesson as SessionId) &&
+      graph.nodes.has(from as SessionId) &&
+      !graph.before(step.lesson as SessionId).has(from as SessionId))
+  ) {
+    const why = skippable
+      ? "is an optional, side or passable lesson"
+      : `is not completed before ${step.lesson} in every legal order`;
+    add(
+      "usong.start-from",
+      `${from} ${why}: a learner may reach ${step.lesson} without it; start from 'oak'`,
+    );
     return out;
   }
   const earlier = await (opts.lessonOf ?? loadLessonDef)(from);

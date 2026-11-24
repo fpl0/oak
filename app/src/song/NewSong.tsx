@@ -320,6 +320,12 @@ export function StyleCheck({ unitId, song: given }: { unitId: string; song?: Uni
           </Button>
         )}
       </div>
+      {(changed ? set : ack).isError && (
+        <p role="alert" className="text-sm text-issue" data-testid="song-style-check-error">
+          {changed ? "The style was not changed" : "That was not saved"}:{" "}
+          {(changed ? set : ack).error?.message}
+        </p>
+      )}
     </div>
   );
 }

@@ -379,6 +379,9 @@ export class UnitSongsService {
             bpm: t.row.bpm,
           }),
         ),
+        // A take from an imported backup keeps its flag in the snapshot: album playback and export strict-lint every
+        // code of a flagged release (contracts §11.3), as the live song does for a flagged take.
+        reviewBeforeRun: takes.some((t) => t.reviewBeforeRun),
         createdAt: now,
       });
       songs.setVersionRelease(trackId, version, releaseId);
@@ -627,7 +630,12 @@ export class UnitSongsService {
       flavour,
       title: row.title,
       status: row.status,
-      changedSinceRelease: latest !== undefined && this.#changedSince(latest, def, flavour, live),
+      // A newest release whose album track the learner deleted is no longer on the album: release() makes a new track
+      // for it (its `alive` rule), so the song offers "Release" again.
+      changedSinceRelease:
+        latest !== undefined &&
+        (!this.#repos.unitSongs.albumTrackExists(latest.albumTrackId) ||
+          this.#changedSince(latest, def, flavour, live)),
       releasable: def !== null && live.length > 0 && this.#done(def.releaseAfter),
       backfilled: row.backfilled,
       styleSeen: row.styleSeen,

@@ -41,7 +41,6 @@ import {
   rms,
   scale,
   stereo,
-  toolVersion,
   toRate,
   trim,
   wav16,
@@ -89,6 +88,7 @@ import {
   srcKey,
 } from "./pack.config.ts";
 import { insideRoot, isSafeSamplePath } from "./paths.ts";
+import { type Encoders, encoderMismatchHint, explainMissingTool, installedVersion } from "./tools.ts";
 import { OAK_TABLES, renderTable } from "./wavetables.ts";
 
 const SOUNDS_DIR = join(import.meta.dirname, "../../sounds");
@@ -850,10 +850,13 @@ async function main() {
   console.log(
     `[mirror] pack ${PACK_VERSION} -> ${relative(process.cwd(), PACK_DIR)} (${frozen ? "frozen" : "resolve"})`,
   );
-  const encoders = { lame: toolVersion("lame"), flac: toolVersion("flac") };
+  // "" for a tool that is not installed: a frozen run that reuses every derived file needs neither.
+  const encoders: Encoders = { lame: installedVersion("lame"), flac: installedVersion("flac") };
+  if (update && (!encoders.lame || !encoders.flac))
+    throw new Error("--update records the encoders in the lock: install lame and flac first");
   if (frozen && lock?.encoders && JSON.stringify(lock.encoders) !== JSON.stringify(encoders))
     console.warn(
-      `[mirror] encoders differ from the lock (${JSON.stringify(lock.encoders)} vs ${JSON.stringify(encoders)}): re-encoded MP3s may not match; the lock is the source of truth (docs/spikes.md)`,
+      `[mirror] encoders differ from the lock (${JSON.stringify(lock.encoders)} vs ${JSON.stringify(encoders)}): MP3s that must be re-encoded will not match; the lock is the source of truth (docs/spikes.md, s8)`,
     );
 
   const { plan, manifest, breakMeta, credits } = await resolvePlan(lock);
@@ -877,7 +880,12 @@ async function main() {
       if (!want) throw new Error(`frozen: ${p.path} is not in pack.lock.json (config changed? run --update)`);
       if (want.sha256 !== hash)
         throw new Error(
-          `frozen: sha256 mismatch for ${p.path}\n  lock ${want.sha256}\n  got  ${hash}\n  (${p.sourceUrl})`,
+          [
+            `frozen: sha256 mismatch for ${p.path}\n  lock ${want.sha256}\n  got  ${hash}\n  (${p.sourceUrl})`,
+            derived ? encoderMismatchHint(p.path, lock?.encoders, encoders) : "",
+          ]
+            .filter(Boolean)
+            .join("\n"),
         );
     }
     await writeAtomic(insideRoot(PACK_DIR, p.path), body);
@@ -910,7 +918,9 @@ async function main() {
       }
       if (frozen && want && want.recipe !== p.recipe)
         throw new Error(`frozen: ${p.path} has a new recipe (config or build code changed? run --update)`);
-      const body = await p.render();
+      const body = await p.render().catch((err: unknown) => {
+        throw explainMissingTool(err);
+      });
       validate(p.path, body);
       stats.rendered++;
       if (stats.rendered % 50 === 0) console.log(`[mirror]   ...${stats.rendered} rendered`);

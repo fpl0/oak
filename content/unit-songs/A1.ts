@@ -1166,9 +1166,10 @@ export const A1_SONG = defineUnitSong({
   // By section (AUTHORING §23.6): every A1 Make is the whole A1 loop (drums, bass, riff), so each take hands over
   // whole sections, the one whose sound is the lesson's idea. Oak's chords, pad and percussion keep playing under
   // A1.L01–L05 (their loops play no chords); A1.L06 and A1.L07 add a pad of chords, and Oak keeps its chords there
-  // (clash-checked). A1.L02–L05 open with the learner's loop from the lesson before, as each A1 lesson's starter is
-  // "the loop as the lesson before leaves it"; A1.L06 and A1.L07 open with their starters, which bring a pad and new
-  // lines (a long-note lead, a bell riff) the earlier loops do not have.
+  // (clash-checked). Every A1 Make opens with its authored starter: A1.L01–L04 are optional side lessons a learner
+  // may skip (the app opens A1.L05 without them), so none may open a later Make (AUTHORING §23.9 rule 2), even
+  // though each starter is "the loop as the lesson before leaves it"; A1.L06 and A1.L07's starters bring a pad and
+  // new lines (a long-note lead, a bell riff) the earlier loops do not have.
   plan: [
     take(
       "A1.L01",
@@ -1181,28 +1182,28 @@ export const A1_SONG = defineUnitSong({
       "A1.L02",
       ["chorus1"],
       LOOP,
-      "A1.L01",
+      "oak",
       "Your loop, one part opening bright on every note, drives the first loud part of the song.",
     ),
     take(
       "A1.L03",
       ["verse2"],
       LOOP,
-      "A1.L02",
+      "oak",
       "Your loop, its notes shaped to punch or to swell, plays the part right after the first loud one.",
     ),
     take(
       "A1.L04",
       ["bridge"],
       LOOP,
-      "A1.L03",
+      "oak",
       "Your loop, placed in a room and given echoes, fills the quiet part where Oak's drums stop.",
     ),
     take(
       "A1.L05",
       ["intro", "outro"],
       LOOP,
-      "A1.L04",
+      "oak",
       "Your loop, made gritty like an old record, opens and closes the song.",
     ),
     take(

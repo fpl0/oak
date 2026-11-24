@@ -350,7 +350,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Rewrite the loop, now i iv v i, so at least two chords in bars 1–4 are the key's major chords: III, VI or VII. Those four bars play just before each chorus of your song, so choose where the lift comes. Then add a `bass:` line on the chord roots.",
+          "Rewrite the loop, now i iv v i, so at least two chords in bars 1–4 are the key's major chords: III, VI or VII. Those four bars play just before the first two choruses of your song, so choose where the lift comes. Then add a `bass:` line on the chord roots.",
         skills: [{ skill: "H07", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],

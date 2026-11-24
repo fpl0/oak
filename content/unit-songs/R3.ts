@@ -1113,7 +1113,7 @@ export const R3_SONG = defineUnitSong({
   parts: [
     { id: "lead", label: "mel", role: "melody", name: "Melody", plainName: "Tune" },
     { id: "horns", label: "horns", role: "melody", name: "Horns", plainName: "Horns" },
-    { id: "keys", label: "keys", role: "chords", name: "Piano", plainName: "Piano" },
+    { id: "keys", label: "keys", role: "chords", name: "Keys", plainName: "Keys" },
     { id: "bass", label: "bass", role: "bass", name: "Bass", plainName: "Bass" },
     { id: "kick", label: "kick", role: "drums", sounds: ["bd"], name: "Kick", plainName: "Kick" },
     {

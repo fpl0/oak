@@ -937,7 +937,7 @@ export const J3_SONG = defineUnitSong({
       ["head1-bb", "solo-bb", "head2-bb"],
       ["chords"],
       "oak",
-      "Your comping rhythm plays the four bars in B♭ each time through the tune, under Oak's vibes.",
+      "Your comping rhythm plays the four bars in B♭ each time through, under Oak's tune.",
       ["bass", "lead"],
     ),
     take(

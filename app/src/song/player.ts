@@ -10,6 +10,7 @@ import { type SongBand, songLengthBars } from "@oak/strudel/song-compose";
 import { useSyncExternalStore } from "react";
 import { songBandSetupOf } from "../lesson/band.ts";
 import { getOak } from "../lib/oak.ts";
+import { useShell } from "../lib/shell-store.ts";
 
 export interface SongLoop {
   fromBar: number;
@@ -46,8 +47,15 @@ const frameListeners = new Set<(id: string | null, position: number | null) => v
 let player: PatternPlayer | null = null;
 let generation = 0;
 let raf: number | null = null;
-/** The cycle at which a song played through ends (moves on when a section loop is let go mid-song). */
-let endAt = 0;
+/**
+ * A song playing on after its section loop was let go: the player's loop is then this long, never-repeating window
+ * that keeps the bar sounding at the release (`fromBar` = song bar − scheduler cycle, so the playhead and the sound go
+ * on from where the loop was, never from the raw cycle). `null` while the song plays from its first bar.
+ */
+let playOn: SongLoop | null = null;
+
+/** The label the shell's Now playing shows for a song (and what `stopSong` clears). */
+const NOW_PLAYING_PREFIX = "Song: ";
 
 function set(next: Partial<SongPlayState>): void {
   state = { ...state, ...next };
@@ -96,7 +104,7 @@ function positionNow(): number | null {
   if (!player || state.phase !== "playing" || state.lengthBars <= 0) return null;
   const pos = player.position();
   if (!Number.isFinite(pos)) return null;
-  return state.loop ? pos : pos % state.lengthBars;
+  return state.loop ? pos : Math.max(0, pos) % state.lengthBars;
 }
 
 function tick(): void {
@@ -107,9 +115,10 @@ function tick(): void {
     stopSong();
     return;
   }
+  // The song bar sounding now (the player's position honours the loop, and the play-on window after one).
   const raw = player.position();
-  // Once through, then the song ends (a section loop plays until it is stopped).
-  if (!state.loop && Number.isFinite(raw) && raw >= endAt) {
+  // Once through, then the song ends at its last bar (a section loop plays until it is stopped).
+  if (!state.loop && Number.isFinite(raw) && raw >= state.lengthBars) {
     stopSong();
     return;
   }
@@ -133,6 +142,8 @@ function pauseAudioElements(): void {
 
 export interface PlaySongOptions {
   loop?: SongLoop | null;
+  /** The song's title for the shell's Now playing (the learner's title; Oak's working title when not given). */
+  title?: string;
   /** The mutes to apply once the song's tracks are known (a part muted or soloed on the song page). */
   mutes?: (tracks: readonly string[]) => MuteMap;
 }
@@ -144,6 +155,7 @@ export interface PlaySongOptions {
 export async function playSong(id: string, band: SongBand, opts: PlaySongOptions = {}): Promise<boolean> {
   const gen = ++generation;
   player?.stop();
+  playOn = null;
   pauseAudioElements();
   const lengthBars = songLengthBars(band.def);
   set({ id, phase: "loading", bar: null, lengthBars, loop: opts.loop ?? null, tracks: [], error: null });
@@ -170,8 +182,12 @@ export async function playSong(id: string, band: SongBand, opts: PlaySongOptions
       player.stop();
       return false;
     }
-    endAt = lengthBars;
     set({ phase: "playing", bar: opts.loop?.fromBar ?? 0, tracks });
+    // The shell shows what plays with a Stop, so a song left playing on another page can be stopped there.
+    useShell.getState().setNowPlaying({
+      label: `${NOW_PLAYING_PREFIX}${opts.title ?? band.def.title}`,
+      stop: () => stopSong(),
+    });
     schedule();
     return true;
   } catch (e) {
@@ -189,21 +205,44 @@ export function stopSong(id?: string): void {
   player?.stop();
   if (raf !== null && typeof cancelAnimationFrame !== "undefined") cancelAnimationFrame(raf);
   raf = null;
+  playOn = null;
   const was = state.id;
   set({ id: null, phase: "idle", bar: null, loop: null, tracks: [] });
+  const np = useShell.getState().nowPlaying;
+  if (np?.label.startsWith(NOW_PLAYING_PREFIX)) useShell.getState().setNowPlaying(null);
   if (was !== null) for (const l of frameListeners) l(null, null);
 }
 
-/** Loops a section of the song playing now (or plays it through again with `null`). */
+/**
+ * Loops a section of the song playing now, or, with `null`, lets the loop go: the song plays on from the bar the loop
+ * is sounding (after the section's last bar, the next section) to the song's end, never from the scheduler's raw
+ * cycle (which, for a loop started from the stop, is an unrelated early bar).
+ */
 export function setSongLoop(id: string, loop: SongLoop | null): void {
   if (state.id !== id || !player) return;
-  player.setLoop(loop);
-  if (!loop) {
-    const raw = player.position();
-    const length = Math.max(1, state.lengthBars);
-    endAt = Number.isFinite(raw) ? (Math.floor(raw / length) + 1) * length : length;
+  if (loop) {
+    playOn = null;
+    player.setLoop(loop);
+  } else if (state.loop) {
+    const bar = player.position();
+    player.setLoop(null);
+    const cycle = player.position();
+    playOn = playOnWindow(bar, cycle, state.lengthBars);
+    player.setLoop(playOn);
   }
   set({ loop });
+}
+
+/**
+ * The player loop that keeps song bar `bar` sounding at scheduler cycle `cycle` and goes on bar by bar: offset
+ * `bar − cycle` (a whole number: a loop's bars are whole), long enough never to repeat before the song ends.
+ * `null` when the two already agree (the song played through from its first bar).
+ */
+export function playOnWindow(bar: number, cycle: number, lengthBars: number): SongLoop | null {
+  if (!Number.isFinite(bar) || !Number.isFinite(cycle)) return null;
+  const fromBar = Math.round(bar - cycle);
+  if (fromBar === 0) return null;
+  return { fromBar, bars: Math.max(1, Math.ceil(lengthBars - fromBar) + 1) };
 }
 
 /** Applies mutes to the song playing now. */

@@ -189,6 +189,12 @@ for (const f of lock.files) {
 for (const file of Object.keys(LICENSE_FILES))
   if (!lockedPaths.has(`${lock.packVersion}/LICENSES/${file}`))
     fail(`licence: LICENSES/${file} is not in the pack`);
+// MIT asks for its notice with every copy: the GM preset files are the webaudiofontdata conversion's
+if (
+  lock.files.some((f) => f.path.includes("/webaudiofontdata/")) &&
+  !lockedPaths.has(`${lock.packVersion}/LICENSES/webaudiofontdata-MIT.txt`)
+)
+  fail("licence: the pack ships webaudiofontdata presets without LICENSES/webaudiofontdata-MIT.txt");
 try {
   const shipped = await readJson<{ credits: { id: string; entry: { licence: string } }[] }>("credits.json");
   const ids = shipped.credits.map((c) => c.id).sort();

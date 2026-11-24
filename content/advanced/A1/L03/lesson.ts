@@ -15,7 +15,8 @@
 // falls the same way.
 //
 // Unit song (content/unit-songs/A1.ts, "Turn the dial"): the Make's loop takes the second verse of the A1 song, and
-// opens with the learner's loop from A1.L02 (`startFrom`; the authored starter is "Oak's copy").
+// opens with the authored starter (`startFrom: 'oak'`: the lesson before is an optional side lesson the
+// learner may have skipped, AUTHORING §23.9 rule 2).
 // Make v2: the prompt invites a synth kick, and the checklist gains a suggestion, not required: `sbd` or a pitch
 // envelope (`uses snd.sbd | tb.penv`). The required rule is unchanged.
 //
@@ -422,7 +423,7 @@ export default defineLesson({
         version: 2,
         role: "practice",
         prompt:
-          "This is your loop from Filters & Filter Envelopes, or Oak's copy. Give the bass one shape and the riff another: a punchy pluck on one, a swell or a long tail on the other. A synth kick (`sbd`, or a sine with `.penv()`) is optional. Your loop plays after your song's first loud part. Done when one shape is heard.",
+          "Every note of this loop has its default shape. Give the bass one shape and the riff another: a punchy pluck on one, a swell or a long tail on the other. A synth kick (`sbd`, or a sine with `.penv()`) is optional. Your loop plays after your song's first loud part. Done when one shape is heard.",
         skills: [{ skill: "D04", w: 1 }],
         code: { starter: FILTERED },
         bars: [2, 8],

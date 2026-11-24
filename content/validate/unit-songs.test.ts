@@ -249,6 +249,20 @@ describe("checkSongStep names what is wrong", () => {
     expect(codesOf(await checkSongStep(U02, step, await lesson("U02.L02")))).toContain("usong.start-from");
   });
 
+  test("startFrom naming an optional side lesson the learner may have skipped (AUTHORING §23.9 rule 2)", async () => {
+    // A1.L01–L04 are optional side lessons: A1.L05 opens without them, so none of them may open its Make, and
+    // neither may one side lesson open the next.
+    const A1 = unitSongById.get("usong.A1") as UnitSongDef;
+    const fromSide = { ...takeOf(A1, "A1.L05"), startFrom: "A1.L04" as LessonId };
+    const issues = await checkSongStep(A1, fromSide, await lesson("A1.L05"));
+    expect(codesOf(issues)).toContain("usong.start-from");
+    expect(errorsOf(issues).join("\n")).toContain("optional");
+    const sideToSide = { ...takeOf(A1, "A1.L03"), startFrom: "A1.L02" as LessonId };
+    expect(codesOf(await checkSongStep(A1, sideToSide, await lesson("A1.L03")))).toContain(
+      "usong.start-from",
+    );
+  });
+
   test("a take that plays chords clashes with the Oak tune it keeps, and claims it otherwise", async () => {
     // Held C#, F and G# against Oak's verse riff (C E G A G): C# is a half step above C, G# above G.
     const base = await lesson("U02.L02");

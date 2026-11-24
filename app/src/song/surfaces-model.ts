@@ -6,6 +6,7 @@
 import {
   type CellKey,
   cellKey,
+  drumPartsOfSound,
   type FlavourId,
   isCellKey,
   type LessonId,
@@ -23,7 +24,7 @@ import type { MuteMap } from "@oak/strudel";
 import type { RenderPieceRequest } from "@oak/strudel/offline";
 import { oakTrackName, type SongBand, takeTrackName } from "@oak/strudel/song-compose";
 import { songBandSetupOf } from "../lesson/band.ts";
-import { type SongView, songGridOf } from "./model.ts";
+import { playableTakes, type SongView, songGridOf } from "./model.ts";
 
 // --- styles ---------------------------------------------------------------------------------------------
 
@@ -63,14 +64,17 @@ export function andList(items: readonly string[]): string {
 const unique = (xs: readonly string[]) => [...new Set(xs)];
 
 /** The parts a set of cells holds (in song order) and where (section labels, a repeated label said once). */
-function cellsWhat(view: SongView, cells: readonly string[]): { names: string[]; where: string } | null {
+function cellsWhat(
+  view: SongView,
+  cells: readonly string[],
+): { names: string[]; parts: SongViewPartRef[]; where: string } | null {
   const keys = new Set(cells.filter(isCellKey));
   const parts = view.parts.filter((p) => view.sections.some((s) => keys.has(cellKey(p.id, s.id))));
   const sections = view.sections.filter((s) => view.parts.some((p) => keys.has(cellKey(p.id, s.id))));
   if (parts.length === 0) return null;
   const whole = sections.length === view.sections.length;
   const where = whole ? "the whole song" : andList(unique(sections.map((s) => s.label)));
-  return { names: parts.map((p) => p.name), where };
+  return { names: parts.map((p) => p.name), parts, where };
 }
 
 /** What a set of cells holds, in the view's words: "Kick and Snare in B", "Bass in A and C". `null` for none. */
@@ -79,11 +83,49 @@ export function cellsSentence(view: SongView, cells: readonly string[]): string 
   return what ? `${andList(what.names)} in ${what.where}` : null;
 }
 
-/** The sentence the Coda says about a new take: "The song now plays your kick and snare in B." */
-export function grewSentence(view: SongView, cells: readonly string[]): string | null {
+/**
+ * The sentence the Coda says about a new take: "The song now plays your kick and snare in B." `played` is the parts
+ * the take's code plays (`partsPlayedByTake`): a part it took over but does not play rests there now (Oak's part is
+ * masked out and the learner's code has none), and the sentence says so instead of claiming it. `null`: not known
+ * (a take with no labels recorded), every part is named as played.
+ */
+export function grewSentence(
+  view: SongView,
+  cells: readonly string[],
+  played: ReadonlySet<SongPartId> | null = null,
+): string | null {
   const what = cellsWhat(view, cells);
   if (!what) return null;
-  return `The song now plays your ${andList(what.names.map(lowerName))} in ${what.where}.`;
+  const names = (parts: readonly SongViewPartRef[]) => andList(parts.map((p) => lowerName(p.name)));
+  const plays = played ? what.parts.filter((p) => played.has(p.id)) : what.parts;
+  const rests = played ? what.parts.filter((p) => !played.has(p.id)) : [];
+  if (plays.length === 0)
+    return `Your code took over the ${names(rests)} in ${what.where}; ${rests.length === 1 ? "it rests" : "they rest"} there now.`;
+  const yours = `The song now plays your ${names(plays)} in ${what.where}`;
+  if (rests.length === 0) return `${yours}.`;
+  return `${yours}; the ${names(rests)} ${rests.length === 1 ? "rests" : "rest"} there now.`;
+}
+
+type SongViewPartRef = { id: SongPartId; name: string };
+
+/**
+ * The parts a saved take's code plays, read from what was recorded with it: every labelled line that plays a part
+ * (`labels`), and the drum parts whose sounds a line that plays several parts names (`drums: s("bd sd")`). `null` when
+ * the take has no labels recorded (a take Oak backfilled before its code was read).
+ */
+export function partsPlayedByTake(
+  def: UnitSongDef,
+  take: Pick<UnitSongTake, "labels" | "code">,
+): Set<SongPartId> | null {
+  const labels = Object.entries(take.labels);
+  if (labels.length === 0) return null;
+  const out = new Set<SongPartId>();
+  for (const [, part] of labels) if (part) out.add(part as SongPartId);
+  if (labels.some(([, part]) => part === null))
+    for (const [, , quoted] of take.code.matchAll(/(["'`])((?:(?!\1)[^\\]|\\.)*)\1/g))
+      for (const word of (quoted ?? "").split(/[^A-Za-z0-9_:]+/))
+        for (const p of drumPartsOfSound(def, word)) out.add(p);
+  return out;
 }
 
 /** A part name inside a sentence: "Kick" → "kick"; a name that starts with two capitals (an acronym) stays. */
@@ -111,23 +153,43 @@ export function detailBefore<D extends Pick<UnitSongDetail, "takes">>(detail: D,
   return at < 0 ? detail : { ...detail, takes: detail.takes.slice(0, at) };
 }
 
-/** The newest take of a lesson, or `null`. */
+/**
+ * The newest take of a lesson, or `null`. With `sketchIds` (the sketches a session saved), only a take of one of those
+ * sketches: a session whose take did not reach the song never shows an earlier run's take as today's.
+ */
 export function newestTakeOfLesson(
   detail: Pick<UnitSongDetail, "takes"> | null,
   lessonId: string,
+  sketchIds?: readonly string[],
 ): UnitSongTake | null {
   const takes = detail?.takes ?? [];
-  for (let i = takes.length - 1; i >= 0; i--) if (takes[i]?.lessonId === lessonId) return takes[i] ?? null;
+  for (let i = takes.length - 1; i >= 0; i--) {
+    const t = takes[i];
+    if (t?.lessonId === lessonId && (!sketchIds || sketchIds.includes(t.sketchId))) return t;
+  }
   return null;
 }
 
-/** The cells a take still holds in the song now (a later take may have taken some back). */
+/** How many lessons of the song have a take in it (a lesson redone adds a take, not a lesson), of its take steps. */
+export function lessonsInSong(
+  def: Pick<UnitSongDef, "plan">,
+  detail: Pick<UnitSongDetail, "takes"> | null,
+): { done: number; of: number } {
+  const takeSteps = def.plan.filter((p) => p.kind === "take").map((p) => p.lesson as string);
+  const taken = new Set((detail?.takes ?? []).map((t) => t.lessonId as string));
+  return { done: takeSteps.filter((l) => taken.has(l)).length, of: takeSteps.length };
+}
+
+/**
+ * The cells a take still holds in the song now (a later take may have taken some back). Only takes that can play
+ * hold cells (`playableTakes`): an imported take that fails the strict lint leaves them to Oak, as the song plays.
+ */
 export function cellsHeldBy(
   def: UnitSongDef,
   detail: Pick<UnitSongDetail, "takes">,
   takeId: number,
 ): CellKey[] {
-  const grid = songGridOf(def, detail.takes);
+  const grid = songGridOf(def, playableTakes(detail));
   return [...grid].filter(([, owner]) => owner === String(takeId)).map(([key]) => key);
 }
 
@@ -229,7 +291,8 @@ export function partTracks(
 ): string[] {
   const part = def.parts.find((p) => p.id === partId);
   if (!part) return [];
-  const takes = detail?.takes ?? [];
+  // The takes the song loads (`songBandOf`): an imported take that fails the strict lint never plays.
+  const takes = playableTakes(detail);
   const grid = songGridOf(def, takes);
   const owners = new Set(def.sections.map((s) => grid.get(cellKey(partId, s.id)) ?? OAK_OWNER));
   const out: string[] = [];
@@ -269,17 +332,26 @@ export function partMutes(
 // --- release ---------------------------------------------------------------------------------------------
 
 /**
- * What the song page offers about the album: `release` (releasable, never released), `again` (released, and a take
- * or the style changed since), `on-album` (released, unchanged), `not-yet` (the song's last lesson is not done).
+ * What the song page offers about the album: `release` (releasable, and not on the album: never released, or its
+ * album track was removed), `again` (on the album, and a take or the style changed since), `on-album` (on the album,
+ * unchanged), `not-yet` (the song's last lesson is not done).
  */
 export type ReleaseOffer = "release" | "again" | "on-album" | "not-yet";
 
 export function releaseOffer(
   detail: Pick<UnitSongDetail, "status" | "releasable" | "changedSinceRelease" | "releases">,
 ): ReleaseOffer {
-  const released = detail.status === "released" || detail.releases.length > 0;
-  if (released) return detail.changedSinceRelease && detail.releasable ? "again" : "on-album";
+  if (isOnAlbum(detail)) return detail.changedSinceRelease && detail.releasable ? "again" : "on-album";
   return detail.releasable ? "release" : "not-yet";
+}
+
+/**
+ * The song's newest release is still on the album. Its track removed, the song is off the album and `songs.release`
+ * makes a new track (as the server decides: it looks at the newest release only).
+ */
+export function isOnAlbum(detail: Pick<UnitSongDetail, "releases">): boolean {
+  const latest = detail.releases.at(-1);
+  return latest !== undefined && latest.albumTrackId !== null;
 }
 
 /** The newest release that is still on the album, or `null`. */

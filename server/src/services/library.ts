@@ -215,23 +215,40 @@ export class LibraryService {
     if (track === null) throw notFound(`track ${trackId}`);
     const v = this.#repos.album.version(trackId, version);
     if (v === null) throw notFound(`track ${trackId} v${version}`);
-    const sk = this.#repos.sketches.version(v.sketchId, v.sketchVersion);
-    if (sk === null) throw notFound(`sketch ${v.sketchId} v${v.sketchVersion}`);
     // A released unit song (spec 2026-11-24 §5.4): the version plays its frozen snapshot (`songs.snapshot`), never
     // the newest take's code alone; `code` stays that take's for older readers. The snapshot's codes are
     // strict-linted by the app when it is flagged for review (a failing take falls back to Oak, not the export).
     const songRelease = this.#repos.unitSongs.releaseOfAlbumVersion(trackId, version);
+    const sk = this.#repos.sketches.version(v.sketchId, v.sketchVersion);
+    let code: string;
+    let flagged: boolean;
+    if (songRelease === null) {
+      if (sk === null) throw notFound(`sketch ${v.sketchId} v${v.sketchVersion}`);
+      code = sk.code;
+      flagged = sk.flags.reviewBeforeRun === true || v.flags.reviewBeforeRun === true;
+    } else {
+      // The snapshot holds every take's code, so the version stays exportable after the learner deletes the newest
+      // take's sketch: `code` is then that take's code as the release froze it.
+      const rel = this.#repos.unitSongs.release(songRelease.unitId, songRelease.releaseId);
+      const frozen = rel?.takes.at(-1) as { code?: unknown } | undefined;
+      code = sk?.code ?? (typeof frozen?.code === "string" ? frozen.code : "");
+      flagged =
+        sk?.flags.reviewBeforeRun === true ||
+        v.flags.reviewBeforeRun === true ||
+        rel?.reviewBeforeRun === true;
+    }
     // Code from an imported backup runs only after the strict lint (contracts §11.3, §11.10). The offline
-    // renderer reads this code with the base lint only, so a version that fails it is not handed out at all.
-    if (
-      songRelease === null &&
-      (sk.flags.reviewBeforeRun === true || v.flags.reviewBeforeRun === true) &&
-      lintStrict(sk.code).some((d) => d.severity === "error")
-    )
-      throw conflict(
-        "This version came from an imported backup and its code does not pass Oak's safety check, so it cannot be exported.",
-      );
-    const band = v.band ?? sk.band ?? null;
+    // renderer reads this code with the base lint only, so a version that fails it is not handed out at all: refused
+    // for a capstone or loop version, and `code` left empty for a song version (it plays from its snapshot, which the
+    // app strict-lints).
+    if (flagged && lintStrict(code).some((d) => d.severity === "error")) {
+      if (songRelease === null)
+        throw conflict(
+          "This version came from an imported backup and its code does not pass Oak's safety check, so it cannot be exported.",
+        );
+      code = "";
+    }
+    const band = v.band ?? sk?.band ?? null;
     const mutes: Record<string, boolean> = {};
     for (const m of band?.mutes ?? []) mutes[m] = true;
     const slug = track.title
@@ -247,9 +264,9 @@ export class LibraryService {
       trackId,
       version,
       title: track.title,
-      code: sk.code,
+      code,
       band,
-      key: sk.key ?? null,
+      key: sk?.key ?? null,
       mutes,
       fileName: `oak-${side}-${no}${slug === "" ? "" : `-${slug}`}-v${version}`,
       ...(songRelease === null ? {} : { songRelease }),

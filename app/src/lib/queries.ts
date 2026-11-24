@@ -213,7 +213,9 @@ export const useAlbumTrack = (id: string) => useQuery(apiQuery("album.track", { 
 export const useAlbumCreateTrack = () => useApiMutation("album.createTrack", ["album.get"]);
 export const useAlbumAddVersion = () => useApiMutation("album.addVersion", ["album.get", "album.track"]);
 export const useAlbumPutAudio = () => useApiMutation("album.putAudio", ["album.track"]);
-export const useAlbumDeleteTrack = () => useDestructiveMutation("album.deleteTrack", ["album.get"]);
+// A song released to the album reads its track (`songs.get`/`songs.list` releases): removing it changes the song's offer.
+export const useAlbumDeleteTrack = () =>
+  useDestructiveMutation("album.deleteTrack", ["album.get", "songs.get", "songs.list"]);
 export const albumAudioUrl = (id: string, v: number) =>
   apiUrl("album.getAudio", { params: { id, v: String(v) } });
 

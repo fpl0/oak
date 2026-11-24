@@ -30,6 +30,10 @@ export function SongHero({ plan, song: given }: { plan: SessionPlan; song?: Unit
     flavour: s.flavour,
   });
   const fresh = (detail?.status ?? s.status) === "new";
+  const side = s.side || step?.kind === "side";
+  // A song not started starts at its first take lesson (the New song moment): on a side step before it, nothing does.
+  const firstTake = def.plan.find((p) => p.kind === "take") ?? null;
+  const firstTitle = firstTake ? titleOf(firstTake.lesson) : null;
   const count = ownedCount(view);
   const dots = lessonDots(def, detail, plan.mapItemId);
   const tones = detail ? ringTonesOf(def, detail.takes) : [];
@@ -65,7 +69,13 @@ export function SongHero({ plan, song: given }: { plan: SessionPlan; song?: Unit
           </Link>
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <p className="text-sm text-text-3">
-              {fresh ? "A new song starts today" : `Your song, in ${styleName(view.flavour)}`}
+              {!fresh
+                ? `Your song, in ${styleName(view.flavour)}`
+                : !side
+                  ? "A new song starts today"
+                  : firstTitle
+                    ? `A new song starts with “${firstTitle}”`
+                    : "A new song starts in a later lesson"}
             </p>
             <h2
               id="song-hero-title"
@@ -96,9 +106,10 @@ export function SongHero({ plan, song: given }: { plan: SessionPlan; song?: Unit
 
         <SongGrid view={view} follows={ofUnit(def.unit)} todayWord="Today" />
 
-        {s.side || step?.kind === "side" ? (
+        {side ? (
           <p className="text-sm text-text-2" data-testid="song-hero-side">
-            Today's Make stays a sketch of its own. {step?.kind === "side" ? step.reason : ""}
+            {/* The content's reason is one finished line that already says so (AUTHORING §23). */}
+            {step?.kind === "side" ? step.reason : "Today's Make stays a sketch of its own."}
           </p>
         ) : s.today ? (
           <p className="border-l-2 border-accent pl-3 leading-snug text-text" data-testid="song-hero-today">

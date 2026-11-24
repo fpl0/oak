@@ -184,7 +184,7 @@ export function SongPlayControls({
 /** A side step's Make: why it stays a sketch of its own (the content's `reason`). */
 export function SideStepNote({ reason }: { reason: string }) {
   return (
-    <Callout tone="info" title="This Make stays a sketch of its own" className="text-sm">
+    <Callout tone="info" title="Not in your song today" className="text-sm">
       <span data-testid="song-side-note">{reason}</span>
     </Callout>
   );

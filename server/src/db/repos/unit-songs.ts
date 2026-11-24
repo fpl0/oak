@@ -254,12 +254,12 @@ export class UnitSongsRepo {
     );
     return r === null ? null : toRelease(r);
   }
-  insertRelease(r: Omit<UnitSongReleaseRow, "id" | "reviewBeforeRun">): number {
+  insertRelease(r: Omit<UnitSongReleaseRow, "id">): number {
     return run(
       this.db,
       `INSERT INTO unit_song_releases (unit_id, album_track_id, album_version, song_id, song_version, flavour, title, bpm,
-         oak_code, def_json, takes_json, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         oak_code, def_json, takes_json, review_before_run, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       r.unitId,
       r.albumTrackId,
       r.albumVersion,
@@ -271,6 +271,7 @@ export class UnitSongsRepo {
       r.oakCode,
       toJson(r.def),
       toJson(r.takes),
+      int(r.reviewBeforeRun),
       r.createdAt,
     ).lastInsertRowid;
   }

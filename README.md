@@ -79,9 +79,11 @@ cd desktop && npm install && npm run dist   # the DMG and zip land in desktop/re
 git clone https://github.com/fpl0/oak.git
 cd oak
 bun install
-bun run sounds:mirror   # builds the 51 MB pack once from pinned sources (needs lame and flac); checked against sounds/pack.lock.json
+bun run sounds:mirror   # builds the 54 MB pack once from pinned sources (needs lame and flac); checked against sounds/pack.lock.json
 bun run oak             # builds the app and starts the server
 ```
+
+`sounds:mirror` re-encodes the pitched instruments to MP3 with `lame`, and LAME writes its version into every file, so the result matches the lock only with the LAME it records: **LAME 4.0** (`lame --version` prints `LAME 64bits version 4.0`). With any other version the check stops at the first MP3 and says so. Then either install LAME 4.0, or copy `sounds/pack/v4` from a machine that already built the pack — a frozen `sounds:mirror` reuses every file whose bytes match the lock and needs neither `lame` nor `flac`.
 
 Then open <http://127.0.0.1:8787> and follow onboarding. It unlocks audio, calibrates your headphones, microphone, vocal range and tap latency, and plays your first loop within about 90 seconds.
 
@@ -272,6 +274,7 @@ docs/       the plan, binding contracts, design docs, decision log
 - **Not notarised:** the app is ad hoc signed, so macOS asks before the first launch — right-click **Oak** → **Open**.
 - **Single learner, single machine:** no accounts and no sync, by design. Back up `~/.oak` if your progress matters to you.
 - **The sound pack is built from pinned public sources** on first setup (about 430 MB downloaded once into `sounds/pack/.sources/`), so that step needs the network. After that, Oak runs offline, apart from the tutor.
+- **Building the sound pack needs exactly LAME 4.0:** the lock pins the bytes of every MP3, and other LAME versions write different ones (see step 2 for the way around it).
 - **Repertoire is public-domain only:** traditional melodies and songs published in 1930 or earlier.
 
 ## Credits and licences
@@ -281,7 +284,7 @@ Oak is built on, and redistributes, work from many projects; each keeps its own 
 - **Music engine:** [Strudel](https://strudel.cc) (`@strudel/*` and `superdough`, AGPL-3.0-or-later; [source](https://codeberg.org/uzu/strudel)).
 - **Music libraries:** [tonal](https://github.com/tonaljs/tonal) (MIT), [abcjs](https://abcjs.net) (MIT), [pitchy](https://github.com/ianprime0509/pitchy) (MIT), [signalsmith-stretch](https://www.npmjs.com/package/signalsmith-stretch) (MIT), [wavesurfer.js](https://wavesurfer.xyz) (BSD-3-Clause), [ts-fsrs](https://github.com/open-spaced-repetition/ts-fsrs) (MIT).
 - **App and server:** [React](https://react.dev) (MIT), [CodeMirror](https://codemirror.net) (MIT), [Hono](https://hono.dev) (MIT), [Bun](https://bun.sh) (MIT), [Electron](https://www.electronjs.org) (MIT), the [Anthropic TypeScript SDK](https://github.com/anthropics/anthropic-sdk-typescript) (Apache-2.0). Fonts: Fraunces, Inter and JetBrains Mono (SIL OFL 1.1).
-- **Sound pack (v4):** built by `bun run sounds:mirror` from pinned sources and redistributed under their licences — Salamander Grand Piano V3 by Alexander Holm (CC BY 3.0); jRhodes3d by Jeff Learman (CC BY 4.0); under CC0, the Versilian Community Sample Library and VSCO 2 Community Edition (Versilian Studios), Karoryfer Samples' Big Rusty Drums, Swirly Drums, Shinyguitar and D. Smolken's double bass, Virtuosity Drums, FreePats' electric bass, clean guitar and drawbar organ, Sonic Pi's bundled samples, and the AKWF-FREE single-cycle waveforms by Kristoffer Ekstrand; uzu-drumkit (Unlicense); and General MIDI presets from webaudiofontdata (FluidR3 GM by Frank Wen, MIT, plus older presets kept under a dated exception, because their source SoundFonts' licences could not be verified). Oak's own renders — the oak808 and oak909 drum machines, the breaks, the tape bed and four wavetables — are released under CC0 1.0. Every source, its author, licence and Oak's changes are listed under **Settings → About** and in `sounds/pack/v4/CREDITS.md`, with the licence texts in `sounds/pack/v4/LICENSES/`.
+- **Sound pack (v4):** built by `bun run sounds:mirror` from pinned sources and redistributed under their licences — Salamander Grand Piano V3 by Alexander Holm (CC BY 3.0); jRhodes3d by Jeff Learman (CC BY 4.0); under CC0, the Versilian Community Sample Library and VSCO 2 Community Edition (Versilian Studios), Karoryfer Samples' Big Rusty Drums, Swirly Drums and Shinyguitar, D. Smolken's 1958 Otto Rubner double bass, Virtuosity Drums, FreePats' electric bass, clean guitar and drawbar organ, Sonic Pi's bundled samples, and the AKWF-FREE single-cycle waveforms by Kristoffer Ekstrand; uzu-drumkit (Unlicense); and General MIDI presets from webaudiofontdata (converted by Srgy Surkv, MIT; FluidR3 GM by Frank Wen, MIT, plus older presets kept under a dated exception, because their source SoundFonts' licences could not be verified). Oak's own renders — the oak808 and oak909 drum machines, the breaks, the tape bed and four wavetables — are released under CC0 1.0. Every source, its author, licence and Oak's changes are listed under **Settings → About** and in `sounds/pack/v4/CREDITS.md`, with the licence texts in `sounds/pack/v4/LICENSES/`.
 - **Repertoire:** traditional melodies and songs published in 1930 or earlier, all in the public domain.
 
 Oak itself is licensed under [AGPL-3.0-or-later](https://www.gnu.org/licenses/agpl-3.0.html), the same licence as Strudel.

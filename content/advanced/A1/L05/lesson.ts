@@ -12,7 +12,8 @@
 //
 // Unit song (content/unit-songs/A1.ts, "Turn the dial"): the Make's loop takes the opening and the ending of the A1
 // song, which Oak plays as an old record (the band through a low-pass, its chords crushed, a crackle bed); it opens
-// with the learner's loop from A1.L04 (`startFrom`; the authored starter is "Oak's copy").
+// with the authored starter (`startFrom: 'oak'`: the lesson before is an optional side lesson the
+// learner may have skipped, AUTHORING §23.9 rule 2).
 // Make v2: the prompt invites `.drive()` and a crackle bed, and the checklist gains a suggestion, not required:
 // `.drive()` or a noise bed (`uses tb.drive | snd.noise | snd.textures`). The required rule is unchanged.
 //
@@ -427,7 +428,7 @@ export default defineLesson({
         version: 2,
         role: "practice",
         prompt:
-          "This is your loop from Space, or Oak's copy. Give at least one part grit you can hear: saturate it with `.distort()`, or crush it with `.crush()` or `.coarse()`. Turn a saturated part down with `.gain()` so it does not win by being louder. `.drive()` and a `crackle` bed are up to you. Your loop opens and closes your song.",
+          "This loop is clean. Give at least one part grit you can hear: saturate it with `.distort()`, or crush it with `.crush()` or `.coarse()`. Turn a saturated part down with `.gain()` so it does not win by being louder. `.drive()` and a `crackle` bed are up to you. Your loop opens and closes your song.",
         skills: [{ skill: "D06", w: 1 }],
         code: { starter: CLEAN },
         bars: [2, 8],

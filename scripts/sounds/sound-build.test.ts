@@ -2,11 +2,21 @@
 // partial's offset, the library's note names and pinned sources are well-formed, and every kit alias and
 // sample alias the runtime will register is consistent with pack.config.ts. No network.
 import { describe, expect, test } from "bun:test";
+import gm from "@strudel/soundfonts/gm.mjs";
 import { decodeAudio, measureCents, midiToHz, retune } from "./audio.ts";
 import { BREAKS } from "./breaks.ts";
+import { buildCredits, LICENSE_FILES } from "./credits.ts";
 import { encodeFlac } from "./flac.ts";
 import { midiOf, PITCHED, SOURCES, type Source } from "./library.ts";
-import { isSampleAlias, KIT_ALIASES, LICENCE_ALLOW_LIST, OAK_ALIASES, OAK_KITS } from "./pack.config.ts";
+import {
+  FLUIDR3_FONT,
+  GM_VARIANTS,
+  isSampleAlias,
+  KIT_ALIASES,
+  LICENCE_ALLOW_LIST,
+  OAK_ALIASES,
+  OAK_KITS,
+} from "./pack.config.ts";
 import { renderTable, WT_FRAME, WT_FRAMES } from "./wavetables.ts";
 
 const RATE = 44100;
@@ -104,4 +114,51 @@ test("Oak's wavetables are 64 frames of 2048 samples, peak 0.9", () => {
   let peak = 0;
   for (const v of x) peak = Math.max(peak, Math.abs(v));
   expect(peak).toBeCloseTo(0.9, 3);
+});
+
+describe("General MIDI presets and their credits", () => {
+  // The `n` indices v3's toolbox printed and its pack mirrored (main's GM_VARIANTS) that are FluidR3 (MIT): code
+  // written from those labels, such as s("gm_vibraphone:3"), must keep selecting the same preset. pinVariant
+  // wraps an unmirrored index onto index 0, a different preset an octave or two off for organ and vibraphone.
+  const V3_FLUIDR3: [string, number][] = [
+    ["gm_epiano1", 1],
+    ["gm_drawbar_organ", 3],
+    ["gm_acoustic_bass", 1],
+    ["gm_electric_bass_pick", 1],
+    ["gm_electric_guitar_jazz", 3],
+    ["gm_choir_aahs", 2],
+    ["gm_vibraphone", 3],
+    ["gm_flute", 2],
+  ];
+
+  test("v3's FluidR3 variants are still mirrored at the same index", () => {
+    const fonts = gm as Record<string, string[]>;
+    for (const [name, n] of V3_FLUIDR3) {
+      expect([name, n, GM_VARIANTS[name]?.includes(n)]).toEqual([name, n, true]);
+      expect([name, n, FLUIDR3_FONT.test(fonts[name]?.[n] ?? "")]).toEqual([name, n, true]);
+    }
+  });
+
+  test("the webaudiofontdata conversion's MIT notice ships in LICENSES/, pinned to a commit", () => {
+    const url = LICENSE_FILES["webaudiofontdata-MIT.txt"] ?? "";
+    expect(url).toMatch(
+      /^https:\/\/raw\.githubusercontent\.com\/felixroos\/webaudiofontdata\/[0-9a-f]{40}\/LICENSE$/,
+    );
+  });
+
+  test("GM credits point at that notice; the upright's credit says it was retuned and re-encoded", () => {
+    const sounds = new Map([
+      ["gm-fluidr3", new Set(["gm_vibraphone"])],
+      ["gm-legacy", new Set(["gm_piano"])],
+      ["smolken", new Set(["upright"])],
+    ]);
+    const byId = Object.fromEntries(buildCredits(sounds).map((c) => [c.id, c.entry]));
+    for (const id of ["gm-fluidr3", "gm-legacy"])
+      expect([id, `${byId[id]?.attribution} ${byId[id]?.author}`]).toEqual([
+        id,
+        expect.stringContaining("LICENSES/webaudiofontdata-MIT.txt"),
+      ]);
+    expect(byId.smolken?.modified).toContain("retuned to equal temperament");
+    expect(byId.smolken?.modified).toContain("MP3");
+  });
 });

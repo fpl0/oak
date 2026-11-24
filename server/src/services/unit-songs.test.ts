@@ -10,6 +10,7 @@ import type { ContentSource } from "../content/types.ts";
 import { readZip, writeZip } from "../lib/zip.ts";
 import { realCourse } from "../testing/course.ts";
 import { type Harness, harness } from "../testing/harness.ts";
+import { markForReview } from "./backup.ts";
 
 let course: ContentSource;
 let U01: UnitSongDef;
@@ -542,6 +543,84 @@ describe("releases (spec §5.4)", () => {
       `/api/album/tracks/${r.body.albumTrackId}/versions/2/source`,
     );
     expect(v2.body.songRelease).toEqual({ unitId: "U01", releaseId: again.body.releaseId });
+  });
+
+  test("album.source of a released song survives the deletion of its newest take's sketch", async () => {
+    const h = await server();
+    await songWithTakes(h);
+    passCheckpoint(h, U01.releaseAfter);
+    const r = await h.json<{ albumTrackId: string; releaseId: number }>("POST", "/api/songs/U01/release", {
+      title: "First",
+    });
+    const newest = (await song(h)).takes.at(-1);
+    if (newest === undefined) throw new Error("no take");
+    expect(
+      (await h.destructive("DELETE", `/api/sketches/${newest.sketchId}`, "sketch.delete", newest.sketchId))
+        .status,
+    ).toBe(200);
+    const src = await h.json<{ code: string; songRelease?: unknown }>(
+      "GET",
+      `/api/album/tracks/${r.body.albumTrackId}/versions/1/source`,
+    );
+    expect(src.status).toBe(200);
+    expect(src.body.songRelease).toEqual({ unitId: "U01", releaseId: r.body.releaseId });
+    expect(src.body.code).toBe(newest.code);
+  });
+
+  test("a song whose album track was deleted is a change since the release and can be released again", async () => {
+    const h = await server();
+    await songWithTakes(h);
+    passCheckpoint(h, U01.releaseAfter);
+    const r = await h.json<{ albumTrackId: string }>("POST", "/api/songs/U01/release", { title: "First" });
+    expect((await song(h)).changedSinceRelease).toBe(false);
+    expect(
+      (
+        await h.destructive(
+          "DELETE",
+          `/api/album/tracks/${r.body.albumTrackId}`,
+          "track.delete",
+          r.body.albumTrackId,
+        )
+      ).status,
+    ).toBe(200);
+    const s = await song(h);
+    expect(s).toMatchObject({ status: "released", changedSinceRelease: true, releasable: true });
+    expect(s.releases.map((x) => x.albumTrackId)).toEqual([null]);
+    const again = await h.json<{ albumTrackId: string }>("POST", "/api/songs/U01/release", {
+      title: "First",
+    });
+    expect(again.status).toBe(200);
+    expect(again.body.albumTrackId).not.toBe(r.body.albumTrackId);
+    expect((await song(h)).changedSinceRelease).toBe(false);
+  });
+
+  test("a release made from takes flagged for review is frozen flagged; album.source hands out none of their code", async () => {
+    const h = await server();
+    await start(h);
+    // A take whose code fails the strict lint, then flagged as a backup import flags it (contracts §11.3).
+    const bad = 'setcpm(100/4)\nkick: s("bd").x(fetch("http://e.x"))';
+    expect((await take(h, "U01.L01")).status).toBe(200);
+    complete(h, "U01.L01");
+    const t = (await song(h)).takes[0];
+    if (t === undefined) throw new Error("no take");
+    const db = h.server.deps.repos.db;
+    db.run("UPDATE sketch_versions SET code = ? WHERE sketch_id = ?", [bad, t.sketchId]);
+    markForReview(db);
+    expect((await song(h)).takes.map((x) => x.reviewBeforeRun)).toEqual([true]);
+    passCheckpoint(h, U01.releaseAfter);
+    const r = await h.json<{ albumTrackId: string; releaseId: number }>("POST", "/api/songs/U01/release", {
+      title: "From backup",
+    });
+    expect(r.status).toBe(200);
+    const snap = await h.json<UnitSongSnapshot>("GET", `/api/songs/U01/releases/${r.body.releaseId}`);
+    expect(snap.body.reviewBeforeRun).toBe(true);
+    const src = await h.json<{ code: string; songRelease?: unknown }>(
+      "GET",
+      `/api/album/tracks/${r.body.albumTrackId}/versions/1/source`,
+    );
+    expect(src.status).toBe(200);
+    expect(src.body.songRelease).toEqual({ unitId: "U01", releaseId: r.body.releaseId });
+    expect(src.body.code).toBe("");
   });
 
   test("setFlavour keeps takes and never touches a release snapshot", async () => {

@@ -267,7 +267,9 @@ export function songViewOf(
   opts: { live?: TakeStep | null; played?: PlayedParts | null; flavour?: FlavourId } = {},
 ): SongView {
   const flavour = detail?.flavour ?? opts.flavour ?? ("flavour.pop" as FlavourId);
-  const takes = detail?.takes ?? [];
+  // The takes the song plays (`songBandOf`): an imported take that fails the strict lint leaves its cells to Oak,
+  // so the grid draws them as Oak's.
+  const takes = playableTakes(detail);
   const grid = songGridOf(def, takes);
   const byId = new Map(takes.map((t) => [String(t.id), t]));
   const today = opts.live ? stepSectionIds(def, opts.live) : [];

@@ -13,8 +13,9 @@
 // a snare in a room and a riff that echoes on the beat. The Band plays the chords only.
 //
 // Unit song (content/unit-songs/A1.ts, "Turn the dial"): the Make's loop takes the bridge of the A1 song, the quiet
-// part where Oak's drums stop and its tune echoes in a big room on an orbit of its own; it opens with the learner's
-// loop from A1.L03 (`startFrom`; the authored starter is "Oak's copy").
+// part where Oak's drums stop and its tune echoes in a big room on an orbit of its own; it opens with
+// the authored starter (`startFrom: 'oak'`: the lesson before is an optional side lesson the
+// learner may have skipped, AUTHORING §23.9 rule 2).
 //
 // How it is graded: S4 is "match this echo" on the `controls` matcher (time within 0.02 s, feedback within
 // 0.15), with `edit-only-regions` keeping the notes; S5 gives one part its own orbit, graded with an `events`
@@ -465,7 +466,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "This is your loop from Envelopes, or Oak's copy, and it is dry. Give at least one part a space you set: a room bigger than the default with `.room()` and `.roomsize()`, or echoes with `.delay()` and `.delaytime()` timed to the beat (60 ÷ BPM seconds a beat). Your loop then fills your song's quiet part, where Oak's drums stop.",
+          "This loop is dry. Give at least one part a space you set: a room bigger than the default with `.room()` and `.roomsize()`, or echoes with `.delay()` and `.delaytime()` timed to the beat (60 ÷ BPM seconds a beat). Your loop then fills your song's quiet part, where Oak's drums stop.",
         skills: [{ skill: "D05", w: 1 }],
         code: { starter: DRY },
         bars: [2, 8],

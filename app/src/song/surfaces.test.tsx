@@ -31,9 +31,13 @@ const { NewSong } = await import("./NewSong.tsx");
 const { SongPage } = await import("./SongPage.tsx");
 const { SongCard } = await import("./SongCard.tsx");
 const { SongGrew } = await import("./SongGrew.tsx");
+const { ReleasePlayButton } = await import("./AlbumSongs.tsx");
 const {
   cellsSentence,
+  cellsHeldBy,
   grewSentence,
+  lessonsInSong,
+  partsPlayedByTake,
   partTracks,
   releaseOffer,
   songReleaseOfVersion,
@@ -79,7 +83,8 @@ beforeAll(() => {
           body: typeof init?.body === "string" ? JSON.parse(init.body) : null,
         };
         sent.push(s);
-        return json(answer(s));
+        const out = await answer(s);
+        return out instanceof Response ? out : json(out);
       },
     }),
   );
@@ -451,5 +456,139 @@ describe("a released song on the album plays its frozen release", () => {
     expect(songReleaseOfVersion(songs, "trk_1", 1)).toEqual({ unitId: "U01", releaseId: 3 });
     expect(songReleaseOfVersion(songs, "trk_2", 1)).toBeNull();
     expect(songReleaseOfVersion(undefined, "trk_1", 1)).toBeNull();
+  });
+});
+
+// --- review fixes (wave F1) -----------------------------------------------------------------------------------
+
+describe("review fixes", () => {
+  const release = {
+    id: 1,
+    albumTrackId: "trk_1",
+    albumVersion: 1,
+    flavour: "flavour.indie" as const,
+    title: "My groove",
+    createdAt: "2026-11-24T10:00:00.000Z",
+  };
+
+  test("a released song whose album track was removed offers the release again and is not 'On the album'", async () => {
+    const gone = testDetail([L01], {
+      status: "released",
+      releasable: true,
+      releases: [{ ...release, albumTrackId: null }],
+    });
+    expect(releaseOffer(gone)).toBe("release");
+    expect(releaseOffer({ ...gone, releasable: false })).toBe("not-yet");
+    expect(releaseOffer({ ...gone, releases: [release] })).toBe("on-album");
+    expect(releaseOffer({ ...gone, releases: [release], changedSinceRelease: true })).toBe("again");
+    answer = () => ({});
+    await render(<SongPage unitId="U01" song={TEST_SONG} />, { detail: gone });
+    expect(one('[data-testid="song-page-meta"]').textContent).toContain("Still growing");
+    expect(one('[data-testid="song-release-go"]').textContent).toBe("Release to the album");
+    expect(one('[data-testid="song-release-row"]').textContent).toContain("Removed from the album");
+  });
+
+  test("a lesson redone counts once: 'N of M lessons in it' counts lessons, of the take steps", async () => {
+    const again = testTake(2, "U01.L01", KICK_SNARE, ["kick@verse", "snare@verse"], { sketchId: "sk_9" });
+    const detail = testDetail([L01, again]);
+    expect(lessonsInSong(TEST_SONG, detail)).toEqual({ done: 1, of: 2 });
+    await render(<SongPage unitId="U01" song={TEST_SONG} />, { detail });
+    expect(one('[data-testid="song-page-meta"]').textContent).toContain("1 of 2 lessons in it");
+    expect(one('[data-testid="song-cover"]').getAttribute("aria-label") ?? "").not.toContain(
+      "one per lesson",
+    );
+  });
+
+  test("the style line names the style asked for, and a failed change says so", async () => {
+    let respond!: (r: Response) => void;
+    answer = (s) => (s.method === "GET" ? testDetail([L01]) : new Promise<Response>((r) => (respond = r)));
+    await render(<SongPage unitId="U01" song={TEST_SONG} />, { detail: testDetail([L01]) });
+    const funk = all('[role="radio"]').find((b) => b.textContent === "Funk");
+    await act(async () => funk?.click());
+    await act(() => new Promise((r) => setTimeout(r, 5)));
+    expect(one('[data-testid="song-style-line"]').textContent).toBe("Changing to Funk…");
+    await act(async () =>
+      respond(json({ error: { code: "internal", message: "The server stopped." } }, 500)),
+    );
+    await act(() => new Promise((r) => setTimeout(r, 5)));
+    expect(one('[data-testid="song-style-error"]').textContent).toContain("The style is still Indie");
+  });
+
+  test("a release ▶ whose song cannot be read says so", async () => {
+    answer = () => json({ error: { code: "internal", message: "down" } }, 500);
+    await render(<ReleasePlayButton unitId="U01" release={1} label="Play it as released" />);
+    await act(async () => one('[data-testid="song-shelf-play"]').click());
+    await act(async () => {});
+    expect(one('[data-testid="song-shelf-play-error"]').textContent).toBe("The song did not load.");
+  });
+
+  test("the Coda shows today's take only when it is from today's sketch; a release point that is a side step offers the release", async () => {
+    const fallback = <p data-testid="fallback" />;
+    // A redo whose take did not reach the song: the newest take of the lesson is an earlier run's.
+    await render(
+      <SongGrew lessonId="U01.L01" song={TEST_SONG} sketchIds={["sk_today"]} fallback={fallback} />,
+      { detail: testDetail([L01]) },
+    );
+    expect(container.querySelector('[data-testid="coda-song-grew"]')).toBeNull();
+    expect(container.querySelector('[data-testid="fallback"]')).not.toBeNull();
+    expect(one('[data-testid="coda-song-missing"]').textContent).toContain("has not reached your song yet");
+    // Today's sketch is the take's: the song grew.
+    await render(<SongGrew lessonId="U01.L01" song={TEST_SONG} sketchIds={["sk_1"]} fallback={fallback} />, {
+      detail: testDetail([L01]),
+    });
+    expect(container.querySelector('[data-testid="coda-song-grew"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="coda-song-missing"]')).toBeNull();
+    // A side step that is the song's release point: the sketch card, then the Release card.
+    await render(<SongGrew lessonId="U01.L03" song={TEST_SONG} release="U01" fallback={fallback} />, {
+      detail: testDetail([L01], { releasable: true }),
+    });
+    expect(container.querySelector('[data-testid="fallback"]')).not.toBeNull();
+    expect(one('[data-testid="song-release-go"]').textContent).toBe("Release to the album");
+  });
+
+  test("the Coda's sentence names only the parts the take's code plays", () => {
+    const view = songViewOf(TEST_SONG, testDetail([L01]), new Set());
+    const fourKicks = { labels: { drums: null }, code: 'setcpm(96/4)\n\ndrums: s("bd bd bd bd")' };
+    const played = partsPlayedByTake(TEST_SONG, fourKicks);
+    expect([...(played ?? [])]).toEqual(["kick"]);
+    expect(grewSentence(view, ["kick@verse", "snare@verse", "hats@verse"], played)).toBe(
+      "The song now plays your kick in B; the snare and hats rest there now.",
+    );
+    expect(partsPlayedByTake(TEST_SONG, { labels: {}, code: 's("bd")' })).toBeNull();
+    expect(
+      [
+        ...(partsPlayedByTake(TEST_SONG, { labels: { drums: null }, code: 'drums: s("bd sd, hh*4")' }) ?? []),
+      ].sort(),
+    ).toEqual(["hats", "kick", "snare"]);
+    expect(grewSentence(view, ["kick@verse"], new Set())).toBe(
+      "Your code took over the kick in B; it rests there now.",
+    );
+  });
+
+  test("an imported take that fails the strict lint leaves its cells, mute and solo to Oak", () => {
+    const cells = TEST_SONG.sections.map((s) => `kick@${s.id}`);
+    const bad = testTake(7, "U01.L01", 'kick: s("bd*4")\nfetch("http://x")', cells, {
+      reviewBeforeRun: true,
+      labels: { kick: "kick" },
+    });
+    const detail = testDetail([bad]);
+    const view = songViewOf(TEST_SONG, detail, new Set());
+    expect(view.cells.filter((c) => c.owner === "yours")).toHaveLength(0);
+    expect(cellsHeldBy(TEST_SONG, detail, 7)).toEqual([]);
+    expect(partTracks(TEST_SONG, detail, "kick")).toEqual(["band.oak.kick"]);
+  });
+
+  test("on a side step before a song starts, Today does not say a new song starts today", async () => {
+    const fresh = testDetail([], { status: "new" });
+    const sidePlan = {
+      ...plan({ status: "new", today: null, side: true }),
+      mapItemId: "U01.L03",
+    } as SessionPlan;
+    await render(<SongHero plan={sidePlan} song={TEST_SONG} />, { detail: fresh });
+    expect(text()).not.toContain("A new song starts today");
+    expect(text()).toContain("A new song starts");
+    // The reason alone: it already says the Make stays a sketch of its own.
+    const sideStep = TEST_SONG.plan[2] as { reason: string };
+    expect(one('[data-testid="song-hero-side"]').textContent).toBe(sideStep.reason);
   });
 });

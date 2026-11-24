@@ -1,7 +1,7 @@
 // The Coda's "Your song grew" (spec 2026-11-24 §5.5 "Coda"), in place of "Sketch saved" for a take lesson: the song's
 // cover grows today's ring, the cells today's Make took fill in bar by bar, and two buttons play the song before
 // today and with today. When the song can go to the album, the Release card follows (`SongRelease`; also on the
-// Coda of the day that completes the song's `releaseAfter`, a checkpoint).
+// Coda of the day that completes the song's `releaseAfter`: a checkpoint, or a lesson, a side step included).
 import type { LessonId, UnitId, UnitSongDef } from "@oak/api";
 import { Link } from "@tanstack/react-router";
 import { Disc3 } from "lucide-react";
@@ -21,6 +21,7 @@ import {
   detailBefore,
   grewSentence,
   newestTakeOfLesson,
+  partsPlayedByTake,
   releaseOffer,
 } from "./surfaces-model.ts";
 
@@ -28,11 +29,23 @@ export function SongGrew({
   lessonId,
   song: given,
   fallback = null,
+  sketchIds,
+  release = null,
 }: {
   lessonId: string;
   song?: UnitSongDef;
   /** What to show when the lesson is not a take of a song, or its take is not in the song (the sketch card). */
   fallback?: ReactNode;
+  /**
+   * The sketches the session saved: today's take is the one made from one of them. A take of the lesson from an
+   * earlier run never stands for today's (a redo whose take did not reach the song shows the sketch card instead).
+   */
+  sketchIds?: readonly string[];
+  /**
+   * The unit whose song this day lets the learner release (`songReleasedBy`): its Release card follows whatever this
+   * shows, the sketch card too (a release point that is a side step, a take that did not reach the song).
+   */
+  release?: string | null;
 }) {
   const found = given
     ? { song: given, step: given.plan.find((p) => p.lesson === lessonId) ?? null }
@@ -41,10 +54,32 @@ export function SongGrew({
   const take = found?.step?.kind === "take";
   const q = useUnitSong(def && take ? def.unit : null);
   const introduced = useIntroducedTerms();
-  if (!def || !take) return <>{fallback}</>;
+  const releaseCard = (shown: string | null) =>
+    release && release !== shown ? (
+      <SongRelease unitId={release} {...(def && def.unit === release ? { song: def } : {})} />
+    ) : null;
+  if (!def || !take)
+    return (
+      <>
+        {fallback}
+        {releaseCard(null)}
+      </>
+    );
   const detail = q.data ?? null;
-  const mine = newestTakeOfLesson(detail, lessonId);
-  if (!detail || !mine) return <>{fallback}</>;
+  const mine = newestTakeOfLesson(detail, lessonId, sketchIds);
+  if (!detail || !mine)
+    return (
+      <>
+        {fallback}
+        {detail && detail.status !== "new" && (
+          <p className="text-sm text-text-2" role="status" data-testid="coda-song-missing">
+            Today's Make has not reached your song yet: it is kept as a sketch. If it is still not in the song
+            later, redo the lesson to put it there.
+          </p>
+        )}
+        {releaseCard(null)}
+      </>
+    );
   const view = songViewOf(def, detail, introduced);
   const held = cellsHeldBy(def, detail, mine.id);
   // Today's cells fill in section by section, from the first bar of the song on (the grid's own order).
@@ -53,7 +88,7 @@ export function SongGrew({
     view.cells.map((c) => `${c.part}@${c.section}`).filter((k) => heldSet.has(k)),
   );
   const before = detailBefore(detail, mine.id);
-  const sentence = grewSentence(view, held);
+  const sentence = grewSentence(view, held, partsPlayedByTake(def, mine));
   return (
     <>
       <Card className="flex flex-col gap-4 p-5 animate-fade-in" data-testid="coda-song-grew">
@@ -84,6 +119,7 @@ export function SongGrew({
             band={songBandOf(def, before, { flavour: view.flavour })}
             label="Before today"
             ariaLabel={`Play “${view.title}” as it was before today`}
+            options={{ title: view.title }}
             size="sm"
             data-testid="coda-song-before"
           />
@@ -92,6 +128,7 @@ export function SongGrew({
             band={songBandOf(def, detail, { flavour: view.flavour })}
             label="With today"
             ariaLabel={`Play “${view.title}” with today's take`}
+            options={{ title: view.title }}
             variant="primary"
             size="sm"
             data-testid="coda-song-after"
@@ -115,6 +152,7 @@ export function SongGrew({
         </div>
       </Card>
       <SongRelease unitId={def.unit} song={def} />
+      {releaseCard(def.unit)}
     </>
   );
 }

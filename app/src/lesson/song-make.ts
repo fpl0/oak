@@ -16,6 +16,7 @@ import {
   LABEL_ROLES,
   type LessonId,
   type MeterId,
+  OakApiError,
   type PlayedParts,
   partOfTrack,
   type SideStep,
@@ -423,6 +424,37 @@ export async function songTakeBody(
 /** Records the saved Make as a take of its song: evaluates it once, then posts what it claims. */
 export async function recordSongTake(io: SongTakeIo, input: SongTakeInput): Promise<void> {
   await io.post(input.unitId, await songTakeBody(io.evaluate, input));
+}
+
+/**
+ * A failure a later try can get past: no answer (the local server restarting, a network blip) or a server error.
+ * An answer that says the take is wrong (400, 404, 409) stays wrong on a retry.
+ */
+export function isTransientTakeError(e: unknown): boolean {
+  if (!(e instanceof OakApiError)) return true;
+  return e.code === "network" || e.status === 0 || e.status >= 500;
+}
+
+/**
+ * Posts one take body again after a transient failure, after each delay in turn, with the same body and idempotency
+ * key (the server records it once). Resolves `true` once a post succeeds, `false` when every try failed or a failure
+ * is not transient. Never throws.
+ */
+export async function retryTakePost(
+  post: () => Promise<unknown>,
+  o: { delaysMs: readonly number[]; wait?: (ms: number) => Promise<void> },
+): Promise<boolean> {
+  const wait = o.wait ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+  for (const ms of o.delaysMs) {
+    await wait(ms);
+    try {
+      await post();
+      return true;
+    } catch (e) {
+      if (!isTransientTakeError(e)) return false;
+    }
+  }
+  return false;
 }
 
 /**
