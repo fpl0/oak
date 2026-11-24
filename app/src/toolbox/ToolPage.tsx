@@ -13,16 +13,18 @@ import { lessonTitles } from "../lib/content-model.ts";
 import { formatDate } from "../lib/format.ts";
 import { usePageTitle } from "../lib/nav.ts";
 import { getOak } from "../lib/oak.ts";
-import { useSketchCreate, useUnlocks } from "../lib/queries.ts";
+import { useCourseProgress, useSketchCreate, useUnlocks } from "../lib/queries.ts";
 import { appWorkbenchServices } from "../lib/workbench-services.ts";
+import { InlineCodeText } from "../session/today/SideOffer.tsx";
 import { useUnlockedSet } from "../studio/queries.ts";
 import { Button, buttonClass } from "../ui/kit/Button.tsx";
 import { Card, Chip, EmptyState, Page } from "../ui/kit/basics.tsx";
 import { Dialog } from "../ui/kit/Dialog.tsx";
 import { LoadingState } from "../ui/kit/QueryState.tsx";
 import { toast } from "../ui/kit/Toast.tsx";
-import { shownToolLabel as toolLabel } from "./label.ts";
+import { shownConcept, shownToolMeaning, shownToolLabel as toolLabel } from "./label.ts";
 import "../workbench/index.ts";
+import { errorWords } from "../lib/error-words.ts";
 import type { PanelId } from "../workbench/panels.ts";
 import { ServicesGate } from "../workbench/ServicesGate.tsx";
 import { Workbench } from "../workbench/Workbench.tsx";
@@ -30,15 +32,19 @@ import { toolDemo } from "./demos.ts";
 import { FeatureGlimpse } from "./Glimpse.tsx";
 import { glimpseOf } from "./glimpse.ts";
 import {
+  courseSort,
   demoBars,
   demoKey,
   demoMeter,
   KIND_LABEL,
   sitesOf,
   siteText,
+  siteTitle,
   toolSketchBody,
   unlockText,
+  usedInGroups,
 } from "./model.ts";
+import { creditText, packSoundOf, soundIndex, useSoundCredits } from "./sound-credits.ts";
 import { UnlockMoment } from "./UnlockMoment.tsx";
 import { useToolUsage } from "./usage.ts";
 
@@ -91,7 +97,16 @@ function ToolDetail({ tool, unlockedAt }: { tool: ToolEntry; unlockedAt: string 
   const usage = useToolUsage();
   const open = unlockedAt !== null;
   const [replay, setReplay] = useState(false);
-  const lessons = (usage.data?.get(tool.id) ?? []).filter((l) => !sitesOf(tool).includes(l));
+  const progress = useCourseProgress();
+  const coreOrder = content.data?.syllabus?.defaultOrder ?? [];
+  const lessons = courseSort(
+    (usage.data?.get(tool.id) ?? []).filter((l) => !sitesOf(tool).includes(l)),
+    titles,
+    coreOrder,
+  );
+  const done = new Set(
+    (progress.data?.lessons ?? []).filter((l) => l.status === "completed").map((l) => l.lessonId as string),
+  );
   const hasDemo = tool.catalog.demo.trim() !== "" || toolDemo(tool.id) !== null;
 
   return (
@@ -114,6 +129,7 @@ function ToolDetail({ tool, unlockedAt }: { tool: ToolEntry; unlockedAt: string 
           )}
           {tool.audible === false ? <Chip tone="issue">Not audible in this sound pack</Chip> : null}
         </p>
+        {tool.kind === "sound" ? <SoundCreditLine signature={tool.catalog.signature} /> : null}
       </header>
 
       <div className="flex flex-col gap-4">
@@ -121,9 +137,11 @@ function ToolDetail({ tool, unlockedAt }: { tool: ToolEntry; unlockedAt: string 
           <h2 className="mb-1 font-sans text-sm font-semibold text-text-2">
             {open ? "Why it's in your toolbox" : "The idea behind it"}
           </h2>
-          <p className="text-text">{tool.concept[0]?.toUpperCase() + tool.concept.slice(1)}.</p>
+          <p className="text-text">{capitalised(shownConcept(tool))}.</p>
           <h2 className="mt-4 mb-1 font-sans text-sm font-semibold text-text-2">What it does</h2>
-          <p className="whitespace-pre-wrap">{tool.catalog.meaning}</p>
+          <p className="whitespace-pre-wrap">
+            <InlineCodeText text={shownToolMeaning(tool)} />
+          </p>
           {/* An app feature has no code signature (its catalog row repeats its name): nothing to show. */}
           {tool.catalog.signature !== tool.code || !["feature", "lens", "template"].includes(tool.kind) ? (
             <>
@@ -143,22 +161,24 @@ function ToolDetail({ tool, unlockedAt }: { tool: ToolEntry; unlockedAt: string 
           <h2 className="mb-1 font-sans text-sm font-semibold text-text-2">In the course</h2>
           <p>
             {open ? "Learned in " : "Taught in "}
-            {sitesOf(tool)
-              .map((s) => siteText(s, titles))
-              .join(" or ")}
+            {sitesOf(tool).map((s, i) => (
+              <span key={s}>
+                {i > 0 ? " or " : null}
+                <span title={siteText(s, titles)}>{siteTitle(s, titles)}</span>
+              </span>
+            ))}
             .
           </p>
           {usage.isPending ? (
             <p className="mt-1 text-sm text-text-3">Looking through the lessons…</p>
           ) : lessons.length > 0 ? (
-            <>
-              <h3 className="mt-3 mb-1 font-sans text-sm font-semibold text-text-2">Also used in</h3>
-              <ul className="flex flex-col gap-0.5" data-testid="tool-used-in">
-                {lessons.map((l) => (
-                  <li key={l}>{siteText(l, titles)}</li>
-                ))}
-              </ul>
-            </>
+            <UsedIn
+              lessons={lessons}
+              done={done}
+              titles={titles}
+              taughtAt={firstSite(sitesOf(tool), coreOrder)}
+              coreOrder={coreOrder}
+            />
           ) : (
             <p className="mt-1 text-sm text-text-3">No other written lesson uses it yet.</p>
           )}
@@ -184,6 +204,112 @@ function ToolDetail({ tool, unlockedAt }: { tool: ToolEntry; unlockedAt: string 
         ) : null}
       </Dialog>
     </Page>
+  );
+}
+
+const capitalised = (text: string) => (text[0]?.toUpperCase() ?? "") + text.slice(1);
+
+/** Where a tool is taught first in the core's order (-1: not in the core). */
+function firstSite(sites: readonly string[], coreOrder: readonly string[]): number {
+  const at = sites.map((s) => coreOrder.indexOf(s)).filter((i) => i >= 0);
+  return at.length > 0 ? Math.min(...at) : -1;
+}
+
+/**
+ * "Also used in", in course order: the five most recent lessons already done (links back to them), the earlier
+ * done ones behind "and N earlier lessons", then the next three still to come (with the lock), the rest behind "and
+ * N more" (`usedInGroups`). A lesson of the core that comes before the one that teaches the tool says so: its code
+ * plays the tool before the learner is taught it.
+ */
+function UsedIn({
+  lessons,
+  done,
+  titles,
+  taughtAt,
+  coreOrder,
+}: {
+  lessons: readonly string[];
+  done: ReadonlySet<string>;
+  titles: ReadonlyMap<string, string>;
+  taughtAt: number;
+  coreOrder: readonly string[];
+}) {
+  const { earlier, recent, next, later } = usedInGroups(lessons, done);
+  const early = (l: string) => {
+    const at = coreOrder.indexOf(l);
+    return taughtAt >= 0 && at >= 0 && at < taughtAt;
+  };
+  const row = (l: string) => (
+    <li key={l} className="flex items-center gap-1.5">
+      {done.has(l) ? (
+        /^[A-Z]+\d*\.L\d+$/.test(l) ? (
+          <Link
+            to="/learn/$lessonId"
+            params={{ lessonId: l }}
+            className="text-link underline-offset-2 hover:underline"
+          >
+            {siteTitle(l, titles)}
+          </Link>
+        ) : (
+          <span>{siteTitle(l, titles)}</span>
+        )
+      ) : (
+        <>
+          <Lock aria-label="not done yet" className="size-3.5 shrink-0 text-text-3" />
+          <span className="text-text-2">{siteTitle(l, titles)}</span>
+        </>
+      )}
+      {early(l) ? <span className="text-sm text-text-3">(heard there before it is taught)</span> : null}
+    </li>
+  );
+  const more = (testId: string, words: string, rows: readonly string[]) =>
+    rows.length > 0 ? (
+      <details className="mt-1" data-testid={testId}>
+        {/* py-1 makes it a 24px target (26.5px: text-sm's line is 18.5px). Not flex with min-h-6: a summary
+            that is not display: list-item loses its disclosure triangle. */}
+        <summary className="cursor-pointer py-1 text-sm text-text-2">
+          and {rows.length} {words} {rows.length === 1 ? "lesson" : "lessons"}
+        </summary>
+        <ul className="mt-1 flex flex-col gap-0.5">{rows.map(row)}</ul>
+      </details>
+    ) : null;
+  return (
+    <>
+      <h3 className="mt-3 mb-1 font-sans text-sm font-semibold text-text-2">Also used in</h3>
+      {recent.length > 0 ? (
+        <ul className="flex flex-col gap-0.5" data-testid="tool-used-in">
+          {recent.map(row)}
+        </ul>
+      ) : null}
+      {/* The earlier done lessons read as a tail of the recent five ("…, and 30 earlier lessons"). */}
+      {more("tool-used-earlier", "earlier", earlier)}
+      {next.length > 0 ? (
+        <ul className="mt-1 flex flex-col gap-0.5" data-testid="tool-used-next">
+          {next.map(row)}
+        </ul>
+      ) : null}
+      {more("tool-used-more", "more", later)}
+    </>
+  );
+}
+
+/**
+ * A sound's credit, from the pack's own credits (the same index as Settings → About → Sound credits), so the two
+ * never disagree: every source the sound is built from, with its licence.
+ */
+function SoundCreditLine({ signature }: { signature: string }) {
+  const credits = useSoundCredits();
+  const sound = packSoundOf(signature);
+  const entry =
+    credits.data && sound ? soundIndex(credits.data.credits).find((s) => s.sound === sound) : null;
+  if (!entry) return null;
+  return (
+    <p className="mt-2 text-sm text-text-2" data-testid="sound-credit">
+      Sound: {creditText(entry)} ·{" "}
+      <Link to="/settings/about" className="text-link underline-offset-2 hover:underline">
+        Sound credits
+      </Link>
+    </p>
   );
 }
 
@@ -265,7 +391,7 @@ function LiveExample({ tool }: { tool: ToolEntry }) {
       const saved = await create.mutateAsync({ body: toolSketchBody(tool, code, wave5?.meter) });
       void navigate({ to: "/studio/$sketchId", params: { sketchId: saved.sketch.id } });
     } catch (e) {
-      toast.error("Couldn't open it in the Studio", e instanceof Error ? e.message : undefined);
+      toast.error("Couldn't open it in the Studio", errorWords(e));
     }
   };
 
@@ -319,6 +445,27 @@ function LiveExample({ tool }: { tool: ToolEntry }) {
   );
 }
 
+/**
+ * What a learner can do with a locked tool before it unlocks. Code (and the sounds, scales and chords it names)
+ * already plays in the Studio with a hint; a lens or a feature is part of the app and only appears once unlocked;
+ * a template has nothing to add to its unlock condition.
+ */
+function lockedNote(tool: ToolEntry, titles: ReadonlyMap<string, string>): string | null {
+  const where = sitesOf(tool)
+    .map((s) => siteTitle(s, titles))
+    .join(" or ");
+  switch (tool.kind) {
+    case "lens":
+      return `It arrives in the lens bar after ${where}.`;
+    case "feature":
+      return `It arrives in the app after ${where}.`;
+    case "template":
+      return null;
+    default:
+      return "You can already use it in the Studio, where it plays with a hint; graded steps wait until it is unlocked.";
+  }
+}
+
 /** Locked: the condition, and the example to hear (not to open). */
 function LockedTeaser({ tool, titles }: { tool: ToolEntry; titles: ReadonlyMap<string, string> }) {
   const [playing, setPlaying] = useState(false);
@@ -352,7 +499,7 @@ function LockedTeaser({ tool, titles }: { tool: ToolEntry; titles: ReadonlyMap<s
       const cps = oak.transport.cps() || 0.5;
       timer.current = setTimeout(stop, Math.min(8000, (2 / cps) * 1000));
     } catch (e) {
-      toast.error("Sound did not start", e instanceof Error ? e.message : undefined);
+      toast.error("Sound did not start", errorWords(e));
     } finally {
       setBusy(false);
     }
@@ -373,11 +520,11 @@ function LockedTeaser({ tool, titles }: { tool: ToolEntry; titles: ReadonlyMap<s
           <FeatureGlimpse glimpse={glimpseOf(tool.id) as NonNullable<ReturnType<typeof glimpseOf>>} />
         </div>
       ) : null}
-      <p className="mt-1 text-sm text-text-2">
-        You can already use it in the Studio, where it plays with a hint; graded steps wait until it is
-        unlocked.
-      </p>
-      {tool.catalog.demo.trim() ? (
+      {lockedNote(tool, titles) ? (
+        <p className="mt-1 text-sm text-text-2">{lockedNote(tool, titles)}</p>
+      ) : null}
+      {/* A lens is something to see: an audio-only teaser would play sound and show nothing of it. */}
+      {tool.catalog.demo.trim() && tool.kind !== "lens" ? (
         <div className="mt-3">
           <Button
             size="sm"

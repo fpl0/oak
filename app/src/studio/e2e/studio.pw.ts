@@ -164,13 +164,13 @@ test("a Band layer (jazz-soul kit) plays under the sketch and is heard on the ma
   await page.getByTestId("new-sketch").click();
   const dialog = page.getByRole("dialog", { name: "New sketch" });
   await dialog.getByRole("radio", { name: /Over a Band/ }).check();
-  await dialog.getByRole("radiogroup", { name: "Flavour" }).getByRole("radio", { name: "Jazz-soul" }).click();
+  await dialog.getByRole("radiogroup", { name: "Style" }).getByRole("radio", { name: "Jazz-soul" }).click();
   await dialog.getByLabel("Key: tonic").selectOption("F");
   await dialog.getByRole("button", { name: "Create sketch" }).click();
   await expect(page.locator(`${WB}[data-analysis=ready]`)).toBeVisible({ timeout: 60_000 });
   await expect(page.getByTestId("band-select")).toHaveValue("band.two-chord-vamp");
   await expect(
-    page.getByRole("radiogroup", { name: "Band flavour" }).getByRole("radio", { name: "Jazz-soul" }),
+    page.getByRole("radiogroup", { name: "Band style" }).getByRole("radio", { name: "Jazz-soul" }),
   ).toHaveAttribute("aria-checked", "true");
   await expect(page.locator("[data-testid='mute-band.chords']")).toBeVisible({ timeout: 20_000 });
   // Only the Band sounds: the learner's own hats are muted.
@@ -189,7 +189,7 @@ test("a Band layer (jazz-soul kit) plays under the sketch and is heard on the ma
   // The Band is never in the code.
   await expect(page.locator(".cm-content")).not.toContainText("rhodes");
   await expect(page.locator(".cm-content")).not.toContainText("chords:");
-  await expect(page.getByTestId("liner-flags")).toContainText("Band: Oak (jazz / soul kit)");
+  await expect(page.getByTestId("liner-flags")).toContainText("Band: Oak (Jazz-soul style)");
 });
 
 test("a locked tool is a hint with its unlock lesson, and the code still runs and saves", async ({
@@ -199,7 +199,8 @@ test("a locked tool is a hint with its unlock lesson, and the code still runs an
   await openSketch(page, id);
   const hints = page.getByTestId("locked-hints");
   await expect(hints).toContainText(".gain(x)", { timeout: 20_000 });
-  await expect(hints).toContainText("unlocks at U01.L02");
+  await expect(hints).toContainText("unlocks in “Count to Four”");
+  await expect(hints).not.toContainText("U01.L02");
   await page.locator(".cm-content").click();
   await page.keyboard.press("ControlOrMeta+Enter");
   await expect(page.locator(WB)).toHaveAttribute("data-playing", "1", { timeout: 20_000 });

@@ -155,6 +155,55 @@ test("mute and solo are live and never touch the code", async ({ page }) => {
   expect(await page.locator(".cm-content").textContent()).toBe(before);
 });
 
+test("track chips say what they do and for which part; muted and solo-silenced look different", async ({
+  page,
+}) => {
+  await open(page);
+  // Each half has a name that is a phrase, never a bare "S" or a raw track id.
+  await expect(page.getByRole("button", { name: "Mute Drums", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Solo Drums", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "S", exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "Mute Drums", exact: true }).click();
+  await expect(page.locator("[data-testid=mute-drums]")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("[data-testid=mute-drums] [data-testid=chip-muted-mark]")).toHaveCount(1);
+  await page.getByRole("button", { name: "Solo Mel", exact: true }).click();
+  await expect(page.locator("[data-testid=mute-bass]")).toHaveAttribute(
+    "title",
+    /silent while another part is soloed/,
+  );
+  // Silenced by the solo: no muted mark and no line through it (only the part the learner muted has those).
+  await expect(page.locator("[data-testid=mute-bass] [data-testid=chip-muted-mark]")).toHaveCount(0);
+  const deco = (id: string) =>
+    page.locator(`[data-testid=${id}]`).evaluate((el) => getComputedStyle(el).textDecorationLine);
+  expect(await deco("mute-bass")).toBe("none");
+  // Every chip half is a 24px target at the least.
+  const box = await page.locator("[data-testid=solo-drums]").boundingBox();
+  expect(box?.height ?? 0).toBeGreaterThanOrEqual(24);
+  expect(box?.width ?? 0).toBeGreaterThanOrEqual(24);
+});
+
+test("the loop region shows on the roll and the staff; the badge clears when the loop is the first play", async ({
+  page,
+}) => {
+  await open(page);
+  const canvas = page.locator("[data-testid=roll-canvas]");
+  await expect(canvas).not.toHaveAttribute("data-loop", /./);
+  await page.locator("[data-testid=loop-toggle]").click();
+  await expect(canvas).toHaveAttribute("data-loop", "0:2");
+  await expect(page.getByTestId("staff-loop")).toHaveText("looping bars 1–2");
+  await page.getByRole("button", { name: "Move the loop one bar later" }).click();
+  await expect(canvas).toHaveAttribute("data-loop", "1:2");
+  await expect(page.getByTestId("staff-loop")).toHaveText("looping bars 2–3");
+  // A fresh page whose first play is the loop: the roll must not say "not playing" while it plays.
+  await page.locator("[data-testid=play-toggle]").click();
+  await expect(page.locator(WB)).toHaveAttribute("data-playing", "1", { timeout: 15_000 });
+  await expect(page.locator("[data-testid=roll-stale]")).toHaveCount(0, { timeout: 5_000 });
+  await page.locator("[data-testid=play-toggle]").click();
+  await page.locator("[data-testid=loop-toggle]").click();
+  await expect(canvas).not.toHaveAttribute("data-loop", /./);
+  await expect(page.getByTestId("staff-loop")).toHaveCount(0);
+});
+
 test("roll hover shows note name, degree and solfege", async ({ page }) => {
   await open(page, "?example=degrees-d");
   const canvas = page.locator("[data-testid=roll-canvas]");
@@ -221,6 +270,8 @@ test("Band layer: hidden backing tracks are analysed, drawn and mutable, never i
   await page.locator("[data-testid=band-toggle]").check();
   await expect(page.locator("[data-testid='mute-band.drums']")).toBeVisible({ timeout: 15_000 });
   await expect(page.locator("[data-testid='mute-band.bass']")).toBeVisible();
+  // Accompaniment Oak plays says so on its chip.
+  await expect(page.locator("[data-testid='mute-band.drums']")).toHaveText("Drums (Oak)");
   await expect
     .poll(async () => Number(await page.locator("[data-testid=roll-canvas]").getAttribute("data-notes")))
     .toBeGreaterThan(notes);

@@ -52,10 +52,11 @@ export function pct(x: number | null | undefined): string {
   return `${Math.round(x * 100)}%`;
 }
 
+/** A style's name, as Settings, onboarding and the song style cards say it (song/surfaces-model.ts `SONG_STYLES`). */
 export const FLAVOUR_LABEL: Record<string, string> = {
-  "flavour.pop": "Pop / rock",
+  "flavour.pop": "Pop",
   "flavour.indie": "Indie",
-  "flavour.jazz-soul": "Jazz / soul",
+  "flavour.jazz-soul": "Jazz-soul",
   "flavour.funk": "Funk",
   "flavour.electronic": "Electronic",
 };

@@ -33,6 +33,13 @@ export interface StaffViewProps {
   model: WorkbenchModel;
   bus: HighlightBus;
   stale?: boolean;
+  /**
+   * The loop region in words ("bars 1–2") while the loop is on. The engraving has no bar axis to shade, so the head
+   * names the bars that repeat, as the roll's bracket shows them.
+   */
+  loopLabel?: string | null;
+  /** The loop's first bar (0-based) while the loop is on: a new region turns the page to it, stopped or not. */
+  loopFrom?: number | null;
   /** Degree and syllable in each note's accessible name (their unlocks). Default both. */
   hover?: { degree: boolean; solfege: boolean };
   /** The lines under the staff (lenses, or a lesson step's `staffLabels`); default: the model's own. */
@@ -95,6 +102,8 @@ export function StaffView({
   model,
   bus,
   stale,
+  loopLabel,
+  loopFrom = null,
   hover,
   annotations,
   chordSet,
@@ -215,6 +224,13 @@ export function StaffView({
   hoverRef.current = hover ?? { degree: true, solfege: true };
   const pageRef = useRef({ page, pages, pageBars: src?.pageBars ?? 8 });
   pageRef.current = { page, pages, pageBars: src?.pageBars ?? 8 };
+  // A new loop region turns the page to its first bar (a unit song's Make opens looping its last section; page 1 of
+  // the staff showed none of it until playback paged), and so does the first engraving with more than one page.
+  const paged = pages > 1;
+  useEffect(() => {
+    const want = pageOfBar(loopFrom, pageRef.current.pageBars, pageRef.current.pages);
+    if (want !== null) setPage(want);
+  }, [loopFrom, paged]);
   /** The last outside focus (feedback hover, code or roll selection) the page followed. */
   const focusKey = useRef("");
 
@@ -562,6 +578,11 @@ export function StaffView({
           >
             Save as SVG
           </button>
+        ) : null}
+        {loopLabel ? (
+          <span className="oak-badge" data-testid="staff-loop">
+            looping {loopLabel}
+          </span>
         ) : null}
         {stale ? <span className="oak-badge">preview · not playing</span> : null}
         {model.score?.approximate ? (

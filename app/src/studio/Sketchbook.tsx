@@ -4,11 +4,11 @@
 import type { Sketch, SketchDetail } from "@oak/api";
 import { Link } from "@tanstack/react-router";
 import { NotebookPen, Plus, Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { FLAVOUR_LABEL, formatDate, formatKey } from "../lib/format.ts";
 import { usePageTitle } from "../lib/nav.ts";
 import { type SketchOrigin, useSketches } from "../lib/queries.ts";
-import { Button } from "../ui/kit/Button.tsx";
+import { Button, buttonClass } from "../ui/kit/Button.tsx";
 import { Card, Chip, EmptyState, Page, PageHeader } from "../ui/kit/basics.tsx";
 import { QueryView } from "../ui/kit/QueryState.tsx";
 import { Tabs } from "../ui/kit/Tabs.tsx";
@@ -36,10 +36,57 @@ const ORIGIN_LABEL: Record<Sketch["originKind"], string> = {
 };
 type Sort = "recent" | "title" | "oldest";
 
+/**
+ * What an empty filter says and offers. A transcription or a capstone draft is not made with "New sketch", so those
+ * filters point to where they are made.
+ */
+function emptyFilter(filter: Filter, onNew: () => void): { title: string; body: string; action: ReactNode } {
+  const newSketch = (
+    <Button variant="primary" onClick={onNew}>
+      New sketch
+    </Button>
+  );
+  switch (filter) {
+    case "all":
+      return {
+        title: "Your sketchbook fills up one session at a time.",
+        body: "Start blank, from a lesson's Make, or over a Band.",
+        action: newSketch,
+      };
+    case "transcription":
+      return {
+        title: "No transcriptions yet.",
+        body: "A song you transcribe is kept here as a sketch.",
+        action: (
+          <Link to="/transcribe" className={buttonClass("primary")}>
+            Transcribe a song
+          </Link>
+        ),
+      };
+    case "capstone":
+      return {
+        title: "No capstone drafts yet.",
+        body: "When you start a capstone, its draft is kept here.",
+        action: (
+          <Link to="/album" className={buttonClass("primary")}>
+            Open the album
+          </Link>
+        ),
+      };
+    default:
+      return {
+        title: "Nothing here yet.",
+        body: "Sketches of this kind appear here as you make them.",
+        action: newSketch,
+      };
+  }
+}
+
 export function Sketchbook({ wantsNew, onNewHandled }: { wantsNew: boolean; onNewHandled(): void }) {
   usePageTitle("Studio");
   const [filter, setFilter] = useState<Filter>("all");
   const [q, setQ] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
   const [sort, setSort] = useState<Sort>("recent");
   const [dialog, setDialog] = useState(false);
   const sketches = useSketches(filter === "all" ? undefined : (filter as SketchOrigin));
@@ -95,6 +142,7 @@ export function Sketchbook({ wantsNew, onNewHandled }: { wantsNew: boolean; onNe
           <span className="sr-only">Search sketches</span>
           <Search aria-hidden className="pointer-events-none absolute left-2 size-4 text-text-3" />
           <input
+            ref={searchRef}
             type="search"
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -118,25 +166,35 @@ export function Sketchbook({ wantsNew, onNewHandled }: { wantsNew: boolean; onNe
       <QueryView
         query={sketches}
         isEmpty={(d) => d.items.length === 0}
-        empty={
-          <EmptyState
-            icon={<NotebookPen aria-hidden />}
-            title={filter === "all" ? "Your sketchbook fills up one session at a time." : "Nothing here yet."}
-            action={
-              <Button variant="primary" onClick={() => setDialog(true)}>
-                New sketch
-              </Button>
-            }
-          >
-            {filter === "all"
-              ? "Start blank, from a lesson's Make, or over a Band."
-              : "Sketches of this kind appear here as you make them."}
-          </EmptyState>
-        }
+        empty={(() => {
+          const e = emptyFilter(filter, () => setDialog(true));
+          return (
+            <EmptyState icon={<NotebookPen aria-hidden />} title={e.title} action={e.action}>
+              {e.body}
+            </EmptyState>
+          );
+        })()}
       >
         {() =>
           visible.length === 0 ? (
-            <p className="py-8 text-center text-text-2">No sketches match “{q}”.</p>
+            <div
+              className="flex flex-col items-center gap-1 py-8 text-center text-text-2"
+              data-testid="search-empty"
+            >
+              <p>No sketches match “{q}”.</p>
+              <p className="text-sm">Search looks at titles and tags.</p>
+              <Button
+                variant="link"
+                size="sm"
+                onClick={() => {
+                  setQ("");
+                  // The button goes away with the empty result: keep the focus where the learner types next.
+                  searchRef.current?.focus();
+                }}
+              >
+                Clear search
+              </Button>
+            </div>
           ) : (
             <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-testid="sketch-list">
               {visible.map((s) => (

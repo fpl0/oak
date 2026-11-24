@@ -15,11 +15,12 @@ import { useContent } from "../lib/content.ts";
 import { lessonTitles } from "../lib/content-model.ts";
 import { peekOak } from "../lib/oak.ts";
 import { useUnlockSeen, useUnlocks } from "../lib/queries.ts";
+import { InlineCodeText } from "../session/today/SideOffer.tsx";
 import { Button } from "../ui/kit/Button.tsx";
 import { Kbd } from "../ui/kit/basics.tsx";
 import { FeatureGlimpse } from "./Glimpse.tsx";
 import { glimpseOf } from "./glimpse.ts";
-import { shownToolLabel as toolLabel } from "./label.ts";
+import { shownToolMeaning, shownToolLabel as toolLabel } from "./label.ts";
 import { KIND_LABEL, sitesOf, unlockArpeggio } from "./model.ts";
 import { VoicingCompare } from "./VoicingCompare.tsx";
 
@@ -160,7 +161,9 @@ export function UnlockMoment({
             <p className={clsx("mt-0.5 text-h3 text-text", toolLabel(t).mono && "font-mono")}>
               {toolLabel(t).text}
             </p>
-            <p className="mt-2 text-text">{t.catalog.meaning}</p>
+            <p className="mt-2 text-text">
+              <InlineCodeText text={shownToolMeaning(t)} />
+            </p>
             {glimpseOf(t.id) ? (
               <div className="mt-3">
                 <FeatureGlimpse glimpse={glimpseOf(t.id) as NonNullable<ReturnType<typeof glimpseOf>>} />

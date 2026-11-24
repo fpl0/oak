@@ -27,6 +27,9 @@ describe("toolLabel", () => {
     expect(of("tb.s").text).toBe('s("…") / sound("…")');
     expect(of("tb.mini.alt").text).toBe("<a b>");
   });
+  test("a recipe template is its code, whole, without the registry's word 'recipe'", () => {
+    expect(of("tb.template.synthbass")).toEqual({ text: 'note("…").s("sawtooth").lpf(600)', mono: true });
+  });
   test("no label is empty or carries a parenthetical note", () => {
     for (const t of toolbox) {
       const l = toolLabel(t);

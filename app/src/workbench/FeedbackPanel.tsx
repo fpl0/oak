@@ -148,8 +148,9 @@ export function FeedbackPanel(props: FeedbackPanelProps) {
       aria-label="Feedback"
     >
       <header className="oak-feedback-head">
+        {/* No "score n%": the panel sits under a lesson step that already gives the verdict in words, and a bare
+            "score 0%" read as a mark against the learner. */}
         <strong data-testid="feedback-summary">{summaryText(view)}</strong>
-        <span className="oak-muted"> · score {Math.round(view.score * 100)}%</span>
       </header>
       {view.facets.length > 0 ? (
         <ul className="oak-facets" aria-label="Checks">
@@ -163,40 +164,44 @@ export function FeedbackPanel(props: FeedbackPanelProps) {
       ) : null}
       {view.issues.length > 0 ? (
         <ol className="oak-issues">
-          {view.issues.map((issue, i) => (
-            <li
-              key={`${i}-${issue.where.bar ?? "x"}-${issue.where.beat ?? "x"}`}
-              data-severity={issue.severity}
-            >
-              <button
-                type="button"
-                className="oak-issue-row"
-                data-testid="issue-row"
-                onClick={() => {
-                  const sel = {
-                    ...(issue.where.noteIds ? { events: issue.where.noteIds } : {}),
-                    ...(issue.where.code ? { code: issue.where.code } : {}),
-                  };
-                  bus.select(sel.events || sel.code ? sel : null, "feedback");
-                  if (issue.where.bar !== undefined) props.onIssueBar?.(issue.where.bar);
-                }}
+          {view.issues.map((issue, i) => {
+            // A finding with no place in the music says only what it is (no "where" in front).
+            const where = whereText(issue);
+            return (
+              <li
+                key={`${i}-${issue.where.bar ?? "x"}-${issue.where.beat ?? "x"}`}
+                data-severity={issue.severity}
               >
-                <span className="oak-issue-where">{whereText(issue)}</span>
-                {issue.what ? (
-                  <span className="oak-issue-what">
-                    {" "}
-                    · <InlineCode text={issue.what} />
-                  </span>
-                ) : null}
-                {issue.fix ? (
-                  <span className="oak-issue-fix">
-                    {" "}
-                    → <InlineCode text={issue.fix} />
-                  </span>
-                ) : null}
-              </button>
-            </li>
-          ))}
+                <button
+                  type="button"
+                  className="oak-issue-row"
+                  data-testid="issue-row"
+                  onClick={() => {
+                    const sel = {
+                      ...(issue.where.noteIds ? { events: issue.where.noteIds } : {}),
+                      ...(issue.where.code ? { code: issue.where.code } : {}),
+                    };
+                    bus.select(sel.events || sel.code ? sel : null, "feedback");
+                    if (issue.where.bar !== undefined) props.onIssueBar?.(issue.where.bar);
+                  }}
+                >
+                  {where ? <span className="oak-issue-where">{where}</span> : null}
+                  {issue.what ? (
+                    <span className="oak-issue-what">
+                      {where ? " · " : null}
+                      <InlineCode text={issue.what} />
+                    </span>
+                  ) : null}
+                  {issue.fix ? (
+                    <span className="oak-issue-fix">
+                      {" "}
+                      → <InlineCode text={issue.fix} />
+                    </span>
+                  ) : null}
+                </button>
+              </li>
+            );
+          })}
         </ol>
       ) : null}
       {view.rubric && view.rubric.length > 0 ? (

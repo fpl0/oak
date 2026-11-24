@@ -168,11 +168,17 @@ test("Studio, a jazz sketch: hints before the lessons; then tensions, voicings, 
   const id = await sketch(page, "Shells", JAZZ);
   await open(page, `/studio/${id}`);
   const wb = page.locator(WB);
-  // Before the jazz lessons: no track lens, and a hint names the lesson that opens each (a hint, never a block).
+  // Before the jazz track: no track lens, and no hint about a track the learner has not started.
   await expect(wb).toHaveAttribute("data-track-lenses", "");
-  await expect(page.getByTestId("track-lens-switch")).toHaveCount(0);
+  await expect(page.getByTestId("lens-tensions")).toHaveCount(0);
+  await expect(page.getByTestId("track-hints")).toHaveCount(0);
+  // The track started (J1.L01 done): a hint names, by its title, the lesson that opens each lens (never a block).
+  await grant([], ["J1.L01"]);
+  await page.reload();
+  await expect(page.locator(`${WB}[data-analysis=ready]`)).toBeVisible({ timeout: 60_000 });
+  await expect(wb).toHaveAttribute("data-track-lenses", "");
   await expect(page.getByTestId("track-hints")).toContainText(
-    "Tensions: the 9, 11 and 13 your tune plays over each chord: from J2.L03",
+    "Tensions: the 9, 11 and 13 your tune plays over each chord: coming in Extensions.",
   );
   await expect(page.locator("li.oak-chord-region").first()).toHaveAttribute("data-symbol", /^Dm7/);
   await expect(page.locator("li.oak-chord-region").first()).not.toHaveAttribute("data-jazz", /./);

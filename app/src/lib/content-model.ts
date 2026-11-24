@@ -15,6 +15,7 @@ import type {
   TermEntry,
   ToolEntry,
 } from "@oak/api";
+import type { NamedToolEntry, UnlockSiteName } from "@oak/grader";
 
 export interface SkillNode {
   id: string;
@@ -281,7 +282,15 @@ export function buildBundle(parts: ContentParts): ContentBundle {
     typeof (parts.index as { contentVersion?: unknown }).contentVersion === "string"
       ? (parts.index as { contentVersion: string }).contentVersion
       : null;
-  const toolbox = Array.isArray(parts.toolbox) ? (parts.toolbox as ToolEntry[]) : [...(reg.toolbox ?? [])];
+  const syllabus = reg.syllabus ?? null;
+  const capstones = [...(reg.capstones ?? reg.syllabus?.capstones ?? [])];
+  const checkpoints = [...(reg.checkpoints ?? reg.syllabus?.checkpoints ?? [])];
+  // Every lint and grader host is started from this toolbox, so naming the unlock sites here is what makes a
+  // lock message say "`n` unlocks in the lesson “Scale Degrees in Code”" everywhere, never "in U03.L02".
+  const toolbox = withUnlockNames(
+    Array.isArray(parts.toolbox) ? (parts.toolbox as ToolEntry[]) : [...(reg.toolbox ?? [])],
+    unlockSiteNamer(syllabus, checkpoints, capstones),
+  );
   const skills =
     parts.skillGraph !== undefined
       ? normalizeSkillGraph(parts.skillGraph)
@@ -292,15 +301,52 @@ export function buildBundle(parts: ContentParts): ContentBundle {
     toolbox,
     skills,
     lessons: normalizeLessons(parts.lessons),
-    syllabus: reg.syllabus ?? null,
+    syllabus,
     families: [...(reg.families ?? [])],
     decks: [...(reg.decks ?? [])],
     terms: [...(reg.terms ?? [])],
     candos: [...(reg.candos ?? [])],
-    capstones: [...(reg.capstones ?? reg.syllabus?.capstones ?? [])],
-    checkpoints: [...(reg.checkpoints ?? reg.syllabus?.checkpoints ?? [])],
+    capstones,
+    checkpoints,
     templates: [...(reg.templates ?? [])],
   };
+}
+
+/**
+ * How the learner knows each session that can unlock a tool: a lesson (core or track) by its title, a checkpoint
+ * by its title ("Interval checkpoint"), a capstone session by its capstone's title ("C1 First Loop").
+ */
+export function unlockSiteNamer(
+  syllabus: SyllabusDef | null,
+  checkpoints: readonly CheckpointMeta[],
+  capstones: readonly CapstoneMeta[],
+): (site: string) => UnlockSiteName | undefined {
+  const names = new Map<string, UnlockSiteName>();
+  for (const u of syllabus?.units ?? [])
+    for (const l of u.lessons) names.set(l.id, { kind: "lesson", title: l.title });
+  for (const c of [...(syllabus?.checkpoints ?? []), ...checkpoints])
+    names.set(c.id, { kind: "checkpoint", title: c.title });
+  for (const c of [...(syllabus?.capstones ?? []), ...capstones])
+    names.set(c.id, { kind: "capstone", title: c.title });
+  return (site) => names.get(site) ?? names.get(site.replace(/\.S\d+$/, ""));
+}
+
+/**
+ * Toolbox rows with the learner's words for their unlock sites (`NamedToolEntry` in @oak/grader, whose lint reads
+ * them). Done here rather than with the grader's own `nameUnlockSites` so this module stays free of the grader's
+ * runtime; a row with any unknown site is left as it was.
+ */
+export function withUnlockNames(
+  toolbox: readonly ToolEntry[],
+  name: (site: string) => UnlockSiteName | undefined,
+): NamedToolEntry[] {
+  return toolbox.map((entry) => {
+    const sites = Array.isArray(entry.unlock.at) ? entry.unlock.at : [entry.unlock.at];
+    const names = sites.map((s) => name(s as string));
+    return names.every((n): n is UnlockSiteName => n !== undefined)
+      ? { ...entry, unlockNames: names }
+      : entry;
+  });
 }
 
 /** Lesson title lookup over the syllabus (`U01.L02` → "Four on the floor"). */

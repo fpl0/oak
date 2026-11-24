@@ -57,7 +57,8 @@ const entries: [string, Sev, string][] = [
     { graded: E, studio: I, content: E },
     "`{tool}` unlocks in {lesson}. For now, use the tools you have.",
   ],
-  // The lint reports a sound as `{name}` with a `{reason}` ("unlocks in U03.L02", or why a bank is unknown).
+  // The lint reports a sound as `{name}` with a `{reason}` ("unlocks in the lesson “Degrees in Code”", or why a
+  // bank is unknown).
   ["code.locked-sound", { graded: E, studio: I, content: E }, 'The sound "{name}" {reason}.'],
   ["code.locked-scale", { graded: E, studio: I, content: E }, 'The scale "{tool}" unlocks in {lesson}.'],
   ["code.locked-chord", { graded: E, studio: I, content: E }, 'The chord "{tool}" unlocks in {lesson}.'],

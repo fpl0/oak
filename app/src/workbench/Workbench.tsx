@@ -48,7 +48,7 @@ import { CircleOfFifths } from "./CircleOfFifths.tsx";
 import { WorkbenchClock } from "./clock.ts";
 import { isColourMode, keyPlanBars } from "./colour.ts";
 import { applyDepth, depthKey } from "./depth.ts";
-import { FeedbackPanel, viewOf } from "./FeedbackPanel.tsx";
+import { FeedbackPanel, InlineCode, viewOf } from "./FeedbackPanel.tsx";
 import { FormMap } from "./FormMap.tsx";
 import { ghostEvents, marksOf, unlocks } from "./feedback.ts";
 import { chordTonePercent, rangeLines } from "./harmony.ts";
@@ -196,6 +196,11 @@ export interface WorkbenchProps {
   abLabels?: { a: string; b: string };
   /** Loop region and metronome (ux §7.10 `L`, `[`/`]`, `M`). Default on, except in the mini variant. */
   loopControls?: boolean;
+  /**
+   * `minimal`: the transport keeps play/stop, the bar counter and the mute chips only (no tempo, metre, key,
+   * practice speed, solo or read-only badge): onboarding's first loop, before any of those words are taught.
+   */
+  transport?: "full" | "minimal";
   /** Long loops: the roll shows this many bars at a time and follows the playhead. Default 16; 0 = off. */
   rollFollowBars?: number;
   /**
@@ -254,6 +259,15 @@ export interface WorkbenchProps {
   loopRequest?: { seq: number; region: LoopRegion | null; play?: boolean };
   /** The words on a track's mute chip (a unit song tells today's code, yours and Oak's apart). Default: the label. */
   trackLabel?(track: string): string;
+  /**
+   * Chips that each stand for several tracks (a unit song's Make: one chip per part, every earlier lesson's line of
+   * it and Oak's track under it). The chips' own mute and solo state is turned into the player's mutes by `mutesOf`.
+   * Absent: one chip per track, as `tracks` reads.
+   */
+  trackChips?: {
+    chipsOf(tracks: readonly string[]): { id: string; label: string }[];
+    mutesOf(state: Pick<MuteMap, "muted" | "solo">, tracks: readonly string[]): MuteMap;
+  };
 }
 
 interface RunIssue {
@@ -366,6 +380,8 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
   const [busy, setBusy] = useState(false);
   const [playedCode, setPlayedCode] = useState<string | null>(null);
   const [mutes, setMutes] = useState<MuteMap>(props.initialMutes ?? NO_MUTES);
+  /** The chips' mute and solo, by chip id, while the host groups tracks into chips (`trackChips`). */
+  const [chipMutes, setChipMutes] = useState<MuteMap>(NO_MUTES);
   const [practice, setPractice] = useState<PracticeTempo>(1);
   const [width, setWidth] = useState(1024);
   const [availHeight, setAvailHeight] = useState(Number.POSITIVE_INFINITY);
@@ -794,16 +810,26 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
   });
   loopRef.current.handOver = (code: string) => {
     if (!loopOnRef.current || !handle || handle.disposed) return;
-    if (handle.playing || loop.playing) void loop.start(code);
+    if (handle.playing || loop.playing) void restartLoop(code);
   };
   const anyPlaying = playing || loop.playing;
+  /**
+   * (Re)starts the loop player and records the code it now plays. The roll's "preview · not playing" badge compares
+   * the model with the played code, and only the editor's own Run reports that code: without this, a loop that is
+   * the first thing played after the page loads leaves the badge up while the sound plays.
+   */
+  const restartLoop = async (code: string) => {
+    const out = await loop.start(code);
+    if (out?.ok) setPlayedCode(out.code);
+    return out;
+  };
   /**
    * Plays the loop from the code as it is, when the editor itself did not just run it: the run is reported as an
    * editor Run is (the host's `onEvaluated`, the "didn't run" banner), so a Make that loops from the start (a unit
    * song's) still ticks its list and counts as run.
    */
   const startLoop = async (code: string) => {
-    const out = await loop.start(code);
+    const out = await restartLoop(code);
     if (out) {
       setRunIssue(runIssueOf(out));
       propsRef.current.onEvaluated?.(out);
@@ -824,7 +850,7 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
     setLoopOn(on);
     reportLoop(on, region);
     if (!handle || handle.disposed) return;
-    if (on && handle.playing) void loop.start(handle.getCode());
+    if (on && handle.playing) void restartLoop(handle.getCode());
     else if (!on && loop.playing) {
       loop.stop();
       void handle.play();
@@ -881,7 +907,7 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
     setRegion(r);
     setLoopOn(true);
     reportLoop(true, r);
-    if (handle && !handle.disposed && (handle.playing || loop.playing)) void loop.start(handle.getCode());
+    if (handle && !handle.disposed && (handle.playing || loop.playing)) void restartLoop(handle.getCode());
   };
   const showRibbon = variant !== "mini" && (lineLenses?.shown.sections === true || panelsOpen.form === true);
   const currentBar = anyPlaying ? barOfCycle(keyBar, model?.bars ?? 0) : null;
@@ -970,7 +996,7 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
       setRegion(next);
       setLoopOn(true);
       propsRef.current.onLoopChange?.({ on: true, region: next });
-      if (handle && !handle.disposed && handle.playing) void loop.start(handle.getCode());
+      if (handle && !handle.disposed && handle.playing) void restartLoop(handle.getCode());
     };
     // A section chip in the tutor panel: select and loop that section, exactly as a click on the ribbon does.
     const onSection = (e: Event) => {
@@ -1382,8 +1408,8 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
         ? evalError.kind === "timeout"
           ? { message: "That took too long — infinite loop or huge pattern?", detail: evalError.message }
           : evalError.kind === "lint"
-            ? // Oak's own lint already speaks to the learner ("`stack` unlocks in U04.L03"); the Strudel-error
-              // rewording would misread a locked mini-notation operator as a typo.
+            ? // Oak's own lint already speaks to the learner ("`stack` unlocks in the lesson “Together Now”");
+              // the Strudel-error rewording would misread a locked mini-notation operator as a typo.
               { message: evalError.message, detail: evalError.message }
             : friendlyEvalError(evalError.message, code, evalError.pos ?? null)
         : null;
@@ -1393,6 +1419,19 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
       (model !== null && model.code === code && model.events.length === 0 && !analysis.pending));
   const silenced = useCallback((t: string) => isSilenced(mutes, t), [mutes]);
   const tracks = model?.tracks ?? [];
+  const trackChips = props.trackChips ?? null;
+  const chips = useMemo(() => trackChips?.chipsOf(tracks) ?? null, [trackChips, tracks]);
+  const applyChips = (next: MuteMap) => {
+    setChipMutes(next);
+    if (trackChips) applyMutes(trackChips.mutesOf(next, tracks));
+  };
+  // The tracks changed under muted or soloed chips (a new line, a song with another take): the player's mutes are
+  // read again from the chips, so a soloed part still silences a line that appeared after the click.
+  const tracksKey = tracks.join("\n");
+  useEffect(() => {
+    if (!trackChips || (chipMutes.muted.size === 0 && chipMutes.solo === null)) return;
+    applyMutes(trackChips.mutesOf(chipMutes, tracks));
+  }, [tracksKey]);
   const harmony = model?.harmony ?? null;
   const ranges = useMemo(
     () => (model && panelsOpen.range ? rangeLines(model.events) : null),
@@ -1470,6 +1509,7 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
           silenced={silenced}
           onAudition={(e) => e.midi !== null && audition(e.midi)}
           stale={stale}
+          loop={loopOn ? region : null}
           height={variant === "mini" ? 60 : 180}
           {...(chords.band && harmony
             ? {
@@ -1516,6 +1556,8 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
             model={model}
             bus={bus}
             stale={stale}
+            loopLabel={loopOn ? regionLabel(region) : null}
+            loopFrom={loopOn ? region.from : null}
             hover={labels.hover}
             annotations={labels.staff}
             chordSet={chordSet}
@@ -1602,15 +1644,26 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
         cpsDefault={model ? !model.cpsSet : false}
         loopBars={loopBars}
         keySpec={keySpec}
-        tracks={tracks}
-        {...(props.trackLabel ? { trackLabel: props.trackLabel } : {})}
+        {...(chips
+          ? {
+              tracks: chips.map((c) => c.id),
+              trackLabel: (id: string) => chips.find((c) => c.id === id)?.label ?? id,
+              mutes: chipMutes,
+              onMute: (id: string) => applyChips(toggleMute(chipMutes, id)),
+              onSolo: (id: string) => applyChips(toggleSolo(chipMutes, id)),
+            }
+          : {
+              tracks,
+              ...(props.trackLabel ? { trackLabel: props.trackLabel } : {}),
+              mutes,
+              onMute: (t: string) => applyMutes(toggleMute(mutes, t)),
+              onSolo: (t: string) => applyMutes(toggleSolo(mutes, t)),
+            })}
         badges={badges}
-        mutes={mutes}
-        onMute={(t) => applyMutes(toggleMute(mutes, t))}
-        onSolo={(t) => applyMutes(toggleSolo(mutes, t))}
         practiceTempo={practice}
         onPracticeTempo={onPracticeTempo}
         readOnly={props.readOnly === true}
+        minimal={props.transport === "minimal"}
         {...(lensBar || anyPanelAvailable || musicSwitches.length > 0 || trackSwitches.length > 0
           ? { lenses: lensSwitches }
           : {})}
@@ -1636,7 +1689,8 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
       {banner ? (
         <div className="oak-banner" role="status" data-testid="eval-banner">
           <p>
-            <strong>Code didn't run.</strong> {banner.message}
+            {/* Oak's lint names code in backticks ("`n` unlocks in …"): drawn as inline code, never raw. */}
+            <strong>Code didn't run.</strong> <InlineCode text={banner.message} />
             {model ? (
               <span className="oak-muted">
                 {anyPlaying

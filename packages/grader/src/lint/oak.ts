@@ -49,7 +49,7 @@ import {
   STRICT_SAFE_GLOBALS,
   strictFindings,
 } from "./safety.ts";
-import { indexToolbox, type ToolIndex, unlockText } from "./toolbox.ts";
+import { indexToolbox, type ToolIndex, unlockIds, unlockText } from "./toolbox.ts";
 
 // --- what the code uses --------------------------------------------------------------------------
 
@@ -996,11 +996,12 @@ function runLint(code: string, ctx: LintContext, toolbox: readonly ToolEntry[], 
       const key = `${entry.id}@${u.start}`;
       if (reported.has(key)) continue;
       reported.add(key);
-      // `tool` and `lesson` are the catalog templates' slots (code.locked-*, code.preview-tool).
+      // `tool` and `lesson` are the templates' slots (code.locked-*, code.preview-tool): `lesson` is the learner's
+      // words ("the lesson “Degrees in Code”"); `at` stays the session ID(s), which the Studio's hints look up.
       const params = {
         name: u.name,
         id: entry.id,
-        at: unlockText(entry),
+        at: unlockIds(entry),
         tool: u.name,
         lesson: unlockText(entry),
         reason: `unlocks in ${unlockText(entry)}`,

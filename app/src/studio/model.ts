@@ -15,6 +15,7 @@ import type {
 } from "@oak/content-kit";
 import type { BandSetup, MuteMap } from "@oak/strudel";
 import { bandCodeAt } from "../../../content/bands/index.ts";
+import { toolName } from "../lib/tool-label.ts";
 
 // --- starters -------------------------------------------------------------------------------------
 
@@ -111,6 +112,49 @@ export function bandsForMeter(
   return bands.filter((b) => meterOf(b.id) === meter);
 }
 
+/** A Roman-numeral run in a Band's title ("I–IV", "i–♭II", "I–II over home"), not a word that starts with i. */
+const NUMERALS = /(^|[\s(])[♭♯#]?(?:VII|VI|IV|V|III|II|I|vii|vi|iv|v|iii|ii|i)(?:°|7)?(?=–|$|[\s,)])/;
+
+/**
+ * A Band's name as the learner reads it. Before Roman numerals are taught (tb.feature.rn, U06.L02) the numerals
+ * in brackets are dropped ("Two-chord vamp (I–IV)" reads "Two-chord vamp"; "Waltz vamp (I–IV, 3/4)" reads
+ * "Waltz vamp (3/4)"); after, the name is as written.
+ */
+export function bandLabel(title: string, numerals: boolean): string {
+  if (numerals) return title;
+  const m = /^(.*?)\s*\(([^()]*)\)\s*$/.exec(title);
+  if (!m) return title;
+  const kept = (m[2] as string).split(/,\s*/).filter((part) => !NUMERALS.test(part));
+  return kept.length > 0 ? `${m[1]} (${kept.join(", ")})` : (m[1] as string);
+}
+
+/**
+ * The first lesson, in course order, whose steps play each Band (read from the lessons' sources; ux-review.test.ts
+ * checks it against them, so a lesson that starts using a Band fails the test until this is updated). The built
+ * lesson outlines the app loads do not carry the steps' Band, hence the table. A Band no lesson plays is absent.
+ */
+export const BAND_FIRST_LESSON: Readonly<Record<string, string>> = {
+  "band.two-chord-vamp": "U01.L01",
+  "band.waltz-vamp": "U01.L08",
+  "band.phrase-8bar": "U03.L11",
+  "band.axis-4bar": "U05.L01",
+  "band.aeolian-4bar": "U16.L04",
+  "band.two-five-one": "J1.L01",
+  "band.blues-12bar": "J4.L02",
+  "band.soul-68": "R2.L03",
+  "band.son-montuno": "R3.L01",
+};
+
+/**
+ * The Bands a learner has met: those whose first lesson they have reached (started or done). The Band select lists
+ * these first ("Your bands") and the rest under "Later in the course".
+ */
+export function bandsMet(reached: (lessonId: string) => boolean): Set<string> {
+  return new Set(
+    Object.entries(BAND_FIRST_LESSON).flatMap(([band, lesson]) => (reached(lesson) ? [band] : [])),
+  );
+}
+
 /** The Band tracks muted in the workbench, as a sketch stores them (`band.drums` → `drums`; solo is not kept). */
 export function bandMutesOf(mutes: MuteMap): SketchBand["mutes"] {
   return (["drums", "bass", "chords"] as const).filter((role) => mutes.muted.has(`band.${role}`));
@@ -163,8 +207,9 @@ export interface LockedHint {
   /** The code form from the toolbox (`.gain(x)`). */
   code: string;
   kind: ToolEntry["kind"];
-  /** The session that unlocks it (`U01.L02`) and its title when known. */
+  /** The session(s) that unlock it (`U01.L02`, `U10.L09 or A1.L04`): data, never shown. */
   at: string;
+  /** Those sessions by title, quoted ("“Rests and accents”", "“Echoes” or “Space”"); null if one is untitled. */
   atTitle: string | null;
   /** 1-based lines where it is used. */
   lines: number[];
@@ -195,11 +240,17 @@ export function lockedHints(
       code: entry.code,
       kind: entry.kind,
       at,
-      atTitle: titles.get(at) ?? null,
+      atTitle: sitesTitle(at, titles),
       lines: [d.line],
     });
   }
   return [...hints.values()];
+}
+
+/** "U10.L09 or A1.L04" by title; a capstone's session ("C1.S1") by its capstone's title. */
+function sitesTitle(at: string, titles: ReadonlyMap<string, string>): string | null {
+  const named = at.split(" or ").map((s) => titles.get(s) ?? titles.get(s.replace(/\.S\d+$/, "")));
+  return named.every((t) => t !== undefined) ? named.map((t) => `“${t}”`).join(" or ") : null;
 }
 
 function siteOf(t: Pick<ToolEntry, "unlock">): string {
@@ -294,12 +345,13 @@ export function linerFlags(
 ): string[] {
   if (!v) return [];
   const out: string[] = [];
-  const codeOf = new Map(toolbox.map((t) => [t.id as string, t.code]));
+  // A tool by the name a learner reads (`toolName`), never the registry's raw code column with its editorial notes.
+  const codeOf = new Map(toolbox.map((t) => [t.id as string, toolName(t).text]));
   if (v.flags.lockedTools.length > 0)
     out.push(
       `Uses tools not yet unlocked: ${v.flags.lockedTools.map((id) => codeOf.get(id) ?? id).join(", ")}`,
     );
-  if (v.band) out.push(`Band: Oak (${flavourLabel(v.band.flavour)} kit)`);
+  if (v.band) out.push(`Band: Oak (${flavourLabel(v.band.flavour)} style)`);
   if (v.tutorAssisted) out.push("Tutor-assisted version");
   if (v.flags.reviewBeforeRun) out.push("Imported: review before running");
   return out;
@@ -679,6 +731,27 @@ export function trackLensHints(
     const at = lessonOf(id);
     return at ? [{ id: `lens.${id}`, what: TRACK_LENS_WHAT[id], at }] : [];
   });
+}
+
+/**
+ * Whether the learner has started the side track a lesson belongs to ("J2.L03" is the jazz track "J"): a lesson of
+ * that track in progress or done. A track lens's hint waits for this, so a learner who never opened a track is not
+ * told about its jargon on every sketch.
+ */
+export function trackStarted(
+  progress: { lessons: readonly { lessonId: string; status: string }[] } | null | undefined,
+): (lessonId: string) => boolean {
+  const trackOf = (id: string) => /^([A-Z]+)[\d.]/.exec(id)?.[1] ?? null;
+  const started = new Set(
+    (progress?.lessons ?? [])
+      .filter((l) => l.status === "in_progress" || l.status === "completed")
+      .map((l) => trackOf(l.lessonId))
+      .filter((t): t is string => t !== null),
+  );
+  return (lessonId) => {
+    const t = trackOf(lessonId);
+    return t !== null && started.has(t);
+  };
 }
 
 export function trackLensTips(

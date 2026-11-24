@@ -289,6 +289,8 @@ describe("feedback", () => {
   test("rung-0 copy says where and how many", () => {
     expect(summaryText(view)).toBe("2 notes differ: bars 2 and 4.");
     expect(whereText(view.issues[0] as GradeView["issues"][number])).toBe("Bar 2, beat 3");
+    // A finding with no place says nothing in front of its words (never "Somewhere in the piece").
+    expect(whereText({ where: {} })).toBe("");
     expect(summaryText({ ...view, status: "pass" })).toBe("That's it.");
   });
   test("issues map to roll rings, editor marks and bar markers; ghosts become roll events", () => {

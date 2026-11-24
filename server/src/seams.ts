@@ -4,7 +4,7 @@
 import { toLearnerProfile } from "@oak/api";
 import { METER_IDS, type MeterId, type NEvent, type ToolEntry, type UnlockableId } from "@oak/content-kit";
 import { generateLadderPiece } from "@oak/drills";
-import { type GraderHost, normalize } from "@oak/grader";
+import { type GraderHost, nameUnlockSites, normalize } from "@oak/grader";
 import type { ContentIndex } from "./content/index.ts";
 import type { Repos } from "./db/repos/index.ts";
 import type { GraderHosts } from "./deps.ts";
@@ -54,6 +54,24 @@ export function serverGraderHosts(opts: { toolbox: () => readonly ToolEntry[] })
       await hosts?.dispose().catch(() => undefined);
     },
   };
+}
+
+/**
+ * The toolbox as the server's graders read it: every row carries the learner's words for the sessions that unlock
+ * it ("the lesson “Degrees in Code”"), so a message graded here never names a lesson by its bare ID (the app names
+ * its own rows the same way, `withUnlockNames` in app/src/lib/content-model.ts). A row with an unknown site keeps
+ * its IDs.
+ */
+export function namedToolbox(content: ContentIndex): readonly ToolEntry[] {
+  return nameUnlockSites(content.toolbox(), (site) => {
+    const id = site.replace(/\.S\d+$/, "");
+    const checkpoint = content.checkpointMeta(id);
+    if (checkpoint) return { kind: "checkpoint", title: checkpoint.title };
+    const capstone = content.capstoneMeta(id);
+    if (capstone) return { kind: "capstone", title: capstone.title };
+    const title = content.lessonSite(id) ? content.lessonTitle(id) : undefined;
+    return title === undefined ? undefined : { kind: "lesson", title };
+  });
 }
 
 /** Events of hidden pattern code (pd-song and ladder sources), evaluated by the learner host. */

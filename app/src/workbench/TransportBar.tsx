@@ -4,6 +4,7 @@
 import type { KeySpec, MeterSpec } from "@oak/content-kit";
 import type { MuteMap } from "@oak/strudel";
 import { useEffect, useRef } from "react";
+import { defaultTrackLabel } from "./chip-words.ts";
 import type { WorkbenchClock } from "./clock.ts";
 import { keyName } from "./key-tools.ts";
 import type { RegionStep } from "./loop-math.ts";
@@ -59,7 +60,7 @@ export interface TransportBarProps {
   loopBars: number;
   keySpec: KeySpec | null;
   tracks: readonly string[];
-  /** The words on a track's chip (a unit song: "Kick (Oak)", "drums (yours, from …)"). Default: the label. */
+  /** The words on a track's chip (a unit song: "Kick (Oak)", "Drums (yours, from …)"). Default: `defaultTrackLabel`. */
   trackLabel?(track: string): string;
   /** Wave 5: a badge per track label ("Swing 8ths" on a swung track, contracts §6.10). */
   badges?: ReadonlyMap<string, string>;
@@ -69,6 +70,11 @@ export interface TransportBarProps {
   practiceTempo: PracticeTempo;
   onPracticeTempo(): void;
   readOnly?: boolean;
+  /**
+   * Play/stop, the bar counter and the mute chips only: no tempo, metre, key, practice speed, solo or read-only
+   * badge (onboarding's first loop, Workbench `transport="minimal"`).
+   */
+  minimal?: boolean;
   /** Loop region (absent: no loop control). */
   loop?: TransportLoop;
   /** Metronome (absent: no metronome control). */
@@ -107,6 +113,39 @@ function SwitchGroup({
         </button>
       ))}
     </fieldset>
+  );
+}
+
+/**
+ * The panel switches that draw on the roll rather than open a panel: the Toolbox files them as lenses, so the
+ * lens bar groups them under "Lenses" with the tracks' lenses, and "Panels" keeps what opens beside the music.
+ */
+const ROLL_LENS_PANELS: ReadonlySet<string> = new Set(["function", "chord-tones", "range"]);
+
+// A chip's words without a host label ("Bass (Oak)", "Drums"): one rule with the song Make's, in chip-words.ts.
+export { defaultTrackLabel };
+
+/** The mute half's tooltip: what a click will do, and why the part is silent when another part is soloed. */
+export function chipMuteTitle(label: string, state: "on" | "muted" | "solo" | "silenced"): string {
+  if (state === "muted") return `${label} is muted: click to hear it again`;
+  if (state === "silenced") return `${label} is silent while another part is soloed`;
+  return `Mute ${label}`;
+}
+
+/** The muted mark: a struck speaker, so a muted part reads differently from one silenced by another's solo. */
+function SpeakerOff() {
+  return (
+    <svg
+      className="oak-chip-muted-mark"
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      aria-hidden="true"
+      data-testid="chip-muted-mark"
+    >
+      <path d="M1 4.5h2l3-2.5v8L3 7.5H1z" fill="currentColor" />
+      <path d="M8 4l3 4M11 4l-3 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
   );
 }
 
@@ -169,30 +208,34 @@ export function TransportBar(p: TransportBarProps) {
       <span className="oak-counter" ref={counter} data-testid="bar-counter" aria-live="off">
         1.1 / {p.loopBars}
       </span>
-      <span className="oak-tempo" data-testid="tempo">
-        {/* No tempo until the code has run once: show the meter alone rather than a dash. */}
-        {bpm ? `${bpm} BPM · ` : ""}
-        {p.meter.id}
-        {p.cpsDefault ? (
-          <span className="oak-muted" title="No setcpm line: Strudel's default tempo">
-            {" "}
-            (default)
+      {p.minimal ? null : (
+        <>
+          <span className="oak-tempo" data-testid="tempo">
+            {/* No tempo until the code has run once: show the meter alone rather than a dash. */}
+            {bpm ? `${bpm} BPM · ` : ""}
+            {p.meter.id}
+            {p.cpsDefault ? (
+              <span className="oak-muted" title="No setcpm line: Strudel's default tempo">
+                {" "}
+                (default)
+              </span>
+            ) : null}
           </span>
-        ) : null}
-      </span>
-      {keyText(p.keySpec) ? (
-        <span className="oak-key-name" data-testid="transport-key">
-          {keyText(p.keySpec)}
-        </span>
-      ) : null}
-      <button
-        type="button"
-        className="oak-link-button"
-        onClick={p.onPracticeTempo}
-        title="Practice tempo (the code is untouched)"
-      >
-        Practice {Math.round(p.practiceTempo * 100)}%
-      </button>
+          {keyText(p.keySpec) ? (
+            <span className="oak-key-name" data-testid="transport-key">
+              {keyText(p.keySpec)}
+            </span>
+          ) : null}
+          <button
+            type="button"
+            className="oak-link-button"
+            onClick={p.onPracticeTempo}
+            title="Practice tempo (the code is untouched)"
+          >
+            Practice {Math.round(p.practiceTempo * 100)}%
+          </button>
+        </>
+      )}
       {p.loop ? (
         <span className="oak-loop-step" data-testid="loop-control">
           <button
@@ -272,31 +315,45 @@ export function TransportBar(p: TransportBarProps) {
           />
           <SwitchGroup
             label="Panels"
-            items={p.lenses.panels}
+            items={p.lenses.panels.filter((it) => !ROLL_LENS_PANELS.has(it.id))}
             onToggle={p.lenses.onToggle}
             testId="panel-switch"
           />
           <SwitchGroup
             label="Lenses"
-            items={p.lenses.track ?? []}
+            items={[
+              ...p.lenses.panels.filter((it) => ROLL_LENS_PANELS.has(it.id)),
+              ...(p.lenses.track ?? []),
+            ]}
             onToggle={p.lenses.onToggle}
-            testId="track-lens-switch"
+            testId="roll-lens-switch"
           />
         </>
       ) : null}
       <span className="oak-chips">
         {p.tracks.map((t) => {
           const st = chipState(t, p.mutes);
+          // One name for the part in the words, the tooltips and what a screen reader says: never the raw track id.
+          const label = p.trackLabel ? p.trackLabel(t) : defaultTrackLabel(t);
+          // The learner's own mute stays visible while another part is soloed (it applies again after the solo).
+          const userMuted = p.mutes.muted.has(t);
           return (
-            <span key={t} className={`oak-track-chip ${st}`} data-track={t} data-state={st}>
+            <span
+              key={t}
+              className={`oak-track-chip ${st}${userMuted && st !== "muted" ? " user-muted" : ""}`}
+              data-track={t}
+              data-state={st}
+            >
               <button
                 type="button"
-                aria-pressed={st === "muted"}
+                aria-pressed={userMuted}
+                aria-label={`Mute ${label}`}
                 onClick={() => p.onMute(t)}
-                title={`Mute ${t}`}
+                title={chipMuteTitle(label, userMuted ? "muted" : st)}
                 data-testid={`mute-${t}`}
               >
-                {p.trackLabel ? p.trackLabel(t) : t.startsWith("band.") ? `${t.slice(5)} (band)` : t}
+                {userMuted ? <SpeakerOff /> : null}
+                {label}
               </button>
               {p.badges?.get(t) ? (
                 <span
@@ -307,20 +364,27 @@ export function TransportBar(p: TransportBarProps) {
                   {p.badges.get(t)}
                 </span>
               ) : null}
-              <button
-                type="button"
-                aria-pressed={st === "solo"}
-                onClick={() => p.onSolo(t)}
-                title={`Solo ${t}`}
-                data-testid={`solo-${t}`}
-              >
-                S
-              </button>
+              {p.minimal ? null : (
+                <button
+                  type="button"
+                  aria-pressed={st === "solo"}
+                  aria-label={`Solo ${label}`}
+                  onClick={() => p.onSolo(t)}
+                  title={
+                    st === "solo"
+                      ? `Stop soloing ${label}: hear every part again`
+                      : `Solo ${label}: hear only this part`
+                  }
+                  data-testid={`solo-${t}`}
+                >
+                  S
+                </button>
+              )}
             </span>
           );
         })}
       </span>
-      {p.readOnly ? <span className="oak-badge">read-only</span> : null}
+      {p.readOnly && !p.minimal ? <span className="oak-badge">read-only</span> : null}
     </div>
   );
 }

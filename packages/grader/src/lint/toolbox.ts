@@ -117,8 +117,59 @@ export function indexToolbox(toolbox: readonly ToolEntry[]): ToolIndex {
   };
 }
 
-/** The session(s) that unlock an entry, for messages. */
+/** How the learner knows a session that unlocks something: its kind and its title from the syllabus. */
+export interface UnlockSiteName {
+  kind: "lesson" | "checkpoint" | "capstone";
+  title: string;
+}
+
+/**
+ * A toolbox row that also carries the learner's words for its unlock sites, one per `unlock.at` entry in the same
+ * order. The grader is pure and has no syllabus, so whoever starts a host passes rows named by `nameUnlockSites`;
+ * a row without them (tests, the content linter) still says the bare session ID.
+ */
+export type NamedToolEntry = ToolEntry & { readonly unlockNames?: readonly UnlockSiteName[] };
+
+/** Rows with `unlockNames` filled from `name`; a row with any site `name` does not know is left as it was. */
+export function nameUnlockSites(
+  toolbox: readonly ToolEntry[],
+  name: (site: string) => UnlockSiteName | undefined,
+): NamedToolEntry[] {
+  return toolbox.map((entry) => {
+    const sites = Array.isArray(entry.unlock.at) ? entry.unlock.at : [entry.unlock.at];
+    const names = sites.map((s) => name(s as string));
+    return names.every((n): n is UnlockSiteName => n !== undefined)
+      ? { ...entry, unlockNames: names }
+      : entry;
+  });
+}
+
+/**
+ * The session(s) that unlock an entry, for messages: "the lesson “Degrees in Code”", "the lesson “A” or
+ * “B”", "the Interval checkpoint", "the capstone “C1 First Loop”". Learner copy never names a lesson by its bare
+ * ID (U03.L02), so the ID is said only when the row carries no names.
+ */
 export function unlockText(entry: ToolEntry | undefined): string {
+  if (!entry) return "a later lesson";
+  const names = (entry as NamedToolEntry).unlockNames;
+  if (names && names.length > 0) {
+    if (names.every((n) => n.kind === "lesson"))
+      return `the lesson ${names.map((n) => `“${n.title}”`).join(" or ")}`;
+    return names
+      .map((n) =>
+        n.kind === "lesson"
+          ? `the lesson “${n.title}”`
+          : n.kind === "checkpoint"
+            ? `the ${n.title}` // its title already says "checkpoint": "the Interval checkpoint"
+            : `the capstone “${n.title}”`,
+      )
+      .join(" or ");
+  }
+  return unlockIds(entry);
+}
+
+/** The session ID(s) that unlock an entry ("U10.L09 or A1.L04"): data for the app (`params.at`), not learner copy. */
+export function unlockIds(entry: ToolEntry | undefined): string {
   if (!entry) return "a later lesson";
   const at = entry.unlock.at;
   return Array.isArray(at) ? at.join(" or ") : at;

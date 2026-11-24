@@ -3,7 +3,15 @@
 import { useEffect, useRef } from "react";
 import { create } from "zustand";
 
-export type CommandGroup = "Navigate" | "Actions" | "Lessons" | "Tools" | "Sketches" | "Tracks" | "Settings";
+export type CommandGroup =
+  | "Navigate"
+  | "Actions"
+  | "Songs"
+  | "Lessons"
+  | "Tools"
+  | "Sketches"
+  | "Tracks"
+  | "Settings";
 
 export interface Command {
   id: string;
@@ -15,6 +23,8 @@ export interface Command {
   shortcut?: string;
   /** Short secondary text. */
   hint?: string;
+  /** Found when the learner types, but left out of the empty palette (a lens whose track is not open yet). */
+  searchOnly?: boolean;
   run(): void;
 }
 
@@ -43,7 +53,15 @@ export const useCommandStore = create<CommandStore>((set) => ({
 export function commandSignature(commands: readonly Command[]): string {
   return commands
     .map((c) =>
-      [c.id, c.title, c.group, c.hint ?? "", c.shortcut ?? "", (c.keywords ?? []).join(",")].join("\u0000"),
+      [
+        c.id,
+        c.title,
+        c.group,
+        c.hint ?? "",
+        c.shortcut ?? "",
+        (c.keywords ?? []).join(","),
+        c.searchOnly ? "1" : "",
+      ].join("\u0000"),
     )
     .join("\u0001");
 }
@@ -105,15 +123,40 @@ export function matchScore(query: string, text: string): number {
   return 0;
 }
 
+/** Below this a match is only a scattered subsequence ("nwsk" → "new sketch"), see `matchScore`. */
+const LOOSE = 150;
+
+/**
+ * The commands that match `query`, best first. Scattered subsequence matches are a fallback for abbreviations: they
+ * are dropped as soon as anything matches as a word or a run of letters, or "reset" lists `.lpf(hz)` and "Raise the
+ * Seventh" above what the learner meant. An empty query lists the commands as given, without the search-only ones.
+ */
 export function rankCommands(query: string, commands: readonly Command[], limit = 50): Command[] {
-  if (!query.trim()) return commands.slice(0, limit);
-  return commands
+  if (!query.trim()) return commands.filter((c) => !c.searchOnly).slice(0, limit);
+  const scored = commands
     .map((c) => ({
       c,
       s: Math.max(matchScore(query, c.title), ...(c.keywords ?? []).map((k) => matchScore(query, k) * 0.9)),
     }))
-    .filter((x) => x.s > 0)
+    .filter((x) => x.s > 0);
+  const tight = scored.some((x) => x.s >= LOOSE);
+  return scored
+    .filter((x) => !tight || x.s >= LOOSE)
     .sort((a, b) => b.s - a.s)
     .slice(0, limit)
     .map((x) => x.c);
+}
+
+/**
+ * The commands with each group gathered where its first (best) command stands, rank order kept inside a group, so
+ * the palette shows every group heading once instead of LESSONS, TOOLS, LESSONS.
+ */
+export function groupInOrder(commands: readonly Command[]): Command[] {
+  const groups = new Map<CommandGroup, Command[]>();
+  for (const c of commands) {
+    const list = groups.get(c.group);
+    if (list) list.push(c);
+    else groups.set(c.group, [c]);
+  }
+  return [...groups.values()].flat();
 }

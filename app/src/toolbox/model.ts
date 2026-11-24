@@ -76,23 +76,96 @@ export function sitesOf(t: Pick<ToolEntry, "unlock">): string[] {
   return Array.isArray(at) ? [...at] : [at];
 }
 
-/** "U01.L02 · Rests and accents" (or the bare ID when the syllabus has no title for it). */
-export function siteText(site: string, titles: ReadonlyMap<string, string>): string {
-  const title = titles.get(site) ?? titles.get(site.replace(/\.S\d+$/, ""));
-  return title ? `${site} · ${title}` : site;
+/** A site's title from the syllabus (a capstone's session "C2.S2" by its capstone, "C2"); undefined if untitled. */
+function titleOfSite(site: string, titles: ReadonlyMap<string, string>): string | undefined {
+  return titles.get(site) ?? titles.get(site.replace(/\.S\d+$/, ""));
 }
 
-/** The learner-facing unlock condition (contracts §3.1 rules 2, 6, 11, 12). */
+/**
+ * "U01.L02 · Rests and accents" (or the bare ID when the syllabus has no title for it). A capstone's title already
+ * starts with its code ("C2 Four-Chord Song"), so its session reads as the title alone, not "C2.S2 · C2 Four-…".
+ */
+export function siteText(site: string, titles: ReadonlyMap<string, string>): string {
+  const title = titleOfSite(site, titles);
+  if (!title) return site;
+  const code = site.replace(/\.S\d+$/, "");
+  return title.startsWith(`${code} `) ? title : `${site} · ${title}`;
+}
+
+/** The lesson's title alone ("Count to Four"), for a learner line that names a lesson; the bare ID if untitled. */
+export function siteTitle(site: string, titles: ReadonlyMap<string, string>): string {
+  return titleOfSite(site, titles) ?? site;
+}
+
+/**
+ * Lesson IDs in course order: the core first, in the default order of the course (`coreOrder`, the syllabus's
+ * `defaultOrder`, where a capstone session sits where it is taken), then the side tracks in syllabus order
+ * (`titles` is built in that order). An ID neither knows goes last.
+ */
+export function courseSort(
+  ids: readonly string[],
+  titles: ReadonlyMap<string, string>,
+  coreOrder: readonly string[] = [],
+): string[] {
+  const core = new Map(coreOrder.map((id, i) => [id, i]));
+  const order = new Map([...titles.keys()].map((id, i) => [id, i]));
+  const rank = (id: string): readonly [number, number] => {
+    const c = core.get(id);
+    if (c !== undefined) return [0, c];
+    const at = order.get(id) ?? order.get(id.replace(/\.S\d+$/, "")) ?? Number.MAX_SAFE_INTEGER;
+    return [/^(U\d|C\d)/.test(id) ? 0 : 1, at];
+  };
+  return [...ids].sort((a, b) => {
+    const [ca, ia] = rank(a);
+    const [cb, ib] = rank(b);
+    return ca - cb || ia - ib || a.localeCompare(b);
+  });
+}
+
+/**
+ * "Also used in", split for the tool page (lessons in course order): the five most recent done lessons shown, the
+ * earlier done ones behind "and N earlier lessons", the next three still to come shown, the rest behind "and N
+ * more lessons". Every done lesson listed made 35 links for `.gain` after U04's checkpoint and 100 or more later.
+ */
+export function usedInGroups(
+  lessons: readonly string[],
+  done: ReadonlySet<string>,
+  shown: { recent: number; next: number } = { recent: 5, next: 3 },
+): { earlier: string[]; recent: string[]; next: string[]; later: string[] } {
+  const finished = lessons.filter((l) => done.has(l));
+  const ahead = lessons.filter((l) => !done.has(l));
+  const cut = Math.max(0, finished.length - shown.recent);
+  return {
+    earlier: finished.slice(0, cut),
+    recent: finished.slice(cut),
+    next: ahead.slice(0, shown.next),
+    later: ahead.slice(shown.next),
+  };
+}
+
+/** A lesson named in a sentence: its title in quotes (“Let Strudel Voice It”), the bare ID only when untitled. */
+export function siteQuoted(site: string, titles: ReadonlyMap<string, string>): string {
+  const title = titleOfSite(site, titles);
+  return title ? `“${title}”` : site;
+}
+
+/**
+ * The learner-facing unlock condition (contracts §3.1 rules 2, 6, 11, 12). Lessons are named by their titles in
+ * quotes, never by their course ids (“Unlocks when you complete “Let Strudel Voice It””): the id read as a code.
+ */
 export function unlockText(t: Pick<ToolEntry, "unlock">, titles: ReadonlyMap<string, string>): string {
-  const sites = sitesOf(t).map((s) => siteText(s, titles));
+  const sites = sitesOf(t).map((s) => siteQuoted(s, titles));
   const where = sites.join(" or ");
   const start = t.unlock.when === "start";
   let text = start ? `Unlocks when you start ${where}` : `Unlocks when you complete ${where}`;
   const fallback = t.unlock.fallbackAt;
-  if (fallback) text += `, or when you complete ${siteText(fallback, titles)} if that comes first`;
+  if (fallback) text += `, or when you complete ${siteQuoted(fallback, titles)} if that comes first`;
   if (t.unlock.condition) {
     const pct = Math.round(t.unlock.condition.minScore * 100);
-    text += `, once the hand-voiced cadence check (${t.unlock.condition.exercise}) scores ${pct}% or more without the answer revealed`;
+    // The exercise is named by its lesson's title, never by its internal ref ("U05.L07/hand-voiced-cadence").
+    const lesson = lessonOfRef(t.unlock.condition.exercise);
+    const where = lesson ? ` in ${siteTitle(lesson, titles)}` : "";
+    text += `, once the hand-voiced cadence check${where} scores ${pct}% or more without the answer revealed`;
   }
   return `${text}.`;
 }

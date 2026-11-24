@@ -102,16 +102,31 @@
   border: 0;
   background: transparent;
   padding: 2px 8px;
+  /* A 24px target at the least (WCAG 2.5.8), the solo "S" included. */
+  min-height: 24px;
+  min-width: 24px;
   color: var(--wb-text);
 }
 .oak-track-chip button + button {
   border-left: 1px solid var(--wb-border);
   padding: 2px 6px;
 }
+/* Muted by the learner: the struck speaker and a line through the name. Silent only because another part is
+   soloed: dimmed and slanted, no line, so the two states never look alike (the solo chip says why). */
 .oak-track-chip.muted button:first-child,
-.oak-track-chip.silenced button:first-child {
+.oak-track-chip.user-muted button:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   text-decoration: line-through;
   color: var(--wb-text-3);
+}
+.oak-track-chip.silenced button:first-child {
+  font-style: italic;
+  color: var(--wb-text-3);
+}
+.oak-chip-muted-mark {
+  flex: none;
 }
 .oak-track-chip.solo button:last-child {
   background: var(--wb-accent);
@@ -457,8 +472,9 @@
   margin-right: 2px;
 }
 .oak-loop-step button:not(.oak-toggle) {
-  width: 22px;
-  height: 22px;
+  /* 24px: the smallest target the app allows (WCAG 2.5.8). */
+  width: 24px;
+  height: 24px;
   border: 1px solid var(--wb-border);
   border-radius: 4px;
   background: var(--wb-surface);

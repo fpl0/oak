@@ -34,6 +34,10 @@ export function withoutAuthorMark(text: string): string {
 }
 
 function rawToolLabel(t: Pick<ToolEntry, "kind" | "code"> & { catalog?: { signature?: string } }): ToolLabel {
+  // A recipe template is code ("recipe note(…).s(\"sawtooth\").lpf(600)"): its last "(600)" is the code's own
+  // argument, not an editorial note, so it is shown whole, as code, without the registry's "recipe" word.
+  if (t.kind === "template" && /^recipe\s/.test(t.code))
+    return { text: t.code.replace(/^recipe\s+/, ""), mono: true };
   if (t.kind === "feature" || t.kind === "lens" || t.kind === "template") {
     const plain = t.code.replace(/\s*\([^)]*\)\s*$/, "").trim();
     return { text: plain || t.code, mono: false };

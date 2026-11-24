@@ -76,7 +76,7 @@ export function plainBeats(text: string): string {
     );
 }
 
-/** "Bar 2, beat 3" (rung 0 always says where). */
+/** "Bar 2, beat 3" (rung 0 always says where); "" for a finding with no place in the music. */
 export function whereText(issue: Pick<IssueView, "where">): string {
   const w = issue.where;
   const parts: string[] = [];
@@ -85,7 +85,8 @@ export function whereText(issue: Pick<IssueView, "where">): string {
   if (w.beatLabel) parts.push(plainBeats(`beat ${w.beatLabel}`));
   else if (w.beat !== undefined) parts.push(`beat ${w.beat}`);
   if (w.rule) parts.push(w.rule);
-  return parts.length ? parts.join(", ") : "Somewhere in the piece";
+  // Never "Somewhere in the piece": it told the learner nothing, and the finding's own words follow.
+  return parts.join(", ");
 }
 
 /** Rung-0 summary: "2 notes differ: bars 2 and 4." Never "Wrong!", no exclamation marks. */

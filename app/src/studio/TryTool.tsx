@@ -3,6 +3,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { useContent } from "../lib/content.ts";
+import { errorWords } from "../lib/error-words.ts";
 import { useSketchCreate } from "../lib/queries.ts";
 import { shownToolLabel as toolLabel } from "../toolbox/label.ts";
 import { toolSketchBody } from "../toolbox/model.ts";
@@ -40,7 +41,7 @@ export function TryTool({ toolId, onHandled }: { toolId: string; onHandled(): vo
         navigate({ to: "/studio/$sketchId", params: { sketchId: saved.sketch.id }, replace: true }),
       )
       .catch((e: unknown) => {
-        toast.error("Couldn't open it in the Studio", e instanceof Error ? e.message : undefined);
+        toast.error("Couldn't open it in the Studio", errorWords(e));
         onHandled();
       });
   }, [content.data, ready, unlocked, toolId, create, navigate, onHandled]);

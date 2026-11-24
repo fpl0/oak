@@ -4,6 +4,7 @@ import { lintOak } from "@oak/grader";
 import { evalHeadless } from "@oak/grader/testing";
 import { toolbox } from "../../../content/toolbox.ts";
 import {
+  courseSort,
   demoBars,
   demoKey,
   demoMeter,
@@ -11,10 +12,13 @@ import {
   KIND_ORDER,
   lessonOfRef,
   sitesOf,
+  siteText,
+  siteTitle,
   tryTitle,
   unlockArpeggio,
   unlockText,
   usageFrom,
+  usedInGroups,
   usedOf,
 } from "./model.ts";
 
@@ -54,15 +58,62 @@ describe("grouping", () => {
 describe("unlock conditions", () => {
   test("a lesson row, a START row with its fallback, the voicing gate", () => {
     const gain = toolbox.find((t) => t.id === "tb.gain");
-    expect(unlockText(gain as never, titles)).toBe("Unlocks when you complete U01.L02 · Rests.");
+    expect(unlockText(gain as never, titles)).toBe("Unlocks when you complete “Rests”.");
     const ebass = toolbox.find((t) => t.id === "snd.ebass");
     expect(unlockText(ebass as never, titles)).toBe(
-      "Unlocks when you start C1.S1 · First Loop, or when you complete U03.L03 · Scales if that comes first.",
+      "Unlocks when you start “First Loop”, or when you complete “Scales” if that comes first.",
     );
     const voicing = toolbox.find((t) => t.id === "tb.voicing");
     expect(unlockText(voicing as never, titles)).toContain("scores 90% or more without the answer revealed");
+    // The gate's exercise is named by its lesson's title, never by its internal ref.
+    const gated = toolbox.find((t) => t.unlock.condition);
+    const withTitle = new Map([
+      ...titles,
+      ["U05.L07", "Voice Leading by Hand"],
+      ["U05.L08", "Let Strudel Voice It"],
+    ]);
+    const text = unlockText(gated as never, withTitle);
+    expect(text).toContain("the hand-voiced cadence check in Voice Leading by Hand scores 90%");
+    expect(text).not.toContain("/");
+    expect(text).toContain("Unlocks when you complete “Let Strudel Voice It”, once");
+    // No lesson is named by its course id.
+    expect(text).not.toMatch(/U\d{2}\.L\d{2}/);
     const lpf = toolbox.find((t) => t.id === "tb.lpf");
     expect(sitesOf(lpf as never)).toEqual(["C1.S1", "A1.L02"]);
+  });
+});
+
+describe("lesson names", () => {
+  test("a capstone session reads as its title alone; a lesson keeps its id before the title", () => {
+    const t = new Map([...titles, ["C2", "C2 Four-Chord Song"]]);
+    expect(siteText("C2.S2", t)).toBe("C2 Four-Chord Song");
+    expect(siteText("U01.L02", t)).toBe("U01.L02 · Rests");
+    expect(siteTitle("U01.L02", t)).toBe("Rests");
+    expect(siteTitle("X9.L01", t)).toBe("X9.L01");
+  });
+  test("course order: the core first, then the side tracks, each in syllabus order", () => {
+    const t = new Map([
+      ["U00.L01", "Hello"],
+      ["U01.L01", "Heartbeat"],
+      ["C1", "First Loop"],
+      ["J1.L01", "Swing"],
+      ["A2.L01", "Registers"],
+      ["R3.L01", "Clave"],
+    ]);
+    // The core's own order puts a capstone session where it is taken.
+    expect(courseSort(["U01.L01", "C1.S1", "U00.L01"], t, ["U00.L01", "C1.S1", "U01.L01"])).toEqual([
+      "U00.L01",
+      "C1.S1",
+      "U01.L01",
+    ]);
+    expect(courseSort(["R3.L01", "A2.L01", "U01.L01", "J1.L01", "U00.L01", "C1.S1"], t)).toEqual([
+      "U00.L01",
+      "U01.L01",
+      "C1.S1",
+      "J1.L01",
+      "A2.L01",
+      "R3.L01",
+    ]);
   });
 });
 
@@ -131,5 +182,21 @@ describe("demoBars", () => {
     expect(demoBars('x: n("<0!3 1>")')).toBe(4);
     expect(demoBars('mel: n("0 2 4")')).toBe(2);
     expect(demoBars('mel: n("<0 1 2 3 4 5 6 7 8 9>")')).toBe(8);
+  });
+});
+
+describe("also used in", () => {
+  test("the five most recent done lessons, the earlier ones behind a count; the next three, the rest behind a count", () => {
+    const lessons = Array.from({ length: 40 }, (_, i) => `U${String(i + 1).padStart(2, "0")}.L01`);
+    const done = new Set(lessons.slice(0, 35));
+    const g = usedInGroups(lessons, done);
+    expect(g.recent).toEqual(lessons.slice(30, 35));
+    expect(g.earlier).toHaveLength(30);
+    expect(g.earlier[0]).toBe("U01.L01");
+    expect(g.next).toEqual(lessons.slice(35, 38));
+    expect(g.later).toEqual(lessons.slice(38));
+    // Few done: all shown, nothing behind "earlier".
+    const few = usedInGroups(lessons.slice(0, 4), new Set(lessons.slice(0, 2)));
+    expect(few).toEqual({ earlier: [], recent: lessons.slice(0, 2), next: lessons.slice(2, 4), later: [] });
   });
 });

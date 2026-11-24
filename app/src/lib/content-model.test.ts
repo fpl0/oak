@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { registries } from "@content/index.ts";
+import type { NamedToolEntry } from "@oak/grader";
 import {
   buildBundle,
   layoutSkillGraph,
@@ -113,6 +114,25 @@ describe("buildBundle", () => {
     expect(b.toolbox.length).toBe(registries.toolbox.length);
     expect(b.capstones.length).toBe(registries.syllabus.capstones.length);
     expect(b.lessons).toEqual([]);
+  });
+
+  test("names every tool's unlock sites, so a lock message says a title and never a bare lesson ID", async () => {
+    const b = buildBundle({
+      registries: { syllabus: registries.syllabus, skills: registries.skills, toolbox: registries.toolbox },
+    });
+    const { lintOak } = await import("@oak/grader");
+    const named = (id: string) => b.toolbox.find((t) => t.id === id) as NamedToolEntry;
+    expect(named("tb.n").unlockNames).toEqual([{ kind: "lesson", title: "Degrees in Code" }]);
+    expect(named("tb.lpf").unlockNames?.map((n) => n.kind)).toEqual(["capstone", "lesson"]);
+    expect(b.toolbox.every((t) => (t as NamedToolEntry).unlockNames !== undefined)).toBe(true);
+    const r = lintOak(
+      'setcpm(30)\nmel: n("0 2").scale("C4:major")',
+      { profile: "graded", unlocked: new Set(), allowPreview: false, meter: "4/4", key: null },
+      b.toolbox,
+    );
+    const n = r.diagnostics.find((d) => d.id === "code.locked-tool" && d.params.name === "n");
+    expect(n?.message).toBe("`n` unlocks in the lesson “Degrees in Code”.");
+    for (const d of r.diagnostics) expect(d.message).not.toMatch(/\b[A-Z]+\d*\.(L|S|CP)\d*\b/);
   });
 
   test("prefers generated files and reads contentVersion", () => {

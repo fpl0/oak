@@ -4,6 +4,8 @@
 // analysed changes (wave4.md §3.2), so both play the same chords over the same bass and drums.
 import type { UnlockableId } from "@oak/content-kit";
 import { useState } from "react";
+import { useContent } from "../lib/content.ts";
+import { lessonTitles } from "../lib/content-model.ts";
 import { useSketch, useSketches } from "../lib/queries.ts";
 import { appWorkbenchServices } from "../lib/workbench-services.ts";
 import { useUnlockedSet } from "../studio/queries.ts";
@@ -11,13 +13,22 @@ import "../workbench/index.ts";
 import { changesAsChordPattern } from "../workbench/harmony.ts";
 import { ServicesGate } from "../workbench/ServicesGate.tsx";
 import { Workbench } from "../workbench/Workbench.tsx";
-import { gateExample, handVoicingSketch, strudelVersion } from "./voicing-compare.ts";
+import { siteTitle } from "./model.ts";
+import { gateExample, HAND_VOICING_LESSON, handVoicingSketch, strudelVersion } from "./voicing-compare.ts";
+
+/** The hand-voicing lesson by its title ("“Voice Leading by Hand”"), never its ID (U05.L07). */
+function useHandLesson(): string {
+  const content = useContent();
+  const title = siteTitle(HAND_VOICING_LESSON, lessonTitles(content.data?.syllabus ?? null));
+  return title === HAND_VOICING_LESSON ? "your hand-voicing lesson" : `“${title}”`;
+}
 
 const BARS = 4;
 
 export function VoicingCompare() {
   const sketches = useSketches("lesson-make");
   const mine = sketches.data ? handVoicingSketch(sketches.data.items) : null;
+  const lesson = useHandLesson();
   return (
     <section
       className="flex flex-col gap-2 rounded-card border border-border bg-surface p-3"
@@ -34,7 +45,7 @@ export function VoicingCompare() {
       ) : (
         <>
           <p className="text-sm text-text-2" data-testid="voicing-compare-missing">
-            Your hand-voiced cadence from U05.L07 is not in your sketchbook, so here is Strudel's voicing of
+            Your hand-voiced cadence from {lesson} is not in your sketchbook, so here is Strudel's voicing of
             the same I–IV–V–I in C.
           </p>
           <ServicesGate load={appWorkbenchServices} auto>
@@ -49,9 +60,10 @@ export function VoicingCompare() {
 function HandAndStrudel({ sketchId }: { sketchId: string }) {
   const detail = useSketch(sketchId);
   const [changes, setChanges] = useState<string | null>(null);
+  const lesson = useHandLesson();
   const version = detail.data?.versions.find((v) => v.version === detail.data?.currentVersion) ?? null;
-  if (detail.isPending) return <p className="text-sm text-text-3">Opening your U05.L07 sketch…</p>;
-  if (!version) return <p className="text-sm text-text-2">Your U05.L07 sketch could not be opened.</p>;
+  if (detail.isPending) return <p className="text-sm text-text-3">Opening your sketch from {lesson}…</p>;
+  if (!version) return <p className="text-sm text-text-2">Your sketch from {lesson} could not be opened.</p>;
   return (
     <ServicesGate load={appWorkbenchServices} auto>
       <p className="text-sm text-text-2">
@@ -60,7 +72,7 @@ function HandAndStrudel({ sketchId }: { sketchId: string }) {
       </p>
       <div className="grid gap-3 sm:grid-cols-2">
         <Side
-          title="Your hand voicing (U05.L07)"
+          title={`Your hand voicing (${lesson})`}
           code={version.code}
           id="vchand"
           onChanges={(c) => setChanges((prev) => prev ?? c)}

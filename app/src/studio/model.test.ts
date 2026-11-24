@@ -162,9 +162,22 @@ describe("lint: hints and the strict check", () => {
     expect(hints[0]).toMatchObject({
       id: "tb.gain",
       at: "U01.L02",
-      atTitle: "Rests and accents",
+      atTitle: "“Rests and accents”",
       lines: [3, 4],
     });
+  });
+
+  test("a tool with two unlock sites, one a capstone session, is named by titles, never by IDs", () => {
+    const code = 'setcpm(90/4)\n\ndrums: s("bd hh sd hh").lpf(800)\n';
+    const r = lintOak(code, studioLint(FIRST_LESSONS, "4/4", null), toolbox);
+    const titles = new Map([
+      ["C1", "C1 First Loop"],
+      ["A1.L02", "Filters"],
+    ]);
+    const lpf = lockedHints(r, toolbox, titles).find((h) => h.id === "tb.lpf");
+    expect(lpf?.atTitle).toBe("“C1 First Loop” or “Filters”");
+    // One untitled site: no half-named sentence (the panel then says "a later lesson").
+    expect(lockedHints(r, toolbox, new Map()).find((h) => h.id === "tb.lpf")?.atTitle).toBeNull();
   });
 
   test("the strict check stops unsafe or broken code and nothing else", () => {
@@ -255,19 +268,19 @@ describe("liner flags and export", () => {
         band: { bandId: "band.axis-4bar", flavour: "flavour.jazz-soul", mutes: [] },
       }),
       toolbox,
-      () => "jazz-soul",
+      () => "Jazz-soul",
     );
     expect(flags).toEqual([
       "Uses tools not yet unlocked: .gain(x)",
-      "Band: Oak (jazz-soul kit)",
+      "Band: Oak (Jazz-soul style)",
       "Imported: review before running",
     ]);
   });
 
   test("the exported file is the code with a comment header, and it still runs", async () => {
-    const text = exportText({ title: "Sketch 007" }, V({ version: 4 }), ["Band: Oak (pop kit)"]);
+    const text = exportText({ title: "Sketch 007" }, V({ version: 4 }), ["Band: Oak (Pop style)"]);
     expect(
-      text.startsWith("// Sketch 007 (v4, 2026-11-11)\n// C major · 4/4 · 90 BPM\n// Band: Oak (pop kit)"),
+      text.startsWith("// Sketch 007 (v4, 2026-11-11)\n// C major · 4/4 · 90 BPM\n// Band: Oak (Pop style)"),
     ).toBe(true);
     expect(text.endsWith(`${BLANK_CODE.trimEnd()}\n`)).toBe(true);
     expect((await evalHeadless(text, 1)).events).toHaveLength(4);

@@ -29,11 +29,13 @@ import { Chip, Kbd } from "../ui/kit/basics.tsx";
 import { Callout, SegmentedControl } from "../ui/kit/Controls.tsx";
 import { toast } from "../ui/kit/Toast.tsx";
 import "../workbench/index.ts";
+import { errorWords } from "../lib/error-words.ts";
 import { appWorkbenchServices } from "../lib/workbench-services.ts";
-import { sitesOf, siteText } from "../toolbox/model.ts";
+import { sitesOf, siteTitle } from "../toolbox/model.ts";
 import { useSubjectHarmony } from "../tutor/use-subject-harmony.ts";
 import { ServicesGate } from "../workbench/ServicesGate.tsx";
 import { Workbench } from "../workbench/Workbench.tsx";
+import { BandOptions } from "./BandOptions.tsx";
 import { clearDraft, readDraft, readLength, writeDraft, writeLength } from "./draft.ts";
 import {
   bandMutesOf,
@@ -72,6 +74,7 @@ import {
   trackFactsOf,
   trackLensHints,
   trackLensTips,
+  trackStarted,
   type VersionDraft,
   versionBody,
   versionLabel,
@@ -87,7 +90,8 @@ type SaveStatus =
   | { kind: "saving" }
   | { kind: "error"; message: string };
 
-const flavourLabel = (id: string) => (FLAVOUR_LABEL[id] ?? id).toLowerCase();
+// A style is named as everywhere else, capitalised ("Band: Oak (Jazz-soul style)").
+const flavourLabel = (id: string) => FLAVOUR_LABEL[id] ?? id;
 
 export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
   const id = sketch.id;
@@ -161,7 +165,7 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
         if (d.code === liveRef.current) clearDraft(id);
         return v;
       } catch (e) {
-        setStatus({ kind: "error", message: e instanceof Error ? e.message : String(e) });
+        setStatus({ kind: "error", message: errorWords(e) });
         return null;
       }
     });
@@ -257,25 +261,21 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
     };
   }, [lintKey]);
   const hints = lockedHints(lint, toolbox, titles);
-  // Wave 4: a sketch with chords hears when its harmony views arrive (a hint, never a block).
-  const [hasChords, setHasChords] = useState(false);
-  const harmonyHints = harmonyViewHints(hasChords, unlocked as ReadonlySet<string>, (tid) => {
+  // Where a view or lens opens, by the lessons' titles only ("from “Chord Symbols”"): never "U05.L09 · …".
+  const unlockWords = (tid: string): string | null => {
     const t = toolbox.find((x) => x.id === tid);
     if (!t) return null;
     return sitesOf(t)
-      .map((s) => siteText(s, titles))
+      .map((s) => `“${siteTitle(s, titles)}”`)
       .join(" or ");
-  }).slice(0, 2);
+  };
+  // Wave 4: a sketch with chords hears when its harmony views arrive (a hint, never a block).
+  const [hasChords, setHasChords] = useState(false);
+  const harmonyHints = harmonyViewHints(hasChords, unlocked as ReadonlySet<string>, unlockWords).slice(0, 2);
   // Wave 5: the form and sound views (the ribbon, the form map, the scope, the probes): hints, never a block.
   const [hasSections, setHasSections] = useState(false);
   const soundFacts = soundFactsOf(liveCode, hasSections);
-  const soundHints = formSoundHints(soundFacts, unlocked as ReadonlySet<string>, (tid) => {
-    const t = toolbox.find((x) => x.id === tid);
-    if (!t) return null;
-    return sitesOf(t)
-      .map((s) => siteText(s, titles))
-      .join(" or ");
-  }).slice(0, 2);
+  const soundHints = formSoundHints(soundFacts, unlocked as ReadonlySet<string>, unlockWords).slice(0, 2);
   const soundTips = formSoundTips(soundFacts, unlocked as ReadonlySet<string>);
   // Wave 6: guide tones, the key ribbon and the beat grid: a tip once the lens is there, a hint before.
   const [musicFacts, setMusicFacts] = useState<SketchMusicFacts>({
@@ -284,20 +284,17 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
     beatGrid: false,
     pushes: false,
   });
-  const musicHints = musicLensHints(musicFacts, unlocked as ReadonlySet<string>, (tid) => {
-    const t = toolbox.find((x) => x.id === tid);
-    if (!t) return null;
-    return sitesOf(t)
-      .map((s) => siteText(s, titles))
-      .join(" or ");
-  }).slice(0, 2);
+  const musicHints = musicLensHints(musicFacts, unlocked as ReadonlySet<string>, unlockWords).slice(0, 2);
   const musicTips = musicLensTips(musicFacts, unlocked as ReadonlySet<string>);
   // Wave 7: the advanced tracks' lenses: a tip once a lens is open, a hint naming its lesson before (never a block).
   const [trackFacts, setTrackFacts] = useState<SketchTrackFacts>(NO_TRACK_FACTS);
   const trackOpen = lenses.track.available;
-  const trackHints = trackLensHints(trackFacts, trackOpen, (lid) =>
-    siteText(TRACK_LENS_GATES[lid].lesson, titles),
-  ).slice(0, 2);
+  // A hint only once the learner has started that lens's track, by the lesson's title (no course id).
+  const started = trackStarted(progress.data);
+  const trackHints = trackLensHints(trackFacts, trackOpen, (lid) => {
+    const lesson = TRACK_LENS_GATES[lid].lesson;
+    return started(lesson) ? (titles.get(lesson) ?? null) : null;
+  }).slice(0, 2);
   const trackTips = trackLensTips(trackFacts, trackOpen).slice(0, 3);
 
   // --- the tutor's subject: this sketch -----------------------------------------------------------------
@@ -385,7 +382,7 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
         void navigate({ to: "/studio" });
       }
     } catch (e) {
-      toast.error("Couldn't delete the sketch", e instanceof Error ? e.message : undefined);
+      toast.error("Couldn't delete the sketch", errorWords(e));
     }
   };
 
@@ -570,16 +567,12 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
             data-testid="band-select"
           >
             <option value="">None</option>
-            {fitting.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.title}
-              </option>
-            ))}
+            <BandOptions fitting={fitting} />
           </select>
         </label>
         {band ? (
           <SegmentedControl
-            label="Band flavour"
+            label="Band style"
             size="sm"
             value={band.flavour}
             options={STUDIO_FLAVOURS.map((f) => ({ value: f.id, label: f.label }))}
@@ -722,7 +715,7 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
                 ))}
                 {trackHints.map((h) => (
                   <li key={h.id}>
-                    {h.what}: from {h.at}.
+                    {h.what}: coming in {h.at}.
                   </li>
                 ))}
               </ul>
@@ -767,7 +760,7 @@ function SaveState({ status, onRetry }: { status: SaveStatus; onRetry(): void })
         "Saving…"
       ) : status.kind === "error" ? (
         <>
-          <span className="text-issue">Not saved: {status.message}.</span>{" "}
+          <span className="text-issue">Not saved. {status.message}</span>{" "}
           <button type="button" className="text-link underline" onClick={onRetry}>
             Try again
           </button>
@@ -789,8 +782,8 @@ function LockedHints({ hints }: { hints: LockedHint[] }) {
             <Link to="/toolbox/$toolId" params={{ toolId: h.id }} className="font-mono text-link">
               {h.code}
             </Link>{" "}
-            unlocks at {h.at}
-            {h.atTitle ? ` · ${h.atTitle}` : ""}{" "}
+            {/* By title only: a lesson is never named by its ID (U01.L02) in learner copy. */}
+            unlocks in {h.atTitle ?? "a later lesson"}{" "}
             <span className="text-text-3">
               (line{h.lines.length === 1 ? "" : "s"} {h.lines.join(", ")})
             </span>

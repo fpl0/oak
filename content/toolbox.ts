@@ -200,7 +200,9 @@ export const toolbox: readonly ToolEntry[] = defineToolbox([
   feature("tb.feature.tutor", "Tutor panel", "U00.L01", "ask about what you hear"),
   feature("tb.feature.band", "Band layer (read-only backing; mute only)", "U00.L01", "your part inside a song"),
   feature("tb.feature.tuner", "Sing panel (PitchLane)", "U00.L02", "first sung tonic"),
-  feature("tb.feature.staff", "Staff panel (percussion staff from U01.L05, treble from U02.L04)", "U01.L05", "rhythm values on paper"),
+  // The staff shows percussion from U01.L05 and the treble clef from U02.L04 (contracts §3.2 keeps that note); the code
+  // is the bare name, since a surface that prints `code` would show the lesson ids to the learner.
+  feature("tb.feature.staff", "Staff panel", "U01.L05", "rhythm values on paper"),
   feature("tb.feature.album", "Album", "C0.S1", "first track", { when: "start" }),
   feature("tb.feature.degree-labels", "1-based degree labels and colours on roll and staff", "U03.L02", "scale degrees", {
     meaning: "Numbers every note by its degree in the key, 1 for home, on the roll and under the staff, and colours it by degree. `n` counts from 0, so the label is always one more than the number in the code.",

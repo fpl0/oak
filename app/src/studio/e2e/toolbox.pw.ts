@@ -39,11 +39,11 @@ test("every tool is listed by kind; locked ones are dimmed with their concept an
   // Unlocked first: `s("…")` is learned in U01.L01.
   const s = cards.filter({ hasText: 's("…")' }).first();
   await expect(s).toHaveAttribute("data-locked", "0");
-  await expect(s).toContainText("Learned in U01.L01");
+  await expect(s).toContainText("Learned in Heartbeat");
   const gain = cards.filter({ hasText: ".gain(x)" }).first();
   await expect(gain).toHaveAttribute("data-locked", "1");
   await expect(gain).toContainText("Concept:");
-  await expect(gain).toContainText("Unlocks at U01.L02");
+  await expect(gain).toContainText("Unlocks at Count to Four");
   // The category tab narrows the grid and keeps it in the URL.
   await page.getByRole("tab", { name: "Sounds" }).click();
   await expect(page).toHaveURL(/cat=sound/);
@@ -66,7 +66,7 @@ test("an unlocked tool: concept, a live editable example that plays, the lessons
   await page.goto("/toolbox/tb.mini.repeat");
   await expect(page.getByTestId("tool-name")).toHaveText("x*n");
   await expect(page.getByText("Why it's in your toolbox")).toBeVisible();
-  await expect(page.getByTestId("tool-lessons")).toContainText("Learned in U01.L01");
+  await expect(page.getByTestId("tool-lessons")).toContainText("Learned in Heartbeat");
   const example = page.getByTestId("tool-example");
   await expect(example.locator(`${WB}[data-analysis=ready]`)).toBeVisible({ timeout: 60_000 });
   await expect(example.locator(".cm-content")).toContainText('hats: s("hh*8")');
@@ -87,7 +87,11 @@ test("an unlocked tool: concept, a live editable example that plays, the lessons
 test("a locked tool: its unlock condition and a teaser you can hear but not open", async ({ page }) => {
   await page.goto("/toolbox/tb.gain");
   await expect(page.getByTestId("tool-name")).toContainText(".gain(x)");
-  await expect(page.getByTestId("unlock-condition")).toContainText("Unlocks when you complete U01.L02");
+  await expect(page.getByTestId("unlock-condition")).toContainText(
+    "Unlocks when you complete “Count to Four”",
+  );
+  // The lesson is named by its title, not its course id.
+  await expect(page.getByTestId("unlock-condition")).not.toContainText("U01.L02");
   await expect(page.getByTestId("tool-example")).toHaveCount(0);
   await expect(page.locator(".cm-content")).toHaveCount(0);
   await page.getByTestId("teaser").click();
@@ -97,8 +101,8 @@ test("a locked tool: its unlock condition and a teaser you can hear but not open
   await expect(page.getByTestId("teaser")).toHaveAttribute("aria-pressed", "false");
   // A START row with its fallback, and the voicing gate, say so.
   await page.goto("/toolbox/snd.ebass");
-  await expect(page.getByTestId("unlock-condition")).toContainText("Unlocks when you start C1.S1");
-  await expect(page.getByTestId("unlock-condition")).toContainText("U03.L03");
+  await expect(page.getByTestId("unlock-condition")).toContainText("Unlocks when you start “C1 First Loop”");
+  await expect(page.getByTestId("unlock-condition")).toContainText("“Restless Neighbours”");
   await page.goto("/toolbox/tb.voicing");
   await expect(page.getByTestId("unlock-condition")).toContainText("90% or more");
   await page.goto("/toolbox/tb.nope");

@@ -2,9 +2,9 @@ import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { createClient, OakApiError } from "@oak/api";
 import { midisOf } from "@oak/grader/testing";
 import { coverRings } from "../ui/AlbumCover.tsx";
-import { describeError } from "../ui/kit/QueryState.tsx";
+import { describeError, SERVER_DOWN } from "../ui/kit/QueryState.tsx";
 import { setApiClient } from "./api.ts";
-import { type Command, matchScore, rankCommands } from "./commands.ts";
+import { type Command, groupInOrder, matchScore, rankCommands } from "./commands.ts";
 import { accidentals, formatBytes, formatDuration, formatKey } from "./format.ts";
 import { formatNoteMidi } from "./notes.ts";
 import { shouldRetry } from "./query-client.ts";
@@ -41,6 +41,25 @@ describe("command ranking", () => {
 
   test("empty query keeps the registry order", () => {
     expect(rankCommands("", cmds).map((c) => c.title)).toEqual(cmds.map((c) => c.title));
+  });
+
+  test("a scattered subsequence is dropped once a word or a run of letters matches", () => {
+    const list = [cmd(".lpf(hz)"), cmd("Raise the Seventh"), cmd("Settings › Data", ["reset progress"])];
+    expect(rankCommands("reset", list).map((c) => c.title)).toEqual(["Settings › Data"]);
+    // With nothing better, an abbreviation still finds its command.
+    expect(rankCommands("nwsk", cmds).map((c) => c.title)).toEqual(["New sketch"]);
+  });
+
+  test("a search-only command is found by typing, not listed in the empty palette", () => {
+    const lens: Command = { ...cmd("Clave lens", ["lens"]), searchOnly: true };
+    expect(rankCommands("", [...cmds, lens]).map((c) => c.title)).not.toContain("Clave lens");
+    expect(rankCommands("clave", [...cmds, lens]).map((c) => c.title)).toEqual(["Clave lens"]);
+  });
+
+  test("each group is gathered where its best command stands, rank order kept inside it", () => {
+    const g = (title: string, group: Command["group"]): Command => ({ ...cmd(title), group });
+    const ranked = [g("a", "Lessons"), g("b", "Tools"), g("c", "Lessons"), g("d", "Songs"), g("e", "Tools")];
+    expect(groupInOrder(ranked).map((c) => c.title)).toEqual(["a", "c", "b", "e", "d"]);
   });
 });
 
@@ -126,6 +145,17 @@ describe("API errors and retries", () => {
       "Oak's server isn't answering",
     );
     expect(describeError(new OakApiError("x", 200, "contract", "x")).title).toContain("disagree");
+  });
+
+  test("a server that is not there reads the same whether the fetch failed or the dev proxy answered for it", () => {
+    for (const e of [
+      new OakApiError("bootstrap", 0, "network", "x"),
+      new OakApiError("bootstrap", 502, "internal", "bootstrap: HTTP 502"),
+      new OakApiError("tutor.status", 504, "internal", "tutor.status: HTTP 504"),
+    ])
+      expect(describeError(e)).toEqual({ ...SERVER_DOWN });
+    expect(SERVER_DOWN.body).not.toContain("bun run dev");
+    expect(describeError(new OakApiError("x", 500, "internal", "boom")).title).toBe("Something went wrong");
   });
 
   test("callApi sends X-Oak and validates the response against the contract", async () => {

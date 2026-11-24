@@ -823,8 +823,8 @@ export const TrackStateSchema = z.object({
   /** The next lesson of the track the learner may start now; `null` when none is open or none is authored. */
   next: lessonId.nullable(),
   /**
-   * The one honest line every surface shows for this track now: "Opens with the U13 checkpoint.", "Open. Its first
-   * lessons are still being written.", "Next: J1.L01 Swing Feel & the Ride." Never a count of what is missing.
+   * The one honest line every surface shows for this track now: "Opens with the unit 13 checkpoint.", "Open. Its
+   * first lessons are still being written.", "Next: J1.L01 Swing Feel & the Ride." Never a count of what is missing.
    */
   note: z.string(),
   /**

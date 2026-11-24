@@ -1,12 +1,13 @@
 // The toolbox-aware lint (contracts §3.3, §11.3; STYLE §12). Golden expectations: each case states the
 // finding the dialect spec asks for, then asserts it.
 import { describe, expect, test } from "bun:test";
-import type { Diagnostic, LintContext, LintProfile } from "@oak/content-kit";
+import type { Diagnostic, LintContext, LintProfile, ToolEntry } from "@oak/content-kit";
 import { renderFeedback } from "../feedback/catalog.ts";
 import { sectionsFromAst } from "./ast.ts";
 import { miniErrorDetail } from "./mini.ts";
 import { lintBase, lintOak, lintStrict, toolsUsed } from "./oak.ts";
 import { ALL_UNLOCKED, TOOLBOX, unlockedAt } from "./toolbox.test-data.ts";
+import { nameUnlockSites, type UnlockSiteName, unlockText } from "./toolbox.ts";
 
 const ctx = (profile: LintProfile, o: Partial<LintContext> = {}): LintContext => ({
   profile,
@@ -323,6 +324,68 @@ describe("toolbox", () => {
     const card = lintOak(code, ctx("tutor-card", { unlocked }), TOOLBOX);
     expect(card.ok).toBe(true);
     expect(card.lockedTools.length).toBe(2);
+  });
+
+  test("a locked tool names its lesson by title when the rows carry names (never the bare ID)", () => {
+    const titles: Record<string, string> = {
+      "U05.L08": "Triads in Code",
+      "U02.L01": "Piano Keys",
+      "U01.L07": "Alternation",
+    };
+    const named = nameUnlockSites(TOOLBOX, (s) =>
+      titles[s] ? { kind: "lesson", title: titles[s] as string } : undefined,
+    );
+    const code = `${T}chords: chord("<C F>").s("piano")`;
+    const r = lintOak(code, ctx("graded", { unlocked: unlockedAt("U00.L01", "U01.L01") }), named);
+    const tool = r.diagnostics.find((d) => d.id === "code.locked-tool");
+    expect(tool?.message).toBe("`chord` unlocks in the lesson “Triads in Code”.");
+    expect(renderFeedback(tool as Diagnostic)).toBe(
+      "`chord` unlocks in the lesson “Triads in Code”. For now, use the tools you have.",
+    );
+    expect(r.diagnostics.find((d) => d.id === "code.locked-sound")?.message).toBe(
+      'The sound "piano" unlocks in the lesson “Piano Keys”.',
+    );
+    for (const d of r.diagnostics) expect(d.message).not.toMatch(/\b[A-Z]\d+\.(L|S)\d+|\.CP\b/);
+  });
+
+  test("unlockText: one lesson, alternatives, a checkpoint, a capstone, and the ID only without names", () => {
+    const row = (at: string | string[], names?: UnlockSiteName[]) =>
+      ({ ...(TOOLBOX[0] as ToolEntry), unlock: { at, when: "complete" }, unlockNames: names }) as ToolEntry;
+    expect(unlockText(row("U03.L02", [{ kind: "lesson", title: "Scale Degrees in Code" }]))).toBe(
+      "the lesson “Scale Degrees in Code”",
+    );
+    expect(
+      unlockText(
+        row(
+          ["U10.L09", "A1.L04"],
+          [
+            { kind: "lesson", title: "Echoes" },
+            { kind: "lesson", title: "Space" },
+          ],
+        ),
+      ),
+    ).toBe("the lesson “Echoes” or “Space”");
+    expect(
+      unlockText(
+        row(
+          ["C1.S1", "A1.L02"],
+          [
+            { kind: "capstone", title: "C1 First Loop" },
+            { kind: "lesson", title: "Filters" },
+          ],
+        ),
+      ),
+    ).toBe("the capstone “C1 First Loop” or the lesson “Filters”");
+    expect(unlockText(row("U04.CP", [{ kind: "checkpoint", title: "Interval checkpoint" }]))).toBe(
+      "the Interval checkpoint",
+    );
+    expect(unlockText(row("U03.L02"))).toBe("U03.L02");
+    expect(unlockText(undefined)).toBe("a later lesson");
+    // A row with one site the namer does not know keeps its IDs rather than a half-named sentence.
+    const half = nameUnlockSites([row(["U10.L09", "ZZ.L01"])], (s) =>
+      s === "U10.L09" ? { kind: "lesson", title: "Echoes" } : undefined,
+    );
+    expect(unlockText(half[0])).toBe("U10.L09 or ZZ.L01");
   });
 
   test("a locked mini operator and a locked scale", () => {

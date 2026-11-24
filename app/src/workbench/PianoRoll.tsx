@@ -80,6 +80,11 @@ export interface PianoRollProps {
   minBars?: number;
   /** Show the analysis is not what is playing. */
   stale?: boolean;
+  /**
+   * The loop region while the loop is on (0-based first bar, length in bars): the bars outside it are dimmed and an
+   * accent bracket spans it on the ruler, so `[` `]` `Shift+[` `Shift+]` move something the learner can see.
+   */
+  loop?: { from: number; bars: number } | null;
   height?: number;
   /**
    * Long loops: show this many bars at a time and turn the page with the playhead (and by hand while
@@ -375,6 +380,16 @@ export function PianoRoll(props: PianoRollProps) {
       : null;
   const followRef = useRef(follow);
   followRef.current = follow;
+  // A new loop region turns the page to its first bar, stopped or not (a unit song's Make opens looping its last
+  // section: page 1 showed Oak's intro and none of the learner's bars). A page turned by hand stays until the region
+  // moves again; while playing, the playhead pages as before.
+  const loopFrom = props.loop?.from ?? null;
+  useEffect(() => {
+    const size = props.followBars ?? 0;
+    if (loopFrom === null || size <= 0) return;
+    setManualPage(Math.max(0, Math.floor((loopFrom - content[0] + 1e-9) / size)));
+    setHeldPage(null);
+  }, [loopFrom]);
 
   const layout: RollLayout = useMemo(
     () =>
@@ -1080,6 +1095,28 @@ export function PianoRoll(props: PianoRollProps) {
       g.restore();
     }
 
+    // the loop region: dim what will not play, bracket what will
+    if (p.loop) {
+      const x0 = Math.max(L.gutter, xOfCycle(L, Math.max(L.from, p.loop.from)));
+      const x1 = Math.min(L.width, xOfCycle(L, Math.min(L.to, p.loop.from + p.loop.bars)));
+      g.fillStyle = c.surface;
+      g.globalAlpha = 0.6;
+      if (x0 > L.gutter) g.fillRect(L.gutter, L.rulerHeight, x0 - L.gutter, L.height - L.rulerHeight);
+      if (x1 < L.width) g.fillRect(x1, L.rulerHeight, L.width - x1, L.height - L.rulerHeight);
+      g.globalAlpha = 1;
+      if (x1 > x0) {
+        g.strokeStyle = c.accent;
+        g.lineWidth = 2;
+        g.beginPath();
+        g.moveTo(x0 + 1, L.rulerHeight - 1);
+        g.lineTo(x0 + 1, 1);
+        g.lineTo(x1 - 1, 1);
+        g.lineTo(x1 - 1, L.rulerHeight - 1);
+        g.stroke();
+        g.lineWidth = 1;
+      }
+    }
+
     // bar-level issue markers on the ruler
     for (const m of p.barMarks ?? []) {
       const at = m.bar - 1 + ((m.beat ?? 1) - 1) / model.meter.unitsPerBar;
@@ -1126,6 +1163,8 @@ export function PianoRoll(props: PianoRollProps) {
     layout,
     props.ghosts,
     props.barMarks,
+    props.loop?.from,
+    props.loop?.bars,
     props.color,
     props.labels,
     props.noteLabels,
@@ -1392,6 +1431,7 @@ export function PianoRoll(props: PianoRollProps) {
         ]
           .filter(Boolean)
           .join(". ")}
+        data-loop={props.loop ? `${props.loop.from}:${props.loop.bars}` : undefined}
         data-guide={props.music?.guide ? props.music.guide.marks.size : undefined}
         data-guide-lines={guideLines.length > 0 ? guideLines.join(" | ") : undefined}
         data-beat-grid={props.music?.grid ? (props.music.grid.compound ? "compound" : "triplets") : undefined}

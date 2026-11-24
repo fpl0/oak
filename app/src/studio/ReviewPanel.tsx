@@ -4,6 +4,7 @@
 import type { KeySpec, MeterId } from "@oak/content-kit";
 import { ShieldCheck } from "lucide-react";
 import { useState } from "react";
+import { errorWords } from "../lib/error-words.ts";
 import { lintInBrowser } from "../lib/grader-client.ts";
 import { Button } from "../ui/kit/Button.tsx";
 import { Callout } from "../ui/kit/Controls.tsx";
@@ -35,7 +36,7 @@ export function ReviewPanel({
     try {
       setVerdict(strictVerdict(await lintInBrowser(code, strictLint(meter, keySpec))));
     } catch (e) {
-      setFailed(e instanceof Error ? e.message : String(e));
+      setFailed(errorWords(e));
     } finally {
       setChecking(false);
     }

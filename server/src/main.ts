@@ -4,7 +4,7 @@ import { loadConfig } from "./config.ts";
 import { ContentIndex } from "./content/index.ts";
 import { loadContent } from "./content/loader.ts";
 import { MAX_BINARY_BYTES } from "./routes/define.ts";
-import { serverGraderHosts } from "./seams.ts";
+import { namedToolbox, serverGraderHosts } from "./seams.ts";
 import { Secrets } from "./secrets.ts";
 
 const config = loadConfig();
@@ -17,7 +17,7 @@ for (const p of problems.slice(0, 20)) log(`content: ${p.id}: ${p.message}`);
 const authored = content.lessons.length;
 log(`content ${content.contentVersion ?? "(not built)"}: ${authored} lessons authored`);
 const index = new ContentIndex(content);
-const graders = serverGraderHosts({ toolbox: () => index.toolbox() });
+const graders = serverGraderHosts({ toolbox: () => namedToolbox(index) });
 
 const server = await createServer({ config, content, graders, secrets, log });
 

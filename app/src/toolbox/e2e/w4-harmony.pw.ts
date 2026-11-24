@@ -152,7 +152,7 @@ test("Studio: no chord labels before U05.L09, only a hint; then symbols, numeral
   await expect(wb).toHaveAttribute("data-chords", "");
   await expect(page.getByTestId("lens-chordSymbols")).toHaveCount(0);
   await expect(page.getByTestId("harmony-hints")).toContainText(
-    "Chord names on the roll and the staff: from U05.L09",
+    "Chord names on the roll and the staff: from “Chord Names”",
   );
   await wb.focus();
   await page.keyboard.press("Shift+H");

@@ -73,7 +73,7 @@ describe("errorToDiagnostic is friendly", () => {
 
   test("a lint message that mentions mini-notation is not read as a typo", () => {
     const f = friendlyEvalError(
-      "The mini-notation `,` unlocks in U04.L03. For now, use the tools you have.",
+      "The mini-notation `,` unlocks in the lesson “Together Now”. For now, use the tools you have.",
       's("bd, hh")',
     );
     expect(f.message).not.toContain("typo");

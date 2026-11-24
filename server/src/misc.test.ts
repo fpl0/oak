@@ -1,12 +1,15 @@
 import { describe, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import type { NamedToolEntry } from "@oak/grader";
 import * as srs from "@oak/srs";
-import { loadConfig } from "./config.ts";
+import { appVersionOf, loadConfig } from "./config.ts";
 import { ConfirmStore, NONCE_TTL_MS } from "./confirm.ts";
+import { ContentIndex } from "./content/index.ts";
 import { loadContent } from "./content/loader.ts";
 import { addDays, dayStartInstant, learnerDay, weekStart } from "./lib/days.ts";
+import { namedToolbox } from "./seams.ts";
 import { Secrets } from "./secrets.ts";
 import { extFor, sniffAudio } from "./services/audio-store.ts";
 import { packVersion, safeFile } from "./static.ts";
@@ -35,6 +38,27 @@ describe("config", () => {
     expect(w).toMatchObject({ port: 8801, devPorts: [5173, 5201], tutorFake: true });
     const p = loadConfig({ env: { OAK_PORT: "8801", OAK_VITE_PORT: "5201", OAK_TUTOR_FAKE: "1" }, argv: [] });
     expect(p).toMatchObject({ port: 8801, devPorts: [], tutorFake: false });
+  });
+
+  test("the app version: the desktop app's, else desktop/package.json's, with -dev on a dev server", () => {
+    const root = mkdtempSync(join(tmpdir(), "oak-version-"));
+    try {
+      // The staged desktop app has no desktop/ folder: Electron passes the version.
+      expect(appVersionOf({ OAK_APP_VERSION: "1.3.0" }, root, false)).toBe("1.3.0");
+      expect(appVersionOf({}, root, false)).toBe("0.0.0");
+      mkdirSync(join(root, "desktop"));
+      writeFileSync(join(root, "desktop", "package.json"), JSON.stringify({ version: "1.4.2" }));
+      expect(appVersionOf({}, root, false)).toBe("1.4.2");
+      expect(appVersionOf({}, root, true)).toBe("1.4.2-dev");
+      expect(appVersionOf({ OAK_APP_VERSION: " 1.5.0 " }, root, false)).toBe("1.5.0");
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+    // This checkout reads its own desktop/package.json.
+    const own = JSON.parse(
+      readFileSync(join(import.meta.dir, "..", "..", "desktop", "package.json"), "utf8"),
+    );
+    expect(loadConfig({ env: {}, argv: [] }).appVersion).toBe(own.version);
   });
 });
 
@@ -136,5 +160,16 @@ describe("content loader", () => {
     expect(c.syllabus.units.length).toBeGreaterThan(0);
     expect(c.skills.length).toBeGreaterThan(0);
     expect(Array.isArray(c.problems)).toBe(true);
+  });
+
+  test("the graders' toolbox names every unlock site in the learner's words, never by a bare ID", async () => {
+    const c = await loadContent({ contentDir: join(import.meta.dir, "..", "..", "content") });
+    const index = new ContentIndex(c);
+    const rows = namedToolbox(index) as readonly NamedToolEntry[];
+    expect(rows.length).toBe(index.toolbox().length);
+    const unnamed = rows.filter((r) => r.unlockNames === undefined).map((r) => r.id);
+    expect(unnamed).toEqual([]);
+    for (const r of rows)
+      for (const n of r.unlockNames ?? []) expect(n.title).not.toMatch(/^[A-Z]+\d+(\.|$)/);
   });
 });

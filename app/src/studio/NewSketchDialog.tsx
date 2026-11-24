@@ -1,5 +1,6 @@
 // "New sketch from…" (ux §2.3): Blank, today's Make, or over a Band (pop or jazz-soul kit, in a key). The
-// later templates ("Four-chord pop", …) are listed with the capstone that unlocks them (contracts §3.2 A).
+// later templates ("Four-chord pop", …) are listed with the capstone that unlocks them (contracts §3.2 A); their
+// starter songs are not written yet, so an unlocked one says "coming soon" rather than offering itself.
 import type { Sketch, SketchCreate } from "@oak/api";
 import type { FlavourId, KeySpec, MeterId } from "@oak/content-kit";
 import { useNavigate } from "@tanstack/react-router";
@@ -9,14 +10,16 @@ import { useId, useState } from "react";
 import { bandMeter, bands } from "../../../content/bands/index.ts";
 import { useContent } from "../lib/content.ts";
 import { lessonTitles, unlockSite } from "../lib/content-model.ts";
+import { errorWords } from "../lib/error-words.ts";
 import { formatDate } from "../lib/format.ts";
 import { useProfile, useSketch, useSketchCreate } from "../lib/queries.ts";
 import { currentSessionId } from "../session/store.ts";
-import { siteText } from "../toolbox/model.ts";
+import { siteTitle } from "../toolbox/model.ts";
 import { Button } from "../ui/kit/Button.tsx";
 import { SegmentedControl } from "../ui/kit/Controls.tsx";
 import { Dialog } from "../ui/kit/Dialog.tsx";
 import { toast } from "../ui/kit/Toast.tsx";
+import { BandOptions } from "./BandOptions.tsx";
 import { focusOnOpen } from "./focus.ts";
 import {
   BLANK_CODE,
@@ -132,7 +135,7 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
       onClose();
       void navigate({ to: "/studio/$sketchId", params: { sketchId: saved.sketch.id } });
     } catch (e) {
-      toast.error("Couldn't create the sketch", e instanceof Error ? e.message : undefined);
+      toast.error("Couldn't create the sketch", errorWords(e));
     }
   };
 
@@ -219,19 +222,15 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
               onChange={(e) => setBandId(e.target.value)}
               className="h-8 rounded-control border border-border bg-surface px-2 text-text"
             >
-              {fitting.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.title}
-                </option>
-              ))}
+              <BandOptions fitting={fitting} />
             </select>
           </label>
           <div className="flex flex-col gap-1 text-sm">
             <span className="text-text-2" id={`${ids}-flavour`}>
-              Flavour
+              Style
             </span>
             <SegmentedControl<FlavourId>
-              label="Flavour"
+              label="Style"
               size="sm"
               value={flavour}
               options={STUDIO_FLAVOURS.map((f) => ({ value: f.id, label: f.label }))}
@@ -281,7 +280,8 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
                   {open ? null : <Lock aria-hidden className="size-3.5 text-text-3" />}
                   <span>{t.code.replace(/^Studio template /, "").replaceAll('"', "")}</span>
                   <span className="text-text-3">
-                    {open ? "unlocked" : `unlocks with ${siteText(site, titles)}`}
+                    {/* Earned, but its starter song is not written yet: say so, never "unlocked" with no way in. */}
+                    {open ? "coming soon" : `unlocks when you release ${siteTitle(site, titles)}`}
                   </span>
                 </li>
               );

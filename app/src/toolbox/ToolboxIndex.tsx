@@ -10,11 +10,12 @@ import { useContent } from "../lib/content.ts";
 import { lessonTitles } from "../lib/content-model.ts";
 import { usePageTitle } from "../lib/nav.ts";
 import { useUnlocks } from "../lib/queries.ts";
+import { InlineCodeText } from "../session/today/SideOffer.tsx";
 import { Card, Chip, EmptyState, Page, PageHeader, Progress } from "../ui/kit/basics.tsx";
 import { ErrorState, LoadingState } from "../ui/kit/QueryState.tsx";
 import { Tabs } from "../ui/kit/Tabs.tsx";
-import { shownToolLabel as toolLabel } from "./label.ts";
-import { groupTools, KIND_LABEL, KIND_ORDER, sitesOf, siteText } from "./model.ts";
+import { shownConcept, shownToolMeaning, shownToolLabel as toolLabel } from "./label.ts";
+import { groupTools, KIND_LABEL, KIND_ORDER, sitesOf, siteText, siteTitle } from "./model.ts";
 
 type Cat = ToolEntry["kind"] | "all";
 
@@ -128,7 +129,11 @@ function ToolCard({
   open: boolean;
   titles: ReadonlyMap<string, string>;
 }) {
+  // Lessons by title on the card (the id stays in the tooltip for reference), the same for unlocked and locked.
   const site = sitesOf(t)
+    .map((x) => siteTitle(x, titles))
+    .join(" or ");
+  const siteIds = sitesOf(t)
     .map((x) => siteText(x, titles))
     .join(" or ");
   return (
@@ -149,7 +154,7 @@ function ToolCard({
         <span className="flex items-start justify-between gap-2">
           <code
             className={clsx(
-              "line-clamp-2 text-sm",
+              "line-clamp-2 text-sm [overflow-wrap:anywhere]",
               toolLabel(t).mono ? "font-mono" : "font-sans font-medium",
               open ? "text-text" : "text-text-2",
             )}
@@ -159,17 +164,19 @@ function ToolCard({
           {open ? null : <Lock aria-label="locked" className="mt-0.5 size-3.5 shrink-0 text-text-3" />}
         </span>
         {open ? (
-          <span className="line-clamp-3 text-sm text-text-2">{t.catalog.meaning}</span>
+          <span className="line-clamp-3 text-sm text-text-2">
+            <InlineCodeText text={shownToolMeaning(t)} />
+          </span>
         ) : (
-          <span className="line-clamp-3 text-sm text-text-3">Concept: {t.concept}</span>
+          <span className="line-clamp-3 text-sm text-text-3">Concept: {shownConcept(t)}</span>
         )}
         <span className="mt-auto pt-1 text-sm">
           {open ? (
-            <Chip tone="accent" title={site}>
-              Learned in {sitesOf(t)[0]}
+            <Chip tone="accent" title={siteIds}>
+              Learned in {siteTitle(sitesOf(t)[0] ?? "", titles)}
             </Chip>
           ) : (
-            <span className="text-text-2">
+            <span className="text-text-2" title={siteIds}>
               Unlocks at <span className="font-medium text-text">{site}</span>
             </span>
           )}

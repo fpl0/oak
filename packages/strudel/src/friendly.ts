@@ -119,7 +119,7 @@ export function friendlyEvalError(raw: string, code: string, offset?: number | n
   const known = typeof offset === "number" && offset >= 0 ? at(offset) : null;
 
   // Strudel's own parser errors only: "[mini] parse error …". Not any message that mentions mini-notation (Oak's
-  // lint says "The mini-notation `,` unlocks in U04.L03", which is not a typo).
+  // lint says "The mini-notation `,` unlocks in the lesson “Together Now”", which is not a typo).
   if (/\[mini\]|\bparse error\b/i.test(detail)) {
     for (const lit of stringLiterals(code)) {
       const problem = bracketProblem(lit.body);
