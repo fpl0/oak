@@ -54,6 +54,26 @@ export const FUNCTION_DEGREE: Record<HarmonicFn, BaseDegree> = { T: 1, PD: 4, D:
 /** Layers, drum parts and tracks — never pitches. */
 export const PARTS_PALETTE = ["#8C6A4F", "#6F7D5C", "#5E6F86", "#8A6A86", "#9A7B3F", "#5F8077"] as const;
 
+/**
+ * A unit song's part colours (app/src/song/part-tones.ts picks one per part): ten hues, so a song's parts, ten at
+ * most, never share a colour: PARTS_PALETTE's six, then brick, green, indigo and rose. Two differ from the palette's
+ * greys: the teal is bluer and stronger (PARTS_PALETTE has #5F8077), and the green is stronger (it was #4E8259), because
+ * olive, teal and green read as one colour where a song draws the snare, percussion and vocal rows together (U07).
+ * Each holds 3:1 as a fill on the card surface in both themes (WCAG 1.4.11).
+ */
+export const SONG_PART_TONES = [
+  "#8C6A4F", // brown
+  "#6F7D5C", // olive
+  "#5E6F86", // slate
+  "#8A6A86", // mauve
+  "#9A7B3F", // ochre
+  "#2F8597", // teal blue
+  "#A5564B", // brick
+  "#3E8546", // green
+  "#6A6AA8", // indigo
+  "#A8607E", // rose
+] as const;
+
 /** Hatch geometry for altered degrees: 4 px spacing; ♭ leans one way, ♯ the other. */
 export const HATCH = { spacing: 4, width: 1.25, flatAngle: 45, sharpAngle: -45 } as const;
 

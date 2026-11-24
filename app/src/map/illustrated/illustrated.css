@@ -34,6 +34,10 @@
 .illustrated-canvas:active {
   cursor: grabbing;
 }
+/* The branch sub-labels show only once the zoom makes them readable (`data-details`, set with the zoom). */
+.illustrated-canvas[data-details="hidden"] .illustrated-anatomy-detail {
+  display: none;
+}
 .illustrated-leaf {
   cursor: pointer;
   outline: none;

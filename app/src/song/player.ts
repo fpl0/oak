@@ -10,7 +10,7 @@ import { type SongBand, songLengthBars } from "@oak/strudel/song-compose";
 import { useSyncExternalStore } from "react";
 import { songBandSetupOf } from "../lesson/band.ts";
 import { getOak } from "../lib/oak.ts";
-import { useShell } from "../lib/shell-store.ts";
+import { type NowPlaying, useShell } from "../lib/shell-store.ts";
 
 export interface SongLoop {
   fromBar: number;
@@ -54,8 +54,8 @@ let raf: number | null = null;
  */
 let playOn: SongLoop | null = null;
 
-/** The label the shell's Now playing shows for a song (and what `stopSong` clears). */
-const NOW_PLAYING_PREFIX = "Song: ";
+/** The shell's Now playing this player set, so `stopSong` clears its own and never another source's. */
+let shown: NowPlaying | null = null;
 
 function set(next: Partial<SongPlayState>): void {
   state = { ...state, ...next };
@@ -144,6 +144,8 @@ export interface PlaySongOptions {
   loop?: SongLoop | null;
   /** The song's title for the shell's Now playing (the learner's title; Oak's working title when not given). */
   title?: string;
+  /** The style a style preview plays it in ("Funk"): the Now playing names it ("Count me in, in Funk"). */
+  style?: string;
   /** The mutes to apply once the song's tracks are known (a part muted or soloed on the song page). */
   mutes?: (tracks: readonly string[]) => MuteMap;
 }
@@ -184,10 +186,9 @@ export async function playSong(id: string, band: SongBand, opts: PlaySongOptions
     }
     set({ phase: "playing", bar: opts.loop?.fromBar ?? 0, tracks });
     // The shell shows what plays with a Stop, so a song left playing on another page can be stopped there.
-    useShell.getState().setNowPlaying({
-      label: `${NOW_PLAYING_PREFIX}${opts.title ?? band.def.title}`,
-      stop: () => stopSong(),
-    });
+    const title = opts.title ?? band.def.title;
+    shown = { label: opts.style ? `${title}, in ${opts.style}` : title, stop: () => stopSong() };
+    useShell.getState().setNowPlaying(shown);
     schedule();
     return true;
   } catch (e) {
@@ -208,8 +209,8 @@ export function stopSong(id?: string): void {
   playOn = null;
   const was = state.id;
   set({ id: null, phase: "idle", bar: null, loop: null, tracks: [] });
-  const np = useShell.getState().nowPlaying;
-  if (np?.label.startsWith(NOW_PLAYING_PREFIX)) useShell.getState().setNowPlaying(null);
+  if (shown !== null && useShell.getState().nowPlaying === shown) useShell.getState().setNowPlaying(null);
+  shown = null;
   if (was !== null) for (const l of frameListeners) l(null, null);
 }
 

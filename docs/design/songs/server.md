@@ -346,7 +346,7 @@ It returns `{state, track, unlocks, canDo, streak}` (`dto.ts:2248`). After that 
 - `PUT /settings/:key` validates the value against that key's schema (`routes/meta.ts:54-71`). A new setting needs no migration, only the DTO.
 - **Flavour is not a setting.** It is `Profile.flavour`, written by `profile.put` / `ProfilePatchSchema`. Writers:
   - onboarding (`app/src/onboarding/screens/PrefsScreen.tsx:40,90`, which offers only pop or jazz-soul);
-  - Settings → Learning, "Genre flavour" (`app/src/routes/settings/learning.tsx:49-56`).
+  - Settings → Learning, "Style" (`app/src/routes/settings/learning.tsx:49-56`; formerly "Genre flavour").
 - **Readers:**
   - the app's lesson Make (`LessonPlayer.tsx:256`) and checkpoint (`CheckpointPlayer.tsx:208`);
   - the capstone (`CapstoneScreen.tsx:241`; `Workspace.tsx:272`: `state.flavour ?? tagFlavour ?? profile.flavour ?? content.shipping[0]`);

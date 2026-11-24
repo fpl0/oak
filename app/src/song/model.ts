@@ -80,7 +80,7 @@ export interface SongView {
   /** Section by section, parts in song order: one per part × section. */
   cells: SongViewCell[];
   takesCount: number;
-  /** Lessons in the song's plan (side steps included): "lesson 4 of 9". */
+  /** The song's take lessons (a side lesson has no number): "lesson 4 of 8" (`songLessonOf`). */
   lessonsInSong: number;
   lengthBars: number;
   /** The sections today's code plays in (empty without a Make open). */
@@ -333,7 +333,7 @@ export function songViewOf(
     })),
     cells,
     takesCount: detail?.takesCount ?? 0,
-    lessonsInSong: def.plan.length,
+    lessonsInSong: def.plan.filter((p) => p.kind === "take").length,
     lengthBars: songLengthBars(def),
     today,
   };

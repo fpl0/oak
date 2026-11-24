@@ -27,11 +27,12 @@ import {
   useUnlocks,
 } from "../../lib/queries.ts";
 import { ownOpenSession } from "../../lib/tab-session.ts";
+import { useUnitSongs } from "../../song/hooks.ts";
 import { SongGrew, SongRelease, songReleasedBy } from "../../song/SongGrew.tsx";
 import { askListeningNote, useTutorContext } from "../../tutor/context.ts";
 import { useHotkeys } from "../../ui/keys/KeymapProvider.tsx";
 import { Button, buttonClass } from "../../ui/kit/Button.tsx";
-import { Card, Chip, Page } from "../../ui/kit/basics.tsx";
+import { Card, Chip, Page, Skeleton } from "../../ui/kit/basics.tsx";
 import { Callout } from "../../ui/kit/Controls.tsx";
 import { LoadingState } from "../../ui/kit/QueryState.tsx";
 import { useFocusHeaderContent } from "../../ui/shell/focus-header.ts";
@@ -337,6 +338,11 @@ function CodaBody({ summary, ended }: { summary: SessionSummary; ended: EndedRec
   }, [moment, unlocks, summary.unlocks]);
   const ceremony = moment !== null && moment.length > 0;
   const releaseUnit = songReleasedBy(summary.session.mapItemId, unitSongs);
+  // "Next unlock: … → Album" is not said once the album already holds (or is offered today) a song: the learner just
+  // put a track on it, and the line would read as though the album were still locked.
+  const songs = useUnitSongs();
+  const songOnAlbum = releaseUnit !== null || (songs.data?.items ?? []).some((s) => s.releases.length > 0);
+  const nextUnlock = gradient && !(gradient.itemId === ALBUM_TOOL && songOnAlbum) ? gradient : undefined;
 
   return (
     <div className="flex flex-col gap-4">
@@ -368,6 +374,9 @@ function CodaBody({ summary, ended }: { summary: SessionSummary; ended: EndedRec
             sketchIds={summary.sketchesSaved}
             release={releaseUnit}
             fallback={<SketchCard sketchId={summary.sketchesSaved[0]} />}
+            // The card's room while the song is read after the save, so the sketch card does not show and then
+            // swap for the song under the learner's eyes (the lesson recap holds the same room).
+            pending={<Skeleton className="h-[28rem] w-full rounded-card" />}
           />
         ) : (
           <SketchCard sketchId={summary.sketchesSaved[0]} />
@@ -506,7 +515,7 @@ function CodaBody({ summary, ended }: { summary: SessionSummary; ended: EndedRec
         </div>
       </Section>
 
-      {(tomorrow || planned || gradient || coreLeft || cftAfter) && !finale && (
+      {(tomorrow || planned || nextUnlock || coreLeft || cftAfter) && !finale && (
         <Section title="Next" testId="coda-next">
           {planned && !tomorrow && <PlannerNext next={planned} />}
           {tomorrow && <p data-testid="coda-tomorrow">{tomorrow}</p>}
@@ -525,15 +534,15 @@ function CodaBody({ summary, ended }: { summary: SessionSummary; ended: EndedRec
               <InlineCodeText text={nextObjective} />
             </p>
           )}
-          {gradient && (
+          {nextUnlock && (
             <p className="text-sm text-text-2" data-testid="coda-next-unlock">
               <span className="text-text-3">Next unlock: </span>
-              {goalGradient(gradient, "")}
+              {goalGradient(nextUnlock, "")}
               {gradientTool && !toolLabel(gradientTool).mono ? (
                 <span className="font-medium text-text">{toolLabel(gradientTool).text}</span>
               ) : (
                 <code className="font-mono">
-                  {gradientTool ? toolLabel(gradientTool).text : gradient.itemId}
+                  {gradientTool ? toolLabel(gradientTool).text : nextUnlock.itemId}
                 </code>
               )}
             </p>
@@ -567,6 +576,9 @@ function wrappedEarly(own: EndedRecord | null, reports: EndedRecord["reports"]):
 function endedToday(e: EndedRecord, today: string): boolean {
   return e.day === today || (e.summary?.session.day ?? e.day) === today;
 }
+
+/** The Album's toolbox item (content/toolbox.ts): its unlock line steps aside once a song is on the album. */
+const ALBUM_TOOL = "tb.feature.album";
 
 export function CodaPage() {
   usePageTitle("Coda");

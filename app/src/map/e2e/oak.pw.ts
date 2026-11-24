@@ -84,7 +84,7 @@ test("the panel explains a leaf and points at the right practice", async ({ page
   await expect(panel.getByTestId("practise-this")).toHaveAttribute("href", "/learn/U01.L01?from=map");
   // A locked leaf says which lesson opens it, with no dead button.
   await leaf(page, "P05").click();
-  await expect(panel).toContainText("Opens with U02.L02");
+  await expect(panel).toContainText("Opens with the lesson “The White Keys”.");
   await expect(panel.getByTestId("practise-this")).toHaveCount(0);
   await expect(panel).toContainText("None yet");
   await page.keyboard.press("Escape");

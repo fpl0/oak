@@ -1,8 +1,8 @@
 // `/album` (ux §5.3): the album as a record sleeve. The front: the newest cover with the record peeking out, the
 // album's name, its length, Play all. The back: the tracklist by side, covers grown from the music, durations,
 // play, liner notes; empty slots say what opens them. With no track yet, the first one is made worth earning.
-import type { AlbumTrack, AlbumTrackDetail } from "@oak/api";
-import { useQueries } from "@tanstack/react-query";
+import type { AlbumTrack, AlbumTrackDetail, UnitId } from "@oak/api";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { clsx } from "clsx";
 import { Check, ChevronDown, Download, Lock, Pause, Pencil, Play, X } from "lucide-react";
@@ -19,7 +19,19 @@ import {
   useCourseProgress,
   useWholeCourse,
 } from "../lib/queries.ts";
-import { AlbumSongs } from "../song/AlbumSongs.tsx";
+import { AlbumSongs, takeStepsOf } from "../song/AlbumSongs.tsx";
+import { useUnitSongs } from "../song/hooks.ts";
+import { releaseId } from "../song/ids.ts";
+import { playSong, stopSong, useSongPlayState } from "../song/player.ts";
+import { SongReleaseCover } from "../song/SongCover.tsx";
+import {
+  firstTrackSong,
+  type SongStage,
+  type SongTrackRelease,
+  snapshotBand,
+  snapshotSeconds,
+  songTracksOf,
+} from "../song/surfaces-model.ts";
 import { AlbumCover } from "../ui/AlbumCover.tsx";
 import { Button, buttonClass, IconButton } from "../ui/kit/Button.tsx";
 import { Chip, Page, Skeleton } from "../ui/kit/basics.tsx";
@@ -34,6 +46,8 @@ import { CourseCompleteHeading, PlayEverything, useWholeRecord } from "./WholeRe
 interface Playing {
   trackId: string;
   version: number;
+  /** A unit-song release: it plays its frozen song through the song player, not a recording. */
+  song?: SongTrackRelease;
 }
 
 export function AlbumPage() {
@@ -49,23 +63,101 @@ export function AlbumPage() {
     queries: tracks.map((t) => apiQuery("album.track", { params: { id: t.id } })),
   });
   const detailOf = new Map(details.flatMap((q) => (q.data ? [[q.data.id, q.data] as const] : [])));
+  // The album rows that are unit-song releases, and the release each one's current version is.
+  const songs = useUnitSongs();
+  const songTracks = songTracksOf(songs.data?.items);
+  const songReleaseOf = (t: Pick<AlbumTrack, "id" | "currentVersion">): SongTrackRelease | null => {
+    const s = songTracks.get(t.id);
+    return s ? (s.releases.find((r) => r.version === t.currentVersion) ?? s.releases.at(-1) ?? null) : null;
+  };
+  const songRows = tracks.flatMap((t) => {
+    const r = songReleaseOf(t);
+    return r ? [{ track: t, release: r }] : [];
+  });
+  const snapshots = useQueries({
+    queries: songRows.map(({ release: r }) => ({
+      ...apiQuery("songs.snapshot", {
+        params: { unitId: r.unitId as UnitId, releaseId: String(r.releaseId) },
+      }),
+      staleTime: Number.POSITIVE_INFINITY,
+    })),
+  });
+  const songSeconds = new Map(
+    songRows.map(({ track }, i) => {
+      const snap = snapshots[i]?.data;
+      return [track.id, snap ? snapshotSeconds(snap) : 0] as const;
+    }),
+  );
 
-  // One player for the page; "Play all" walks the tracks that have a recording, in record order.
+  // One player for the page; "Play all" walks the tracks that have a recording, in record order, then the songs
+  // (each plays its frozen release once through on the song player).
+  const qc = useQueryClient();
   const audio = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState<Playing | null>(null);
   const [queue, setQueue] = useState<Playing[]>([]);
   const play = (p: Playing | null) => {
     const el = audio.current;
+    const was = playing;
     setPlaying(p);
-    if (!el) return;
+    if (was?.song && was.song !== p?.song) stopSong(releaseId(was.song.unitId, was.song.releaseId));
     if (!p) {
-      el.pause();
+      el?.pause();
       return;
     }
+    if (p.song) {
+      el?.pause();
+      void playRelease(p.song).catch(() => {
+        setQueue([]);
+        setPlaying(null);
+      });
+      return;
+    }
+    if (!el) return;
     pauseOtherAudio(el);
     el.src = albumAudioUrl(p.trackId, p.version);
     void el.play().catch(() => setPlaying(null));
   };
+  const playRelease = async (r: SongTrackRelease) => {
+    const snap = await qc.fetchQuery({
+      ...apiQuery("songs.snapshot", {
+        params: { unitId: r.unitId as UnitId, releaseId: String(r.releaseId) },
+      }),
+      staleTime: Number.POSITIVE_INFINITY,
+    });
+    await playSong(releaseId(r.unitId, r.releaseId), snapshotBand(snap), { title: snap.title });
+  };
+  // A song in the queue ends when the song player lets it go after its last bar; let go earlier (its Stop in the
+  // shell, another ▶), it was stopped, and the queue stops with it. A song that did not start stops the queue too.
+  const songPlay = useSongPlayState();
+  const songOn = playing?.song ? releaseId(playing.song.unitId, playing.song.releaseId) : null;
+  const heard = useRef<{ id: string; bar: number; of: number } | null>(null);
+  useEffect(() => {
+    if (!songOn) {
+      heard.current = null;
+      return;
+    }
+    if (songPlay.id === songOn) {
+      if (songPlay.phase === "playing")
+        heard.current = { id: songOn, bar: songPlay.bar ?? 0, of: songPlay.lengthBars };
+      return;
+    }
+    if (songPlay.error?.id === songOn) {
+      setQueue([]);
+      setPlaying(null);
+      return;
+    }
+    const h = heard.current;
+    if (h?.id !== songOn) return;
+    heard.current = null;
+    if (h.bar >= h.of - 1) {
+      const [next, ...rest] = queue;
+      setQueue(rest);
+      play(next ?? null);
+    } else {
+      setQueue([]);
+      setPlaying(null);
+    }
+  });
 
   if (album.isError)
     return (
@@ -99,17 +191,25 @@ export function AlbumPage() {
     objective: c.objective,
     sessions: c.sessions,
   }));
-  const sides = albumSides(tracks, metas, progress.data?.capstones ?? []);
+  const sides = albumSides(tracks, metas, progress.data?.capstones ?? [], new Set(songTracks.keys()));
   const ordered = sides.flatMap((s) => s.slots.flatMap((sl) => (sl.kind === "track" ? [sl.track] : [])));
-  const withAudio = ordered.flatMap((t) => {
-    const d = detailOf.get(t.id);
-    const v = d?.versions.find((x) => x.version === t.currentVersion);
-    return v?.hasAudio ? [{ trackId: t.id, version: v.version }] : [];
-  });
-  const total = ordered.reduce((sum, t) => {
-    const v = detailOf.get(t.id)?.versions.find((x) => x.version === t.currentVersion);
-    return sum + (v?.durationS ?? 0);
-  }, 0);
+  const withAudio: Playing[] = [
+    ...ordered.flatMap((t) => {
+      const d = detailOf.get(t.id);
+      const v = d?.versions.find((x) => x.version === t.currentVersion);
+      return v?.hasAudio ? [{ trackId: t.id, version: v.version }] : [];
+    }),
+    ...songRows.map(({ track, release }) => ({
+      trackId: track.id,
+      version: track.currentVersion,
+      song: release,
+    })),
+  ];
+  const total =
+    ordered.reduce((sum, t) => {
+      const v = detailOf.get(t.id)?.versions.find((x) => x.version === t.currentVersion);
+      return sum + (v?.durationS ?? 0);
+    }, 0) + [...songSeconds.values()].reduce((a, b) => a + b, 0);
   const newest = [...tracks].sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0] ?? null;
   const c0 = progress.data?.capstones.find((c) => c.capstoneId === "C0");
   // Side A finished (every core track released): the album's own page is the record (content/specs/END.md).
@@ -131,7 +231,8 @@ export function AlbumPage() {
           play(next ?? null);
         }}
         onPause={() => {
-          if (audio.current?.ended) return;
+          // A song of the queue plays on the song player, which pauses this element when it starts.
+          if (audio.current?.ended || playing?.song) return;
           if (playing && audio.current?.paused) setPlaying(null);
         }}
         className="hidden"
@@ -173,6 +274,7 @@ export function AlbumPage() {
             newest={newest}
             spinning={playing !== null}
             detail={newest ? detailOf.get(newest.id) : undefined}
+            song={newest ? songReleaseOf(newest) : null}
           />
           <div className="min-w-0">
             <p className="text-sm tracking-[0.2em] text-text-3 uppercase">Album</p>
@@ -222,21 +324,18 @@ export function AlbumPage() {
                     </Link>
                   )}
                 </div>
-                <p className="mt-4 max-w-[52ch] text-sm text-text-2">
-                  Every cover is grown from its track: one ring per bar, notes in their degree colours, the
-                  drums marked on the rings.
+                <p className="mt-4 max-w-[52ch] text-sm text-text-2" data-testid="album-covers-line">
+                  {coversLine(songRows.length, tracks.length - songRows.length)}
                 </p>
               </>
             ) : (
-              <FirstTrack c0={c0} />
+              <FirstTrack c0={c0} song={firstTrackSong(songs.data?.items ?? [], takeStepsOf)} />
             )}
           </div>
         </header>
       )}
 
       <div className="flex flex-col gap-10">
-        {/* Unit songs (spec 2026-11-24 §5.5 "Album"): every unit's song, open or released. */}
-        <AlbumSongs />
         {sides.map((side) => (
           <section key={side.side} aria-labelledby={`side-${side.side}`} data-side={side.side}>
             <div className="mb-3 flex items-baseline gap-3 border-b border-border pb-2">
@@ -261,9 +360,22 @@ export function AlbumPage() {
             </ol>
           </section>
         ))}
+        {/* Unit songs (spec 2026-11-24 §5.5 "Album"): every unit's song, open or released, after the sides, so the
+            hero and Side A stay at the top of the page. */}
+        <AlbumSongs />
       </div>
     </Page>
   );
+}
+
+/** How the covers grow, said only for the kinds of track the album holds. */
+function coversLine(songs: number, others: number): string {
+  const tracks =
+    "Every track's cover is grown from its music: one ring per bar, notes in their degree colours.";
+  const ofSongs = "A song's cover grows one ring for each lesson's Make in it.";
+  if (songs === 0) return tracks;
+  if (others === 0) return ofSongs;
+  return `${tracks} ${ofSongs}`;
 }
 
 /** The album's name, renamed in place (ux §5.3 "editable"): every cover prints the new name at once. */
@@ -375,10 +487,13 @@ function Sleeve({
   newest,
   detail,
   spinning,
+  song,
 }: {
   newest: AlbumTrack | null;
   detail: AlbumTrackDetail | undefined;
   spinning: boolean;
+  /** The newest track is a unit-song release: its cover is the song's rings, as on the shelf. */
+  song: SongTrackRelease | null;
 }) {
   const version = detail?.versions.find((v) => v.version === newest?.currentVersion) ?? null;
   const { music, pending } = useCoverMusic(
@@ -403,40 +518,85 @@ function Sleeve({
           size={280}
           spinning={spinning}
           label={
-            <AlbumCover
-              seed={newest.coverSeed}
-              title={newest.title}
-              music={music}
-              loading={pending || !detail}
-              size={96}
-              plain
-            />
+            song ? (
+              <SongReleaseCover unitId={song.unitId} releaseId={song.releaseId} size={96} />
+            ) : (
+              <AlbumCover
+                seed={newest.coverSeed}
+                title={newest.title}
+                music={music}
+                loading={pending || !detail}
+                size={96}
+                plain
+              />
+            )
           }
         />
       </div>
-      <div className="relative z-10 shadow-overlay">
-        <AlbumCover
-          seed={newest.coverSeed}
-          title={newest.title}
-          music={music}
-          loading={pending || !detail}
-          size={300}
-        />
+      {/* A song's cover has the rounded corners of its wood (8 of 64 units): the shadow follows them. */}
+      <div className={clsx("relative z-10 shadow-overlay", song && "rounded-[37.5px]")}>
+        {song ? (
+          <SongReleaseCover
+            unitId={song.unitId}
+            releaseId={song.releaseId}
+            size={300}
+            label={`The cover of “${newest.title}”: one ring for each lesson's Make in it`}
+          />
+        ) : (
+          <AlbumCover
+            seed={newest.coverSeed}
+            title={newest.title}
+            music={music}
+            loading={pending || !detail}
+            size={300}
+          />
+        )}
       </div>
     </div>
   );
 }
 
-function FirstTrack({ c0 }: { c0: { status: string; lockedReason: string | null } | undefined }) {
+function FirstTrack({
+  c0,
+  song,
+}: {
+  c0: { status: string; lockedReason: string | null } | undefined;
+  /**
+   * The unit song to speak of beside C0, so neither is "first" (`firstTrackSong`: a song ready to release before one
+   * still growing), with where it stands.
+   */
+  song: { song: { title: string; unitId: UnitId }; stage: SongStage } | null;
+}) {
   const open = c0 && c0.status !== "locked";
   return (
     <div className="mt-2 max-w-[56ch]" data-testid="album-empty">
       <h2 className="text-h2">Side A, track 1 is waiting</h2>
       <p className="mt-2 text-text-2">
-        Your first track is <strong className="font-medium text-text">C0 Intro</strong>: four to eight bars of
+        Side A starts with <strong className="font-medium text-text">C0 Intro</strong>: four to eight bars of
         drums you write yourself, with a fill in the last bar. When you release it, its cover grows from the
         music, one ring per bar, and the record starts to fill.
       </p>
+      {song && (
+        <p className="mt-2 text-text-2" data-testid="album-empty-song" data-stage={song.stage}>
+          {song.stage === "ready" || song.stage === "off-album" ? (
+            <>
+              Your song{" "}
+              <Link
+                to="/song/$unitId"
+                params={{ unitId: song.song.unitId }}
+                className="text-link underline-offset-2 hover:underline"
+              >
+                “{song.song.title}”
+              </Link>{" "}
+              {song.stage === "ready"
+                ? "is ready: release it from its page."
+                : "is off the album: release it again from its page."}
+            </>
+          ) : (
+            <>Your song “{song.song.title}” joins the album too, once you finish its unit and release it.</>
+          )}
+        </p>
+      )}
       <div className="mt-4 flex flex-wrap items-center gap-3">
         {open ? (
           <Link to="/capstone/$id" params={{ id: "C0" }} className={buttonClass("primary", "lg")}>

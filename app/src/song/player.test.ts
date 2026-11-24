@@ -103,7 +103,8 @@ describe("the shell's Now playing", () => {
   test("shows the song while it plays, with a Stop, and clears when it stops", async () => {
     await playSong("U06@now", band, { loop: { fromBar: 8, bars: 8 }, title: "My groove" });
     const np = useShell.getState().nowPlaying;
-    expect(np?.label).toBe("Song: My groove");
+    // The plain title: the bar already says "Now playing".
+    expect(np?.label).toBe("My groove");
     np?.stop();
     expect(songPlayState().phase).toBe("idle");
     expect(useShell.getState().nowPlaying).toBeNull();
@@ -112,5 +113,11 @@ describe("the shell's Now playing", () => {
     stopSong();
     expect(useShell.getState().nowPlaying?.label).toBe("Tutor card: x");
     useShell.getState().setNowPlaying(null);
+  });
+  test("a style preview names its style", async () => {
+    await playSong("U06@style", band, { title: "Count me in", style: "Funk" });
+    expect(useShell.getState().nowPlaying?.label).toBe("Count me in, in Funk");
+    stopSong();
+    expect(useShell.getState().nowPlaying).toBeNull();
   });
 });

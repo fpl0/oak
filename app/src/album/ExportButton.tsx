@@ -46,11 +46,14 @@ export function ExportButton({
   trackId,
   version,
   capstoneId = null,
+  song = false,
 }: {
   trackId: string;
   version: number;
   /** The capstone the track was released from: its Band plays only the roles the brief leaves to it. */
   capstoneId?: string | null;
+  /** A unit-song release: it has no recording of its own, so the note does not speak of one. */
+  song?: boolean;
 }) {
   const qc = useQueryClient();
   const content = useCapstoneContent();
@@ -171,11 +174,14 @@ export function ExportButton({
         </p>
       ) : phase.kind === "done" ? (
         <p className="text-sm text-text-2" role="status" data-testid="export-done">
-          {phase.text} The release recording stays as it is.
+          {phase.text}
+          {song ? "" : " The release recording stays as it is."}
         </p>
       ) : (
         <p className="text-sm text-text-3">
-          Renders this version from its code, as a file to keep. The release recording stays as it is.
+          {song
+            ? "Renders the released song as a WAV file to keep."
+            : "Renders this version from its code, as a file to keep. The release recording stays as it is."}
         </p>
       )}
     </div>

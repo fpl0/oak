@@ -9,6 +9,7 @@ import { REGION_LABEL } from "../lib/content-model.ts";
 import { useRevive } from "../lib/queries.ts";
 import { buttonClass, IconButton } from "../ui/kit/Button.tsx";
 import { Chip } from "../ui/kit/basics.tsx";
+import { lessonWords, opensWithNote } from "../ui/kit/lock-notes.ts";
 import { blurbOf } from "./blurbs.ts";
 import { familyStatus } from "./family-status.ts";
 import type { MapGraph, MapNode } from "./graph.ts";
@@ -117,20 +118,27 @@ function PractiseAction({
       >
         {/* Wave 7: the track's lessons are written; the leaf grows with its own lesson, in the track's order. */}
         {target.lessonId && authored?.has(target.lessonId)
-          ? `${branch.title} is open, and this leaf grows with ${target.lessonId} · ${target.title}.`
+          ? `${branch.title} is open, and this leaf grows with ${lessonWords(target.lessonId, titled(target))}.`
           : `${branch.title} is open, and this leaf grows on it.`}{" "}
         {branch.note.replace(/^Open\.\s*/, "")}
       </p>
     );
   return (
     <p className="rounded-control border border-dashed border-border px-3 py-2 text-sm text-text-2">
+      {/* The lesson by its title, never its id alone (shared decision 5), in the kit's one lock wording. */}
       {target.lessonId
         ? target.unwritten
-          ? `Opens with ${target.lessonId} · ${target.title}, which is still being written.`
-          : `Opens with ${target.lessonId} · ${target.title}. Nothing to do here until then.`
+          ? `Opens with ${lessonWords(target.lessonId, titled(target))}, which is still being written.`
+          : `${opensWithNote(lessonWords(target.lessonId, titled(target)))} Nothing to do here until then.`
         : "No lesson teaches this yet."}
     </p>
   );
+}
+
+/** The lesson's title, or null when the map knows only its id (then the lock note says where it is in words). */
+function titled(t: { lessonId: string | null; title: string }): string | null {
+  const title = t.title.trim();
+  return title === "" || title === t.lessonId ? null : title;
 }
 
 export function NodePanel(p: NodePanelProps) {
@@ -211,7 +219,7 @@ export function NodePanel(p: NodePanelProps) {
             {p.branch && v.status === "locked"
               ? node.introducedBy && p.authored?.has(node.introducedBy)
                 ? // Wave 7: the track's lessons are written; this leaf waits for its lesson in the track's order.
-                  `Its branch is open. ${node.introducedBy} ${p.lessonTitle(node.introducedBy)} grows it, in the track's order.`
+                  `Its branch is open. It grows with ${lessonWords(node.introducedBy, titled({ lessonId: node.introducedBy, title: p.lessonTitle(node.introducedBy) }))}, in the track's order.`
                 : "Its branch is open. Its lesson is still being written."
               : STATUS_HELP[v.status]}
           </p>

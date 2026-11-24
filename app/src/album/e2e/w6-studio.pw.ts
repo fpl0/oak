@@ -624,7 +624,7 @@ test("ladder L8: listening, a check and a review request; the standard's code re
   expect(item.status()).toBe(200);
   const itemId = ((await item.json()) as { itemId: string }).itemId;
   await page.goto(`/transcribe/${itemId}`);
-  await expect(page.getByTestId("standard-panel")).toContainText("L8 · A standard", { timeout: 60_000 });
+  await expect(page.getByTestId("standard-panel")).toContainText("Level 8 · A standard", { timeout: 60_000 });
   await expect(page.getByTestId("transport-play")).toBeEnabled({ timeout: 60_000 });
   const root = page.getByTestId("transcribe-project");
   await root.focus();

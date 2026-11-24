@@ -248,7 +248,7 @@ nav "Other ways today:" [alt buttons] [Practice] [Studio]
       320px mini tree here; it is not rendered.
   11. Tolerance `Callout`, `ListeningNote` (an "Ask Claude to listen" button).
   12. "This week": `WeeklyRhythm size="lg"` + goal/streak text.
-  13. "Next": `PlannerNext` / "Next time: …" / objective / "Next unlock: N lessons → tool" / side offer. The ▶
+  13. "Next": `PlannerNext` / "Next time: …" / objective / "Next unlock: N lessons → tool" (left out for the Album once a song is on it or offered that day) / side offer. The ▶
       teaser of ux.md §1.5 is **not implemented**; `summary.teaser` becomes text only (`coda-model.ts:137-152`).
   14. [Done for today ⏎] (primary lg) and [Keep playing in Studio], then "Stopping here is good practice…".
 - Its data comes from the runner's `summary` (`session.end` answer) or the server (`useSessionSummary`). The
@@ -375,7 +375,9 @@ learner rarely visits during a normal lesson day.**
   degrees get a hatch (♭ 45°, ♯ −45°). Functions: T = 1, PD = 4, D = 5.
 - **`PARTS_PALETTE`** (layers, drums, tracks; never pitches): `#8C6A4F #6F7D5C #5E6F86 #8A6A86 #9A7B3F #5F8077`
   (muted earth tones). `partColor(trackIndex)` is in `workbench/palette.ts`, and the kit `SectionRibbon` colours
-  section letters with `letterTone()`. **These are the colours available for part rows.**
+  section letters with `letterTone()`. Part rows use `SONG_PART_TONES` (the same six, with a bluer, stronger teal, and four more, with a strong
+  green, so a song's ten parts never share a colour and olive, teal and green stay apart), one per part id through
+  `songPartTones()` in `app/src/song/part-tones.ts`; a cover ring takes the row colour of the part its take brought in.
 - Cover woods per flavour (`album/cover.ts:49-55`): pop and default are light maple (`#EFE5D3`), indie is pale green
   wood, jazz-soul is dark walnut (`#2A201A`), and funk is dark plum wood. **These are ready flavour identities for a
   unit song**: the song card could take its wood.
@@ -454,6 +456,8 @@ Every surface below can render it once a pure model exists, for example `app/src
   - save: `createSketch` (`lesson/server.ts:63-85`) would become "add a version to the unit's song sketch", like the
     capstone's `useDraftSaver` (`capstone/draft.ts`). The `{block:"make", sketchId}` report stays the same.
 - **`CompleteScreen`** (`lesson/screens.tsx:17-173`): add the song with the new cell lit, plus [▶ Hear your song].
+  Done for a take lesson finished outside a session: the Coda's `SongGrew` card ("Before today", "With today", "Open
+  the song", "Open today's code in Studio") above the back button; inside a session the Coda shows it.
 
 ### 5.3 In the Coda (`session/coda/CodaPage.tsx`)
 
@@ -500,7 +504,7 @@ Every surface below can render it once a pure model exists, for example `app/src
 | `SectionRibbon` (kit) | `ui/kit/SectionRibbon.tsx:52-240` | standalone blocks as wide as their bars (CSS grid `repeat(span)`), letter dot in `PARTS_PALETTE`, energy fill, playhead, loop, select, one tab stop | `RibbonSection {tag,text,letter,startBar,bars,energy?}` (`model-w5.ts:32-44`) | **gallery only** | A ready column header for Today, the Coda or a song page; documented for "a capstone brief, … the Coda" |
 | `TrackStrips` | `workbench/TrackStrips.tsx` | per-track lanes on the roll axis: `ClaveStrip`, `PulseLanes`, `DensityStrip` (density per section), `JazzRow`, `RegisterBands` | `RibbonAxis` + track-lens facts | Workbench (Wave 7 lenses) | Lane rendering on a shared axis; `DensityStrip` is per section |
 | **Onboarding `LayerRow`** | `onboarding/LoopStage.tsx:125-160` + `onboarding/loop.ts:31-41` | **"The four musicians"**: one pill per part (Drums, Bass, Chords, Melody) with a dot, "playing" or "enters in bar N", and a chip "you'll unlock this" whose tooltip says "You write s() yourself from U01.L01" | `LAYERS {id,name,entersAtBar,unlockLesson,tool}` + `mutedAt(bar)` | onboarding only | **The conceptual seed of the song view**: parts named, who plays them, and which one you will write |
-| Transport track chips | `workbench/TransportBar.tsx:286-319` + `workbench.css:90-117` | a pill per track, "drums (band)", mute (strikethrough) and S (solo) | `tracks`, `MuteMap` | every Workbench | Per-row mute and solo controls already exist |
+| Transport track chips | `workbench/TransportBar.tsx:286-319` + `workbench.css:90-117` | a pill per track, "Drums (Oak)" (every chip starts with a capital, `workbench/chip-words.ts`), mute ("Mute Drums": struck speaker and line) and S ("Solo Drums"; a part silenced by another's solo is dimmed, not struck) | `tracks`, `MuteMap` | every Workbench | Per-row mute and solo controls already exist |
 | `PianoRoll` | `workbench/PianoRoll.tsx` | notes coloured by degree or by part (`partColor`); Band notes at 0.55 opacity (:651); chord band "Band"/"Chords" label (:1521-1526) | `WorkbenchModel` | every Workbench | Oak's notes vs yours are already visually distinct |
 | `CftStrip` | `session/today/TodayWave6.tsx:12-67` | five stage tiles ("done" ✓, "today", "later") | `CftDay.steps` | Today (CF-T) | A "sessions of one piece" strip; could be the unit's lessons as tiles |
 | `AlbumCover` + `cover.ts` | `ui/AlbumCover.tsx`, `album/cover.ts` | "Tree Rings": one ring per bar, notes as arcs in degree colours, drums as ticks, wood per flavour, pith = key; `draw` animates the rings outward | `CoverInput {events,bars,key,bpm,flavour,title,albumTitle,seed,slots}`; `useCoverMusic` analyses a sketch version (`album/music.ts`) | album, Coda release, Today strip, ceremony | The song's cover, regrown after each lesson; `draw` replays the growth |
@@ -551,7 +555,7 @@ piece in both themes. It is the quickest way to look at them.
   `mel` layer, but it is learner-side code, not Band.
 - **Every Make makes a new sketch** (`lesson/server.ts:63-85`). The sketchbook, the Coda's `sketchesSaved[0]`,
   Today's `LastSketchCard`, the listening note and `fromSketch` all assume one sketch per lesson.
-- **Flavour is a global profile setting** (`LessonPlayer.tsx:256`; Settings › Learning "Genre flavour"). A choice
+- **Flavour is a global profile setting** (`LessonPlayer.tsx:256`; Settings › Learning "Style", formerly "Genre flavour"). A choice
   per unit song needs its own store; the capstone keeps flavour per draft via sketch tags (`Workspace.tsx` `onFlavour`
   patches `tags`). Onboarding offers only pop and jazz-soul; indie and funk exist in `FLAVOUR_LABEL` and the cover
   woods.

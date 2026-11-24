@@ -26,6 +26,7 @@ import {
   type SongStepHost,
   shiftRanges,
   songChipLabel,
+  songChips,
   tempoRangeOf,
   todayLoopOf,
   withSongTempo,
@@ -45,6 +46,22 @@ export function useUnitSong(unitId: string | null) {
     ...apiQuery("songs.get", { params: { unitId: (unitId ?? "U01") as UnitId } }),
     enabled: unitId !== null,
   });
+}
+
+/**
+ * A unit's song read by a surface that opens right after a save (the lesson recap, the Coda): `settling` while the
+ * song in hand predates the surface and a read is under way. Saving a Make invalidates the song, so the first render
+ * holds the song as it stood before the save; a surface that judged that copy would say today's Make is missing
+ * (and offer the Studio link), then swap in the grown song. Judge the song only once a read from after the opening
+ * has settled.
+ */
+export function useSongAfterSave(unitId: string | null): {
+  q: UseQueryResult<UnitSongDetail>;
+  settling: boolean;
+} {
+  const q = useUnitSong(unitId);
+  const [openedAt] = useState(() => Date.now());
+  return { q, settling: q.isFetching && q.dataUpdatedAt <= openedAt };
 }
 
 /** The learner's songs (`songs.list`), started ones only, in course order. */
@@ -173,7 +190,13 @@ export function useSongMake(lesson: LessonDef, o: { flavour: FlavourId }): SongM
   const flavour = o.flavour;
   return useMemo((): SongMakeState => {
     if (!song || !step) return { kind: "none" };
-    if (step.kind === "side") return { kind: "side", def: song, reason: step.reason };
+    if (step.kind === "side")
+      return {
+        kind: "side",
+        def: song,
+        reason: step.reason,
+        started: detail !== null && detail.status !== "new",
+      };
     if (pending) return { kind: "pending" };
     // A song that could not be read (or is being read again after that): the Make is a plain sketch, as before.
     if (query.isError || detail === null) return { kind: "none" };
@@ -232,6 +255,9 @@ export function useSongMake(lesson: LessonDef, o: { flavour: FlavourId }): SongM
       view,
       takeIds: playableTakes(detail).map((t) => t.id),
       chipLabel: (track) => songChipLabel(track, { partName, lessonTitle: titleOf }),
+      chips: songChips(song, detail, {
+        partName: (id) => view.parts.find((p) => p.id === id)?.name ?? id,
+      }),
     };
   }, [song, step, detail, pending, query.isError, lesson, flavour, introduced, titleOf]);
 }

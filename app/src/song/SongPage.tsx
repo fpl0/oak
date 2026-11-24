@@ -14,7 +14,6 @@ import { Button, buttonClass } from "../ui/kit/Button.tsx";
 import { EmptyState, Page } from "../ui/kit/basics.tsx";
 import { SegmentedControl } from "../ui/kit/Controls.tsx";
 import { ErrorState, LoadingState } from "../ui/kit/QueryState.tsx";
-import { PARTS_PALETTE } from "../ui/theme/palette.ts";
 import { ReleasePlayButton } from "./AlbumSongs.tsx";
 import {
   useIntroducedTerms,
@@ -32,16 +31,18 @@ import { SongRelease } from "./SongGrew.tsx";
 import { SongGrid } from "./SongGrid.tsx";
 import { SongPlayButton } from "./SongPlayButton.tsx";
 import {
+  andList,
+  blocksLine,
   cellsHeldBy,
   cellsSentence,
   detailUpTo,
-  isOnAlbum,
   lessonsInSong,
-  ownedCount,
   partMutes,
   releaseOffer,
+  SONG_STAGE_WORDS,
   SONG_STYLES,
   sectionAtBar,
+  songStage,
   styleName,
 } from "./surfaces-model.ts";
 
@@ -49,6 +50,8 @@ export function SongPage({ unitId, song: given }: { unitId: string; song?: UnitS
   const def = given ?? unitSongOfUnit(unitId as UnitId);
   const q = useUnitSong(def ? unitId : null);
   usePageTitle(q.data?.title ?? def?.title ?? "Song");
+  // Started from the New song moment on this page: the song page replaces it at the top, with focus on its title.
+  const [justStarted, setJustStarted] = useState(false);
   if (!def)
     return (
       <Page width="narrow">
@@ -79,22 +82,31 @@ export function SongPage({ unitId, song: given }: { unitId: string; song?: UnitS
   if (q.data.status === "new")
     return (
       <Page>
-        <NewSong unitId={unitId} song={def} onStarted={() => {}} />
+        <NewSong unitId={unitId} song={def} onStarted={() => setJustStarted(true)} />
       </Page>
     );
   return (
     <Page>
-      <SongBody def={def} detail={q.data} />
+      <SongBody def={def} detail={q.data} arrived={justStarted} />
     </Page>
   );
 }
 
-interface PartState {
+export interface PartState {
   muted: ReadonlySet<SongPartId>;
   solo: SongPartId | null;
 }
 
-function SongBody({ def, detail }: { def: UnitSongDef; detail: UnitSongDetail }) {
+function SongBody({
+  def,
+  detail,
+  arrived = false,
+}: {
+  def: UnitSongDef;
+  detail: UnitSongDetail;
+  /** The learner just started the song on this page: scroll to the top and focus the title. */
+  arrived?: boolean;
+}) {
   const introduced = useIntroducedTerms();
   const titleOf = useLessonTitles();
   const view = songViewOf(def, detail, introduced);
@@ -127,7 +139,6 @@ function SongBody({ def, detail }: { def: UnitSongDef; detail: UnitSongDetail })
       else muted.add(part);
       return { ...p, muted };
     });
-  const count = ownedCount(view);
   const lessons = lessonsInSong(def, detail);
   const at = play.bar === null ? null : sectionAtBar(view, play.bar);
   const atLabel = at ? view.sections.find((s) => s.id === at)?.label : null;
@@ -144,10 +155,10 @@ function SongBody({ def, detail }: { def: UnitSongDef; detail: UnitSongDetail })
           label={`The cover of “${detail.title}”: ${detail.takes.length} ${detail.takes.length === 1 ? "ring" : "rings"}, one per Make saved into it`}
         />
         <div className="flex min-w-0 flex-col gap-3">
-          <TitleEditor unitId={def.unit} title={detail.title} />
+          <TitleEditor unitId={def.unit} title={detail.title} arrived={arrived} />
           <p className="text-text-2 tabular-nums" data-testid="song-page-meta">
-            {isOnAlbum(detail) ? "On the album" : "Still growing"} · {lessons.done} of {lessons.of} lessons in
-            it · {count.yours} of {count.total} cells yours
+            {SONG_STAGE_WORDS[songStage(detail, lessons)]} · {lessons.done} of {lessons.of} lessons in it ·{" "}
+            {blocksLine(view)}
           </p>
           <StyleSwitch unitId={def.unit} flavour={detail.flavour} playingId={id} />
         </div>
@@ -168,12 +179,19 @@ function SongBody({ def, detail }: { def: UnitSongDef; detail: UnitSongDetail })
             <h2 id="song-grid-h" className="text-h3">
               The song, part by part
             </h2>
-            <p className="text-sm text-text-2" aria-live="polite" data-testid="song-page-now">
-              {looping
-                ? `Looping ${view.sections.find((s) => s.id === looping)?.label}. Click it again to play on.`
-                : play.playing && atLabel
-                  ? `Playing ${atLabel}${showBars && play.bar !== null ? `, bar ${play.bar + 1} of ${view.lengthBars}` : ""}.`
-                  : "Click a section's name to loop it. M mutes a part, S plays it alone."}
+            {/* Two live regions: what plays (it changes bar by bar), and which parts are muted or soloed, said once
+                per change of the M and S buttons. */}
+            <p className="text-sm text-text-2" data-testid="song-page-now">
+              <span aria-live="polite">
+                {looping
+                  ? `Looping ${view.sections.find((s) => s.id === looping)?.label}. Click it again to play on.`
+                  : play.playing && atLabel
+                    ? `Playing ${atLabel}${showBars && play.bar !== null ? `, bar ${play.bar + 1} of ${view.lengthBars}` : ""}.`
+                    : "Click a section's name to loop it. M mutes a part, S plays it alone."}
+              </span>{" "}
+              <span aria-live="polite" className="font-medium text-text" data-testid="song-page-parts">
+                {partsLine(view, parts)}
+              </span>
             </p>
           </div>
           {looping && (
@@ -195,6 +213,8 @@ function SongBody({ def, detail }: { def: UnitSongDef; detail: UnitSongDetail })
             onLoop={onLoop}
             showBars={showBars}
             rowControls={(p) => <PartControls part={p} state={parts} onToggle={toggle} />}
+            // A muted part, or every part but the soloed one, is drawn faded and struck through, as it sounds.
+            silent={(p) => parts.muted.has(p.id) || (parts.solo !== null && parts.solo !== p.id)}
           />
         </div>
       </section>
@@ -204,6 +224,17 @@ function SongBody({ def, detail }: { def: UnitSongDef; detail: UnitSongDetail })
       <TakeHistory def={def} detail={detail} view={view} titleOf={titleOf} />
     </div>
   );
+}
+
+/** Which parts are muted or soloed, in words ("Kick muted.", "Only Snare plays."); empty when every part plays. */
+export function partsLine(view: Pick<SongView, "parts">, state: PartState): string {
+  const name = (id: SongPartId) => view.parts.find((p) => p.id === id)?.name ?? id;
+  if (state.solo !== null)
+    return state.muted.has(state.solo)
+      ? `${name(state.solo)} plays alone but is muted: nothing plays.`
+      : `Only ${name(state.solo)} plays.`;
+  const muted = view.parts.filter((p) => state.muted.has(p.id)).map((p) => p.name);
+  return muted.length > 0 ? `${andList(muted)} muted.` : "";
 }
 
 function PartControls({
@@ -219,13 +250,14 @@ function PartControls({
   const solo = state.solo === part.id;
   const pill = (on: boolean) =>
     clsx(
-      "inline-flex size-5 shrink-0 items-center justify-center rounded-[4px] border text-[0.6875rem] font-semibold transition-colors duration-150",
+      // 24px targets (WCAG 2.5.8), 4px apart, with an outline that reads as a button when off (about 3:1 on the card).
+      "inline-flex size-6 shrink-0 items-center justify-center rounded-[5px] border text-xs font-semibold transition-colors duration-150",
       on
         ? "border-accent bg-accent text-on-accent"
-        : "border-border text-text-3 hover:border-text-3 hover:text-text",
+        : "border-text-3/75 text-text-3 hover:border-text-3 hover:text-text",
     );
   return (
-    <span className="flex shrink-0 gap-0.5">
+    <span className="flex shrink-0 gap-1">
       <button
         type="button"
         aria-pressed={muted}
@@ -253,15 +285,34 @@ function PartControls({
 }
 
 /** The title, renamed in place: Rename opens a field; Enter or Save keeps it, Escape or Cancel leaves it. */
-function TitleEditor({ unitId, title }: { unitId: string; title: string }) {
+function TitleEditor({ unitId, title, arrived }: { unitId: string; title: string; arrived: boolean }) {
   const rename = useRenameSong();
   const [draft, setDraft] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const field = useRef<HTMLInputElement>(null);
+  const renameButton = useRef<HTMLButtonElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
   const fieldId = useId();
+  // Closing the field (Save, Escape, Cancel) gives the focus back to Rename, which the field replaced.
+  const wasOpen = useRef(false);
   useEffect(() => {
-    if (draft !== null) field.current?.select();
+    if (draft !== null) {
+      wasOpen.current = true;
+      field.current?.select();
+    } else if (wasOpen.current) {
+      wasOpen.current = false;
+      renameButton.current?.focus();
+    }
   }, [draft !== null]);
+  useEffect(() => {
+    if (!arrived) return;
+    const main = document.getElementById("main");
+    const reduced =
+      document.documentElement.dataset.motion === "reduced" ||
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    main?.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+    heading.current?.focus({ preventScroll: true });
+  }, [arrived]);
   const save = async () => {
     const next = (draft ?? "").trim();
     if (!next || next === title) return setDraft(null);
@@ -277,12 +328,15 @@ function TitleEditor({ unitId, title }: { unitId: string; title: string }) {
     return (
       <div className="flex min-w-0 items-end gap-2">
         <h1
-          className="min-w-0 font-display text-[clamp(2.1rem,4.6vw,3.1rem)] leading-[1.02] font-semibold tracking-[-0.018em]"
+          ref={heading}
+          tabIndex={-1}
+          className="min-w-0 font-display text-[clamp(2.1rem,4.6vw,3.1rem)] leading-[1.02] font-semibold tracking-[-0.018em] outline-none"
           data-testid="song-page-title"
         >
           {title}
         </h1>
         <Button
+          ref={renameButton}
           size="sm"
           variant="ghost"
           icon={<Pencil aria-hidden className="size-3.5" />}
@@ -344,7 +398,7 @@ function StyleSwitch({
   // While the change is on its way the song still reads the old style: the line names the one asked for.
   const asked = set.variables?.body.flavour ?? flavour;
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className="flex flex-col items-start gap-1.5">
       <SegmentedControl
         label="Style"
         size="sm"
@@ -374,6 +428,12 @@ function StyleSwitch({
 function AlbumLine({ def, detail }: { def: UnitSongDef; detail: UnitSongDetail }) {
   const offer = releaseOffer(detail);
   const titleOf = useLessonTitles();
+  // Once the Release card has shown, it stays for the visit: after a release it becomes the confirmation (with Open it
+  // on the album) instead of vanishing with the offer, which also dropped the focus to the page.
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    if (offer === "release" || offer === "again") setShown(true);
+  }, [offer]);
   return (
     <section
       aria-labelledby="song-album-h"
@@ -384,8 +444,8 @@ function AlbumLine({ def, detail }: { def: UnitSongDef; detail: UnitSongDetail }
       <h2 id="song-album-h" className="text-h3">
         On the album
       </h2>
-      {offer === "release" || offer === "again" ? (
-        <SongRelease unitId={def.unit} song={def} />
+      {shown || offer === "release" || offer === "again" ? (
+        <SongRelease unitId={def.unit} song={def} listen={false} />
       ) : offer === "not-yet" ? (
         <p className="text-text-2" data-testid="song-album-wait">
           You can release this song once you finish {releasePointWords(def.releaseAfter, titleOf)}.
@@ -472,7 +532,7 @@ function TakeHistory({
                 {i < detail.takes.length - 1 && <span className="absolute top-5 -bottom-3 w-px bg-border" />}
                 <span
                   className="relative mt-1 size-3.5 rounded-full border-[3px] bg-surface"
-                  style={{ borderColor: tones[i] ?? PARTS_PALETTE[0] }}
+                  style={{ borderColor: tones[i] }}
                 />
               </span>
               <div className="min-w-0">
@@ -482,7 +542,7 @@ function TakeHistory({
                     ? `${now}${took && took !== now ? ` (it took ${took})` : ""}`
                     : took
                       ? `It took ${took}; later lessons took all of it over.`
-                      : "It holds no cell now."}
+                      : "It holds no block now."}
                 </p>
                 <p className="text-xs text-text-3">
                   {formatDate(t.createdAt)}

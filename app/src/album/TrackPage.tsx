@@ -45,9 +45,11 @@ import { sideLabel } from "../capstone/Ceremony.tsx";
 import { LINER_MAX_WORDS, wordCount } from "../capstone/liner.ts";
 import { ReviewCard } from "../capstone/ReviewCard.tsx";
 import { useTryRevision } from "../capstone/revision.ts";
+import { useContent } from "../lib/content.ts";
 import { ReleasePlayButton } from "../song/AlbumSongs.tsx";
 import { useUnitSongs } from "../song/hooks.ts";
-import { songReleaseOfVersion } from "../song/surfaces-model.ts";
+import { SongReleaseCover } from "../song/SongCover.tsx";
+import { songReleaseOfVersion, songTracksOf, styleName } from "../song/surfaces-model.ts";
 import { bandReached } from "../studio/model.ts";
 import { LinerNotes } from "./AlbumPage.tsx";
 import { ExportButton } from "./ExportButton.tsx";
@@ -104,6 +106,12 @@ function Track({ t, v }: { t: AlbumTrackDetail; v: number | undefined }) {
   // A version released from a unit song plays its frozen release (`songs.snapshot`), not its newest take's code.
   const songs = useUnitSongs();
   const songRelease = versionNo === null ? null : songReleaseOfVersion(songs.data?.items, t.id, versionNo);
+  // The track is a unit song's (any of its versions is a release): it is named as the unit's song, not as a B-side.
+  const songTrack = songTracksOf(songs.data?.items).get(t.id) ?? null;
+  const content = useContent();
+  const unitTitle = songTrack
+    ? (content.data?.syllabus?.units.find((u) => u.id === songTrack.unitId)?.title ?? null)
+    : null;
 
   // The tutor's subject is this version: a review asked here is about it and is kept with it (contracts §10.6).
   useEffect(() => {
@@ -144,7 +152,16 @@ function Track({ t, v }: { t: AlbumTrackDetail; v: number | undefined }) {
     <Page>
       <div className="grid gap-8 lg:grid-cols-[360px_minmax(0,1fr)]">
         <div className="flex flex-col gap-5">
-          <AlbumCover seed={t.coverSeed} title={t.title} music={music} loading={pending} size={360} />
+          {songRelease ? (
+            <SongReleaseCover
+              unitId={songRelease.unitId}
+              releaseId={songRelease.releaseId}
+              size={360}
+              label={`The cover of “${t.title}”: one ring for each lesson's Make in it`}
+            />
+          ) : (
+            <AlbumCover seed={t.coverSeed} title={t.title} music={music} loading={pending} size={360} />
+          )}
           {version.theoryTags.length > 0 && (
             <ul aria-label="Theory used" className="flex flex-wrap gap-1.5">
               {version.theoryTags.map((tag) => (
@@ -178,12 +195,16 @@ function Track({ t, v }: { t: AlbumTrackDetail; v: number | undefined }) {
 
         <div className="flex min-w-0 flex-col gap-6">
           <header>
-            <p className="text-sm text-text-3">
-              {sideLabel(t.side)} · track {t.trackNo}
+            <p className="text-sm text-text-3" data-testid="track-eyebrow">
+              {songTrack
+                ? `Song${unitTitle ? ` · ${unitTitle}` : ""}`
+                : `${sideLabel(t.side)} · track ${t.trackNo}`}
             </p>
             <h1 className="font-display text-h1">{t.title}</h1>
             <p className="mt-2 flex flex-wrap items-center gap-2">
-              {t.flavour && <Chip>{FLAVOUR_LABEL[t.flavour] ?? t.flavour}</Chip>}
+              {t.flavour && (
+                <Chip>{songTrack ? styleName(t.flavour) : (FLAVOUR_LABEL[t.flavour] ?? t.flavour)}</Chip>
+              )}
               <Chip tone={version.version === t.currentVersion ? "accent" : "neutral"}>
                 {t.capstoneId === "AC1" && version.version <= 2
                   ? `${version.version === 1 ? "Version one" : "Version two"} (album version ${version.version})`
@@ -231,7 +252,12 @@ function Track({ t, v }: { t: AlbumTrackDetail; v: number | undefined }) {
                   : "No recording of this version yet. Open the code below to play it live and record it."}
               </p>
             )}
-            <ExportButton trackId={t.id} version={version.version} capstoneId={t.capstoneId} />
+            <ExportButton
+              trackId={t.id}
+              version={version.version}
+              capstoneId={t.capstoneId}
+              song={songRelease !== null}
+            />
           </section>
 
           {/* A song version's code is the whole song (Oak's and every take): the song page shows it, not one take. */}
@@ -247,7 +273,12 @@ function Track({ t, v }: { t: AlbumTrackDetail; v: number | undefined }) {
             />
           )}
 
-          <Versions track={t} selected={version.version} sketch={sketch.data} />
+          <Versions
+            track={t}
+            selected={version.version}
+            sketch={sketch.data}
+            songOf={(n) => songReleaseOfVersion(songs.data?.items, t.id, n)}
+          />
 
           <section
             aria-labelledby="trk-next"
@@ -260,15 +291,7 @@ function Track({ t, v }: { t: AlbumTrackDetail; v: number | undefined }) {
               <Link to="/capstone/$id" params={{ id: t.capstoneId }} className={buttonClass("primary")}>
                 <Pencil aria-hidden className="size-4" /> Revise and release version {t.versions.length + 1}
               </Link>
-            ) : songRelease ? (
-              <Link
-                to="/song/$unitId"
-                params={{ unitId: songRelease.unitId }}
-                className={buttonClass("secondary")}
-              >
-                Open the song
-              </Link>
-            ) : t.sketchId ? (
+            ) : songTrack ? null : t.sketchId ? (
               <Link
                 to="/studio/$sketchId"
                 params={{ sketchId: t.sketchId }}
@@ -284,7 +307,7 @@ function Track({ t, v }: { t: AlbumTrackDetail; v: number | undefined }) {
                 try {
                   const r = await del.mutateAsync({
                     target: t.id,
-                    question: `Remove “${t.title}” and its ${t.versions.length} versions from the album? This cannot be undone.`,
+                    question: `Remove “${t.title}” and its ${t.versions.length} ${t.versions.length === 1 ? "version" : "versions"} from the album? This cannot be undone.`,
                     input: { params: { id: t.id } },
                   });
                   if (r) void navigate({ to: "/album" });
@@ -935,10 +958,13 @@ function Versions({
   track,
   selected,
   sketch,
+  songOf,
 }: {
   track: AlbumTrackDetail;
   selected: number;
   sketch: SketchDetail | undefined;
+  /** The song release an album version is, or `null` (it has no recording of its own: it plays its frozen song). */
+  songOf(version: number): { unitId: string; releaseId: number } | null;
 }) {
   const codeAt = (sv: number) => sketch?.versions.find((s) => s.version === sv)?.code ?? null;
   const ordered = [...track.versions].sort((a, b) => b.version - a.version);
@@ -951,7 +977,10 @@ function Versions({
         {ordered.map((x) => {
           const prev = track.versions.find((p) => p.version === x.version - 1);
           const now = codeAt(x.sketchVersion);
-          const summary = now === null ? "" : changeSummary(prev ? codeAt(prev.sketchVersion) : null, now);
+          const song = songOf(x.version);
+          // A song version's code is the whole song, not this one sketch: no line count for it.
+          const summary =
+            song || now === null ? "" : changeSummary(prev ? codeAt(prev.sketchVersion) : null, now);
           return (
             <li key={x.version}>
               <Link
@@ -961,7 +990,11 @@ function Versions({
                 aria-current={x.version === selected ? "page" : undefined}
                 className="flex items-center gap-3 rounded-card border border-transparent p-2 hover:bg-surface-2 aria-[current=page]:border-accent/50 aria-[current=page]:bg-lane-in"
               >
-                <VersionCover track={track} version={x} />
+                {song ? (
+                  <SongReleaseCover unitId={song.unitId} releaseId={song.releaseId} size={48} />
+                ) : (
+                  <VersionCover track={track} version={x} />
+                )}
                 <span className="min-w-0 flex-1">
                   <span className="font-medium">Version {x.version}</span>
                   {x.version === track.currentVersion && <span className="text-text-3"> · current</span>}
@@ -969,7 +1002,7 @@ function Versions({
                     {formatDate(x.createdAt, true)}
                     {summary ? ` · ${summary}` : ""}
                     {x.durationS ? ` · ${formatDuration(x.durationS)}` : ""}
-                    {x.hasAudio ? "" : " · not recorded"}
+                    {x.hasAudio || song ? "" : " · not recorded"}
                     {takesOf(x).length > 1 ? ` · ${takesOf(x).length} takes` : ""}
                   </span>
                 </span>

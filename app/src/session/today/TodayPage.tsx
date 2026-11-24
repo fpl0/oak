@@ -632,7 +632,10 @@ export function TodayPage() {
               the callouts that ask for a decision. Today has one decision, to start the session (ux.md §1.4), so
               Start stays on the first screen at 1280×800: the hero (cover, grid, today's line) is about 460 px tall
               and above the card it pushed Start below the fold; above the callouts it pushed them off the screen. */}
-          {planData?.song && view && view.state !== "first-run" && <SongHero plan={planData} />}
+          {/* Done for today: the plan is the next lesson's, and the hero says "next" (it agrees with the done card). */}
+          {planData?.song && view && view.state !== "first-run" && (
+            <SongHero plan={planData} done={view.state === "done"} />
+          )}
           {/* Once the lessons of the core are done: what is open, under the planned session (END.md). */}
           {planData && (courseAfter || view?.after) && view && view.state !== "in-session" && (
             <OpenToYou

@@ -186,6 +186,7 @@ export const TreeDrawing = memo(function TreeDrawing({
               {label.title}
             </text>
             <text
+              className="illustrated-anatomy-detail"
               x={label.x}
               y={label.y + 21}
               fontFamily="system-ui, sans-serif"

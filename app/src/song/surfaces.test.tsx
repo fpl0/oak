@@ -32,16 +32,22 @@ const { SongPage } = await import("./SongPage.tsx");
 const { SongCard } = await import("./SongCard.tsx");
 const { SongGrew } = await import("./SongGrew.tsx");
 const { ReleasePlayButton } = await import("./AlbumSongs.tsx");
+const { stopName } = await import("./SongPlayButton.tsx");
 const {
+  blocksLine,
   cellsSentence,
   cellsHeldBy,
   grewSentence,
+  lessonDots,
   lessonsInSong,
+  ownedCount,
   partsPlayedByTake,
   partTracks,
   releaseOffer,
   songReleaseOfVersion,
+  songLessonOf,
   songReleaseRenderRequest,
+  todayAdds,
 } = await import("./surfaces-model.ts");
 const { TEST_SONG, testDetail, testTake } = await import("./test-song.ts");
 
@@ -66,6 +72,8 @@ let sent: Sent[] = [];
 let answer: (s: Sent) => unknown = () => ({});
 let container: HTMLDivElement;
 let root: ReturnType<typeof createRoot>;
+/** The query client of the last `render`. */
+let client: QueryClient;
 
 function json(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
@@ -105,6 +113,7 @@ async function render(node: ReactNode, seed: { detail?: UnitSongDetail | null; t
   const qc = new QueryClient({
     defaultOptions: { queries: { retry: false, staleTime: Number.POSITIVE_INFINITY } },
   });
+  client = qc;
   if (seed.detail) qc.setQueryData(apiKey("songs.get", { params: { unitId: "U01" } }), seed.detail);
   qc.setQueryData(apiKey("terms.introduced"), {
     items: (seed.terms ?? []).map((termId) => ({
@@ -167,14 +176,15 @@ describe("song surfaces", () => {
     const heads = all("[data-section]");
     expect(heads.map((h) => h.dataset.section)).toEqual(["intro", "verse", "stop", "chorus1", "chorus2"]);
     expect(heads.map((h) => Number(h.dataset.bars))).toEqual([4, 8, 1, 8, 8]);
-    // Each column spans its bars on a grid of 29 bars, after the row names' column.
+    // One column per section after the row names' column, as wide as its bars, never under 14px (the one-bar stop).
     const spans = heads.map((h) => h.getAttribute("style") ?? "");
-    expect(spans[0]).toContain("grid-column: 2 / span 4");
-    expect(spans[1]).toContain("grid-column: 6 / span 8");
-    expect(spans[2]).toContain("grid-column: 14 / span 1");
+    expect(spans[0]).toContain("grid-column: 2;");
+    expect(spans[2]).toContain("grid-column: 4;");
     expect(one("[data-section] ~ *").parentElement?.getAttribute("style")).toContain(
-      "repeat(29, minmax(0, 1fr))",
+      "minmax(14px, 4fr) minmax(14px, 8fr) minmax(14px, 1fr) minmax(14px, 8fr) minmax(14px, 8fr)",
     );
+    // Every header shows at least its letter (shared decision 4): none is left blank, the one-bar stop included.
+    expect(heads.map((h) => h.textContent)).toEqual(["A", "B", "C", "D", "D"]);
     const cell = (k: string) => one(`[data-cell="${k}"]`);
     expect(cell("kick@verse").dataset.owner).toBe("yours");
     expect(cell("kick@verse").getAttribute("style")).toContain("background");
@@ -185,9 +195,14 @@ describe("song surfaces", () => {
     expect(cell("snare@intro").dataset.rests).toBe("1");
     expect(cell("kick@intro").dataset.rests).toBeUndefined();
     expect(all("[data-cell]")).toHaveLength(25);
-    // The legend and the summary say the same in words.
-    expect(text()).toContain("Yours");
-    expect(one('[data-testid="song-grid-summary"]').textContent).toContain("Yours: Kick in B; Snare in B.");
+    // The legend names the four states the grid has; "Oak rests" is the empty, dashed block.
+    expect(all("[data-legend]").map((l) => l.textContent)).toEqual(["Today", "Yours", "Oak", "Oak rests"]);
+    expect(cell("snare@intro").className).toContain("oak-song-rest");
+    expect(cell("bass@verse").className).toContain("oak-song-oak");
+    // The summary says the same in words.
+    expect(one('[data-testid="song-grid-summary"]').textContent).toContain(
+      "Yours: Kick in section B; Snare in section B.",
+    );
     // A fixed playhead sits in the bar it is given.
     await render(<SongGrid view={view} playheadBar={5} />);
     expect(one('[data-testid="song-playhead"]').getAttribute("style")).toContain("opacity: 1");
@@ -196,7 +211,11 @@ describe("song surfaces", () => {
 
   test("SongHero shows today's line and the lesson count", async () => {
     await render(<SongHero plan={plan()} song={TEST_SONG} />, { detail: testDetail([L01]) });
-    expect(one('[data-testid="song-hero-count"]').textContent).toContain("Lesson 2 of 3 in this song");
+    // Take lessons only (the side step L03 has no number), and blocks, never "cells": only saved blocks are yours (as
+    // the song page says), today's are said apart.
+    expect(one('[data-testid="song-hero-count"]').textContent).toBe(
+      "Lesson 2 of 2 in this song · 2 of 16 blocks are yours · today adds 6",
+    );
     expect(one('[data-testid="song-hero-today"]').textContent).toBe(L02_STEP.today);
     expect(one("#song-hero-title").textContent).toBe("My groove");
     // Today's cells are the step's in both big sections; the earlier take is yours.
@@ -214,6 +233,9 @@ describe("song surfaces", () => {
       { detail: testDetail([L01]) },
     );
     expect(one('[data-testid="song-hero-side"]').textContent).toContain("three to a bar");
+    // A side day has no number, and its dash keeps its shape (ringed as today's).
+    expect(one('[data-testid="song-hero-count"]').textContent).toMatch(/^2 lessons in this song/);
+    expect(all("[data-dot]").map((d) => d.dataset.dot)).toEqual(["yours", "later", "side-today"]);
     // A song with no planned song line draws nothing.
     await render(<SongHero plan={{ ...plan(), song: null } as SessionPlan} song={TEST_SONG} />);
     expect(container.querySelector('[data-testid="song-hero"]')).toBeNull();
@@ -263,7 +285,7 @@ describe("song surfaces", () => {
     );
     // The history lists the take with what it took and ▶ for that version.
     expect(all('[data-testid="song-take"]')).toHaveLength(1);
-    expect(one('[data-testid="song-take"]').textContent).toContain("Kick and Snare in B");
+    expect(one('[data-testid="song-take"]').textContent).toContain("Kick and Snare in section B");
     // Releasable: Release to the album.
     await render(<SongPage unitId="U01" song={TEST_SONG} />, {
       detail: testDetail([L01], { releasable: true }),
@@ -292,6 +314,27 @@ describe("song surfaces", () => {
     expect(all('[data-testid="part-solo"]')).toHaveLength(TEST_SONG.parts.length);
   });
 
+  test("the song page's status line says which parts are muted or soloed", async () => {
+    await render(<SongPage unitId="U01" song={TEST_SONG} />, { detail: testDetail([L01]) });
+    const parts = () => one('[data-testid="song-page-parts"]').textContent;
+    expect(parts()).toBe("");
+    const mute = all('[data-testid="part-mute"]');
+    await act(async () => mute[0]?.click());
+    const first = TEST_SONG.parts[0]?.name;
+    expect(parts()).toBe(`${first} muted.`);
+    await act(async () => all('[data-testid="part-solo"]')[1]?.click());
+    expect(parts()).toBe(`Only ${TEST_SONG.parts[1]?.name} plays.`);
+    expect(one('[data-testid="song-page-parts"]').getAttribute("aria-live")).toBe("polite");
+  });
+
+  test("the lesson's song card holds its room while the song is read, never showing the side box first", async () => {
+    answer = (s) => (s.path === "/api/songs/U01" ? new Promise(() => {}) : {});
+    await render(<SongCard lessonId="U01.L02" song={TEST_SONG} orElse={<p data-testid="alone" />} />);
+    expect(container.querySelector('[data-testid="song-card-pending"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="alone"]')).toBeNull();
+    answer = () => ({});
+  });
+
   test("SongGrew fills today's cells, plays before and after, and offers the release when the song can go", async () => {
     const L02 = testTake(2, "U01.L02", 'setcpm(96/4)\n\ndrums: s("bd sd, hh*4")', [
       "kick@chorus1",
@@ -306,7 +349,7 @@ describe("song surfaces", () => {
     });
     expect(one('[data-testid="coda-song-grew"]').textContent).toContain("Your song grew");
     expect(one('[data-testid="coda-song-sentence"]').textContent).toBe(
-      "The song now plays your kick, snare and hats in D.",
+      "The song now plays your kick, snare and hats in both D sections.",
     );
     // They fill section by section: the order is each cell's delay index.
     const order = (c: HTMLElement) => Number(/--i:\s*(\d+)/.exec(c.getAttribute("style") ?? "")?.[1]);
@@ -359,14 +402,22 @@ describe("song surfaces", () => {
 describe("song surface words", () => {
   const view = songViewOf(TEST_SONG, testDetail([L01]), new Set());
   test("what a take holds is said in the view's words", () => {
-    expect(cellsSentence(view, ["kick@verse", "snare@verse"])).toBe("Kick and Snare in B");
-    expect(cellsSentence(view, ["bass@chorus1", "bass@chorus2"])).toBe("Bass in D");
+    expect(cellsSentence(view, ["kick@verse", "snare@verse"])).toBe("Kick and Snare in section B");
+    // A repeated section is told apart: all of them ("both"), or some of them by their bars.
+    expect(cellsSentence(view, ["bass@chorus1", "bass@chorus2"])).toBe("Bass in both D sections");
+    const chorus2 = view.sections.find((x) => x.id === "chorus2");
+    expect(cellsSentence(view, ["bass@chorus2"])).toBe(
+      `Bass in section D at bar ${(chorus2?.startBar ?? 0) + 1}`,
+    );
     expect(cellsSentence(view, [])).toBeNull();
     expect(grewSentence(view, ["kick@verse", "snare@verse"])).toBe(
-      "The song now plays your kick and snare in B.",
+      "The song now plays your kick and snare in section B.",
     );
     expect(grewSentence(view, ["hats@verse", "hats@chorus1"])).toBe(
-      "The song now plays your hats in B and D.",
+      `The song now plays your hats in section B and section D at bar ${(view.sections.find((x) => x.id === "chorus1")?.startBar ?? 0) + 1}.`,
+    );
+    expect(grewSentence(view, ["hats@intro", "hats@verse"])).toBe(
+      "The song now plays your hats in sections A and B.",
     );
   });
 
@@ -483,7 +534,7 @@ describe("review fixes", () => {
     expect(releaseOffer({ ...gone, releases: [release], changedSinceRelease: true })).toBe("again");
     answer = () => ({});
     await render(<SongPage unitId="U01" song={TEST_SONG} />, { detail: gone });
-    expect(one('[data-testid="song-page-meta"]').textContent).toContain("Still growing");
+    expect(one('[data-testid="song-page-meta"]').textContent).toContain("Off the album");
     expect(one('[data-testid="song-release-go"]').textContent).toBe("Release to the album");
     expect(one('[data-testid="song-release-row"]').textContent).toContain("Removed from the album");
   });
@@ -546,13 +597,43 @@ describe("review fixes", () => {
     expect(one('[data-testid="song-release-go"]').textContent).toBe("Release to the album");
   });
 
+  test("right after a save, the song in hand is not judged until the grown song is read", async () => {
+    // The save invalidated the song: the copy in hand predates today's take, and the new read is under way.
+    let release: (detail: UnitSongDetail) => void = () => {};
+    const grown = testDetail([L01, testTake(2, "U01.L02", 'chords: n("0 2 4")', ["chords@verse"])]);
+    await render(
+      <SongGrew
+        lessonId="U01.L02"
+        song={TEST_SONG}
+        sketchIds={["sk_2"]}
+        fallback={<p data-testid="fallback" />}
+        pending={<p data-testid="grew-pending" />}
+      />,
+      { detail: testDetail([L01]) },
+    );
+    answer = (s) =>
+      s.path.endsWith("/songs/U01") ? new Promise((resolve) => (release = (d) => resolve(json(d)))) : {};
+    await act(async () => {
+      void client.invalidateQueries({ queryKey: ["api", "songs.get"] });
+      await new Promise((r) => setTimeout(r, 5));
+    });
+    expect(container.querySelector('[data-testid="grew-pending"]')).not.toBeNull();
+    expect(container.querySelector('[data-testid="coda-song-missing"]')).toBeNull();
+    expect(container.querySelector('[data-testid="fallback"]')).toBeNull();
+    await act(async () => {
+      release(grown);
+      await new Promise((r) => setTimeout(r, 5));
+    });
+    expect(container.querySelector('[data-testid="coda-song-grew"]')).not.toBeNull();
+  });
+
   test("the Coda's sentence names only the parts the take's code plays", () => {
     const view = songViewOf(TEST_SONG, testDetail([L01]), new Set());
     const fourKicks = { labels: { drums: null }, code: 'setcpm(96/4)\n\ndrums: s("bd bd bd bd")' };
     const played = partsPlayedByTake(TEST_SONG, fourKicks);
     expect([...(played ?? [])]).toEqual(["kick"]);
     expect(grewSentence(view, ["kick@verse", "snare@verse", "hats@verse"], played)).toBe(
-      "The song now plays your kick in B; the snare and hats rest there now.",
+      "The song now plays your kick in section B; the snare and hats rest there now.",
     );
     expect(partsPlayedByTake(TEST_SONG, { labels: {}, code: 's("bd")' })).toBeNull();
     expect(
@@ -561,7 +642,7 @@ describe("review fixes", () => {
       ].sort(),
     ).toEqual(["hats", "kick", "snare"]);
     expect(grewSentence(view, ["kick@verse"], new Set())).toBe(
-      "Your code took over the kick in B; it rests there now.",
+      "Your code took over the kick in section B; it rests there now.",
     );
   });
 
@@ -590,5 +671,169 @@ describe("review fixes", () => {
     // The reason alone: it already says the Make stays a sketch of its own.
     const sideStep = TEST_SONG.plan[2] as { reason: string };
     expect(one('[data-testid="song-hero-side"]').textContent).toBe(sideStep.reason);
+  });
+});
+
+/** Lets queries and effects run until `done` holds (or a few rounds pass). */
+async function settle(done: () => boolean) {
+  for (let i = 0; i < 20 && !done(); i++) await act(async () => new Promise((r) => setTimeout(r, 5)));
+}
+
+describe("the hero, the style cards and the New song moment (2026-11-24 review, group hero)", () => {
+  test("counts: blocks that sound, only saved ones yours, today's said apart; lessons are take lessons only", () => {
+    const view = songViewOf(TEST_SONG, testDetail([L01]), new Set(), { live: L02_STEP });
+    const saved = songViewOf(TEST_SONG, testDetail([L01]), new Set());
+    // The song page's number (the saved song) and Today's are the same; Today adds today's blocks apart.
+    expect(blocksLine(saved)).toBe("2 of 16 blocks are yours");
+    expect(todayAdds(saved, view)).toBe(6);
+    expect(blocksLine(saved, todayAdds(saved, view))).toBe("2 of 16 blocks are yours · today adds 6");
+    // Today's blocks in a view never count as yours, even with the Make open.
+    expect(ownedCount(view).yours).toBe(2);
+    // Once today's Make is saved, its blocks are yours on both surfaces, and today adds nothing more.
+    const todays = view.cells.filter((c) => c.owner === "today").map((c) => `${c.part}@${c.section}`);
+    const L02 = testTake(2, "U01.L02", L01.code, todays);
+    const after = songViewOf(TEST_SONG, testDetail([L01, L02]), new Set());
+    const afterLive = songViewOf(TEST_SONG, testDetail([L01, L02]), new Set(), { live: L02_STEP });
+    expect(todayAdds(after, afterLive)).toBe(0);
+    expect(ownedCount(after).yours).toBe(ownedCount(saved).yours + 6);
+    expect(songLessonOf(TEST_SONG, "U01.L02")).toEqual({ index: 2, of: 2 });
+    expect(songLessonOf(TEST_SONG, "U01.L03")).toEqual({ index: null, of: 2 });
+    expect(view.lessonsInSong).toBe(2);
+  });
+
+  test("dots: a finished lesson of a song not started is done, a side lesson keeps its dash on its own day", () => {
+    const states = (today: string, done: string[] = []) =>
+      lessonDots(TEST_SONG, null, today, new Set(done)).map((d) => d.state);
+    expect(states("U01.L02", ["U01.L01"])).toEqual(["done", "today", "side"]);
+    expect(states("U01.L03", ["U01.L01", "U01.L02"])).toEqual(["done", "done", "side-today"]);
+    expect(lessonDots(TEST_SONG, testDetail([L01]), "U01.L02").map((d) => d.state)).toEqual([
+      "yours",
+      "today",
+      "side",
+    ]);
+  });
+
+  test("a play button's name says Stop in place of Play, never 'Stop Play …'", () => {
+    expect(stopName("Play “Count me in” as it stands")).toBe("Stop “Count me in” as it stands");
+    expect(stopName("Before today")).toBe("Stop: Before today");
+  });
+
+  test("done for today: the hero speaks of the next lesson, not today's", async () => {
+    await render(<SongHero plan={plan()} song={TEST_SONG} done />, { detail: testDetail([L01]) });
+    // The next lesson's blocks are not counted as yours yet.
+    expect(one('[data-testid="song-hero-count"]').textContent).toBe(
+      "Next: lesson 2 of 2 in this song · 2 of 16 blocks are yours",
+    );
+    expect(one('[data-testid="song-hero-today"]').textContent).toBe(`Next time: ${L02_STEP.today}`);
+    expect(text()).toContain("Next lesson");
+    expect(one('[data-dot="today"]').getAttribute("title")).toMatch(/: next$/);
+    expect(one('[data-testid="song-hero"]').dataset.state).toBe("done");
+  });
+
+  test("the hero's play button is the quiet one, and has no pressed state", async () => {
+    await render(<SongHero plan={plan()} song={TEST_SONG} />, { detail: testDetail([L01]) });
+    const play = one('[data-testid="song-hero-play"]');
+    expect(play.dataset.tone).toBe("quiet");
+    expect(play.hasAttribute("aria-pressed")).toBe(false);
+    expect(play.getAttribute("aria-label")).toBe("Play “My groove” as it stands");
+  });
+
+  test("while the song is read the hero draws no lesson as not in it; a failed read says so with Try again", async () => {
+    answer = (s) => (s.path === "/api/songs/U01" ? new Promise(() => {}) : {});
+    await render(<SongHero plan={plan()} song={TEST_SONG} />);
+    expect(one('[data-testid="song-hero"]').dataset.state).toBe("loading");
+    expect(container.querySelector("[data-cell]")).toBeNull();
+    expect(container.querySelector("[data-dot]")).toBeNull();
+    expect(one('[data-testid="song-hero-count"]').textContent).toBe("Lesson 2 of 2 in this song");
+
+    answer = (s) =>
+      s.path === "/api/songs/U01" ? json({ error: { code: "internal", message: "boom" } }, 500) : {};
+    await render(<SongHero plan={plan()} song={TEST_SONG} />);
+    await settle(() => one('[data-testid="song-hero"]').dataset.state !== "loading");
+    expect(one('[data-testid="song-hero"]').dataset.state).toBe("error");
+    expect(one('[data-testid="song-hero-error"]').textContent).toContain("Your song could not be read");
+    expect(container.querySelector("[data-cell]")).toBeNull();
+    answer = (s) => (s.path === "/api/songs/U01" ? testDetail([L01]) : {});
+    await act(async () => one('[data-testid="song-hero-retry"]').click());
+    await settle(() => one('[data-testid="song-hero"]').dataset.state === "ready");
+    expect(one('[data-testid="song-hero"]').dataset.state).toBe("ready");
+    expect(one('[data-cell="kick@verse"]').dataset.owner).toBe("yours");
+    // "Try again" went with the error: focus moves on to the hero's ▶, not to the page.
+    expect(document.activeElement).toBe(one('[data-testid="song-hero-play"]'));
+    answer = () => ({});
+  });
+
+  test("in each style card Tab reaches the radio first, then its ▶", async () => {
+    const fresh = testDetail([], { status: "new", flavour: "flavour.pop", title: "The test song" });
+    answer = () => fresh;
+    await render(<NewSong unitId="U01" song={TEST_SONG} onStarted={() => {}} />, { detail: fresh });
+    for (const card of all("[data-style]")) {
+      const radio = card.querySelector('[data-testid="style-option"]') as HTMLElement;
+      const play = card.querySelector('[data-testid="style-play"]') as HTMLElement;
+      expect(radio.compareDocumentPosition(play) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    }
+    answer = () => ({});
+  });
+
+  test("the style card plays the learner's song in each style; Keep says so and moves focus on", async () => {
+    const made = testDetail([L01], { backfilled: true, styleSeen: false });
+    answer = (s) => (s.method === "POST" ? { ...made, styleSeen: true } : made);
+    await render(<SongHero plan={plan()} song={TEST_SONG} />, { detail: made });
+    const plays = all('[data-testid="style-play"]');
+    expect(plays.map((b) => b.getAttribute("aria-label"))).toContain("Play your song in Funk");
+    expect(plays.some((b) => b.hasAttribute("aria-pressed"))).toBe(false);
+    // The picked style has its check on the cover, not only the ring.
+    expect(one('[data-picked="1"]').querySelector('[data-testid="style-check"]')).not.toBeNull();
+    await act(async () => one('[data-testid="song-style-keep"]').click());
+    await act(async () => {});
+    expect(sent.some((x) => x.method === "POST" && x.path === "/api/songs/U01/style-seen")).toBe(true);
+    expect(one('[data-testid="song-hero-said"]').textContent).toBe("Your song stays in Indie.");
+    expect(document.activeElement).toBe(one('[data-testid="song-hero-open"]'));
+    answer = () => ({});
+  });
+
+  test("New song: a title of spaces keeps Oak's heading and says why Start waits", async () => {
+    const fresh = testDetail([], { status: "new", flavour: "flavour.pop", title: "The test song" });
+    answer = () => fresh;
+    await render(<NewSong unitId="U01" song={TEST_SONG} onStarted={() => {}} />, { detail: fresh });
+    // Before the style is picked, its ▶ plays Oak's song (there is no song of the learner's yet).
+    expect(all('[data-testid="style-play"]').map((b) => b.getAttribute("aria-label"))).toContain(
+      "Play the song in Funk",
+    );
+    expect(one('[data-testid="new-song-grid-caption"]').textContent).toContain("each row is a part");
+    const input = one('[data-testid="new-song-name"]') as HTMLInputElement;
+    await act(async () => {
+      const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
+      set?.call(input, "   ");
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    expect(one('[data-testid="new-song-title"]').textContent).toBe(TEST_SONG.title);
+    const start = one('[data-testid="new-song-start"]');
+    expect(start.hasAttribute("disabled")).toBe(true);
+    const need = one('[data-testid="new-song-need-title"]');
+    expect(need.textContent).toBe("Give the song a title to start.");
+    expect(start.getAttribute("aria-describedby")).toBe(need.id);
+    answer = () => ({});
+  });
+});
+
+describe("the lesson's song card (2026-11-24 review, group lesson)", () => {
+  test("a side lesson's framing goes inside the card, without the grid; with no card it shows on its own", async () => {
+    const side = { heading: "Optional side lesson, about 15 minutes", text: "Nothing waits for it." };
+    await render(
+      <SongCard lessonId="U01.L02" song={TEST_SONG} side={side} orElse={<p data-testid="alone" />} />,
+      { detail: testDetail([L01]) },
+    );
+    const card = container.querySelector('[data-testid="song-card"]');
+    expect(card?.querySelector('[data-testid="side-lesson-note"]')?.textContent).toContain(side.heading);
+    expect(card?.querySelector("[data-section]")).toBeNull();
+    expect(container.querySelector('[data-testid="alone"]')).toBeNull();
+    // A song not started has no card: the side lesson's own box shows instead.
+    await render(
+      <SongCard lessonId="U01.L02" song={TEST_SONG} side={side} orElse={<p data-testid="alone" />} />,
+      { detail: testDetail([], { status: "new" }) },
+    );
+    expect(container.querySelector('[data-testid="song-card"]')).toBeNull();
+    expect(container.querySelector('[data-testid="alone"]')).not.toBeNull();
   });
 });

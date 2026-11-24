@@ -103,12 +103,15 @@ export interface SideView {
 
 /**
  * The sides of the record. Side A lists every core capstone (released or not); side B lists the advanced
- * capstones only once one of them is released or open; the B-sides only once there is one.
+ * capstones only once one of them is released or open; the B-sides only once there is one. `songTracks` are the
+ * album rows that are unit-song releases (`songTracksOf`): the Songs shelf is their one home, so they are not listed
+ * again as B-sides (their rows carry no unit; the songs list is what says they are songs).
  */
 export function albumSides(
   tracks: readonly AlbumTrack[],
   capstones: readonly Pick<CapstoneMeta, "id" | "title" | "objective" | "sessions">[],
   statuses: readonly CapstoneStatus[],
+  songTracks: ReadonlySet<string> = new Set(),
 ): SideView[] {
   const byCapstone = new Map(
     tracks.filter((t) => t.capstoneId).map((t) => [t.capstoneId as string, t] as const),
@@ -144,7 +147,7 @@ export function albumSides(
   if (b.some((s) => s.kind === "track" || s.status === "open" || s.status === "in_progress"))
     out.push({ side: "B", title: "Side B", sub: "Jazz, rhythm and sound", slots: b });
   const bsides = tracks
-    .filter((t) => t.side === "Bside")
+    .filter((t) => t.side === "Bside" && !songTracks.has(t.id))
     .sort((x, y) => x.trackNo - y.trackNo || x.createdAt.localeCompare(y.createdAt))
     .map((t, i): Slot => ({ kind: "track", no: i + 1, track: t }));
   if (bsides.length)

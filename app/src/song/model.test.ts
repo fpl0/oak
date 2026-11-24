@@ -50,7 +50,7 @@ describe("songViewOf", () => {
     expect(plain.today).toEqual([]);
     expect(plain.cells.some((c) => c.owner === "today")).toBe(false);
     expect(plain.cells).toHaveLength(TEST_SONG.sections.length * TEST_SONG.parts.length);
-    expect(plain).toMatchObject({ title: "My groove", takesCount: 1, lessonsInSong: 3, lengthBars: 29 });
+    expect(plain).toMatchObject({ title: "My groove", takesCount: 1, lessonsInSong: 2, lengthBars: 29 });
   });
 
   test("Oak's rests are read from its arrange()", () => {

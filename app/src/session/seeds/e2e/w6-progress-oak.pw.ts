@@ -122,7 +122,7 @@ test("the tracks open on the Oak: a branch bar with each next lesson, a leaf tha
   // own lesson may be later in the track; it is named "still being written" only while its file does not exist).
   // Wave 7: the track's lessons are written, so the leaf names its own lesson, in the track's order.
   await expect(panel.getByTestId("leaf-branch")).toHaveText(
-    "Jazz Harmony is open, and this leaf grows with J1.L02 · Reading 7th-Chord Symbols. Next: J1.L01 Swing Feel & the Ride.",
+    "Jazz Harmony is open, and this leaf grows with the lesson “Reading 7th-Chord Symbols”. Next: J1.L01 Swing Feel & the Ride.",
   );
   await expect(panel.getByTestId("practise-this")).toHaveCount(0);
   await settle(page);

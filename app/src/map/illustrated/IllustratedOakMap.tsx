@@ -99,6 +99,8 @@ export function IllustratedOakMap(props: IllustratedOakMapProps) {
       const v = view.current;
       scene.current?.setAttribute("transform", `translate(${v.tx} ${v.ty}) scale(${v.k})`);
       svg.current?.setAttribute("data-scale", v.k.toFixed(3));
+      // The branch sub-labels are 12 units tall: below 11 px on screen they are unreadable, so they wait for a zoom.
+      svg.current?.setAttribute("data-details", 12 * v.k >= 11 ? "shown" : "hidden");
     });
   }, []);
   const constrain = useCallback(

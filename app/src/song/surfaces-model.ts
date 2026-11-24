@@ -1,7 +1,7 @@
 // What the song surfaces say and play, pure (spec docs/superpowers/specs/2026-11-24-unit-songs-design.md §5.5): the
-// five styles, the sentence that says which cells a take holds, the song as it stood after any take, a release's
-// frozen song, where the song is in its plan, which tracks a part's mute or solo acts on, and which release action
-// the song page offers. Names come from `songViewOf`, so a section or part is named only once its term is met
+// five styles, how much of the song is the learner's and where a lesson sits in it, the sentence that says which
+// blocks a take holds, the song as it stood after any take, a release's frozen song, where the song is in its plan,
+// which tracks a part's mute or solo acts on, and which release action the song page offers. Names come from `songViewOf`, so a section or part is named only once its term is met
 // (spec §4.3). Words follow AUTHORING §5, §21 and §22.
 import {
   type CellKey,
@@ -22,7 +22,14 @@ import {
 import { lintStrict } from "@oak/grader";
 import type { MuteMap } from "@oak/strudel";
 import type { RenderPieceRequest } from "@oak/strudel/offline";
-import { oakTrackName, olderTakeNumbers, type SongBand, takeTrackName } from "@oak/strudel/song-compose";
+import {
+  oakTrackName,
+  olderTakeNumbers,
+  type SongBand,
+  songLengthBars,
+  takeTrackName,
+} from "@oak/strudel/song-compose";
+import { bpmToCps } from "@oak/theory";
 import { songBandSetupOf } from "../lesson/band.ts";
 import { playableTakes, type SongView, songGridOf } from "./model.ts";
 
@@ -63,7 +70,52 @@ export function andList(items: readonly string[]): string {
 /** Distinct labels, in order. */
 const unique = (xs: readonly string[]) => [...new Set(xs)];
 
-/** The parts a set of cells holds (in song order) and where (section labels, a repeated label said once). */
+/** A label that is a single letter (A, B…): said as a section, never alone, since "in D" reads as the key of D. */
+const isLetter = (label: string) => /^[A-Z]$/.test(label);
+
+/** "bridges", "pre-choruses", "A sections": a section label in the plural, inside a sentence. */
+function sectionsPlural(label: string): string {
+  if (isLetter(label)) return `${label} sections`;
+  const lower = label.toLowerCase();
+  return /(s|x|ch|sh)$/.test(lower) ? `${lower}es` : `${lower}s`;
+}
+
+const COUNT_WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+
+/**
+ * Where a set of sections sits, in the one wording every song sentence uses (`cellsSentence`, `grewSentence`, the
+ * grid's summary): a letter is always a section with its capital kept ("section D", "both A sections"), since "in D"
+ * alone reads as the key of D; a named section is said in sentence case with its article ("the bridge", "all four
+ * choruses"); a repeated label is told apart: all of them ("both bridges"), or the ones held by their bars ("the
+ * bridge at bar 17", "the A sections at bars 1 and 9"), since the label alone would stand for all of them. Several single sections share one phrase when nothing else is
+ * listed ("sections B and D", "the verse and chorus"); otherwise each keeps its own so the "and"s never pile up.
+ */
+export function whereWords(view: SongView, sections: readonly SongView["sections"][number][]): string {
+  if (sections.length === view.sections.length) return "the whole song";
+  const ids = new Set(sections.map((s) => s.id));
+  const labels = unique(sections.map((s) => s.label));
+  const once = labels.filter((label) => view.sections.filter((s) => s.label === label).length === 1);
+  if (once.length === labels.length && labels.length > 1) {
+    if (labels.every(isLetter)) return `sections ${andList(labels)}`;
+    if (!labels.some(isLetter)) return `the ${andList(labels.map((l) => l.toLowerCase()))}`;
+  }
+  return andList(
+    labels.map((label) => {
+      const all = view.sections.filter((s) => s.label === label);
+      const held = all.filter((s) => ids.has(s.id));
+      const one = isLetter(label) ? `section ${label}` : `the ${label.toLowerCase()}`;
+      if (all.length === 1) return one;
+      if (held.length === all.length)
+        return all.length === 2
+          ? `both ${sectionsPlural(label)}`
+          : `all ${COUNT_WORDS[all.length] ?? all.length} ${sectionsPlural(label)}`;
+      const bars = andList(held.map((s) => String(s.startBar + 1)));
+      return held.length === 1 ? `${one} at bar ${bars}` : `the ${sectionsPlural(label)} at bars ${bars}`;
+    }),
+  );
+}
+
+/** The parts a set of cells holds (in song order) and where (`whereWords`: a repeated section told apart). */
 function cellsWhat(
   view: SongView,
   cells: readonly string[],
@@ -72,12 +124,13 @@ function cellsWhat(
   const parts = view.parts.filter((p) => view.sections.some((s) => keys.has(cellKey(p.id, s.id))));
   const sections = view.sections.filter((s) => view.parts.some((p) => keys.has(cellKey(p.id, s.id))));
   if (parts.length === 0) return null;
-  const whole = sections.length === view.sections.length;
-  const where = whole ? "the whole song" : andList(unique(sections.map((s) => s.label)));
-  return { names: parts.map((p) => p.name), parts, where };
+  return { names: parts.map((p) => p.name), parts, where: whereWords(view, sections) };
 }
 
-/** What a set of cells holds, in the view's words: "Kick and Snare in B", "Bass in A and C". `null` for none. */
+/**
+ * What a set of cells holds, in the view's words: "Kick and Snare in section B", "Bass in both D sections", "Bass in
+ * the chorus at bar 13". `null` for none.
+ */
 export function cellsSentence(view: SongView, cells: readonly string[]): string | null {
   const what = cellsWhat(view, cells);
   return what ? `${andList(what.names)} in ${what.where}` : null;
@@ -96,12 +149,13 @@ export function grewSentence(
 ): string | null {
   const what = cellsWhat(view, cells);
   if (!what) return null;
+  const where = what.where;
   const names = (parts: readonly SongViewPartRef[]) => andList(parts.map((p) => lowerName(p.name)));
   const plays = played ? what.parts.filter((p) => played.has(p.id)) : what.parts;
   const rests = played ? what.parts.filter((p) => !played.has(p.id)) : [];
   if (plays.length === 0)
-    return `Your code took over the ${names(rests)} in ${what.where}; ${rests.length === 1 ? "it rests" : "they rest"} there now.`;
-  const yours = `The song now plays your ${names(plays)} in ${what.where}`;
+    return `Your code took over the ${names(rests)} in ${where}; ${rests.length === 1 ? "it rests" : "they rest"} there now.`;
+  const yours = `The song now plays your ${names(plays)} in ${where}`;
   if (rests.length === 0) return `${yours}.`;
   return `${yours}; the ${names(rests)} ${rests.length === 1 ? "rests" : "rest"} there now.`;
 }
@@ -132,10 +186,35 @@ export function partsPlayedByTake(
 const lowerName = (name: string) =>
   /^[A-Z][a-z]/.test(name) ? name[0]?.toLowerCase() + name.slice(1) : name;
 
-/** How many cells of the song are the learner's, and of how many: "9 of 35 cells are yours". */
+/**
+ * How many blocks of the song are the learner's, and of how many (shared decision 1 of the 2026-11-24 review). A
+ * block is one part in one section that sounds: a cell where Oak rests is not one. Only blocks the learner has
+ * written and saved count as yours: pass the song as saved (a view with no Make open), so Today's hero and the song
+ * page give the same number on every day. The blocks today's lesson will take over are said apart (`todayAdds`).
+ */
 export function ownedCount(view: SongView): { yours: number; total: number } {
   const total = view.cells.filter((c) => !(c.owner === "oak" && c.rests)).length;
   return { yours: view.cells.filter((c) => c.owner === "yours").length, total };
+}
+
+/**
+ * How many blocks today's Make adds to what is yours: its blocks (`live`, the view with the Make open) that the saved
+ * song (`saved`) does not already have as yours. 0 once today's Make is saved.
+ */
+export function todayAdds(saved: SongView, live: SongView): number {
+  const yours = new Set(saved.cells.filter((c) => c.owner === "yours").map((c) => `${c.part}@${c.section}`));
+  return live.cells.filter((c) => c.owner === "today" && !yours.has(`${c.part}@${c.section}`)).length;
+}
+
+/**
+ * How much of the song is the learner's, in the words every song surface uses: "15 of 46 blocks are yours", and, with
+ * the blocks today's lesson adds, "15 of 46 blocks are yours · today adds 4". `saved` is the song as saved (no Make
+ * open). Never "cells", an authoring word the learner has not met.
+ */
+export function blocksLine(saved: SongView, adds = 0): string {
+  const { yours, total } = ownedCount(saved);
+  const line = `${yours} of ${total} ${total === 1 ? "block" : "blocks"} ${yours === 1 ? "is" : "are"} yours`;
+  return adds > 0 ? `${line} · today adds ${adds}` : line;
 }
 
 // --- the song at any point ---------------------------------------------------------------------------------
@@ -168,6 +247,26 @@ export function newestTakeOfLesson(
     if (t?.lessonId === lessonId && (!sketchIds || sketchIds.includes(t.sketchId))) return t;
   }
   return null;
+}
+
+/**
+ * Where a lesson sits among the song's lessons: "Lesson 5 of 8 in this song" counts take lessons only, on every
+ * surface (Today's hero, the lesson's song card, the song page, the album). A side lesson is a dash among the dots
+ * and has no number: `index` is `null` for it, and for a lesson in no step of the song.
+ */
+export function songLessonOf(
+  def: Pick<UnitSongDef, "plan">,
+  lessonId: string | null,
+): { index: number | null; of: number } {
+  const takes = def.plan.filter((p) => p.kind === "take").map((p) => p.lesson as string);
+  const at = lessonId === null ? -1 : takes.indexOf(lessonId);
+  return { index: at < 0 ? null : at + 1, of: takes.length };
+}
+
+/** "Lesson 5 of 8 in this song" for a take lesson; `null` for a side lesson (it has no number). */
+export function lessonOfSongLine(def: Pick<UnitSongDef, "plan">, lessonId: string | null): string | null {
+  const { index, of } = songLessonOf(def, lessonId);
+  return index === null ? null : `Lesson ${index} of ${of} in this song`;
 }
 
 /** How many lessons of the song have a take in it (a lesson redone adds a take, not a lesson), of its take steps. */
@@ -249,7 +348,13 @@ export function songReleaseOfVersion(
 
 // --- where the song is in its plan ----------------------------------------------------------------------
 
-export type LessonDotState = "yours" | "today" | "later" | "side";
+/**
+ * A dot's state: `yours` (its take is in the song), `today` (the lesson planned now), `later`, `side` (a side lesson:
+ * a sketch of its own, drawn as a dash), `side-today` (the side lesson planned now: the same dash, ringed, so a lesson
+ * keeps its shape from day to day), `done` (finished, but its take is not in the song: a song not started yet takes
+ * the earlier lessons' Makes in when it starts).
+ */
+export type LessonDotState = "yours" | "today" | "later" | "side" | "side-today" | "done";
 export interface LessonDot {
   lessonId: LessonId;
   state: LessonDotState;
@@ -257,24 +362,30 @@ export interface LessonDot {
 
 /**
  * One dot per lesson of the song's plan: `yours` for a take lesson that has a take in the song, `today` for the
- * lesson planned now, `side` for a side step, `later` for the rest.
+ * lesson planned now (`side-today` when it is a side step), `side` for a side step, `done` for a take lesson the
+ * learner finished whose take is not in the song (`completed`: the lessons finished), `later` for the rest.
  */
 export function lessonDots(
   def: Pick<UnitSongDef, "plan">,
   detail: Pick<UnitSongDetail, "takes"> | null,
   today: string | null,
+  completed: ReadonlySet<string> = new Set(),
 ): LessonDot[] {
   const taken = new Set((detail?.takes ?? []).map((t) => t.lessonId as string));
   return def.plan.map((step) => ({
     lessonId: step.lesson,
     state:
-      step.lesson === today
-        ? "today"
-        : step.kind === "side"
-          ? "side"
+      step.kind === "side"
+        ? step.lesson === today
+          ? "side-today"
+          : "side"
+        : step.lesson === today
+          ? "today"
           : taken.has(step.lesson)
             ? "yours"
-            : "later",
+            : completed.has(step.lesson)
+              ? "done"
+              : "later",
   }));
 }
 
@@ -424,6 +535,102 @@ export function isOnAlbum(detail: Pick<UnitSongDetail, "releases">): boolean {
 /** The newest release that is still on the album, or `null`. */
 export function newestRelease(detail: Pick<UnitSongDetail, "releases">) {
   return [...detail.releases].reverse().find((r) => r.albumTrackId !== null) ?? null;
+}
+
+/**
+ * Where a song stands, in the one set of words the song page and the album shelf use: `growing` while lessons of its
+ * unit can still add to it, `complete` once every take lesson is in but the release point is not reached, `ready`
+ * when it can go to the album and is not there, `on-album`, and `off-album` once its album track was removed.
+ */
+export type SongStage = "growing" | "complete" | "ready" | "on-album" | "off-album";
+
+export function songStage(
+  detail: Pick<UnitSongDetail, "releasable" | "releases">,
+  lessons: { done: number; of: number },
+): SongStage {
+  if (isOnAlbum(detail)) return "on-album";
+  if (detail.releases.length > 0) return "off-album";
+  if (detail.releasable) return "ready";
+  return lessons.of > 0 && lessons.done >= lessons.of ? "complete" : "growing";
+}
+
+/**
+ * The song the empty album speaks of beside C0 (`FirstTrack`), with its stage: one ready for the album first, then one
+ * taken off it, then one still growing (in course order within each). `stepsOf` is a song's number of take lessons.
+ * `null` when there is none, or every song is on the album (the album is not empty then).
+ */
+export function firstTrackSong<
+  S extends Pick<UnitSongSummary, "unitId" | "releasable" | "releases" | "lessonsCount">,
+>(songs: readonly S[], stepsOf: (unitId: S["unitId"]) => number): { song: S; stage: SongStage } | null {
+  const staged = songs.map((song) => ({
+    song,
+    stage: songStage(song, { done: song.lessonsCount, of: stepsOf(song.unitId) }),
+  }));
+  for (const want of ["ready", "off-album", "complete", "growing"] as const) {
+    const found = staged.find((s) => s.stage === want);
+    if (found) return found;
+  }
+  return null;
+}
+
+export const SONG_STAGE_WORDS: Readonly<Record<SongStage, string>> = {
+  growing: "Still growing",
+  complete: "Every lesson is in",
+  ready: "Ready for the album",
+  "on-album": "On the album",
+  "off-album": "Off the album",
+};
+
+/**
+ * What changed since the song's newest release, for the "Release again" card: the style (named from and to) and the
+ * Makes that went in after it. `null` when neither is known to have changed.
+ */
+export function changedSinceLine(
+  detail: Pick<UnitSongDetail, "flavour" | "releases"> & {
+    takes?: readonly Pick<UnitSongTake, "createdAt">[];
+  },
+): string | null {
+  const last = detail.releases.at(-1);
+  if (!last) return null;
+  const out: string[] = [];
+  if (last.flavour !== detail.flavour)
+    out.push(`the style changed from ${styleName(last.flavour)} to ${styleName(detail.flavour)}`);
+  const newer = (detail.takes ?? []).filter((t) => t.createdAt > last.createdAt).length;
+  if (newer > 0) out.push(`${newer === 1 ? "a lesson's Make" : `${newer} lessons' Makes`} went into it`);
+  if (out.length === 0) return null;
+  const line = andList(out);
+  return `Since you released it, ${line}.`;
+}
+
+/** A song's release on the album: the unit, the release, and the album version it is. */
+export interface SongTrackRelease {
+  unitId: string;
+  releaseId: number;
+  version: number;
+}
+
+/**
+ * Every album track that is a song release (`songs.list` → releases), by track id: its unit and its releases by
+ * album version. The album row has no unit field; the songs list is what says a track is a song.
+ */
+export function songTracksOf(
+  songs: readonly Pick<UnitSongSummary, "unitId" | "releases">[] | undefined,
+): Map<string, { unitId: string; releases: SongTrackRelease[] }> {
+  const out = new Map<string, { unitId: string; releases: SongTrackRelease[] }>();
+  for (const s of songs ?? [])
+    for (const r of s.releases) {
+      if (!r.albumTrackId) continue;
+      const t = out.get(r.albumTrackId) ?? { unitId: s.unitId, releases: [] };
+      t.releases.push({ unitId: s.unitId, releaseId: r.id, version: r.albumVersion });
+      out.set(r.albumTrackId, t);
+    }
+  return out;
+}
+
+/** How long a released song plays once through, in seconds: its bars at its tempo in its meter. */
+export function snapshotSeconds(snapshot: Pick<UnitSongSnapshot, "bpm" | "def">): number {
+  const cps = bpmToCps(snapshot.bpm, snapshot.def.meter);
+  return cps > 0 ? songLengthBars(snapshot.def) / cps : 0;
 }
 
 /** The section a bar falls in, or `null`. */

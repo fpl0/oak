@@ -2,13 +2,22 @@
    the one moment of the Coda, where the cells a lesson took fill in bar by bar. Durations are the motion tokens
    (120 / 200 / 360 ms); reduced motion (system or Settings → Appearance) shows the end state at once. */
 
-/* Oak's cells: an outline with a faint pencil hatch, so they read as "still Oak's" next to the filled ones. */
+/* Oak's cells: an outline with a faint pencil hatch, so they read as "still Oak's" next to the filled ones. The
+   outline is text-3 mixed into the card at 75%, which holds 3:1 against the card and the page in both themes
+   (WCAG 1.4.11); the hatch stays faint so a grid of Oak's blocks does not turn heavy. */
 .oak-song-oak {
+  border: 1px solid color-mix(in oklab, var(--oak-text-3) 75%, var(--oak-surface));
   background-image: repeating-linear-gradient(
     135deg,
     color-mix(in oklab, var(--oak-text-3) 16%, transparent) 0 1px,
     transparent 1px 5px
   );
+}
+
+/* Where Oak's part rests: nothing sounds, so the block is empty, with a dashed outline a little lighter than Oak's
+   (about 2.6:1) so it reads as a deliberate gap, not a missing block. */
+.oak-song-rest {
+  border: 1px dashed color-mix(in oklab, var(--oak-text-3) 60%, var(--oak-surface));
 }
 
 /* The learner's cells: solid in the part's colour, with a thin lighter top edge so a row reads as one strip. */
@@ -20,6 +29,18 @@
 .oak-song-today {
   background: color-mix(in oklab, var(--oak-accent) 16%, transparent);
   box-shadow: inset 0 0 0 1.5px var(--oak-accent);
+}
+
+/* Today's cells once they are saved (the "Your song grew" card): filled in the part's colour like yours, inside the
+   accent outline of today, with a hairline of the card between the two so the outline reads on every part colour. */
+.oak-song-today-saved {
+  --oak-song-ring: 1.5px;
+  box-shadow:
+    inset 0 0 0 var(--oak-song-ring) var(--oak-accent),
+    inset 0 0 0 calc(var(--oak-song-ring) + 1px) var(--oak-surface);
+}
+[data-legend] .oak-song-today-saved {
+  --oak-song-ring: 1px;
 }
 
 /* The section under the playhead brightens its cells a little. */

@@ -1,7 +1,8 @@
 // The album's Songs shelf (spec 2026-11-24 §5.5 "Album"): one tile per unit song the learner has started, with its
 // cover (one ring per take in it), its title, open or released, and ▶. A released song plays its newest release
 // exactly as it was frozen (`songs.snapshot`, spec §5.4: never the current content); an open song plays as it stands.
-// The released ones are also the album's B-sides; the shelf is where every song lives, open or released.
+// The shelf is where every song lives on the album, open or released: a released song is not listed again under the
+// B-sides (the album row of a song release is only its frozen copy, opened from here or from the song page).
 import type { UnitId, UnitSongDetail, UnitSongSnapshot, UnitSongSummary } from "@oak/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -11,13 +12,13 @@ import { useState } from "react";
 import { unitSongOfUnit } from "../../../content/unit-songs/index.ts";
 import { apiQuery } from "../lib/queries.ts";
 import { Chip } from "../ui/kit/basics.tsx";
-import { PARTS_PALETTE } from "../ui/theme/palette.ts";
-import { useUnitSongs } from "./hooks.ts";
+import { useUnitSong, useUnitSongs } from "./hooks.ts";
 import { nowId, releaseId } from "./ids.ts";
 import { songBandOf } from "./model.ts";
 import { playSong, stopSong, useSongPlay } from "./player.ts";
-import { SongCover } from "./SongCover.tsx";
-import { newestRelease, snapshotBand, styleName } from "./surfaces-model.ts";
+import { ringTonesOf, SongCover } from "./SongCover.tsx";
+import { stopName } from "./SongPlayButton.tsx";
+import { newestRelease, SONG_STAGE_WORDS, snapshotBand, songStage, styleName } from "./surfaces-model.ts";
 
 /**
  * ▶ for a release: reads its frozen song (`songs.snapshot`) on the first press, then plays it. The words say what it
@@ -59,7 +60,7 @@ export function ReleasePlayButton({
       busy={busy}
       loading={p.loading}
       playing={p.playing}
-      label={busy ? `Stop ${label}` : label}
+      label={busy ? stopName(label) : label}
       onClick={() => void go()}
       className={className}
       error={p.error ?? readError}
@@ -98,7 +99,7 @@ function OpenSongPlayButton({ unitId, label }: { unitId: string; label: string }
       busy={busy}
       loading={p.loading}
       playing={p.playing}
-      label={busy ? `Stop ${label}` : label}
+      label={busy ? stopName(label) : label}
       onClick={() => void go()}
       disabled={!def}
       error={p.error ?? readError}
@@ -133,8 +134,8 @@ function RoundPlay({
         onClick={onClick}
         disabled={disabled}
         aria-label={label}
-        aria-pressed={playing}
         data-testid="song-shelf-play"
+        data-state={playing ? "playing" : loading ? "loading" : "stopped"}
         className={clsx(
           "relative inline-flex size-9 shrink-0 items-center justify-center rounded-full border transition-colors duration-150",
           "disabled:cursor-not-allowed disabled:opacity-50",
@@ -165,21 +166,27 @@ function RoundPlay({
   );
 }
 
-/** A song tile: the cover as large as the tile, the title (a link to the song's page), where it stands, ▶. */
+/**
+ * A song tile: the cover, the title (a link to the song's page), where it stands, ▶. The stage chip uses the song
+ * page's words (`songStage`); a song ready for the album, or taken off it, links to its page, where Release is.
+ */
 function SongTile({ song }: { song: UnitSongSummary }) {
   const release = newestRelease(song);
   const released = song.status === "released" && release !== null;
-  // The cover's rings: one per take, in the part colours (the summary carries no cells: the tones cycle).
-  const tones = Array.from(
-    { length: song.takesCount },
-    (_, i) => PARTS_PALETTE[i % PARTS_PALETTE.length] as string,
-  );
+  const def = unitSongOfUnit(song.unitId);
+  // The cover's rings in the colours every other surface draws them in (`ringTonesOf`, from the takes' cells): the
+  // list carries no cells, so the tile reads the song itself (the same read its ▶ and its page use).
+  const detail = useUnitSong(song.unitId).data;
+  const tones = def && detail?.status !== "new" && detail ? ringTonesOf(def, detail.takes) : [];
+  const of = takeStepsOf(song.unitId);
+  const stage = songStage(song, { done: song.lessonsCount, of });
   return (
     <li
       className="flex flex-col gap-2.5 rounded-card border border-border bg-surface p-3 shadow-card"
       data-testid="song-shelf-tile"
       data-unit={song.unitId}
       data-status={song.status}
+      data-stage={stage}
     >
       <Link
         to="/song/$unitId"
@@ -206,7 +213,7 @@ function SongTile({ song }: { song: UnitSongSummary }) {
           </Link>
           {/* lessonsCount counts distinct lessons (a redone lesson adds a ring, not a lesson). */}
           <p className="truncate text-sm text-text-3 tabular-nums">
-            {styleName(song.flavour)} · {song.lessonsCount} of {takeStepsOf(song.unitId)} lessons
+            {styleName(song.flavour)} · {song.lessonsCount} of {of} lessons
           </p>
         </div>
         {released && release ? (
@@ -219,9 +226,27 @@ function SongTile({ song }: { song: UnitSongSummary }) {
           <OpenSongPlayButton unitId={song.unitId} label={`Play “${song.title}” as it stands`} />
         )}
       </div>
-      <div className="flex flex-wrap gap-1">
-        {released ? <Chip tone="accent">On the album</Chip> : <Chip>Still growing</Chip>}
-        {song.changedSinceRelease && <Chip tone="amber">Changed since its release</Chip>}
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <Chip
+          tone={stage === "ready" || stage === "on-album" ? "accent" : "neutral"}
+          data-testid="song-shelf-stage"
+        >
+          {SONG_STAGE_WORDS[stage]}
+        </Chip>
+        {stage === "on-album" && song.changedSinceRelease && (
+          <Chip tone="amber">Changed since its release</Chip>
+        )}
+        {(stage === "ready" || stage === "off-album") && (
+          <Link
+            to="/song/$unitId"
+            params={{ unitId: song.unitId }}
+            className="inline-flex min-h-6 items-center text-sm text-link underline-offset-2 hover:underline"
+            aria-label={`${stage === "ready" ? "Release" : "Release again"} “${song.title}” on its page`}
+            data-testid="song-shelf-release"
+          >
+            {stage === "ready" ? "Release it" : "Release again"}
+          </Link>
+        )}
       </div>
     </li>
   );
@@ -251,6 +276,6 @@ export function AlbumSongs() {
 }
 
 /** How many take lessons the unit's song has (0 when the unit has no song). */
-function takeStepsOf(unitId: UnitId): number {
+export function takeStepsOf(unitId: UnitId): number {
   return unitSongOfUnit(unitId)?.plan.filter((p) => p.kind === "take").length ?? 0;
 }
