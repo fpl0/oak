@@ -94,12 +94,12 @@ export function passiveCaption(
     const generic = GENERIC[trial.category] ?? null;
     return { caption, sub: [generic, harmonic ? "together" : null].filter(Boolean).join(", ") || null };
   }
+  const gen = FAMILIES.find((f) => f.id === trial.family)?.generator;
   if (expected.choice && expected.choice.length > 0) {
-    const gen = FAMILIES.find((f) => f.id === trial.family)?.generator;
     const ids = expected.choice;
     return { caption: ids.map((id) => optionLabel(id, gen, ids)).join(", "), sub: null };
   }
-  return { caption: optionLabel(trial.category), sub: null };
+  return { caption: optionLabel(trial.category, gen), sub: null };
 }
 
 /**

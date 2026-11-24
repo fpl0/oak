@@ -2,7 +2,15 @@
 // height so feedback never shifts the layout), per-part marks, the theme for degree colours, the key hints.
 import { clsx } from "clsx";
 import { Check, Eye, Loader2, X } from "lucide-react";
-import { type KeyboardEvent, type ReactNode, useEffect, useRef } from "react";
+import {
+  createContext,
+  type KeyboardEvent,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { RETRY_KEYS, RETRY_LABEL } from "../lib/retry.ts";
 import { IS_MAC } from "../ui/keys/KeymapProvider.tsx";
 import { formatKeys } from "../ui/keys/keymap.ts";
@@ -224,13 +232,15 @@ export function AnswerFrame(p: FrameProps) {
         {p.caption ?? p.label}
       </span>
       {p.caption ? <span className="sr-only">{p.label}</span> : null}
-      {p.children}
-      <FeedbackLine feedback={p.feedback} id={statusId} />
-      {p.keys ? (
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.8125rem] text-text-3">
-          {p.keys}
-        </div>
-      ) : null}
+      <FrameDisabled.Provider value={p.disabled === true}>
+        {p.children}
+        <FeedbackLine feedback={p.feedback} id={statusId} />
+        {p.keys ? (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.8125rem] text-text-3">
+            {p.keys}
+          </div>
+        ) : null}
+      </FrameDisabled.Provider>
     </div>
   );
 }
@@ -250,12 +260,83 @@ export function KeyHint({ keys, children }: { keys: string[]; children: ReactNod
   );
 }
 
+/** Whether the widget's frame is disabled (a checkpoint item once its answer is saved): read by the Enter hint. */
+const FrameDisabled = createContext(false);
+
 /**
- * The Enter hint with the host's verb ("check", or "save" in a checkpoint: `AnswerEnv.submitVerb`). Every widget
- * names its submit key through this, so a checkpoint never says "check".
+ * What Enter does where the focus is, for a control that keeps its own Enter (one outside the answer widget, or a
+ * widget's own play button, `data-enter="native"`): the control's label, read without its key caps ("Play again",
+ * "Next item", "Back to item 2"), or null when Enter goes to the answer or the focus is on no control.
+ */
+export function enterActionOf(el: Element | null): string | null {
+  if (!(el instanceof HTMLElement)) return null;
+  if (el.closest("[data-answer]") && !el.closest("[data-enter='native']")) return null;
+  const control = el.closest<HTMLElement>("button, a[href], [role='button']");
+  if (!control) return null;
+  const named = control.getAttribute("aria-label");
+  let text = named;
+  if (!text) {
+    const copy = control.cloneNode(true) as HTMLElement;
+    for (const k of copy.querySelectorAll("kbd, [aria-hidden='true'], .sr-only")) k.remove();
+    text = copy.textContent;
+  }
+  const t = (text ?? "").replace(/\s+/g, " ").trim();
+  return t === "" ? null : t.charAt(0).toLowerCase() + t.slice(1);
+}
+
+/**
+ * The words after an Enter key cap. A lesson or drill says "check". A checkpoint says what Enter does for the control
+ * that has focus, because Enter there is not always "save": on Play it replays (and spends one of the item's
+ * limited plays), and once the answer is saved it goes to the next item. Only a plain Enter adapts; a chord such
+ * as ⌘⇧↵ saves wherever the focus is.
+ */
+export function useEnterHint(keys: readonly string[] = ["Enter"]): string {
+  const verb = useSubmitVerb();
+  const disabled = useContext(FrameDisabled);
+  const follows = verb === "save" && keys.length === 1 && keys[0] === "Enter";
+  const [onControl, setOnControl] = useState<string | null>(null);
+  useEffect(() => {
+    if (!follows) return;
+    // The focused control's label can change while it keeps the focus ("Play again" -> "Stop" -> "Play again"):
+    // watch that control, and only it, so the hint always names what Enter does now.
+    let watched: Element | null = null;
+    const label = new MutationObserver(() => setOnControl(enterActionOf(document.activeElement)));
+    const read = () => {
+      const el = document.activeElement;
+      setOnControl(enterActionOf(el));
+      const control = el instanceof HTMLElement ? el.closest("button, a[href], [role='button']") : null;
+      if (control === watched) return;
+      label.disconnect();
+      watched = control;
+      if (control)
+        label.observe(control, {
+          subtree: true,
+          childList: true,
+          characterData: true,
+          attributeFilter: ["aria-label"],
+        });
+    };
+    read();
+    // focusout runs before the new element has focus: read once the move is done.
+    const later = () => setTimeout(read, 0);
+    document.addEventListener("focusin", read);
+    document.addEventListener("focusout", later);
+    return () => {
+      document.removeEventListener("focusin", read);
+      document.removeEventListener("focusout", later);
+      label.disconnect();
+    };
+  }, [follows]);
+  if (!follows) return verb;
+  return onControl ?? (disabled ? "next item" : "save");
+}
+
+/**
+ * The Enter hint with the host's verb ("check", or "save" in a checkpoint: `AnswerEnv.submitVerb`, which follows
+ * the focus: `useEnterHint`). Every widget names its submit key through this, so a checkpoint never says "check".
  */
 export function SubmitHint({ keys = ["Enter"] }: { keys?: string[] }) {
-  return <KeyHint keys={keys}>{useSubmitVerb()}</KeyHint>;
+  return <KeyHint keys={keys}>{useEnterHint(keys)}</KeyHint>;
 }
 
 /** A digit key (top row or numpad) as a number, ignoring modifiers other than Shift. */

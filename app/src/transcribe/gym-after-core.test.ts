@@ -1,9 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import {
+  cftNext,
   type GymContext,
   type GymLogEntry,
   gymChoices,
   gymSources,
+  gymStageLabel,
   localDay,
   NO_REPEAT_DAYS,
   nextGymSource,
@@ -101,4 +103,20 @@ describe("no source twice inside two weeks", () => {
   test("localDay writes the calendar day", () => {
     expect(localDay(new Date(2026, 10, 5, 23, 30))).toBe("2026-11-05");
   });
+});
+
+describe("gymStageLabel", () => {
+  test("a gym choice's chip says the level or track in words, never its code", () => {
+    expect(gymStageLabel("L3")).toBe("Level 3");
+    expect(gymStageLabel("L8")).toBe("Level 8");
+    expect(gymStageLabel("G")).toBe("Jazz");
+    expect(gymStageLabel("H")).toBe("Rhythm");
+  });
+});
+
+// UX review practice-8b: the gym's CF-T line named the next session by its ID ("next: CF-T.S2").
+test("cftNext: the Standard Transcription's next session in words, never its ID", () => {
+  expect(cftNext("CF-T.S2")).toBe(" (next: session 2)");
+  expect(cftNext(null)).toBe("");
+  expect(cftNext("CF-T")).toBe("");
 });

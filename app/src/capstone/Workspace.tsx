@@ -79,9 +79,11 @@ import {
   useDraft,
   useDraftSketchId,
   usePatchDraft,
+  useReleasedCode,
 } from "./queries.ts";
 import { ReleaseDialog } from "./ReleaseDialog.tsx";
 import { useRecordDevices } from "./record-devices.ts";
+import { releaseStandingOf } from "./release-version.ts";
 import { useTryRevision } from "./revision.ts";
 import { currentSession, isResume, sessionsDone, sessionViews, starterOf } from "./sessions.ts";
 import { grownFromLine } from "./sketch-plan.ts";
@@ -288,7 +290,7 @@ export function Loaded({
   // JC4 from its second session: the melody line is read-only, the chords are the learner's (wave7.md §4.4). The
   // ranges are taken from the code when the lock begins; the editor carries them through every edit after.
   const lockOn = def.id === "JC4" && nextIndex >= 1 && !released;
-  // biome-ignore lint/correctness/useExhaustiveDependencies: the ranges are read once, when the lock turns on.
+  // The ranges are read once, when the lock turns on (through the ref, so later edits never recompute them).
   const melodyLock = useMemo(() => (lockOn ? lockedMelodyEditable(codeRef.current) : undefined), [lockOn]);
   const [bandOn, setBandOn] = useState(latest?.band != null);
   const assisted = useRef<string | null>(null);
@@ -402,6 +404,8 @@ export function Loaded({
     body?: string | undefined;
     /** The code a check's notice describes: once the code moves on, the notice no longer speaks for it. */
     code?: string;
+    /** A review request's notice: the review entry on screen when it was asked (a newer one means it arrived). */
+    reviewOf?: string | null;
   } | null>(null);
   const [releaseOpen, setReleaseOpen] = useState(false);
   const [ceremony, setCeremony] = useState<CeremonyData | null>(null);
@@ -431,6 +435,8 @@ export function Loaded({
       const rec = { code: src, version, outcome };
       setOfficial(rec);
       setChecks((n) => n + 1);
+      // One notice at a time: the check's result takes the place of the welcome (unless it is still playing).
+      if (!fromTopRef.current) setResume(false);
       const rows = checklistOf(brief.rubric, outcome.result);
       const r = readiness(rows);
       // CF-A: the check names the devices it found, with their bars, and which are still open.
@@ -534,6 +540,54 @@ export function Loaded({
     editorHandle()?.stop();
     setFromTop(false);
   };
+  const fromTopRef = useRef(fromTop);
+  fromTopRef.current = fromTop;
+  // Play from the top, or Stop while it plays: on the welcome, or on "On the album" for a released piece.
+  const fromTopAction = fromTop ? (
+    <Button
+      size="sm"
+      icon={<Square aria-hidden className="size-4" />}
+      onClick={stopFromTop}
+      data-testid="stop-from-top"
+    >
+      Stop
+    </Button>
+  ) : (
+    <Button
+      size="sm"
+      variant="primary"
+      icon={<Play aria-hidden className="size-4" />}
+      onClick={() => void playFromTop()}
+      data-testid="play-from-top"
+    >
+      Play from the top
+    </Button>
+  );
+  // The welcome is for arriving: the first edit dismisses it (unless the draft is playing from the top, whose
+  // Stop lives on it).
+  const openedWith = useRef(code);
+  useEffect(() => {
+    if (resume && !fromTop && code !== openedWith.current) setResume(false);
+  }, [code, resume, fromTop]);
+  // "Review requested" gives way to "Review ready" when the review lands, so it never reads as still waiting.
+  useEffect(() => {
+    if (notice?.reviewOf === undefined || review.entryId === null || review.entryId === notice.reviewOf)
+      return;
+    setNotice({
+      tone: "success",
+      title: "Review ready",
+      body: "Claude's comments are here and in the tutor panel. They never affect pass or fail.",
+    });
+  }, [notice, review.entryId]);
+  // "Released" while the draft on screen is what was released, "Released · revising" once it differs: compared
+  // with the release's own code (from the album track), so a reload keeps the answer. A release made here is
+  // known at once, before the track is read again.
+  const serverReleasedCode = useReleasedCode(
+    released ? state.trackId : null,
+    draftSaver.sketchId ?? initialSketch,
+  );
+  const [justReleased, setJustReleased] = useState<string | null>(null);
+  const revising = releaseStandingOf(released, code, justReleased ?? serverReleasedCode) === "revising";
 
   // --- tutor ---------------------------------------------------------------------------------------
   const thread = { subjectKind: "capstone" as const, subjectId: def.id };
@@ -817,10 +871,12 @@ export function Loaded({
           const r = askReviewFor(def, codeRef.current, released, savedInfo?.version ?? null);
           if (r.ok) {
             review.asked();
+            if (!fromTopRef.current) setResume(false);
             setNotice({
               tone: "info",
               title: "Review requested",
               body: "Claude's comments appear in the tutor panel and here. They never affect pass or fail.",
+              reviewOf: review.entryId,
             });
             void qc.invalidateQueries({ queryKey: ["api", "capstones.get"] });
           }
@@ -865,7 +921,13 @@ export function Loaded({
       />
       <section aria-label="Workbench" className="flex min-w-0 flex-1 flex-col">
         <div className="flex flex-wrap items-center gap-2 border-b border-border bg-bg px-4 py-2">
-          <StatusChip released={released} allDone={allDone} total={total} nextIndex={nextIndex} />
+          <StatusChip
+            released={released}
+            revising={revising}
+            allDone={allDone}
+            total={total}
+            nextIndex={nextIndex}
+          />
           <span className="text-sm text-text-3" aria-live="polite" data-testid="saved-state">
             {savedInfo ? (
               <>
@@ -946,7 +1008,10 @@ export function Loaded({
         </div>
         <div className="min-h-0 flex-1 overflow-auto px-4 py-3">
           <div className="flex flex-col gap-3">
-            {resume && (
+            {/* One notice at a time, the newest. A released piece shows "On the album" (it carries the welcome's
+                Play from the top on a return), which gives way to a newer result; a release clears the older ones
+                (onReleased). */}
+            {resume && !released && (
               <Callout
                 tone="info"
                 title={`Welcome back. Your draft is as you left it${savedInfo ? ` (version ${savedInfo.version})` : ""}.`}
@@ -954,50 +1019,34 @@ export function Loaded({
                   stopFromTop();
                   setResume(false);
                 }}
-                actions={
-                  fromTop ? (
-                    <Button
-                      size="sm"
-                      icon={<Square aria-hidden className="size-4" />}
-                      onClick={stopFromTop}
-                      data-testid="stop-from-top"
-                    >
-                      Stop
-                    </Button>
-                  ) : (
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      icon={<Play aria-hidden className="size-4" />}
-                      onClick={() => void playFromTop()}
-                      data-testid="play-from-top"
-                    >
-                      Play from the top
-                    </Button>
-                  )
-                }
+                actions={fromTopAction}
               >
                 {current && !allDone
                   ? `Hear where it stands, then carry on with session ${current.index + 1}: ${current.title.toLowerCase()}.`
                   : "Hear where it stands, then revise."}
               </Callout>
             )}
-            {released && (
+            {released && !notice && (
               <Callout
                 tone="success"
                 title="On the album"
                 actions={
-                  <Link
-                    to="/album/$trackId"
-                    params={{ trackId: state.trackId as string }}
-                    className="text-sm text-link underline"
-                  >
-                    Open the track
-                  </Link>
+                  <>
+                    {resume && fromTopAction}
+                    <Link
+                      to="/album/$trackId"
+                      params={{ trackId: state.trackId as string }}
+                      className="text-sm text-link underline"
+                    >
+                      Open the track
+                    </Link>
+                  </>
                 }
               >
-                You are revising it. When you release again, this becomes its next version; the released ones
-                stay as they are.
+                {/* Says what the header chip says: "Released", or "Released · revising" while the draft differs from the release. */}
+                {revising
+                  ? "You are revising it. When you release again, this becomes its next version; the released ones stay as they are."
+                  : "Released as it is now. Edit it to revise: a new release becomes its next version, and the released ones stay as they are."}
               </Callout>
             )}
             {checkAgain && (
@@ -1182,6 +1231,12 @@ export function Loaded({
           editor={() => oak.editors.get(editorId(slug)) ?? null}
           onClose={() => setReleaseOpen(false)}
           onReleased={(data) => {
+            setJustReleased(codeRef.current);
+            // The release is the newest event: the older notice (a check's result, "Review ready") and the welcome
+            // give way, so "On the album" shows.
+            setNotice(null);
+            stopFromTop();
+            setResume(false);
             setReleaseOpen(false);
             setCeremony(data);
             refreshAfterRelease(qc, currentSessionId() !== null);
@@ -1222,11 +1277,14 @@ function askReviewFor(def: CapstoneDef, code: string, released: boolean, version
 
 export function StatusChip({
   released,
+  revising = false,
   allDone,
   total,
   nextIndex,
 }: {
   released: boolean;
+  /** Edited since the release on screen: the draft is a revision. */
+  revising?: boolean;
   allDone: boolean;
   total: number;
   nextIndex: number;
@@ -1234,7 +1292,7 @@ export function StatusChip({
   if (released)
     return (
       <Chip tone="accent">
-        <Check aria-hidden className="size-3.5" /> Released · revising
+        <Check aria-hidden className="size-3.5" /> {revising ? "Released · revising" : "Released"}
       </Chip>
     );
   if (allDone)

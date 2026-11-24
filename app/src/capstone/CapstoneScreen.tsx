@@ -173,7 +173,7 @@ function Locked({ def, state }: { def: CapstoneDef; state: CapstoneState }) {
   const g = gate.data ?? null;
   return (
     <Page width="narrow">
-      <p className="font-mono text-sm text-text-3">{def.id}</p>
+      <p className="text-sm text-text-3">Capstone</p>
       <h1 className="text-h1">{def.title}</h1>
       <p className="mt-2 text-text-2">{def.objective}</p>
       <Card className="mt-6 flex items-start gap-3 p-5">
@@ -206,7 +206,7 @@ function Locked({ def, state }: { def: CapstoneDef; state: CapstoneState }) {
 function TranscribeElsewhere({ def }: { def: CapstoneDef }) {
   return (
     <Page width="narrow">
-      <p className="font-mono text-sm text-text-3">{def.id}</p>
+      <p className="text-sm text-text-3">Capstone</p>
       <h1 className="text-h1">{def.title}</h1>
       <p className="mt-2 text-text-2">{def.objective}</p>
       <Card className="mt-6 p-5">
@@ -377,7 +377,7 @@ function Start({ def, state }: { def: CapstoneDef; state: CapstoneState }) {
   };
   return (
     <Page width="narrow">
-      <p className="font-mono text-sm text-text-3">{def.id} · capstone</p>
+      <p className="text-sm text-text-3">Capstone</p>
       <h1 className="text-h1">{def.title}</h1>
       <p className="mt-2 max-w-[60ch] text-lg text-text-2">{def.brief?.prompt ?? def.objective}</p>
       <Card className="mt-6 flex flex-col gap-5 p-5">
@@ -457,13 +457,13 @@ function Start({ def, state }: { def: CapstoneDef; state: CapstoneState }) {
           </div>
         ) : (
           <div>
-            <h2 className="mb-1 text-h3">Flavour</h2>
+            <h2 className="mb-1 text-h3">Style</h2>
             <p className="mb-2 text-sm text-text-2">
               The sound world of the brief and of the Band you can play along with. It never changes what is
               checked.
             </p>
             <SegmentedControl<FlavourId>
-              label="Flavour"
+              label="Style"
               value={flavour}
               options={shipping.map((f) => ({ value: f, label: FLAVOUR_TITLE[f] }))}
               onChange={setFlavour}

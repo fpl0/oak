@@ -8,10 +8,19 @@
 import { intervalFacts } from "@oak/theory";
 import { clsx } from "clsx";
 import { useEffect, useRef, useState } from "react";
-import { useAnswerEnv, useSubmitVerb } from "../env.tsx";
+import { useAnswerEnv } from "../env.tsx";
 import { readsAs } from "../normalize.ts";
 import type { AnswerWidgetProps } from "../types.ts";
-import { AnswerFrame, digitOf, KeyHint, MarkBadge, markOf, markRing, revealedOf } from "../ui.tsx";
+import {
+  AnswerFrame,
+  digitOf,
+  KeyHint,
+  MarkBadge,
+  markOf,
+  markRing,
+  revealedOf,
+  SubmitHint,
+} from "../ui.tsx";
 import {
   composeInterval,
   INTERVAL_NUMBERS,
@@ -26,7 +35,6 @@ import {
 const ALL_QUALITIES: IntervalQuality[] = ["P", "M", "m", "A", "d"];
 
 export function IntervalAnswer(p: AnswerWidgetProps<"text">) {
-  const verb = useSubmitVerb();
   const { value, onChange, disabled, feedback } = p;
   const root = useRef<HTMLDivElement>(null);
   const env = useAnswerEnv();
@@ -123,7 +131,7 @@ export function IntervalAnswer(p: AnswerWidgetProps<"text">) {
           <KeyHint keys={["1–8"]}>number</KeyHint>
           {showOctave ? <KeyHint keys={["O"]}>+ an octave</KeyHint> : null}
           <KeyHint keys={["P", "⇧M", "m", "A", "d"]}>quality</KeyHint>
-          <KeyHint keys={["Enter"]}>{verb}</KeyHint>
+          <SubmitHint />
         </>
       }
     >

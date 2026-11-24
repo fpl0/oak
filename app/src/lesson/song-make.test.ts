@@ -8,9 +8,12 @@ import { makeClaimsOfEvents, makeReading } from "@oak/strudel/song-compose";
 import { courseGraph } from "../../../content/index.ts";
 import { unlockedAt } from "../../../content/lib/course.ts";
 import { toolbox } from "../../../content/toolbox.ts";
+import { songViewOf } from "../song/model.ts";
 import { TEST_SONG, testDetail, testTake } from "../song/test-song.ts";
 import { type GradeEnv, type GraderDeps, gradeStep, NEUTRAL_PROFILE } from "./grading.ts";
 import {
+  firstTempoOf,
+  holdsSongTempo,
   newSongGateOf,
   openingCode,
   openingsOf,
@@ -18,7 +21,9 @@ import {
   refineBackfilledTakes,
   shiftRanges,
   songChipLabel,
+  songChips,
   songMakeOf,
+  songSaveLine,
   songSideOf,
   songTakeBody,
   takeIdempotencyKey,
@@ -425,9 +430,77 @@ describe("what a saved take claims", () => {
     };
     expect(songChipLabel("band.oak.kick", o)).toBe("Kick (Oak)");
     expect(songChipLabel("band.oak.mel", o)).toBe("Tune (Oak)");
-    expect(songChipLabel("band.take.U01.L01.drums", o)).toBe("drums (yours, from Heartbeat)");
-    expect(songChipLabel("band.take.U01.L04.hats", o)).toBe("hats (yours, from U01.L04)");
-    expect(songChipLabel("drums", o)).toBe("drums (today's code)");
-    expect(songChipLabel("band.drums", o)).toBe("drums (band)");
+    expect(songChipLabel("band.take.U01.L01.drums", o)).toBe("Drums (yours, from Heartbeat)");
+    // A lesson with no title known is never named by its id.
+    expect(songChipLabel("band.take.U01.L04.hats", o)).toBe("Hats (yours)");
+    expect(songChipLabel("drums", o)).toBe("Drums (today's code)");
+    // A line of today's code that is a part of the song says the part's name, as the part's own chip does.
+    expect(songChipLabel("kick", o)).toBe("Kick (today's code)");
+    expect(songChipLabel("mel", o)).toBe("Tune (today's code)");
+    expect(songChipLabel("band.drums", o)).toBe("Drums (Oak)");
+  });
+
+  test("one chip per part: earlier lessons' lines and Oak's track under it, today's lines first", () => {
+    // U01.L01's take holds the verse's kick and snare (its `drums` line plays both); Oak keeps every other cell.
+    const detail = testDetail([
+      testTake(1, "U01.L01", L01_CODE, ["kick@verse", "snare@verse"], { labels: { drums: null } }),
+    ]);
+    const chips = songChips(TEST_SONG, detail, { partName: (id) => id.toUpperCase() });
+    const tracks = ["drums", "band.oak.kick", "band.oak.snare", "band.oak.hats", "band.take.U01.L01.drums"];
+    expect(chips.chipsOf(tracks)).toEqual([
+      { id: "drums", label: "Drums (today's code)" },
+      { id: "part:kick", label: "KICK (yours and Oak)" },
+      { id: "part:snare", label: "SNARE (yours and Oak)" },
+      { id: "part:hats", label: "HATS (Oak)" },
+    ]);
+    // Muting the kick mutes Oak's kick track and only the kick hits of the earlier lesson's shared drum line.
+    const muted = chips.mutesOf({ muted: new Set(["part:kick"]), solo: null }, tracks);
+    expect([...muted.muted]).toEqual(["band.oak.kick"]);
+    expect(muted.solo).toBeNull();
+    expect(muted.hits?.get("band.take.U01.L01.drums")?.("bd")).toBe(true);
+    expect(muted.hits?.get("band.take.U01.L01.drums")?.("sd")).toBe(false);
+    // Soloing the hats silences every other track, today's code included.
+    const solo = chips.mutesOf({ muted: new Set(), solo: "part:hats" }, tracks);
+    expect(new Set(solo.muted)).toEqual(
+      new Set(["drums", "band.oak.kick", "band.oak.snare", "band.take.U01.L01.drums"]),
+    );
+    // A line of today's code soloed: the player's own solo.
+    const today = chips.mutesOf({ muted: new Set(["part:kick"]), solo: "drums" }, tracks);
+    expect(today.solo).toBe("drums");
+    expect(today.hits).toBeUndefined();
+  });
+
+  test("a line of today's code that is a part of the song is named as the part, capitalised like every chip", () => {
+    const chips = songChips(TEST_SONG, testDetail([]), {
+      partName: (id) => (id === "lead" ? "Melody" : id === "kick" ? "Kick" : id),
+    });
+    const words = chips.chipsOf(["kick", "mel", "groove", "band.oak.kick"]).map((c) => c.label);
+    // "kick" and "mel" are the song's Kick and Melody; "groove" is no part, so it keeps its name with a capital.
+    expect(words).toEqual([
+      "Kick (today's code)",
+      "Melody (today's code)",
+      "Groove (today's code)",
+      "Kick (Oak)",
+    ]);
+    expect(words.every((w) => /^[A-Z]/.test(w))).toBe(true);
+  });
+
+  test("the tempo note holds only while the first line keeps the song's tempo", () => {
+    expect(firstTempoOf('// hi\nsetcpm(100/4)\ndrums: s("bd")')).toBe(100);
+    expect(firstTempoOf('drums: s("bd")')).toBeNull();
+    expect(holdsSongTempo("setcpm(100/4)\n", 100)).toBe(true);
+    expect(holdsSongTempo("setcpm(88/4)\n", 100)).toBe(false);
+    expect(holdsSongTempo('drums: s("bd")', 100)).toBe(false);
+  });
+
+  test("Save says what it does to the song", () => {
+    const view = songViewOf(TEST_SONG, testDetail([]), new Set(), {
+      live: L01_STEP,
+      flavour: "flavour.indie",
+    });
+    // The cells in the grid's words (`cellsSentence`, the HERO group's wording of the section).
+    expect(songSaveLine(view)).toMatch(
+      /^Save puts your code into “My groove”, where it plays Kick and Snare in .*B\.$/,
+    );
   });
 });

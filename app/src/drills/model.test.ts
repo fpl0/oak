@@ -10,6 +10,7 @@ import {
   familyStatus,
   groupByStage,
   isResting,
+  lessonPhrase,
   levelChangeText,
   nextDueText,
   optionLabel,
@@ -23,6 +24,7 @@ import {
   tapReport,
   trialAnswerOf,
   trialRecord,
+  unitPhrase,
   wrongMarks,
 } from "./model.ts";
 
@@ -439,6 +441,26 @@ describe("Wave 3 review: words, not IDs; a wrong pick is marked", () => {
     expect(optionLabel("deg.5")).toBe("Degree 5");
     expect(optionLabel("deg.b6")).toBe("Degree ♭6");
     expect(optionLabel("higher")).toBe("Higher");
+  });
+  test("units and lessons are named in words, never by ID", () => {
+    const units = new Map([["U04", "Intervals"]]);
+    expect(unitPhrase("U04", units)).toBe("unit 4, Intervals");
+    expect(unitPhrase("U09", units)).toBe("unit 9");
+    expect(unitPhrase("J1", units)).toBe("this unit");
+    expect(lessonPhrase("U03.L02", new Map([["U03.L02", "Degrees in Code"]]))).toBe("“Degrees in Code”");
+  });
+  test("a note name stays a note name; function words only in the function family", () => {
+    // "Find home" in D major offers the note D: it must not read as "Dominant" (UX review P1).
+    expect(optionLabel("D", "degree-tonic", ["D", "G", "C"])).toBe("D");
+    expect(optionLabel("D")).toBe("D");
+    expect(optionLabel("Bb", "degree-tonic")).toBe("B♭");
+    expect(optionLabel("F#")).toBe("F♯");
+    expect(optionLabel("D", "harmony-function")).toBe("Dominant");
+    expect(optionLabel("PD", "harmony-function")).toBe("Predominant");
+    // The spoken answer under a function trial with no choice spec names the function too, not its letters.
+    expect(expectedText(null, { choice: ["T", "PD", "D"] }, false, "harmony-function")).toBe(
+      "Tonic, Predominant, Dominant",
+    );
   });
   test("a wrong degree is marked on the pick; a choice on its option", () => {
     const pad = { ui: "degree-pad", set: ["1", "3", "5"] } as unknown as AnswerSpec;

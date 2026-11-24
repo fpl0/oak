@@ -20,7 +20,9 @@ import {
   pctText,
   pendingText,
   RESTING_LINE,
+  titlesOf,
   unitOf,
+  unitPhrase,
 } from "../../drills/model.ts";
 import { PassiveListen } from "../../drills/PassiveListen.tsx";
 import { PASSIVE_GENERATORS } from "../../drills/passive.ts";
@@ -101,8 +103,8 @@ function Family({ def, data }: { def: FamilyDef; data: DrillData }) {
     return (
       <EmptyState icon={<Lock aria-hidden />} title={def.title} action={back}>
         {track
-          ? `Opens with ${def.unlock.lesson} in the ${TRACK_TITLES[track]} track, the lesson that introduces it.`
-          : `Unlocks in ${unitOf(def.unlock.lesson)}, with the lesson that introduces it.`}
+          ? `Opens with ${titlesOf(data).lessons.has(def.unlock.lesson) ? `the lesson “${titlesOf(data).lessons.get(def.unlock.lesson)}”` : "a later lesson"} in the ${TRACK_TITLES[track]} track, the lesson that introduces it.`
+          : `Unlocks in ${unitPhrase(unitOf(def.unlock.lesson), titlesOf(data).units)}, with the lesson that introduces it.`}
       </EmptyState>
     );
   // A sung family with a listening half runs in Quiet mode (its sung trials heard in the head); one only sung waits.
@@ -277,7 +279,7 @@ function Setup({
         <Card className="p-4">
           <h2 className="mb-1 text-h3">Where you are</h2>
           <p className="text-text-2">
-            {levelLine(def, st)}
+            {levelLine(def, st, titlesOf(data).lessons)}
             {acc !== null && ` · ${pctText(acc)} over ${n} ${n === 1 ? "trial" : "trials"}`}
           </p>
           {resting && (

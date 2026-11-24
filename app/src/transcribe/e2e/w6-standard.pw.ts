@@ -64,7 +64,7 @@ test("L8, the form map: a wrong map marks its sections and says what to compare;
   await page.goto(URL_OF);
 
   const panel = page.getByTestId("standard-panel");
-  await expect(panel).toContainText("L8 · A standard");
+  await expect(panel).toContainText("Level 8 · A standard");
   await expect(page.getByTestId("song-title")).toHaveText("Test Standard (1925)");
   const given = page.getByTestId("given");
   await expect(given).toContainText("132 BPM");
@@ -190,7 +190,7 @@ test("L8, a stage section by section: the changes fail naming their bars, pass o
   await setConst(page, "chordsA", 'chord("<C Em A7 A7 D7 D7 F G7>").voicing().s("piano").gain(.6)');
   await checkIt(page);
   await expect(page.getByTestId("verdict")).toHaveText(
-    "Changes, section 1 (A): not yet, 75 % of 85 %. Bars 2 and 7 differ. Loop the section and listen again.",
+    "Changes, section 1 (A): not yet, 75% right; 85% passes. Bars 2 and 7 differ. Loop the section and listen again.",
   );
   await expect(page.getByTestId("check-lines")).toContainText(
     "Bar 2: a minor chord where the song has a dominant 7th on the same root.",
@@ -201,7 +201,7 @@ test("L8, a stage section by section: the changes fail naming their bars, pass o
   // Written as heard: it passes, and the next section opens.
   await setConst(page, "chordsA", `chord("<${A_CHART.join(" ")}>").voicing().s("piano").gain(.6)`);
   await checkIt(page);
-  await expect(page.getByTestId("verdict")).toHaveText("Changes, section 1 (A): that's it (96 %).");
+  await expect(page.getByTestId("verdict")).toHaveText("Changes, section 1 (A): that's it (96%).");
   await expect(page.getByTestId("phrase-progress")).toHaveText("1 of 4 passed");
   await expect(page.getByTestId("check")).toHaveText(/Check section 2 \(A\)/);
   // The A that comes back is the same const: it passes as it stands.
@@ -287,6 +287,6 @@ test("the ladder at L8: the standards, what is passed of each, and why one is no
   await expect(rows.nth(2)).toContainText("Form, bass, changes, melody");
   await expect(rows.nth(2)).toContainText("Being checked");
   await expect(rows.nth(2).getByRole("button")).toHaveCount(0);
-  await expect(page.getByTestId("ladder-next")).toHaveText("Next standard · L8");
+  await expect(page.getByTestId("ladder-next")).toHaveText("Next standard · Level 8");
   await shots(page, "w6-ladder-l8");
 });

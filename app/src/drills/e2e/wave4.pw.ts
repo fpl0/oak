@@ -450,7 +450,7 @@ test("the Practice hub shows stage D honestly: levels, mixed practice and its co
   );
   // At the highest level its lessons open: the lesson that opens the next one is named, never a level beyond it.
   const cadence = stage.locator('[data-family="fam.har.cadence"]');
-  await expect(cadence).toContainText("Level 3 of 4 · level 4 opens with U14.L02");
+  await expect(cadence).toContainText("Level 3 of 4 · level 4 opens with “Mixolydian Rock”");
   // Melodic dictation left its own card below its mastery level: in mixed practice, never "mastered".
   const dictation = page.getByTestId("stage-C").locator('[data-family="fam.mel.dictation"]');
   await expect(dictation).toHaveAttribute("data-status", "resting");

@@ -25,10 +25,17 @@ import { Card, Chip, EmptyState, PageHeader, Skeleton } from "../ui/kit/basics.t
 import { FileDropZone } from "../ui/kit/FileDropZone.tsx";
 import { QueryView } from "../ui/kit/QueryState.tsx";
 import { toast } from "../ui/kit/Toast.tsx";
-import { type GymSource, gymChoices, gymSources, localDay } from "./gym-after-core.ts";
+import {
+  cftNext,
+  type GymSource,
+  gymChoices,
+  gymSources,
+  gymStageLabel,
+  localDay,
+} from "./gym-after-core.ts";
 import { logGymSource, readGymLog } from "./gym-log.ts";
 import { AUDIO_ACCEPT, AUDIO_KINDS, fileProblem, PRIVACY_COPY, titleOf } from "./import.ts";
-import { type LadderLevel, LEVEL_TITLE, ladderSummary, REALISM_TEXT } from "./ladder.ts";
+import { type LadderLevel, LEVEL_TITLE, ladderSummary, REALISM_TEXT, REALISM_WORDS } from "./ladder.ts";
 import { rememberItem } from "./song.ts";
 import { songWrittenHere } from "./songs.ts";
 import { songProgress } from "./standard.ts";
@@ -188,7 +195,7 @@ function SongPicker({
   return (
     <ul
       className="flex flex-col divide-y divide-border"
-      aria-label={`Songs for L${level}`}
+      aria-label={`Songs for level ${level}`}
       data-testid="song-picker"
     >
       {pool.map((s) => (
@@ -257,7 +264,10 @@ function LadderCard() {
               { body: { level: to } },
               {
                 onSuccess: () =>
-                  toast.success(`Level ${to}: ${LEVEL_TITLE[to as LadderLevel]}`, "Items start clean (R0)."),
+                  toast.success(
+                    `Level ${to}: ${LEVEL_TITLE[to as LadderLevel]}`,
+                    "Items start clean and on the grid.",
+                  ),
                 onError: (e) => toast.error("Couldn't move up yet", e.message),
               },
             )
@@ -299,13 +309,13 @@ function LadderStatus({
       ) : null}
       {level === 8 ? (
         <details className="text-sm">
-          <summary className="cursor-pointer text-text-2">Blues strains (L6) to practise</summary>
+          <summary className="cursor-pointer text-text-2">Blues strains (level 6) to practise</summary>
           <SongPicker level={6} busy={busy} onOpen={onSong} />
         </details>
       ) : null}
       {level === 6 || level === 8 ? (
         <details className="text-sm">
-          <summary className="cursor-pointer text-text-2">Folk songs (L5) to practise</summary>
+          <summary className="cursor-pointer text-text-2">Folk songs (level 5) to practise</summary>
           <SongPicker level={5} busy={busy} onOpen={onSong} />
         </details>
       ) : null}
@@ -316,22 +326,32 @@ function LadderStatus({
           onClick={() => onNext()}
           data-testid="ladder-next"
         >
-          {level === 8 ? "Next standard · L8" : songLevel ? `Next song · L${level}` : `Next item · L${level}`}
+          {level === 8
+            ? "Next standard · Level 8"
+            : songLevel
+              ? `Next song · Level ${level}`
+              : `Next item · Level ${level}`}
         </Button>
         {s.levelUp ? (
           <Button
             icon={<ArrowUp aria-hidden className="size-4" />}
             onClick={() => onLevelUp(s.levelUp?.to ?? level)}
           >
-            Move up to L{s.levelUp.to}
+            Move up to level {s.levelUp.to}
           </Button>
         ) : null}
         {lower.length > 0 ? (
           <span className="flex items-center gap-1 text-sm text-text-2">
             Practise
             {lower.map((l) => (
-              <Button key={l} size="sm" variant="ghost" onClick={() => onNext(l)}>
-                L{l}
+              <Button
+                key={l}
+                size="sm"
+                variant="ghost"
+                onClick={() => onNext(l)}
+                aria-label={`Practise level ${l}`}
+              >
+                Level {l}
               </Button>
             ))}
           </span>
@@ -349,7 +369,7 @@ function CfTLine({ plan }: { plan: GymPlan }) {
   return (
     <p className="text-sm text-text-2" data-testid="cft-line">
       Your transcription sessions are the Standard Transcription for now
-      {cfT.nextSessionId ? ` (next: ${cfT.nextSessionId})` : ""}: a whole standard, form first.{" "}
+      {cftNext(cfT.nextSessionId)}: a whole standard, form first.{" "}
       <Link to="/capstone/$id" params={{ id: "CF-T" }} className="underline">
         Open it
       </Link>
@@ -358,18 +378,24 @@ function CfTLine({ plan }: { plan: GymPlan }) {
   );
 }
 
-function GymLine({ plan }: { plan: GymPlan }) {
+/**
+ * What the gym serves next, in words: the level by its title and how real it sounds (never the session ID or the
+ * L/R codes). `realismNow` is the ladder's own realism: a session that plays more real than that says so.
+ */
+function GymLine({ plan, realismNow }: { plan: GymPlan; realismNow: number | null }) {
   if (!plan.active || !plan.next) return null;
   const n = plan.next;
+  const level = (n.ladderLevel ?? 1) as LadderLevel;
+  const realism = n.realism ?? 0;
   const what =
     n.kind === "ladder"
-      ? `a ladder session at L${n.ladderLevel ?? 1}, R${n.realism ?? 0}`
+      ? `a ladder item at level ${level} (${LEVEL_TITLE[level]?.toLowerCase() ?? "the ladder"}), with ${REALISM_WORDS[realism] ?? "the sound it has now"}${realismNow !== null && realism > realismNow ? ", a step more real than your ladder plays now" : ""}`
       : n.ownAudioFallback
-        ? `a ladder session one realism level up (no recording of yours yet)`
+        ? "a ladder item that sounds a step more real (there's no recording of yours yet)"
         : "your own audio";
   return (
     <p className="text-sm text-text-2" data-testid="gym-line">
-      Next in the Transcription Gym: {n.gymId}, {what}.{" "}
+      Next in the Transcription Gym: {what}.{" "}
       {plan.slotDue
         ? "It's due in today's session."
         : `${Math.max(0, 4 - plan.sinceLast)} more sessions until it's due.`}
@@ -471,7 +497,7 @@ function GymAfterCore({ plan }: { plan: GymPlan | undefined }) {
               data-testid="gym-choice"
               data-source={c.id}
             >
-              <Chip tone={i === 0 ? "accent" : "neutral"}>{c.stage}</Chip>
+              <Chip tone={i === 0 ? "accent" : "neutral"}>{gymStageLabel(c.stage)}</Chip>
               <span className="min-w-0 flex-1 text-sm">
                 <span className="font-medium">{c.title}</span>
                 <span className="block text-text-2">{c.detail}</span>
@@ -495,17 +521,19 @@ function GymAfterCore({ plan }: { plan: GymPlan | undefined }) {
 export function ProjectList() {
   const list = useTranscriptions();
   const gym = useGymPlan();
+  const ladder = useLadder();
   return (
     <>
       <PageHeader title="Transcribe" sub="Hear it, write it in code, compare with A/B." />
       {gym.data ? (
         <div className="mb-4 flex flex-col gap-1">
-          <GymLine plan={gym.data} />
+          <GymLine plan={gym.data} realismNow={ladder.data?.realism ?? null} />
           <CfTLine plan={gym.data} />
         </div>
       ) : null}
       <GymAfterCore plan={gym.data} />
-      <div className="mb-6 grid gap-4 md:grid-cols-2">
+      {/* Each card keeps its own height: the ladder's one action does not float in a box stretched to the drop zone. */}
+      <div className="mb-6 grid items-start gap-4 md:grid-cols-2">
         <LadderCard />
         <ImportCard />
       </div>
@@ -540,7 +568,7 @@ export function ProjectList() {
                       </span>
                       <span className="mt-1 flex flex-wrap items-center gap-1">
                         <Chip>{SOURCE_LABEL[t.sourceKind]}</Chip>
-                        {t.ladderLevel ? <Chip>L{t.ladderLevel}</Chip> : null}
+                        {t.ladderLevel ? <Chip>Level {t.ladderLevel}</Chip> : null}
                         {t.gradedPass ? (
                           <Chip tone="accent">passed</Chip>
                         ) : (

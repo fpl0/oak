@@ -56,6 +56,10 @@ export function ChoiceAnswer(p: AnswerWidgetProps<"choice">) {
         ? pivotFact(about, kc.from, kc.to)
         : null;
   const factLead = feedback.state === "wrong" ? "Your pick: " : "";
+  // A drill grades a single pick at once (no Check step): a digit answers, and there is no Enter hint.
+  const oneShot = env.autoSubmit === true && !multi;
+  // Once a one-shot pick is graded its digits are dead; the host's result row says what Enter does now.
+  const hideKeys = oneShot && answered;
 
   useEffect(() => {
     if (p.autoFocus) focusFirst(root.current);
@@ -122,6 +126,7 @@ export function ChoiceAnswer(p: AnswerWidgetProps<"choice">) {
     const cell = (o: Choice, wide: boolean) => {
       const on = value.includes(o.id);
       const mark = markOf(feedback, o.id);
+      const bad = mark !== null && !mark.ok;
       const isAnswer = correct.includes(o.id);
       return (
         // biome-ignore lint/a11y/useSemanticElements: a styled custom control with roving focus (ux §7.9); native radios cannot take this layout
@@ -137,7 +142,7 @@ export function ChoiceAnswer(p: AnswerWidgetProps<"choice">) {
           className={clsx(
             "relative flex items-center justify-center rounded-control border-2 font-medium tabular-nums transition-colors",
             wide ? "min-h-10 gap-2 px-3 py-1.5" : "h-11 w-full min-w-0 flex-col px-1 leading-tight",
-            on
+            on && !bad
               ? "border-accent bg-lane-in text-text"
               : "border-border bg-surface text-text hover:border-text-3",
             markRing(mark ? (mark.ok ? "ok" : "bad") : null),
@@ -151,7 +156,7 @@ export function ChoiceAnswer(p: AnswerWidgetProps<"choice">) {
                 aria-hidden
                 className={clsx(
                   "inline-flex size-5 shrink-0 items-center justify-center rounded border text-[0.75rem]",
-                  on ? "border-accent bg-accent text-on-accent" : "border-border text-text-3",
+                  chipTone(on, bad),
                 )}
               >
                 {keyOf(o)}
@@ -186,12 +191,14 @@ export function ChoiceAnswer(p: AnswerWidgetProps<"choice">) {
         onSubmit={p.onSubmit}
         onKey={onKey}
         keys={
-          <>
-            <KeyHint keys={[`${barKeys}`]}>bar</KeyHint>
-            {none ? <KeyHint keys={["0"]}>no key change</KeyHint> : null}
-            <KeyHint keys={["←", "→"]}>move</KeyHint>
-            <SubmitHint />
-          </>
+          hideKeys ? null : (
+            <>
+              <KeyHint keys={[`${barKeys}`]}>{oneShot ? "answer" : "bar"}</KeyHint>
+              {none ? <KeyHint keys={["0"]}>no key change</KeyHint> : null}
+              <KeyHint keys={["←", "→"]}>move</KeyHint>
+              {oneShot ? null : <SubmitHint />}
+            </>
+          )
         }
       >
         <div
@@ -227,11 +234,15 @@ export function ChoiceAnswer(p: AnswerWidgetProps<"choice">) {
       onSubmit={p.onSubmit}
       onKey={onKey}
       keys={
-        <>
-          <KeyHint keys={[`1–${Math.min(9, spec.options.length)}`]}>{multi ? "toggle" : "pick"}</KeyHint>
-          {canPlay ? <KeyHint keys={["⇧ + digit"]}>play</KeyHint> : null}
-          <SubmitHint />
-        </>
+        hideKeys ? null : (
+          <>
+            <KeyHint keys={[`1–${Math.min(9, spec.options.length)}`]}>
+              {multi ? "toggle" : oneShot ? "answer" : "pick"}
+            </KeyHint>
+            {canPlay ? <KeyHint keys={["⇧ + digit"]}>play</KeyHint> : null}
+            {oneShot ? null : <SubmitHint />}
+          </>
+        )
       }
     >
       {/* biome-ignore lint/a11y/useAriaPropsSupportedByRole: the role is chosen at runtime (radio for one answer, checkbox or group for several) */}
@@ -248,6 +259,7 @@ export function ChoiceAnswer(p: AnswerWidgetProps<"choice">) {
         {spec.options.map((o, i) => {
           const on = value.includes(o.id);
           const mark = markOf(feedback, o.id);
+          const bad = mark !== null && !mark.ok;
           const isAnswer = correct.includes(o.id);
           return (
             <div key={o.id} className={clsx("relative", cards && "flex")}>
@@ -264,7 +276,7 @@ export function ChoiceAnswer(p: AnswerWidgetProps<"choice">) {
                 className={clsx(
                   "relative flex min-h-10 items-center gap-2 rounded-control border-2 px-3 text-left transition-colors",
                   cards ? "w-full flex-1 py-3 pr-12" : "py-1.5",
-                  on
+                  on && !bad
                     ? "border-accent bg-lane-in text-text"
                     : "border-border bg-surface text-text hover:border-text-3",
                   markRing(mark ? (mark.ok ? "ok" : "bad") : null),
@@ -276,7 +288,7 @@ export function ChoiceAnswer(p: AnswerWidgetProps<"choice">) {
                   aria-hidden
                   className={clsx(
                     "inline-flex size-5 shrink-0 items-center justify-center rounded border text-[0.75rem] tabular-nums",
-                    on ? "border-accent bg-accent text-on-accent" : "border-border text-text-3",
+                    chipTone(on, bad),
                   )}
                 >
                   {i + 1}
@@ -322,4 +334,13 @@ export function ChoiceAnswer(p: AnswerWidgetProps<"choice">) {
       ) : null}
     </AnswerFrame>
   );
+}
+
+/**
+ * The option's number chip: filled accent while picked, outlined in the issue tone once that pick is marked wrong
+ * (a wrong tile never shows the "right" fill), neutral otherwise.
+ */
+function chipTone(on: boolean, bad: boolean): string {
+  if (bad) return "border-issue text-issue";
+  return on ? "border-accent bg-accent text-on-accent" : "border-border text-text-3";
 }

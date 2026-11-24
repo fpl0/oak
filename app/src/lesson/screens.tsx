@@ -6,13 +6,19 @@ import { Link } from "@tanstack/react-router";
 import { Check } from "lucide-react";
 import { useState } from "react";
 import { type ContentBundle, lessonTitles } from "../lib/content-model.ts";
+import { toolName as learnerToolName } from "../lib/tool-label.ts";
+import { useSongAfterSave } from "../song/hooks.ts";
+import { SongGrew } from "../song/SongGrew.tsx";
+import { newestTakeOfLesson } from "../song/surfaces-model.ts";
 import { Button, buttonClass } from "../ui/kit/Button.tsx";
-import { Chip } from "../ui/kit/basics.tsx";
+import { Chip, Skeleton } from "../ui/kit/basics.tsx";
 import { Callout } from "../ui/kit/Controls.tsx";
 import { Dialog } from "../ui/kit/Dialog.tsx";
 import { Workbench, type WorkbenchProps } from "../workbench/Workbench.tsx";
 import { openedText, tracksOpenedCopy } from "./checkpoint/model.ts";
+import { InlineMd } from "./frame.tsx";
 import type { OriginLink, SideInfo } from "./side.ts";
+import { songMakeOf } from "./song-make.ts";
 
 export function CompleteScreen({
   lesson,
@@ -42,7 +48,13 @@ export function CompleteScreen({
   /** The next side lesson of the track, offered without pressure. */
   nextSide?: { id: string; title: string } | null;
 }) {
-  const toolName = (id: string) => content?.toolbox.find((t) => t.id === id)?.code ?? id;
+  // The learner's name for a tool (lib/tool-label.ts, as Today and the Coda say it): a feature by its plain name
+  // ("Sing panel", never the registry's editorial note in parentheses, as in "Sing panel (PitchLane)"), a code row by
+  // its code, a sound by the code the learner types, never the catalog's "†" author mark.
+  const toolName = (id: string) => {
+    const entry = content?.toolbox.find((t) => t.id === id);
+    return entry ? learnerToolName(entry) : { text: id, mono: true };
+  };
   const canDo = (id: string) => content?.candos.find((c) => c.id === id)?.statement ?? id;
   const term = (id: string) => content?.terms.find((t) => t.id === id)?.term ?? id;
   // What opens is named by title ("Blues checkpoint"), never by ID.
@@ -64,6 +76,12 @@ export function CompleteScreen({
     : wrapped
       ? "Your quick sketch is saved. The lesson resumes at the next unfinished step."
       : `${lesson.title}: ${lesson.objective}`;
+  // A take lesson finished outside a session (a side lesson from Today, a lesson from the map): its Make went into
+  // the unit's song, so the recap shows the song as it grew and leads to it (spec §5.5). Inside a session the Coda
+  // shows the same card, so the recap stays short there.
+  const grew = !inSession && !partA && !wrapped && !preview && songMakeOf(lesson.id) !== null;
+  // Whether the song card shows today's Make: `pending` while the song is read, `missing` when the Make is not in it.
+  const songCard = useSongCardState(grew ? lesson.id : null, sketchId);
   return (
     <div className="mx-auto flex max-w-[40rem] flex-col gap-5 px-6 py-10" data-testid="lesson-complete">
       <div className="flex items-start gap-3">
@@ -78,7 +96,9 @@ export function CompleteScreen({
           >
             {title}
           </h2>
-          <p className="mt-1 text-text-2">{body}</p>
+          <p className="mt-1 text-text-2">
+            <InlineMd text={body} />
+          </p>
         </div>
       </div>
       {side && !partA && !wrapped && (
@@ -99,11 +119,19 @@ export function CompleteScreen({
             <div>
               <dt className="text-sm font-medium">New in your toolbox</dt>
               <dd className="mt-1 flex flex-wrap gap-1.5">
-                {completion.unlocks.map((u) => (
-                  <Chip key={u.itemId} tone="amber">
-                    <code className="font-mono">{toolName(u.itemId)}</code>
-                  </Chip>
-                ))}
+                {completion.unlocks.map((u) => {
+                  const name = toolName(u.itemId);
+                  return (
+                    // A long name (a list of sounds) wraps inside the column instead of running under the rail.
+                    <Chip
+                      key={u.itemId}
+                      tone="amber"
+                      className="h-auto min-h-6 max-w-full whitespace-normal py-0.5 [overflow-wrap:anywhere]"
+                    >
+                      {name.mono ? <code className="font-mono">{name.text}</code> : name.text}
+                    </Chip>
+                  );
+                })}
               </dd>
             </div>
           )}
@@ -154,6 +182,9 @@ export function CompleteScreen({
           </Callout>
         </div>
       )}
+      {/* The way on comes before the song card, so it stays on the first screen at 1280×800 however tall the card
+          is. The Studio link is a quiet second; once the song card shows, its own "Open today's code in Studio"
+          stands for it, and while the song is read neither shows, so nothing flashes before the primary. */}
       <div className="flex flex-wrap items-center gap-2">
         <Link
           to={inSession ? "/" : origin.to}
@@ -162,13 +193,47 @@ export function CompleteScreen({
         >
           {inSession ? "On to the Coda" : origin.label}
         </Link>
-        {sketchId && sketchId !== "preview" && (
-          <Link to="/studio/$sketchId" params={{ sketchId }} className={buttonClass("secondary", "lg")}>
-            Open the sketch in Studio
-          </Link>
+        {sketchId && sketchId !== "preview" && (!grew || songCard === "missing") && (
+          <StudioLink sketchId={sketchId} />
         )}
       </div>
+      {grew && sketchId && (
+        <SongGrew
+          lessonId={lesson.id}
+          sketchIds={[sketchId]}
+          fallback={null}
+          // The card's room while the song is read, so the recap does not grow under the learner's eyes.
+          pending={<Skeleton className="h-[28rem] w-full rounded-card" />}
+        />
+      )}
     </div>
+  );
+}
+
+/**
+ * What the recap's song card shows for a take lesson's Make (`SongGrew`'s own test): the card, or not yet known. The
+ * save has just invalidated the song, so the copy in hand can predate it: until a read from after the recap opened
+ * settles, the Make is not judged missing (`useSongAfterSave`), so the Studio link never flashes before the card.
+ */
+function useSongCardState(lessonId: string | null, sketchId: string | null): "pending" | "shown" | "missing" {
+  const make = lessonId ? songMakeOf(lessonId) : null;
+  const { q, settling } = useSongAfterSave(make ? make.def.unit : null);
+  if (!make) return "missing";
+  if (!q.data) return q.isPending ? "pending" : "missing";
+  if (lessonId && sketchId && newestTakeOfLesson(q.data, lessonId, [sketchId])) return "shown";
+  return settling ? "pending" : "missing";
+}
+
+function StudioLink({ sketchId }: { sketchId: string }) {
+  return (
+    <Link
+      to="/studio/$sketchId"
+      params={{ sketchId }}
+      className={buttonClass("secondary")}
+      data-testid="recap-open-sketch"
+    >
+      Open the sketch in Studio
+    </Link>
   );
 }
 

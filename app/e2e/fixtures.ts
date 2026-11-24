@@ -635,9 +635,9 @@ export const FIXTURES = {
   "tracks.list": {
     items: (
       [
-        ["J", "Jazz Harmony", 34, "Opens with the U13 checkpoint."],
-        ["R", "Advanced Rhythm", 20, "Opens with the U13 checkpoint."],
-        ["A", "Arrangement & Sound", 20, "Opens with U03.L02."],
+        ["J", "Jazz Harmony", 34, "Opens with the unit 13 checkpoint."],
+        ["R", "Advanced Rhythm", 20, "Opens with the unit 13 checkpoint."],
+        ["A", "Arrangement & Sound", 20, "Opens with the lesson “Degrees in Code”."],
       ] as const
     ).map(([trackId, title, sessionsTotal, note]) => ({
       trackId,

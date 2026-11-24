@@ -483,7 +483,7 @@ export function songVerdict(r: Pick<LadderSubmitResult, "passed" | "result">, t:
   const what = targetText(t);
   if (r.result.status === "error") return `${what}: that code didn't run, so nothing was checked.`;
   const mark = passMarkOf(t.level, t.stage);
-  if (r.passed) return `${what}: that's it (${pct(r.result.score)} %).`;
+  if (r.passed) return `${what}: that's it (${pct(r.result.score)}%).`;
   // d12: a song is written in the recording's key. An answer in another key says both keys, before any bar.
   const key = keyMismatchText(r.result);
   if (key) return `${what}: not yet. ${key} Write it in the recording's key.`;
@@ -494,7 +494,7 @@ export function songVerdict(r: Pick<LadderSubmitResult, "passed" | "result">, t:
       : bars.length === 1
         ? ` Bar ${bars[0]} differs.`
         : ` Bars ${bars.slice(0, -1).join(", ")} and ${bars.at(-1)} differ.`;
-  return `${what}: not yet, ${pct(r.result.score)} % of ${pct(mark)} %.${where} Loop it and listen again.`;
+  return `${what}: not yet, ${pct(r.result.score)}% right; ${pct(mark)}% passes.${where} Loop it and listen again.`;
 }
 
 export type BarMark = "ok" | "issue";

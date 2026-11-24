@@ -260,7 +260,7 @@ export const END: UnitSpec = {
           { where: "Reviews: title / note", text: "Reviews / {n} due. They keep the Oak green." },
           {
             where: "Transcription Gym: title / note, with L8 open",
-            text: "Transcription Gym / Ladder L8: {next standard}, form to tune. Every fifth session, or any day from Today.",
+            text: "Transcription Gym / Ladder level 8: {next standard}, form to tune. Every fifth session, or any day from Today.",
           },
           {
             where: "Transcription Gym: note, with no standard left or L8 not yet taken",

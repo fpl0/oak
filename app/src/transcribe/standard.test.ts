@@ -99,7 +99,7 @@ describe("stages", () => {
     expect(isStandardLevel(8)).toBe(true);
     expect(isStandardLevel(6)).toBe(false);
     expect(passMarkText("form")).toBe("every section right");
-    expect(passMarkText("bass")).toBe("≥ 90 %");
+    expect(passMarkText("bass")).toBe("≥ 90%");
   });
   test("each stage opens after the one before passed or was shown", () => {
     expect(standardStageStates({}).map((s) => s.status)).toEqual(["open", "locked", "locked", "locked"]);
@@ -330,7 +330,7 @@ describe("verdicts", () => {
       { passed: true, result: result({ status: "pass", score: 0.94 }) },
       { stage: "melody", section: 3, label: "B" },
     );
-    expect(pass).toBe("Melody, section 3 (B): that's it (94 %).");
+    expect(pass).toBe("Melody, section 3 (B): that's it (94%).");
     const fail = standardVerdict(
       {
         passed: false,
@@ -349,7 +349,7 @@ describe("verdicts", () => {
       { stage: "changes", section: 3, label: "B" },
     );
     expect(fail).toBe(
-      "Changes, section 3 (B): not yet, 75 % of 85 %. Bars 19 and 22 differ. Loop the section and listen again.",
+      "Changes, section 3 (B): not yet, 75% right; 85% passes. Bars 19 and 22 differ. Loop the section and listen again.",
     );
   });
   test("d12: an answer in another key says both keys before anything else", () => {

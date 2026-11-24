@@ -21,7 +21,7 @@ import {
   signatureValue,
 } from "../keys/circle.ts";
 import type { AnswerWidgetProps } from "../types.ts";
-import { AnswerFrame, isMod, KeyHint, markOf, revealedOf } from "../ui.tsx";
+import { AnswerFrame, isMod, KeyHint, markOf, revealedOf, SubmitHint } from "../ui.tsx";
 import { type StaffSpec, TOP_LINE_DIA } from "./model.ts";
 
 type Kind = "sharp" | "flat";
@@ -279,7 +279,7 @@ export function KeySignatureAnswer(p: AnswerWidgetProps<"staff-input">) {
           <KeyHint keys={["A–G"]}>add that letter's sharp or flat</KeyHint>
           <KeyHint keys={["#", "-"]}>sharps / flats</KeyHint>
           <KeyHint keys={["⌫"]}>remove the last</KeyHint>
-          <KeyHint keys={["Enter"]}>{verb}</KeyHint>
+          <SubmitHint />
         </>
       }
     >

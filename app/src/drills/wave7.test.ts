@@ -132,13 +132,15 @@ describe("the tracks: which families each opens, and honest words for what is cl
 
   test("a closed track says its own line; an open one names the lesson that opens the family", () => {
     const clave = def("fam.rhy.clave");
-    expect(trackLockedText(clave, { status: "locked", note: "Opens with the U13 checkpoint." })).toBe(
-      "Opens with the U13 checkpoint.",
+    expect(trackLockedText(clave, { status: "locked", note: "Opens with the unit 13 checkpoint." })).toBe(
+      "Opens with the unit 13 checkpoint.",
     );
-    expect(trackLockedText(clave, { status: "open", note: "Next: R1.L01 Metric Weight." })).toBe(
-      "Opens with R3.L01",
+    const titles = new Map([["R3.L01", "Clave Direction"]]);
+    expect(trackLockedText(clave, { status: "open", note: "Next: R1.L01 Metric Weight." }, titles)).toBe(
+      "Opens with the lesson “Clave Direction”",
     );
-    expect(trackLockedText(clave, null)).toBe("Opens with R3.L01");
+    // Without the title the line still never shows the lesson's ID alone.
+    expect(trackLockedText(clave, null)).toBe("Opens with a later lesson of its track");
   });
 
   test("a core family whose next level waits for a track lesson names the track", () => {

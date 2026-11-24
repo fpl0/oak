@@ -1,15 +1,13 @@
 // Key answer (`text` with `normalize: "key"`): pick the key on the circle of fifths or type it ("E flat major",
 // "F#m"). Both write the same value, the text the grader normalises; the circle shows what the text reads as.
 import { useEffect, useRef } from "react";
-import { useSubmitVerb } from "../env.tsx";
 import { readsAs } from "../normalize.ts";
 import type { AnswerWidgetProps } from "../types.ts";
-import { AnswerFrame, KeyHint, markOf, revealedOf } from "../ui.tsx";
+import { AnswerFrame, KeyHint, markOf, revealedOf, SubmitHint } from "../ui.tsx";
 import { circleKeyOf } from "./circle.ts";
 import { KeyCircle } from "./KeyCircle.tsx";
 
 export function KeyAnswer(p: AnswerWidgetProps<"text">) {
-  const verb = useSubmitVerb();
   const { value, onChange, disabled, feedback } = p;
   const root = useRef<HTMLDivElement>(null);
   const picked = circleKeyOf(value);
@@ -33,7 +31,7 @@ export function KeyAnswer(p: AnswerWidgetProps<"text">) {
         <>
           <KeyHint keys={["←", "→"]}>round the circle</KeyHint>
           <KeyHint keys={["↑", "↓"]}>major / minor</KeyHint>
-          <KeyHint keys={["Enter"]}>{verb}</KeyHint>
+          <SubmitHint />
         </>
       }
     >

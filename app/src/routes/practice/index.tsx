@@ -1,5 +1,5 @@
 // Practice hub (ux §2.3, contracts §7.3–7.4): today's review, then every drill family grouped by ear-training
-// stage with its state — locked ("Unlocks in U04"), arriving later (its generator is not built yet), open with
+// stage with its state — locked ("Unlocks in unit 4, Intervals (compressed)"), arriving later (its generator is not built yet), open with
 // its level and recall, or mastered. Raw due counts are never shown (§7.4 Display). Wave 7: the families the
 // advanced tracks open (stage G, the rest of stage H, the sound families) are grouped by track after the core's
 // stages, each track with its own honest line (closed until its gate, or the lesson that opens each family).
@@ -22,8 +22,11 @@ import {
   pendingText,
   RESTING_LINE,
   recallOf,
+  titlesOf,
   unitOf,
+  unitPhrase,
 } from "../../drills/model.ts";
+import { nextSessionLine } from "../../drills/track-line.ts";
 import { type DrillData, useDrillData } from "../../drills/use-drill-data.ts";
 import { graduatedLine } from "../../drills/wave5.ts";
 import {
@@ -44,11 +47,17 @@ import { ErrorState, LoadingState } from "../../ui/kit/QueryState.tsx";
 
 export const Route = createFileRoute("/practice/")({ component: PracticeHub });
 
-/** "Unlocks in U04", or the lesson itself once its unit has begun ("Unlocks at U01.L04"). */
-function lockedText(def: FamilyDef, completed: ReadonlySet<string>): string {
+/**
+ * "Unlocks in unit 3, Major Scale & Degrees", or the lesson itself once its unit has begun ("Unlocks with the lesson “Degrees
+ * in Code”"): in words, never the IDs.
+ */
+function lockedText(def: FamilyDef, data: DrillData): string {
   const unit = unitOf(def.unlock.lesson);
-  const begun = [...completed].some((l) => unitOf(l) === unit);
-  return begun ? `Unlocks at ${def.unlock.lesson}` : `Unlocks in ${unit}`;
+  const begun = [...data.completed].some((l) => unitOf(l) === unit);
+  const lesson = titlesOf(data).lessons.get(def.unlock.lesson);
+  return begun && lesson
+    ? `Unlocks with the lesson “${lesson}”`
+    : `Unlocks in ${unitPhrase(unit, titlesOf(data).units)}`;
 }
 
 function recallTone(r: number | null): string {
@@ -113,7 +122,7 @@ function FamilyCard({ def, data, track }: { def: FamilyDef; data: DrillData; tra
       {status === "locked" && (
         <p className="flex items-center gap-1.5 text-sm text-text-2">
           <Lock aria-hidden className="size-3.5" />{" "}
-          {track !== undefined ? trackLockedText(def, track) : lockedText(def, data.completed)}
+          {track !== undefined ? trackLockedText(def, track, titlesOf(data).lessons) : lockedText(def, data)}
         </p>
       )}
       {status === "pending" && (
@@ -125,7 +134,7 @@ function FamilyCard({ def, data, track }: { def: FamilyDef; data: DrillData; tra
         <>
           <p className="text-sm text-text-2">
             {status === "mastered" && <Check aria-hidden className="mr-1 inline size-3.5 text-accent" />}
-            {levelLine(def, state)}
+            {levelLine(def, state, titlesOf(data).lessons)}
             {acc !== null
               ? ` · ${pctText(acc)} over ${n} ${n === 1 ? "trial" : "trials"}`
               : " · not practised yet"}
@@ -296,9 +305,7 @@ function Tracks({ data, families }: { data: DrillData; families: Record<TrackKey
     // What the learner may start in the track now, as Today offers it (a side lesson, a lesson, its checkpoint or a
     // capstone session); the server's note names only the next track LESSON, which may not be the next thing.
     const n = t.nextSession;
-    const note = n
-      ? `Next: ${n.title.startsWith(n.mapItemId) ? n.title : `${n.mapItemId} ${n.title}`}.`
-      : trackNote(t);
+    const note = n ? nextSessionLine(n) : trackNote(t);
     return { status: t.status, note };
   };
   return (
@@ -308,8 +315,8 @@ function Tracks({ data, families }: { data: DrillData; families: Record<TrackKey
           The advanced tracks
         </h2>
         <p className="max-w-[70ch] text-sm text-text-2">
-          Optional, open from the U13 checkpoint, beside the core or after it. Each track's ear training opens
-          lesson by lesson, like the core's.
+          Optional, open from the unit 13 checkpoint, beside the core or after it. Each track's ear training
+          opens lesson by lesson, like the core's.
         </p>
       </div>
       {keys.map((k) => {

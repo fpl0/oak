@@ -116,9 +116,9 @@ test("L1: a wrong groove fails bar by bar, the right one passes and shows the so
   await expect(page.getByTestId("ladder-summary")).toContainText("Level 3");
 
   // Practise L1 from the list: the item opens with its givens, the starter and the bar timeline.
-  await page.getByRole("button", { name: "L1", exact: true }).click();
+  await page.getByRole("button", { name: "Practise level 1", exact: true }).click();
   await expect(page).toHaveURL(/\/transcribe\/.+/, { timeout: 30_000 });
-  await expect(page.getByTestId("ladder-panel")).toContainText("L1 · Drum loops");
+  await expect(page.getByTestId("ladder-panel")).toContainText("Level 1 · Drum loops");
   await expect(page.getByTestId("given")).toContainText("BPM");
   await expect(page.getByTestId("bar-timeline")).toBeVisible();
   await expect(page.getByTestId("reference")).toHaveCount(0);
@@ -187,7 +187,7 @@ test("L4: the starter fails bar by bar, the melody as heard passes", async ({ pa
   await seed(page, "ladder L3");
   const id = await earnL4(page);
   await page.goto(`/transcribe/${id}`);
-  await expect(page.getByTestId("ladder-panel")).toContainText("L4 · Short melodies");
+  await expect(page.getByTestId("ladder-panel")).toContainText("Level 4 · Short melodies");
   await expect(page.locator(".cm-content").first()).toContainText("melody:");
   // The starter (one note a bar) is not the tune: it fails, bar by bar, and the source stays hidden.
   await checkIt(page);
@@ -242,9 +242,9 @@ test("L2: the starter bass fails, the bass as heard passes", async ({ page }) =>
   await page.goto("/transcribe");
   await expect(page.getByTestId("ladder-summary")).toContainText("Level 3");
   await shots(page, "transcribe-list");
-  await page.getByRole("button", { name: "L2", exact: true }).click();
+  await page.getByRole("button", { name: "Practise level 2", exact: true }).click();
   await expect(page).toHaveURL(/\/transcribe\/.+/, { timeout: 30_000 });
-  await expect(page.getByTestId("ladder-panel")).toContainText("L2");
+  await expect(page.getByTestId("ladder-panel")).toContainText("Level 2");
   await expect(page.locator(".cm-content").first()).toContainText("bass:");
   const id = page.url().split("/").pop() as string;
   await checkIt(page);
@@ -279,7 +279,9 @@ test("L3: a wrong bass fails, then bass, qualities and numerals pass in turn and
   await expect(page.getByTestId("check")).toHaveText("Check the bass", { timeout: 30_000 });
   // The item plays at its realism level (humanised timing from R1), not clean.
   await expect(page.getByTestId("transport-play")).toBeEnabled({ timeout: 30_000 });
-  await expect(page.getByTestId("transcribe-project")).toContainText(/· R[1-4]/);
+  await expect(page.getByTestId("transcribe-project")).toContainText(
+    /Level 3 · (humanised timing|swing and room|a dense mix|a sung lead)/,
+  );
   await expect(page.getByTestId("realism-note")).toHaveCount(0);
   // The starter's bass (the tonic every bar) is not this bass line.
   await checkIt(page);

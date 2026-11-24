@@ -387,7 +387,7 @@ export function SongPanel({
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
             <h2 className="text-h3">
-              L{level} · {level === 5 ? "Public-domain folk" : "Blues"}
+              Level {level} · {level === 5 ? "Public-domain folk" : "Blues"}
             </h2>
             <p className="mt-0.5 truncate font-medium" data-testid="song-title">
               {songTitleText(given)}
@@ -434,7 +434,7 @@ export function SongPanel({
               {revealLabel}
             </Button>
           )}
-          {!done ? <span className="text-sm text-text-3">passes at {Math.round(mark * 100)} %</span> : null}
+          {!done ? <span className="text-sm text-text-3">passes at {Math.round(mark * 100)}%</span> : null}
         </ResultActions>
         {confirmReveal ? (
           <Callout
@@ -500,7 +500,7 @@ export function SongPanel({
                 <span className={clsx(s.status === "open" && "font-medium text-text")}>
                   {SONG_STAGE_LABEL[s.stage]}
                 </span>
-                <span className="text-text-3">≥ {Math.round(passMarkOf(6, s.stage) * 100)} %</span>
+                <span className="text-text-3">≥ {Math.round(passMarkOf(6, s.stage) * 100)}%</span>
                 <span className="sr-only">{STATUS_TEXT[s.status]}</span>
                 {s.status === "revealed" ? <Chip>shown</Chip> : null}
               </li>

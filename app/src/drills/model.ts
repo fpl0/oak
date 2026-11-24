@@ -18,12 +18,14 @@ import type {
   SrsCard,
   SrsReviewResult,
   SungResolution,
+  SyllabusDef,
   Trial,
   TrialResult,
 } from "@oak/api";
 import {
   type DrillFamilyRuntime,
   type DrillTrialResult,
+  FAMILIES,
   generateSet,
   gradeTrial,
   isCompositeGenerator,
@@ -132,11 +134,16 @@ const OPTION_LABELS: Record<string, string> = {
   mixolydian: "I–♭VII–IV–I",
   "dorian-vamp": "i–IV vamp",
   "ii-V-I": "ii–V–I",
-
-  PD: "Predominant",
-  T: "Tonic",
-  D: "Dominant",
 };
+
+/**
+ * The function family's answers. Kept apart from OPTION_LABELS because "D" is also a note name: a "Find home" trial
+ * in D major offers the note D, which must never read as "Dominant".
+ */
+const FUNCTION_LABELS: Record<string, string> = { PD: "Predominant", T: "Tonic", D: "Dominant" };
+const FUNCTION_GENERATOR = "harmony-function";
+/** A bare note name ("D", "Bb", "F#"): printed as the learner reads it, never looked up as an option ID. */
+const NOTE_NAME_RE = /^([A-G])([b#]?)$/;
 
 /**
  * Category names that are levels of material rather than answers (shown in the level picker and in "what a level
@@ -168,7 +175,7 @@ export function categoryLabel(id: string, generator?: string): string {
   if (stageE) return stageE.charAt(0).toUpperCase() + stageE.slice(1);
   const own = CATEGORY_WORDS[id];
   if (own) return own.charAt(0).toUpperCase() + own.slice(1);
-  return optionLabel(id);
+  return optionLabel(id, generator);
 }
 
 export function optionLabel(id: string, generator?: string, options: readonly string[] = []): string {
@@ -178,6 +185,9 @@ export function optionLabel(id: string, generator?: string, options: readonly st
       stageGOptionLabel(generator, id))
     : null;
   if (own) return own;
+  if (generator === FUNCTION_GENERATOR && FUNCTION_LABELS[id]) return FUNCTION_LABELS[id];
+  const note = NOTE_NAME_RE.exec(id);
+  if (note) return `${note[1]}${note[2] === "b" ? "♭" : note[2] === "#" ? "♯" : ""}`;
   // Degree categories ("deg.5", "deg.b6", "deg.s4") read as the learner's word for them, never as an ID.
   const deg = /^deg\./.test(id) ? categoryDegree(id) : null;
   if (deg) return `Degree ${deg.replace("b", "♭").replace("#", "♯")}`;
@@ -625,8 +635,16 @@ export function wrongMarks(
   return [];
 }
 
-/** A short spoken form of the expected answer ("3 · mi", "Lower", "B D♯ F♯"). */
-export function expectedText(spec: AnswerSpec | null, expected: Answer, solfege = false): string | null {
+/**
+ * A short spoken form of the expected answer ("3 · mi", "Lower", "B D♯ F♯", "Dominant"). `generator` names a choice
+ * by the family's own word when no answer spec gives its label (harmony function: "D" reads "Dominant").
+ */
+export function expectedText(
+  spec: AnswerSpec | null,
+  expected: Answer,
+  solfege = false,
+  generator?: string,
+): string | null {
   if (spec?.ui === "bar-buttons") {
     const bars = expectedValueOf(spec, expected) as number[] | null;
     return bars && bars.length > 0 ? `bar ${bars.join(", ")}` : null;
@@ -641,9 +659,9 @@ export function expectedText(spec: AnswerSpec | null, expected: Answer, solfege 
       .join(solfege ? ", " : " ");
   if (expected.choice && spec?.ui === "choice")
     return expected.choice
-      .map((id) => spec.options.find((o) => o.id === id)?.label ?? optionLabel(id))
+      .map((id) => spec.options.find((o) => o.id === id)?.label ?? optionLabel(id, generator))
       .join(", ");
-  if (expected.choice) return expected.choice.map((id) => optionLabel(id)).join(", ");
+  if (expected.choice) return expected.choice.map((id) => optionLabel(id, generator)).join(", ");
   if (expected.qualities) return expected.qualities.map((q) => qualityLabel(q).long).join(", ");
   if (expected.rn) return expected.rn.map(rnDisplay).join(" ");
   if (expected.text) return expected.text.map((t) => t.replace(/b/g, "♭").replace(/#/g, "♯")).join(" ");
@@ -730,8 +748,9 @@ export function debriefTrials(
 ): DebriefTrial[] {
   return records.map((r) => {
     const trial = trials[r.idx];
-    const want = trial ? expectedText(null, trial.expected as Answer) : null;
-    const given = r.response.answer ? expectedText(null, r.response.answer) : null;
+    const gen = trial ? FAMILIES.find((f) => f.id === trial.family)?.generator : undefined;
+    const want = trial ? expectedText(null, trial.expected as Answer, false, gen) : null;
+    const given = r.response.answer ? expectedText(null, r.response.answer, false, gen) : null;
     const answered = r.revealed
       ? "nothing yet (I asked to be shown)"
       : r.response.skipped
@@ -978,7 +997,8 @@ export function summaryView(input: {
     if (!prev || prev.n < 2 || s.n < 2) continue;
     const was = prev.hits / prev.n;
     const now = s.hits / s.n;
-    if (now - was >= 0.15) moved.push(`${optionLabel(cat)}: ${pctText(now)} today, up from ${pctText(was)}.`);
+    if (now - was >= 0.15)
+      moved.push(`${optionLabel(cat, def.generator)}: ${pctText(now)} today, up from ${pctText(was)}.`);
   }
   const top = Object.entries(summary.confusions).sort((a, b) => b[1] - a[1])[0];
   if (top) {
@@ -1111,14 +1131,16 @@ export function compositesProgress(
         })
         .map((d) => d.title);
       const n = members.length;
+      // A long list names its first four and counts the rest: the card says how much it holds, not every title.
+      const list = n > 5 ? `${members.slice(0, 4).join(", ")} and ${n - 4} more` : listWords(members);
       return {
         id: c.id,
         title: c.title,
         members,
-        // A long list names its first four and counts the rest: the card says how much it holds, not every title.
-        line: `${n === 1 ? "One family lives" : `${n} families live`} here now: ${
-          n > 5 ? `${members.slice(0, 4).join(", ")} and ${n - 4} more` : listWords(members)
-        }. Each comes up two trials at a time, at the level you reached.`,
+        // A title that ends the list with its own "?" or "!" ends the sentence too: never "Higher or lower?.".
+        line: `${n === 1 ? "One family lives" : `${n} families live`} here now: ${list}${
+          /[.?!]$/.test(list) ? "" : "."
+        } Each comes up two trials at a time, at the level you reached.`,
       };
     })
     .filter((c) => c.members.length > 0);
@@ -1223,11 +1245,57 @@ export function familyAccuracy(state: FamilyState | undefined): { n: number; acc
   return { n, acc: n === 0 ? null : hits / n };
 }
 
+const titleMaps = new WeakMap<object, { lessons: Map<string, string>; units: Map<string, string> }>();
+/** Lesson and unit titles of the loaded content (by ID), built once per content bundle. */
+export function titlesOf(data: { content: { syllabus: SyllabusDef | null } }): {
+  lessons: ReadonlyMap<string, string>;
+  units: ReadonlyMap<string, string>;
+} {
+  const own = titleMaps.get(data.content);
+  if (own) return own;
+  const lessons = new Map<string, string>();
+  const units = new Map<string, string>();
+  for (const u of data.content.syllabus?.units ?? []) {
+    units.set(u.id, u.title);
+    for (const l of u.lessons) lessons.set(l.id, l.title);
+  }
+  const made = { lessons, units };
+  titleMaps.set(data.content, made);
+  return made;
+}
+
+/**
+ * A unit as the learner reads it: "unit 3, Major Scale & Degrees" for a core unit (a comma, as titles carry their
+ * own parentheses: "Intervals (compressed)"), else its title. `titles` maps unit ID to
+ * title (the syllabus); an ID with no title is said as "this unit", never as the ID.
+ */
+export function unitPhrase(id: string, titles: ReadonlyMap<string, string>): string {
+  const title = titles.get(id);
+  const core = /^U(\d+)$/.exec(id);
+  if (core) return title ? `unit ${Number(core[1])}, ${title}` : `unit ${Number(core[1])}`;
+  return title ?? "this unit";
+}
+
+/**
+ * A lesson as the learner reads it: its title in quotes ("“Degrees in Code”"), with its track when it belongs to
+ * an advanced one. Without a title (content still loading) the ID stands in.
+ */
+export function lessonPhrase(id: string, titles?: ReadonlyMap<string, string>): string {
+  const title = titles?.get(id);
+  if (!title) return lessonWithTrack(id);
+  const track = lessonWithTrack(id).slice(id.length);
+  return `“${title}”${track}`;
+}
+
 /**
  * A family's level, honestly: where it is, of how many, and how far the lessons done so far let it go
  * ("Level 2 of 7 · up to level 3 for now"). Never a count of due cards.
  */
-export function levelLine(def: FamilyDef, state: FamilyState | undefined): string {
+export function levelLine(
+  def: FamilyDef,
+  state: FamilyState | undefined,
+  titles?: ReadonlyMap<string, string>,
+): string {
   const total = def.levels.length;
   // Never above the highest level the lessons have opened (a graduated family can carry a level its gate has
   // not opened yet: it is shown at the open one, with the lesson that opens the next).
@@ -1242,7 +1310,7 @@ export function levelLine(def: FamilyDef, state: FamilyState | undefined): strin
   const lesson = nextLevelLesson(def, open + 1);
   // A level that opens with a lesson of an advanced track says which track (Wave 7): "R1.L02 (Advanced Rhythm)".
   return lesson
-    ? `${head} · level ${open + 1} opens with ${lessonWithTrack(lesson)}`
+    ? `${head} · level ${open + 1} opens with ${lessonPhrase(lesson, titles)}`
     : `${head} · up to level ${open} for now`;
 }
 

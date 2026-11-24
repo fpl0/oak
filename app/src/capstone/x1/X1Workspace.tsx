@@ -88,9 +88,11 @@ import {
   useCapstoneReview,
   useDraft,
   useDraftSketchId,
+  useReleasedCode,
 } from "../queries.ts";
 import { ReleaseDialog, type ReleasePiece } from "../ReleaseDialog.tsx";
 import { ReviewCard } from "../ReviewCard.tsx";
+import { releaseStandingOf } from "../release-version.ts";
 import { useTryRevision } from "../revision.ts";
 import { currentSession, isResume, sessionsDone, sessionViews } from "../sessions.ts";
 import { useSongMelody } from "../song-melody.ts";
@@ -529,6 +531,14 @@ function X1Loaded({
     enabled: state.trackId !== null,
   });
   const tryRevision = useTryRevision();
+  // "Released" or "Released · revising", as in the composing workspace: the draft on screen against the code of
+  // the current release (a release made here is known at once).
+  const serverReleasedCode = useReleasedCode(
+    released ? state.trackId : null,
+    saver.sketchId ?? initialSketch,
+  );
+  const [justReleased, setJustReleased] = useState<string | null>(null);
+  const revising = releaseStandingOf(released, code, justReleased ?? serverReleasedCode) === "revising";
   const canRelease = (releaseSession || allDone) && (complete || allDone || released) && rubricReady;
   const openRelease = async () => {
     try {
@@ -665,7 +675,7 @@ function X1Loaded({
         className="flex w-[300px] shrink-0 flex-col gap-5 overflow-auto border-r border-border bg-surface px-4 py-4"
       >
         <header>
-          <p className="font-mono text-sm text-text-3">{def.id} · capstone</p>
+          <p className="text-sm text-text-3">Capstone</p>
           <h1 className="font-display text-h2 leading-tight">{def.title}</h1>
           <p className="mt-2 text-sm leading-relaxed text-text-2">{def.objective}</p>
         </header>
@@ -834,7 +844,7 @@ function X1Loaded({
         <div className="flex flex-wrap items-center gap-2 border-b border-border bg-bg px-4 py-2">
           {released ? (
             <Chip tone="accent">
-              <CircleCheck aria-hidden className="size-3.5" /> Released · revising
+              <CircleCheck aria-hidden className="size-3.5" /> {revising ? "Released · revising" : "Released"}
             </Chip>
           ) : (
             <Chip tone="amber">
@@ -893,7 +903,9 @@ function X1Loaded({
         </div>
         <div className="min-h-0 flex-1 overflow-auto px-4 py-3">
           <div className="flex flex-col gap-3">
-            {resume && (
+            {/* One notice at a time, the newest, as in the composing workspace: a released piece shows "On the
+                album" (with the welcome's Play from the top on a return), which gives way to a newer notice. */}
+            {resume && !released && (
               <Callout
                 tone="info"
                 title={`Welcome back. Your transcription is as you left it${saver.saved ? ` (version ${saver.saved.version})` : ""}.`}
@@ -915,21 +927,36 @@ function X1Loaded({
                 Hear your draft once through, then compare it with the song (V switches, O plays both).
               </Callout>
             )}
-            {released && state.trackId && (
+            {released && state.trackId && !notice && (
               <Callout
                 tone="success"
                 title="On the album"
                 actions={
-                  <Link
-                    to="/album/$trackId"
-                    params={{ trackId: state.trackId }}
-                    className="text-sm text-link underline"
-                  >
-                    Open the track
-                  </Link>
+                  <>
+                    {resume && (
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        onClick={() => void playFromTop()}
+                        data-testid="play-from-top"
+                      >
+                        Play from the top
+                      </Button>
+                    )}
+                    <Link
+                      to="/album/$trackId"
+                      params={{ trackId: state.trackId }}
+                      className="text-sm text-link underline"
+                    >
+                      Open the track
+                    </Link>
+                  </>
                 }
               >
-                Released versions stay as they are; a new release becomes the next version.
+                {/* Says what the header chip says, as the composing workspace does. */}
+                {revising
+                  ? "You are revising it. When you release again, this becomes its next version; the released ones stay as they are."
+                  : "Released as it is now. Edit it to revise: a new release becomes its next version, and the released ones stay as they are."}
               </Callout>
             )}
             {notice && (
@@ -1040,6 +1067,10 @@ function X1Loaded({
           editor={() => editorHandle()}
           onClose={() => setReleaseOpen(false)}
           onReleased={(data) => {
+            setJustReleased(codeRef.current);
+            // The release is the newest event: the older notice and the welcome give way to "On the album".
+            setNotice(null);
+            setResume(false);
             setReleaseOpen(false);
             setCeremony(data);
             refreshAfterRelease(qc, currentSessionId() !== null);

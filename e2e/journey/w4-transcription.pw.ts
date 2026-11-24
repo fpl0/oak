@@ -54,7 +54,7 @@ test("a gym day on the ladder: GYM.01 from Today, the item heard and written, a 
   const block = page.getByTestId("gym-block");
   await expect(block).toHaveAttribute("data-gym", "GYM.01", { timeout: 60_000 });
   await expect(block).toHaveAttribute("data-kind", "ladder");
-  await expect(page.getByTestId("ladder-panel")).toContainText("L1", { timeout: 60_000 });
+  await expect(page.getByTestId("ladder-panel")).toContainText("Level 1", { timeout: 60_000 });
   const row = (await api<GymPlan>(request, "GET", "/api/gym")).history.find((g) => g.gymId === "GYM.01");
   expect(row).toMatchObject({ sessionId, kind: "ladder" });
   const projectId = row?.transcriptionId as string;

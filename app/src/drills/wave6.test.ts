@@ -923,5 +923,10 @@ describe("the Practice hub: stages F and H, and mixed practice as progress", () 
     );
     expect(out.find((c) => c.id === pitch.id)?.line).toMatch(/^One family lives here now: /);
     expect(compositesProgress(families, new Map())).toEqual([]);
+    // A title that ends in "?" ends the sentence: never "Higher or lower?." (UX review P15).
+    const asked = compositesProgress(families, new Map([st("fam.pit.compare", pitch.id, true)]));
+    expect(asked[0]?.line).toBe(
+      "One family lives here now: Higher or lower? Each comes up two trials at a time, at the level you reached.",
+    );
   });
 });

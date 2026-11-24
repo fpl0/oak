@@ -109,7 +109,7 @@ test("the hub groups families by stage, with locked, later and open states", asy
   // Locked: later lessons.
   const tonic = page.locator('[data-family="fam.deg.tonic"]');
   await expect(tonic).toHaveAttribute("data-status", "locked");
-  await expect(tonic).toContainText("Unlocks in U03");
+  await expect(tonic).toContainText("Unlocks in unit 3, Major Scale & Degrees");
   // Every generator is built now (Wave 2): a jazz-track family is simply locked until its track opens. The
   // "pending" state ("Arrives with J5") is covered by model.test.ts.
   const subs = page.locator('[data-family="fam.jzz.subs"]');

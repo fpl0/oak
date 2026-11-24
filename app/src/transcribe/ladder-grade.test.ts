@@ -64,6 +64,8 @@ describe("ladder checks through the real grader", () => {
       const lines = checkLines(bad).map(lineText);
       expect(lines.length).toBeGreaterThan(0);
       expect(lines[0]).toMatch(/^Bar \d+, beat \d/);
-      expect(verdictText({ passed: false, result: bad }, null)).toMatch(/^Not quite: \d+ % of 85 %\. Bars? /);
+      expect(verdictText({ passed: false, result: bad }, null)).toMatch(
+        /^Not quite: \d+% right; 85% passes\. Bars? /,
+      );
     });
 });

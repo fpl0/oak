@@ -366,10 +366,11 @@ test("the hub: the tracks' families grouped by track, each honest about what ope
   // The jazz track is open at this point, its families not yet: each names the lesson that opens it.
   const iiV = jazz.locator('[data-family="fam.jzz.ii-v"]');
   await expect(iiV).toHaveAttribute("data-status", "locked");
-  await expect(iiV).toContainText("Opens with J1.L03");
-  await expect(page.getByTestId("track-J-note")).toHaveText(/^Next: J1\.L01 /);
+  await expect(iiV).toContainText("Opens with the lesson “The Major ii–V–I”");
+  // Named by its title, never its id (shared decision 5).
+  await expect(page.getByTestId("track-J-note")).toHaveText("Next: “Swing Feel & the Ride”.");
   // Each track names what Today would start in it: for Sound, its first side lesson (not a later track lesson).
-  await expect(page.getByTestId("track-A-note")).toHaveText(/^Next: A1\.L01 /);
+  await expect(page.getByTestId("track-A-note")).toHaveText("Next: “Waves & Harmonics”.");
   for (const m of SCREENSHOT_MATRIX) {
     await page.setViewportSize({ width: m.width, height: m.height });
     await page.evaluate((theme) => document.documentElement.setAttribute("data-theme", theme), m.theme);

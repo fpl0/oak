@@ -176,8 +176,13 @@ test("a whole U06 day from the keyboard, with reduced motion", async ({ page, re
 
   // The U06.L02 day from the keyboard: Today → Start → its warm-up reported skipped → the lesson → the Coda.
   // The first session's page is left before the reseed: a heartbeat still in flight for a session the reseed
-  // removed was answered 404 and read as a console error (review:journey, Wave 6).
+  // removed was answered 404 and read as a console error (review:journey, Wave 6). Nothing may be left reading
+  // while the reseed runs either: Today's album strip fetches each released track (`/api/album/tracks/:id`), and
+  // a fetch that reached the server after the reseed asked for a track it had removed, answered 404 (2 runs in 10).
+  // So the app is unloaded for the reseed: a static file of the same origin (about:blank denies the theme's
+  // localStorage init script, itself a page error).
   await openToday(page);
+  await page.goto("/boot.js");
   await seedPoint(request, "after U05.CP");
   const plan = await api<{ kind: string; mapItemId: string }>(request, "GET", "/api/session/today");
   expect(plan).toMatchObject({ kind: "lesson", mapItemId: "U06.L02" });

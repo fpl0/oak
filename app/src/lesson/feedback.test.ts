@@ -56,9 +56,10 @@ describe("summaryOf", () => {
   });
   test("chord() locked is said once, not once per chord name", () => {
     const r = result("error", ["code.locked-tool", "code.locked-chord", "code.locked-chord"]);
-    const said = (d: { id: string }) => (d.id === "code.locked-tool" ? "`chord` unlocks in U05.L08." : "C");
+    const said = (d: { id: string }) =>
+      d.id === "code.locked-tool" ? "`chord` unlocks in the lesson “Let Strudel Voice It”." : "C";
     const lines = issueLines(viewFor(r, 0, false, said as never), { kind: "code" });
-    expect(lines.map((l) => l.what)).toEqual(["`chord` unlocks in U05.L08."]);
+    expect(lines.map((l) => l.what)).toEqual(["`chord` unlocks in the lesson “Let Strudel Voice It”."]);
   });
   test("a sung take with no voice says so, not 'Code didn't run.'", () => {
     const r = result("error", ["sing.no-voice"]);

@@ -123,16 +123,23 @@ test("U01.L01 Heartbeat: every step, a wrong variant first, keyboard only on S6,
   await expect(page.getByTestId("step-feedback")).toHaveAttribute("data-status", "pass");
   await page.getByTestId("continue").click();
 
-  // S8 the Make inside the song: three to a bar leaves the required rule open ("Save anyway"); four ticks it.
+  // S8 the Make inside the song: Save says what it does to the song ("Save into your song"); three to a bar, played,
+  // leaves the required rule open ("… anyway"); four ticks it.
+  await expect(page.getByTestId("save-sketch")).toHaveText("Save into your song", { timeout: 30_000 });
+  await expect(page.getByTestId("make-save-line")).toContainText("Save puts your code into “");
   await stepIs(page, "S8");
   await setCode(page, kickLine("bd sd bd", 100));
   await page.getByTestId("play-toggle").click();
   await expect(page.locator('[data-rule="every-beat"]')).toHaveAttribute("data-ok", "0", { timeout: 20_000 });
-  await expect(page.getByTestId("save-sketch")).toHaveText(/Save anyway/);
-  // A tool this lesson has not opened yet (`< >` arrives in U01.L07) is refused in the Make, calmly.
+  await expect(page.getByTestId("save-sketch")).toHaveText("Save into your song anyway");
+  // A tool this lesson has not opened yet (`< >` arrives in U01.L07) is refused in the Make, calmly, and the lesson
+  // that opens it is named by its title, never by its id.
   await setCode(page, `${tempo(118)}drums: s("<bd sd bd sd>")`);
   await page.getByTestId("play-toggle").click();
-  await expect(page.getByTestId("locked-tool")).toContainText("U01.L07");
+  await expect(page.getByTestId("locked-tool")).toContainText(
+    "unlocks in the lesson “Four-Bar Phrases & Fills”",
+  );
+  await expect(page.getByTestId("locked-tool")).not.toContainText("U01.L07");
   await page.getByTestId("play-toggle").click();
   await setCode(page, `${tempo(118)}drums: s("bd cp bd cp")\nhats: s("hh*8")`);
   await page.getByTestId("play-toggle").click();
@@ -140,9 +147,10 @@ test("U01.L01 Heartbeat: every step, a wrong variant first, keyboard only on S6,
   await expect(page.locator('[data-rule="every-beat"]')).toHaveAttribute("data-ok", "1", { timeout: 20_000 });
   await expect(page.locator('[data-rule="two-lines"]')).toHaveAttribute("data-ok", "1");
   // The Make plays inside the unit song (spec 2026-11-24-unit-songs-design.md §5.3): the transport's chips tell today's
-  // code from Oak's parts, where the plain Band's "chords (band)" used to be.
-  await expect(page.getByRole("button", { name: "drums (today's code)" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Chords (Oak)" })).toBeVisible();
+  // code from Oak's parts, where the plain Band's "chords (band)" used to be: one chip per part of the song.
+  await expect(page.getByRole("button", { name: "Mute Drums (today's code)", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Mute Chords (Oak)", exact: true })).toBeVisible();
+  await expect(page.getByTestId("mute-part:chords")).toBeVisible();
   await page.getByTestId("play-toggle").click();
   await page.getByTestId("sketch-title").fill("My first heartbeat");
   await page.getByTestId("save-sketch").click();

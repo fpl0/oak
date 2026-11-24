@@ -109,6 +109,9 @@ export function useStepHost(): StepHost {
   return h;
 }
 
+/** Closing punctuation that follows a code chip. */
+const CLOSING_PUNCT = /^[.,;:!?)\]”’]+/u;
+
 /** `**bold**`, `*em*` and `` `code` `` in a one-paragraph prompt (authored Markdown, never HTML). */
 export function InlineMd({ text, className }: { text: string; className?: string }) {
   const parts: ReactNode[] = [];
@@ -119,15 +122,36 @@ export function InlineMd({ text, className }: { text: string; className?: string
     const at = m.index ?? 0;
     if (at > last) parts.push(text.slice(last, at));
     const tok = m[0];
-    if (tok.startsWith("**")) parts.push(<strong key={k++}>{tok.slice(2, -2)}</strong>);
-    else if (tok.startsWith("`"))
-      parts.push(
-        <code key={k++} className="rounded bg-surface-2 px-1 py-0.5 font-mono text-[0.9em]">
-          {tok.slice(1, -1)}
-        </code>,
-      );
-    else parts.push(<em key={k++}>{tok.slice(1, -1)}</em>);
     last = at + tok.length;
+    if (tok.startsWith("**")) parts.push(<strong key={k++}>{tok.slice(2, -2)}</strong>);
+    else if (tok.startsWith("`")) {
+      // Punctuation right after a code chip hugs it: the chip's right padding is trimmed and the two never part at
+      // a line end, so ".scale()." never reads ".scale() ." (as the Toolbox's `InlineCodeText` does). An opening
+      // bracket or quote right before it hugs it the same way: "(rd)", not "( rd)".
+      const punct = CLOSING_PUNCT.exec(text.slice(last))?.[0] ?? "";
+      const opened = /[([“‘]$/u.test(text.slice(0, at));
+      const chip = (
+        <code
+          key={k++}
+          className={clsx(
+            "rounded bg-surface-2 py-0.5 font-mono text-[0.9em]",
+            opened ? "pl-0.5" : "pl-1",
+            punct ? "pr-0.5" : "pr-1",
+          )}
+        >
+          {tok.slice(1, -1)}
+        </code>
+      );
+      if (punct) {
+        parts.push(
+          <span key={k++} className="whitespace-nowrap">
+            {chip}
+            {punct}
+          </span>,
+        );
+        last += punct.length;
+      } else parts.push(chip);
+    } else parts.push(<em key={k++}>{tok.slice(1, -1)}</em>);
   }
   if (last < text.length) parts.push(text.slice(last));
   return <span className={className}>{parts}</span>;
@@ -159,7 +183,10 @@ export function StepLayout({ stage, answer, actions, hidePrompt, answerFirst }: 
   const prompt = h.exercise?.prompt;
   const how =
     h.mode === "lesson"
-      ? howTo(h.exercise, { beatsPerBar: METERS[h.exercise?.meter ?? h.env.meter].unitsPerBar })
+      ? howTo(h.exercise, {
+          beatsPerBar: METERS[h.exercise?.meter ?? h.env.meter].unitsPerBar,
+          inSong: h.song?.kind === "take",
+        })
       : null;
   const kindLabel = h.mode === "checkpoint" ? "Checkpoint" : STEP_KIND_LABEL[h.step.kind];
   const wide = stage !== undefined && stage !== null;

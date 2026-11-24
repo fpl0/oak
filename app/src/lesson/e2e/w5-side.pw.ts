@@ -37,7 +37,10 @@ test("A1.L01 from the Toolbox: optional, what it makes better, back to the Toolb
   const def = await lessonDefW5("A1.L01");
   await walkLesson(page, def, { lessonId: "A1.L01", mic: false, quiet: false });
   const done = page.getByTestId("lesson-complete");
-  await expect(done.getByRole("heading")).toHaveText("Side lesson complete");
+  await expect(done.getByRole("heading").first()).toHaveText("Side lesson complete");
+  // Its Make went into the unit's song: the recap shows the song as it grew and leads to it.
+  await expect(done.getByTestId("coda-song-grew")).toBeVisible();
+  await expect(done.getByRole("link", { name: "Open the song" })).toHaveAttribute("href", "/song/A1");
   await expect(page.getByTestId("side-complete-note")).toContainText("Filters & Filter Envelopes");
   await expect(page.getByTestId("side-complete-note")).toContainText("It was optional");
   const back = page.getByTestId("back-to-today");

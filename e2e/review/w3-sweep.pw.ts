@@ -69,7 +69,7 @@ for (const id of LESSONS) {
         expect(overflow, `${id} ${step.id} overflows at ${size.width}`).toBeLessThanOrEqual(0);
         const primary = page
           .getByTestId("continue")
-          .or(page.getByRole("button", { name: /Save sketch/ }))
+          .or(page.getByRole("button", { name: /Save sketch|Save into your song/ }))
           .first();
         await expect(
           primary,

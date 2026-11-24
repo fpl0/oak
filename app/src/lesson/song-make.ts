@@ -7,7 +7,7 @@
 //  - what a saved take claims (`recordSongTake`): the saved code is evaluated once and read as the composer reads the
 //    live Make (`makeReading` + `makeClaimsOfEvents`: the bars that play in today's sections, roles label first), and
 //    the cells come from the claims model (`claimsOf`);
-//  - the transport's chips: today's code, "yours (from …)" and "Oak".
+//  - the transport's chips: today's code line by line, then one chip per part of the song ("Kick (yours and Oak)").
 // Grading stays the learner's code alone (spec §4.1); only `make.unchanged` learns the opening code (grading.ts).
 import {
   type CodeRange,
@@ -29,10 +29,12 @@ import {
   type UnitSongTakeCreate,
 } from "@oak/api";
 import type { EvalResult } from "@oak/grader";
-import type { BandSetup } from "@oak/strudel";
+import type { BandSetup, MuteMap } from "@oak/strudel";
 import { makeClaimsOfEvents, makeReading, type SongTrackRole } from "@oak/strudel/song-compose";
 import { songStepOf } from "../../../content/unit-songs/index.ts";
 import { playableTakes, type SongView } from "../song/model.ts";
+import { cellsSentence, partMutes, partTracks } from "../song/surfaces-model.ts";
+import { chipName } from "../workbench/chip-words.ts";
 
 // --- which song a Make belongs to ----------------------------------------------------------------------
 
@@ -41,6 +43,11 @@ export interface SongSideHost {
   kind: "side";
   def: UnitSongDef;
   reason: string;
+  /**
+   * The learner has started the song (`songs.get` answered, not `new`). A track whose first lesson is a side step
+   * (J1.L01) has no song for the learner yet: the Make then says nothing about "your song".
+   */
+  started: boolean;
 }
 
 /** The song side of a Make step (`StepHost.song`): a take, a side step, or a take whose song is still being read. */
@@ -80,6 +87,8 @@ export interface SongMakeHost {
   takeIds: number[];
   /** A track chip's words: today's code, yours (from …), Oak. */
   chipLabel(track: string): string;
+  /** The transport's chips inside the song: today's code line by line, then one per part (`songChips`). */
+  chips: SongChips;
 }
 
 /** A lesson whose Make takes over cells of its unit's song. */
@@ -109,6 +118,19 @@ export function newSongGateOf(
   detail: Pick<UnitSongDetail, "status"> | null,
 ): boolean {
   return step?.kind === "take" && detail?.status === "new";
+}
+
+/**
+ * The line beside a take Make's Save (spec §5.3): what Save does to the song, in the grid's words. "Save puts your
+ * code into “Turn the dial”, where it plays Kick and Snare in B." Today's code that takes no cell (it plays nothing
+ * the song has yet) still goes into the song.
+ */
+export function songSaveLine(view: SongView): string {
+  const today = view.cells.filter((c) => c.owner === "today").map((c) => `${c.part}@${c.section}`);
+  const what = cellsSentence(view, today);
+  return what
+    ? `Save puts your code into “${view.title}”, where it plays ${what}.`
+    : `Save puts your code into “${view.title}”.`;
 }
 
 // --- the tempo line ----------------------------------------------------------------------------------------
@@ -151,6 +173,30 @@ export function withSongTempo(code: string, bpm: number, allowed?: readonly [num
     return `${code.slice(0, from)}${value}${code.slice(from + (m[2] as string).length)}`;
   }
   return code;
+}
+
+/**
+ * The tempo the code's first tempo line sets (`setcpm(<n>/<beats>)`, as `withSongTempo` reads it), or `null` when the
+ * code has none in that form. The Make's "set to your song's tempo" note holds only while this is the song's tempo.
+ */
+export function firstTempoOf(code: string): number | null {
+  for (const line of code.split("\n")) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("//") || trimmed === "") continue;
+    if (!/^setcpm\s*\(/.test(trimmed)) {
+      if (/\bsetcpm\s*\(/.test(line)) return null;
+      continue;
+    }
+    const m = TEMPO.exec(line);
+    return m ? Number(m[2]) : null;
+  }
+  return null;
+}
+
+/** The code's first tempo line still sets the song's tempo (the opening note about it stays true). */
+export function holdsSongTempo(code: string, bpm: number): boolean {
+  const t = firstTempoOf(code);
+  return t !== null && Math.abs(t - Math.round(bpm * 100) / 100) < 1e-9;
 }
 
 /**
@@ -423,8 +469,8 @@ const TAKE_PREFIX = "band.take.";
 
 /**
  * A track chip's text inside the song (spec §5.3): Oak's parts by their name ("Kick (Oak)", "Tune (Oak)"), a saved
- * take's tracks as the learner's from their lesson ("drums (yours, from Heartbeat)"), and the editor's own tracks as
- * today's code. A plain Band track keeps its "(band)".
+ * take's tracks as the learner's from their lesson ("Drums (yours, from Heartbeat)"), and the editor's own tracks as
+ * today's code ("Kick (today's code)"). A plain Band track says "(Oak)". The words follow `chipName`'s one rule.
  */
 export function songChipLabel(
   track: string,
@@ -432,15 +478,93 @@ export function songChipLabel(
 ): string {
   if (track.startsWith(OAK_PREFIX)) {
     const label = track.slice(OAK_PREFIX.length);
-    return `${o.partName(label) ?? label} (Oak)`;
+    return `${o.partName(label) ?? chipName(label)} (Oak)`;
   }
   if (track.startsWith(TAKE_PREFIX)) {
     const rest = track.slice(TAKE_PREFIX.length);
     const dot = rest.lastIndexOf(".");
     const lessonId = dot > 0 ? rest.slice(0, dot) : rest;
     const label = dot > 0 ? rest.slice(dot + 1) : rest;
-    return `${label} (yours, from ${o.lessonTitle(lessonId) ?? lessonId})`;
+    // A lesson is named by its title, never by its id alone.
+    const title = o.lessonTitle(lessonId);
+    const name = o.partName(label) ?? chipName(label);
+    return title ? `${name} (yours, from ${title})` : `${name} (yours)`;
   }
-  if (track.startsWith("band.")) return `${track.slice(5)} (band)`;
-  return `${track} (today's code)`;
+  if (track.startsWith("band.")) return `${chipName(track.slice(5))} (Oak)`;
+  return `${o.partName(track) ?? chipName(track)} (today's code)`;
+}
+
+/** One chip of the transport: the tracks it mutes and solos, by id, and its words. */
+export interface SongChip {
+  /** Today's code's own track label (`drums`), `part:<id>` for a part of the song, or a band track's full name. */
+  id: string;
+  label: string;
+}
+
+/** The chips a song Make's transport shows, and the player's mutes for their state (Workbench `trackChips`). */
+export interface SongChips {
+  chipsOf(tracks: readonly string[]): SongChip[];
+  /** The mutes that play what the chips say: a muted or soloed part acts on every track of it (`partMutes`). */
+  mutesOf(state: Pick<MuteMap, "muted" | "solo">, tracks: readonly string[]): MuteMap;
+}
+
+const PART_CHIP = "part:";
+
+/**
+ * The song Make's chips (spec §5.3). A chip per line of today's code ("Drums (today's code)"), then one chip per part
+ * of the song that plays ("Kick (Oak)", "Snare (yours)", "Hi-hats (yours and Oak)"): every earlier lesson's line of
+ * that part and Oak's track for it under one chip, its mute and solo acting on all of them. A chip per take line made
+ * a wall of 16 to 25 chips ("kick (yours, from Backbeat)", "kick (yours, from Two per Beat)", "Kick (Oak)") that
+ * pushed the roll off the screen; which earlier lesson plays which section is the song page's to say.
+ */
+export function songChips(
+  def: UnitSongDef,
+  detail: Pick<UnitSongDetail, "takes"> | null,
+  o: { partName(partId: SongPartId): string },
+): SongChips {
+  const byPart = def.parts.map((p) => ({ id: p.id, tracks: partTracks(def, detail, p.id) }));
+  return {
+    chipsOf(tracks) {
+      const loaded = new Set(tracks);
+      const out: SongChip[] = tracks
+        .filter((t) => !t.startsWith("band."))
+        .map((t) => {
+          // A line that is a part of the song says the part's name, as that part's own chip does (`chipName`).
+          const part = def.parts.find((p) => p.label === t);
+          return { id: t, label: `${part ? o.partName(part.id) : chipName(t)} (today's code)` };
+        });
+      const grouped = new Set<string>();
+      for (const p of byPart) {
+        const mine = p.tracks.filter((t) => loaded.has(t));
+        if (mine.length === 0) continue;
+        for (const t of mine) grouped.add(t);
+        const oak = mine.some((t) => t.startsWith(OAK_PREFIX));
+        const yours = mine.some((t) => t.startsWith(TAKE_PREFIX));
+        const whose = yours && oak ? "yours and Oak" : yours ? "yours" : "Oak";
+        out.push({ id: `${PART_CHIP}${p.id}`, label: `${o.partName(p.id)} (${whose})` });
+      }
+      // A band track no part claims (a take line the song no longer places) keeps a chip of its own.
+      for (const t of tracks)
+        if (t.startsWith("band.") && !grouped.has(t))
+          out.push({ id: t, label: songChipLabel(t, { partName: () => null, lessonTitle: () => null }) });
+      return out;
+    },
+    mutesOf(state, tracks) {
+      const partOf = (id: string | null) =>
+        id?.startsWith(PART_CHIP) ? (id.slice(PART_CHIP.length) as SongPartId) : null;
+      const mutedParts = new Set<SongPartId>();
+      const mutedTracks = new Set<string>();
+      for (const id of state.muted) {
+        const p = partOf(id);
+        if (p) mutedParts.add(p);
+        else mutedTracks.add(id);
+      }
+      const soloPart = partOf(state.solo);
+      const base = partMutes(def, detail, { muted: mutedParts, solo: soloPart }, tracks);
+      const muted = new Set([...base.muted, ...mutedTracks]);
+      // A line of today's code (or a lone band track) soloed: the player's own solo silences every other track.
+      const solo = state.solo !== null && soloPart === null ? state.solo : null;
+      return { muted, solo, ...(base.hits && solo === null ? { hits: base.hits } : {}) };
+    },
+  };
 }

@@ -43,7 +43,7 @@ export const STANDARD_STAGE_TASK: Record<StandardStage, string> = {
 };
 /** The mark as a learner reads it: the form is right or not; the others are a share. */
 export const passMarkText = (stage: StandardStage): string =>
-  stage === "form" ? "every section right" : `≥ ${Math.round(STANDARD_PASS[stage] * 100)} %`;
+  stage === "form" ? "every section right" : `≥ ${Math.round(STANDARD_PASS[stage] * 100)}%`;
 
 // --- stages and sections ---------------------------------------------------------------------------------
 
@@ -414,7 +414,7 @@ export function standardVerdict(
 ): string {
   const what = standardTargetText(t);
   if (r.result.status === "error") return `${what}: that code didn't run, so nothing was checked.`;
-  if (r.passed) return `${what}: that's it (${pct(r.result.score)} %).`;
+  if (r.passed) return `${what}: that's it (${pct(r.result.score)}%).`;
   const key = keyMismatchText(r.result);
   if (key) return `${what}: not yet. ${key} Write it in the recording's key.`;
   const bars = [...new Set(checkLines(r.result).flatMap((l) => (l.bar === null ? [] : [l.bar])))];
@@ -424,7 +424,7 @@ export function standardVerdict(
       : bars.length === 1
         ? ` Bar ${bars[0]} differs.`
         : ` Bars ${bars.slice(0, -1).join(", ")} and ${bars.at(-1)} differ.`;
-  return `${what}: not yet, ${pct(r.result.score)} % of ${pct(STANDARD_PASS[t.stage])} %.${where} Loop the section and listen again.`;
+  return `${what}: not yet, ${pct(r.result.score)}% right; ${pct(STANDARD_PASS[t.stage])}% passes.${where} Loop the section and listen again.`;
 }
 
 // --- kept between visits --------------------------------------------------------------------------------

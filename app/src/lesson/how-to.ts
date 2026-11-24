@@ -8,7 +8,10 @@ import { METERS } from "@oak/theory";
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
 /** One or two short sentences, inline Markdown; `null` where the step needs no controls explained. */
-export function howTo(ex: Exercise | undefined, opts: { beatsPerBar?: number } = {}): string | null {
+export function howTo(
+  ex: Exercise | undefined,
+  opts: { beatsPerBar?: number; inSong?: boolean } = {},
+): string | null {
   if (!ex) return null;
   const beats = opts.beatsPerBar ?? 4;
   switch (ex.kind) {
@@ -34,6 +37,9 @@ export function howTo(ex: Exercise | undefined, opts: { beatsPerBar?: number } =
     case "error-hunt":
       return "Change the code on the right, press **Play** to hear it, then press **Check**.";
     case "code-make":
+      // A take step's Make (a unit song): Save puts the code into the song, and the button says so.
+      if (opts.inSong)
+        return "Write in the editor and press **Play** to hear it in your song. The checklist ticks itself as you go. Press **Save into your song** when you are happy with it.";
       return "Write in the editor and press **Play** to hear it. The checklist ticks itself as you go. Press **Save sketch** when you are happy with it.";
     case "parsons":
       return "Drag the blocks into order, then press **Check**.";

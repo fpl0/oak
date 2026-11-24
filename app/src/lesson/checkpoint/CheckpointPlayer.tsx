@@ -47,7 +47,7 @@ import { currentSessionId, reportBlockDone, useSession } from "../../session/sto
 import { askChat, clearSubject, setSubject } from "../../tutor/context.ts";
 import { useHotkeys } from "../../ui/keys/KeymapProvider.tsx";
 import { Button, buttonClass } from "../../ui/kit/Button.tsx";
-import { Card, Chip, EmptyState, Page } from "../../ui/kit/basics.tsx";
+import { Card, Chip, EmptyState, Kbd, Page } from "../../ui/kit/basics.tsx";
 import { Callout } from "../../ui/kit/Controls.tsx";
 import { Meter } from "../../ui/kit/Meters.tsx";
 import { ErrorState, LoadingState } from "../../ui/kit/QueryState.tsx";
@@ -55,6 +55,7 @@ import { useFocusHeader, useFocusHeaderContent } from "../../ui/shell/focus-head
 import { ServicesGate } from "../../workbench/ServicesGate.tsx";
 import "../../workbench/workbench.css";
 import { promptOf } from "../../drills/copy.ts";
+import { unitPhrase } from "../../drills/model.ts";
 import { retryLine } from "../../lib/retry.ts";
 import { lessonWidgetFor } from "../answers.tsx";
 import { bandMutesOf, bandSetupOf, checkpointMakeBand } from "../band.ts";
@@ -70,7 +71,7 @@ import {
   gradeStep,
   NEUTRAL_PROFILE,
 } from "../grading.ts";
-import { isCodeInput } from "../inputs.tsx";
+import { isCodeInput, STIMULUS_PLAY_EVENT } from "../inputs.tsx";
 import { partsOf, viewsOf } from "../model.ts";
 import { MakeRenderer, rendererFor } from "../renderers.tsx";
 import { answerFocus, ResultRow } from "../result-row.tsx";
@@ -80,12 +81,14 @@ import { answerMissing, registryHas, stepScopePanel } from "../wave5.ts";
 import { stepMusicLenses } from "../wave6.ts";
 import { trackCheckpointIntro, trackCheckpointOf, trackCheckpointResult } from "../wave7.ts";
 import {
+  authoredTitle,
   CP_BPM,
   CP_KEY,
   clearRecords,
   familyAnswerSpec,
   familyResponse,
   handInItems,
+  hasSavedRecords,
   type ItemRecord,
   isSungTrial,
   itemKey,
@@ -100,6 +103,7 @@ import {
   saveRecords,
   scoreLocal,
   skillLine,
+  statusWord,
   sungItemScore,
   tracksOpenedCopy,
   trialTapLanes,
@@ -184,6 +188,7 @@ export function CheckpointPlayer({ unitId }: { unitId: string }) {
         content={content.data ?? null}
         onDebrief={() => askChat("Can we go over my checkpoint together?")}
         inSession={currentSessionId() !== null}
+        makeSaved={resultSketch !== null}
         onContinue={() => {
           // In a session the checkpoint's Make is the Make block (wave2 §3.3): reporting it opens the Coda.
           if (resultSketch) reportBlockDone({ block: "make", source: "checkpoint", sketchId: resultSketch });
@@ -210,6 +215,7 @@ export function CheckpointPlayer({ unitId }: { unitId: string }) {
             ...(unlocks.data?.items ?? []).map((u) => u.itemId as UnlockableId),
             ...unlockedAt(courseGraph(), content.data?.toolbox ?? [], cpId as never),
           ]}
+          skillNames={new Map((content.data?.skills.nodes ?? []).map((n) => [n.id as string, n.name]))}
           onDone={(o, sketchId) => {
             setOutcome(o);
             setResultSketch(sketchId);
@@ -235,6 +241,7 @@ export function CheckpointPlayer({ unitId }: { unitId: string }) {
       title={meta?.title ?? cpId}
       covers={meta?.covers ?? []}
       titles={lessonTitles(content.data?.syllabus ?? null)}
+      units={new Map((content.data?.syllabus?.units ?? []).map((u) => [u.id, u.title]))}
       status={status}
       hasItems={def.data !== null}
       starting={starting}
@@ -249,6 +256,8 @@ function Intro(p: {
   title: string;
   covers: readonly string[];
   titles: ReadonlyMap<string, string>;
+  /** Unit ID → title, to name the units covered in words. */
+  units: ReadonlyMap<string, string>;
   status: CheckpointStatus | null;
   hasItems: boolean;
   starting: boolean;
@@ -262,16 +271,38 @@ function Intro(p: {
   // rule 5): it says so before anything else, and its "not open yet" names the lesson it follows.
   const trackCp = trackCheckpointOf(p.cpId);
   const track = trackCp ? trackCheckpointIntro(trackCp, p.titles, s) : null;
+  // The answers of a pending attempt live in this browser only: without them it starts again from item 1.
+  const pending = Boolean(s?.pendingAttemptAt);
+  const resumable = pending && hasSavedRecords(p.cpId);
+  const covered = p.covers.map((u) => unitPhrase(u, p.units));
+  const canStart = !locked && !done && (p.hasItems || pending);
+  // Enter starts from anywhere on the intro, as its key cap says (the button also holds focus on arrival).
+  useHotkeys([
+    {
+      id: "checkpoint-start",
+      keys: "Enter",
+      scope: "global",
+      group: "Checkpoint",
+      description: "Start the checkpoint",
+      when: (k) => !k.onControl && canStart && !p.starting,
+      run: () => p.onStart(),
+    },
+  ]);
+  const firstUnit = /^U(\d+)$/.exec(p.covers[0] ?? "");
   return (
     <Page width="narrow">
       <div className="flex flex-col gap-5" data-testid="checkpoint-intro">
         <header>
-          <p className="font-mono text-sm text-text-3">{p.cpId}</p>
+          <p className="text-sm text-text-3">
+            {!track && firstUnit && p.covers.length === 1
+              ? `Unit ${Number(firstUnit[1])} checkpoint`
+              : "Checkpoint"}
+          </p>
           <h1 className="font-display text-h1 font-semibold">{p.title}</h1>
           <p className="mt-1 max-w-[60ch] text-text-2">
             {track
               ? track.covers
-              : `A short check of ${p.covers.join(" and ") || "this unit"}: about 12 minutes of mixed items, then a small Make. No hints, no rush. Claude goes over it with you afterwards.`}
+              : `A short check of ${covered.join(" and ") || "this unit"}: about 12 minutes of mixed items, then a small Make. No hints, no rush. Claude goes over it with you afterwards.`}
           </p>
           {track && (
             <p className="mt-2 max-w-[60ch] text-sm text-text-2" data-testid="checkpoint-holds">
@@ -281,7 +312,7 @@ function Intro(p: {
         </header>
         <Card className="flex flex-wrap items-center gap-3 p-4">
           <Chip tone={done ? "accent" : s?.status === "failed" ? "amber" : "neutral"}>
-            {done ? "passed" : s?.status === "failed" ? "not yet" : (s?.status ?? "locked")}
+            {statusWord(s?.status)}
           </Chip>
           <span className="text-sm text-text-2">
             {s?.attempts ?? 0} attempt{s?.attempts === 1 ? "" : "s"}
@@ -305,18 +336,28 @@ function Intro(p: {
           </Callout>
         ) : (
           <div className="flex flex-wrap items-center gap-3">
+            {pending && !resumable && (
+              <p className="w-full text-sm text-text-2" data-testid="checkpoint-restart-note">
+                The answers you gave on that attempt are not on this device, so it starts again from item 1.
+              </p>
+            )}
+            {/* The one next action holds focus on arrival, as "Start the set" does in a drill. */}
             <Button
               variant="primary"
               size="lg"
+              autoFocus
               onClick={p.onStart}
               loading={p.starting}
               data-testid="start-checkpoint"
             >
-              {s?.pendingAttemptAt
+              {resumable
                 ? "Continue where you were"
-                : s?.status === "failed"
-                  ? "Retake it"
-                  : "Start"}
+                : pending
+                  ? "Start again from item 1"
+                  : s?.status === "failed"
+                    ? "Retake it"
+                    : "Start"}{" "}
+              <Kbd tone="inverse">Enter</Kbd>
             </Button>
             {s?.softPassAvailable && (
               <span className="text-sm text-text-2">"Continue anyway" is open on this attempt.</span>
@@ -343,19 +384,6 @@ interface RunnerItem {
   sung: boolean;
 }
 
-/** A plain title for an authored item that has none: what the learner does, never "a short task". */
-function authoredTitle(ex: Exercise): string {
-  if (ex.kind === "staff-write")
-    return ex.answer.ui === "staff-input" && ex.answer.mode === "key-signature"
-      ? "Write the key signature"
-      : "Write it on the staff";
-  if (ex.kind === "code-modify" || ex.kind === "error-hunt") return "Change the code";
-  if (ex.kind === "code-make" || ex.kind === "compose-brief") return "Write it in code";
-  if (ex.kind === "staff-read") return "Read it";
-  if ("stimulus" in ex && ex.stimulus) return "Listen and answer";
-  return "Answer this one";
-}
-
 /** A drawn trial's own meter (`params.meter`), when it names one the course counts in. */
 function trialMeter(m: unknown): MeterId | null {
   return typeof m === "string" && m in METERS ? (m as MeterId) : null;
@@ -369,6 +397,7 @@ function buildItems(
   attempt: CheckpointAttemptStart,
   def: CheckpointDef | null,
   profile: LearnerProfile,
+  skillNames: ReadonlyMap<string, string>,
 ): RunnerItem[] {
   return attempt.items.map((spec) => {
     const base = { panels: { roll: false, staff: false as const, keyboard: false } };
@@ -406,7 +435,7 @@ function buildItems(
           step: {
             id: `I${spec.idx + 1}` as StepDef["id"],
             kind: staffy ? "notate" : ex.kind === "fact" ? "quiz" : "modify",
-            title: ex.title ?? authoredTitle(ex),
+            title: ex.title ?? authoredTitle(ex, skillNames.get(spec.skillId) ?? null),
             minutes: 1,
             ui: staffy
               ? { ...base, panels: { ...base.panels, staff: clef } }
@@ -603,11 +632,13 @@ function Runner(p: {
   band: BandRef | null;
   flavour: FlavourId;
   unlocked: UnlockableId[];
+  /** Skill names by ID: an untitled authored item is named by its skill. */
+  skillNames: ReadonlyMap<string, string>;
   /** The hand-in's outcome and the Make's sketch (null when the Make was skipped). */
   onDone(o: CheckpointOutcome, makeSketchId: string | null): void;
 }) {
   const qc = useQueryClient();
-  const all = useRef(buildItems(p.attempt, p.def, p.profile)).current;
+  const all = useRef(buildItems(p.attempt, p.def, p.profile, p.skillNames)).current;
   // Quiet mode sets the sung items aside: they are handed in as skipped, which a level-setting item never counts.
   const items = p.quiet ? all.filter((it) => !it.sung) : all;
   const setAside = all.length - items.length;
@@ -692,7 +723,41 @@ function Runner(p: {
     reportBlockDone({ block: "new", source: "checkpoint", itemId: p.cpId, completed: true });
   }, [item?.kind, index, items.length, p.cpId]);
 
+  // The item's answer keys work from anywhere on the item, as a drill's do from its region (the hint row under
+  // the widget names them): the title holds focus when an item opens (frame.tsx). Every play started from Play,
+  // first or replay, by key or by mouse, hands the focus to the answer, so the next Enter saves: left on Play,
+  // Enter would replay the stimulus and spend one of the item's limited plays. The player says when a press
+  // starts a play (STIMULUS_PLAY_EVENT); its label is no guide, as it already reads "Stop" during that press.
+  const itemSaved = item
+    ? rec.get(item.idx) !== undefined && !rec.get(item.idx)?.skipped && !reopened.has(item.idx)
+    : true;
+  const itemCode = item ? partsOf(item.exercise).some((x) => isCodeInput(x)) : true;
+  useEffect(() => {
+    if (itemSaved || itemCode) return;
+    const onKey = (e: KeyboardEvent) => forwardItemKey(e);
+    const onPlay = (e: Event) => {
+      if (!(e.target instanceof Element) || !e.target.closest("main")) return;
+      // After the press has finished, so an Enter's own keydown is not also taken by the answer.
+      setTimeout(() => answerFocus(false)?.focus({ preventScroll: true }), 0);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener(STIMULUS_PLAY_EVENT, onPlay);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener(STIMULUS_PLAY_EVENT, onPlay);
+    };
+  }, [itemSaved, itemCode]);
+
   useHotkeys([
+    {
+      id: "checkpoint-next",
+      keys: "Enter",
+      scope: "global",
+      group: "Checkpoint",
+      description: "Next item",
+      when: (k) => !k.onControl && itemSaved && item !== null && item.kind !== "make" && !checking,
+      run: () => next(),
+    },
     {
       id: "checkpoint-check",
       keys: "Mod+Shift+Enter",
@@ -795,6 +860,7 @@ function Runner(p: {
           <p className="text-text-2">
             Hand it in to see how each skill went. Until then you can change any answer: the last one you save
             is the one that counts.
+            {records.some((r) => r.skipped) ? " A skipped item scores nothing." : ""}
           </p>
           {quietNote(setAside) && (
             <p className="text-sm text-text-3" data-testid="quiet-set-aside">
@@ -1060,6 +1126,7 @@ function Runner(p: {
             onContinue={item.kind === "make" ? null : next}
             continueDisabled={!done || checking}
             continueLabel="Next item"
+            continueKeys="Enter"
             continueTestId="next-item"
             continueNote="Save an answer, or skip this one, to go on."
             line={saved ? retryLine({ surface: "checkpoint-item", counted: true }) : null}
@@ -1164,6 +1231,7 @@ function ResultScreen({
   onDebrief,
   inSession,
   onContinue,
+  makeSaved,
 }: {
   outcome: CheckpointOutcome;
   content: { skills: { nodes: { id: string; name: string }[] }; syllabus?: SyllabusDef | null } | null;
@@ -1171,6 +1239,8 @@ function ResultScreen({
   /** Inside a session the primary action goes on to the Coda instead of back to Today. */
   inSession: boolean;
   onContinue(): void;
+  /** Whether the hand-in carried the Make's sketch. */
+  makeSaved: boolean;
 }) {
   const titles = lessonTitles(content?.syllabus ?? null);
   // Wave 7: a track checkpoint's result names the capstones it opens or holds back, and only them.
@@ -1198,9 +1268,24 @@ function ResultScreen({
           >
             {copy.title}
           </h1>
-          <p className="mt-1 max-w-[60ch] text-text-2">{copy.body}</p>
+          {/* The Make's line joins the body and the bar marks' caption joins the score line: as separate rows they
+              pushed the passed result's action below a 1280×800 screen when the tracks card shows. */}
+          <p className="mt-1 max-w-[60ch] text-text-2">
+            {copy.body}{" "}
+            <span data-testid="checkpoint-make-line">
+              {makeSaved
+                ? "Your Make went in with your answers, saved as a sketch."
+                : "The Make was skipped this time."}
+            </span>
+          </p>
           <p className="mt-2 text-sm text-text-3">
             Score on the counted items: {pct(outcome.score)} (85% passes).
+            {outcome.perSkill.some((s) => s.role === "gating") && (
+              <span data-testid="skill-marks-legend">
+                {" "}
+                Bar marks: 70%, the least a skill needs; 85%, the pass line.
+              </span>
+            )}
           </p>
         </header>
         {/* Wave 6 checkpoints count up to ten skills: the rows close up so the result's action stays on a
@@ -1216,7 +1301,7 @@ function ResultScreen({
                 <Meter
                   value={s.mean}
                   max={1}
-                  label={`${s.skillId} ${name(s.skillId)}`}
+                  label={name(s.skillId)}
                   valueText={line.text}
                   tone={line.tone === "ok" ? "accent" : line.tone === "look" ? "amber" : "neutral"}
                   ticks={
@@ -1267,5 +1352,39 @@ function ResultScreen({
         </div>
       </div>
     </Page>
+  );
+}
+
+/**
+ * A digit or Enter pressed on the item outside its answer widget reaches the widget (one per item), as if pressed
+ * there. A digit also moves focus into the widget, so the next Enter saves rather than pressing the button that
+ * had focus (Play, which would spend a limited play; a play started from Play already moves it). A text field takes
+ * the digit itself: it gets the focus before the key's character lands. Enter on a button or link keeps its own meaning.
+ */
+function forwardItemKey(e: KeyboardEvent): void {
+  if (e.defaultPrevented || e.isComposing || e.repeat || e.altKey || e.metaKey || e.ctrlKey) return;
+  const digit = /^(?:Digit|Numpad)\d$/.test(e.code) || /^\d$/.test(e.key);
+  if (!digit && e.key !== "Enter") return;
+  const target = e.target instanceof HTMLElement ? e.target : null;
+  if (target?.closest("[data-answer], input, textarea, select, [contenteditable='true'], [role='dialog']"))
+    return;
+  if (!digit && target?.closest("button, a[href], summary, [role='button'], [role='tab'], [role='menuitem']"))
+    return;
+  const frames = document.querySelectorAll<HTMLElement>("main [data-answer]");
+  const frame = frames.length === 1 ? frames[0] : null;
+  if (!frame || frame.getAttribute("aria-disabled") === "true") return;
+  const field = frame.querySelector<HTMLElement>("input:not([readonly]), textarea:not([readonly])");
+  if (field) {
+    field.focus({ preventScroll: true });
+    if (digit) return;
+  }
+  const stop =
+    field ??
+    frame.querySelector<HTMLElement>("[tabindex='0'], button:not([disabled]):not([data-enter='native'])") ??
+    frame;
+  if (digit) stop.focus({ preventScroll: true });
+  e.preventDefault();
+  stop.dispatchEvent(
+    new KeyboardEvent("keydown", { key: e.key, code: e.code, bubbles: true, cancelable: true }),
   );
 }

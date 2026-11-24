@@ -58,7 +58,7 @@ describe("transport steps", () => {
     expect(stepCents(-2, -1)).toBe(-5);
   });
   test("labels", () => {
-    expect(formatRate(0.75)).toBe("75 %");
+    expect(formatRate(0.75)).toBe("75%");
     expect(formatSemitones(-2)).toBe("−2 st");
     expect(formatSemitones(3)).toBe("+3 st");
     expect(formatCents(0)).toBe("0¢");

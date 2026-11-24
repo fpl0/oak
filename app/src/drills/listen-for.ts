@@ -3,6 +3,7 @@
 // sounds playing. Written in the words the learner has by the family's unlock lesson (content/families.ts
 // `unlock`): no term before the lesson that introduces it (content/terms.ts). Voice rules of AUTHORING §5.
 import type { FamilyDef } from "@oak/api";
+import { optionLabel } from "./model.ts";
 
 const BY_FAMILY: Readonly<Record<string, string>> = {
   // Rhythm
@@ -127,4 +128,20 @@ export function listenFor(def: Pick<FamilyDef, "id" | "domain"> | undefined): st
 /** What one example of a family is called when every example is the same kind ("Note 3", not "Example 3"). */
 export function exampleNoun(familyId: string): string {
   return familyId === "fam.pit.match" ? "Note" : "Example";
+}
+
+/**
+ * The lines of a "Just listen" block, one per example. Captions are category ids ("T", "PD", "D"); the family's
+ * generator turns them into the learner's words (Tonic, Predominant, Dominant), as the answer buttons do. One
+ * category heard several times ("match" × 8) says nothing per line, so those examples are numbered instead.
+ */
+export function listenExampleLines(
+  captions: readonly string[],
+  familyId: string,
+  generator?: string,
+): string[] {
+  const same = captions.length > 1 && captions.every((c) => c === captions[0]);
+  return captions.map((c, i) =>
+    same ? `${exampleNoun(familyId)} ${i + 1}` : `${i + 1}. ${optionLabel(c, generator)}`,
+  );
 }

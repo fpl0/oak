@@ -4,7 +4,7 @@ import type { LadderItem, LadderState } from "@oak/api";
 import type { GradeResult, KeySpec, MeterId } from "@oak/content-kit";
 import { R } from "@oak/content-kit";
 import { scaleName } from "@oak/pitch";
-import { tempoLine } from "@oak/theory";
+import { type Degree, syllableOf, tempoLine } from "@oak/theory";
 import { formatKey } from "../lib/format.ts";
 
 /**
@@ -51,13 +51,18 @@ export const STAGE_TASK: Record<LadderStage, string> = {
   quality: "Now the chords: is each one major or minor?",
   rn: "Last, the numerals: which degree is each chord built on?",
 };
-export const REALISM_TEXT: Record<number, string> = {
-  0: "R0 · clean and on the grid",
-  1: "R1 · humanised timing",
-  2: "R2 · swing and room",
-  3: "R3 · a dense mix, the part a little buried",
-  4: "R4 · a sung lead, slightly detuned",
+/** How real an item sounds, in words (the realism level's number is never shown alone). */
+export const REALISM_WORDS: Record<number, string> = {
+  0: "clean and on the grid",
+  1: "humanised timing",
+  2: "swing and room",
+  3: "a dense mix, the part a little buried",
+  4: "a sung lead, slightly detuned",
 };
+/** The realism line under a ladder item or the ladder card. */
+export const REALISM_TEXT: Record<number, string> = Object.fromEntries(
+  Object.entries(REALISM_WORDS).map(([k, v]) => [k, `Sound: ${v}`]),
+);
 
 /**
  * The part a level's realism layers treat as the learner's target (`@oak/drills` `generateLadderPiece`'s
@@ -184,6 +189,11 @@ export function checkLines(result: GradeResult): CheckLine[] {
       text = text.replace(new RegExp(`^${esc(beat)}\\s*:\\s*`), "");
       onBeat = beat;
     }
+    // A missing degree reads as the lines beside it do ("you have 1 (do)"): "6 (la) missing", not "note 6 missing".
+    text = text.replace(/^note ([#b♯♭]?[1-7]) missing\b/, (_, d: string) => {
+      const syl = syllableOf(d.replace("♭", "b").replace("♯", "#") as Degree);
+      return syl === "?" ? `${d} missing` : `${d} (${syl}) missing`;
+    });
     const key = `${bar}|${onBeat}|${text}`;
     if (!text || seen.has(key)) continue;
     seen.add(key);
@@ -223,8 +233,8 @@ export function verdictText(r: { passed: boolean; result: GradeResult }, stage: 
   if (r.result.status === "error") return "That code didn't run, so nothing was checked.";
   if (r.passed)
     return stage && stage !== "rn"
-      ? `${STAGE_LABEL[stage]}: that's it (${pct} %). On to the next stage.`
-      : `That's it: ${pct} %. You wrote what you heard.`;
+      ? `${STAGE_LABEL[stage]}: that's it (${pct}%). On to the next stage.`
+      : `That's it: ${pct}%. You wrote what you heard.`;
   const lines = checkLines(r.result);
   const bars = [...new Set(lines.map((l) => l.bar).filter((b): b is number => b !== null))];
   const where =
@@ -233,12 +243,12 @@ export function verdictText(r: { passed: boolean; result: GradeResult }, stage: 
       : bars.length === 1
         ? ` Bar ${bars[0]} differs.`
         : ` Bars ${bars.slice(0, -1).join(", ")} and ${bars.at(-1)} differ.`;
-  return `Not quite: ${pct} % of ${Math.round(LADDER_PASS * 100)} %.${where} Loop it and listen again.`;
+  return `Not quite: ${pct}% right; ${Math.round(LADDER_PASS * 100)}% passes.${where} Loop it and listen again.`;
 }
 
 // --- the learner's place on the ladder -----------------------------------------------------------------
 
 export function ladderSummary(s: LadderState): string {
   const passes = s.gradedPasses[String(s.level)] ?? 0;
-  return `Level ${s.level} · ${LEVEL_TITLE[s.level as LadderLevel] ?? "Your own audio"} · realism R${s.realism} · ${passes} graded ${passes === 1 ? "pass" : "passes"} at this level`;
+  return `Level ${s.level} · ${LEVEL_TITLE[s.level as LadderLevel] ?? "Your own audio"} · ${passes} graded ${passes === 1 ? "pass" : "passes"} at this level`;
 }

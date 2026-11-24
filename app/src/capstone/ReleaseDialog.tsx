@@ -188,6 +188,15 @@ export function ReleaseDialog(p: ReleaseDialogProps) {
     return () => URL.revokeObjectURL(url);
   }, [ctx.recording]);
 
+  // The button that started a phase unmounts with it: focus goes to the phase's next action (Stop while
+  // recording, Release once the take is in), never out of the dialog to the page.
+  const stopRef = useRef<HTMLButtonElement>(null);
+  const releaseRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const to = phase === "recording" ? stopRef.current : phase === "take" ? releaseRef.current : null;
+    to?.focus({ preventScroll: true });
+  }, [phase]);
+
   // Recording progress against the piece's computed length.
   const expected = (analysis?.durationSec ?? 10) + 1.5;
   const [elapsed, setElapsed] = useState(0);
@@ -227,6 +236,7 @@ export function ReleaseDialog(p: ReleaseDialogProps) {
               Record another take
             </Button>
             <Button
+              ref={releaseRef}
               variant="primary"
               loading={phase === "releasing"}
               icon={<Disc3 aria-hidden className="size-4" />}
@@ -245,6 +255,7 @@ export function ReleaseDialog(p: ReleaseDialogProps) {
             )}
             {phase === "recording" && (
               <Button
+                ref={stopRef}
                 icon={<Square aria-hidden className="size-4" />}
                 onClick={stopTake}
                 data-testid="stop-take"
@@ -283,10 +294,10 @@ export function ReleaseDialog(p: ReleaseDialogProps) {
         {flavour !== null && (p.shipping?.length ?? 0) > 1 && (
           <div className="grid gap-1.5">
             <span className="font-medium" id="rel-flavour-label">
-              Flavour
+              Style
             </span>
             <SegmentedControl<FlavourId>
-              label="Flavour"
+              label="Style"
               size="sm"
               value={flavour}
               options={(p.shipping ?? []).map((f) => ({ value: f, label: FLAVOUR_TITLE[f] }))}

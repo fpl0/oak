@@ -31,7 +31,7 @@ import { Button, Skeleton } from "../../ui/kit/index.ts";
 import { appAudio, useAnswerEnv, useSubmitVerb } from "../env.tsx";
 import { buildChord, describeBuilt } from "../harmony.ts";
 import type { AnswerWidgetProps, PartMark } from "../types.ts";
-import { AnswerFrame, isMod, KeyHint, markOf, revealedOf } from "../ui.tsx";
+import { AnswerFrame, isMod, KeyHint, markOf, revealedOf, SubmitHint } from "../ui.tsx";
 import { KeySignatureAnswer } from "./KeySignature.tsx";
 import { localAnchors, measure, measureAnchors } from "./measure.ts";
 import {
@@ -683,7 +683,7 @@ function StaffNotesAnswer(p: AnswerWidgetProps<"staff-input">) {
           {hasRhythmTools && rhythm.triplets.length > 0 ? <KeyHint keys={[";"]}>triplet</KeyHint> : null}
           {spec.palette.rests ? <KeyHint keys={["0"]}>rest</KeyHint> : null}
           <KeyHint keys={["⌫"]}>{chordMode ? "remove" : "delete"}</KeyHint>
-          <KeyHint keys={["Enter"]}>{verb}</KeyHint>
+          <SubmitHint />
         </>
       }
     >

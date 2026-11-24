@@ -77,6 +77,18 @@ export interface GymContext {
 }
 
 /** Every source the gym can serve now, in stage order. */
+/**
+ * The chip over a gym choice, in words: "Level 3" for a ladder level, "Jazz" and "Rhythm" for the track stages.
+ * The stage code ("L3", "G", "H") stays internal.
+ */
+export function gymStageLabel(stage: string): string {
+  const level = /^L(\d+)$/.exec(stage);
+  if (level) return `Level ${level[1]}`;
+  if (stage === "G") return "Jazz";
+  if (stage === "H") return "Rhythm";
+  return stage;
+}
+
 export function gymSources(ctx: GymContext): GymSource[] {
   const out: GymSource[] = [];
   for (const a of ctx.ownAudio)
@@ -262,4 +274,13 @@ export function gymChoices(
 export function localDay(d: Date = new Date()): string {
   const p = (x: number) => String(x).padStart(2, "0");
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+/**
+ * The Standard Transcription's next session in words for the gym's CF-T line ("CF-T.S2" -> " (next: session 2)"),
+ * never its ID; nothing when it is not known.
+ */
+export function cftNext(id: string | null | undefined): string {
+  const n = id ? /\.S(\d+)$/.exec(id)?.[1] : undefined;
+  return n ? ` (next: session ${Number(n)})` : "";
 }

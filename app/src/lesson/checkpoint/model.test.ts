@@ -6,8 +6,10 @@ import type { CheckpointItemSpec } from "@oak/api";
 import { createRegistry, DECKS, FAMILIES, generateTrial, gradeTrial } from "@oak/drills";
 import { NEUTRAL_PROFILE } from "../grading.ts";
 import {
+  authoredTitle,
   familyAnswerSpec,
   familyResponse,
+  hasSavedRecords,
   isSungTrial,
   progressLine,
   quietNote,
@@ -15,6 +17,7 @@ import {
   reviewTitle,
   scoreLocal,
   skillLine,
+  statusWord,
   sungItemScore,
   sungTargetsOf,
 } from "./model.ts";
@@ -279,6 +282,40 @@ describe("Wave 3 checkpoint items (U03.CP, U04.CP)", () => {
   });
 });
 
+describe("intro wording", () => {
+  test("the status chip says a word, never the raw status", () => {
+    expect(statusWord("open")).toBe("Ready");
+    expect(statusWord("failed")).toBe("Not yet");
+    expect(statusWord("soft-passed")).toBe("Passed");
+    expect(statusWord(undefined)).toBe("Locked");
+  });
+  test("a pending attempt resumes only with answers saved in this browser", () => {
+    const store = new Map<string, string>();
+    const fake = {
+      get length() {
+        return store.size;
+      },
+      key: (i: number) => [...store.keys()][i] ?? null,
+      getItem: (k: string) => store.get(k) ?? null,
+      setItem: (k: string, v: string) => void store.set(k, v),
+      removeItem: (k: string) => void store.delete(k),
+    };
+    const was = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+    Object.defineProperty(globalThis, "localStorage", { value: fake, configurable: true });
+    try {
+      expect(hasSavedRecords("U04.CP")).toBe(false);
+      store.set("oak.checkpoint.U04.CP.2", "[]");
+      expect(hasSavedRecords("U04.CP")).toBe(false);
+      store.set("oak.checkpoint.U04.CP.2", JSON.stringify([{ idx: 0, skipped: true }]));
+      expect(hasSavedRecords("U04.CP")).toBe(true);
+      expect(hasSavedRecords("U05.CP")).toBe(false);
+    } finally {
+      if (was) Object.defineProperty(globalThis, "localStorage", was);
+      else delete (globalThis as { localStorage?: unknown }).localStorage;
+    }
+  });
+});
+
 describe("progress and review wording", () => {
   test("a skipped item is not counted as answered", () => {
     const skipped = Array.from({ length: 25 }, () => ({ skipped: true }));
@@ -292,5 +329,16 @@ describe("progress and review wording", () => {
         26,
       ),
     ).toBe("All 26 items answered");
+  });
+});
+
+describe("authoredTitle", () => {
+  test("an untitled item is named by its skill, never a generic line (UX review P14)", () => {
+    const listen = { kind: "fact", stimulus: { src: "code", code: "n(0)", bars: 1 } } as never;
+    const plain = { kind: "fact" } as never;
+    expect(authoredTitle(listen, "Intervals in a key")).toBe("Intervals in a key, by ear");
+    expect(authoredTitle(plain, "Degrees")).toBe("Degrees");
+    // Without a skill name it falls back to what the learner does.
+    expect(authoredTitle(listen)).toBe("Listen and answer");
   });
 });

@@ -103,7 +103,7 @@ describe("a check as lines", () => {
     });
     expect(checkLines(g).map(lineText)).toEqual([
       "Bar 1, beat 2&: missing hit (kick).",
-      "Bar 2, beat 1: note 4 missing.",
+      "Bar 2, beat 1: 4 (fa) missing.",
     ]);
   });
   test("per bar, in bar order, the place said once", () => {
@@ -115,10 +115,10 @@ describe("a check as lines", () => {
   });
   test("verdicts are calm and name the bars", () => {
     expect(verdictText({ passed: false, result: r }, null)).toBe(
-      "Not quite: 60 % of 85 %. Bars 1 and 2 differ. Loop it and listen again.",
+      "Not quite: 60% right; 85% passes. Bars 1 and 2 differ. Loop it and listen again.",
     );
     expect(verdictText({ passed: true, result: result({ status: "pass", score: 0.93 }) }, null)).toBe(
-      "That's it: 93 %. You wrote what you heard.",
+      "That's it: 93%. You wrote what you heard.",
     );
     expect(verdictText({ passed: true, result: result({ status: "pass", score: 0.9 }) }, "bass")).toContain(
       "On to the next stage",

@@ -1118,6 +1118,23 @@ function PlayerCore(props: CoreProps) {
     result: p.result,
     code: codeOf(ctx, step),
   });
+  // A side lesson's framing (Wave 5): on the step the visit opened at.
+  const sideHere =
+    props.side !== undefined && props.side !== null && ctx.index === (openedAt ?? ctx.range[0]);
+  const sideText = props.side ? `${props.side.offer} ${props.side.note}` : "";
+  const sideLeave = !inSession ? (
+    <Link to={originLink(props.from).to} className={buttonClass("ghost", "sm")} data-testid="side-leave">
+      Leave for now
+    </Link>
+  ) : undefined;
+  const sideBox =
+    sideHere && props.side ? (
+      <div data-testid="side-lesson-note" className="mt-3">
+        <Callout tone="info" title={props.side.heading} actions={sideLeave}>
+          {sideText}
+        </Callout>
+      </div>
+    ) : null;
   const banner: ReactNode = (
     <>
       {gateBox}
@@ -1133,27 +1150,18 @@ function PlayerCore(props: CoreProps) {
           the visit resumed at. A resumed step goes straight back to work: the card is about 250 px tall and above
           a mid-lesson step (U03.L09 S5's sight-sing) it pushed the step's own action (Sing) below the fold at
           1280×720. The song stays one click away (Today's hero, the Make's song strip). */}
-      {ctx.index === ctx.range[0] && <SongCard lessonId={def.id} />}
-      {props.side && ctx.index === (openedAt ?? ctx.range[0]) && (
-        <div data-testid="side-lesson-note" className="mt-3">
-          <Callout
-            tone="info"
-            title={props.side.heading}
-            actions={
-              !inSession ? (
-                <Link
-                  to={originLink(props.from).to}
-                  className={buttonClass("ghost", "sm")}
-                  data-testid="side-leave"
-                >
-                  Leave for now
-                </Link>
-              ) : undefined
-            }
-          >
-            {props.side.offer} {props.side.note}
-          </Callout>
-        </div>
+      {/* A side lesson in a song says it is optional inside the song card (one box, so the first step's task
+          stays on the first screen at 1280×800); with no card, its own box. */}
+      {ctx.index === ctx.range[0] ? (
+        <SongCard
+          lessonId={def.id}
+          side={
+            sideHere && props.side ? { heading: props.side.heading, text: sideText, action: sideLeave } : null
+          }
+          orElse={sideBox}
+        />
+      ) : (
+        sideBox
       )}
       {preview && ctx.index === ctx.range[0] && (
         <Callout tone="info" title="Preview" className="mt-3">

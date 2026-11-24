@@ -34,6 +34,11 @@ describe("howTo", () => {
     expect(howTo(tap)).toContain("4 count-in clicks");
     expect(howTo(tap)).toContain("4 bars");
   });
+  test("a Make inside a song names the song's Save", () => {
+    const make = lessons.flatMap((l) => l.steps).find((s) => s.exercise?.kind === "code-make")?.exercise;
+    expect(howTo(make)).toContain("**Save sketch**");
+    expect(howTo(make, { inSong: true })).toContain("**Save into your song**");
+  });
 });
 
 describe("padStepsFor", () => {

@@ -44,7 +44,7 @@ export const stepSemitones = (st: number, dir: 1 | -1): number =>
 export const stepCents = (c: number, dir: 1 | -1): number =>
   clamp(round(c, CENTS_STEP) + dir * CENTS_STEP, CENTS_MIN, CENTS_MAX);
 
-export const formatRate = (rate: number): string => `${Math.round(rate * 100)} %`;
+export const formatRate = (rate: number): string => `${Math.round(rate * 100)}%`;
 export const formatSemitones = (st: number): string =>
   st === 0 ? "0 st" : `${st > 0 ? "+" : "−"}${Math.abs(st)} st`;
 export const formatCents = (c: number): string => (c === 0 ? "0¢" : `${c > 0 ? "+" : "−"}${Math.abs(c)}¢`);

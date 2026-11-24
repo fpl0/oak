@@ -337,6 +337,11 @@ export interface AnswerEnv {
    * which stores the answer without grading it.
    */
   submitVerb?: "check" | "save";
+  /**
+   * The host grades a complete pick at once (a drill's single-choice pad, `AUTO_SUBMIT_KINDS`): there is no
+   * Check step, so the key hints say a digit answers and leave out the Enter hint.
+   */
+  autoSubmit?: boolean;
 }
 
 const EnvContext = createContext<AnswerEnv>({});

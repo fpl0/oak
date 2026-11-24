@@ -278,13 +278,13 @@ describe("verdicts and bar marks", () => {
   test("names what was checked, the mark and the bars", () => {
     expect(
       songVerdict({ passed: false, result: result(0.6, [6, 7]) }, { level: 5, span: 2, stage: null }),
-    ).toBe("Phrase 2: not yet, 60 % of 85 %. Bars 6 and 7 differ. Loop it and listen again.");
+    ).toBe("Phrase 2: not yet, 60% right; 85% passes. Bars 6 and 7 differ. Loop it and listen again.");
     expect(
       songVerdict({ passed: false, result: result(0.8, [3]) }, { level: 6, span: null, stage: "bass" }),
-    ).toBe("The bass: not yet, 80 % of 90 %. Bar 3 differs. Loop it and listen again.");
+    ).toBe("The bass: not yet, 80% right; 90% passes. Bar 3 differs. Loop it and listen again.");
     expect(
       songVerdict({ passed: true, result: result(0.95, []) }, { level: 6, span: 2, stage: "melody" }),
-    ).toBe("Melody, line 2: that's it (95 %).");
+    ).toBe("Melody, line 2: that's it (95%).");
   });
   test("d12: from L5 a tune written in another key fails, and the verdict says both keys first", () => {
     const transposed = {
@@ -382,7 +382,7 @@ describe("L5 through the real grader (Red River Valley, a two-beat pickup)", () 
     expect(lines.length).toBeGreaterThan(0);
     expect(lines.some((l) => /^Bar [1-4]\b/.test(l) || /pickup/i.test(l))).toBe(true);
     expect(songVerdict({ passed: false, result: fail }, { level: 5, span: 1, stage: null })).toMatch(
-      /^Phrase 1: not yet, \d+ % of 85 %\./,
+      /^Phrase 1: not yet, \d+% right; 85% passes\./,
     );
     // The learner writes the tune they heard on the melody line.
     const heard = `${starter.split("\n\n")[0]}\n\nmelody: ${song.answerKey.layers.melody}\n`;

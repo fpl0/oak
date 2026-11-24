@@ -96,7 +96,7 @@ import { PRIVACY_COPY } from "./import.ts";
 import { keyAtBar, keyPlanText, keyRibbon, keySpansOf } from "./keyplan.ts";
 import { type TranscribeAction, transcribeBindings } from "./keys.ts";
 import { givenOfProject, LadderPanel } from "./LadderPanel.tsx";
-import { type LadderLevel, starterCode } from "./ladder.ts";
+import { type LadderLevel, REALISM_WORDS, starterCode } from "./ladder.ts";
 import {
   ChecklistCard,
   FormCard,
@@ -847,7 +847,8 @@ export function ProjectPage({
   const lint = studioLint(unlocked, lessonCtx.meter, lessonCtx.key);
   const sub = [
     SOURCE_LABEL[project.sourceKind],
-    pattern ? `L${level} · R${project.realism ?? 0}` : null,
+    // The ladder level and its sound in words, as the ladder card says them (never "L3 · R1").
+    pattern ? `Level ${level} · ${REALISM_WORDS[project.realism ?? 0] ?? "its own sound"}` : null,
     project.key ? formatKey(project.key) : null,
     project.bpm ? `${Math.round(project.bpm)} BPM` : null,
     project.meter,
@@ -1018,7 +1019,7 @@ export function ProjectPage({
                   <span className="text-text-3">
                     {canListen
                       ? "The source only: your code plays as written."
-                      : `At R${realism} the whole mix plays: hearing the part through it is the exercise.`}
+                      : `With this sound (${REALISM_WORDS[realism] ?? "its own sound"}) the whole mix plays: hearing the part through it is the exercise.`}
                   </span>
                   {standard ? <span className="ml-auto text-text-3">{loopHint}</span> : null}
                 </div>
@@ -1136,7 +1137,8 @@ export function ProjectPage({
       ) : null}
       {state && pattern && !state.realismApplied ? (
         <p className="-mt-1 text-sm text-text-3" data-testid="realism-note">
-          This item plays clean (R0) on this build; its arrangement is still the R{state.realism} one.
+          This item plays clean and on the grid on this build; its arrangement is still the one with{" "}
+          {REALISM_WORDS[state.realism ?? 0] ?? "its own sound"}.
         </p>
       ) : null}
 

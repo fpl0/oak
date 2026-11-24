@@ -58,7 +58,7 @@ export function BriefPanel(p: BriefPanelProps) {
       className="flex w-[300px] shrink-0 flex-col gap-5 overflow-auto border-r border-border bg-surface px-4 py-4"
     >
       <header>
-        <p className="font-mono text-sm text-text-3">{def.id} · capstone</p>
+        <p className="text-sm text-text-3">Capstone</p>
         <h1 className="font-display text-h2 leading-tight">{def.title}</h1>
         <p className="mt-2 text-sm leading-relaxed text-text-2">{def.brief?.prompt ?? def.objective}</p>
       </header>
@@ -67,13 +67,13 @@ export function BriefPanel(p: BriefPanelProps) {
 
       <section aria-labelledby="cap-flavour">
         <h2 id="cap-flavour" className="mb-2 font-sans text-sm font-semibold text-text-2">
-          Flavour
+          Style
         </h2>
         {p.flavourLocked || p.shipping.length < 2 ? (
           <p className="text-sm">{FLAVOUR_TITLE[p.flavour]}</p>
         ) : (
           <SegmentedControl<FlavourId>
-            label="Flavour"
+            label="Style"
             size="sm"
             value={p.flavour}
             options={p.shipping.map((f) => ({ value: f, label: FLAVOUR_TITLE[f] }))}

@@ -12,6 +12,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { apiQuery, useApiMutation } from "../lib/queries.ts";
 import { type ReviewRequest, useReviewRequest } from "../tutor/context.ts";
+import { releasedDraftOf } from "./release-version.ts";
 
 /** The capstone's draft: the sketch the server links (`CapstoneState.sketchId`), else the newest `capstone` sketch for it. */
 export function useDraftSketchId(capstoneId: string, linked: string | null | undefined) {
@@ -29,6 +30,22 @@ export function useDraftSketchId(capstoneId: string, linked: string | null | und
 
 export function useDraft(id: string | null) {
   return useQuery({ ...apiQuery("sketches.get", { params: { id: id ?? "none" } }), enabled: id !== null });
+}
+
+/**
+ * The code of this draft's latest release (`releasedDraftOf`, read from the released sketch version), or null with
+ * no release or while it loads. Both queries are ones the workspace already holds, so this costs no fetch when the
+ * release was made from the open draft.
+ */
+export function useReleasedCode(trackId: string | null, draftSketchId: string | null): string | null {
+  const track = useQuery({
+    ...apiQuery("album.track", { params: { id: trackId ?? "none" } }),
+    enabled: trackId !== null,
+  });
+  const at = releasedDraftOf(track.data, draftSketchId);
+  const sketch = useDraft(at?.sketchId ?? null);
+  if (!at || !sketch.data) return null;
+  return sketch.data.versions.find((v) => v.version === at.sketchVersion)?.code ?? null;
 }
 
 export function latestVersion(s: SketchDetail | undefined): SketchVersion | null {

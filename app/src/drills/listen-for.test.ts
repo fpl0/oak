@@ -5,7 +5,7 @@ import { describe, expect, test } from "bun:test";
 import { families } from "../../../content/families.ts";
 import { defaultOrder } from "../../../content/syllabus.ts";
 import { terms } from "../../../content/terms.ts";
-import { exampleNoun, listenFor } from "./listen-for.ts";
+import { exampleNoun, listenExampleLines, listenFor } from "./listen-for.ts";
 
 const BANNED =
   /!|\bsimply\b|\bobviously\b|\beas(y|ily)\b|\blet['’]s\b|\byou should\b|\bawesome\b|\bamazing\b|\bjourney\b|\bmagic/i;
@@ -54,5 +54,20 @@ describe("listenFor", () => {
   test("a block of one repeated kind numbers its examples by what they are", () => {
     expect(exampleNoun("fam.pit.match")).toBe("Note");
     expect(exampleNoun("fam.rhy.pulse")).toBe("Example");
+  });
+});
+
+describe("listenExampleLines", () => {
+  test("a function block names each example's function, never its letters (UX review round 2)", () => {
+    const gen = families.find((f) => f.id === "fam.har.function")?.generator;
+    expect(listenExampleLines(["T", "PD", "D"], "fam.har.function", gen)).toEqual([
+      "1. Tonic",
+      "2. Predominant",
+      "3. Dominant",
+    ]);
+  });
+  test("one category heard every time is numbered instead", () => {
+    expect(listenExampleLines(["match", "match"], "fam.pit.match")).toEqual(["Note 1", "Note 2"]);
+    expect(listenExampleLines(["deg.5"], "fam.deg.fet-major")).toEqual(["1. Degree 5"]);
   });
 });

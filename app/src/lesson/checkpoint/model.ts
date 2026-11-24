@@ -101,6 +101,23 @@ export function familyAnswerSpec(
 export const CP_KEY: KeySpec = { tonic: "C", mode: "major" };
 export const CP_BPM = 100;
 
+/**
+ * A plain title for an authored item that has none: what the learner does, never "a short task". A listening or
+ * answer item the content leaves untitled is named by the skill it counts for ("Intervals in a key, by ear"),
+ * so it never reads as a generic "Answer this one".
+ */
+export function authoredTitle(ex: Exercise, skill: string | null = null): string {
+  if (ex.kind === "staff-write")
+    return ex.answer.ui === "staff-input" && ex.answer.mode === "key-signature"
+      ? "Write the key signature"
+      : "Write it on the staff";
+  if (ex.kind === "code-modify" || ex.kind === "error-hunt") return "Change the code";
+  if (ex.kind === "code-make" || ex.kind === "compose-brief") return "Write it in code";
+  if (ex.kind === "staff-read") return "Read it";
+  if ("stimulus" in ex && ex.stimulus) return skill ? `${skill}, by ear` : "Listen and answer";
+  return skill ?? "Answer this one";
+}
+
 /** The key an item is played and graded in: its own, its trial's, else the checkpoint's. */
 export function itemKey(ex: Exercise, trial: Pick<Trial, "params"> | null, fallback: KeySpec): KeySpec {
   const tk = (trial?.params as { key?: KeySpec } | undefined)?.key;
@@ -301,7 +318,8 @@ export function resultCopy(o: Pick<CheckpointOutcome, "passed" | "softPass">): {
     };
   return {
     title: "Not yet",
-    body: "Practice plan: two short sets for each skill below go into your next warm-ups. Retake it on another day; Studio and Practice stay open.",
+    // The plan itself is the "Your practice plan" callout under the skills: said once, there.
+    body: "A few skills need more practice before the next lessons open. Studio and Practice stay open.",
   };
 }
 
@@ -372,6 +390,26 @@ export function saveRecords(cpId: string, attemptNo: number, records: readonly I
     // Storage unavailable: the attempt still works, it just cannot resume after a reload.
   }
 }
+/**
+ * Whether this browser holds saved answers of any attempt at `cpId`. The server knows an attempt is pending, but
+ * its answers live here only: a pending attempt with none here starts again from item 1, and the intro says so.
+ */
+export function hasSavedRecords(cpId: string): boolean {
+  try {
+    const store = globalThis.localStorage;
+    if (!store) return false;
+    const prefix = `oak.checkpoint.${cpId}.`;
+    for (let i = 0; i < store.length; i++) {
+      const k = store.key(i);
+      if (!k?.startsWith(prefix)) continue;
+      const v = JSON.parse(store.getItem(k) ?? "[]") as unknown;
+      if (Array.isArray(v) && v.length > 0) return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
 export function clearRecords(cpId: string, attemptNo: number): void {
   try {
     globalThis.localStorage?.removeItem(KEY(cpId, attemptNo));
@@ -388,6 +426,14 @@ export function progressLine(records: readonly Pick<ItemRecord, "skipped">[], to
   const skipped = records.filter((r) => r.skipped).length;
   const answered = records.length - skipped;
   return `${answered} of ${total} answered${skipped > 0 ? `, ${skipped} skipped` : ""}`;
+}
+
+/** The checkpoint's state as a word on the intro's chip (never the raw status ID). */
+export function statusWord(status: string | null | undefined): string {
+  if (status === "passed" || status === "soft-passed") return "Passed";
+  if (status === "failed") return "Not yet";
+  if (status === "open") return "Ready";
+  return "Locked";
 }
 
 export function reviewTitle(records: readonly Pick<ItemRecord, "skipped">[], total: number): string {

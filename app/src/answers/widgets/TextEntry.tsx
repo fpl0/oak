@@ -162,7 +162,7 @@ export function NumberAnswer(p: AnswerWidgetProps<"number">) {
             </span>
           </>
         ) : draft.trim() === "" ? (
-          <span className="text-text-3">A number: 3, 1.5, 1/3 or 120 BPM.</span>
+          <span className="text-text-3">A number, like 3.</span>
         ) : parsed === null ? (
           <span>Oak reads a number here, like 3, 1.5 or 1/3.</span>
         ) : formatNumber(parsed) !== draft.trim() ? (

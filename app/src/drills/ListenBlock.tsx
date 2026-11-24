@@ -7,8 +7,7 @@ import { getOak } from "../lib/oak.ts";
 import { useHotkeys } from "../ui/keys/KeymapProvider.tsx";
 import { Button } from "../ui/kit/Button.tsx";
 import { Card, Kbd } from "../ui/kit/basics.tsx";
-import { exampleNoun, listenFor } from "./listen-for.ts";
-import { optionLabel } from "./model.ts";
+import { listenExampleLines, listenFor } from "./listen-for.ts";
 import { playSettled, preloadSpec } from "./runtime.ts";
 import type { DrillData } from "./use-drill-data.ts";
 
@@ -36,7 +35,11 @@ export function ListenBlock({
       return [];
     }
   })();
-  const sameCaption = examples.length > 1 && examples.every((e) => e.caption === examples[0]?.caption);
+  const lines = listenExampleLines(
+    examples.map((e) => e.caption),
+    familyId,
+    def?.generator,
+  );
   const [playing, setPlaying] = useState<number | null>(null);
   const [heard, setHeard] = useState(false);
   const stop = useRef<(() => void) | null>(null);
@@ -74,6 +77,14 @@ export function ListenBlock({
     return () => stop.current?.();
     // Plays once on arrival; "Play again" replays.
   }, []);
+  // A level with nothing to hear (the function family's first level reads chords, it plays none) has no
+  // examples: the block steps aside at once rather than showing an empty "Just listen" with nothing in it.
+  const skipped = useRef(false);
+  useEffect(() => {
+    if (examples.length > 0 || skipped.current) return;
+    skipped.current = true;
+    onDone();
+  }, []);
   // Once every example has played, focus moves to the next action (`autoFocus` acts only on the first render).
   const done = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -105,6 +116,7 @@ export function ListenBlock({
     },
   ]);
 
+  if (examples.length === 0) return null;
   return (
     <Card className="flex flex-col gap-4 p-6" data-testid="listen-block">
       <div>
@@ -115,32 +127,25 @@ export function ListenBlock({
           {listenFor(def)}
         </p>
       </div>
-      {examples.length === 0 ? (
-        <p className="text-text-2">No examples are ready for this family yet.</p>
-      ) : (
-        <ol className="flex flex-col gap-1.5" aria-live="polite">
-          {examples.map((e, i) => (
-            <li
-              key={i}
-              aria-current={playing === i ? "true" : undefined}
-              className={playing === i ? "font-medium text-text" : "text-text-2"}
-            >
-              {/* One category heard several times ("match" × 8) says nothing per line: number the examples. */}
-              {sameCaption ? `${exampleNoun(familyId)} ${i + 1}` : `${i + 1}. ${optionLabel(e.caption)}`}
-              {playing === i && <span className="ml-2 text-sm text-accent">playing</span>}
-            </li>
-          ))}
-        </ol>
-      )}
+      <ol className="flex flex-col gap-1.5" aria-live="polite">
+        {lines.map((line, i) => (
+          <li
+            key={i}
+            aria-current={playing === i ? "true" : undefined}
+            className={playing === i ? "font-medium text-text" : "text-text-2"}
+          >
+            {line}
+            {playing === i && <span className="ml-2 text-sm text-accent">playing</span>}
+          </li>
+        ))}
+      </ol>
       <div className="flex flex-wrap gap-2">
         <Button variant="primary" onClick={() => onDone()} ref={done}>
           {doneLabel} <Kbd tone="inverse">Enter</Kbd>
         </Button>
-        {examples.length > 0 && (
-          <Button onClick={() => void playAll()} disabled={playing !== null}>
-            Play again <Kbd>R</Kbd>
-          </Button>
-        )}
+        <Button onClick={() => void playAll()} disabled={playing !== null}>
+          Play again <Kbd>R</Kbd>
+        </Button>
       </div>
     </Card>
   );

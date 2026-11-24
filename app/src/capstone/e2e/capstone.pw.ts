@@ -356,7 +356,7 @@ test("C1: starting the first session grants ebass and .lpf()", async ({ page }) 
   const before = await ids();
   expect(before).not.toContain("snd.ebass");
   expect(before).not.toContain("tb.lpf");
-  await page.getByRole("radiogroup", { name: "Flavour" }).getByRole("radio", { name: "Jazz-soul" }).click();
+  await page.getByRole("radiogroup", { name: "Style" }).getByRole("radio", { name: "Jazz-soul" }).click();
   await page.getByRole("button", { name: "Start session 1 of 1" }).click();
   await expect(page.getByTestId("capstone-workspace")).toBeVisible();
   const after = await ids();

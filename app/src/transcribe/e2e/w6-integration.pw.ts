@@ -158,7 +158,7 @@ test("ladder L8: another standard starts at its form map; a wrong map says what 
   });
   expect(item.status, JSON.stringify(item.body)).toBe(200);
   await page.goto(`/transcribe/${item.body.itemId}`);
-  await expect(page.getByTestId("standard-panel")).toContainText("L8 · A standard");
+  await expect(page.getByTestId("standard-panel")).toContainText("Level 8 · A standard");
   await expect(page.getByTestId("stages").locator("li").nth(0)).toHaveAttribute("data-status", "open");
   await expect(page.getByTestId("check")).toBeDisabled();
 
@@ -200,7 +200,7 @@ test("CF-T open: the transcription slots are CF-T's; Transcribe says so, links t
   await useUiPrefs(page, { theme: "paper", motion: "off" });
   await page.goto("/transcribe");
   await expect(page.getByTestId("cft-line")).toContainText("Standard Transcription");
-  await expect(page.getByTestId("cft-line")).toContainText("CF-T.S1");
+  await expect(page.getByTestId("cft-line")).toContainText("(next: session 1)");
   await expect(page.getByTestId("ladder-summary")).not.toContainText("Level 8");
   await page.getByTestId("cft-line").getByRole("link", { name: "Open it" }).click();
   await expect(page).toHaveURL(/\/capstone\/CF-T/);

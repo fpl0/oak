@@ -112,9 +112,12 @@ test("voicing() before the gate: the verdict says the tool is not open yet, in b
     await expect(page.getByTestId("gate-box")).toBeVisible({ timeout: 30_000 });
     await setCode(page, 'setcpm(80/4)\n\nchords: chord("<C F G C>").voicing().s("piano")');
     await page.getByTestId("check").click();
-    await expect(page.getByTestId("step-feedback-summary")).toContainText("unlocks in U05.L08", {
-      timeout: 30_000,
-    });
+    await expect(page.getByTestId("step-feedback-summary")).toContainText(
+      "unlocks in the lesson “Let Strudel Voice It”",
+      {
+        timeout: 30_000,
+      },
+    );
     await settle(page);
     await noOverflow(page);
     await shoot(page, SHOTS, "w4-locked-voicing", m.theme);

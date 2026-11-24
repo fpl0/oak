@@ -1681,12 +1681,18 @@ export function familiesByTrack<T extends Pick<FamilyDef, "unlock">>(
 }
 
 /**
- * Where a locked track family opens, honestly: while its track is closed, the track's own line ("Opens with the U13
- * checkpoint."); once the track is open, the lesson that opens the family ("Opens with R3.L01").
+ * Where a locked track family opens, honestly: while its track is closed, the track's own line ("Opens with the
+ * unit 13 checkpoint."); once the track is open, the lesson that opens the family, by its title ("Opens with the
+ * lesson “Clave Direction”"), never by its ID alone.
  */
-export function trackLockedText(def: Pick<FamilyDef, "unlock">, track: TrackLine | null): string {
+export function trackLockedText(
+  def: Pick<FamilyDef, "unlock">,
+  track: TrackLine | null,
+  titles?: ReadonlyMap<string, string>,
+): string {
   if (track && track.status === "locked") return track.note;
-  return `Opens with ${def.unlock.lesson}`;
+  const title = titles?.get(def.unlock.lesson);
+  return title ? `Opens with the lesson “${title}”` : "Opens with a later lesson of its track";
 }
 
 /**

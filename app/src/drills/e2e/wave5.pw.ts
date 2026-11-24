@@ -504,7 +504,9 @@ test("the hub's stage E: minor, form and the blues with honest levels; graduatio
   await expect(mode).toContainText(/Level [12] of 6/);
   await expect(stage.getByTestId("stage-E-count")).toContainText("mastered");
   // The seventh-chord family waits for U12, honestly.
-  await expect(stage.locator('[data-family="fam.chd.quality-7th"]')).toContainText("Unlocks in U12");
+  await expect(stage.locator('[data-family="fam.chd.quality-7th"]')).toContainText(
+    "Unlocks in unit 12, Seventh Chords",
+  );
   await stage.scrollIntoViewIfNeeded();
   for (const m of SCREENSHOT_MATRIX) {
     await page.setViewportSize({ width: m.width, height: m.height });

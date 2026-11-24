@@ -137,7 +137,7 @@ test("ladder L5 (real server): phrase 2 fails with a message naming its bars, th
   );
   await write(page, placeholder);
   await checkIt(page);
-  await expect(page.getByTestId("verdict")).toHaveText(/^Phrase 2: not yet, \d+ % of 85 %\./, {
+  await expect(page.getByTestId("verdict")).toHaveText(/^Phrase 2: not yet, \d+% right; 85% passes\./, {
     timeout: 60_000,
   });
   const lines = await page.getByTestId("check-lines").locator("li").allTextContents();
@@ -151,7 +151,7 @@ test("ladder L5 (real server): phrase 2 fails with a message naming its bars, th
   // The tune as heard passes phrase 2.
   await write(page, replaceLine(placeholder, "melody", layerLine(project, "melody", "melody")));
   await checkIt(page);
-  await expect(page.getByTestId("verdict")).toHaveText(/^Phrase 2: that's it \(\d+ %\)\.$/, {
+  await expect(page.getByTestId("verdict")).toHaveText(/^Phrase 2: that's it \(\d+%\)\.$/, {
     timeout: 60_000,
   });
   await expect(page.getByTestId("phrase-map").locator("button").nth(1)).toHaveAttribute(
@@ -192,7 +192,7 @@ test("ladder L6 (real server): the changes on the chart, then the melody line by
   );
   await write(page, wrong);
   await checkIt(page);
-  await expect(page.getByTestId("verdict")).toHaveText(/^The changes: not yet, \d+ % of 85 %\./, {
+  await expect(page.getByTestId("verdict")).toHaveText(/^The changes: not yet, \d+% right; 85% passes\./, {
     timeout: 60_000,
   });
   await expect(stages.nth(1)).toHaveAttribute("data-status", "open");

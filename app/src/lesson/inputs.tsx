@@ -183,6 +183,12 @@ export function inputResponse(
   return r;
 }
 
+/**
+ * The DOM event a stimulus's Play button sends (bubbling) when a press starts a play, first or replay: hosts act on
+ * the play itself rather than read the button's label, which changes to "Stop" during the same press.
+ */
+export const STIMULUS_PLAY_EVENT = "oak:stimulus-play";
+
 /** Plays a stimulus with its count-in; counts plays against the cue's replay allowance. */
 export function StimulusPlayer({
   ex,
@@ -233,11 +239,16 @@ export function StimulusPlayer({
       <Button
         variant="secondary"
         icon={playing ? <Square aria-hidden className="size-3.5" /> : <Play aria-hidden className="size-4" />}
-        onClick={() => {
+        onClick={(e) => {
           if (playing) {
             playing.stop();
             setPlaying(null);
-          } else void start();
+          } else {
+            // Said at the press, before the sounds load, so a host can move on (a checkpoint hands the focus to
+            // the answer) before a second press could start, and spend, another play.
+            e.currentTarget.dispatchEvent(new CustomEvent(STIMULUS_PLAY_EVENT, { bubbles: true }));
+            void start();
+          }
         }}
         data-testid="play-stimulus"
       >

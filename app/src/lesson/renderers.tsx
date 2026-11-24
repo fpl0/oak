@@ -49,6 +49,7 @@ import { CodeMusic } from "./music.tsx";
 import { PassiveListenRenderer } from "./passive.tsx";
 import { failedChecks, isByEar, makeTitle, targetRollShown } from "./rules.ts";
 import { SingRenderer } from "./sing.tsx";
+import { holdsSongTempo, songSaveLine } from "./song-make.ts";
 import {
   SideStepNote,
   type SongLoopNow,
@@ -653,10 +654,14 @@ function MakeRenderer() {
         band: song.setup,
         // The Workbench reads, draws and loops the whole song; the editor's own tempo still wins when it sets one.
         lessonCtx: { ...h.workbench.lessonCtx, loopBars: song.lengthBars, defaultBpm: song.bpm },
-        trackLabel: song.chipLabel,
+        // One chip per part of the song (its earlier lessons' lines and Oak's track under it), today's lines first.
+        trackChips: song.chips,
       }
     : h.workbench;
   const [title, setTitle] = useState(() => makeTitle(ex, h.lesson));
+  // The learner has edited or played the code in this visit. The opening code is graded at once to tick the list,
+  // and "Save anyway" before the learner did anything read as a verdict on Oak's own copy.
+  const [tried, setTried] = useState(false);
   const seq = useRef(0);
   const r = h.result;
   const live = async (src: string) => {
@@ -684,9 +689,12 @@ function MakeRenderer() {
     h.setCheck(() => void live(code));
     return () => h.setCheck(null);
   });
+  // "The first line is set to your song's tempo" holds only while it does: a learner who sets another tempo makes it
+  // the song's, and the note would contradict what plays.
+  const tempoNoted = song?.tempoSet === true && holdsSongTempo(code, song.bpm);
   const startNote =
     own && song
-      ? songStartNote(side, own.title, song.tempoSet ? song.bpm : null)
+      ? songStartNote(side, own.title, tempoNoted ? song.bpm : null)
       : own
         ? makeStartNote(side, own, fromTitle)
         : null;
@@ -735,8 +743,12 @@ function MakeRenderer() {
               // Switching copies puts the other one into the editor even when its text equals the last prop.
               {...(own ? { codeKey: side } : {})}
               {...(song ? { loopRequest: request, onLoopChange: (l: SongLoopNow) => setLoopNow(l) } : {})}
-              onChange={(c) => h.setCode(c)}
+              onChange={(c) => {
+                setTried(true);
+                h.setCode(c);
+              }}
               onEvaluated={(o) => {
+                setTried(true);
                 // A refused run (a locked tool) is graded too, so the list says why in words.
                 if (o.ok) h.markDone();
                 void live(o.code);
@@ -747,8 +759,10 @@ function MakeRenderer() {
       }
       answer={
         <>
-          {sideStep ? <SideStepNote reason={sideStep.reason} /> : null}
-          {song && !own && song.tempoSet ? (
+          {/* A song the learner has not started (a track whose first lesson is this side step) is not "your song"
+              yet: the note would speak of something they have never seen. */}
+          {sideStep?.started ? <SideStepNote reason={sideStep.reason} /> : null}
+          {song && !own && tempoNoted ? (
             <p className="text-sm text-text-2" data-testid="make-start-note" data-source="oak">
               {songTempoNote(song.bpm)}
             </p>
@@ -828,8 +842,13 @@ function MakeRenderer() {
               The code did not run yet: {r.messages[0]?.text ?? "check the editor for the marked spot."}
             </p>
           )}
+          {song ? (
+            <p className="text-sm text-text" data-testid="make-save-line">
+              {songSaveLine(song.view)} It is kept in Studio as a sketch too.
+            </p>
+          ) : null}
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-text-2">Sketch title</span>
+            <span className="text-text-2">{song ? "Name in Studio" : "Sketch title"}</span>
             <input
               type="text"
               value={title}
@@ -843,7 +862,13 @@ function MakeRenderer() {
       }
       actions={
         <Button variant="primary" onClick={save} loading={h.checking} data-testid="save-sketch">
-          {r && !requiredOk ? "Save anyway" : "Save sketch"}
+          {song
+            ? r && !requiredOk && tried
+              ? "Save into your song anyway"
+              : "Save into your song"
+            : r && !requiredOk && tried
+              ? "Save anyway"
+              : "Save sketch"}
         </Button>
       }
       answerFirst

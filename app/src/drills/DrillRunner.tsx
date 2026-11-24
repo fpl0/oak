@@ -35,7 +35,7 @@ import { Callout } from "../ui/kit/Controls.tsx";
 import { ErrorState, LoadingState } from "../ui/kit/QueryState.tsx";
 import { ResultActions } from "../ui/kit/ResultActions.tsx";
 import { RecheckHint } from "../voice/panels.tsx";
-import { reportTake } from "../voice/recheck.ts";
+import { reportTake, useRecheck } from "../voice/recheck.ts";
 import { useVoiceSync } from "../voice/sync.ts";
 import { useVoice } from "../voice/use-voice.ts";
 import { answerWidgetLabel } from "./answer-label.ts";
@@ -637,10 +637,11 @@ function TrialView({
 
   // After the quiet "I heard it" button goes, focus comes back to the region (Enter moves on).
   // Wave 7: a sung trial in Quiet mode keeps focus on its "I heard it" button until it is answered.
+  // A trial waiting for Start keeps focus on Start (its autoFocus), so the next action shows its focus ring.
   useEffect(() => {
-    if (imagining || (quietSing && !inFeedback)) return;
+    if (ready || imagining || (quietSing && !inFeedback)) return;
     if (inFeedback || isTap || isSing) region.current?.focus({ preventScroll: true });
-  }, [inFeedback, isTap, isSing, region, imagining, resolving, quietSing]);
+  }, [inFeedback, isTap, isSing, region, imagining, resolving, quietSing, ready]);
 
   // The session's Pause (Alt+P) puts the page under an overlay: a sung part listening then stops at once (it
   // counts as skipped, no penalty), so the mic is never live behind "Paused".
@@ -1281,6 +1282,7 @@ function TrialView({
                       },
                     }
                   : {}),
+                ...(autoSubmit ? { autoSubmit: true } : {}),
               }}
             >
               <Widget
@@ -1325,7 +1327,8 @@ function TrialView({
             text={
               lineTrial && bassLineCodeOf(trial)
                 ? `${bassLineCodeOf(trial)}, roots ${expectedText(null, expected) ?? ""}`
-                : (clickCellText(trial) ?? expectedText(spec, expected, data.solfege === "syllables"))
+                : (clickCellText(trial) ??
+                  expectedText(spec, expected, data.solfege === "syllables", def.generator))
             }
             def={def}
             trial={trial}
@@ -1650,6 +1653,8 @@ function FeedbackLine({
   const r = outcome.result;
   let line: string;
   const mode = trial.params.mode;
+  // When the mic advice shows under the feedback (RecheckHint), it says why and what to do: the line only reports.
+  const micAdvice = useRecheck();
   if (r.skipped && heardInHead)
     line =
       "Heard in your head. Nothing is recorded for it, and nothing counts against you. Hear the line to check yours.";
@@ -1661,7 +1666,9 @@ function FeedbackLine({
     line = r.correct
       ? "In tune."
       : outcome.sung?.[0]?.midi === null
-        ? "No steady note reached the mic. Hum a little louder next time."
+        ? micAdvice
+          ? "No voice heard."
+          : "No steady note reached the mic. Hum a little louder next time."
         : "Close. Hear the target, then compare.";
   else if (r.correct) line = text ? `That's it: ${text}.` : "That's it.";
   else line = text ? `It was ${text}.` : "Not this time.";

@@ -199,7 +199,7 @@ The next step, and it is real: one line for tomorrow that names a session the le
 | Tomorrow (the first entry that can be started: its title in lower case, then its note) | Tomorrow: {title}. {note} |
 | Tomorrow, for example | Tomorrow: reviews. 14 due. They keep the Oak green. |
 | Reviews: title / note | Reviews / {n} due. They keep the Oak green. |
-| Transcription Gym: title / note, with L8 open | Transcription Gym / Ladder L8: {next standard}, form to tune. Every fifth session, or any day from Today. |
+| Transcription Gym: title / note, with L8 open | Transcription Gym / Ladder level 8: {next standard}, form to tune. Every fifth session, or any day from Today. |
 | Transcription Gym: note, with no standard left or L8 not yet taken | Your own audio, a full arrangement at a time. Every fifth session, or any day from Today. |
 | Studio: title / note | Studio / Your sketchbook. Start the next song. |
 | Side lesson: title / note | Side lessons: sound / {next lesson title} is next, about 15 minutes. |

@@ -7,7 +7,7 @@ import type { MeterId } from "@oak/content-kit";
 import { useNavigate } from "@tanstack/react-router";
 import { clsx } from "clsx";
 import { Check, CircleCheck, Eye, Lock } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { formatKey } from "../lib/format.ts";
 import { idempotencyKey } from "../lib/idempotency.ts";
 import { useLadderNext, useLadderSubmit } from "../lib/queries.ts";
@@ -96,6 +96,11 @@ export function LadderPanel({
     practice: boolean;
     n: number;
   } | null>(null);
+  // A check's verdict can land below the fold of the right column: bring it into view when a check returns.
+  const resultRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (last) resultRef.current?.scrollIntoView({ block: "nearest" });
+  }, [last]);
   const [confirmReveal, setConfirmReveal] = useState(false);
   const submit = useLadderSubmit();
   const next = useLadderNext();
@@ -206,7 +211,7 @@ export function LadderPanel({
         <div className="flex items-start justify-between gap-2">
           <div>
             <h2 className="text-h3">
-              L{level} · {LEVEL_TITLE[level]}
+              Level {level} · {LEVEL_TITLE[level]}
             </h2>
             <p className="mt-0.5 text-sm text-text-2">{LEVEL_TASK[level]}</p>
           </div>
@@ -270,6 +275,30 @@ export function LadderPanel({
       ) : null}
 
       <Card className="flex flex-col gap-2 p-4" aria-live="polite">
+        {/* The verdict first, then what to do about it (as a drill's feedback reads). */}
+        {last ? (
+          <div data-testid="check-result" ref={resultRef}>
+            <p className={clsx("text-sm", last.r.passed ? "text-text" : "text-text")} data-testid="verdict">
+              {last.r.passed ? <CircleCheck aria-hidden className="mr-1 inline size-4 text-accent" /> : null}
+              {verdictText(last.r, last.stage)}
+            </p>
+            {!last.r.passed && lines.length > 0 ? (
+              <ul className="mt-1.5 flex flex-col gap-1 text-sm text-text-2" data-testid="check-lines">
+                {lines.map((l) => (
+                  <li key={lineText(l)}>{lineText(l)}</li>
+                ))}
+              </ul>
+            ) : null}
+            {last.r.passed && !last.r.gradedPass && marks.revealed ? (
+              <p className="mt-1 text-sm text-text-3">Shown before it passed, so it isn't a graded pass.</p>
+            ) : null}
+          </div>
+        ) : (
+          <p className="text-sm text-text-3">
+            Loop a bar, switch with V between the source and yours, then Check. The source's notes stay hidden
+            until you've got it.
+          </p>
+        )}
         <ResultActions
           resultKey={last ? last.n : null}
           onRetry={last ? tryAgain : null}
@@ -325,29 +354,6 @@ export function LadderPanel({
             You'll see its roll and staff. Checks still run, but this item won't count as a graded pass.
           </Callout>
         ) : null}
-        {last ? (
-          <div data-testid="check-result">
-            <p className={clsx("text-sm", last.r.passed ? "text-text" : "text-text")} data-testid="verdict">
-              {last.r.passed ? <CircleCheck aria-hidden className="mr-1 inline size-4 text-accent" /> : null}
-              {verdictText(last.r, last.stage)}
-            </p>
-            {!last.r.passed && lines.length > 0 ? (
-              <ul className="mt-1.5 flex flex-col gap-1 text-sm text-text-2" data-testid="check-lines">
-                {lines.map((l) => (
-                  <li key={lineText(l)}>{lineText(l)}</li>
-                ))}
-              </ul>
-            ) : null}
-            {last.r.passed && !last.r.gradedPass && marks.revealed ? (
-              <p className="mt-1 text-sm text-text-3">Shown before it passed, so it isn't a graded pass.</p>
-            ) : null}
-          </div>
-        ) : (
-          <p className="text-sm text-text-3">
-            Loop a bar, switch with V between the source and yours, then Check. The source's notes stay hidden
-            until you've got it.
-          </p>
-        )}
       </Card>
 
       {showRef && project.stimulus ? (

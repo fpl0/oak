@@ -514,7 +514,7 @@ export function StandardPanel({
       <Card className="flex flex-col gap-2 p-4" aria-live="polite">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <h2 className="text-h3">L8 · A standard</h2>
+            <h2 className="text-h3">Level 8 · A standard</h2>
             <p className="mt-0.5 truncate font-medium" data-testid="song-title">
               {songTitleText(given)}
             </p>
