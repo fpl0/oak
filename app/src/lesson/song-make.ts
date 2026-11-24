@@ -4,8 +4,9 @@
 //  - where the editor starts (`openingCode`): the authored starter, or the learner's take of the step's `startFrom`
 //    lesson, in both cases with the first `setcpm(<n>/<beats>)` set to the song's tempo when the Make accepts it;
 //  - what counts as unchanged (`openingsOf`): the code the Make opened with, and Oak's copy at the song's tempo;
-//  - what a saved take claims (`recordSongTake`): the saved code is evaluated once, its tracks read (drum hits by
-//    sound, pitched tracks by label and role), and the cells come from the claims model (`claimsOf`);
+//  - what a saved take claims (`recordSongTake`): the saved code is evaluated once and read as the composer reads the
+//    live Make (`makeReading` + `makeClaimsOfEvents`: the bars that play in today's sections, roles label first), and
+//    the cells come from the claims model (`claimsOf`);
 //  - the transport's chips: today's code, "yours (from …)" and "Oak".
 // Grading stays the learner's code alone (spec §4.1); only `make.unchanged` learns the opening code (grading.ts).
 import {
@@ -13,27 +14,23 @@ import {
   claimsOf,
   drumPartsOfSound,
   type Exercise,
-  LABEL_ROLES,
   type LessonId,
   type MeterId,
   OakApiError,
-  type PlayedParts,
   partOfTrack,
   type SideStep,
   type SongPartId,
-  type SongSectionId,
   stepSectionIds,
   type TakeStep,
-  type TrackLabel,
   type UnitId,
   type UnitSongDef,
   type UnitSongDetail,
   type UnitSongTake,
   type UnitSongTakeCreate,
 } from "@oak/api";
-import { type EvalResult, type Normalized, normalize } from "@oak/grader";
+import type { EvalResult } from "@oak/grader";
 import type { BandSetup } from "@oak/strudel";
-import { sourceSectionsOf } from "@oak/strudel/song-compose";
+import { makeClaimsOfEvents, makeReading, type SongTrackRole } from "@oak/strudel/song-compose";
 import { songStepOf } from "../../../content/unit-songs/index.ts";
 import { playableTakes, type SongView } from "../song/model.ts";
 
@@ -253,80 +250,14 @@ export function todayLoopOf(
 
 // --- what a saved take plays and claims ---------------------------------------------------------------
 
-/** One evaluated track, as the claims model reads it. */
-export interface TrackSummary {
-  label: string;
-  role: "drums" | "bass" | "chords" | "melody" | null;
-  /** Sound names of its hits (`bd`, `sd:2`, `piano`). */
-  sounds: string[];
-  /** It plays chords: its role is chords, or a quarter of its notes start together. */
-  chords: boolean;
-}
-
-/**
- * The parts some code plays (claims model `PlayedParts`): every drum hit by its sound (`drumPartsOfSound`), a drum
- * track with an exact part label (`kick:`) for its part, a pitched track by its label then its role
- * (`partOfTrack`); and whether it plays chords.
- */
-export function playedPartsOf(def: UnitSongDef, tracks: readonly TrackSummary[]): PlayedParts {
-  const parts = new Set<SongPartId>();
-  let playsChords = false;
-  for (const t of tracks) {
-    let byHits = false;
-    for (const s of t.sounds) {
-      for (const p of drumPartsOfSound(def, s)) {
-        parts.add(p);
-        byHits = true;
-      }
-    }
-    if (t.chords) playsChords = true;
-    if (t.role === "drums") {
-      const exact = def.parts.find((p) => p.role === "drums" && p.label === t.label);
-      if (exact && !byHits) parts.add(exact.id);
-    } else if (t.role !== null || def.parts.some((p) => p.label === t.label)) {
-      const p = partOfTrack(def, { label: t.label, role: t.role });
-      if (p) parts.add(p);
-    }
-  }
-  return { parts, playsChords };
-}
-
-const ROLES = ["drums", "bass", "chords", "melody"] as const;
-const onsetKey = (e: Normalized["all"][number]) => `${e.onset[0]}/${e.onset[1]}`;
-
-/**
- * The learner's tracks of an evaluated code: label, role (the label first, STYLE §2; else the grader's inference,
- * contracts §6.2 rule 1), the sounds it plays and whether it plays chords. Silent tracks and Band tracks are left out.
- */
-export function trackSummariesOf(n: Normalized): TrackSummary[] {
-  const out: TrackSummary[] = [];
-  for (const [label, events] of Object.entries(n.byTrack)) {
-    if (label.startsWith("band.") || events.length === 0) continue;
-    const fixed = LABEL_ROLES[label.replace(/[2-4]$/, "") as TrackLabel] ?? null;
-    const inferred = ROLES.find((r) => n.roles[r] === label) ?? null;
-    const pitched = events.filter((e) => e.midi !== null && e.drum === undefined);
-    const role = fixed ?? inferred ?? (pitched.length === 0 ? "drums" : null);
-    const starts = new Map<string, number>();
-    for (const e of pitched) starts.set(onsetKey(e), (starts.get(onsetKey(e)) ?? 0) + 1);
-    // Polyphonic onsets over all pitched onsets, as the grader's `polyphonyRatio` (contracts §6.2 rule 1).
-    let together = 0;
-    for (const k of starts.values()) if (k > 1) together += 1;
-    const sounds = [...new Set(events.map((e) => e.s).filter((s): s is string => typeof s === "string"))];
-    out.push({
-      label,
-      role,
-      sounds,
-      chords: role === "chords" || (starts.size > 0 && together / starts.size >= 0.25),
-    });
-  }
-  return out;
-}
-
 /**
  * The part one track stands for in the take's `labels`: its exact part, else (a drum track) the one part all its
  * hits belong to, else (pitched) its part by role. A `drums:` line split over several parts maps to `null`.
  */
-function labelPartOf(def: UnitSongDef, t: TrackSummary): SongPartId | null {
+function labelPartOf(
+  def: UnitSongDef,
+  t: { label: string; role: SongTrackRole | null; sounds: readonly string[] },
+): SongPartId | null {
   const exact = def.parts.find((p) => p.label === t.label);
   if (exact) return exact.id;
   if (t.role === "drums") {
@@ -334,22 +265,6 @@ function labelPartOf(def: UnitSongDef, t: TrackSummary): SongPartId | null {
     return hit.size === 1 ? ([...hit][0] as SongPartId) : null;
   }
   return partOfTrack(def, { label: t.label, role: t.role });
-}
-
-/**
- * The sections a code with its own `arrange()` fills (U09.L02 on): the step's sections whose type the learner's
- * sections name. `undefined` for a loop, which fills every section of the step.
- */
-export function filledSectionsOf(
-  def: UnitSongDef,
-  step: Pick<TakeStep, "sections">,
-  code: string,
-): SongSectionId[] | undefined {
-  const own = sourceSectionsOf(code);
-  if (!own) return undefined;
-  const types = new Set(own.map((s) => s.type).filter((t): t is string => t !== null));
-  const byId = new Map(def.sections.map((s) => [s.id, s]));
-  return stepSectionIds(def, step).filter((id) => types.has(byId.get(id)?.type ?? ""));
 }
 
 /** One key per saved version (`[A-Za-z0-9_-]{8,64}`): a Save retried after a failure records the take once. */
@@ -363,8 +278,11 @@ export interface SongTakeInput {
   unitId: string;
   lessonId: string;
   meter: MeterId;
-  /** The Make's own length (its `bars[1]`): the evaluation reads at least this much. */
-  bars: number;
+  /**
+   * The Make's own length (its `bars[1]`). Not read by Save: it evaluates the bars of the code that play in today's
+   * sections (`makeReading`), as the live Make reads them.
+   */
+  bars?: number;
   /** The song's tempo, for code that sets none. */
   songBpm: number;
   /** The saved code and the sketch version `sketches.create` gave it. */
@@ -401,21 +319,25 @@ export async function songTakeBody(
     labels: {},
     bpm: Math.min(400, input.songBpm),
   };
-  const own = sourceSectionsOf(input.code);
-  const arranged = own ? own.reduce((n, s) => n + s.bars, 0) : 0;
-  const bars = Math.min(64, Math.max(4, Math.ceil(input.bars), arranged));
+  // The composer's own reading (`makeReading` + `makeClaimsOfEvents`, as the live Make claims in `finishSong`): the
+  // sections the code fills, and what its tracks play over the bars of it that play there, roles label first.
+  const reading = makeReading(input.def, input.step.sections, input.step, input.code);
   let res: EvalResult;
   try {
-    res = await evaluate(input.code, bars, input.meter);
+    res = await evaluate(input.code, Math.min(64, reading.bars), input.meter);
   } catch {
     return fallback;
   }
   if (!res.ok) return fallback;
-  const tracks = trackSummariesOf(normalize(res, { meter: input.meter }));
-  const played = playedPartsOf(input.def, tracks);
-  const cells = claimsOf(input.def, input.step, played, filledSectionsOf(input.def, input.step, input.code));
+  const claim = makeClaimsOfEvents(input.def, reading, res.events);
+  const cells = claim.cells;
   const labels: Record<string, string | null> = {};
-  for (const t of tracks.slice(0, 64)) labels[t.label.slice(0, 64)] = labelPartOf(input.def, t);
+  for (const t of claim.tracks.filter((t) => t.facts.events > 0).slice(0, 64))
+    labels[t.label.slice(0, 64)] = labelPartOf(input.def, {
+      label: t.label,
+      role: t.role,
+      sounds: t.facts.sounds,
+    });
   const bpm =
     res.cpsSet && Number.isFinite(res.bpm) && res.bpm > 0 ? Math.round(res.bpm * 100) / 100 : input.songBpm;
   return { ...base, cells, labels, bpm: Math.min(400, bpm) };
@@ -484,7 +406,6 @@ export async function refineBackfilledTakes(
       unitId: o.unitId,
       lessonId: t.lessonId,
       meter: o.meter,
-      bars: 8,
       songBpm: o.songBpm,
       code: t.code,
       sketchId: t.sketchId,

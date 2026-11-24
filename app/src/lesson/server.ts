@@ -128,7 +128,9 @@ export function serverDeps(o: ServerDepsOptions): LessonDeps {
    * A take that cannot be recorded leaves the lesson complete. The complete screen waits for the first try only; a
    * transient failure (the local server restarting, a network blip) is tried again in the background with the same
    * body and key, and the song's reads refresh when it lands. The Coda says so when the take is still missing
-   * (`SongGrew`): the Make stays a sketch, and redoing the lesson puts it in the song.
+   * (`SongGrew`): the Make stays a sketch. A take that never lands is not lost: the server adds a backfilled take of
+   * the lesson's latest Make to the song at its next `songs.get`, `songs.recordTake` or start-up (spec §5.6a), and
+   * the next take step's save refines its cells.
    */
   const recordTake = async (code: string, saved: { id: string; version: number }) => {
     const song = o.songTake?.();

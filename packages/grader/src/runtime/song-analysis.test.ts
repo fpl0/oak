@@ -3,10 +3,18 @@
 // chord band and the staff show what plays. Also the Band's label filter (`bandTracks`), which replaces the
 // Workbench's old line filter. In-process realm, no lockdown (as runtime.test.ts).
 import { beforeAll, describe, expect, setDefaultTimeout, test } from "bun:test";
-import { resolveGrid, type TakeStep, type UnitSongDef } from "@oak/content-kit";
-import { type SongBand, songBandToWire } from "../song/compose.ts";
+import { join } from "node:path";
+import {
+  type LessonDef,
+  type LessonId,
+  resolveGrid,
+  type TakeStep,
+  type UnitSongDef,
+} from "@oak/content-kit";
+import { U11_SONG } from "../../../../content/unit-songs/U11.ts";
+import { type SongBand, songBandToWire, songLengthBars } from "../song/compose.ts";
 import type { EvalSuccess, OakEvent } from "../types.ts";
-import { evaluateForGrading } from "./analyze.ts";
+import { evaluateForGrading, SONG_FUEL_PER_BAR } from "./analyze.ts";
 import { initRealm } from "./realm.ts";
 
 setDefaultTimeout(30_000);
@@ -127,6 +135,80 @@ describe("a unit song in the analysis", () => {
       }),
     );
     expect(r.cps).toBeCloseTo(0.5, 10);
+  });
+
+  test("a whole real song with every reference take fits the lesson work budget (U11, jazz-soul)", async () => {
+    // F1 review: the lesson budget (1M fuel) was the learner's alone; U11 jazz-soul with its takes needs about 2.6M.
+    const def = U11_SONG;
+    const takes = def.plan.filter((s): s is TakeStep => s.kind === "take");
+    const refs: { lesson: LessonId; code: string }[] = [];
+    for (const step of takes) {
+      const [unit, l] = step.lesson.split(".") as [string, string];
+      const file = join(import.meta.dir, "../../../../content/core", unit, l, "lesson.ts");
+      const lesson = ((await import(file)) as { default: LessonDef }).default;
+      const exercise = lesson.steps.at(-1)?.exercise as
+        | { tests?: { expect: string; response?: { code?: unknown } }[] }
+        | undefined;
+      const pass = exercise?.tests?.find((t) => t.expect === "pass" && typeof t.response?.code === "string");
+      if (pass) refs.push({ lesson: step.lesson, code: pass.response?.code as string });
+    }
+    expect(refs.length).toBeGreaterThan(4);
+    const saved = refs.slice(0, -1);
+    const stepOf = (lesson: LessonId) => takes.find((s) => s.lesson === lesson) as TakeStep;
+    const sectionsOf = (step: TakeStep) =>
+      step.sections === "all" ? def.sections.map((x) => x.id) : [...step.sections];
+    const grid = resolveGrid(
+      def,
+      saved.map((ref, i) => {
+        const step = stepOf(ref.lesson);
+        return {
+          sourceId: String(i + 1),
+          cells: sectionsOf(step).flatMap((sec) => step.parts.map((p) => `${p}@${sec}` as const)),
+        };
+      }),
+    );
+    const last = refs.at(-1) as { lesson: LessonId; code: string };
+    const liveStep = stepOf(last.lesson);
+    const band: SongBand = {
+      def,
+      flavour: "flavour.jazz-soul",
+      bpm: def.bpm,
+      sources: saved.map((ref, i) => ({ sourceId: String(i + 1), lessonId: ref.lesson, code: ref.code })),
+      grid,
+      live: { sourceId: "live", sections: sectionsOf(liveStep), step: liveStep },
+    };
+    const r = ok(
+      await evaluateForGrading(last.code, {
+        mode: "lesson",
+        bars: songLengthBars(def),
+        lint: null,
+        meter: def.meter,
+        song: songBandToWire(band),
+      }),
+    );
+    expect(r.fuelUsed).toBeGreaterThan(1_000_000);
+    expect(r.tracks.some((t) => t.startsWith("band.take.U11."))).toBe(true);
+  });
+
+  test("the song's allowance is per bar of its length, and a runaway pattern still runs out", async () => {
+    const band: SongBand = {
+      def: DEF,
+      flavour: "flavour.pop",
+      bpm: 100,
+      sources: [],
+      grid: resolveGrid(DEF, []),
+    };
+    const r = await evaluateForGrading('hats: s("hh*1000000")', {
+      mode: "lesson",
+      bars: 12,
+      lint: null,
+      song: songBandToWire(band),
+    });
+    expect(r.ok).toBe(false);
+    if (r.ok) return;
+    expect(r.error.kind).toBe("too-much-work");
+    // The lesson's 1M plus 60k for each of the song's 12 bars.
+    expect(r.error.message).toContain(String(1_000_000 + SONG_FUEL_PER_BAR * 12));
   });
 });
 

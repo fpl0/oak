@@ -1479,7 +1479,11 @@ const unitSongFields = {
   releases: z.array(UnitSongReleaseSchema),
 };
 /** `songs.list`: a song without its takes. */
-export const UnitSongSummarySchema = z.object(unitSongFields);
+export const UnitSongSummarySchema = z.object({
+  ...unitSongFields,
+  /** The song's take lessons that have a take in it (a lesson redone counts once), for "N of M lessons". */
+  lessonsCount: z.number().int().nonnegative(),
+});
 export type UnitSongSummary = z.infer<typeof UnitSongSummarySchema>;
 /** `songs.get` and every song write: the song with its takes in order (a `new` song has none). */
 export const UnitSongDetailSchema = z.object({ ...unitSongFields, takes: z.array(UnitSongTakeSchema) });

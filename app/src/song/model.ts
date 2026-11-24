@@ -247,7 +247,13 @@ export function songBandOf(
     def,
     flavour: detail?.flavour ?? opts.flavour,
     bpm: songBpmOf(def, takes),
-    sources: takes.map((t) => ({ sourceId: String(t.id), lessonId: t.lessonId, code: t.code })),
+    // Each take's saved labels (track → part): the composer keeps a take's lines on the parts they were saved for.
+    sources: takes.map((t) => ({
+      sourceId: String(t.id),
+      lessonId: t.lessonId,
+      code: t.code,
+      labels: t.labels,
+    })),
     grid: songGridOf(def, takes),
   };
   if (opts.live) band.live = { sourceId: LIVE_SOURCE, sections: opts.live.sections, step: opts.live };

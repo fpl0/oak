@@ -11,7 +11,7 @@ import * as core from "@strudel/core";
 import { transpiler } from "@strudel/transpiler";
 import type { PreparedBand } from "./band.ts";
 import { TRACK_KEY } from "./haps.ts";
-import { isMuted, trackNameOf } from "./mutes.ts";
+import { isBandHapMuted, isMuted, trackNameOf } from "./mutes.ts";
 import {
   type BuiltSong,
   buildSong,
@@ -292,7 +292,7 @@ export function finalizePattern(pattern: Pattern, opts: FinalizeOptions): Patter
   out = out.filterHaps((hap) => {
     const track = hap.context[TRACK_KEY];
     if (typeof track !== "string") return !isMuted("main", opts.mutes());
-    return track.startsWith("band.") ? !isMuted(track, opts.mutes()) : true;
+    return track.startsWith("band.") ? !isBandHapMuted(track, hap.value, opts.mutes()) : true;
   });
   const transpose = opts.transpose;
   if (transpose) out = out.fmap((value) => transposeValue(value, transpose()));

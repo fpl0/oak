@@ -15,6 +15,7 @@ import {
   type SongCheck,
   type SongEvaluator,
   songBandFromWire,
+  songLengthBars,
   songLintContext,
 } from "../song/compose.ts";
 import {
@@ -31,6 +32,25 @@ import { type Evaluated, evaluateCode, periodOfEvents, type QuerySource, queryCy
 import { FUEL, startFuel, stopFuel } from "./fuel.ts";
 import { DEFAULT_CPS, ensureRealm, R, restoreRealm, TRACK_KEY } from "./realm.ts";
 import { core, type Hap, type Pat, tonal } from "./strudel.ts";
+
+/**
+ * Fuel a unit song adds per bar of its length, on top of the learner's own allowance: the song's Oak code and saved
+ * takes are work the learner did not write (F1 review). Measured over all 27 songs × 5 flavours with every reference
+ * take saved: at most about 47k per bar and 2.63M in all (U11 jazz-soul); 60k per bar gives a 64-bar song 3.84M more.
+ */
+export const SONG_FUEL_PER_BAR = 60_000;
+
+/** The song's share of the budget: its length in bars, at most the mode's `maxBars`; 0 without a song (or a bad wire). */
+function songFuel(song: SongBandWire | undefined, maxBars: number): number {
+  if (!song) return 0;
+  let bars = 0;
+  try {
+    bars = songLengthBars(song.def);
+  } catch {
+    return 0; // a malformed song fails with its own message once it is composed
+  }
+  return Number.isFinite(bars) && bars > 0 ? SONG_FUEL_PER_BAR * Math.min(maxBars, Math.floor(bars)) : 0;
+}
 
 /** One request at a time per realm: the collector, the tempo and the fuel meter are realm-global. */
 let queue: Promise<unknown> = Promise.resolve();
@@ -63,7 +83,7 @@ async function evaluateOnce(code: string, opts: EvalOptions): Promise<EvalResult
   await ensureRealm();
   const limits = MODE_LIMITS[opts.mode];
   const hapCap = Math.max(1, Math.floor(opts.hapCap ?? limits.hapCap));
-  const fuel = opts.fuel ?? defaultFuel(hapCap);
+  const fuel = opts.fuel ?? defaultFuel(hapCap) + songFuel(opts.song, limits.maxBars);
   const meter: MeterId = opts.meter ?? opts.lint?.meter ?? "4/4";
 
   let lint: LintResult | null = null;

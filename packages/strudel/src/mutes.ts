@@ -9,9 +9,22 @@ export function isMuted(track: string, mutes: MuteMap): boolean {
   return mutes.muted.has(track);
 }
 
-/** A private copy, so a caller mutating its own Set later cannot change what plays. */
+/** A private copy, so a caller mutating its own Set or Map later cannot change what plays. */
 export function copyMutes(mutes: MuteMap): MuteMap {
-  return { muted: new Set(mutes.muted), solo: mutes.solo };
+  return {
+    muted: new Set(mutes.muted),
+    solo: mutes.solo,
+    ...(mutes.hits && mutes.hits.size > 0 && { hits: new Map(mutes.hits) }),
+  };
+}
+
+/** Whether one hap of a Band track is muted: the whole track (`isMuted`), or this hit by its sound (`hits`). */
+export function isBandHapMuted(track: string, value: unknown, mutes: MuteMap): boolean {
+  if (isMuted(track, mutes)) return true;
+  const hit = mutes.hits?.get(track);
+  if (!hit) return false;
+  const s = value && typeof value === "object" ? (value as Record<string, unknown>).s : undefined;
+  return typeof s === "string" && hit(s);
 }
 
 /**

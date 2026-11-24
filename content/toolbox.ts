@@ -125,11 +125,19 @@ const drum = (name: string, label: string, at: SessionId, concept: string, demo:
     demo,
     ...o,
   });
-const bank = (name: string, at: SessionId, concept: string, o: Opts = {}) =>
+/** Oak's own kits that a retired bank name now plays (sound pack v4, `KIT_ALIASES` in scripts/sounds/pack.config.ts). */
+const KIT_OF_BANK = {
+  oak909: "Oak's own 909-style drum machine",
+  oak808: "Oak's own 808-style drum machine",
+  rockkit: "Oak's vintage rock kit",
+  lofikit: "Oak's dusty lo-fi kit",
+} as const;
+/** A retired bank name: kept so saved code still sounds, it is an alias of one of Oak's own kits. */
+const bank = (name: string, kit: keyof typeof KIT_OF_BANK, at: SessionId, concept: string, o: Opts = {}) =>
   row("F", `snd.bank.${name}` as SoundId, "sound", `.bank("${name}")`, at, concept, {
     matches: [name],
     signature: `.bank("${name}")`,
-    meaning: `Plays the drum sounds of the ${name} drum machine.`,
+    meaning: `Another name for \`.bank("${kit}")\`: plays ${KIT_OF_BANK[kit]}, not the real ${name} samples. The name is kept so older code still sounds.`,
     demo: ex(100, `drums: s("bd sd bd sd").bank("${name}")`),
     ...o,
   });
@@ -377,14 +385,14 @@ export const toolbox: readonly ToolEntry[] = defineToolbox([
   drum("oh", "open hat", "U01.L02", "accents", ex(96, 'drums: s("hh hh oh ~")')),
   drum("cr", "crash", "U01.L02", "marking the downbeat", ex(96, 'drums: s("cr hh hh hh")')),
   drum("rd", "ride", "U01.L02", "a second timekeeper", ex(96, 'drums: s("rd rd rd rd")')),
-  bank("RolandTR909", "U01.L03", "drum-machine timbre"),
-  bank("RolandTR808", "U01.L03", "drum-machine timbre", { preview: P0 }),
+  bank("RolandTR909", "oak909", "U01.L03", "drum-machine timbre"),
+  bank("RolandTR808", "oak808", "U01.L03", "drum-machine timbre", { preview: P0 }),
   drum("lt", "low tom", "U01.L06", "fills", ex(96, 'drums: s("ht ht mt mt lt lt ~ ~")')),
   drum("mt", "mid tom", "U01.L06", "fills", ex(96, 'drums: s("ht ht mt mt lt lt ~ ~")')),
   drum("ht", "high tom", "U01.L06", "fills", ex(96, 'drums: s("ht ht mt mt lt lt ~ ~")')),
-  bank("LinnDrum", "U01.L09", "copying grooves"),
-  bank("AkaiLinn", "U01.L09", "copying grooves"),
-  bank("RolandTR707", "U01.L09", "copying grooves"),
+  bank("LinnDrum", "rockkit", "U01.L09", "copying grooves"),
+  bank("AkaiLinn", "lofikit", "U01.L09", "copying grooves"),
+  bank("RolandTR707", "oak909", "U01.L09", "copying grooves"),
   drum("sh", "shaker", "U01.L09", "percussion colour", ex(96, 'drums: s("sh*8")')),
   drum("cb", "cowbell", "U01.L09", "percussion colour", ex(96, 'drums: s("cb ~ cb cb")')),
   drum("tb", "tambourine", "U01.L09", "percussion colour", ex(96, 'drums: s("~ tb ~ tb")')),
@@ -411,7 +419,7 @@ export const toolbox: readonly ToolEntry[] = defineToolbox([
   wave("sawtooth", "U02.L06", "timbre"),
   inst("ebass", "a real bass guitar, picked (FreePats Bass Guitar YR, CC0)", "C1.S1", "a real bass for the first loop", 'bass: note("c2 c2 g1 bb1").s("ebass").lpf(600)', { when: "start", fallbackAt: "U03.L03", preview: [...P0, "band"] }),
   inst("acgtr", "gm_acoustic_guitar_steel:5", "U03.L11", "folk melody colour", 'mel: n("0 2 4 7").scale("G3:major").s("acgtr")'),
-  inst("upright", "a double bass played pizzicato (Karoryfer Sneakybass, CC0)", "U05.L06", "bass register and bass clef", 'bass: note("c2 e2 g2 e2").s("upright")', { preview: ["band:jazz-soul"] }),
+  inst("upright", "a 1958 Otto Rubner double bass played pizzicato (D. Smolken, CC0)", "U05.L06", "bass register and bass clef", 'bass: note("c2 e2 g2 e2").s("upright")', { preview: ["band:jazz-soul"] }),
   inst("rhodes", "a 1977 Rhodes Mark I (jRhodes3d by Jeff Learman, CC BY 4.0)", "U05.L08", "voiced chords", 'chords: chord("<C Am F G>").voicing().s("rhodes")', { gated: true, preview: [...P0, "band"] }),
   inst("organ", "a drawbar tonewheel organ (FreePats setBfree renders, CC0)", "U05.L08", "voiced chords", 'chords: chord("<C F>").voicing().s("organ")', { gated: true }),
   inst("pad", "gm_pad_warm", "U06.L06", "sustained harmony for schemas", 'pad: chord("<C G Am F>").voicing().s("pad")'),

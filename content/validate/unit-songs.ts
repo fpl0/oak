@@ -628,9 +628,19 @@ const termRe = (t: TermEntry) =>
   new RegExp(`(?<![\\p{L}\\p{N}])${escapeRe(t.term)}(s|es)?(?![\\p{L}\\p{N}])`, "iu");
 
 /**
+ * An optional, side or passable lesson: the app opens the next lesson of its track without it (gates.ts rule 5), so
+ * nothing it teaches or saves is there in every legal order, though the course graph chains the A1 side lessons.
+ */
+function skippable(lessonId: string): boolean {
+  const meta = registries.syllabus.units.flatMap((u) => u.lessons).find((l) => l.id === lessonId);
+  return meta?.optional === true || meta?.side === true || PASSABLE_LESSONS.includes(lessonId as LessonId);
+}
+
+/**
  * The terms a learner has not met when a line about this lesson is read (on Today and on the lesson card, before the
  * lesson begins): the lesson's own and every later one. Later is later in the default order; for a lesson outside it
- * (a side or track lesson), a term is met only when its lesson comes before this one in every legal order.
+ * (a side or track lesson), a term is met only when its lesson comes before this one in every legal order and is not
+ * one the learner may pass over.
  */
 function untaughtTerms(lessonId: string): TermEntry[] {
   const order = registries.syllabus.defaultOrder as readonly string[];
@@ -644,7 +654,7 @@ function untaughtTerms(lessonId: string): TermEntry[] {
     if (t.introducedBy === lessonId) return true;
     const at = order.indexOf(t.introducedBy);
     if (here >= 0 && at >= 0) return at > here;
-    return !before(t.introducedBy);
+    return skippable(t.introducedBy) || !before(t.introducedBy);
   });
 }
 
@@ -757,6 +767,12 @@ export async function checkSongStep(
       : null;
   const fills =
     named === null ? sections : sections.filter((id) => named.has(layout.get(id)?.section.type ?? ""));
+  // Filling only some of the step's sections is allowed (the others keep their owner); filling none is not.
+  if (named !== null && fills.length === 0)
+    add(
+      "usong.form",
+      `the reference's arrange() has ${[...named].join(", ")}; none of the step's sections (${sections.join(" ")}) is of those kinds, so the take enters no cell`,
+    );
   if (pitched)
     for (const id of fills) {
       const k = layout.get(id)?.section.key ?? def.key;
@@ -959,16 +975,15 @@ async function startFromIssues(
   // AUTHORING §23.9 rule 2: only a lesson completed before this one in every legal order. The app opens a track
   // lesson past an optional one (gates.ts rule 5) and past a passable one, so neither may open today's Make, even
   // where the course graph chains them.
-  const meta = registries.syllabus.units.flatMap((u) => u.lessons).find((l) => l.id === from);
   const graph = courseGraph();
-  const skippable = meta?.optional === true || meta?.side === true || PASSABLE_LESSONS.includes(from);
+  const passedOver = skippable(from);
   if (
-    skippable ||
+    passedOver ||
     (graph.nodes.has(step.lesson as SessionId) &&
       graph.nodes.has(from as SessionId) &&
       !graph.before(step.lesson as SessionId).has(from as SessionId))
   ) {
-    const why = skippable
+    const why = passedOver
       ? "is an optional, side or passable lesson"
       : `is not completed before ${step.lesson} in every legal order`;
     add(

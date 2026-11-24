@@ -4,6 +4,7 @@
 // a fallback, alternative sites) are exactly as §3.2 says.
 import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import type { MeterId, SessionId, ToolEntry } from "@oak/content-kit";
+import { KIT_ALIASES } from "../../scripts/sounds/pack.config.ts";
 import { catalog, fnsOfTool } from "../catalog/index.ts";
 import { courseGraph } from "../index.ts";
 import { usableAt } from "../lib/course.ts";
@@ -99,6 +100,23 @@ describe("rows", () => {
   test("each lint match maps to one row", () => {
     const dup = [...matchIndex(toolbox)].filter(([, ids]) => ids.length > 1);
     expect(dup).toEqual([]);
+  });
+  test("a retired bank's row names the Oak kit it plays, never the real machine (pack v4 KIT_ALIASES)", () => {
+    const rows = toolbox.filter((t) => t.id.startsWith("snd.bank."));
+    expect(rows.length).toBeGreaterThan(0);
+    for (const t of rows) {
+      const alias = t.id.slice("snd.bank.".length);
+      const kit = KIT_ALIASES[alias];
+      expect([t.id, kit !== undefined]).toEqual([t.id, true]);
+      expect([t.id, t.catalog.meaning.includes(`.bank("${kit}")`)]).toEqual([t.id, true]);
+      expect([t.id, /drum sounds of the/.test(t.catalog.meaning)]).toEqual([t.id, false]);
+    }
+  });
+  test("the upright's row credits its real source (D. Smolken, as the pack's credits do)", () => {
+    const t = toolboxById.get("snd.upright");
+    const text = `${t?.code} ${t?.catalog.meaning}`;
+    expect(text).toContain("D. Smolken");
+    expect(text).not.toContain("Sneakybass");
   });
 });
 

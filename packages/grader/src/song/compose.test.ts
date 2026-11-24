@@ -329,3 +329,81 @@ describe("what a Make claims: one reading for the live Make and its saved take",
     expect(cells).toEqual(["kick@verse", "snare@verse"]);
   });
 });
+
+describe("a take keeps the parts it saved when a later take takes some of its cells", () => {
+  // A verse of 8 bars and a chorus of 4. Take 1 is an anonymous line with its own arrange(): 8 bars of C2 (the verse),
+  // 4 of C5 (the chorus). Saved, it reads as a bass and owns the bass of both. Take 2, a verse-only bass loop, takes
+  // the verse back: take 1 still owns bass@chorus, where only its high notes play.
+  const def = {
+    ...SONG,
+    sections: [
+      { id: "verse", type: "verse", bars: 8 },
+      { id: "chorus", type: "chorus", bars: 4 },
+    ],
+  } as unknown as UnitSongDef;
+  const four = (note: string): Pattern =>
+    (core.sequence as (...v: unknown[]) => Pattern)(...[note, note, note, note].map((n) => ({ note: n })));
+  const code1 =
+    'const lowVerse = note("c2*4")\nconst highChorus = note("c5*4")\n$: arrange([8, lowVerse], [4, highChorus])';
+  const pattern1 = (core.arrange as (...v: unknown[]) => Pattern)([8, four("c2")], [4, four("c5")]);
+  const grid = resolveGrid(def, [
+    { sourceId: "1", cells: ["bass@verse", "bass@chorus"] as never },
+    { sourceId: "2", cells: ["bass@verse"] as never },
+  ]);
+  const compose = (labels?: Record<string, string | null>) => {
+    const sources = [
+      { sourceId: "1", lessonId: "U01.L02", code: code1, ...(labels && { labels }) },
+      { sourceId: "2", lessonId: "U01.L04", code: 'bass: note("e2*4")', labels: { bass: "bass" } },
+    ];
+    const built: BuiltSong = {
+      band: { def, flavour: "flavour.pop" as never, bpm: 100, sources: sources as never, grid },
+      oak: [
+        { label: "bass", pattern: four("g2") },
+        { label: "mel", pattern: four("c5") },
+      ],
+      sources: [
+        {
+          sourceId: "1",
+          lessonId: "U01.L02",
+          tracks: [{ label: "$0", pattern: pattern1 }],
+          sections: sourceSectionsOf(code1),
+          ...(labels && { labels }),
+        },
+        {
+          sourceId: "2",
+          lessonId: "U01.L04",
+          tracks: [{ label: "bass", pattern: four("e2") }],
+          sections: null,
+          labels: { bass: "bass" },
+        },
+      ],
+      dropped: [],
+    };
+    return finishSong(built, null).tracks;
+  };
+  const chorusNotes = (tracks: ReturnType<typeof compose>, name: string) =>
+    (tracks.find((t) => t.track === name)?.pattern.queryArc(8, 12) ?? [])
+      .filter((h) => h.hasOnset())
+      .map((h) => (h.value as { note: string }).note);
+
+  test("its saved bass line still plays the chorus bass it owns", () => {
+    const tracks = compose({ $0: "bass" });
+    expect(chorusNotes(tracks, "band.take.U01.L02.$0")).toEqual(Array(16).fill("c5"));
+    expect(chorusNotes(tracks, "band.take.U01.L04.bass")).toEqual([]);
+    expect(tracks.some((t) => t.track === "band.oak.bass")).toBe(false);
+  });
+
+  test("a saved `null` (a line of several parts) plays in every cell the take owns", () => {
+    expect(chorusNotes(compose({ $0: null }), "band.take.U01.L02.$0")).toHaveLength(16);
+  });
+
+  test("a take with no labels (backfilled) is still read from what it plays", () => {
+    // Read again from its chorus bars alone, the line is a tune: it plays nowhere it owns (the old reading).
+    expect(chorusNotes(compose(), "band.take.U01.L02.$0")).toEqual([]);
+    expect(chorusNotes(compose({}), "band.take.U01.L02.$0")).toEqual([]);
+  });
+
+  test("a saved part the song no longer has is read from what it plays", () => {
+    expect(chorusNotes(compose({ $0: "tuba" }), "band.take.U01.L02.$0")).toEqual([]);
+  });
+});

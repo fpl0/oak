@@ -135,7 +135,8 @@ export function opsRoutes(mount: Mounter, d: AppDeps): void {
     s.unlocks.backfill();
     // Unit songs (spec 2026-11-24 §5.6a): a backup from before songs (schema < 11) carries completed lessons and no
     // songs; they are backfilled now, as at the first start-up after the update. A backup that already had songs is
-    // restored exactly as it was: a start-up never changes a song that exists (it only creates a missing one).
+    // restored as it was; its songs later gain only the takes of completed take lessons they lack (at the next read
+    // or start-up), never a cell one of their takes owns (`UnitSongsService.backfill`).
     if (result.migratedFrom !== null) {
       try {
         s.unitSongs.backfill();

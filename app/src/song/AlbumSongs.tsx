@@ -204,9 +204,9 @@ function SongTile({ song }: { song: UnitSongSummary }) {
           >
             {song.title}
           </Link>
-          {/* The summary counts takes, and a lesson redone adds one: the tile counts rings, never lessons. */}
+          {/* lessonsCount counts distinct lessons (a redone lesson adds a ring, not a lesson). */}
           <p className="truncate text-sm text-text-3 tabular-nums">
-            {styleName(song.flavour)} · {song.takesCount} {song.takesCount === 1 ? "ring" : "rings"}
+            {styleName(song.flavour)} · {song.lessonsCount} of {takeStepsOf(song.unitId)} lessons
           </p>
         </div>
         {released && release ? (
@@ -248,4 +248,9 @@ export function AlbumSongs() {
       </ul>
     </section>
   );
+}
+
+/** How many take lessons the unit's song has (0 when the unit has no song). */
+function takeStepsOf(unitId: UnitId): number {
+  return unitSongOfUnit(unitId)?.plan.filter((p) => p.kind === "take").length ?? 0;
 }

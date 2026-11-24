@@ -3,7 +3,8 @@
 // half runs the real grader realm, as grading.test.ts does.
 import { beforeAll, describe, expect, setDefaultTimeout, test } from "bun:test";
 import type { Exercise, SessionId, TakeStep } from "@oak/api";
-import { evaluateForGrading, gradeExercise, initRealm, normalize } from "@oak/grader";
+import { evaluateForGrading, gradeExercise, initRealm } from "@oak/grader";
+import { makeClaimsOfEvents, makeReading } from "@oak/strudel/song-compose";
 import { courseGraph } from "../../../content/index.ts";
 import { unlockedAt } from "../../../content/lib/course.ts";
 import { toolbox } from "../../../content/toolbox.ts";
@@ -13,17 +14,16 @@ import {
   newSongGateOf,
   openingCode,
   openingsOf,
-  playedPartsOf,
   recordSongTake,
   refineBackfilledTakes,
   shiftRanges,
   songChipLabel,
   songMakeOf,
   songSideOf,
+  songTakeBody,
   takeIdempotencyKey,
   tempoRangeOf,
   todayLoopOf,
-  trackSummariesOf,
   withSongTempo,
 } from "./song-make.ts";
 
@@ -258,34 +258,73 @@ describe("a reopened Make", () => {
 });
 
 describe("what a saved take claims", () => {
-  test("playedPartsOf maps drum sounds and a chords track", () => {
-    const drums = playedPartsOf(TEST_SONG, [
-      { label: "drums", role: "drums", sounds: ["bd", "sd:2", "hh"], chords: false },
-    ]);
-    expect([...drums.parts].sort()).toEqual(["hats", "kick", "snare"]);
-    expect(drums.playsChords).toBe(false);
-    // An exact drum label stands for its part even with a sound no part lists.
-    expect([
-      ...playedPartsOf(TEST_SONG, [{ label: "kick", role: "drums", sounds: ["tom"], chords: false }]).parts,
-    ]).toEqual(["kick"]);
-    // A pitched track by label, else by role; a chords track plays chords.
-    const pitched = playedPartsOf(TEST_SONG, [
-      { label: "mel", role: "melody", sounds: ["piano"], chords: false },
-      { label: "keys", role: "chords", sounds: ["piano"], chords: true },
-      { label: "low", role: "bass", sounds: ["ebass"], chords: false },
-    ]);
-    expect([...pitched.parts].sort()).toEqual(["bass", "lead"]);
-    expect(pitched.playsChords).toBe(true);
-  });
+  /** What Save posts for some code on a step of the test song (the real grader realm evaluates it). */
+  const saveOf = (step: TakeStep, code: string) =>
+    songTakeBody(deps.evaluate, {
+      def: TEST_SONG,
+      step,
+      unitId: "U01",
+      lessonId: step.lesson,
+      meter: "4/4",
+      bars: 2,
+      songBpm: 100,
+      code,
+      sketchId: "sk_c",
+      sketchVersion: 1,
+    });
 
   test("a phrase with one two-note chord among single notes does not play chords", async () => {
     // Six onsets, one of them two notes: a sixth of the onsets is polyphonic, under the quarter that makes chords
-    // (contracts §6.2 rule 1, the grader's polyphonyRatio). Counted by notes it would be 2 of 7.
-    const res = await deps.evaluate('setcpm(100/4)\nkeys: note("[c4,e4] d4 e4 f4 g4 a4")', 1, "4/4");
-    if (!res.ok) throw new Error("the phrase did not run");
-    const keys = trackSummariesOf(normalize(res, { meter: "4/4" })).find((t) => t.label === "keys");
-    expect(keys?.chords).toBe(false);
-    expect(playedPartsOf(TEST_SONG, keys ? [keys] : []).playsChords).toBe(false);
+    // (contracts §6.2 rule 1, the grader's polyphonyRatio). Counted by notes it would be 2 of 7. A tune: the lead,
+    // never Oak's bass.
+    const body = await saveOf(
+      { ...L01_STEP, sections: ["chorus1"], parts: ["lead"] },
+      'setcpm(100/4)\nkeys: note("[c4,e4] d4 e4 f4 g4 a4").s("piano")',
+    );
+    expect(body.cells).toEqual(["lead@chorus1"]);
+    expect(body.labels).toEqual({ keys: "lead" });
+  });
+
+  test("a mel: tune in thirds stays the melody: Save claims only the lead, as the live Make does", async () => {
+    const step: TakeStep = {
+      ...L01_STEP,
+      lesson: "U01.L05" as never,
+      sections: ["chorus1"],
+      parts: ["lead"],
+    };
+    const code = 'setcpm(100/4)\nmel: note("[c4,e4] [d4,f4]").s("piano")';
+    const body = await saveOf(step, code);
+    expect(body.cells).toEqual(["lead@chorus1"]);
+    expect(body.labels).toEqual({ mel: "lead" });
+    // The composer's own reading of the same evaluation (what the live Make claims) agrees.
+    const reading = makeReading(TEST_SONG, step.sections, step, code);
+    const res = await deps.evaluate(code, Math.min(64, reading.bars), "4/4");
+    if (!res.ok) throw new Error("the tune did not run");
+    expect(body.cells).toEqual(makeClaimsOfEvents(TEST_SONG, reading, res.events).cells);
+  });
+
+  test("Save reads only the bars of an arrange() that play in today's sections", async () => {
+    // A verse-only step (kick and snare): the verse drums play there; the tune and the chords only in the learner's
+    // chorus, which this step does not place. They claim nothing in the verse, so Oak's bass and tune keep playing.
+    const tune = [
+      "setcpm(100/4)",
+      'const drumsVerse = s("bd sd bd sd")',
+      'const melChorus = note("c5 e5 g5 e5").s("piano")',
+      "drums: arrange([8, drumsVerse], [8, silence])",
+      "mel: arrange([8, silence], [8, melChorus])",
+    ].join("\n");
+    expect((await saveOf(L01_STEP, tune)).cells).toEqual(["kick@verse", "snare@verse"]);
+    const chords = [
+      "setcpm(100/4)",
+      'const drumsVerse = s("bd sd bd sd")',
+      'const chordsChorus = note("<[c3,e3,g3] [a2,c3,e3]>").s("piano")',
+      "drums: arrange([8, drumsVerse], [8, silence])",
+      "chords: arrange([8, silence], [8, chordsChorus])",
+    ].join("\n");
+    const body = await saveOf(L01_STEP, chords);
+    expect(body.cells).toEqual(["kick@verse", "snare@verse"]);
+    // A line that never plays in today's sections is no label of the take.
+    expect(body.labels).toEqual({ drums: null });
   });
 
   test("the take's cells, labels and tempo come from the evaluated saved code", async () => {

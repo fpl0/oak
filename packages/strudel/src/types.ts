@@ -75,6 +75,12 @@ export interface MuteMap {
   muted: ReadonlySet<string>;
   /** When set, every other label is muted. */
   solo: string | null;
+  /**
+   * Band tracks muted hit by hit: a track → whether a hit of that sound (`value.s`, `bd`, `sd:2`) is muted. A unit
+   * song's take line that plays several drum parts (`drums: s("bd sd")`) mutes only the kick's hits when the kick is
+   * muted. Read for `band.*` tracks only, after `muted` and `solo`; absent: whole tracks only.
+   */
+  hits?: ReadonlyMap<string, (sound: string) => boolean>;
 }
 
 export interface BandSetup {

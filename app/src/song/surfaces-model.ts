@@ -22,7 +22,7 @@ import {
 import { lintStrict } from "@oak/grader";
 import type { MuteMap } from "@oak/strudel";
 import type { RenderPieceRequest } from "@oak/strudel/offline";
-import { oakTrackName, type SongBand, takeTrackName } from "@oak/strudel/song-compose";
+import { oakTrackName, olderTakeNumbers, type SongBand, takeTrackName } from "@oak/strudel/song-compose";
 import { songBandSetupOf } from "../lesson/band.ts";
 import { playableTakes, type SongView, songGridOf } from "./model.ts";
 
@@ -212,6 +212,7 @@ export function snapshotBand(snapshot: UnitSongSnapshot): SongBand {
       sourceId: String(t.takeId),
       lessonId: t.lessonId as LessonId,
       code: t.code,
+      labels: t.labels,
     })),
     grid: songGridOf(snapshot.def, asTakes as never),
     ...(oakOk ? { oakCode: snapshot.oakCode } : {}),
@@ -282,7 +283,7 @@ export function lessonDots(
 /**
  * The tracks a part plays on: Oak's track for it while Oak still holds a cell of it, and every take line that holds
  * one, by the take's labels (a track label → its part). A take line that plays several parts (a `drums:` line split
- * over the kick and the snare: label `null`) belongs to each of them, so muting one of those parts mutes the line.
+ * over the kick and the snare: label `null`) belongs to each of them; `partMutes` mutes such a line hit by hit.
  */
 export function partTracks(
   def: UnitSongDef,
@@ -297,15 +298,24 @@ export function partTracks(
   const owners = new Set(def.sections.map((s) => grid.get(cellKey(partId, s.id)) ?? OAK_OWNER));
   const out: string[] = [];
   if (owners.has(OAK_OWNER)) out.push(oakTrackName(part.label));
+  // An older take of a replayed lesson plays as `band.take.<lesson>.<label>#<n>` (`olderTakeNumbers`).
+  const older = olderTakeNumbers(takes.map((t) => ({ sourceId: String(t.id), lessonId: t.lessonId })));
   for (const t of takes) {
     if (!owners.has(String(t.id))) continue;
-    const labels = Object.entries(t.labels);
-    const mine = labels.filter(([, p]) => p === partId || p === null).map(([label]) => label);
-    // A take with no labels recorded (a backfilled take): every line it plays.
-    const lines = labels.length === 0 ? labelsOfCode(t.code) : mine;
-    for (const label of lines) out.push(takeTrackName(t.lessonId, label));
+    for (const label of takeLinesOf(t, partId))
+      out.push(takeTrackName(t.lessonId, label, older.get(String(t.id))));
   }
   return unique(out);
+}
+
+/**
+ * The labels of a take's lines that play a part: by its saved labels (a line labelled `null` plays several parts and
+ * belongs to each); a take with no labels recorded (a backfilled take): every line it plays.
+ */
+function takeLinesOf(t: Pick<UnitSongTake, "labels" | "code">, partId: SongPartId): string[] {
+  const labels = Object.entries(t.labels);
+  if (labels.length === 0) return labelsOfCode(t.code);
+  return labels.filter(([, p]) => p === partId || p === null).map(([label]) => label);
 }
 
 /** The labelled lines of a code (`drums:`, `kick:`), in order. */
@@ -313,20 +323,77 @@ function labelsOfCode(code: string): string[] {
   return unique([...code.matchAll(/^[ \t]*([a-z][a-z0-9_]*)[ \t]*:/gm)].map((m) => m[1] as string));
 }
 
-/** The player's mute map for the muted parts and the soloed one, over the tracks the song loaded. */
+/**
+ * The take lines that play several parts (a `drums:` line labelled `null`, or every line of a take with no labels),
+ * with the parts each one stands for: their mutes act hit by hit.
+ */
+function sharedLines(
+  def: UnitSongDef,
+  detail: Pick<UnitSongDetail, "takes"> | null,
+): Map<string, SongPartId[]> {
+  const takes = playableTakes(detail);
+  const older = olderTakeNumbers(takes.map((t) => ({ sourceId: String(t.id), lessonId: t.lessonId })));
+  const shared = new Set<string>();
+  for (const t of takes) {
+    const labels = Object.entries(t.labels);
+    const lines =
+      labels.length === 0 ? labelsOfCode(t.code) : labels.filter(([, p]) => p === null).map(([l]) => l);
+    for (const label of lines) shared.add(takeTrackName(t.lessonId, label, older.get(String(t.id))));
+  }
+  const out = new Map<string, SongPartId[]>();
+  if (shared.size === 0) return out;
+  for (const p of def.parts)
+    for (const track of partTracks(def, detail, p.id))
+      if (shared.has(track)) out.set(track, [...(out.get(track) ?? []), p.id]);
+  return out;
+}
+
+/**
+ * The player's mute map for the muted parts and the soloed one, over the tracks the song loaded. A take line that
+ * plays several parts is muted hit by hit (`MuteMap.hits`): a hit of a drum part's sound (`drumPartsOfSound`) is
+ * that part's, any other hit stands for the parts of the whole line. Muting the kick silences the line's `bd` hits
+ * only; soloing it keeps them only.
+ */
 export function partMutes(
   def: UnitSongDef,
   detail: Pick<UnitSongDetail, "takes"> | null,
   state: { muted: ReadonlySet<SongPartId>; solo: SongPartId | null },
   loaded: readonly string[],
 ): MuteMap {
+  const shared = sharedLines(def, detail);
   const muted = new Set<string>();
-  for (const p of state.muted) for (const t of partTracks(def, detail, p)) muted.add(t);
-  if (state.solo) {
-    const keep = new Set(partTracks(def, detail, state.solo));
-    for (const t of loaded) if (!keep.has(t)) muted.add(t);
+  const byHit = new Set<string>();
+  for (const p of state.muted)
+    for (const t of partTracks(def, detail, p)) (shared.has(t) ? byHit : muted).add(t);
+  const solo = state.solo;
+  if (solo) {
+    const keep = new Set(partTracks(def, detail, solo));
+    for (const t of loaded) {
+      if (!keep.has(t)) muted.add(t);
+      else if (shared.has(t)) byHit.add(t);
+    }
   }
-  return { muted, solo: null };
+  const hits = new Map<string, (sound: string) => boolean>();
+  // Asked once per hap while the song plays: each sound's drum parts are read once.
+  const partsOfSound = new Map<string, readonly SongPartId[]>();
+  const drumPartsOf = (sound: string) => {
+    let parts = partsOfSound.get(sound);
+    if (!parts) {
+      parts = drumPartsOfSound(def, sound);
+      partsOfSound.set(sound, parts);
+    }
+    return parts;
+  };
+  for (const t of byHit) {
+    if (muted.has(t)) continue;
+    const line = shared.get(t) ?? [];
+    hits.set(t, (sound) => {
+      const own = drumPartsOf(sound);
+      const parts = own.length > 0 ? own : line;
+      return parts.some((p) => state.muted.has(p)) || (solo !== null && !parts.includes(solo));
+    });
+  }
+  return { muted, solo: null, ...(hits.size > 0 && { hits }) };
 }
 
 // --- release ---------------------------------------------------------------------------------------------

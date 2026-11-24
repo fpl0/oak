@@ -124,7 +124,9 @@ export function startupTasks(d: AppDeps): void {
   d.services.tracks.backfill();
   // Unit songs (spec 2026-11-24 §5.6a): every unit with a completed take lesson and no song gets its song, with one
   // take per completed take lesson from its latest Make sketch (a learner whose Makes predate songs). A song that
-  // exists is never changed here (a restored backup stays as it was). Idempotent; a failure never stops the server.
+  // exists (a restored backup's too) keeps its takes and gains only the missing takes of completed take lessons,
+  // which never take a cell from a take it has (`UnitSongsService.backfill`). Idempotent; a failure never stops the
+  // server.
   try {
     d.services.unitSongs.backfill();
   } catch (e) {

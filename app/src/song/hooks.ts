@@ -116,14 +116,17 @@ export interface NewSongGate {
  */
 export function useNewSongGate(lessonId: string, o: { enabled: boolean }): NewSongGate {
   const { song, step, detail, query } = useSongOfLesson(o.enabled ? lessonId : null);
-  const [started, setStarted] = useState(false);
-  const show = o.enabled && !started && newSongGateOf(step, detail);
+  // The unit whose song the learner just started (until `songs.get` refetches as started). A unit id, not a flag: the
+  // player stays mounted across lessons, and starting one song must not skip another unit's moment.
+  const [startedUnit, setStartedUnit] = useState<UnitId | null>(null);
+  const unitId = song?.unit ?? null;
+  const show = o.enabled && startedUnit !== unitId && newSongGateOf(step, detail);
   return {
     show,
     pending: o.enabled && step?.kind === "take" && query.isPending,
-    unitId: song?.unit ?? null,
+    unitId,
     flavour: detail?.flavour ?? null,
-    onStarted: () => setStarted(true),
+    onStarted: () => setStartedUnit(unitId),
   };
 }
 

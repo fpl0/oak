@@ -192,6 +192,17 @@ describe("checkSongStep names what is wrong", () => {
     expect(codesOf(await checkSongStep(inKey("verse2"), step, arranged))).toContain("usong.key");
   });
 
+  test("an arranged take whose arrange() names none of the step's sections enters no cell", async () => {
+    const U09 = unitSongById.get("usong.U09") as UnitSongDef;
+    const outro = { ...takeOf(U09, "U09.L02"), sections: ["outro"] };
+    const issues = await checkSongStep(U09, outro, await lesson("U09.L02"));
+    expect(codesOf(issues)).toContain("usong.form");
+    // The registered step (verses and choruses) fills its sections: no such error.
+    expect(codesOf(await checkSongStep(U09, takeOf(U09, "U09.L02"), await lesson("U09.L02")))).not.toContain(
+      "usong.form",
+    );
+  });
+
   test("a startFrom code that already meets today's required rule", async () => {
     const step = takeOf(U02, "U02.L03");
     expect(step.startFrom).toBe("U02.L02");
@@ -225,6 +236,15 @@ describe("checkSongStep names what is wrong", () => {
     // Backbeat is U01.L03's term; the line is read before U01.L01.
     const step = { ...takeOf(U01, "U01.L01"), today: "Your backbeat plays the second part of the song." };
     expect(codesOf(await checkSongStep(U01, step, await lesson("U01.L01")))).toContain("usong.terms");
+  });
+
+  test("a today line with a term only an optional side lesson teaches (the app opens A1.L05 without A1.L02)", async () => {
+    const A1 = unitSongById.get("usong.A1") as UnitSongDef;
+    const step = {
+      ...takeOf(A1, "A1.L05"),
+      today: "Your loop, its cutoff low like an old record, opens the song.",
+    };
+    expect(codesOf(await checkSongStep(A1, step, await lesson("A1.L05")))).toContain("usong.terms");
   });
 
   test("a today line with the lesson's own term, read before the lesson teaches it", async () => {

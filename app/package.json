@@ -8,7 +8,7 @@
     "build": "cd .. && node node_modules/vite/bin/vite.js build --config app/vite.config.ts",
     "preview": "cd .. && node node_modules/vite/bin/vite.js preview --config app/vite.config.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "bun test src",
+    "test": "bun test --isolate src",
     "e2e": "playwright test -c playwright.config.ts",
     "e2e:preview": "E2E_MODE=preview playwright test -c playwright.config.ts"
   }

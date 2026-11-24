@@ -16,7 +16,7 @@ import {
 import { isNoise, isSkipMessage, missingSoundOf, parseStrudelLog } from "./logs.ts";
 import { LiveBudget } from "./lru.ts";
 import { limiterMakeupDb } from "./master-bus.ts";
-import { copyMutes, isMuted, trackNameOf } from "./mutes.ts";
+import { copyMutes, isBandHapMuted, isMuted, trackNameOf } from "./mutes.ts";
 import { EvalMutex, withTimeout } from "./mutex.ts";
 import { barPosition, clampRate, clampTranspose, lintForLoad } from "./pattern-player.ts";
 import { preloadSpecOfNames, schedulePlan } from "./playback.ts";
@@ -98,6 +98,26 @@ describe("mutes", () => {
     const copy = copyMutes({ muted: own, solo: null });
     own.add("y");
     expect(copy.muted.has("y")).toBe(false);
+  });
+
+  test("a Band track can be muted hit by hit (a song's drums: line under a muted kick)", () => {
+    const line = "band.take.U01.L01.drums";
+    const hits = new Map([[line, (s: string) => s.split(":")[0] === "bd"]]);
+    const m = { muted: new Set<string>(), solo: null, hits };
+    expect(isBandHapMuted(line, { s: "bd" }, m)).toBe(true);
+    expect(isBandHapMuted(line, { s: "bd:3" }, m)).toBe(true);
+    expect(isBandHapMuted(line, { s: "sd" }, m)).toBe(false);
+    // A hap with no sound, another track: only whole-track mutes apply.
+    expect(isBandHapMuted(line, { note: 60 }, m)).toBe(false);
+    expect(isBandHapMuted("band.oak.kick", { s: "bd" }, m)).toBe(false);
+    // Whole-track mutes and solo still win.
+    expect(isBandHapMuted(line, { s: "sd" }, { ...m, muted: new Set([line]) })).toBe(true);
+    expect(isBandHapMuted(line, { s: "sd" }, { ...m, solo: "band.oak.kick" })).toBe(true);
+    // The copy keeps the hits and is private.
+    const copy = copyMutes(m);
+    hits.delete(line);
+    expect(isBandHapMuted(line, { s: "bd" }, copy)).toBe(true);
+    expect(copyMutes({ muted: new Set(), solo: null }).hits).toBeUndefined();
   });
 });
 

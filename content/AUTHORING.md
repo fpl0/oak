@@ -1147,8 +1147,10 @@ What the checks hold a song and a plan to (contracts §5.11, spec §8), with the
 | lead and bass hold no note a half step from a sounding chord tone, per flavour; with `oakKeeps`, the reference against the kept parts | `usong.clash` | move the note to a chord tone, or drop the part from `oakKeeps` |
 | take Makes in the song's meter and in the key of every section they play in | `usong.key` | a section key, a side step, or a re-key (§23.11) |
 | `parts` include every part the passing reference plays | `usong.parts` | add the part, or check the drum `sounds` |
+| `startFrom` names a lesson completed before this one in every legal order: never an optional, side or passable lesson (the app opens the next track lesson without it) | `usong.start-from` | start from `'oak'` (§23.9 rule 2) |
 | the `startFrom` reference lints and evaluates here and does not already meet today's required rule | `usong.start-passes` | start from `'oak'`, or from an earlier step |
-| `today` passes the lesson's voice and terms checks | `usong.terms` | §23.10 |
+| a reference with its own `arrange()` names the kind of at least one of the step's sections (filling some is fine; filling none enters no cell) | `usong.form` | put the step on sections of the kinds the reference arranges, or change the reference |
+| `today` passes the lesson's voice and terms checks; a term counts as met only when its lesson comes before this one in every legal order and is not optional, side or passable | `usong.terms` | §23.10 |
 
 The schema (`defineUnitSong`) refuses the rest at import, each with its path: a missing flavour, duplicate ids or labels, an unknown section or part in a step or in `oakKeeps`, sounds on a pitched part or none on a drum part, a section that is not a multiple of 4 bars, over 64 bars, a tempo line in Oak's code, a track that is not arranged in the song's sections, a lesson in the plan twice or from another unit, a `startFrom` that is not an earlier take step, a `today` line over 20 words, `releaseAfter` before the last take step.
 

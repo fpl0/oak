@@ -153,8 +153,8 @@ describe("songs.start and songs.get", () => {
     expect(again.body.flavour).toBe("flavour.funk");
     expect(await song(h)).toEqual(first.body);
     const list = await h.json<{ items: UnitSongSummary[] }>("GET", "/api/songs");
-    expect(list.body.items.map((s) => [s.unitId, s.flavour, s.takesCount])).toEqual([
-      ["U01", "flavour.funk", 0],
+    expect(list.body.items.map((s) => [s.unitId, s.flavour, s.takesCount, s.lessonsCount])).toEqual([
+      ["U01", "flavour.funk", 0, 0],
     ]);
     expect(list.body.items[0]).not.toHaveProperty("takes");
     // A unit with no song, and a unit id that is not one.
@@ -177,6 +177,15 @@ describe("songs.start and songs.get", () => {
 });
 
 describe("songs.recordTake", () => {
+  test("songs.list counts the lessons in a song once each, however many takes they have", async () => {
+    const h = await server();
+    await start(h);
+    // U01.L01 made twice (a redo), then U01.L02.
+    for (const l of ["U01.L01", "U01.L01", "U01.L02"]) expect((await take(h, l)).status).toBe(200);
+    const list = await h.json<{ items: UnitSongSummary[] }>("GET", "/api/songs");
+    expect(list.body.items.map((s) => [s.unitId, s.takesCount, s.lessonsCount])).toEqual([["U01", 3, 2]]);
+  });
+
   test("recordTake refuses a lesson outside the song and a side step", async () => {
     const h = await server();
     await start(h);
@@ -303,24 +312,146 @@ describe("the backfill (spec §5.6a)", () => {
     expect(refined.body.takes[0]?.cells).toEqual(["kick@intro"]);
   });
 
-  test("a start-up after a restore leaves a song that exists as it is", async () => {
+  test("a start-up after a restore keeps the song's takes and adds only the take a completed lesson lacks", async () => {
     const h = await server();
     await start(h);
     expect((await take(h, "U01.L01")).status).toBe(200);
     complete(h, "U01.L01");
-    // U01.L02 was finished and its Make saved, but no take was recorded for it.
-    await makeSketch(h, "U01.L02");
+    // U01.L02 was finished and its Make saved, but its take never reached the server.
+    const l2 = await makeSketch(h, "U01.L02");
     complete(h, "U01.L02");
     const archive = new Uint8Array(await (await h.req("GET", "/api/backup/export?audio=0")).arrayBuffer());
     expect((await h.destructive("POST", "/api/backup/import", "backup.import", "*", archive)).status).toBe(
       200,
     );
-    const restored = await song(h);
-    expect(restored.takes.map((t) => t.lessonId)).toEqual(["U01.L01"]);
+    // The import restores the song exactly as the backup holds it (read from the database, not through songs.get,
+    // which fills the gap too).
+    const rows = () => h.server.deps.repos.unitSongs.takes("U01");
+    const restored = rows();
+    expect(restored.map((t) => t.lessonId)).toEqual(["U01.L01"]);
     startupTasks(h.server.deps);
-    expect(await song(h)).toEqual(restored);
-    // Another start (a second tab) keeps it as it is too.
-    expect((await start(h, "flavour.indie")).body).toEqual(restored);
+    const after = rows();
+    // The restored take is untouched (same row, cells, order); the missing lesson's take comes after it.
+    expect(after[0]).toEqual(restored[0] as (typeof after)[number]);
+    expect(
+      after.slice(1).map((t) => [t.lessonId, t.sketchId, t.sketchVersion, t.cells, t.backfilled]),
+    ).toEqual([["U01.L02", l2.sketchId, l2.sketchVersion, declared("U01.L02"), true]]);
+    const s = await song(h);
+    // The song stays the learner's: their style, no "Oak made this song" card.
+    expect(s).toMatchObject({ flavour: "flavour.funk", backfilled: false, styleSeen: true, takesCount: 2 });
+    // Idempotent: another start-up, and another start (a second tab), keep it as it is.
+    startupTasks(h.server.deps);
+    expect(await song(h)).toEqual(s);
+    expect((await start(h, "flavour.indie")).body).toEqual(s);
+  });
+
+  test("a completed lesson whose take never landed joins the song at the next read, without a restart", async () => {
+    const h = await server();
+    await start(h);
+    const first = (await take(h, "U01.L01")).body.takes[0];
+    complete(h, "U01.L01");
+    const l2 = await makeSketch(h, "U01.L02");
+    complete(h, "U01.L02");
+    const s = await song(h);
+    expect(s.takes.map((t): unknown => [t.id, t.lessonId, t.cells, t.backfilled])).toEqual([
+      [first?.id, "U01.L01", first?.cells, false],
+      [expect.any(Number), "U01.L02", declared("U01.L02"), true],
+    ] as unknown[]);
+    expect(s.takes[1]).toMatchObject({ sketchId: l2.sketchId, sketchVersion: l2.sketchVersion });
+    // The app's next saved take refines it (same row, the cells it computed).
+    const refined = await h.json<UnitSongDetail>("POST", "/api/songs/U01/takes", {
+      lessonId: "U01.L02",
+      ...l2,
+      cells: ["snare@stop"],
+      labels: { snare: "snare" },
+      bpm: 100,
+    });
+    expect(refined.status).toBe(200);
+    expect(refined.body.takes.map((t): unknown => [t.id, t.lessonId, t.cells, t.backfilled])).toEqual([
+      [first?.id, "U01.L01", first?.cells, false],
+      [s.takes[1]?.id, "U01.L02", ["snare@stop"], false],
+    ] as unknown[]);
+  });
+
+  test("a take of a later lesson also brings in an earlier completed lesson's missing take, in order", async () => {
+    const h = await server();
+    await start(h);
+    expect((await take(h, "U01.L01")).status).toBe(200);
+    complete(h, "U01.L01");
+    await makeSketch(h, "U01.L02");
+    complete(h, "U01.L02");
+    // No read in between: the L03 take is the next thing the server hears.
+    const before = h.server.deps.repos.unitSongs.takes("U01").map((t) => t.lessonId);
+    expect(before).toEqual(["U01.L01"]);
+    const r = await take(h, "U01.L03");
+    expect(r.status).toBe(200);
+    expect(r.body.takes.map((t) => [t.lessonId, t.backfilled])).toEqual([
+      ["U01.L01", false],
+      ["U01.L02", true],
+      ["U01.L03", false],
+    ]);
+    expect(r.body.takes[2]?.cells).toEqual(declared("U01.L03"));
+  });
+
+  test("a lesson completed before its own take lands still counts once", async () => {
+    const h = await server();
+    await start(h);
+    expect((await take(h, "U01.L01")).status).toBe(200);
+    complete(h, "U01.L01");
+    // The lesson completes, a read fills the gap from the saved Make, then the app's take of that Make lands.
+    const l2 = await makeSketch(h, "U01.L02");
+    complete(h, "U01.L02");
+    const filled = (await song(h)).takes.find((t) => t.lessonId === "U01.L02");
+    const r = await h.json<UnitSongDetail>("POST", "/api/songs/U01/takes", {
+      lessonId: "U01.L02",
+      ...l2,
+      cells: declared("U01.L02"),
+      labels: {},
+      bpm: 100,
+    });
+    expect(
+      r.body.takes.filter((t) => t.lessonId === "U01.L02").map((t): unknown => [t.id, t.backfilled]),
+    ).toEqual([[filled?.id, false]] as unknown[]);
+    // Without the read in between, the take of the lesson being recorded is never backfilled first.
+    const l3 = await makeSketch(h, "U01.L03");
+    complete(h, "U01.L03");
+    const r3 = await h.json<UnitSongDetail>("POST", "/api/songs/U01/takes", {
+      lessonId: "U01.L03",
+      ...l3,
+      cells: declared("U01.L03"),
+      labels: {},
+      bpm: 100,
+    });
+    expect(r3.body.takes.map((t) => [t.lessonId, t.backfilled])).toEqual([
+      ["U01.L01", false],
+      ["U01.L02", false],
+      ["U01.L03", false],
+    ]);
+  });
+
+  test("a take Oak adds to a song that exists never takes a cell from a take it already has", async () => {
+    const h = await server();
+    await start(h);
+    // The learner's recorded takes: U01.L03 (the verse) and U01.L06 (the drums of chorus2).
+    expect((await take(h, "U01.L03")).status).toBe(200);
+    const l6 = (await take(h, "U01.L06")).body.takes.find((t) => t.lessonId === "U01.L06");
+    // Made later and never recorded: U01.L02 (the stop, shared with no take) and U01.L04 (chorus1 and chorus2).
+    await makeSketch(h, "U01.L02");
+    complete(h, "U01.L02");
+    await makeSketch(h, "U01.L04");
+    complete(h, "U01.L04");
+    startupTasks(h.server.deps);
+    const s = await song(h);
+    // L02 keeps the place its Make dates it to; L04 goes before L06, so L06 still owns the drums of chorus2 and L04
+    // only takes chorus1, where Oak was playing.
+    expect(s.takes.map((t) => [t.lessonId, t.backfilled])).toEqual([
+      ["U01.L03", false],
+      ["U01.L04", true],
+      ["U01.L06", false],
+      ["U01.L02", true],
+    ]);
+    expect(s.takes.find((t) => t.lessonId === "U01.L06")).toEqual(l6 as UnitSongDetail["takes"][number]);
+    expect(s.takes.find((t) => t.lessonId === "U01.L04")?.cells).toEqual(declared("U01.L04"));
   });
 
   test("a backfilled take plays at the tempo its code sets", async () => {

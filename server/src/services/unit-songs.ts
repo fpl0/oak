@@ -5,7 +5,8 @@
 //  - the song row (style, title, status, the one-time style card), created idempotently (unit_id primary key);
 //  - the takes in order (`created_at`, then `id`), each pointing at the lesson-make sketch version it plays;
 //  - the backfill: a unit with completed take lessons and no takes for them gets one take per lesson from the
-//    learner's latest lesson-make sketch, claiming the step's sections × declared parts (spec §5.6a);
+//    learner's latest lesson-make sketch, claiming the step's sections × declared parts (spec §5.6a); a song that
+//    exists gains only the takes it lacks, placed so they never take a cell from its takes (`backfill`);
 //  - releases: refused until the song's `releaseAfter` is complete; each writes a snapshot (Oak's code of the
 //    flavour, the whole definition, every take with its code) and an album track version with no capstone.
 // Grading is untouched: nothing here reads or writes attempts, evidence or rubric results (spec §4.1).
@@ -61,6 +62,28 @@ export function codeBpm(code: string): number | null {
     if (Number.isFinite(n) && n > 0) bpm = n;
   }
   return bpm;
+}
+
+/**
+ * When a backfilled take sits in the song's order (`created_at`, then `id`; a later take owns a cell it shares with
+ * an earlier one). It dates from the Make it plays, so takes stay in the order the learner made them, but never at
+ * or after a take the song already has that claims one of its cells: a take Oak adds later (a missing take found
+ * at start-up, at a read or after a restore) only takes cells Oak was playing, and never one the learner's recorded
+ * takes own. Then it is placed a millisecond before the earliest such take.
+ */
+export function gapTakeAt(
+  madeAt: string,
+  cells: readonly string[],
+  held: readonly Pick<UnitSongTakeRow, "cells" | "createdAt">[],
+): string {
+  const mine = new Set(cells);
+  let at = madeAt;
+  for (const t of held)
+    if (t.createdAt <= at && t.cells.some((c) => mine.has(c))) {
+      const ms = Date.parse(t.createdAt);
+      at = Number.isFinite(ms) ? new Date(ms - 1).toISOString() : t.createdAt;
+    }
+  return at;
 }
 
 /** A recorded take with the sketch version it plays (a take whose sketch the learner deleted plays nothing). */
@@ -135,8 +158,12 @@ export class UnitSongsService {
         (a, b) => this.#unitOrder(a.unitId) - this.#unitOrder(b.unitId) || a.unitId.localeCompare(b.unitId),
       )
       .map((row) => {
-        const { takes: _takes, ...summary } = this.#detail(row.unitId, this.defOf(row.unitId), row);
-        return summary;
+        const def = this.defOf(row.unitId);
+        const { takes, ...summary } = this.#detail(row.unitId, def, row);
+        const steps =
+          def === null ? null : new Set(def.plan.filter((s) => s.kind === "take").map((s) => s.lesson));
+        const lessons = new Set(takes.map((t) => t.lessonId).filter((l) => steps === null || steps.has(l)));
+        return { ...summary, lessonsCount: lessons.size };
       });
   }
 
@@ -145,7 +172,10 @@ export class UnitSongsService {
     const def = this.defOf(unitId);
     const row = this.#repos.unitSongs.get(unitId);
     if (def === null && row === null) throw notFound(`the song of ${unitId}`);
-    return this.#detail(unitId, def, row);
+    if (def === null || row === null) return this.#detail(unitId, def, row);
+    // A completed take lesson whose take never landed joins the song now, not at the next start-up (see `backfill`).
+    this.#fillGaps(def);
+    return this.#detail(unitId, def, this.#repos.unitSongs.get(unitId));
   }
 
   /** `songs.snapshot`: a release exactly as it was frozen. */
@@ -217,8 +247,9 @@ export class UnitSongsService {
         styleSeen: true,
         createdAt: this.time.iso(),
       });
-      // Only a song this start created gets the unit's earlier Makes: a song that exists keeps its takes as they are.
-      if (created) this.#backfillUnit(def, false);
+      // Only a song this start created gets the unit's earlier Makes; a song that exists keeps its takes (the read
+      // below fills only the missing ones, see `backfill`).
+      if (created) this.#backfillUnit(def, "new");
     });
     return this.get(unitId);
   }
@@ -253,7 +284,8 @@ export class UnitSongsService {
   /**
    * `songs.recordTake`: a take step's Make was saved (`sketches.create`, origin `lesson-make`, this lesson). The cells
    * must lie in the step's sections and name the song's parts. A song not started yet starts in the profile's style
-   * (with the unit's backfill), so no take is lost. Saving a version that already has a take refines that take (its
+   * (with the unit's backfill), so no take is lost; a song that exists gains the missing takes of its other completed
+   * take lessons (see `backfill`). Saving a version that already has a take refines that take (its
    * cells, labels and tempo; its place in the order stays): that is how the app replaces a backfilled take's
    * declared cells with the ones it computed, and how a second tab's save counts once.
    */
@@ -282,8 +314,8 @@ export class UnitSongsService {
           styleSeen: false,
           createdAt: this.time.iso(),
         });
-        this.#backfillUnit(def, false);
-      }
+        this.#backfillUnit(def, "new", body.lessonId);
+      } else this.#backfillUnit(def, "gaps", body.lessonId);
       const existing = this.#repos.unitSongs.takeOf(unitId, body.lessonId, body.sketchId, body.sketchVersion);
       if (existing !== null)
         this.#repos.unitSongs.refineTake(existing.id, { cells, labels, bpm: body.bpm, backfilled: false });
@@ -317,6 +349,8 @@ export class UnitSongsService {
       const row = this.#needRow(unitId);
       if (!this.#done(def.releaseAfter))
         throw conflict(`This song can be released once ${this.#title(def.releaseAfter)} is done.`);
+      // The release freezes what songs.get shows: the song with every completed take lesson in it.
+      this.#backfillUnit(def, "gaps");
       const takes = this.#liveTakes(unitId);
       const newest = takes.at(-1);
       if (newest === undefined) throw conflict("This song has none of your takes yet.");
@@ -397,11 +431,18 @@ export class UnitSongsService {
   }
 
   /**
-   * The backfill (spec §5.6a), at start-up and after an import of a backup from before songs: every unit whose song
-   * has a completed take lesson and no song yet gets its song (in the profile's style, `backfilled`, style not seen
-   * yet), with one take per completed take lesson from the learner's latest lesson-make sketch of it. A song that
-   * exists is never touched: its takes are the ones the learner recorded (or a restored backup holds), and a
-   * start-up must not add to them or change who owns a cell. Idempotent.
+   * The backfill (spec §5.6a, contracts §5.11 rules 4 and 17), at start-up and after an import of a backup from
+   * before songs:
+   *  - every unit with a completed take lesson and no song yet gets its song (in the profile's style, `backfilled`,
+   *    style not seen yet), with one take per completed take lesson from the learner's latest lesson-make sketch;
+   *  - a song that exists keeps every take it has (their rows, cells, labels, tempo and order) and gains only the
+   *    takes of completed take lessons that have none at all: a Make whose `songs.recordTake` never landed (the song
+   *    could not be read when the Make opened, the server refused or was down, the app closed before a retry), or a
+   *    side step that a content update made a take. Such a take never takes a cell from a take the song already
+   *    has (`gapTakeAt`), so a restored or established song changes only where Oak was playing. Its style, its
+   *    `backfilled` flag and the one-time style card stay as they are. Release snapshots are frozen and untouched.
+   * `songs.get`, `songs.recordTake` and `songs.release` run the same gap fill for their unit, so a missing take
+   * comes back without a restart. Idempotent.
    */
   backfill(): { songs: number; takes: number } {
     let songs = 0;
@@ -409,8 +450,11 @@ export class UnitSongsService {
     this.#index();
     for (const def of this.#byUnit?.values() ?? []) {
       tx(this.#repos.db, () => {
-        if (this.#repos.unitSongs.get(def.unit) !== null) return;
-        takes += this.#backfillUnit(def, true);
+        if (this.#repos.unitSongs.get(def.unit) !== null) {
+          takes += this.#backfillUnit(def, "gaps");
+          return;
+        }
+        takes += this.#backfillUnit(def, "create");
         if (this.#repos.unitSongs.get(def.unit) !== null) songs += 1;
       });
     }
@@ -439,19 +483,45 @@ export class UnitSongsService {
     );
   }
 
-  /**
-   * One unit's backfill, inside the caller's transaction. With `create`, a unit with a completed take lesson and no
-   * song gets one. Returns how many takes it added.
-   */
-  #backfillUnit(def: UnitSongDef, create: boolean): number {
-    const songs = this.#repos.unitSongs;
-    const completed = def.plan.filter(
-      (s): s is TakeStep => s.kind === "take" && this.deps.gates.lessonCompleted(s.lesson),
+  /** The completed take steps of a song with no take at all (a take whose sketch was deleted still counts). */
+  #missingTakes(def: UnitSongDef, except?: string): TakeStep[] {
+    const have = new Set(this.#repos.unitSongs.takes(def.unit).map((t) => t.lessonId));
+    return def.plan.filter(
+      (s): s is TakeStep =>
+        s.kind === "take" &&
+        s.lesson !== except &&
+        !have.has(s.lesson) &&
+        this.deps.gates.lessonCompleted(s.lesson),
     );
+  }
+
+  /**
+   * The gap fill of a song that exists (see `backfill`), for `songs.get`: a read that finds nothing missing writes
+   * nothing. Runs in its own transaction, which re-checks.
+   */
+  #fillGaps(def: UnitSongDef): void {
+    if (this.#repos.unitSongs.get(def.unit) === null) return;
+    const missing = this.#missingTakes(def);
+    // A completed lesson with no Make sketch (none saved, or deleted) has nothing to add.
+    if (missing.length === 0 || this.#latestMakeSketches(new Set(missing.map((s) => s.lesson))).size === 0)
+      return;
+    tx(this.#repos.db, () => this.#backfillUnit(def, "gaps"));
+  }
+
+  /**
+   * One unit's backfill, inside the caller's transaction. Returns how many takes it added.
+   *  - `create`: a unit with a completed take lesson and no song gets one (`backfilled`, style not seen yet).
+   *  - `new`: the caller just created the song; a take added here marks it `backfilled`.
+   *  - `gaps`: the song exists; it gains only the missing takes, and its flags stay as they are.
+   * `except` is the lesson whose take the caller is recording now: it never gets a backfilled take first.
+   */
+  #backfillUnit(def: UnitSongDef, mode: "create" | "new" | "gaps", except?: string): number {
+    const songs = this.#repos.unitSongs;
+    const completed = this.#missingTakes(def, except);
     if (completed.length === 0) return 0;
     let created = false;
     if (songs.get(def.unit) === null) {
-      if (!create) return 0;
+      if (mode !== "create") return 0;
       created = songs.insert({
         unitId: def.unit,
         songId: def.id,
@@ -463,30 +533,30 @@ export class UnitSongsService {
         createdAt: this.time.iso(),
       });
     }
-    const have = new Set(songs.takes(def.unit).map((t) => t.lessonId));
+    const held = songs.takes(def.unit);
     const sketches = this.#latestMakeSketches(new Set(completed.map((s) => s.lesson)));
     let added = 0;
     for (const step of completed) {
-      if (have.has(step.lesson)) continue;
       const sk = sketches.get(step.lesson);
       if (sk === undefined) continue;
       const v = this.#repos.sketches.version(sk.id, sk.currentVersion);
       if (v === null) continue;
+      const cells = claimsOf(def, step, NOTHING_PLAYED);
       songs.insertTake({
         unitId: def.unit,
         lessonId: step.lesson,
         sketchId: v.sketchId,
         sketchVersion: v.version,
-        cells: claimsOf(def, step, NOTHING_PLAYED),
+        cells,
         labels: {},
         bpm: codeBpm(v.code) ?? (v.bpm !== null && v.bpm > 0 ? v.bpm : def.bpm),
         backfilled: true,
-        // The take dates from the Make it plays, so takes stay in the order the learner made them.
-        createdAt: v.createdAt,
+        createdAt: gapTakeAt(v.createdAt, cells, held),
       });
       added += 1;
     }
-    if (added > 0 || created) songs.patch(def.unit, { backfilled: true });
+    // A song that existed before this call keeps its flags: the takes Oak adds to it are marked one by one.
+    if (created || (added > 0 && mode !== "gaps")) songs.patch(def.unit, { backfilled: true });
     return added;
   }
 

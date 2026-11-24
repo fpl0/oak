@@ -173,6 +173,8 @@ When the update first runs (server start-up after migration 0011, and after a ba
 
 The first time Today shows a backfilled song, a one-time card says Oak made it from the learner's earlier lessons, and offers the style picker.
 
+A song that already exists keeps its takes; it gains a backfilled take only for a completed take lesson that has no take at all (a take that never reached the server), and that take never replaces a cell another take owns.
+
 ### 5.7 Tutor
 
 The lesson context sent to the tutor gains the song: title, style, which cells are the learner's, and today's line, so the tutor can talk about "your song". No new tools.

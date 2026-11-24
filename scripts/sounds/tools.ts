@@ -1,6 +1,6 @@
 // The pack build's external tools (lame, flac) as mirror.ts sees them: whether they are installed, and what to
 // say when a frozen build cannot reproduce the lock with the ones on this machine. Kept out of audio.ts on
-// purpose: audio.ts is part of every derived file's recipe (mirror.ts, codeHash), and these messages are not.
+// purpose: audio.ts is part of every derived file's recipe (recipe.ts), and these messages are not.
 
 import { toolVersion } from "./audio.ts";
 

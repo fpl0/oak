@@ -57,6 +57,13 @@ export interface SongSource {
   sourceId: string;
   lessonId: LessonId;
   code: string;
+  /**
+   * The part each of its tracks stood for when it was saved (`UnitSongTake.labels`: a track label → its part, `null`
+   * for a line that plays several parts). A track named here keeps that part wherever the take still owns cells: its
+   * role is not read again from the bars a later take left it, which could turn a bass into a tune. A track not named
+   * here (a backfilled take, `labels: {}`) is read from what it plays.
+   */
+  labels?: Readonly<Record<string, string | null>>;
 }
 
 /** The id the live Make's cells carry in a composed grid. */
@@ -100,6 +107,8 @@ export interface SongTrackInput {
   label: string;
   role: SongTrackRole | null;
   pattern: Pattern;
+  /** The part its take saved for it (`SongSource.labels`); absent: read from its label and role. */
+  part?: SongPartId | null;
 }
 export interface ComposeSource {
   sourceId: string;
@@ -295,8 +304,12 @@ function drumParts(def: UnitSongDef): (sound: string) => readonly SongPartId[] {
   };
 }
 
-/** The part a learner track stands for when a hap's sound names no drum part. */
-function trackPartOf(def: UnitSongDef, track: Pick<SongTrackInput, "label" | "role">): SongPartId | null {
+/** The part a learner track stands for when a hap's sound names no drum part: the one its take saved, else read. */
+function trackPartOf(
+  def: UnitSongDef,
+  track: Pick<SongTrackInput, "label" | "role" | "part">,
+): SongPartId | null {
+  if (track.part !== undefined) return track.part;
   const exact = def.parts.find((p) => p.label === track.label)?.id ?? null;
   // A drum track's hits are split by sound; only an exact label (`kick:`) stands for one part as a whole.
   if (track.role === "drums") return exact;
@@ -646,6 +659,8 @@ export interface BuiltSong {
     lessonId: string;
     tracks: { label: string; pattern: Pattern }[];
     sections: SourceSection[] | null;
+    /** `SongSource.labels`, when the take has them. */
+    labels?: Readonly<Record<string, string | null>>;
   }[];
   /** Sources that failed their check or their evaluation. */
   dropped: string[];
@@ -688,6 +703,7 @@ export async function buildSong(
         lessonId: s.lessonId,
         tracks,
         sections: sourceSectionsOf(s.code),
+        ...(s.labels && { labels: s.labels }),
       });
     } catch {
       dropped.push(s.sourceId);
@@ -699,6 +715,18 @@ export async function buildSong(
     sources,
     dropped,
   };
+}
+
+/** The part a take saved for one of its tracks: a part of the song or `null`; `undefined` when it saved none. */
+function savedPartOf(
+  def: UnitSongDef,
+  labels: Readonly<Record<string, string | null>> | undefined,
+  label: string,
+): SongPartId | null | undefined {
+  if (!labels || !Object.hasOwn(labels, label)) return undefined;
+  const saved = labels[label];
+  if (saved === null) return null;
+  return def.parts.find((p) => p.id === saved)?.id;
 }
 
 /** The song as it plays for one evaluation. */
@@ -762,7 +790,8 @@ export function finishSong(
       tracks: s.tracks.map((t) => {
         const owned = new Set(ownedBy(grid, s.sourceId).parts.keys());
         const r = withRole(t, playedSpans(def, owned, s.sections));
-        return { label: r.label, role: r.role, pattern: r.pattern };
+        const part = savedPartOf(def, s.labels, t.label);
+        return { label: r.label, role: r.role, pattern: r.pattern, ...(part !== undefined && { part }) };
       }),
     })),
     grid,

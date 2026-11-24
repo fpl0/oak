@@ -25,31 +25,11 @@ import { existsSync } from "node:fs";
 import { copyFile, mkdir, readdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, join, relative } from "node:path";
 import gm from "@strudel/soundfonts/gm.mjs";
-import {
-  decodeAudio,
-  fromDb,
-  measureCents,
-  midiToHz,
-  mix,
-  mono,
-  mp3,
-  onset,
-  type Pcm,
-  peak,
-  RATE,
-  retune,
-  rms,
-  scale,
-  stereo,
-  toRate,
-  trim,
-  wav16,
-} from "./audio.ts";
+import { decodeAudio, type Pcm, RATE, toRate, wav16 } from "./audio.ts";
 import { BREAKS, type BreakMeta, type KitHits, renderBreak } from "./breaks.ts";
 import { BRK_DIR, BRK_FILE, BRK_JSON, BRK_LICENCE, renderBreakWav } from "./brk.ts";
 import { buildCredits, creditsMarkdown, LICENSE_FILES } from "./credits.ts";
 import { renderSynthKit, SYNTH_KITS } from "./drummachine.ts";
-import { biquad, lofi, tapeBed } from "./dsp.ts";
 import { encodeFlac } from "./flac.ts";
 import {
   AKWF_TABLES,
@@ -88,6 +68,8 @@ import {
   srcKey,
 } from "./pack.config.ts";
 import { insideRoot, isSafeSamplePath } from "./paths.ts";
+import { codeHash, RECIPE_CODE } from "./recipe.ts";
+import { renderHit, renderNote, renderOneShot, renderSynthHit, renderTape } from "./render.ts";
 import { type Encoders, encoderMismatchHint, explainMissingTool, installedVersion } from "./tools.ts";
 import { OAK_TABLES, renderTable } from "./wavetables.ts";
 
@@ -247,14 +229,6 @@ function getPcm(r: SrcRef, keepRate = false): Promise<Pcm> {
   return p;
 }
 
-/** A mixdown of several microphones (mono). */
-async function mixdown(m: Mixdown): Promise<Pcm> {
-  const parts = await Promise.all(
-    m.mics.map(async ({ ref, gain }) => ({ pcm: mono(await getPcm(ref)), gain })),
-  );
-  return mix(parts);
-}
-
 // --- the plan --------------------------------------------------------------------------------------------
 
 interface Planned {
@@ -270,13 +244,6 @@ interface Planned {
 }
 
 type SampleMap = Record<string, string | string[] | Record<string, string | string[]>>;
-
-/** Hash of the build code a derived file depends on. */
-async function codeHash(files: string[]): Promise<string> {
-  const h = createHash("sha256");
-  for (const f of files) h.update(await readFile(join(import.meta.dirname, f)));
-  return h.digest("hex").slice(0, 16);
-}
 
 const NOTE = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const noteName = (m: number) => `${NOTE[m % 12]}${Math.floor(m / 12) - 1}`;
@@ -328,11 +295,12 @@ async function resolvePlan(lock: PackLock | undefined) {
     manifest.sampleMaps.push({ json: `${R}/${file}`, base: `${R}/${dir}`, tag });
   };
 
+  // The build code in each recipe (recipe.ts): everything that shapes the audio, never mirror.ts itself.
   const CODE = {
-    pitched: await codeHash(["audio.ts", "library.ts"]),
-    kit: await codeHash(["audio.ts", "dsp.ts", "flac.ts", "library.ts", "drummachine.ts"]),
-    brk: await codeHash(["audio.ts", "dsp.ts", "flac.ts", "breaks.ts"]),
-    table: await codeHash(["audio.ts", "wavetables.ts"]),
+    pitched: codeHash(RECIPE_CODE.pitched),
+    kit: codeHash(RECIPE_CODE.kit),
+    brk: codeHash(RECIPE_CODE.brk),
+    table: codeHash(RECIPE_CODE.table),
   };
   const inputs = async (refs: SrcRef[]) => (await Promise.all(refs.map(getSource))).map(sha256);
 
@@ -427,7 +395,7 @@ async function resolvePlan(lock: PackLock | undefined) {
           credit: ref.src,
           recipe,
           render: async () => {
-            const { bytes, cents } = await renderNote(spec, ref, note.midi);
+            const { bytes, cents } = await renderNote(spec, ref, note.midi, getPcm);
             (tuning[alias] as Record<string, string>)[`${note.midi}.${li}`] = cents;
             return bytes;
           },
@@ -496,7 +464,8 @@ async function resolvePlan(lock: PackLock | undefined) {
               group: `kit-${kit}`,
               credit: refs[0]?.src as string,
               recipe,
-              render: async () => encodeFlac(await renderHit(hit, role, def.maxSec, !!spec.lofi, level)),
+              render: async () =>
+                encodeFlac(await renderHit(hit, role, def.maxSec, !!spec.lofi, level, getPcm)),
             });
           }
           grid.push(row);
@@ -523,8 +492,7 @@ async function resolvePlan(lock: PackLock | undefined) {
             group: `kit-${kit}`,
             credit: `oak-${kit}`,
             recipe: sha256(JSON.stringify({ code: CODE.kit, kit, role, vi })),
-            render: async () =>
-              encodeFlac(levelled((voices.get()[role] as Pcm[])[vi] as Pcm, ROLE_LEVEL_DB[role])),
+            render: async () => encodeFlac(renderSynthHit((voices.get()[role] as Pcm[])[vi] as Pcm, role)),
           });
         }
         files[role] = list.map((f) => [f]);
@@ -571,7 +539,7 @@ async function resolvePlan(lock: PackLock | undefined) {
             input: await inputs(refs),
           }),
         ),
-        render: async () => encodeFlac(await renderOneShot(hit, spec)),
+        render: async () => encodeFlac(await renderOneShot(hit, spec, getPcm)),
       });
     }
     perc[name] = list;
@@ -583,7 +551,7 @@ async function resolvePlan(lock: PackLock | undefined) {
     group: "textures",
     credit: "oak-tape",
     recipe: sha256(JSON.stringify({ code: CODE.kit, tape: 8 })),
-    render: async () => encodeFlac(levelled(tapeBed(8), -32, 1000)),
+    render: async () => encodeFlac(renderTape(8)),
   });
   perc.tape = ["perc/tape_0.flac"];
   addMap("oak-perc.json", "", perc, "maps", "oak-perc");
@@ -630,7 +598,13 @@ async function resolvePlan(lock: PackLock | undefined) {
       group: "breaks",
       credit: "oak-breaks",
       recipe: sha256(
-        JSON.stringify({ code: CODE.brk, spec, kits: kitRecipe, vinyl: spec.vinylDb !== undefined }),
+        JSON.stringify({
+          code: CODE.brk,
+          spec,
+          kits: kitRecipe,
+          // the vinyl bed is mixed in from the one-shot, so its recipe is an input too
+          vinyl: spec.vinylDb !== undefined && plan.find((p) => p.path === `${v}/perc/vinyl_0.flac`)?.recipe,
+        }),
       ),
       render: async () => {
         const kits: Record<string, KitHits> = {};
@@ -718,70 +692,6 @@ async function resolvePlan(lock: PackLock | undefined) {
   // 9. Late JSON: breaks.json (after the breaks render), credits, manifest.
   const credits = () => buildCredits(sounds);
   return { plan, manifest, breakMeta, credits };
-}
-
-/** Peak-safe level to an RMS target over the first `ms` after the onset. */
-function levelled(p: Pcm, targetDb: number, ms = 100): Pcm {
-  const o = onset(p);
-  const r = rms(p, o, Math.round((ms / 1000) * p.sampleRate));
-  let g = r > 0 ? fromDb(targetDb) / r : 1;
-  const pk = peak(p) * g;
-  if (pk > fromDb(-0.5)) g *= fromDb(-0.5) / pk;
-  return scale(p, g);
-}
-
-/** The piano's loudness: RMS of the first 400 ms of its middle notes (measured, dBFS). */
-const PIANO_RMS400_DB = -21;
-
-async function renderNote(
-  spec: PitchedSpec,
-  ref: SrcRef,
-  midi: number,
-): Promise<{ bytes: Uint8Array; cents: string }> {
-  let p = await getPcm(ref, true);
-  p = spec.stereo ? stereo(p) : mono(p);
-  let cents = "kept";
-  if (spec.retune !== false) {
-    const c = measureCents(p, midi + 12 * Math.log2(spec.partial ?? 1));
-    if (c === null) cents = "unmeasured";
-    else if (Math.abs(c) > 2) {
-      p = retune(p, -c);
-      cents = `${c.toFixed(1)} -> 0`;
-    } else cents = c.toFixed(1);
-  }
-  // rumble, handling noise and hum below the note (a high-pass an octave under it, 24 dB/octave)
-  const cut = midiToHz(midi) * 0.5;
-  p = {
-    sampleRate: p.sampleRate,
-    channels: p.channels.map((c) =>
-      biquad(biquad(c, "hp", cut, 0.54, 0, p.sampleRate), "hp", cut, 1.31, 0, p.sampleRate),
-    ),
-  };
-  p = trim(p, { maxSec: spec.tailSec, fadeMs: 150, preMs: 2, floorDb: -55 });
-  p = levelled(p, PIANO_RMS400_DB + (spec.levelDb ?? 0), 400);
-  return { bytes: mp3(p), cents };
-}
-
-async function renderHit(
-  hit: Mixdown,
-  role: DrumRole,
-  maxSec: number,
-  lofiChain: boolean,
-  levelDb: number,
-): Promise<Pcm> {
-  let p = await mixdown(hit);
-  p = trim(p, { maxSec, fadeMs: role === "sd" || role === "bd" ? 40 : 80, preMs: 1, floorDb: -58 });
-  if (lofiChain) p = lofi(p);
-  return levelled(p, levelDb);
-}
-
-async function renderOneShot(hit: Mixdown, spec: (typeof ONE_SHOTS)[keyof typeof ONE_SHOTS]): Promise<Pcm> {
-  let p: Pcm;
-  if (hit.mics.length === 1 && "stereo" in spec && spec.stereo)
-    p = stereo(await getPcm((hit.mics[0] as Mixdown["mics"][number]).ref));
-  else p = await mixdown(hit);
-  p = trim(p, { maxSec: spec.maxSec, fadeMs: 60, preMs: 1, floorDb: -60 });
-  return levelled(p, spec.levelDb, 400);
 }
 
 /** The synthesised kits, computed once and only when a file needs them. */
