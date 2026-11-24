@@ -1129,8 +1129,11 @@ function PlayerCore(props: CoreProps) {
           onReplay={featureSwitch.replay}
         />
       )}
-      {/* Unit songs (spec §5.5 "Lesson"): the song card above the first step of this visit. */}
-      {ctx.index === (openedAt ?? ctx.range[0]) && <SongCard lessonId={def.id} />}
+      {/* Unit songs (spec §5.5 "Lesson"): the song card above the first step of today's part, not above a step
+          the visit resumed at. A resumed step goes straight back to work: the card is about 250 px tall and above
+          a mid-lesson step (U03.L09 S5's sight-sing) it pushed the step's own action (Sing) below the fold at
+          1280×720. The song stays one click away (Today's hero, the Make's song strip). */}
+      {ctx.index === ctx.range[0] && <SongCard lessonId={def.id} />}
       {props.side && ctx.index === (openedAt ?? ctx.range[0]) && (
         <div data-testid="side-lesson-note" className="mt-3">
           <Callout

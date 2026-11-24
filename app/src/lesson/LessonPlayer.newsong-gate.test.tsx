@@ -19,7 +19,7 @@ const { createRoot } = await import("react-dom/client");
 const { QueryClient, QueryClientProvider } = await import("@tanstack/react-query");
 const { unitSongs } = await import("../../../content/unit-songs/index.ts");
 const { apiKey } = await import("../lib/queries.ts");
-const { useNewSongGate } = await import("../song/hooks.ts");
+const { songFirstRead, useNewSongGate } = await import("../song/hooks.ts");
 
 import type { NewSongGate } from "../song/hooks.ts";
 
@@ -87,4 +87,75 @@ test("starting one unit's song keeps another unit's New song moment", async () =
 
   await act(() => root.unmount());
   el.remove();
+});
+
+test("only the song's first read holds the lesson; a read that failed never does again", () => {
+  // TanStack Query puts a query with no data back to `pending` while it reads again after an error (an observer that
+  // mounts, a window focus). Holding the lesson then unmounted the player, whose remount read again: a loop.
+  expect(songFirstRead({ isPending: true, errorUpdatedAt: 0 })).toBe(true);
+  expect(songFirstRead({ isPending: true, errorUpdatedAt: 1_764_000_000_000 })).toBe(false);
+  expect(songFirstRead({ isPending: false, errorUpdatedAt: 0 })).toBe(false);
+  expect(songFirstRead({ isPending: false, errorUpdatedAt: 1_764_000_000_000 })).toBe(false);
+});
+
+test("a lesson that opened without its song (the read failed) is never swapped for the New song moment", async () => {
+  const j1 = firstTake("J1");
+  const r1 = firstTake("R1");
+  // Every read fails, as with the server restarting: no request leaves the test.
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (async () => {
+    throw new TypeError("network down");
+  }) as unknown as typeof fetch;
+  const qc = new QueryClient({
+    defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY, retry: false } },
+  });
+  qc.setQueryData(songKey("R1"), detail("R1", "new"));
+
+  let gate: NewSongGate | null = null;
+  function Probe({ lessonId }: { lessonId: string }) {
+    gate = useNewSongGate(lessonId, { enabled: true });
+    return null;
+  }
+  const now = (): NewSongGate => {
+    if (!gate) throw new Error("the probe did not render");
+    return gate;
+  };
+  const el = document.createElement("div");
+  document.body.append(el);
+  const root = createRoot(el);
+  const render = (lessonId: string) =>
+    act(() =>
+      root.render(
+        React.createElement(QueryClientProvider, { client: qc }, React.createElement(Probe, { lessonId })),
+      ),
+    );
+  try {
+    await render(j1);
+    await act(async () => {
+      await qc
+        .getQueryCache()
+        .find({ queryKey: songKey("J1") })
+        ?.promise?.catch(() => undefined);
+      await new Promise((r) => setTimeout(r, 20));
+    });
+    // The read failed: the lesson opens without the song, and nothing holds it.
+    expect(now().pending).toBe(false);
+    expect(now().show).toBe(false);
+
+    // A later read succeeds with the song not started: the open lesson stays open.
+    await act(async () => {
+      qc.setQueryData(songKey("J1"), detail("J1", "new"));
+      await new Promise((r) => setTimeout(r, 20));
+    });
+    expect(now().flavour).toBe("flavour.pop");
+    expect(now().show).toBe(false);
+
+    // The next lesson asks again.
+    await render(r1);
+    expect(now().show).toBe(true);
+  } finally {
+    await act(() => root.unmount());
+    el.remove();
+    globalThis.fetch = realFetch;
+  }
 });

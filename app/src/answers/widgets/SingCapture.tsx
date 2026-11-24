@@ -686,7 +686,7 @@ export function SingCaptureAnswer(p: AnswerWidgetProps<"mic">) {
           </div>
           <p className="min-h-5 text-sm text-text-2" aria-live="polite" data-testid="sing-phase">
             {phase === "idle"
-              ? `${notes.length === 1 ? "One note" : `${notes.length} notes`}, within ±${tolCents}¢.${sight ? " Read it, then sing: Oak plays it after." : ""} Your voice is analysed live on this computer. Nothing is recorded or sent.`
+              ? `${notes.length === 1 ? "One note" : `${notes.length} notes`}, within ±${tolCents}¢.${sight ? " Press Sing, wait for the count-in, then sing the notes on the staff: Oak plays them after." : ""} Your voice is analysed live on this computer. Nothing is recorded or sent.`
               : phase === "cue"
                 ? "Listen first."
                 : phase === "opening"

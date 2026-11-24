@@ -24,9 +24,11 @@ export function howTo(ex: Exercise | undefined, opts: { beatsPerBar?: number } =
       return `Press **Start tapping**. After ${clicks}, the music plays for ${plural(ex.bars, "bar")}. Tap with ${keys} (or click the pad) as the task says. When it stops, press **Check**.`;
     }
     case "sing":
-      return ex.mode === "sight"
-        ? "Press **Sing**, wait for the count-in, then sing the notes on the staff. Your result shows when the take ends."
-        : "Press **Sing**. Listen to the cue, then sing when the lane says “Sing now.” Your result shows when the take ends.";
+      // The sing renderer says how beside its own Sing button (`singHowText`; in sight mode the widget's line
+      // "Press Sing, wait for the count-in, then sing the notes on the staff"), and in Quiet mode there is no Sing
+      // button at all. A second "Press Sing" line in the task box repeated it, and on U03.L09 S5 pushed Sing below
+      // the fold at 1280×720.
+      return null;
     case "code-modify":
     case "code-fill":
     case "error-hunt":

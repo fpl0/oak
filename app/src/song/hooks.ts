@@ -14,8 +14,8 @@ import type {
 } from "@oak/api";
 import { stripMarkers } from "@oak/api";
 import { songLengthBars } from "@oak/strudel/song-compose";
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { type UseQueryResult, useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
 import { songStepOf } from "../../../content/unit-songs/index.ts";
 import { bandSetupOf } from "../lesson/band.ts";
 import {
@@ -50,6 +50,17 @@ export function useUnitSong(unitId: string | null) {
 /** The learner's songs (`songs.list`), started ones only, in course order. */
 export const useUnitSongs = () => useQuery(apiQuery("songs.list"));
 
+/**
+ * The song is read for the first time: no answer yet, neither the song nor an error. A song that failed to read is
+ * fetched again by every observer that mounts (and on focus), and TanStack Query puts a query with no data back to
+ * `pending` while it does. Waiting on `isPending` alone then looped: the lesson waited, unmounted the player, the
+ * read failed, the player mounted and read again (a 404 or a server restarting kept the lesson on "Opening the
+ * lesson" for good). Once a read has failed, the lesson opens without the song and does not wait again.
+ */
+export function songFirstRead(q: Pick<UseQueryResult, "isPending" | "errorUpdatedAt">): boolean {
+  return q.isPending && q.errorUpdatedAt === 0;
+}
+
 /** The song a lesson belongs to (its take or side step) and the learner's song, or nulls for a lesson in no song. */
 export function useSongOfLesson(lessonId: string | null) {
   const found = lessonId ? songStepOf(lessonId as LessonId) : null;
@@ -58,6 +69,8 @@ export function useSongOfLesson(lessonId: string | null) {
     song: found?.song ?? null,
     step: found?.step ?? null,
     detail: (query.data as UnitSongDetail | undefined) ?? null,
+    /** The first read is under way (`songFirstRead`): what waits for the song waits on this, never on `isPending`. */
+    pending: songFirstRead(query),
     query,
   };
 }
@@ -115,15 +128,23 @@ export interface NewSongGate {
  * with the picked style and then calls `onStarted`.
  */
 export function useNewSongGate(lessonId: string, o: { enabled: boolean }): NewSongGate {
-  const { song, step, detail, query } = useSongOfLesson(o.enabled ? lessonId : null);
+  const { song, step, detail, pending } = useSongOfLesson(o.enabled ? lessonId : null);
   // The unit whose song the learner just started (until `songs.get` refetches as started). A unit id, not a flag: the
   // player stays mounted across lessons, and starting one song must not skip another unit's moment.
   const [startedUnit, setStartedUnit] = useState<UnitId | null>(null);
+  // The lesson that opened without its song (the first read failed, `songFirstRead`): a later read that succeeds
+  // must not swap the open lesson for the New song moment halfway through. The next lesson asks again.
+  const [openedWithout, setOpenedWithout] = useState<string | null>(null);
   const unitId = song?.unit ?? null;
-  const show = o.enabled && startedUnit !== unitId && newSongGateOf(step, detail);
+  const show =
+    o.enabled && startedUnit !== unitId && openedWithout !== lessonId && newSongGateOf(step, detail);
+  const failedOpen = o.enabled && step?.kind === "take" && !pending && detail === null;
+  useEffect(() => {
+    if (failedOpen) setOpenedWithout(lessonId);
+  }, [failedOpen, lessonId]);
   return {
     show,
-    pending: o.enabled && step?.kind === "take" && query.isPending,
+    pending: o.enabled && step?.kind === "take" && pending,
     unitId,
     flavour: detail?.flavour ?? null,
     onStarted: () => setStartedUnit(unitId),
@@ -146,15 +167,16 @@ const makeStepOf = (lesson: LessonDef) => [...lesson.steps].reverse().find((s) =
  * the codes that count as unchanged, today's loop, the grid with today's cells, and the chips' words.
  */
 export function useSongMake(lesson: LessonDef, o: { flavour: FlavourId }): SongMakeState {
-  const { song, step, detail, query } = useSongOfLesson(lesson.id);
+  const { song, step, detail, pending, query } = useSongOfLesson(lesson.id);
   const introduced = useIntroducedTerms();
   const titleOf = useLessonTitles();
   const flavour = o.flavour;
   return useMemo((): SongMakeState => {
     if (!song || !step) return { kind: "none" };
     if (step.kind === "side") return { kind: "side", def: song, reason: step.reason };
-    if (query.isPending) return { kind: "pending" };
-    if (query.isError) return { kind: "none" };
+    if (pending) return { kind: "pending" };
+    // A song that could not be read (or is being read again after that): the Make is a plain sketch, as before.
+    if (query.isError || detail === null) return { kind: "none" };
     const make = makeStepOf(lesson);
     const ex = make?.exercise;
     const authored =
@@ -211,5 +233,5 @@ export function useSongMake(lesson: LessonDef, o: { flavour: FlavourId }): SongM
       takeIds: playableTakes(detail).map((t) => t.id),
       chipLabel: (track) => songChipLabel(track, { partName, lessonTitle: titleOf }),
     };
-  }, [song, step, detail, query.isPending, query.isError, lesson, flavour, introduced, titleOf]);
+  }, [song, step, detail, pending, query.isError, lesson, flavour, introduced, titleOf]);
 }

@@ -208,8 +208,12 @@ export function StepLayout({ stage, answer, actions, hidePrompt, answerFirst }: 
               data-testid="step-task"
               className="mt-3 max-w-[60ch] rounded-control border-l-2 border-accent bg-lane-in px-3 py-2"
             >
-              <p className="text-xs font-semibold tracking-wide text-text-2 uppercase">Your task</p>
-              <p className="mt-1 leading-relaxed">
+              {/* The heading runs in, like "How:": on its own row it cost every step a line of height, and a
+                  step's own action (U03.L09 S5's Sing) has to stay above the fold at 1280×720. */}
+              <p className="leading-relaxed">
+                <span className="mr-2 text-xs font-semibold tracking-wide text-text-2 uppercase">
+                  Your task
+                </span>
                 <InlineMd text={prompt} />
               </p>
               {how ? (

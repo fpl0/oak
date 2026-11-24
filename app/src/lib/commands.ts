@@ -35,6 +35,19 @@ export const useCommandStore = create<CommandStore>((set) => ({
   },
 }));
 
+/**
+ * Everything of a command list the palette shows or matches on. The hint is in it: a track lens that is not open
+ * yet keeps its title ("Clave lens") while its hint grows the lesson title once the syllabus loads ("Opens with
+ * R3.L02" → "Opens with R3.L02 Clave Direction"); keyed on ids and titles alone, the palette kept the first hint.
+ */
+export function commandSignature(commands: readonly Command[]): string {
+  return commands
+    .map((c) =>
+      [c.id, c.title, c.group, c.hint ?? "", c.shortcut ?? "", (c.keywords ?? []).join(",")].join("\u0000"),
+    )
+    .join("\u0001");
+}
+
 export function allCommands(sources: Map<string, readonly Command[]>): Command[] {
   const seen = new Set<string>();
   const out: Command[] = [];
@@ -47,12 +60,15 @@ export function allCommands(sources: Map<string, readonly Command[]>): Command[]
   return out;
 }
 
-/** Contributes commands while mounted. `commands` may change every render; the source updates when ids change. */
+/**
+ * Contributes commands while mounted. `commands` may change every render; the source updates when what the palette
+ * shows or matches changes (`commandSignature`), not on every new array.
+ */
 export function useCommandSource(sourceId: string, commands: readonly Command[]): void {
   const setSource = useCommandStore((s) => s.setSource);
   const latest = useRef(commands);
   latest.current = commands;
-  const signature = commands.map((c) => `${c.id}:${c.title}`).join("|");
+  const signature = commandSignature(commands);
   useEffect(() => {
     setSource(
       sourceId,

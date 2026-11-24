@@ -152,8 +152,8 @@ New tables only (no CHECK widening: rebuilding `sketches`, `album_tracks` or `se
 ### 5.5 Surfaces
 
 - **New song** (first lesson of a unit with no song): a full-screen moment. Oak plays the song; four style cards, each with a play button; the working title; "Start this song". Defaults to the profile flavour.
-- **Today**: a song hero above the setlist: cover (tree rings, one per take), title and style, a ▶ that plays the song as it stands, the arrangement grid (sections as columns, parts as rows; the learner's cells filled in their colour, Oak's cells outlined; a playhead moves while it plays), "lesson 4 of 9 in this song", and the next lesson's `today` line.
-- **Lesson**: a song card above the first step (▶ "your song so far", the grid in small, today's line), drawn by the app, not authored.
+- **Today**: a song hero below the session card and the callouts that ask for a decision (Start stays on the first screen at 1280×800, ux.md §1.4): cover (tree rings, one per take), title and style, a ▶ that plays the song as it stands, the arrangement grid (sections as columns, parts as rows; the learner's cells filled in their colour, Oak's cells outlined; a playhead moves while it plays), "lesson 4 of 9 in this song", and the next lesson's `today` line.
+- **Lesson**: a song card above the first step of today's part, not above a step a visit resumes at (▶ "your song so far", the grid in small, today's line), drawn by the app, not authored.
 - **Make**: the song strip above the editor with today's cells highlighted; section loop; whole-song play.
 - **Coda**: "Your song grew": before/after play, the new cells and ring animate in; a Release card when the song is releasable.
 - **Song page `/song/$unitId`**: the grid with playhead, section loop, mute/solo per part, the take history (each lesson: what you took over, ▶ that version), rename, change style, release.

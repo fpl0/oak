@@ -951,7 +951,7 @@ The app shows the `prompt` in a box headed **Your task**. That box is the contra
 3. End with what counts as done when it is not obvious from the action itself: "Done when the kick plays on 1 and on the second half of beat 2, and nowhere else." Keep "Done when" short and checkable. Leave it out where the action already says it ("Pick the line that plays on beat 2.").
 4. Name the sound to act on and how to recognise it when it is new: "Tap on each crash, the long splashy cymbal that opens every bar."
 5. Say what must stay unchanged when it matters: "Keep the snare and hats as they are."
-6. Do not write controls (Space, Enter, Start, Check, Play): the app draws a **How** line under the task for every interactive kind (tap, sing, code, choice, Make). Write the music, not the buttons. Exception: a step that teaches a control.
+6. Do not write controls (Space, Enter, Start, Check, Play): the app draws a **How** line under the task for every interactive kind (tap, code, choice, Make); a sing step says it beside its Sing button. Write the music, not the buttons. Exception: a step that teaches a control.
 7. Still ≤ 60 words (check 14).
 
 ### 22.3 Checklists say exactly what is checked

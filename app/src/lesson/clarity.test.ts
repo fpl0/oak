@@ -7,12 +7,17 @@ import { howTo, padStepsFor } from "./how-to.ts";
 const lessons = (await loadLessons()).lessons.map((l) => l.def).filter((d) => !d.id.startsWith("U99"));
 
 describe("howTo", () => {
-  test("every interactive exercise in the course gets a How line; tap says the count-in, the bars and the key", () => {
+  test("every interactive exercise but sing gets a How line; tap says the count-in, the bars and the key", () => {
     let taps = 0;
     for (const l of lessons)
       for (const s of l.steps) {
         const ex = s.exercise;
         if (!ex || ex.kind === "listen" || ex.kind === "all" || ex.kind === "compose-brief") continue;
+        // Sing steps say how beside their own Sing button (sing.tsx, SingCapture.tsx), not in the task box.
+        if (ex.kind === "sing") {
+          expect(howTo(ex), `${l.id} ${s.id} (sing)`).toBeNull();
+          continue;
+        }
         const how = howTo(ex);
         expect(how, `${l.id} ${s.id} (${ex.kind})`).not.toBeNull();
         if (ex.kind === "tap") {

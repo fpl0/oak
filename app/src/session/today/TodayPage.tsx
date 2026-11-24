@@ -484,8 +484,6 @@ export function TodayPage() {
       {view?.after?.firstDay && !courseAfter && view.state !== "done" && <FirstDayLine />}
       <div className="grid gap-6 lg:grid-cols-12">
         <section aria-labelledby="setlist-h" className="flex flex-col gap-4 lg:col-span-8">
-          {/* Unit songs (spec 2026-11-24 §5.5 "Today"): the song of the planned lesson, above the setlist. */}
-          {planData?.song && view && view.state !== "first-run" && <SongHero plan={planData} />}
           <Card className="p-5" data-testid="today-card" data-state={view?.state}>
             {plan.isError ? (
               <ErrorState error={plan.error} onRetry={() => void plan.refetch()} />
@@ -630,6 +628,11 @@ export function TodayPage() {
               </Callout>
             </div>
           )}
+          {/* Unit songs (spec 2026-11-24 §5.5 "Today"): the song of the planned lesson, under the session card and
+              the callouts that ask for a decision. Today has one decision, to start the session (ux.md §1.4), so
+              Start stays on the first screen at 1280×800: the hero (cover, grid, today's line) is about 460 px tall
+              and above the card it pushed Start below the fold; above the callouts it pushed them off the screen. */}
+          {planData?.song && view && view.state !== "first-run" && <SongHero plan={planData} />}
           {/* Once the lessons of the core are done: what is open, under the planned session (END.md). */}
           {planData && (courseAfter || view?.after) && view && view.state !== "in-session" && (
             <OpenToYou
