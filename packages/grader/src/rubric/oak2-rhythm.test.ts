@@ -438,3 +438,378 @@ describe("AC7 and AC8 edges and beginner feedback", () => {
     check(await run("linear-drums", linear, { minHitsPerBar: 16 }, opts), true);
   });
 });
+
+interface RealCase {
+  name: string;
+  rule: string;
+  body: string;
+  ok: boolean;
+  params?: Record<string, unknown>;
+  bars?: number;
+  meter?: RubricContext["meter"];
+  detail?: RegExp;
+  inspect?: (n: Normalized) => void;
+}
+
+// Keep each acceptance case separately discoverable, with no event rewriting between Strudel and the rule.
+const realCases: RealCase[] = [
+  {
+    name: "AC1 off-beat bass passes",
+    rule: "kick-bass-composite",
+    body: `${kick}\n${offBass}`,
+    ok: true,
+    inspect: (n) => {
+      expect(n.byTrack.drums?.every((e) => e.drum === "kick")).toBe(true);
+      expect(n.byTrack.bass?.[0]).toMatchObject({ onset: [1, 8], dur: [1, 8], clipDur: [1, 20] });
+    },
+  },
+  {
+    name: "AC1 busier threaded bass passes",
+    rule: "kick-bass-composite",
+    body: `${kick}\nbass: note("[~ c2 g2 ~]*4").s("sawtooth").clip(.4)`,
+    ok: true,
+    inspect: (n) => expect(n.byTrack.bass).toHaveLength(32),
+  },
+  {
+    name: "AC1 bass on every kick fails",
+    rule: "kick-bass-composite",
+    body: `${kick}\nbass: note("c2*4").s("sawtooth").clip(.4)`,
+    ok: false,
+    detail: /take turns/,
+  },
+  {
+    name: "AC1 long bass through a kick fails",
+    rule: "kick-bass-composite",
+    body: `${kick}\nbass: note("~ c2 ~ ~ ~ ~ ~ ~").s("sawtooth").legato(2)`,
+    ok: false,
+    detail: /Shorten/,
+    inspect: (n) => {
+      expect(n.byTrack.bass?.[0]).toMatchObject({ onset: [1, 8], dur: [1, 8], clipDur: [1, 4] });
+    },
+  },
+  {
+    name: "AC1 one bass note in four bars fails",
+    rule: "kick-bass-composite",
+    body: `${kick}\nbass: note("<[~ c2 ~ ~ ~ ~ ~ ~] ~ ~ ~>").s("sawtooth").clip(.4)`,
+    ok: false,
+    detail: /more/,
+    inspect: (n) => expect(n.byTrack.bass).toHaveLength(1),
+  },
+  {
+    name: "AC1 stacked bass notes fail",
+    rule: "kick-bass-composite",
+    body: `${kick}\nbass: note("~ [c2,g2] ~ ~ ~ ~ ~ ~").s("sawtooth").clip(.4)`,
+    ok: false,
+    detail: /another bass/,
+    inspect: (n) => {
+      expect(n.byTrack.bass?.slice(0, 2).map((e) => [e.onset, e.midi])).toEqual([
+        [[1, 8], 36],
+        [[1, 8], 43],
+      ]);
+    },
+  },
+  {
+    name: "AC2 note-by-note hocket passes",
+    rule: "hocket",
+    body: split,
+    params: hocketParams,
+    ok: true,
+  },
+  {
+    name: "AC2 groups-of-three hocket passes",
+    rule: "hocket",
+    body: 'mel: note("c4 d4 e4 ~ ~ ~ b4 c5").s("sine")\nchords: note("~ ~ ~ f4 g4 a4 ~ ~").s("triangle")',
+    params: hocketParams,
+    ok: true,
+  },
+  {
+    name: "AC2 one track plays everything fails",
+    rule: "hocket",
+    body: 'mel: note("c4 d4 e4 f4 g4 a4 b4 c5").s("sine")\nchords: note("~").s("triangle")',
+    params: hocketParams,
+    ok: false,
+    detail: /chords/,
+  },
+  {
+    name: "AC2 both tracks on beat one fails",
+    rule: "hocket",
+    body: 'mel: note("c4 ~ e4 ~ g4 ~ b4 ~").s("sine")\nchords: note("c4 d4 ~ f4 ~ a4 ~ c5").s("triangle")',
+    params: hocketParams,
+    ok: false,
+    detail: /once/,
+  },
+  {
+    name: "AC2 same sound fails",
+    rule: "hocket",
+    body: 'mel: note("c4 ~ e4 ~ g4 ~ b4 ~").s("sine")\nchords: note("~ d4 ~ f4 ~ a4 ~ c5").s("sine")',
+    params: hocketParams,
+    ok: false,
+    detail: /different sounds/,
+  },
+  {
+    name: "AC2 alternating two-bar phrases with a missing note fails",
+    rule: "hocket",
+    body: 'mel: note("<[c4 d4 e4 f4 g4 a4 b4 c5]!2 ~!2>").s("sine")\nchords: note("<~!2 [c4 d4 e4 f4 g4 a4 b4 ~]!2>").s("triangle")',
+    params: hocketParams,
+    ok: false,
+    detail: /every note/,
+  },
+  {
+    name: "AC3 held filter values pass",
+    rule: "stepped-control",
+    body: 'mel: note("c4*8").s("sawtooth").clip(.3).lpf("<400 400 2000 2000 800 800>")',
+    params: { track: "mel", control: "lpf" },
+    bars: 6,
+    ok: true,
+    inspect: (n) => {
+      expect(n.byTrack.mel?.map((e) => e.controls?.cutoff)).toEqual(
+        [400, 400, 2000, 2000, 800, 800].flatMap((v) => Array(8).fill(v)),
+      );
+    },
+  },
+  {
+    name: "AC3 sine filter sweep fails",
+    rule: "stepped-control",
+    body: 'mel: note("c4*8").s("sawtooth").clip(.3).lpf(sine.range(300, 3000))',
+    params: { track: "mel", control: "lpf" },
+    ok: false,
+    detail: /Hold/,
+    inspect: (n) => {
+      expect(new Set(n.byTrack.mel?.map((e) => e.controls?.cutoff)).size).toBeGreaterThan(3);
+    },
+  },
+  {
+    name: "AC3 constant filter fails",
+    rule: "stepped-control",
+    body: 'mel: note("c4*8").s("sawtooth").clip(.3).lpf(800)',
+    params: { track: "mel", control: "lpf" },
+    ok: false,
+    detail: /different/,
+    inspect: (n) => expect(new Set(n.byTrack.mel?.map((e) => e.controls?.cutoff))).toEqual(new Set([800])),
+  },
+  {
+    name: "AC4 frozen plain notes pass",
+    rule: "no-chance",
+    body: 'mel: note("c4 d4 e4 f4").s("sine")',
+    ok: true,
+  },
+  {
+    name: "AC4 mini question mark fails",
+    rule: "no-chance",
+    body: 'mel: note("c4 d4? e4 f4").s("sine")',
+    ok: false,
+    detail: /\?/,
+  },
+  {
+    name: "AC4 degradeBy fails",
+    rule: "no-chance",
+    body: 'mel: note("c4*8").s("sine").degradeBy(.3)',
+    ok: false,
+    detail: /degradeBy/,
+  },
+  {
+    name: "AC4 sometimes fails",
+    rule: "no-chance",
+    body: 'mel: note("c4*8").sometimes(x => x.add(12)).s("sine")',
+    ok: false,
+    detail: /sometimes/,
+  },
+  {
+    name: "AC5 steady pad and hats with one busier bar pass",
+    rule: "depth-layers",
+    body: `${lead}\n${pad}\n${hats}`,
+    params: depth,
+    bars: 8,
+    ok: true,
+    inspect: (n) => {
+      expect(
+        Array.from({ length: 8 }, (_, b) => n.byTrack.hats?.filter((e) => R.floor(e.onset) === b).length),
+      ).toEqual([4, 4, 4, 4, 4, 4, 4, 8]);
+    },
+  },
+  {
+    name: "AC5 everything changes every bar fails",
+    rule: "depth-layers",
+    body: `${lead}\nchords: note("<c3 d3 e3 f3 g3 a3 b3 c4>").s("triangle")\nhats: s("<hh hh*2 hh*3 hh*4 hh*5 hh*6 hh*7 hh*8>")`,
+    params: depth,
+    bars: 8,
+    ok: false,
+    detail: /mostly repeating/,
+  },
+  {
+    name: "AC5 no background step forward fails",
+    rule: "depth-layers",
+    body: `${lead}\n${pad}\nhats: s("hh*4").gain(.4)`,
+    params: depth,
+    bars: 8,
+    ok: false,
+    detail: /occasional bar/,
+  },
+  {
+    name: "AC5 lead repeats like the background fails",
+    rule: "depth-layers",
+    body: `mel: note("c4").s("sine")\n${pad}\n${hats}`,
+    params: depth,
+    bars: 8,
+    ok: false,
+    detail: /Vary mel/,
+  },
+  {
+    name: "AC6 sixteen-step linear figure passes",
+    rule: "linear-drums",
+    body: linear,
+    ok: true,
+    inspect: (n) => {
+      expect(new Set(n.all.map((e) => e.drum))).toEqual(new Set(["kick", "snare", "hatClosed"]));
+      expect(n.all).toHaveLength(64);
+    },
+  },
+  {
+    name: "AC6 three-three-two groove passes",
+    rule: "linear-drums",
+    body: grouped,
+    params: { group: [3, 3, 2] },
+    ok: true,
+  },
+  {
+    name: "AC6 rock beat without overlaps but with eighth-note hats fails",
+    rule: "linear-drums",
+    body: 'drums: s("hh bd hh ~ hh sd hh ~ hh bd hh ~ hh sd hh ~")',
+    ok: false,
+    detail: /evenly spaced/,
+  },
+  {
+    name: "AC6 kick and hat together on beat one fails",
+    rule: "linear-drums",
+    body: 'drums: s("[bd,hh] hh sd hh hh bd hh sd bd sd hh bd hh hh sd hh")',
+    ok: false,
+    detail: /first beat/,
+  },
+  {
+    name: "duration weighted bass through a kick fails",
+    rule: "kick-bass-composite",
+    body: `${kick}\nbass: note("~ c2@3 ~@4").s("sawtooth")`,
+    ok: false,
+    detail: /Shorten/,
+    inspect: (n) => {
+      expect(n.byTrack.bass?.[0]).toMatchObject({ onset: [1, 8], dur: [3, 8] });
+      expect(n.byTrack.bass?.[0]?.clipDur).toBeUndefined();
+    },
+  },
+  {
+    name: "duration clipped weighted bass passes",
+    rule: "kick-bass-composite",
+    body: `${kick}\nbass: note("~ c2@3 ~@4").s("sawtooth").clip(.25)`,
+    ok: true,
+    inspect: (n) => {
+      expect(n.byTrack.bass?.[0]).toMatchObject({ onset: [1, 8], dur: [3, 8], clipDur: [3, 32] });
+    },
+  },
+  {
+    name: "banked kick and clipped bass pass",
+    rule: "kick-bass-composite",
+    body: `${kick}.bank("RolandTR909")\n${offBass}`,
+    ok: true,
+    inspect: (n) => expect(n.byTrack.drums?.every((e) => e.drum === "kick" && e.s === "bd")).toBe(true),
+  },
+  {
+    name: "banked linear drums pass",
+    rule: "linear-drums",
+    body: `${linear}.bank("RolandTR808")`,
+    ok: true,
+    inspect: (n) =>
+      expect(new Set(n.all.map((e) => e.drum))).toEqual(new Set(["kick", "snare", "hatClosed"])),
+  },
+  {
+    name: "gain and velocity make one background bar louder",
+    rule: "depth-layers",
+    body: `${lead}\n${pad}\nhats: s("hh*4").gain(.8).velocity("<.5!7 1>")`,
+    params: depth,
+    bars: 8,
+    ok: true,
+    inspect: (n) => {
+      expect(n.byTrack.hats?.map((e) => e.gain)).toEqual([...Array(28).fill(0.4), ...Array(4).fill(0.8)]);
+    },
+  },
+];
+
+const realEdges = [
+  {
+    rule: "kick-bass-composite",
+    body: 'drums: s("bd*3")\nbass: note("~ c2 ~ c2 ~ c2").s("sawtooth").clip(.4)',
+    params: { minBassPerBar: 3 },
+    track: "bass",
+  },
+  { rule: "hocket", body: split, params: hocketParams, track: "chords" },
+  {
+    rule: "stepped-control",
+    body: 'mel: note("c4*8").s("sawtooth").lpf("400 2000 800 400")',
+    params: { track: "mel", control: "lpf" },
+    track: "mel",
+  },
+  { rule: "no-chance", body: 'mel: note("c4 d4 e4 f4").s("sine")', params: { track: "mel" }, track: "mel" },
+  { rule: "depth-layers", body: `${lead}\n${pad}\n${hats}`, params: depth, track: "hats" },
+  { rule: "linear-drums", body: 'drums: s("bd hh hh sd hh hh")', params: { group: [3, 3] }, track: "drums" },
+];
+for (const edge of realEdges) {
+  realCases.push({
+    name: `AC7 ${edge.rule} in three-quarter time passes`,
+    ...edge,
+    bars: 8,
+    meter: "3/4",
+    ok: true,
+  });
+  for (const muted of [false, true]) {
+    const body = muted
+      ? edge.body.replace(`${edge.track}:`, `_${edge.track}:`)
+      : edge.body
+          .split("\n")
+          .filter((line) => !line.startsWith(`${edge.track}:`))
+          .join("\n");
+    realCases.push({
+      name: `AC7 ${edge.rule} with ${muted ? "muted" : "missing"} ${edge.track} fails`,
+      rule: edge.rule,
+      body: `${body}\nspare: note("c6").s("sine")`,
+      params: edge.params,
+      bars: 8,
+      ok: false,
+      detail: new RegExp(edge.track),
+      inspect: (n) => expect(n.byTrack[edge.track] ?? []).toHaveLength(0),
+    });
+  }
+}
+
+describe("real Strudel", () => {
+  for (const c of realCases) {
+    test(c.name, async () => {
+      const bars = c.bars ?? 4;
+      const meter = c.meter ?? "4/4";
+      const code = codeOf(c.body, meter);
+      const n = await strudel(code, bars);
+      const ctx: RubricContext = { code, meter, bars, totalBars: bars, params: {} };
+      const rule = rules[c.rule];
+      if (!rule) throw new Error(`Missing rule ${c.rule}`);
+      const r = rule(n, ctx, c.params ?? {});
+      // Include actual event evidence if a new evaluator behavior changes the verdict or the pinned fields.
+      try {
+        expect(n.all.length).toBeGreaterThan(0);
+        c.inspect?.(n);
+        check(r, c.ok, c.detail);
+        checkDetail(r);
+      } catch (cause) {
+        const observed = n.all.map(({ track, onset, dur, clipDur, midi, drum, s, gain, controls }) => ({
+          track,
+          onset,
+          dur,
+          clipDur,
+          midi,
+          drum,
+          s,
+          gain,
+          controls,
+        }));
+        throw new Error(`${c.name}\n${code}\nObserved events: ${JSON.stringify(observed)}`, { cause });
+      }
+    });
+  }
+});
