@@ -250,6 +250,14 @@ interface Kit {
   };
 }
 
+/**
+ * Oak 2.0 W2 (the music-fix protocol; audit-core U08 "Once-only moment": the only one-time events were whole sections,
+ * the stop and the end, and the bridge's two-bar build): one swoosh on beat 4 of the second chorus's last bar, bar 36,
+ * leading into the bridge, heard once in the song. A foley sound has no kit, so it plays beside the bar's percussion,
+ * outside its `.bank()`.
+ */
+const SWOOSH_ONCE = 's("<~!7 [~ ~ ~ swoosh]>")';
+
 /** Where the pad plays: the loud parts, the quiet part and the ending. */
 const PAD_SECTIONS: readonly SectionId[] = ["chorus1", "chorus2", "bridge", "chorus3", "outro", "end"];
 
@@ -260,6 +268,12 @@ const STOP_ROLL = "~ ~ [sd sd] [sd sd sd sd]";
 const INTRO_SNARE = "<~ ~ [~ sd ~ sd] [~ sd ~ [sd sd]]>";
 const VERSE_SNARE = "<[~ sd ~ sd]!7 [~ sd ~ [sd sd]]>";
 const CHORUS_SNARE = "<[~ [sd,cp] ~ [sd,cp]]!7 [~ [sd,cp] [~ sd] [sd sd]]>";
+/**
+ * Oak 2.0 W2 (the music-fix protocol; audit-core U08 "Repeats varied": chorus2 played chorus1's drums bar for bar in
+ * every flavour): the second chorus claps on 4 only, and its hats open only on the "and" of 4; the third chorus keeps
+ * chorus1's drums and adds its own percussion.
+ */
+const CHORUS_SNARE_2 = "<[~ sd ~ [sd,cp]]!7 [~ [sd,cp] [~ sd] [sd sd]]>";
 const OUTRO_SNARE = "<[~ [sd,cp] ~ [sd,cp]]!3 ~>";
 /** The bridge bass: whole notes under the first four bars, then root and 5th, then driving eighths into the stop. */
 const BRIDGE_BASS = "<a1 f1 c2 g1 [a1@4 e2@4] [f1@4 c2@4] [c2*8] [g1*8]>";
@@ -293,7 +307,7 @@ const POP: Kit = {
     verse1: v(VERSE_SNARE),
     chorus1: v(CHORUS_SNARE),
     verse2: v(VERSE_SNARE),
-    chorus2: v(CHORUS_SNARE),
+    chorus2: v(CHORUS_SNARE_2),
     bridge: v(BRIDGE_SNARE),
     stop: v(STOP_ROLL),
     chorus3: v(CHORUS_SNARE),
@@ -305,7 +319,7 @@ const POP: Kit = {
     verse1: v("hh*8", V8),
     chorus1: v("[hh hh hh oh]*2", V8),
     verse2: v("hh*8", V8),
-    chorus2: v("[hh hh hh oh]*2", V8),
+    chorus2: v("hh hh hh hh hh hh hh oh", V8),
     bridge: v(BRIDGE_HATS),
     stop: null,
     chorus3: v("[hh hh hh oh]*2", V8),
@@ -391,7 +405,7 @@ const INDIE: Kit = {
     verse1: v("hh*8", V8),
     chorus1: v("[hh oh]*4", V8),
     verse2: v("hh*8", V8),
-    chorus2: v("[hh oh]*4", V8),
+    chorus2: v("[hh hh hh oh]*2", V8),
     bridge: v(BRIDGE_HATS),
     stop: null,
     chorus3: v("[hh oh]*4", V8),
@@ -476,7 +490,7 @@ const JAZZ: Kit = {
     verse1: v("<[~ rim ~ rim]!7 [~ rim ~ [sd sd]]>"),
     chorus1: v("<[~ sd ~ sd]!7 [~ sd [~ sd] [sd sd]]>"),
     verse2: v("<[~ rim ~ rim]!7 [~ rim ~ [sd sd]]>"),
-    chorus2: v("<[~ sd ~ sd]!7 [~ sd [~ sd] [sd sd]]>"),
+    chorus2: v("<[~ rim ~ sd]!7 [~ sd [~ sd] [sd sd]]>"),
     bridge: v("<[~ ~ rim ~]!4 [~ rim ~ rim]!2 [~ sd ~ sd] [sd*8]>"),
     stop: v(STOP_ROLL),
     chorus3: v("<[~ sd ~ sd]!7 [~ sd [~ sd] [sd sd]]>"),
@@ -572,7 +586,7 @@ const FUNK: Kit = {
     verse1: v("<[~ sd ~ sd]!7 [~ sd ~ [sd sd sd sd]]>"),
     chorus1: v("<[~ [sd,cp] ~ [sd,cp]]!7 [~ [sd,cp] [~ sd] [sd sd sd sd]]>"),
     verse2: v("<[~ sd ~ sd]!7 [~ sd ~ [sd sd sd sd]]>"),
-    chorus2: v("<[~ [sd,cp] ~ [sd,cp]]!7 [~ [sd,cp] [~ sd] [sd sd sd sd]]>"),
+    chorus2: v("<[~ sd ~ [sd,cp]]!7 [~ [sd,cp] [~ sd] [sd sd sd sd]]>"),
     bridge: v("<[~ ~ rim ~]!4 [~ sd ~ sd]!2 [sd*8] [sd*16]>"),
     stop: v(STOP_ROLL),
     chorus3: v("<[~ [sd,cp] ~ [sd,cp]]!7 [~ [sd,cp] [~ sd] [sd sd sd sd]]>"),
@@ -584,7 +598,7 @@ const FUNK: Kit = {
     verse1: v("hh*16", V16),
     chorus1: v("[hh hh oh hh]*4", V16),
     verse2: v("hh*16", V16),
-    chorus2: v("[hh hh oh hh]*4", V16),
+    chorus2: v("[hh hh hh hh hh hh oh hh]*2", V16),
     bridge: v("<~!4 [hh*16]!4>", V16),
     stop: null,
     chorus3: v("[hh hh oh hh]*4", V16),
@@ -687,7 +701,7 @@ const ELECTRONIC: Kit = {
     verse1: v(VERSE_SNARE),
     chorus1: v("<[~ cp ~ cp]!7 [~ cp [~ cp] [cp cp cp cp]]>"),
     verse2: v(VERSE_SNARE),
-    chorus2: v("<[~ cp ~ cp]!7 [~ cp [~ cp] [cp cp cp cp]]>"),
+    chorus2: v("<[~ cp ~ [sd,cp]]!7 [~ cp [~ cp] [cp cp cp cp]]>"),
     bridge: v("<~!4 [~ ~ sd ~]!2 [sd*8] [sd*16]>"),
     stop: v("~ ~ [cp cp] [cp cp cp cp]"),
     chorus3: v("<[~ cp ~ cp]!7 [~ cp [~ cp] [cp cp cp cp]]>"),
@@ -699,7 +713,7 @@ const ELECTRONIC: Kit = {
     verse1: v("hh*8", V8),
     chorus1: v("[hh hh oh hh]*4", V16),
     verse2: v("hh*8", V8),
-    chorus2: v("[hh hh oh hh]*4", V16),
+    chorus2: v("[hh hh hh hh hh hh oh hh]*2", V16),
     bridge: v(BRIDGE_HATS),
     stop: null,
     chorus3: v("[hh hh oh hh]*4", V16),
@@ -825,6 +839,14 @@ function code(flavour: FlavourId): string {
     k.banks
       ? mapSections((id) => (by[id] === null ? null : `${by[id]}.bank("${k.banks?.[id] ?? k.bank}")`))
       : by;
+  /** The percussion names its machine in each section, so the second chorus's swoosh can play outside it. */
+  const percussion = mapSections((id) => {
+    const p = k.perc[id];
+    if (p === null) return null;
+    const machine = k.banks?.[id] ?? k.bank;
+    const kit = machine ? `${p}.bank("${machine}")` : p;
+    return id === "chorus2" ? `stack(${kit}, ${SWOOSH_ONCE})` : kit;
+  });
   const tracks = [
     track(
       "mel",
@@ -853,7 +875,7 @@ function code(flavour: FlavourId): string {
     ),
     track("snare", drums(k.snare), `${bank}${sw}.gain(${num(k.gain.snare)})`),
     track("hats", drums(k.hats), `${bank}${sw}.gain(${num(k.gain.hats)})`),
-    track("perc", drums(k.perc), `${bank}${sw}.gain(${num(k.gain.perc)})`),
+    track("perc", percussion, `${sw}.gain(${num(k.gain.perc)})`),
   ];
   return [...tracks.flatMap((t) => t.consts), "", ...tracks.map((t) => t.line)].join("\n");
 }
@@ -877,7 +899,7 @@ const take = (
 export const U08_SONG = defineUnitSong({
   id: "usong.U08",
   unit: "U08",
-  version: 1,
+  version: 2,
   title: "Ground floor",
   meter: "4/4",
   key: { tonic: "C", mode: "major" },
@@ -943,6 +965,14 @@ export const U08_SONG = defineUnitSong({
       // both, its rubric does not), so a passing answer without them leaves Oak's snare and hats in, never a silence.
       ["kick", "bass"],
       "Your kick and bass, sharing one rhythm, drive the last two loud parts of the song.",
+    ),
+    take(
+      "U08.L06",
+      // Kick and bass only, over the chords the learner wrote here in U08.L02: its loop's roots are I V vi IV, the
+      // first loud part's chords (the verses play I IV I V, so the second verse cannot take it).
+      ["chorus1"],
+      ["kick", "bass"],
+      "Your kick and bass, taking turns as one line, drive the first loud part of the song.",
     ),
     take(
       "U08.L05",

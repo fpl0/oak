@@ -467,6 +467,7 @@ export const A1: UnitSpec = {
         "tb.delaytime",
         "tb.delayfeedback",
         "tb.orbit",
+        "snd.noise",
       ],
       steps: [
         {
@@ -514,6 +515,13 @@ export const A1: UnitSpec = {
           minutes: 1.25,
           graded: true,
           what: "From `fam.snd.params` level 4 (generator stimulus, room and delay): two bars; more room, or echoes?",
+        },
+        {
+          kind: "compare",
+          exercise: "identify",
+          answer: ["choice"],
+          minutes: 0.5,
+          what: "Oak 2.0 (W2), the book's Silence and Noise, ungraded: clinical or a bed. Two audio cards of the same sparse chords (C then F, two short dry hits a bar, three labelled lines, no `,`): card A with silent gaps, card B over a quiet `brown` noise bed (`.lpf(800).gain(.12)`, A1.L02's noise). Pick the card where something still sounds in the gaps (card B). The pass text says both are choices: a bed glues the parts and places them somewhere; empty gaps keep each chord clean.",
         },
         {
           kind: "make",
@@ -734,6 +742,21 @@ export const A1: UnitSpec = {
           minutes: 1.25,
           graded: true,
           what: "What moves: a held pad, one setting moved by a slow wave (a fixed item, tests in the lesson). Options: the pitch (vibrato), the loudness (tremolo), the brightness (a filter sweep). The stimulus is `.lpf(700).lprate(1).lpdepth(.8)`: the brightness.",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1,
+          graded: true,
+          what: 'Oak 2.0 (W2), the book\'s Rhythm of Automation: steps, not sweeps. The A1 drums and bass under eighth-note sawtooth chords (`decay(.12).sustain(0)`) whose cutoff glides on `sine.range(400, 3000).slow(2)` (editable). Replace the glide with held values that jump. Graded: `events` on the chords\' notes and `custom` `stepped-control { track: "chords", control: "lpf", minSteps: 3 }` (each value held for two chords or more, three values or more, jumps of at least a fifth of the range: Oak\'s call, in the rule). Right answers: `"400 1200 2000 2800"`, a new order per bar, `"<[400 1600] [800 3200]>"`, `saw.range(400, 2000).segment(4)`. Wrong: a new value on every chord, one constant value. Pins: content/validate/pins/A1.L06.ts.',
+        },
+        {
+          kind: "run",
+          exercise: "run-investigate",
+          minutes: 0.75,
+          optional: true,
+          what: "Oak 2.0 (W2), the book's Humanizing With Automation, optional and ungraded: slow drift. The same pulse with `.decay(perlin.range(.08, .2))` and `.lpf(perlin.range(900, 1600).slow(3))`: no two chords alike. Run it, then widen or narrow the ranges and run it again. (`.detune()` waits for A1.L07, so the drift is on decay and cutoff.)",
         },
         {
           kind: "make",

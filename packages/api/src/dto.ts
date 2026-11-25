@@ -3515,8 +3515,12 @@ export type Wave6SeedPoint = (typeof WAVE6_SEED_POINTS)[number];
 // Additive: existing shapes only gained optional fields (above, before the schemas that carry them); every new
 // endpoint answers a typed 501 until the server engineer builds it (`WAVE7_ENDPOINTS` in contract.ts).
 
-/** Sessions per part of the course (contracts §2.7). The map counts the tracks once a track lesson is authored. */
-export const COURSE_SESSIONS = { core: 185, J: 34, R: 20, A: 20, total: 259 } as const;
+/**
+ * Sessions per part of the course (contracts §2.7, as of changelog 2.2: Oak 2.0 W2 adds five core lessons and their
+ * gym slot, J3.L05, R1.L06 and A2.L07–L09; `content/syllabus.ts` `SESSION_COUNTS`). The map counts the tracks once a
+ * track lesson is authored.
+ */
+export const COURSE_SESSIONS = { core: 191, J: 35, R: 21, A: 23, total: 270 } as const;
 
 /**
  * The track checkpoints (contracts §2.6, §7.6 rule 5): each covers part of its track and gates ONLY that track's

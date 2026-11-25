@@ -306,6 +306,7 @@ describe("the walks of the points (wave7.md §6)", () => {
           });
       }
     }
-    expect(WAVE7_WALKS["whole course complete"]?.walk.length).toBe(74);
+    // 74 before Oak 2.0 W2 added J3.L05, R1.L06 and A2.L07–L09 to the tracks.
+    expect(WAVE7_WALKS["whole course complete"]?.walk.length).toBe(79);
   });
 });

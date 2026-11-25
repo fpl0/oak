@@ -41,11 +41,11 @@ beforeAll(async () => {
 const NOW = "2026-11-14T12:00:00.000Z";
 const PAUSE = "The next lessons are still being written. Today: a review, then Studio.";
 
-/** What Today holds after each point: the map item, or a review day when that lesson is not written yet. */
+/** What Today holds after each point (gym ordinals one on since Oak 2.0 W2, contracts 2.2 §2.5), or a review day. */
 const TODAY: Record<string, { kind: SessionPlan["kind"]; id: string | null }> = {
   "after X2 (U12.L02 next)": { kind: "lesson", id: "U12.L02" },
-  "after U12.L05": { kind: "gym", id: "GYM.12" },
-  "after U13.L03": { kind: "gym", id: "GYM.13" },
+  "after U12.L05": { kind: "gym", id: "GYM.13" },
+  "after U13.L03": { kind: "gym", id: "GYM.14" },
   "U13.CP due": { kind: "checkpoint", id: "U13.CP" },
   "tracks open (after U13.CP)": { kind: "lesson", id: "U14.L02" },
   "after U14.L03": { kind: "lesson", id: "U14.L04" },
@@ -60,13 +60,13 @@ const TODAY: Record<string, { kind: SessionPlan["kind"]; id: string | null }> = 
   "U17.CP due": { kind: "checkpoint", id: "U17.CP" },
   "C7 open": { kind: "capstone", id: "C7.S1" },
   "C7.S2 done": { kind: "capstone", id: "C7.S3" },
-  "C7 released": { kind: "gym", id: "GYM.17" },
+  "C7 released": { kind: "gym", id: "GYM.18" },
   "CF-A open": { kind: "capstone", id: "CF-A.S1" },
   "CF-A.S3 done": { kind: "capstone", id: "CF-A.S4" },
   "core complete": { kind: "review", id: null },
   "ladder L8": { kind: "lesson", id: "U17.L03" },
   "C3.S3 in progress (d13)": { kind: "capstone", id: "C3.S3" },
-  "two takes (d20)": { kind: "gym", id: "GYM.06" },
+  "two takes (d20)": { kind: "gym", id: "GYM.07" },
   "second tab (d21)": { kind: "lesson", id: "U12.L02" },
 };
 /** Points built with their warm-ups (as e2e seeds them): the ones whose checks read the reviews or the gym. */
@@ -264,7 +264,8 @@ async function deepChecks(h: Harness, point: string, plan: SessionPlan): Promise
       const summary = lastSummary(h);
       expect((summary.gatesOpened ?? []).map((g) => g.gateId).sort()).toEqual(["J.main", "R.main"]);
       // Wave 7: the first lessons of J and R are written (J1.L01, R1.L01, the Foundation exemplars). The core stays
-      // the New block and each open track is offered beside it (wave7.md §5.2); the map counts all 259 sessions.
+      // the New block and each open track is offered beside it (wave7.md §5.2); the map counts all 270 sessions
+      // (content/syllabus.ts SESSION_COUNTS.total since Oak 2.0 W2; it was 259).
       const written = (id: string) => full.lessons.some((l) => l.id === id);
       const first = { J: "J1.L01", R: "R1.L01" } as const;
       const tracks = await ok<Tracks>(h, "GET", "/api/tracks");
@@ -288,7 +289,7 @@ async function deepChecks(h: Harness, point: string, plan: SessionPlan): Promise
           "J1.L01",
           "R1.L01",
         ]);
-        expect(p.mapTotal).toBe(259);
+        expect(p.mapTotal).toBe(270);
       } else {
         const unwritten: ("J" | "R")[] = (["J", "R"] as const).filter((t) => !written(first[t]));
         expect(plan.tracks?.open as string[] | undefined).toEqual(unwritten);
@@ -442,11 +443,11 @@ async function deepChecks(h: Harness, point: string, plan: SessionPlan): Promise
       expect(c.stage).toBe("complete");
       expect(c.completedAt).not.toBeNull();
       expect(c.remaining).toEqual([]);
-      expect({ done: c.sessionsDone, total: c.sessionsTotal }).toEqual({ done: 185, total: 185 });
+      expect({ done: c.sessionsDone, total: c.sessionsTotal }).toEqual({ done: 191, total: 191 });
       expect(c.album).toMatchObject({ released: 12, total: 12 });
       expect(c.milestone?.id).toBe("ms.07");
       expect(c.milestone?.reachedAt).toBe(c.completedAt);
-      expect(c.stats.sessions).toBe(185);
+      expect(c.stats.sessions).toBe(191);
       expect(c.stats.tracksReleased).toBe(12);
       expect(c.sessionId).toBe(summary.session.id);
       // Every Side A track has a recording.

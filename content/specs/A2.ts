@@ -64,15 +64,18 @@ const VOX = "<[~ ~ 0 2] [~ 0 2 ~] [2 ~ ~ 4] [~ 1 ~ -1]>";
 
 export const A2: UnitSpec = {
   unit: "A2",
+  // The track's order (content/syllabus.ts `trackOrder.A`): Oak 2.0 W2 puts A2.L08 and A2.L09 after A2.L02 and A2.L07
+  // after A2.L03.
+  covers: ["A2.L01", "A2.L02", "A2.L08", "A2.L09", "A2.L03", "A2.L07", "A2.L04", "A2.L05", "A2.L06"],
   title: "Arrangement & Mix",
   summary:
-    "The second unit of the Arrangement & Sound track (contracts §2.6): six lessons that open after U10.CP and follow A1.L07 in the track's order, then the track checkpoint A.CP over A1–A2 and the two capstones. A1 shaped one sound at a time; A2 shapes how the parts sound together. Each part has a job and a height (A2.L01, the exemplar: registers, why low close chords turn to mud, Oak's spectrum panel); a section can be thin or thick (A2.L02); a second line can answer the tune (A2.L03); a recorded drum break can be cut up and played in a new order (A2.L04); every part gets its level and its room (A2.L05); and one tune can wear two styles (A2.L06). Every lesson works on the A2 loop, a minor loop in the learner's own code over the Band's drums, and every Make ends with that loop (or the learner's own) sounding more like a finished record. A.CP checks it all; AC1 arranges a public-domain tune twice in two genres and AC2 is a neo-soul ballad, the last capstones of the course.",
+    "The second unit of the Arrangement & Sound track (contracts §2.6): nine lessons that open after U10.CP and follow A1.L07 in the track's order, then the track checkpoint A.CP over A1–A2 and the two capstones. A1 shaped one sound at a time; A2 shapes how the parts sound together. Each part has a job and a height (A2.L01, the exemplar: registers, why low close chords turn to mud, Oak's spectrum panel); a section can be thin or thick (A2.L02); an arrangement can be built down from its fullest section (A2.L08) and its seams blurred, with one surprise (A2.L09); a second line can answer the tune (A2.L03), or one tune can pass between two sounds note by note (A2.L07); a recorded drum break can be cut up and played in a new order (A2.L04); every part gets its level and its room (A2.L05); and one tune can wear two styles (A2.L06). Every lesson works on the A2 loop, a minor loop in the learner's own code over the Band's drums, and every Make ends with that loop (or the learner's own) sounding more like a finished record. A.CP checks it all; AC1 arranges a public-domain tune twice in two genres and AC2 is a neo-soul ballad, the last capstones of the course.",
   conventions: [
     "Written for the learner at the gate (contracts §7.6 rule 5, AUTHORING §20.1): A2 opens after U10.CP and the track's order puts A1.L07 before it, so the earliest learner here has minor keys and `strings` (U10), everything of A1 (filters, envelopes, space, grit, movement, FM and the supersaw), chords by name with `.voicing()`, stacks, `.add()`, `arrange()` and section consts, and nothing of U11 onward: no dominant sevenths, blues scale, `crunch` or swing (U11), no sevenths by name (U12), no `.late()`/`.early()` (U13.L01), no `.velocity()` (U13.L02), no `.pan()` before A2.L05 (its own site; U14.L06 is the other). A learner at session 185 reads the same lessons, so none calls a core idea new.",
     'The A2 loop: A minor at 90 BPM, i–VI–III–VII (Am F C G) over `band.aeolian-4bar` with `tracks: ["drums"]` (its drums in the flavour\'s kit; the harmony is the learner\'s). `bass: note("<a1 f1 c2 g1>").s("sawtooth").lpf(400)`; `chords: n("<[0,2,4] [-2,0,2] [-5,-3,-1] [-1,1,3]>").scale("A3:minor").s("piano")` (A C E | F A C | C E G | G B D, close triads moving the shortest way, C3 to E4); `mel: n("<[4 ~ 2 0] [2 ~ 0 ~] [4 2 4 ~] [1 ~ 6 ~]>").scale("A4:minor").s("square").lpf(2000)` (E C A | C A | E C E | B G: every note on a beat is in its chord, evaluated). The chords are degree stacks so their height is the learner\'s: a `voicing()` line is never graded by octave, top note or note count (contracts §6.7 item 1). A2.L04 plays at 96 BPM (the break\'s own tempo, `BRK_BPM`), A2.L06 writes its own drums.',
     "Grading (AUTHORING §20.2, the corrections-pass standard): every required rule reads what is heard. A part more than 24 dB under the loudest learner part is left out by the grader (`audibleInMix`, decision 71), so a part turned down to nothing never carries a rule. Implemented and used here: `range` (A2.L01), `contrast` on the `density` axis (A2.L02: events per bar, every chord note counted, ±25%), `events` and `controls` matchers. Planned (TRACK_CUSTOM_RULES; the lesson fails check 2 until the grader builds them, and its spec line says so): `counter-melody` (A2.L03), `slices-reordered` (A2.L04), `level-balance` (A2.L05), `same-tune-two-ways` (A2.L06), and the rubric rules `register-separation` and `no-muddy-low` (the grader's Wave 1 versions use other limits than `@oak/theory` `LOW_INTERVAL_LIMITS`: rebuild them on the theory table). Each graded step names its WRONG ANSWER THAT USES THE RIGHT FUNCTION and three other right answers.",
     'Grader requests for A2 (apiNotes): `SOUND_CONTROL_KEYS` gains `begin`, `end`, `speed` (A2.L04, `slices-reordered` reads `begin`/`end` from `.slice()` events: evaluated, `s("brk").slice(4, "0 2 1 3")` gives begin 0, .5, .25, .75), `postgain`, `pan`, `compressor` (and its `compressorRatio`, `compressorKnee`, `compressorAttack`, `compressorRelease`), `duckorbit`, `duckdepth` (A2.L05). `level-balance` reads effective gain (`gain × velocity × postgain`) and is honest about it: compression and room change loudness too, so its brief asks for levels by `.gain()`/`.postgain()` and compression is heard, never graded.',
-    'Terms (eleven, all in content/terms.ts): "spectrum" and "register" (A2.L01), "texture" and "density" (A2.L02, a pair), "counter-melody" (A2.L03), "sample" and "chop" (A2.L04), "mix" and "compression" (A2.L05), "idiom" (A2.L06). These are common words: no A2 lesson uses one before the lesson that introduces it (course.test.ts scans every legal order; "how full", "how many parts", "a recording", "the balance" stay plain). Words that wait: "voicing" as a jazz idea (J3), "groove" is plain English, "genre" is plain English (A2.L06 names the idiom).',
+    'Terms (eleven, all in content/terms.ts): "spectrum" and "register" (A2.L01), "texture" and "density" (A2.L02, a pair), "counter-melody" (A2.L03), "sample" and "chop" (A2.L04), "mix" and "compression" (A2.L05), "idiom" (A2.L06); Oak 2.0 W2 adds "dramatic arc" (A2.L08) and "hocket" (A2.L07), and A2.L09 reuses the terms of U09.L07. These are common words: no A2 lesson uses one before the lesson that introduces it (course.test.ts scans every legal order; "how full", "how many parts", "a recording", "the balance" stay plain). Words that wait: "voicing" as a jazz idea (J3), "groove" is plain English, "genre" is plain English (A2.L06 names the idiom).',
     "Ear training: `fam.snd.roles` (contracts §7.3; level 1 which instrument plays the bass, the pad, the lead; level 2 which part muddies the bass) is seeded by A2.L01 and reviewed in A2.L02–L06; its generator's option labels vary per trial, so in-lesson ear steps are fixed `identify` items with tests, and the family runs in the warm-up. `fam.snd.params` keeps being reviewed. The planned deck `deck.snd.controls` deals its mix cards from A2.L05 once the drills engine writes it.",
     "Scaffolds: roll on, staff off (sound and arrangement lessons), the spectrum panel (`initialPanels: [\"spectrum\"]`, A2.L01 on) where a step is about where parts sit. No singing step: singing never gates (contracts §7.6, §8) and nothing in A2 is learned by singing. Flavours change the Band's drums only; the learner's sounds are the lesson.",
   ],
@@ -306,6 +309,215 @@ export const A2: UnitSpec = {
       ],
     },
     {
+      id: "A2.L08",
+      author: "content-lead",
+      idea: "Write the fullest section first, every part you will use playing together, then make every other section by taking parts or notes away from it. The arrangement then changes without a new idea at every turn, and the peak has somewhere to grow from (DeSantis, Arranging as a Subtractive Process; Dramatic Arc).",
+      hook: {
+        hear: "Sixteen bars of the A2 loop as intro, verse, chorus and outro, all cut from one five-part chorus (hats, bass, chords, tune, strings): the hats wait through the intro, the tune and strings sit out the verse, everything plays in the chorus, and bass and chords are left for the outro.",
+        code: `${T()}const hatsChorus = s("hh*8")\nconst bassChorus = note("<a1 f1 c2 g1>")\nconst chordsChorus = n("${CHORDS}")\nconst melChorus = n("${TUNE}")\nconst voxChorus = n("${VOX}")\nconst hatsIntro = silence\nconst bassIntro = bassChorus\nconst chordsIntro = chordsChorus\nconst melIntro = melChorus\nconst voxIntro = voxChorus\nconst hatsVerse = hatsChorus\nconst bassVerse = bassChorus\nconst chordsVerse = chordsChorus\nconst melVerse = silence\nconst voxVerse = silence\nconst hatsOutro = silence\nconst bassOutro = bassChorus\nconst chordsOutro = chordsChorus\nconst melOutro = silence\nconst voxOutro = silence\n\nhats: arrange([4, hatsIntro], [4, hatsVerse], [4, hatsChorus], [4, hatsOutro]).gain(.35)\nbass: arrange([4, bassIntro], [4, bassVerse], [4, bassChorus], [4, bassOutro]).s("ebass").lpf(700)\nchords: arrange([4, chordsIntro], [4, chordsVerse], [4, chordsChorus], [4, chordsOutro]).scale("A3:minor").s("piano").gain(.5)\nmel: arrange([4, melIntro], [4, melVerse], [4, melChorus], [4, melOutro]).scale("A4:minor").s("square").lpf(2000).gain(.5)\nvox: arrange([4, voxIntro], [4, voxVerse], [4, voxChorus], [4, voxOutro]).scale("A3:minor").s("strings").gain(.4)`,
+      },
+      key: Am,
+      meter: "4/4",
+      bpm: BPM,
+      canDo: ["cd.compose.peak-first"],
+      uses: [...BASE, ...L01, "snd.ebass", "tb.arrange", "tb.mask"],
+      steps: [
+        {
+          kind: "listen",
+          exercise: "listen",
+          minutes: 1.25,
+          what: "Start with everything: the five-part chorus alone (4 bars), then the same palette spread over intro, verse, chorus and outro (16 bars).",
+        },
+        {
+          kind: "predict",
+          exercise: "predict",
+          answer: ["number"],
+          minutes: 0.5,
+          what: "Count the verse: how many labelled parts play in the verse alone (`count`: 3, the hats, bass and chords).",
+        },
+        {
+          kind: "investigate",
+          exercise: "run-investigate",
+          answer: ["choice"],
+          minutes: 1,
+          panels: ["form"],
+          what: "Find the omission: which labelled part plays in the chorus but sits out the intro (choice: the hats).",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1.25,
+          graded: true,
+          what: "Carve from the peak: every section plays the full chorus; make the intro, verse and outro by taking parts or notes away. Graded: `custom` `carved { minDiffer: 2 }` (every bar of a section is the chorus's bar at the same place with notes deleted; at least one section leaves out a part or keeps every part with a quarter of the notes gone, Oak's call). Right answers: `silence`, masks, notes erased inside parts, the peak placed first. Wrong: the same part removed everywhere, a new note in the verse, the chorus thinner than a section. Pins: content/validate/pins/A2.L08.ts (an additive build, bars moved to another place, identical sections fail; thinning every part passes).",
+        },
+        {
+          kind: "compare",
+          exercise: "identify",
+          answer: ["choice"],
+          minutes: 0.5,
+          what: "Place the peak: the same four sections in two orders (two audio cards); which builds to the chorus and falls away after it? The pass text names the **dramatic arc** and says opening at full strength is another choice.",
+          term: "term.dramatic-arc",
+        },
+        {
+          kind: "make",
+          exercise: "code-make",
+          answer: ["code"],
+          minutes: 2.75,
+          what: "Your fullest moment: write your own chorus from the bass and chords, then carve the intro, verse and outro from it.",
+        },
+      ],
+      wrapAt: 4,
+      make: {
+        brief:
+          "Write your own fullest section in the Chorus consts, then make the intro, verse and outro by taking parts or notes away. The bass and chords are a starting point.",
+        required: {
+          rule: "custom",
+          label:
+            "Every section is the fullest one with parts or notes taken away, each bar at its own place; at least one section leaves out a part or a quarter of the notes",
+          why: "`carved { minDiffer: 2 }`: the starter (every section the same) fails; a note the chorus does not play at that place fails (an additive build, or a bar moved); a part missing from the fullest section fails.",
+        },
+        suggestions: ["the fullest section with a thinner one before and after it (`custom` `arc`)"],
+        band: "band.aeolian-4bar",
+        tracks: ["drums"],
+        flavours: "The Band's drums in the flavour's kit; the five parts are the learner's.",
+      },
+      srs: [],
+      mistakes: [
+        "S4 and Make: the same part removed from every section, the starter unchanged, a new note in the verse, the chorus losing a part still heard in the verse: `rubric.unmet` with the rule's detail",
+        "S4 unchanged: `code.unchanged`",
+        "S5: the version that opens at full strength: `id.wrong`",
+      ],
+      connects: {
+        back: "A2.L02 thinned a verse so the chorus landed; U09.L07 carved a song that played everything everywhere.",
+        forward:
+          "A2.L09 blurs the seams between the sections carved here; A2.L03 fills a thin section with a second line.",
+      },
+      epr: {
+        enjoyment:
+          "The learner writes the best moment of the song first, then hears four sections come out of it without writing a new note.",
+        pace: "One idea: arrange down from the peak. Texture and density were A2.L02's, sections and masks U09's, seams A2.L09's.",
+        return:
+          "The Coda says: you can build an arrangement down from its fullest section. Next: seams that blur and one surprise.",
+      },
+      notes: [
+        "Oak 2.0 W2, written by Codex X10 (plan `docs/superpowers/plans/2026-11-25-oak2-w2.md` Task 9); this row was added at integration.",
+        'Song: a side step ("Peak First builds a whole arrangement of its own, down from its chorus, so it stays a sketch beside the song.").',
+        "S1 is 1.25 minutes: its two items play 53 seconds at 90 BPM (`wave7-learner.test.ts`, listen items at most 85 % of the step).",
+      ],
+    },
+    {
+      id: "A2.L09",
+      author: "content-lead",
+      idea: "A section change need not happen in every part at once: a drum fill can stop short of the new section and leave a gap on its first beat, or run on past it, while the other parts keep the seam in place; and one sound heard only once, inside a section that returns, is a surprise the ear remembers (DeSantis, Fuzzy Boundaries; Unique Events).",
+      hook: {
+        hear: "Eight bars of the A2 loop as a verse and a chorus with a crash on the chorus's second bar: the snare's fill at the end of the verse runs on past the chorus's first beat while the kick, the hats, the bass, the chords and the tune change on the bar line.",
+        code: `${T()}const snareVerse = s("<[~ sd ~ sd] [~ sd ~ sd] [~ sd ~ sd] [~ sd sd*4 sd*4]>")\nconst snareChorus = s("<[sd*4 sd ~ sd] [~ sd ~ sd] [~ sd ~ sd] [~ sd ~ sd]>")\n\nkick: arrange([4, s("bd ~ bd ~")], [4, s("bd*4")])\nsnare: arrange([4, snareVerse], [4, snareChorus])\nhats: arrange([4, s("hh*8")], [4, s("hh*16")]).gain(.5)\nperc: arrange([4, silence], [4, s("<~ [cr ~ ~ ~] ~ ~>")]).gain(.5)\n${BASS}\n${chords()}\n${tune()}`,
+      },
+      key: Am,
+      meter: "4/4",
+      bpm: BPM,
+      canDo: ["cd.compose.seams"],
+      uses: [...BASE, ...L01, "tb.arrange", "tb.mini.replicate", "snd.drum.cr"],
+      steps: [
+        {
+          kind: "listen",
+          exercise: "listen",
+          minutes: 1,
+          what: "Three ways across: six bars of verse into chorus three times, the seam plain, with a gap on the chorus's first beat after a fill, and with the fill running on past it (48 s).",
+        },
+        {
+          kind: "predict",
+          exercise: "predict",
+          answer: ["choice"],
+          minutes: 0.5,
+          what: "Where it ends: read a snare fill written across the seam and predict where it stops (choice: after the chorus has started).",
+        },
+        {
+          kind: "investigate",
+          exercise: "run-investigate",
+          answer: ["choice"],
+          minutes: 1,
+          what: "Find the crash: play the gap-and-fill version and find where the perc line's crash lands (choice: bar 6, beat 1, after the fill and the gap).",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1.25,
+          graded: true,
+          what: "Leave a gap: a snare fill at the end of bar 4, then no drum in the first half of bar 5's first beat, the groove back later in the bar. Graded: `custom` `staggered-boundary { min: 1, fill: \"anticipate\" }` (Oak's calls, in the rule: the fill is a drum line busier than its earlier bars, peaking in the bar's second half; the downbeat it leaves empty is one more than half of the other bars play). Right answers: a tom fill, a shorter snare fill, the fill as triplets. Wrong: every part stopping early and returning on the downbeat, a fill with kick and hats keeping the downbeat, a fill at the start of bar 4. Pins: content/validate/pins/A2.L09.ts.",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1.25,
+          graded: true,
+          what: "Cross the seam: run the snare fill on into the first beat or two of bar 5, the other parts unchanged. Graded: `custom` `staggered-boundary { min: 1, fill: \"hesitate\" }` (more hits just after the chorus's downbeat than in its later first beats, on the fill's own lines or on a line silent before: Oak's call). Right answers: toms carrying the fill over, triplets, two beats of fill, the hats resting to make room. Wrong: the fill only before the seam, the crash moved onto bar 5's downbeat (it marks the seam), a fill on beat 1 of every chorus bar.",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1.25,
+          graded: true,
+          what: "Heard only once: change the tune's filter for one bar of the second verse (`.lpf(\"<2000!9 400 2000!6>\")`). Graded: `custom` `unique-event { min: 1, controls: true }` (a part changes or stops for one bar only inside a section that returns; cutoffs less than a third of an octave apart are one setting, and the bar's sound must be heard in no other bar: Oak's calls). Right answers: room for one bar, the filter in a chorus, one off-grid note. Wrong: the same effect in both verses, in a different bar of each verse, the filter changed for the whole song, a dip of 10 Hz.",
+        },
+        {
+          kind: "make",
+          exercise: "code-make",
+          answer: ["code"],
+          minutes: 2.75,
+          what: "Your blurred seam: verse, chorus, verse, chorus of drums over the Band's A minor chords; let a part leave early, stay late or enter late at a seam; a sound heard once is suggested.",
+        },
+      ],
+      wrapAt: 4,
+      make: {
+        brief:
+          "Write your verse, chorus, verse, chorus over the Band's A minor chords, four bars each. Blur a seam by letting a part leave early, stay late or enter late, while other parts keep the seam in place. Try adding a sound heard once.",
+        required: {
+          rule: "custom",
+          label:
+            "Some parts change a beat or more off the bar line at a seam, without every changing part moving together",
+          why: "`staggered-boundary { min: 1 }`: the starter (every part changing on the bar line) fails; the verse drums leaving one beat early together fail; a louder chorus alone fails.",
+        },
+        suggestions: [
+          "a part that changes or stops for one bar only, inside a section that returns (`custom` `unique-event { min: 1, controls: true }`)",
+        ],
+        band: "band.aeolian-4bar",
+        tracks: ["chords"],
+        flavours:
+          "The Band's A minor chords in the flavour's sound; the drums, and any bass or tune, are the learner's.",
+      },
+      srs: [],
+      mistakes: [
+        "S4: every part stopping early and returning on the downbeat; a fill with kick and hats keeping the downbeat; a fill at the start of the bar: `rubric.unmet` with the rule's detail",
+        "S5: the fill only before the seam; the crash on the downbeat; a fill on beat 1 of every chorus bar: `rubric.unmet`",
+        "S6: the effect in both verses, or in a different bar of each; the filter changed for the whole song: `rubric.unmet`",
+        "S4–S6 unchanged: `code.unchanged`; single quotes: `code.single-quoted-pattern`",
+        "Make: the starter, the verse drums leaving together, a louder chorus only: `rubric.unmet`",
+      ],
+      connects: {
+        back: "U09.L07 blurred a seam and placed one unique event in a song that played everything everywhere; A2.L08 carved the sections whose seams are blurred here.",
+        forward:
+          "A2.L03 fills a thin section with a second line; AC1 and AC2 arrange whole songs, seams included.",
+      },
+      epr: {
+        enjoyment:
+          "The learner's own drums cross a section change the way a drummer's do, with a gap that pulls the chorus in or a fill that spills into it, and one moment in the song that never comes back.",
+        pace: "One idea: a seam need not fall on the bar line in every part. Sections and carving were U09's and A2.L08's; the unique event is U09.L07's, applied to a sound.",
+        return:
+          "The Coda says: you can blur a section change with a fill and place one surprise. Next: a second line that answers the tune.",
+      },
+      notes: [
+        "Oak 2.0 W2, written by Codex X11 (plan `docs/superpowers/plans/2026-11-25-oak2-w2.md` Task 10) and tightened by the X14 round 2 review (`staggered-boundary` fill and together semantics, `unique-event` control settings); this row was added at the W2 finish.",
+        'Song: a side step ("Seams and Surprises writes its own sixteen bars of drums across two seams, so it stays a sketch beside the song.").',
+        "S1 is 1 minute: its three six-bar items play 48 seconds at 90 BPM (`wave7-learner.test.ts`, listen items at most 85 % of the step), so the lesson is 9 minutes against the plan's 8.5.",
+        "No term: the fuzzy boundary and the unique event are U09.L07's terms.",
+      ],
+    },
+    {
       id: "A2.L03",
       author: "A2a",
       idea: "A counter-melody is a second tune that moves against the main one: it moves when the tune holds, and when both move it often goes the other way, so the ear can follow two lines at once. It sits in its own register, under or over the tune, never doubling it for long.",
@@ -402,19 +614,117 @@ export const A2: UnitSpec = {
       connects: {
         back: "U07.L07 wrote call and response, two parts that take turns; U04.L02 sang and wrote a harmony that moves with the tune. A counter-melody is between the two: its own tune, at the same time.",
         forward:
-          "A2.L04 adds a drum part made from a recording; A2.L06 and AC1 re-voice the chords per section, the stretch here.",
+          "A2.L07 passes one tune between two sounds instead of adding a second; A2.L04 adds a drum part made from a recording; A2.L06 and AC1 re-voice the chords per section, the stretch here.",
       },
       epr: {
         enjoyment:
           "Two tunes at once in the learner's own loop: a strings line that sighs in the gaps of the lead, the first arrangement that sounds like more than one person playing.",
         pace: "One idea: a second line that moves against the tune. Re-voicing per section is an optional stretch, applied in A2.L06 and AC1; counterpoint rules (species, voice crossing) are not taught.",
         return:
-          "The Coda says: you can write a counter-melody against a tune. Next: a drum break, cut up and played in a new order.",
+          "The Coda says: you can write a counter-melody against a tune. Next: one tune passed between two sounds, note by note.",
       },
       notes: [
         'Today offer: "Write a second tune that answers your lead: a counter-melody."',
         "Evaluated against the tune and the chords: the strings line plays A3 C4 (bar 1, beats 3–4, rising while the tune falls E5 C5 A4), A3 C4 (bar 2, beats 2–3: A3 in the gap after the tune's C5, C4 rising as the tune falls to A4), C4 E4 (bar 3, beat 1 with the tune, beat 4 while it rests), B3 G3 (bar 4, beats 2 and 4, in the gaps after the tune's B4 and G5). The planned `counter-melody` rule counts a beat where the tune starts nothing (a rest or a held note) as the tune holding. Every note on a beat is a tone of its chord (Am, F, C, G); it never sounds the tune's pitch class at the same time.",
         'S4\'s onsets rule reads bar 4 only (`section: { bars: [4, 4] }`, feature `rubric.section`, implemented). The pass text names oblique motion once in plain words ("one line holds while the other moves").',
+      ],
+    },
+    {
+      id: "A2.L07",
+      author: "content-lead",
+      idea: "One tune can be shared between two sounds note by note, each playing where the other rests, so the ear follows a single line that keeps changing colour: a hocket. It is not call and response (whole phrases traded) and not a doubling (DeSantis, Linear Rhythm in Melodies; Sound-Color Melody).",
+      hook: {
+        hear: "Four bars of eighths in A minor over the Band's drums, every second note on a `square`, the others on a `piano`: one tune that changes colour on every note.",
+        code: `${T()}mel: n("<[0 ~ 2 ~ 4 ~ 2 ~] [0 ~ 2 ~ 5 ~ 2 ~] [2 ~ 4 ~ 6 ~ 4 ~] [6 ~ 3 ~ 1 ~ 6 ~]>").scale("A4:minor").s("square").lpf(2000).gain(.5)\nvox: n("<[~ 1 ~ 3 ~ 3 ~ 1] [~ 1 ~ 3 ~ 4 ~ 1] [~ 3 ~ 5 ~ 5 ~ 3] [~ 5 ~ 2 ~ 2 ~ 4]>").scale("A4:minor").s("piano").gain(.5)`,
+      },
+      key: Am,
+      meter: "4/4",
+      bpm: BPM,
+      canDo: ["cd.compose.hocket"],
+      uses: [...BASE, ...L01],
+      steps: [
+        {
+          kind: "listen",
+          exercise: "listen",
+          minutes: 0.5,
+          what: "One tune, two sounds: Oak's four-bar line of eighths on one `square`, then the same line with every second note on a `piano` (two items of four bars, 21 s).",
+        },
+        {
+          kind: "predict",
+          exercise: "predict",
+          answer: ["choice"],
+          minutes: 0.5,
+          what: "Whose notes? Read one bar shared by `mel` and `vox` and predict which four of the eight notes `vox` plays (choice: notes 3, 4, 7 and 8).",
+        },
+        {
+          kind: "investigate",
+          exercise: "run-investigate",
+          answer: ["choice"],
+          minutes: 1,
+          what: "Find the doubled note: a split where both sounds start a note together in one bar; find the bar on the roll (choice: bar 3).",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1.25,
+          graded: true,
+          what: 'Share the line: move notes 2, 4, 6 and 8 of every bar from `mel` to `vox`, with `mel` resting in their place. Graded: `custom` `hocket { tracks: ["mel", "vox"], pitches, steps: 8 }` (`pitches` is the whole four-bar line, 32 notes, per loop: every note once in its place, never together, nothing ringing over the next, two sounds, each in every bar with at least a quarter of the notes, and no turn as long as a bar: the quarter and the bar are Oak\'s calls). Right answers: the odd notes on `vox`, two notes then one across the bar lines, turns of one, two, one and three, `vox` on `triangle`. Wrong: whole bars traded (call and response), bar-long turns moved off the bar line, `vox` doubling `mel`, the moved notes at `.gain(.02)`, both lines `square`, a note lost, both on beat 1. Pins: content/validate/pins/A2.L07.ts.',
+          term: "term.hocket",
+        },
+        {
+          kind: "compare",
+          exercise: "identify",
+          answer: ["choice"],
+          minutes: 0.5,
+          what: "A tune of colours (the book's sound-colour melody, ungraded): a slow line of repeated notes on one sound, and the same line changing sound on every note; which still seems to move?",
+        },
+        {
+          kind: "make",
+          exercise: "code-make",
+          answer: ["code"],
+          minutes: 2.75,
+          what: "Your own split: share the tune between `mel` and `vox` a note, a beat or a few notes at a time over the bass and chords.",
+        },
+      ],
+      wrapAt: 4,
+      make: {
+        brief:
+          "Share the tune between `mel` and `vox` a note, a beat or a few notes at a time, crossing the bar line if you like. Keep every note once, give `vox` its own sound, and keep the bass and chords.",
+        required: {
+          rule: "custom",
+          label:
+            "`mel` and `vox` play every note of the line once between them, each in its place and never together, on two different sounds, each at least a quarter of the notes, taking turns shorter than a bar inside every bar",
+          why: "`hocket`: the starter (every note on `mel`) fails; whole bars traded, `vox` doubling `mel`, a `vox` too quiet to hear, both lines on one sound and a lost note fail; a `vox` that switches between two sounds of its own passes.",
+        },
+        suggestions: [],
+        band: "band.aeolian-4bar",
+        tracks: ["drums"],
+        flavours:
+          "The Band's drums in the flavour's kit; the line, the bass and the chords are the learner's.",
+      },
+      srs: [],
+      mistakes: [
+        "S4 and Make: whole bars traded; bar-long turns across the bar line; `vox` doubling every note; the moved notes too quiet to hear; both lines on `square`; a lost note; both lines on beat 1: `rubric.unmet` with the rule's detail",
+        "S4 unchanged: `code.unchanged`; single quotes: `code.single-quoted-pattern`",
+        "S5: the version on one sound: `id.wrong`",
+      ],
+      connects: {
+        back: "U07.L07 wrote call and response, two parts trading phrases; A2.L03 wrote a second line against the tune. Here there is one line and two sounds.",
+        forward:
+          "A2.L04 cuts a recorded drum break into pieces; A2.L05 gives each part its level, so both sounds of a hocket come through.",
+      },
+      epr: {
+        enjoyment:
+          "The learner's own tune comes back as one line that keeps changing colour, a split the learner chose note by note.",
+        pace: "One idea: one line, two sounds, note by note. Counter-melody was A2.L03's, call and response U07.L07's; levels and panning wait for A2.L05.",
+        return:
+          "The Coda says: you can split a tune between two sounds so it is heard as one line. Next: a drum part made from a recording, cut up and played in a new order.",
+      },
+      notes: [
+        "Oak 2.0 W2, written by Codex X9 (plan `docs/superpowers/plans/2026-11-25-oak2-w2.md` Task 8) after the `hocket` rule was changed to read the whole line per loop and to fail whole bars traded, and tightened by the X14 round 2 review (turns as long as a bar fail); this row was added at the W2 finish.",
+        "The given line is Oak's own, four bars of eighths (A C E C | A C F C | C E G E | G D B G on the beats, each a note of its bar's chord, evaluated): no one-bar line fits Am F C G.",
+        'Song: a side step ("This lesson shares a line of its own between two sounds, note by note, so it stays a sketch beside the song."; the reason is read before the lesson, so it does not name the hocket).',
       ],
     },
     {
@@ -468,6 +778,14 @@ export const A2: UnitSpec = {
           minutes: 1.25,
           graded: true,
           what: "Which order: the break chopped in four (a fixed item, tests in the lesson). Options, worded as what is heard: as recorded (`0 1 2 3`), the two middle beats swapped (`0 2 1 3`), beat 2 played again on beat 4 (`0 1 2 1`). The stimulus is `0 2 1 3`: the first snare lands on beat 3, a kick on beat 2. (`0 1 2 1` is near the recorded bar, since beat 2 and beat 4 both hold a snare: it is the plausible wrong answer.)",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1,
+          graded: true,
+          what: 'Oak 2.0 (W2), the book\'s Sampling the Old-Fashioned Way: speed changes the rhythm. `brk` at 96 BPM cut into four, `.speed("<1 2 .5>")` given; bars 2 and 3 still play the four pieces on the beats (`⟪[0 1 2 3] [0 1 2 3]⟫`), so bar 2 leaves gaps and bar 3 runs over. Place the pieces so each fills its place: `[0 1 2 3]*2` in bar 2 (double time, an octave up), `[0 1]` in bar 3 (half time, an octave down). Graded: `rhythm` on `drums` and `controls` on `begin` (exact) and `speed` (linear, .05). Right answers: the eight written out, `.speed()` before `.slice()`, three `arrange()` sections with `.speed(1)`, `.speed(2)`, `.speed(.5)`. Wrong: every speed 1 with the new rhythm, each piece twice in bar 2, the two bars swapped. Pins: content/validate/pins/A2.L04.ts.',
         },
         {
           kind: "make",
@@ -583,6 +901,15 @@ export const A2: UnitSpec = {
           what: "What is too loud: the A2 loop with one part too loud for its place (a fixed item, tests in the lesson). The bass, the chords or the tune? The stimulus has the bass 9 dB above the tune.",
         },
         {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1,
+          graded: true,
+          what: 'Oak 2.0 (W2), the book\'s Foreground, Middle Ground, Background: front, middle, back. Eight bars on Am over the Band\'s drums: a tune that changes every bar, chords (`[0,2,4]@3 [0,2,4]`, `.gain(⟪.25⟫)`) and a bass that repeat. Make the chords step forward for one bar of the eight, louder or busier, and settle back. Graded: `events` on `mel` and `custom` `depth-layers { front: "mel", back: ["chords", "bass"] }` over 8 rendered bars (Oak\'s thresholds, in the rule: a background repeats in 3 bars of 4, a step forward is 3 dB louder or half again as busy, in at most one bar of eight). Right answers: bar 8 or bar 4 at `.5`, eighth-note chords in bar 8, the bass stepping forward instead. Wrong: the chords louder in every bar, forward in two bars, raised by a hair, the tune changed. Pins: content/validate/pins/A2.L05.ts.',
+          term: "term.foreground",
+        },
+        {
           kind: "make",
           exercise: "code-make",
           answer: ["code"],
@@ -692,6 +1019,12 @@ export const A2: UnitSpec = {
           minutes: 1.25,
           graded: true,
           what: "Same tune: two short versions (a fixed item, tests in the lesson). Is it the same tune in two styles, or two different tunes in one style? The stimulus keeps the drums and changes two notes of the tune: two tunes.",
+        },
+        {
+          kind: "listen",
+          exercise: "listen",
+          minutes: 0.5,
+          what: "Oak 2.0 (W2), the book's Creating Harmony 2 for non-jazz ears, ungraded: the house pad. A strings pad C E G B over a 909 kick on every beat, then the same pad over a held low A: one soft minor chord on A with G and B above it (a minor 9th; the name waits for U12). The pass text says the bass names the chord.",
         },
         {
           kind: "make",

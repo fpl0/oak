@@ -127,7 +127,7 @@ const NOTES_OF_G: RubricRule = {
 
 export default defineLesson({
   id: "A2.L03",
-  version: 4,
+  version: 5,
   title: "Counter-Melody & Re-Voicing per Section",
   objective: "I can write a second line that answers the tune instead of copying it.",
   key: { tonic: "A", mode: "minor" },

@@ -17,6 +17,14 @@
 // (hats rising on a `saw`, the band thickening bar by bar: L04's idea), and an intro whose parts come in one at a time
 // plus a bass that drops out for the bar before each chorus (`.mask()`'s moves, L05).
 //
+// Version 2 (Oak 2.0 W2, the music-fix protocol of docs/superpowers/plans/2026-11-25-oak2-w2.md): the second verse and
+// the second chorus no longer copy the first ones' drums (audit-core U09 "Repeats varied", agreed by the X4
+// cross-check: open hats and a tambourine on 4 in verse2, the "and" of 4 on the kick and an off-beat tambourine in
+// chorus2, chorus3 keeping its own); and the outro ends the way U09.L06 Endings teaches, the parts leaving in the
+// reverse of the intro's order: Oak's chords stop after bar 62, the bass after bar 63, and the kick and a crash play
+// bar 64 alone with the tune's last note (checked with `ends-on-purpose { modes: ["exit-order"] }` on Oak's chords,
+// bass and drums).
+//
 // Every flavour plays the same notes (tune, bass roots on every downbeat, chord roots); a flavour changes sounds,
 // grooves, comp and bass rhythms, and chord colour as its kit's staging allows at U09 (content/flavours.ts
 // FLAVOUR_RULES): pop and indie play triads, straight; jazz-soul swings (1/3) with four-note chords; funk and
@@ -280,7 +288,10 @@ interface Kit {
   };
 }
 
-/** Bass bars that change bar by bar: the intro brings the bass in at bar 2, the A section drops it for bar 4. */
+/**
+ * Bass bars that change bar by bar: the intro brings the bass in at bar 2, the A section drops it for bar 4, and the
+ * ending lets it go before the last bar.
+ */
 const INTRO_IN =
   (bar: string): BassBar =>
   (i) =>
@@ -289,10 +300,6 @@ const LAST_OUT =
   (bar: string): BassBar =>
   (i, n) =>
     i === n - 1 ? "~" : bar;
-const LAST_HELD =
-  (bar: string, held = "{r}"): BassBar =>
-  (i, n) =>
-    i === n - 1 ? held : bar;
 const BUILD_BASS =
   (one: string, two: string, three: string): BassBar =>
   (i) =>
@@ -316,6 +323,7 @@ const POP: Kit = {
     b: v("bd ~ ~ ~ ~ ~ bd ~"),
     a: v("<bd [bd ~ bd ~] [bd bd bd bd] [bd bd bd bd]>"),
     outro: v("<[bd ~ ~ bd bd ~ ~ ~]!7 bd>"),
+    only: { chorus2: v("bd ~ ~ bd bd ~ bd bd") },
   },
   snare: {
     intro: v("<~ [~ sd ~ sd] [~ sd ~ sd] [~ sd [~ sd] [sd sd]]>"),
@@ -332,6 +340,7 @@ const POP: Kit = {
     b: null,
     a: RISING("hh*16"),
     outro: v("<[hh*8]!7 ~>", V8),
+    only: { verse2: v("hh hh hh hh hh hh hh oh", V8) },
   },
   perc: {
     intro: v("<cr ~ ~ ~>"),
@@ -340,7 +349,11 @@ const POP: Kit = {
     b: v("<[cr, rd*4] [rd*4]!7>"),
     a: v("<~ ~ [sh*8] [sh*16]>"),
     outro: v("<cr ~ ~ ~ cr ~ ~ cr>"),
-    only: { chorus3: v("<[cr, tb*8] [tb*8]!3>") },
+    only: {
+      verse2: v("<[cr, [~ ~ ~ tb]] [~ ~ ~ tb]!3>"),
+      chorus2: v("<[cr, [~ tb]*4] [[~ tb]*4]!3>"),
+      chorus3: v("<[cr, tb*8] [tb*8]!3>"),
+    },
   },
   bass: {
     intro: (i) => ["~", "{r}@4 {r}@4", "{r}@3 {r} {r}@4", "{r}*8"][i] ?? "~",
@@ -348,7 +361,7 @@ const POP: Kit = {
     chorus: "{r} {r} {r} {r} {r} {r} {r} {o}",
     b: "{r}@4 {f}@4",
     a: BUILD_BASS("{r}@8", "{r}@4 {r}@4", "{r} {r} {r} {r}"),
-    outro: LAST_HELD("{r}@3 {r} {r}@4"),
+    outro: LAST_OUT("{r}@3 {r} {r}@4"),
   },
   comp: {
     intro: "<~ ~ [x x x x] [x x x x]>",
@@ -356,7 +369,7 @@ const POP: Kit = {
     chorus: "x*8",
     b: "x ~ x ~",
     a: "<x [x ~ x ~] [x x x x] [x*8]>",
-    outro: "<[x x x x]!7 x>",
+    outro: "<[x x x x]!6 ~ ~>",
   },
 };
 
@@ -378,6 +391,7 @@ const INDIE: Kit = {
     b: v("bd ~ ~ ~ ~ ~ ~ ~"),
     a: v("<bd [bd ~ bd ~] [bd*4] [bd*8]>"),
     outro: v("<[bd ~ ~ bd ~ ~ bd ~]!7 bd>"),
+    only: { chorus2: v("bd bd bd [bd bd]") },
   },
   snare: {
     intro: v("<~ [~ ~ sd ~] [~ ~ sd ~] [~ ~ sd [sd sd]]>"),
@@ -394,6 +408,7 @@ const INDIE: Kit = {
     b: null,
     a: RISING("hh*16"),
     outro: v("<[hh*8]!7 ~>", V8),
+    only: { verse2: v("hh hh hh hh hh hh hh oh", V8) },
   },
   perc: {
     intro: v("<cr ~ ~ ~>"),
@@ -403,7 +418,11 @@ const INDIE: Kit = {
     b: v("<[cr, [lt ~ lt lt ~ lt ~ ~]] [lt ~ lt lt ~ lt ~ ~]!7>"),
     a: v("<~ ~ [sh*8] [sh*16]>"),
     outro: v("<cr ~ ~ ~ cr ~ ~ cr>"),
-    only: { chorus3: v("<[cr, tb*8] [tb*8]!3>") },
+    only: {
+      verse2: v("<[cr, [~ ~ ~ tb]] [~ ~ ~ tb]!3>"),
+      chorus2: v("<[cr, [~ tb]*4] [[~ tb]*4]!3>"),
+      chorus3: v("<[cr, tb*8] [tb*8]!3>"),
+    },
   },
   bass: {
     intro: (i) => ["~", "{r}@4 {r}@4", "{r}@3 {r}@3 {r}@2", "{r}@3 {r}@3 {r}@2"][i] ?? "~",
@@ -411,7 +430,7 @@ const INDIE: Kit = {
     chorus: "[{r} {o}]*4",
     b: "{r}@8",
     a: BUILD_BASS("{r}@8", "{r}@4 {r}@4", "{r} {r} {r} {r}"),
-    outro: LAST_HELD("{r}@3 {r}@3 {r}@2"),
+    outro: LAST_OUT("{r}@3 {r}@3 {r}@2"),
   },
   comp: {
     intro: "<~ ~ [x@3 x@3 x@2] [x@3 x@3 x@2]>",
@@ -419,7 +438,7 @@ const INDIE: Kit = {
     chorus: "x*8",
     b: "x",
     a: "<x [x ~ x ~] [x x x x] [x*8]>",
-    outro: "<[x@3 x@3 x@2]!7 x>",
+    outro: "<[x@3 x@3 x@2]!6 ~ ~>",
   },
 };
 
@@ -450,6 +469,7 @@ const JAZZ: Kit = {
     b: v("bd ~ ~ ~"),
     a: v("<bd [bd ~ bd ~] [bd bd bd bd] [bd bd bd bd]>"),
     outro: v("<[bd ~ bd ~]!7 bd>"),
+    only: { chorus2: v("bd ~ bd [~ bd]") },
   },
   snare: {
     intro: v("<~ [~ rim ~ rim] [~ rim ~ rim] [~ rim ~ [sd sd]]>"),
@@ -477,7 +497,11 @@ const JAZZ: Kit = {
     b: v("<[cr, rd*4] [rd*4]!7>"),
     a: v(`<[${RIDE}]!2 [rd*8]!2>`, V8),
     outro: v(`<[cr, ${RIDE}] [${RIDE}]!3 [cr, ${RIDE}] [${RIDE}]!2 cr>`, V8),
-    only: { chorus3: v("<[cr, rd*8, [~ tb]*4] [rd*8, [~ tb]*4]!3>") },
+    only: {
+      verse2: v(`<[cr, ${RIDE}, [~ ~ ~ tb]] [${RIDE}, [~ ~ ~ tb]]!3>`, V8),
+      chorus2: v("<[cr, rd*8, [~ tb ~ tb]] [rd*8, [~ tb ~ tb]]!3>", V8),
+      chorus3: v("<[cr, rd*8, [~ tb]*4] [rd*8, [~ tb]*4]!3>"),
+    },
   },
   bass: {
     intro: INTRO_IN("{r}@2 {f}@2"),
@@ -485,7 +509,7 @@ const JAZZ: Kit = {
     chorus: "{r} {r} {f} {t}",
     b: "{r}@2 {f}@2",
     a: BUILD_BASS("{r}@4", "{r}@2 {f}@2", "{r} {r} {f} {t}"),
-    outro: LAST_HELD("{r}@2 {f}@2"),
+    outro: LAST_OUT("{r}@2 {f}@2"),
   },
   comp: {
     intro: `<~ ~ [${JAZZ_COMP}] [${JAZZ_COMP}]>`,
@@ -493,7 +517,7 @@ const JAZZ: Kit = {
     chorus: JAZZ_COMP,
     b: "x",
     a: `<x [${JAZZ_COMP}] [${JAZZ_COMP}] [${JAZZ_COMP}]>`,
-    outro: `<[${JAZZ_COMP}]!7 x>`,
+    outro: `<[${JAZZ_COMP}]!6 ~ ~>`,
   },
 };
 
@@ -529,6 +553,7 @@ const FUNK: Kit = {
     b: v("bd ~ ~ ~ ~ ~ ~ ~ ~ ~ bd ~ ~ ~ ~ ~"),
     a: v("<bd [bd ~ bd ~] [bd*4] [bd*8]>"),
     outro: v(`<[${FK_KICK_V}]!7 bd>`),
+    only: { chorus2: v("bd ~ ~ bd ~ ~ bd ~ bd ~ bd ~ ~ ~ bd ~") },
   },
   snare: {
     intro: v(`<~ [${FK_BACKBEAT}] [${FK_BACKBEAT}] [~ ~ ~ ~ sd ~ ~ ~ ~ ~ ~ ~ sd sd sd sd]>`),
@@ -545,6 +570,7 @@ const FUNK: Kit = {
     b: v("hh*8", V8),
     a: RISING("hh*16"),
     outro: v("<[hh*16]!7 ~>", V16),
+    only: { verse2: v("[hh hh hh hh hh hh oh hh]*2", V16) },
   },
   perc: {
     intro: v("<cr ~ ~ ~>"),
@@ -553,7 +579,11 @@ const FUNK: Kit = {
     b: v("<cr ~!7>"),
     a: v("<~ ~ [sh*8] [sh*16]>"),
     outro: v("<cr ~ ~ ~ cr ~ ~ cr>"),
-    only: { chorus3: v("<[cr, [~ cb]*4] [[~ cb]*4]!3>") },
+    only: {
+      verse2: v("<[cr, [~ ~ ~ cb]] [~ ~ ~ cb]!3>"),
+      chorus2: v("<[cr, [~ cb ~ [cb cb]]] [~ cb ~ [cb cb]]!3>"),
+      chorus3: v("<[cr, [~ cb]*4] [[~ cb]*4]!3>"),
+    },
   },
   bass: {
     intro: INTRO_IN(FK_BASS_V),
@@ -561,7 +591,7 @@ const FUNK: Kit = {
     chorus: FK_BASS_C,
     b: "{r}@8 {f}@8",
     a: BUILD_BASS("{r}", "{r} {r} {r} {r}", "{r}*8"),
-    outro: LAST_HELD(FK_BASS_V),
+    outro: LAST_OUT(FK_BASS_V),
   },
   comp: {
     intro: `<~ ~ [${FK_CLAV_V}] [${FK_CLAV_V}]>`,
@@ -569,7 +599,7 @@ const FUNK: Kit = {
     chorus: FK_CLAV_C,
     b: "x",
     a: "<x [x ~ x ~] [x*8] [x*16]>",
-    outro: `<[${FK_CLAV_V}]!7 x>`,
+    outro: `<[${FK_CLAV_V}]!6 ~ ~>`,
   },
   chordSound: { bridge: "strings" },
 };
@@ -624,6 +654,7 @@ const ELECTRONIC: Kit = {
     b: v("bd ~ ~ ~ ~ ~ ~ ~ ~ ~ bd ~ ~ ~ ~ ~"),
     a: v("<bd*4 bd*4 bd*8 ~>"),
     outro: v("<[bd ~ ~ ~ ~ ~ ~ ~ ~ ~ bd ~ ~ ~ ~ ~]!7 bd>"),
+    only: { chorus2: v("bd bd bd [bd bd]") },
   },
   snare: {
     intro: v("<~ [~ cp ~ cp] [~ cp ~ cp] [~ cp ~ [cp cp]]>"),
@@ -632,6 +663,8 @@ const ELECTRONIC: Kit = {
     b: v("<[~ ~ sd ~]!7 [~ ~ sd [sd sd]]>"),
     a: v("<~ [~ ~ cp ~] [~ cp ~ cp] [[sd sd sd sd] [sd*8]]>"),
     outro: v("<[~ sd ~ sd]!6 [~ sd [~ sd] [sd sd]] ~>"),
+    // The second verse fills every four bars, not every eight: the lo-fi kit has no open hat to vary.
+    only: { verse2: v("<[~ sd ~ sd]!3 [~ sd ~ [sd sd]]>") },
   },
   hats: {
     intro: v("[~ hh]*4", V8),
@@ -640,6 +673,7 @@ const ELECTRONIC: Kit = {
     b: v("~ hh ~ hh"),
     a: RISING("hh*16"),
     outro: v("<[hh*8]!7 ~>", V8),
+    only: { verse2: v("hh hh hh hh hh [hh hh] hh hh", V8) },
   },
   perc: {
     intro: v("<cr ~ ~ ~>"),
@@ -648,7 +682,10 @@ const ELECTRONIC: Kit = {
     b: v("<cr ~!7>"),
     a: v("<~ ~ ~ [~ ~ [lt lt] [ht ht]]>"),
     outro: v("<cr ~ ~ ~ cr ~ ~ cr>"),
-    only: { chorus3: v("<[cr, rd*8] [rd*8]!3>", V8) },
+    only: {
+      chorus2: v("<[cr, [~ rd]*4] [[~ rd]*4]!2 [[~ rd]*4, [~ ~ ~ [lt ht]]]>"),
+      chorus3: v("<[cr, rd*8] [rd*8]!3>", V8),
+    },
   },
   bass: {
     intro: INTRO_IN("{r}"),
@@ -656,7 +693,7 @@ const ELECTRONIC: Kit = {
     chorus: ACID_BAR,
     b: "{r}",
     a: BUILD_BASS(ACID_BAR, ACID_BAR, ACID_BAR),
-    outro: LAST_HELD("{r}@10 {r}@6"),
+    outro: LAST_OUT("{r}@10 {r}@6"),
   },
   comp: {
     intro: "<~ ~ [x x x x] [x x x x]>",
@@ -664,9 +701,9 @@ const ELECTRONIC: Kit = {
     chorus: "x*8",
     b: "x x x x",
     a: "<[~ x]*4 [~ x]*4 x*8 x*16>",
-    outro: "<[[~ x]*4]!7 x>",
+    outro: "<[[~ x]*4]!6 ~ ~>",
   },
-  chordSound: { intro: "supersaw", bridge: "supersaw", outro: "<sawtooth!7 supersaw>" },
+  chordSound: { intro: "supersaw", bridge: "supersaw" },
   synth: {
     bassSound: { intro: "sine", verse: "sine", chorus: "sawtooth", b: "sine", a: "sawtooth", outro: "sine" },
     bass: { intro: SUB, verse: SUB, chorus: ACID, b: SUB, a: ACID_RISING, outro: SUB },
@@ -676,7 +713,7 @@ const ELECTRONIC: Kit = {
       chorus: `${STAB}${PUMP}`,
       b: PAD,
       a: ".lpf(saw.range(500, 4000).slow(4)).lpenv(2).lpd(.12).lps(0).decay(.22).sustain(.3)",
-      outro: '.lpf(1800).lpenv(2).lpd(.12).lps(0).decay("<.22!7 1.5>").sustain("<.3!7 .6>")',
+      outro: STAB,
     },
     lead: ".decay(.25).sustain(.3).lpf(2400).delay(.3).delaytime(.45).delayfeedback(.35)",
     vox: ".unison(5).detune(.2).lpf(3000).decay(.3).sustain(.5)",
@@ -782,7 +819,7 @@ const VERSES_AND_CHORUSES: SectionId[] = ["verse1", "chorus1", "verse2", "chorus
 export const U09_SONG = defineUnitSong({
   id: "usong.U09",
   unit: "U09",
-  version: 1,
+  version: 2,
   title: "Turn it around",
   meter: "4/4",
   key: { tonic: "C", mode: "major" },
@@ -849,6 +886,22 @@ export const U09_SONG = defineUnitSong({
       ["lead", "chords", "bass"],
       "U09.L02",
       "Your song from Verse & Chorus opens with your own intro, its parts coming in one at a time.",
+    ),
+    take(
+      "U09.L06",
+      ["outro"],
+      // Its Make carries its own drums and plays with no Band (an ending is heard in the silence after it), so its
+      // ending takes the drums of the song's last eight bars too; Oak's crash stays.
+      ["lead", "chords", "bass", "kick", "snare", "hats"],
+      "oak",
+      "Your ending, with parts leaving or a last loop that shrinks, closes the song.",
+    ),
+    take(
+      "U09.L07",
+      ["intro", ...VERSES_AND_CHORUSES],
+      ["lead", "chords", "bass"],
+      "oak",
+      "Your carved song plays the opening and every verse and chorus, each with the parts you kept.",
     ),
   ],
   releaseAfter: "U09.CP",

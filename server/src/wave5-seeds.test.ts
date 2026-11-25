@@ -32,22 +32,25 @@ beforeAll(async () => {
 const NOW = "2026-11-13T12:00:00.000Z";
 const PAUSE = "The next lessons are still being written. Today: a review, then Studio.";
 
-/** What Today holds after each point: the map item, or a review day when that lesson is not written yet. */
+/**
+ * What Today holds after each point: the map item, or a review day when that lesson is not written yet. Oak 2.0 W2
+ * put U08.L06 after U08.L04 and moved every later gym slot one ordinal on (contracts 2.2 §2.5).
+ */
 const TODAY: Record<string, { kind: SessionPlan["kind"]; id: string | null }> = {
   "after X1 (U08.L02 next)": { kind: "lesson", id: "U08.L02" },
-  "after U08.L04": { kind: "lesson", id: "U08.L05" },
+  "after U08.L04": { kind: "lesson", id: "U08.L06" },
   "after U09.L01": { kind: "lesson", id: "U09.L02" },
-  "after U09.L04": { kind: "gym", id: "GYM.05" },
+  "after U09.L04": { kind: "lesson", id: "U09.L05" },
   "U09.CP due": { kind: "checkpoint", id: "U09.CP" },
   "C3 open": { kind: "capstone", id: "C3.S1" },
   "C3.S2 done": { kind: "capstone", id: "C3.S3" },
-  "C3 released": { kind: "gym", id: "GYM.06" },
+  "C3 released": { kind: "gym", id: "GYM.07" },
   "after U10.L02": { kind: "lesson", id: "U10.L03" },
-  "after U10.L05": { kind: "gym", id: "GYM.07" },
+  "after U10.L05": { kind: "gym", id: "GYM.08" },
   "after U10.L08": { kind: "lesson", id: "U10.L09" },
   "U10.CP due": { kind: "checkpoint", id: "U10.CP" },
   "C4 open": { kind: "capstone", id: "C4.S1" },
-  "C4 released": { kind: "gym", id: "GYM.09" },
+  "C4 released": { kind: "gym", id: "GYM.10" },
   "after U11.L03": { kind: "lesson", id: "U11.L04" },
   "after U11.L06": { kind: "lesson", id: "U11.L07" },
   "U11.CP due": { kind: "checkpoint", id: "U11.CP" },
@@ -57,7 +60,7 @@ const TODAY: Record<string, { kind: SessionPlan["kind"]; id: string | null }> = 
   "X2 open": { kind: "capstone", id: "X2.S1" },
   "X2.S1 done": { kind: "capstone", id: "X2.S2" },
   "X2 released": { kind: "lesson", id: "U12.L02" },
-  "ladder L5": { kind: "gym", id: "GYM.07" },
+  "ladder L5": { kind: "gym", id: "GYM.08" },
   "ladder L6": { kind: "capstone", id: "X2.S1" },
   "ladder level-up due": { kind: "gym", id: "GYM.05" },
   "ladder realism-up due": { kind: "gym", id: "GYM.05" },

@@ -10,6 +10,11 @@
 // falling curve misses); S6 by an `events` match on the riser, with `.segment()` required. The Make's one
 // required rule is `contrast` on the energy axis, chorus against verse (|ΔE| ≥ 0.15 on the grader's energy
 // curve: onsets, active tracks, gain and register per bar).
+//
+// Oak 2.0 W2 (DeSantis, *Making Music*, "Repetition and Insistence"): S8 hears one bar of chance-made notes turn into
+// something that sounds meant once it is frozen and repeated, and the optional S9 freezes it: `matches` against the
+// first bar `rand` played, looped (at least 3 in 4 of its notes, Oak's loose call), and `no-chance` on `mel`. Fidelity
+// pins: content/validate/pins/U09.L04.ts.
 import { defineLesson, type HintLadder, type Matcher } from "@oak/content-kit";
 
 const BPM = 112;
@@ -213,9 +218,23 @@ const RISER_MATCH: Matcher = {
   tracks: ["fx"],
 };
 
+/**
+ * S8, S9 (Oak 2.0 W2): one bar of chance-made notes over the drums. `rand` is a signal like `saw`, jumping instead of
+ * climbing; `.segment(8)` takes eight notes a bar from it. Strudel's chance is seeded by the bar, so the first bar is
+ * always the same (evaluated: C4 A4 F4 F4 E4 D4 E4 F4, `n` 0 5 3 3 2 1 2 3); every later bar is a new eight notes.
+ */
+const KIT = ['kick: s("bd ~ bd ~")', 'snare: s("~ sd ~ sd")', 'hats: s("hh*8").gain(.4)'];
+const RANDOM_LINE = "n(rand.range(0, 7).segment(8))";
+const FIRST_BAR = "[0 5 3 3 2 1 2 3]";
+const randomBar = (line: string, tail = "") =>
+  code(...KIT, `mel: ${line}.scale("C4:major").s("piano")${tail}`);
+const RANDOM = randomBar(RANDOM_LINE);
+const FROZEN = randomBar(`n("${FIRST_BAR}")`);
+const FREEZE_STARTER = randomBar(`⟪${RANDOM_LINE}⟫`);
+
 export default defineLesson({
   id: "U09.L04",
-  version: 3,
+  version: 4,
   title: "The Energy Curve",
   objective: "I can draw a build-up with a signal so the chorus lands with more energy than the verse.",
   key: { tonic: "C", mode: "major" },
@@ -508,6 +527,120 @@ export default defineLesson({
             response: { code: song(RISE, 'n("<[0 1] [2 3] [4 5] [6 7]>")') },
             expect: "fail",
             feedback: ["code.must-use"],
+          },
+        ],
+      },
+    },
+    {
+      id: "S8",
+      kind: "listen",
+      title: "Chance, then again",
+      minutes: 0.5,
+      ui: { panels: ROLL, rollLabels: "degree" },
+      example: { id: "chance-then-again", code: FROZEN, bars: 8 },
+      exercise: {
+        kind: "listen",
+        id: "chance-then-again",
+        version: 1,
+        role: "practice",
+        prompt:
+          "Listen to both loops over the same drums. In the first, chance picks eight new notes every bar. In the second, its first bar comes back again and again. Listen for the moment that bar stops sounding random.",
+        skills: [{ skill: "F05", w: 1 }],
+        hints: null,
+        tests: [],
+        items: [
+          { code: RANDOM, caption: "Eight new notes every bar.", bars: 4 },
+          { code: FROZEN, caption: "The first of those bars, eight times.", bars: 8 },
+        ],
+      },
+    },
+    {
+      id: "S9",
+      kind: "modify",
+      title: "Freeze the bar",
+      minutes: 1,
+      optional: true,
+      ui: { panels: ROLL, rollLabels: "degree" },
+      exercise: {
+        kind: "code-modify",
+        id: "freeze-the-bar",
+        version: 1,
+        role: "practice",
+        prompt:
+          'Run the loop and read bar 1 on the roll. Replace the highlighted chance line with those eight notes as fixed numbers, `n("…")`, so the same bar plays every time. Change one note if you like. Done when no chance is left and 3 in 4 notes match bar 1.',
+        skills: [{ skill: "F05", w: 1 }],
+        code: { starter: FREEZE_STARTER },
+        reference: { solutions: [FROZEN], bars: 4 },
+        matcher: {
+          m: "rubric",
+          rules: [
+            {
+              id: "kept",
+              label: "At least 3 in 4 of the notes are the ones chance played in bar 1, in every bar",
+              required: true,
+              skills: ["F05"],
+              rule: "matches",
+              reference: { solutions: [FROZEN], bars: 4, tracks: ["mel"] },
+              matcher: {
+                m: "melody",
+                pitch: "absolute",
+                wPitch: 0.7,
+                wRhythm: 0.3,
+                rhythmTol: [1, 16],
+                track: "mel",
+              },
+              // Oak's call, kept loose: a quarter of the notes may change. The score is 0.7 × the share of right
+              // pitches + 0.3 × the rhythm, so with the rhythm kept 0.82 is "3 in 4 pitches" as the label says
+              // (0.75 let a third of them change; X14).
+              min: 0.82,
+            },
+            {
+              id: "frozen",
+              label: "No chance left on `mel`: no `rand`, `?`, `.degradeBy()` or `.sometimesBy()`",
+              required: true,
+              skills: ["F05"],
+              rule: "custom",
+              fn: "no-chance",
+              params: { track: "mel" },
+            },
+          ],
+        },
+        target: { audible: false },
+        feedbackText: { "rubric.unmet": "{label}: not yet." },
+        hints: ladder(
+          "Bar 1 of the loop is the one to keep. The roll shows its eight notes.",
+          'Read each note of bar 1 as a degree and write the eight numbers inside `n("[ ]")`, in place of the whole `n(rand…)` call.',
+          "The first note is C, degree 1 (`n` 0); the second is A, degree 6. Six more to go.",
+        ),
+        tests: [
+          { name: "reference", response: { code: FROZEN }, expect: "pass" },
+          {
+            name: "frozen, the last note moved up to G",
+            response: { code: randomBar('n("[0 5 3 3 2 1 2 4]")') },
+            expect: "pass",
+          },
+          {
+            name: "frozen, written without the brackets",
+            response: { code: randomBar('n("0 5 3 3 2 1 2 3")') },
+            expect: "pass",
+          },
+          {
+            name: "frozen with a room",
+            response: { code: randomBar(`n("${FIRST_BAR}")`, ".room(.3)") },
+            expect: "pass",
+          },
+          { name: "unchanged", response: { code: RANDOM }, expect: "fail", feedback: ["code.unchanged"] },
+          {
+            name: "the notes frozen, with chance still dropping some of them",
+            response: { code: randomBar(`n("${FIRST_BAR}")`, ".degradeBy(.2)") },
+            expect: "fail",
+            feedback: ["rubric.unmet"],
+          },
+          {
+            name: "bar 2's notes frozen instead",
+            response: { code: randomBar('n("[4 5 6 2 5 4 2 5]")') },
+            expect: "fail",
+            feedback: ["rubric.unmet"],
           },
         ],
       },

@@ -79,8 +79,37 @@ const RIFF_CONSTS = [`const riff = "${RIFF}"`, `const riff3 = "${RIFF3}"`];
 const MEL =
   'mel: arrange([8, note(riff)], [8, note(riff)], [8, note("~")], [8, note(riff3)]).swingBy(1/3, 4).s("vibes")';
 
+/**
+ * The ride and the hi-hat of the whole form (PLAN §7, W2): they play the four sections and end with the form, the ride
+ * on beat 1 of bar 32 and the hi-hat a bar early, so the last A lands on B♭maj7 instead of riding on into the loop.
+ */
+const RIDE_FORM =
+  'drums: arrange([8, drumsA], [8, drumsA], [8, drumsB], [8, drumsA3]).swingBy(1/3, 4).bank("jazzkit")';
+const HATS_FORM = 'hats: arrange([8, hatsA], [8, hatsA], [8, hatsB], [8, hatsA3]).bank("jazzkit")';
+/** One const per section, named as the chords' sections are (A, B, A3), so every track lists the same form. */
+const FORM_DRUMS = [
+  'const drumsA = s("rd [rd rd] rd [rd rd]")',
+  "const drumsB = drumsA",
+  'const drumsA3 = s("<[rd [rd rd] rd [rd rd]]!7 [rd ~ ~ ~]>")',
+  'const hatsA = s("~ hh ~ hh")',
+  "const hatsB = hatsA",
+  'const hatsA3 = s("<[~ hh ~ hh]!7 ~>")',
+];
+
 /** S1 and S2: the whole form, the trio and the riff. */
-const HOOK = code(CONST_A, CONST_A3, constB(B_BARS), ...RIFF_CONSTS, "", RIDE, HATS, comp(), bass(), MEL);
+const HOOK = code(
+  CONST_A,
+  CONST_A3,
+  constB(B_BARS),
+  ...RIFF_CONSTS,
+  ...FORM_DRUMS,
+  "",
+  RIDE_FORM,
+  HATS_FORM,
+  comp(),
+  bass(),
+  MEL,
+);
 
 /** S3: the bridge alone, eight bars, for the learner to number. */
 const BRIDGE = code(
@@ -127,7 +156,7 @@ const DRUMS = { band: "band.two-five-one", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "J4.L03",
-  version: 3,
+  version: 4,
   title: "Rhythm Changes",
   objective: "I can play rhythm changes: the 32-bar AABA of I Got Rhythm, with its bridge of dominants.",
   key: B_FLAT,

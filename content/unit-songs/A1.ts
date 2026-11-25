@@ -16,7 +16,8 @@
 // - verse1: waves (A1.L01). The vamp, clean, the riff on top (electronic: a wavetable bass and a wavetable e-piano).
 // - lift1, lift2: movement (A1.L06). The chords pulse (eighths; funk sixteenths) while their cutoff climbs over four
 //   bars, a pad swells in under a sweep of its own, the long-note tune wobbles (vibrato), a noise riser climbs (pink noise whose cutoff jumps
-//   up two octaves every bar: noise plus a filter sweep), and the snare rolls in quarters, eighths, then sixteenths.
+//   up two octaves every bar: noise plus a filter sweep), and the snare rolls in quarters, eighths, then sixteenths
+//   (lift2, into the last chorus, a bar sooner: version 2, Oak 2.0 W2).
 // - chorus1: filters (A1.L02). The song turns acid: the bass squelches open on every note under a resonant ladder
 //   filter whose envelope opens wider on an accent pattern (electronic: the TB-303 recipe on a sawtooth; pop, indie and
 //   funk: the same filter on the band's own bass; jazz-soul: the upright stays plain and the Rhodes wahs through an
@@ -27,7 +28,7 @@
 // - bridge: space (A1.L04). The drums stop; a pad swells in slowly and the tune plays long notes into a big room with
 //   echoes on a dotted eighth (0.45 s at 100 BPM), the tune and the pad on an orbit of their own (orbit 3).
 // - chorus2: richer sources (A1.L07). Chorus1 with a pad over it (electronic: a supersaw, and the riff rung like a bell
-//   with FM).
+//   with FM). Its first bar, bar 45, has the song's one `impact` under the crash, heard once (version 2, Oak 2.0 W2).
 //
 // The tune is the A1 riff, G G E G · E C · | A A F A · F C ·, the same notes as every A1 Make's riff, so a learner's
 // riff in place of Oak's keeps the song's tune: in the verses and the ending on C4, in the choruses an octave up with an
@@ -416,6 +417,14 @@ const SILENT = "................";
 const KICK_LIFT = lastBar(K4, "X...X...X.......");
 const SNARE_LIFT = listed(["....X.......X...", "X...X...X...X...", "X.x.X.x.X.x.X.x.", "XxXxXxXxXXXX...."]);
 const CLAP_LIFT = listed(["....c.......c...", "c...c...c...c...", "c.c.c.c.c.c.c.c.", "cccccccccccc...."]);
+/**
+ * Oak 2.0 (W2, the music-fix protocol; audit-rest A1 "Repeats varied": lift1 and lift2 were the same four bars in every
+ * part): the second build-up into the last chorus rolls a bar sooner, quarters, eighths, then sixteenths, and its last
+ * bar's fill is loud throughout. The snare is the learner's in both lifts once A1.L06 is taken, so this is heard in
+ * Oak's song as it opens.
+ */
+const SNARE_LIFT2 = listed(["X...X...X...X...", "X.x.X.x.X.x.X.x.", "XxXxXxXxXxXxXxXx", "XXXXXXXXXXXX...."]);
+const CLAP_LIFT2 = listed(["c...c...c...c...", "c.c.c.c.c.c.c.c.", "cccccccccccccccc", "cccccccccccc...."]);
 /** The crash that opens a section, and again at its fifth bar. */
 const CRASH = onFirst("C...............", SILENT);
 const CRASH_ONCE: Bars = (i) => (i === 0 ? "C..............." : SILENT);
@@ -427,6 +436,13 @@ const CRASH_ONCE: Bars = (i) => (i === 0 ? "C..............." : SILENT);
  */
 const RISER = 's("pink").lpf("<300 600 1200 2400>").lpenv(2).lpa(2.4).velocity("<.3 .45 .6 .8>")';
 const CRACKLE = 's("crackle").density(.12).velocity(.7)';
+/**
+ * Oak 2.0 (W2, the music-fix protocol; audit-rest A1 "Once-only moment": no bar of the parts that survive the takes,
+ * the chords and the percussion, was heard only once inside a section): one `impact` under the crash that opens the
+ * last chorus, bar 45, and never again. A foley sound has no kit, so it plays beside the bar's percussion, outside its
+ * `.bank()`.
+ */
+const IMPACT_ONCE = 's("<impact ~ ~ ~ ~ ~ ~ ~>").velocity(.8)';
 
 /**
  * The 808 kick (funk's `oak808`) rings for seconds with no choke: hits a beat apart pile up, by up to 7 dB and by the
@@ -551,7 +567,7 @@ const POP: Kit = {
     lift1: SNARE_LIFT,
     chorus1: lastBar("....C.......C...", "....C.......CxXX"),
     verse2: lastBar("....X..g....X...", "....X..g....XxXX"),
-    lift2: SNARE_LIFT,
+    lift2: SNARE_LIFT2,
     chorus2: lastBar("....C.......C...", "....C.......CxXX"),
     outro: SN_BACK,
   },
@@ -625,7 +641,7 @@ const INDIE: Kit = {
     lift1: SNARE_LIFT,
     chorus1: lastBar(SN_BACK, "....X.......XxXX"),
     verse2: lastBar(SN_BACK, "....X.......XxXX"),
-    lift2: SNARE_LIFT,
+    lift2: SNARE_LIFT2,
     chorus2: lastBar(SN_BACK, "....X.......XxXX"),
     outro: SN_BACK,
   },
@@ -704,7 +720,7 @@ const JAZZ: Kit = {
     lift1: SNARE_LIFT,
     chorus1: lastBar("....X..g....X...", "....X..g....XxXX"),
     verse2: lastBar("....X.......X..g", "....X.......XxXX"),
-    lift2: SNARE_LIFT,
+    lift2: SNARE_LIFT2,
     chorus2: lastBar("....X..g....X...", "....X..g....XxXX"),
     outro: "....R.......R...",
   },
@@ -780,7 +796,7 @@ const FUNK: Kit = {
     lift1: SNARE_LIFT,
     chorus1: lastBar("....X..g.g..X..g", "....X..g.g..XxXX"),
     verse2: lastBar("....X..g....X..g", "....X..g.g..XxXX"),
-    lift2: SNARE_LIFT,
+    lift2: SNARE_LIFT2,
     chorus2: lastBar("....C..g.g..C..g", "....C..g.g..CxXX"),
     outro: SN_BACK,
   },
@@ -873,7 +889,7 @@ const ELECTRONIC: Kit = {
     lift1: CLAP_LIFT,
     chorus1: lastBar("....C.......C...", "....C.......C.CC"),
     verse2: lastBar("....c.......c...", "....c.......c.cc"),
-    lift2: CLAP_LIFT,
+    lift2: CLAP_LIFT2,
     chorus2: lastBar("....C.......C...", "....C.......C.CC"),
     outro: SN_BACK,
   },
@@ -1080,7 +1096,9 @@ function code(flavour: FlavourId): string {
     if (LIFT.has(id)) return RISER;
     if (LOFI.has(id)) return CRACKLE;
     const b = k.perc[id];
-    return b === undefined ? null : `${drumSection(id, b, PERC)}${bankOf(id)}`;
+    if (b === undefined) return null;
+    const grid = `${drumSection(id, b, PERC)}${bankOf(id)}`;
+    return id === "chorus2" ? `stack(${grid}, ${IMPACT_ONCE})` : grid;
   });
   const tracks = [
     track("mel", mel, `.gain(${num(k.gain.lead)}).pan(.6)`),
@@ -1117,7 +1135,7 @@ const LOOP: SongPartId[] = ["kick", "snare", "hats", "bass", "lead"];
 export const A1_SONG = defineUnitSong({
   id: "usong.A1",
   unit: "A1",
-  version: 1,
+  version: 2,
   title: "Turn the dial",
   meter: "4/4",
   key: { tonic: "C", mode: "major" },

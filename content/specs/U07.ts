@@ -37,7 +37,7 @@ export const U07: UnitSpec = {
   unit: "U07",
   title: "Melody",
   summary:
-    "Ten lessons on writing tunes that go somewhere, over the chords U05–U06 built. A line has a shape (contour, one high point, steps and leaps); it is built from a motif that comes back, moved (sequence) or turned round (retrograde); it lands on chord tones on the strong beats and decorates them with passing and neighbour tones on the weak ones; it leans on a strong beat and resolves (appoggiatura, suspension); its phrases ask and answer (antecedent, consequent), trade with another part (call and response), start before the bar (pickups), and are read and sung from a lead sheet (Amazing Grace, 3/4 with a pickup). The Hook Lab puts it together with controlled chance. Melodic dictation is pushed to `fam.mel.dictation` level 5–6 by a by-ear step in most lessons, which is what X1 needs (level ≥ 4). The Transcription Gym starts here (GYM.01 after U07.L03). U07.CP follows U08.L01 and GYM.03 in the default order and opens C2, then X1.",
+    "Eleven lessons on writing tunes that go somewhere, over the chords U05–U06 built. A line has a shape (contour, one high point, steps and leaps); it is built from a motif that comes back, moved (sequence) or turned round (retrograde), and from Oak 2.0 (U07.L11) upside down, begun from a later note, or moved in time; it lands on chord tones on the strong beats and decorates them with passing and neighbour tones on the weak ones; it leans on a strong beat and resolves (appoggiatura, suspension); its phrases ask and answer (antecedent, consequent), trade with another part (call and response), start before the bar (pickups), and are read and sung from a lead sheet (Amazing Grace, 3/4 with a pickup). The Hook Lab puts it together with controlled chance. Melodic dictation is pushed to `fam.mel.dictation` level 5–6 by a by-ear step in most lessons, which is what X1 needs (level ≥ 4). The Transcription Gym starts here (GYM.01 after U07.L03). U07.CP follows U08.L01 and GYM.03 in the default order and opens C2, then X1.",
   conventions: [
     'Melodies are written in degrees, `n("…").scale("C4:major")`, over chords an octave lower (U05 convention). Prose names a note degree first, letter in brackets: "degree 5 (G)". Chord names in prose are lead-sheet symbols and Roman numerals (U06.L02 on): "over V (G)".',
     "The harmony under a tune is the Band's whenever the Band's chords fit the lesson (`band.axis-4bar` I–V–vi–IV, `band.phrase-8bar` I IV I V | I IV V I, `band.two-chord-vamp` I–IV), so a Make sounds like a song from the first run. Where the lesson needs chords the Band does not play (I–IV–V–I with a suspension, a pickup bar where the chords wait), the chords are a `chords:` line of stacks in the learner's code and the Band plays `tracks: [\"drums\"]`. A Band never starts late: its bass and chords loop from bar 0, so every lesson with a pickup uses drums only.",
@@ -121,6 +121,15 @@ export const U07: UnitSpec = {
           what: "The hook on the treble staff: the notes rise up the page to bar 6 and come down; the degree labels under them.",
         },
         {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1,
+          graded: true,
+          what: 'Oak 2.0 W2 (DeSantis, "Creating Melodies 1"), S9 "Leap, then turn back": bars 1 and 3 (edit-only-regions) leap up and keep climbing; after each leap the next note turns back. `rubric` matcher: custom `gap-fill` `{ track: "mel", ratio: 0.6, leap: 5 }` (0.6 is Oak\'s loose call; arpeggio leaps are exempt). A tendency, not a law.',
+          term: "term.gap-fill",
+        },
+        {
           kind: "make",
           exercise: "code-make",
           answer: ["code"],
@@ -150,6 +159,7 @@ export const U07: UnitSpec = {
         "modify: a line that is all steps but still spans two octaves: `rubric.unmet` (range)",
         "modify: bar 1 edited too: `code.edit-outside`",
         "the unchanged starter: `code.unchanged`",
+        "S9: every leap followed by a step the same way: `rubric.unmet`; bar 4 edited too: `code.edit-outside`; the unchanged starter: `code.unchanged`",
         "Make starter (arpeggios, leaps on every note): `rubric.unmet`",
       ],
       connects: {
@@ -257,6 +267,116 @@ export const U07: UnitSpec = {
       notes: [
         "`.scaleTranspose()` goes after `.scale()`; `.add(n(…))` before it (STYLE §11). Evaluated: the hook plays C E G E | G B D B | A C E C | F A C A, every note a chord tone of I V vi IV.",
         '`.rev()` reverses each cycle, so on `<a b>` it reverses both bars; the retrograde step writes bar 2 by hand or with `.rev()` on its own line. Evaluated: `n("0 2 4 7").rev()` plays C5 G4 E4 C4.',
+      ],
+    },
+    {
+      id: "U07.L11",
+      author: "content-lead",
+      idea: 'Oak 2.0 W2 (DeSantis, "Note Transformations"). A motif can be turned upside down, begun from a later note with its rhythm kept (a rotation), or moved later in time; each keeps something the ear still knows. A rotation keeps the rhythm and moves the order; a time shift keeps the order and moves the rhythm.',
+      hook: {
+        hear: "Over the Band's drums, a one-bar motif with an uneven rhythm (short, short, long, short, short, rest), then a copy of it, four times: higher, upside down, backwards with its rhythm kept, begun from its third note.",
+        code: `${T(92)}mel: n("<[0 2 4@2 3 1 ~ ~] [2 4 6@2 5 3 ~ ~] [0 2 4@2 3 1 ~ ~] [4 2 0@2 1 3 ~ ~] [0 2 4@2 3 1 ~ ~] [1 3 4@2 2 0 ~ ~] [0 2 4@2 3 1 ~ ~] [4 3 1@2 0 2 ~ ~]>").scale("C4:major").s("piano")`,
+      },
+      key: C,
+      meter: "4/4",
+      bpm: 92,
+      canDo: ["cd.compose.transform-motif"],
+      uses: [...BASE, "tb.add", "tb.rev", "snd.rhodes"],
+      steps: [
+        {
+          kind: "listen",
+          exercise: "listen",
+          minutes: 0.5,
+          what: "The hook: the motif and four copies. Listen for what every copy keeps (the rhythm).",
+        },
+        {
+          kind: "predict",
+          exercise: "predict",
+          answer: ["choice"],
+          minutes: 0.5,
+          what: "`mel` plays the motif and `vox` its mirror around the first note (`0 -2 -4@2 -3 -1`): higher, upside down or backwards? (`choose`: upside down.)",
+        },
+        {
+          kind: "investigate",
+          exercise: "run-investigate",
+          answer: ["number", "choice"],
+          minutes: 1,
+          what: "`vox` is the motif with `.add(n(2))`: how many degrees above (number: 2); what it keeps (choice: rhythm and shape).",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1.25,
+          graded: true,
+          what: 'Write the upside-down copy on `vox`, every note in its place in time (`all`: `events` on `mel` unchanged + custom `inverted-copy { source: "mel", copy: "vox" }`, any fixed centre). The reveal mirrors around the motif\'s middle so the copy keeps its range.',
+          term: "term.melodic-inversion",
+        },
+        {
+          kind: "compare",
+          exercise: "identify",
+          answer: ["choice"],
+          minutes: 0.5,
+          what: "Backwards two ways: `.rev()` (the rhythm turns round too) and backwards with the rhythm kept. Pick the one that keeps the motif's rhythm.",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1.25,
+          graded: true,
+          what: "Rotate: rewrite the copy's numbers so it starts on the motif's third note and wraps round, each note in its place in time (`all`: `events` on `mel` + custom `rotated-copy`). Strudel 1.2.6 has no `.rot()`: the rotation is written by hand.",
+          term: "term.pitch-rotation",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1,
+          optional: true,
+          what: "A transformation as harmony: the upside-down copy an octave lower, under the motif the whole bar (`inverted-copy` + `register-separation`). Practice, not graded.",
+        },
+        {
+          kind: "make",
+          exercise: "code-make",
+          answer: ["code"],
+          minutes: 2.75,
+          what: "The motif (or the learner's own) and a copy moved later in the bar by moving the rest: `~ 0 2 4@2 3 1 ~`.",
+        },
+      ],
+      wrapAt: 4,
+      make: {
+        brief:
+          "Keep the motif on `mel` or write your own. Make `vox` play it later in the bar: the same notes in the same order, each moved later by the same amount.",
+        required: {
+          rule: "custom",
+          label:
+            "`vox` plays the motif's notes in order, every one moved later by the same amount, at least an eighth note",
+          why: '`time-shifted { source: "mel", copy: "vox", min: "1/8" }`: the starter\'s copy sings with the motif (offset 0) and fails; `.late()` is locked until U13.L01, so the shift is written by moving the rest.',
+        },
+        suggestions: [
+          "a third line, `mel2`, plays the motif upside down in time with it (custom `inverted-copy` on `mel2`)",
+        ],
+        band: "band.axis-4bar",
+        tracks: ["drums"],
+        flavours: "Drums only from the Band; the motif is the learner's `piano`, the copy `rhodes`.",
+      },
+      srs: [{ family: "fam.code.functions", mode: "review-if-due", level: 4 }],
+      singOn: "syllables",
+      mistakes: [
+        "S4: a copy moved up instead of mirrored, or only the first two numbers mirrored: `rubric.unmet`; the motif mirrored instead of the copy: `melody.wrong-degree`; the unchanged starter: `code.unchanged`",
+        "S6: the notes in the rotated order with the rhythm moved with them, or backwards instead: `rubric.unmet`; the motif rewritten: `melody.wrong-degree`",
+        "Make starter (the copy in time with the motif) and a copy with two different offsets: `rubric.unmet`",
+      ],
+      connects: {
+        back: "U07.L02 moved a motif (sequence) and read it backwards (`.rev()`); U06.L01 moved stacks with `.add(n(…))`.",
+        forward:
+          "U07.L03 lands motifs on chord tones; `.superimpose()` (U07.L07) plays a transformed copy with the original in one line; `.early()`/`.late()` (U13.L01) shift a line in time by a call.",
+      },
+      notes: [
+        "The motif `0 2 4@2 3 1 ~ ~` (C E G~ F D, rest) has an uneven rhythm on purpose: a rotation (order moved, rhythm kept) and a time shift (rhythm moved, order kept) then sound different and the rules tell them apart (evaluated: onsets 0, 1/8, 1/4, 1/2, 5/8; shifted an eighth, 1/8 … 3/4).",
+        "Song: a take of `chorus1` (lead, vox), from Oak's starter; it replaces U07.L02's take there (later takes override earlier ones). Opening from U07.L02's saved code was not chosen: a four-bar sequence cannot be shifted in time by hand without crossing bar lines.",
+        "`fam.code.functions` (inversion, rotation, time shift): its level 4 categories open with this lesson; S5 reviews the family if due.",
       ],
     },
     {
@@ -1016,8 +1136,9 @@ export const U07: UnitSpec = {
           kind: "modify",
           exercise: "code-modify",
           answer: ["code"],
-          minutes: 1,
-          what: "Controlled chance: on a repeated hook, add `.sometimesBy(.25, x => x.scaleTranspose(1))` or `.degradeBy(.2)` and hear which repeats change. Practice, not graded (randomness never under an exact-match grader).",
+          minutes: 1.25,
+          graded: true,
+          what: 'Oak 2.0 W2 (DeSantis, "Randomness and Responsibility"), S5 "Freeze it", replacing the ungraded chance step: the hook with `.sometimesBy(.4, x => x.scaleTranspose(2))`; the learner writes its first four bars as fixed notes (`[9 ~ 9 7] [4 ~ 4 4] [7 ~ 7 5] [7 ~ 5 3]`, evaluated) and fixes what they dislike. `rubric` matcher: `matches` ≥ 0.75 against the frozen notes (`melody`, Oak\'s loose call) and custom `no-chance` on `mel`.',
         },
         {
           kind: "dictate",
@@ -1056,6 +1177,7 @@ export const U07: UnitSpec = {
       mistakes: [
         "modify: bars 2–4 copy bar 1 exactly but leap to a 10th: `rubric.unmet` (range)",
         "modify: a different idea in every bar: `rubric.unmet` (motif reuse)",
+        "S5: the notes frozen but the chance call kept: `rubric.unmet` (`no-chance`); the chance call deleted and the hook left as written (5 of 12 notes differ): `rubric.unmet` (`matches`); written an octave low: `melody.octave`",
         "dictation: one degree off throughout: `melody.index-shift`",
         "unchanged: `code.unchanged`; Make starter: `rubric.unmet`",
       ],

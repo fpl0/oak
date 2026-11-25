@@ -96,13 +96,33 @@ const LEVEL = code(bass(".gain(.5)"), chords(".gain(.5)"), pad(".gain(.5)"), tun
 const mixed = (chordsTail: string, padTail = ".gain(.5)", tuneTail = ".gain(.5)") =>
   code(bass(".gain(.5)"), chords(chordsTail), pad(padTail), tune(tuneTail));
 
+/**
+ * S8 (Oak 2.0, Foreground, Middle Ground, Background): eight bars on one chord, Am, so the background can repeat bar
+ * for bar. The tune changes in every bar (E C A | C A | E C E | C E | E A | E C G | E D C B | A); the chords and the
+ * bass play the same bar eight times. `depth-layers` reads the bars: the background parts (chords, bass) mostly
+ * repeat, the front (mel) changes more than each of them, and one background part steps forward, louder by 3 dB or
+ * more or half again as busy, in one bar of the eight and settles back (Oak's thresholds, in the rule, never shown
+ * to the learner). It needs eight bars rendered.
+ */
+const FRONT_TUNE = "<[4 ~ 2 0] [2 ~ 0 ~] [4 2 4 ~] [2 ~ 4 ~] [4 ~ 7 ~] [4 2 6 ~] [4 3 2 1] [0 ~ ~ ~]>";
+const front = (tune = FRONT_TUNE) => `mel: n("${tune}").scale("A4:minor").s("square").lpf(2000).gain(.5)`;
+const BACK_CHORDS = "[0,2,4]@3 [0,2,4]";
+const backChords = (pattern: string, gain: string) =>
+  `chords: n("${pattern}").scale("A3:minor").s("piano").gain(${gain})`;
+const BACK_BASS = 'bass: note("a1 ~ a1 [~ a1]").s("sawtooth").lpf(400).gain(.6)';
+const depth = (chordsLine: string, bassLine = BACK_BASS, melLine = front()) =>
+  code(bassLine, chordsLine, melLine);
+const DEPTH_STARTER = depth(backChords(BACK_CHORDS, "⟪.25⟫"));
+/** Bar 8: the chords twice as loud, 6 dB up, then back. */
+const DEPTH_SOLUTION = depth(backChords(BACK_CHORDS, '"<.25 .25 .25 .25 .25 .25 .25 .5>"'));
+
 const NONE = { roll: false, staff: false, keyboard: false } as const;
 const ROLL = { roll: true, staff: false, keyboard: false } as const;
 const DRUMS = { band: "band.aeolian-4bar", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "A2.L05",
-  version: 4,
+  version: 5,
   title: "Mix & Dynamics",
   objective: "I can balance a mix: the tune on top, every part with its own level, side and room.",
   key: { tonic: "A", mode: "minor" },
@@ -113,6 +133,7 @@ export default defineLesson({
   terms: [
     { id: "term.mix", step: "S3" },
     { id: "term.compression", step: "S5" },
+    { id: "term.foreground", step: "S8" },
   ],
   canDo: ["cd.code.mix"],
   wrapAt: "S4",
@@ -417,6 +438,125 @@ export default defineLesson({
             response: { answer: { choice: ["tune"] } },
             expect: "fail",
             feedback: ["id.wrong"],
+          },
+        ],
+      },
+    },
+    {
+      // Oak 2.0 (W2): the book's Foreground, Middle Ground, Background. Placed before the Make (step ids are never
+      // renumbered).
+      id: "S8",
+      kind: "modify",
+      title: "Front, middle, back",
+      minutes: 1,
+      graded: true,
+      ui: { panels: ROLL, band: DRUMS },
+      exercise: {
+        kind: "code-modify",
+        id: "front-middle-back",
+        version: 1,
+        role: "check",
+        prompt:
+          "The tune changes in every bar; the chords and the bass play the same bar eight times. Make the chords step forward for one bar of the eight, louder or busier, and settle back in the next. Keep the tune and the bass as they are. Done when the chords come forward in one bar only.",
+        skills: [{ skill: "D10", w: 1 }],
+        code: { starter: DEPTH_STARTER },
+        reference: { solutions: [DEPTH_SOLUTION], bars: 8 },
+        // The tune is kept (an `events` match on `mel`), and the depth is read by `depth-layers`.
+        matcher: {
+          m: "all",
+          of: [
+            { m: "events", pitch: "absolute", rhythm: "onsets", durations: false, tracks: ["mel"] },
+            {
+              m: "rubric",
+              rules: [
+                {
+                  id: "front-middle-back",
+                  label:
+                    "The chords and the bass repeat behind a tune that changes more, and one of them comes forward for one bar",
+                  required: true,
+                  skills: ["D10"],
+                  rule: "custom",
+                  fn: "depth-layers",
+                  params: { front: "mel", back: ["chords", "bass"] },
+                },
+              ],
+            },
+          ],
+        },
+        target: { audible: true },
+        feedbackText: {
+          "rubric.unmet":
+            "Not yet: {label}. Listen to the chords across the eight bars: they should sound the same in seven of them and stand out in one.",
+        },
+        hints: ladder(
+          "Listen to the eight bars of chords. Does any bar stand out from the others?",
+          "A part comes forward when it gets louder or busier. `< >` gives a value or a pattern to each bar in turn: eight entries, one a bar.",
+          "Write the chords' `.gain()` as eight values inside `< >`, seven the same and one higher.",
+        ),
+        tests: [
+          { name: "reference", response: { code: DEPTH_SOLUTION }, expect: "pass" },
+          {
+            name: "forward in bar 4 instead",
+            response: { code: depth(backChords(BACK_CHORDS, '"<.25 .25 .25 .5 .25 .25 .25 .25>"')) },
+            expect: "pass",
+          },
+          {
+            name: "busier for one bar: eighth-note chords in bar 8",
+            response: {
+              code: depth(
+                backChords(
+                  `<[${BACK_CHORDS}] [${BACK_CHORDS}] [${BACK_CHORDS}] [${BACK_CHORDS}] [${BACK_CHORDS}] [${BACK_CHORDS}] [${BACK_CHORDS}] [0,2,4]*8>`,
+                  ".25",
+                ),
+              ),
+            },
+            expect: "pass",
+          },
+          {
+            name: "the bass steps forward instead, the chords left alone",
+            response: {
+              code: depth(
+                backChords(BACK_CHORDS, ".25"),
+                'bass: note("a1 ~ a1 [~ a1]").s("sawtooth").lpf(400).gain("<.6 .6 .6 .6 .6 .6 .6 1.2>")',
+              ),
+            },
+            expect: "pass",
+          },
+          {
+            name: "unchanged",
+            response: { code: depth(backChords(BACK_CHORDS, ".25")) },
+            expect: "fail",
+            feedback: ["code.unchanged"],
+          },
+          {
+            name: "the right function, the chords louder in every bar: nothing steps forward",
+            response: { code: depth(backChords(BACK_CHORDS, '"<.5 .5 .5 .5 .5 .5 .5 .5>"')) },
+            expect: "fail",
+            feedback: ["rubric.unmet"],
+          },
+          {
+            name: "forward in two bars of the eight",
+            response: { code: depth(backChords(BACK_CHORDS, '"<.25 .25 .25 .5 .25 .25 .25 .5>"')) },
+            expect: "fail",
+            feedback: ["rubric.unmet"],
+          },
+          {
+            name: "the chords step forward, and the tune's last bar is changed too",
+            response: {
+              code: depth(
+                backChords(BACK_CHORDS, '"<.25 .25 .25 .25 .25 .25 .25 .5>"'),
+                BACK_BASS,
+                front("<[4 ~ 2 0] [2 ~ 0 ~] [4 2 4 ~] [2 ~ 4 ~] [4 ~ 7 ~] [4 2 6 ~] [4 3 2 1] [0 ~ 2 ~]>"),
+              ),
+            },
+            expect: "fail",
+            feedback: ["melody.extra-note"],
+          },
+          {
+            name: "the chords raised by a hair",
+            response: { code: depth(backChords(BACK_CHORDS, '"<.25 .25 .25 .25 .25 .25 .25 .27>"')) },
+            expect: "fail",
+            feedback: ["rubric.unmet"],
           },
         ],
       },

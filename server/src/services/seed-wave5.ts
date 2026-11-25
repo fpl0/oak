@@ -256,24 +256,24 @@ export const WAVE5_SEED_DESCRIPTIONS: readonly DevSeedPoint[] = [
   {
     point: "after X1 (U08.L02 next)",
     description:
-      "X1 released (C2 and X1 on the album, recordings, liner notes), U08.L01 done before GYM.03: today is U08.L02.",
+      "X1 released (C2 and X1 on the album, recordings, liner notes), U08.L01 done after GYM.03: today is U08.L02.",
   },
   {
     point: "after U08.L04",
     description:
-      "Through U08.L04 (tb.const unlocked, fam.rhy.groove-lock seeded), the last yesterday: today is U08.L05.",
+      "Through U08.L04 (tb.const unlocked, fam.rhy.groove-lock seeded), the last yesterday: today is U08.L06.",
   },
   {
     point: "after U09.L01",
     description:
-      "U08.L05, GYM.04 (a ladder session) and U09.L01 done: today is U09.L02 (arrange(), the form lens).",
+      "U08.L06, GYM.04 (a ladder session), U08.L05 and U09.L01 done: today is U09.L02 (arrange(), the form lens).",
   },
   {
     point: "after U09.L04",
     description:
-      "Through U09.L04 (tb.signal, tb.range, tb.segment): today is GYM.05 (a ladder session, odd slot; own audio needs a project).",
+      "GYM.05 (a ladder session, odd slot; own audio needs a project) and U09.L04 done (tb.signal, tb.range, tb.segment): today is U09.L05.",
   },
-  { point: "U09.CP due", description: "GYM.05, U09.L05 and U10.L01 done: today's New block is U09.CP." },
+  { point: "U09.CP due", description: "U09.L05–L07, GYM.06 and U10.L01 done: today's New block is U09.CP." },
   { point: "C3 open", description: "U09.CP passed yesterday: C3 is open and today is C3.S1." },
   {
     point: "C3.S2 done",
@@ -282,40 +282,40 @@ export const WAVE5_SEED_DESCRIPTIONS: readonly DevSeedPoint[] = [
   },
   {
     point: "C3 released",
-    description: "C3 released (v1, a recording, deterministic liner notes, no review): today is GYM.06.",
+    description: "C3 released (v1, a recording, deterministic liner notes, no review): today is GYM.07.",
   },
   {
     point: "after U10.L02",
-    description: "GYM.06 and U10.L02 (relative and parallel minor) done: today is U10.L03.",
+    description: "GYM.07 and U10.L02 (relative and parallel minor) done: today is U10.L03.",
   },
   {
     point: "after U10.L05",
-    description: "U10.L03–L05 done (minor chords, the Aeolian loop): today is GYM.07.",
+    description: "U10.L03–L05 done (minor chords, the Aeolian loop): today is GYM.08.",
   },
   {
     point: "after U10.L08",
-    description: "GYM.07 and U10.L06–L08 done (harmonic and melodic minor): today is U10.L09.",
+    description: "GYM.08 and U10.L06–L08 done (harmonic and melodic minor): today is U10.L09.",
   },
-  { point: "U10.CP due", description: "U10.L09, GYM.08 and U11.L01 done: today's New block is U10.CP." },
+  { point: "U10.CP due", description: "U10.L09, GYM.09 and U11.L01 done: today's New block is U10.CP." },
   { point: "C4 open", description: "U10.CP passed yesterday: C4 is open and today is C4.S1." },
   {
     point: "C4 released",
     description:
-      "C4.S1 (the Aeolian verse) and C4.S2 (the chorus with the major V) done, released: today is GYM.09.",
+      "C4.S1 (the Aeolian verse) and C4.S2 (the chorus with the major V) done, released: today is GYM.10.",
   },
   {
     point: "after U11.L03",
     description:
-      "GYM.09, U11.L02 and U11.L03 done (the blues scale; snd.crunch, tb.distort): today is U11.L04.",
+      "GYM.10, U11.L02 and U11.L03 done (the blues scale; snd.crunch, tb.distort): today is U11.L04.",
   },
   {
     point: "after U11.L06",
-    description: "U11.L04–L05, GYM.10 and U11.L06 done: today is U11.L07 (swing).",
+    description: "U11.L04–L05, GYM.11 and U11.L06 done: today is U11.L07 (swing).",
   },
   {
     point: "U11.CP due",
     description:
-      "U11.L07–L08 and GYM.11 done (U12.L01 too once it is written; until then it is left out): today's New block is U11.CP.",
+      "U11.L07–L08 and GYM.12 done (U12.L01 too once it is written; until then it is left out): today's New block is U11.CP.",
   },
   { point: "C5 open", description: "U11.CP passed yesterday: C5 is open and today is C5.S1." },
   {
@@ -341,7 +341,7 @@ export const WAVE5_SEED_DESCRIPTIONS: readonly DevSeedPoint[] = [
   {
     point: "ladder L5",
     description:
-      "Through U10.L05 with the ladder at L5, realism R0, one L5 song started yesterday (phrase 1 passed): today is GYM.07, a ladder L5 session.",
+      "Through U10.L05 with the ladder at L5, realism R0, one L5 song started yesterday (phrase 1 passed): today is GYM.08, a ladder L5 session.",
   },
   {
     point: "ladder L6",
@@ -351,12 +351,12 @@ export const WAVE5_SEED_DESCRIPTIONS: readonly DevSeedPoint[] = [
   {
     point: "ladder level-up due",
     description:
-      "Through U09.L04 with the ladder at L4 and two graded L4 passes at R2 on the last two days: L5 is offered (`ladder.levelUp`, taken in Transcribe’s ladder panel); today is GYM.05. The Coda announces a level-up only in the session whose pass earned it, so this offer is not in today’s Coda: the c10 browser test earns it from “after U09.L04”.",
+      "Through U09.L03 with the ladder at L4 and two graded L4 passes at R2 on the last two days: L5 is offered (`ladder.levelUp`, taken in Transcribe’s ladder panel); today is GYM.05. The Coda announces a level-up only in the session whose pass earned it, so this offer is not in today’s Coda: the c10 browser test earns it from the day before GYM.05 (U09.L03 since Oak 2.0 W2).",
   },
   {
     point: "ladder realism-up due",
     description:
-      "Through U09.L04 with the ladder at L2, R1, and one session ≥ 0.9 at R1 yesterday: today's GYM.05 at ≥ 0.9 raises realism to R2 (c10).",
+      "Through U09.L03 with the ladder at L2, R1, and one session ≥ 0.9 at R1 yesterday: today's GYM.05 at ≥ 0.9 raises realism to R2 (c10).",
   },
   {
     point: "side lesson offered",

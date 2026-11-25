@@ -185,7 +185,7 @@ const BASS_MATCH: Matcher = {
 
 export default defineLesson({
   id: "U09.L05",
-  version: 4,
+  version: 5,
   title: "Arranging in Code",
   objective:
     "I can bring parts in and out of an arrangement by bar with .mask(): an intro that builds, a part that steps out before the chorus.",

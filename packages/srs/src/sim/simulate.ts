@@ -232,8 +232,15 @@ export interface SimSummary {
    * (the amendment of the §7.4 gate: a bound on how long a deferred family waits, not on how many wait).
    * Days of the learner's own breaks are not counted. A family still unreviewed at the end counts the days
    * it has waited so far (`censored`). `deferred`: the families created deferred; `all`: every one.
+   * `concept` and `conceptPerFamily`: the concept families created deferred, the same way.
    */
-  firstReviewWait: { deferred: WaitStats; all: WaitStats; perFamily: FamilyWait[]; concept: WaitStats };
+  firstReviewWait: {
+    deferred: WaitStats;
+    all: WaitStats;
+    perFamily: FamilyWait[];
+    concept: WaitStats;
+    conceptPerFamily: FamilyWait[];
+  };
   setCredit: { mean: number; below065: number };
   recallAtReview: { set: number; fact: number };
   ratings: Record<Rating, number>;
@@ -1276,6 +1283,7 @@ export function simulate(srsIn: Srs, o: SimOptions): SimResult {
       all: waitStats(firstReview),
       perFamily: firstReview,
       concept: waitStats(conceptWaits),
+      conceptPerFamily: conceptWaits,
     },
     setCredit: {
       mean: mean(setCredits),

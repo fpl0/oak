@@ -67,22 +67,22 @@
           "sections": {
             "intro": -23.5,
             "verse1": -18.3,
-            "lift1": -20,
+            "lift1": -20.1,
             "chorus1": -19.8,
             "verse2": -19.3,
             "bridge": -23.3,
-            "lift2": -20,
+            "lift2": -19.6,
             "chorus2": -19.7,
-            "outro": -18.2,
+            "outro": -18.3,
             "end": -27.1
           },
-          "contrastLu": 1.2,
+          "contrastLu": 1.3,
           "aim": false
         },
         "flavour.indie": {
-          "lufs": -21.7,
+          "lufs": -21.6,
           "peakDb": -4.4,
-          "lowPct": 26.9,
+          "lowPct": 26.8,
           "ungated": -21.7,
           "seconds": 136.8,
           "sections": {
@@ -92,79 +92,79 @@
             "chorus1": -20.5,
             "verse2": -22.8,
             "bridge": -22.3,
-            "lift2": -21.4,
+            "lift2": -21.1,
             "chorus2": -19.7,
-            "outro": -22.7,
+            "outro": -22.6,
             "end": -27.3
           },
-          "contrastLu": 2.6,
+          "contrastLu": 2.7,
           "aim": true
         },
         "flavour.jazz-soul": {
           "lufs": -20.1,
           "peakDb": -3.1,
-          "lowPct": 21.9,
-          "ungated": -20.2,
+          "lowPct": 21.7,
+          "ungated": -20.1,
           "seconds": 136.8,
           "sections": {
             "intro": -22,
             "verse1": -20,
             "lift1": -19.1,
-            "chorus1": -19.2,
+            "chorus1": -19.1,
             "verse2": -20.5,
             "bridge": -23.7,
-            "lift2": -19.1,
+            "lift2": -18.6,
             "chorus2": -18.9,
             "outro": -20.8,
             "end": -25.4
           },
-          "contrastLu": 2.5,
+          "contrastLu": 2.6,
           "aim": true
         },
         "flavour.funk": {
-          "lufs": -19.9,
-          "peakDb": -4,
-          "lowPct": 60.3,
+          "lufs": -19.8,
+          "peakDb": -3.9,
+          "lowPct": 59.8,
           "ungated": -19.9,
           "seconds": 136.8,
           "sections": {
-            "intro": -22.6,
+            "intro": -22.7,
             "verse1": -19.9,
             "lift1": -17.8,
             "chorus1": -19.4,
             "verse2": -21.4,
             "bridge": -22.5,
-            "lift2": -17.8,
+            "lift2": -17.3,
             "chorus2": -18.4,
             "outro": -21.8,
             "end": -22.6
           },
-          "contrastLu": 3.3,
-          "aim": false
+          "contrastLu": 3.4,
+          "aim": true
         },
         "flavour.electronic": {
           "lufs": -19.9,
-          "peakDb": -5.4,
-          "lowPct": 52.2,
+          "peakDb": -5.3,
+          "lowPct": 52.1,
           "ungated": -19.9,
           "seconds": 136.8,
           "sections": {
             "intro": -25.3,
-            "verse1": -20.6,
+            "verse1": -20.7,
             "lift1": -17.3,
             "chorus1": -19.2,
             "verse2": -21.3,
             "bridge": -24.6,
-            "lift2": -17.2,
+            "lift2": -17.1,
             "chorus2": -17.7,
             "outro": -21.7,
             "end": -21.7
           },
-          "contrastLu": 5.1,
-          "aim": false
+          "contrastLu": 5.2,
+          "aim": true
         }
       },
-      "spreadLu": 1.9,
+      "spreadLu": 1.8,
       "takes": {
         "A1.L01": {
           "sections": [
@@ -208,16 +208,16 @@
           "oak": {
             "flavour.pop": -29.5,
             "flavour.indie": -30.4,
-            "flavour.jazz-soul": -26.9,
+            "flavour.jazz-soul": -27,
             "flavour.funk": -27.1,
-            "flavour.electronic": -34.2
+            "flavour.electronic": -34.3
           },
           "diff": {
             "flavour.pop": 16.9,
             "flavour.indie": 17.8,
-            "flavour.jazz-soul": 14.3,
+            "flavour.jazz-soul": 14.4,
             "flavour.funk": 14.5,
-            "flavour.electronic": 21.6
+            "flavour.electronic": 21.7
           }
         },
         "A1.L03": {
@@ -235,14 +235,14 @@
           "oak": {
             "flavour.pop": -35.5,
             "flavour.indie": -40.1,
-            "flavour.jazz-soul": -32.1,
+            "flavour.jazz-soul": -32.2,
             "flavour.funk": -33.8,
             "flavour.electronic": -34.5
           },
           "diff": {
             "flavour.pop": 22.6,
             "flavour.indie": 27.2,
-            "flavour.jazz-soul": 19.2,
+            "flavour.jazz-soul": 19.3,
             "flavour.funk": 20.9,
             "flavour.electronic": 21.6
           }
@@ -260,18 +260,18 @@
           ],
           "learner": -12.7,
           "oak": {
-            "flavour.pop": -33.2,
+            "flavour.pop": -33.3,
             "flavour.indie": -26.6,
             "flavour.jazz-soul": -31.2,
             "flavour.funk": -28.8,
-            "flavour.electronic": -31.7
+            "flavour.electronic": -31.8
           },
           "diff": {
-            "flavour.pop": 20.5,
+            "flavour.pop": 20.6,
             "flavour.indie": 13.9,
             "flavour.jazz-soul": 18.5,
             "flavour.funk": 16.1,
-            "flavour.electronic": 19
+            "flavour.electronic": 19.1
           }
         },
         "A1.L05": {
@@ -317,14 +317,14 @@
           ],
           "learner": -13.1,
           "oak": {
-            "flavour.pop": -26.5,
+            "flavour.pop": -26.4,
             "flavour.indie": -33.3,
             "flavour.jazz-soul": -26.6,
             "flavour.funk": -25.8,
             "flavour.electronic": -32.6
           },
           "diff": {
-            "flavour.pop": 13.4,
+            "flavour.pop": 13.3,
             "flavour.indie": 20.2,
             "flavour.jazz-soul": 13.5,
             "flavour.funk": 12.7,
@@ -347,14 +347,14 @@
           "oak": {
             "flavour.pop": -29.5,
             "flavour.indie": -30.4,
-            "flavour.jazz-soul": -26.8,
+            "flavour.jazz-soul": -26.9,
             "flavour.funk": -27.1,
             "flavour.electronic": -32.9
           },
           "diff": {
             "flavour.pop": 16.5,
             "flavour.indie": 17.4,
-            "flavour.jazz-soul": 13.8,
+            "flavour.jazz-soul": 13.9,
             "flavour.funk": 14.1,
             "flavour.electronic": 19.9
           }
@@ -634,7 +634,7 @@
         "flavour.pop": {
           "lufs": -19.9,
           "peakDb": -4.3,
-          "lowPct": 35.4,
+          "lowPct": 35.3,
           "ungated": -19.9,
           "seconds": 103.64,
           "sections": {
@@ -646,7 +646,7 @@
             "solo": -18.8,
             "bridge-bb2": -20.7,
             "bridge-f2": -21,
-            "a3": -19.6,
+            "a3": -19.7,
             "outro": -19,
             "end": -24.4
           },
@@ -656,7 +656,7 @@
         "flavour.indie": {
           "lufs": -20.7,
           "peakDb": -2.1,
-          "lowPct": 34.3,
+          "lowPct": 34.2,
           "ungated": -20.7,
           "seconds": 103.64,
           "sections": {
@@ -664,7 +664,7 @@
             "a1": -20.7,
             "bridge-bb1": -20.9,
             "bridge-f1": -21.3,
-            "a2": -20.7,
+            "a2": -20.6,
             "solo": -19.4,
             "bridge-bb2": -20.9,
             "bridge-f2": -21.3,
@@ -678,7 +678,7 @@
         "flavour.jazz-soul": {
           "lufs": -20.5,
           "peakDb": -4.7,
-          "lowPct": 22,
+          "lowPct": 21.8,
           "ungated": -20.5,
           "seconds": 103.64,
           "sections": {
@@ -690,7 +690,7 @@
             "solo": -19.7,
             "bridge-bb2": -21.6,
             "bridge-f2": -21.1,
-            "a3": -20,
+            "a3": -20.1,
             "outro": -19.5,
             "end": -23.6
           },
@@ -700,7 +700,7 @@
         "flavour.funk": {
           "lufs": -18.6,
           "peakDb": -3.2,
-          "lowPct": 48.8,
+          "lowPct": 48.6,
           "ungated": -18.6,
           "seconds": 103.64,
           "sections": {
@@ -708,16 +708,16 @@
             "a1": -18.4,
             "bridge-bb1": -19.5,
             "bridge-f1": -19,
-            "a2": -18.4,
+            "a2": -18.3,
             "solo": -17.6,
             "bridge-bb2": -19.5,
             "bridge-f2": -19.1,
-            "a3": -18.4,
+            "a3": -18.5,
             "outro": -17.9,
             "end": -18.4
           },
           "contrastLu": null,
-          "aim": false
+          "aim": true
         },
         "flavour.electronic": {
           "lufs": -19.6,
@@ -732,14 +732,14 @@
             "bridge-f1": -20.2,
             "a2": -19.8,
             "solo": -17.6,
-            "bridge-bb2": -20.5,
+            "bridge-bb2": -20.6,
             "bridge-f2": -20.2,
-            "a3": -19.8,
+            "a3": -19.9,
             "outro": -19.4,
-            "end": -18.6
+            "end": -18.3
           },
           "contrastLu": null,
-          "aim": false
+          "aim": true
         }
       },
       "spreadLu": 2.1,
@@ -834,14 +834,14 @@
           "oak": {
             "flavour.pop": -20.5,
             "flavour.indie": -21.3,
-            "flavour.jazz-soul": -20.7,
+            "flavour.jazz-soul": -20.8,
             "flavour.funk": -19.3,
             "flavour.electronic": -20.2
           },
           "diff": {
             "flavour.pop": 1.1,
             "flavour.indie": 1.9,
-            "flavour.jazz-soul": 1.3,
+            "flavour.jazz-soul": 1.4,
             "flavour.funk": -0.1,
             "flavour.electronic": 0.8
           }
@@ -1673,7 +1673,7 @@
             "break": -24.3,
             "lift": -21.2,
             "stop": -25.1,
-            "chorus2": -20.1,
+            "chorus2": -20,
             "outro": -20.4
           },
           "contrastLu": 1.2,
@@ -1683,7 +1683,7 @@
           "lufs": -21.5,
           "peakDb": -4.3,
           "lowPct": 25.6,
-          "ungated": -21.6,
+          "ungated": -21.5,
           "seconds": 142.5,
           "sections": {
             "intro": -26.5,
@@ -1693,7 +1693,7 @@
             "break": -25.9,
             "lift": -21.2,
             "stop": -26.2,
-            "chorus2": -20.7,
+            "chorus2": -20.5,
             "outro": -20.7
           },
           "contrastLu": 1.9,
@@ -1701,9 +1701,9 @@
         },
         "flavour.jazz-soul": {
           "lufs": -20.7,
-          "peakDb": -4.4,
-          "lowPct": 18,
-          "ungated": -20.8,
+          "peakDb": -4.3,
+          "lowPct": 17.9,
+          "ungated": -20.7,
           "seconds": 142.5,
           "sections": {
             "intro": -22.6,
@@ -1722,27 +1722,27 @@
         "flavour.funk": {
           "lufs": -19.8,
           "peakDb": -4,
-          "lowPct": 53,
+          "lowPct": 52.9,
           "ungated": -19.8,
           "seconds": 142.5,
           "sections": {
-            "intro": -21.8,
+            "intro": -21.9,
             "verse": -19.7,
             "chorus1": -19.5,
             "bridge": -19.9,
             "break": -21.4,
             "lift": -19.3,
             "stop": -22.8,
-            "chorus2": -18.8,
+            "chorus2": -18.7,
             "outro": -19.4
           },
           "contrastLu": 1.3,
-          "aim": false
+          "aim": true
         },
         "flavour.electronic": {
           "lufs": -21.2,
           "peakDb": -5.5,
-          "lowPct": 33.4,
+          "lowPct": 33.3,
           "ungated": -21.2,
           "seconds": 142.5,
           "sections": {
@@ -1750,10 +1750,10 @@
             "verse": -20.2,
             "chorus1": -20.6,
             "bridge": -21.5,
-            "break": -23.5,
-            "lift": -21,
+            "break": -23.4,
+            "lift": -21.1,
             "stop": -24.7,
-            "chorus2": -20.4,
+            "chorus2": -20.3,
             "outro": -20.5
           },
           "contrastLu": 1.6,
@@ -1829,17 +1829,17 @@
           "learner": -15,
           "oak": {
             "flavour.pop": -22.2,
-            "flavour.indie": -22.4,
-            "flavour.jazz-soul": -24.6,
-            "flavour.funk": -24.6,
-            "flavour.electronic": -22.1
+            "flavour.indie": -22.3,
+            "flavour.jazz-soul": -24.4,
+            "flavour.funk": -24.3,
+            "flavour.electronic": -22
           },
           "diff": {
             "flavour.pop": 7.2,
-            "flavour.indie": 7.4,
-            "flavour.jazz-soul": 9.6,
-            "flavour.funk": 9.6,
-            "flavour.electronic": 7.1
+            "flavour.indie": 7.3,
+            "flavour.jazz-soul": 9.4,
+            "flavour.funk": 9.3,
+            "flavour.electronic": 7
           }
         },
         "R1.L04": {
@@ -1868,6 +1868,31 @@
             "flavour.jazz-soul": 17.6,
             "flavour.funk": 14.6,
             "flavour.electronic": 17.6
+          }
+        },
+        "R1.L06": {
+          "sections": [
+            "intro"
+          ],
+          "parts": [
+            "kick",
+            "snare",
+            "hats"
+          ],
+          "learner": -14.2,
+          "oak": {
+            "flavour.pop": -27.2,
+            "flavour.indie": -29.4,
+            "flavour.jazz-soul": -23.9,
+            "flavour.funk": -25.1,
+            "flavour.electronic": -28.1
+          },
+          "diff": {
+            "flavour.pop": 13,
+            "flavour.indie": 15.2,
+            "flavour.jazz-soul": 9.7,
+            "flavour.funk": 10.9,
+            "flavour.electronic": 13.9
           }
         },
         "R1.L05": {
@@ -2320,8 +2345,8 @@
         "flavour.indie": {
           "lufs": -19.3,
           "peakDb": -2.8,
-          "lowPct": 31.2,
-          "ungated": -19.5,
+          "lowPct": 31.1,
+          "ungated": -19.4,
           "seconds": 88.8,
           "sections": {
             "intro": -22.2,
@@ -2329,10 +2354,10 @@
             "stop": -24.3,
             "chorus1": -18.2,
             "bridge": -21.5,
-            "chorus2": -18.2,
+            "chorus2": -18.1,
             "outro": -18.8
           },
-          "contrastLu": 3.2,
+          "contrastLu": 3.3,
           "aim": true
         },
         "flavour.jazz-soul": {
@@ -2347,10 +2372,10 @@
             "stop": -25.6,
             "chorus1": -19.5,
             "bridge": -20.5,
-            "chorus2": -19.5,
+            "chorus2": -19.4,
             "outro": -20.3
           },
-          "contrastLu": 2.4,
+          "contrastLu": 2.5,
           "aim": true
         },
         "flavour.funk": {
@@ -2369,10 +2394,10 @@
             "outro": -18.3
           },
           "contrastLu": 2.5,
-          "aim": false
+          "aim": true
         },
         "flavour.electronic": {
-          "lufs": -19.2,
+          "lufs": -19.1,
           "peakDb": -6.4,
           "lowPct": 61.6,
           "ungated": -19.2,
@@ -2387,7 +2412,7 @@
             "outro": -19.2
           },
           "contrastLu": 1.7,
-          "aim": false
+          "aim": true
         }
       },
       "spreadLu": 2.1,
@@ -2531,14 +2556,14 @@
           "learner": -15,
           "oak": {
             "flavour.pop": -19.1,
-            "flavour.indie": -19.4,
+            "flavour.indie": -19.3,
             "flavour.jazz-soul": -20.4,
             "flavour.funk": -20.4,
             "flavour.electronic": -21.4
           },
           "diff": {
             "flavour.pop": 4.1,
-            "flavour.indie": 4.4,
+            "flavour.indie": 4.3,
             "flavour.jazz-soul": 5.4,
             "flavour.funk": 5.4,
             "flavour.electronic": 6.4
@@ -2585,14 +2610,14 @@
             "flavour.indie": -22.8,
             "flavour.jazz-soul": -21,
             "flavour.funk": -20.9,
-            "flavour.electronic": -20.9
+            "flavour.electronic": -21
           },
           "diff": {
             "flavour.pop": -0.7,
             "flavour.indie": -0.5,
             "flavour.jazz-soul": -2.3,
             "flavour.funk": -2.4,
-            "flavour.electronic": -2.4
+            "flavour.electronic": -2.3
           }
         }
       }
@@ -3792,9 +3817,9 @@
       "bars": 64,
       "flavours": {
         "flavour.pop": {
-          "lufs": -18.4,
+          "lufs": -18.3,
           "peakDb": -2.7,
-          "lowPct": 23.8,
+          "lowPct": 23.7,
           "ungated": -18.4,
           "seconds": 166.96,
           "sections": {
@@ -3803,7 +3828,7 @@
             "pre1": -17.8,
             "chorus1": -17.3,
             "verse2": -19.4,
-            "pre2": -17.8,
+            "pre2": -17.7,
             "chorus2": -17.3,
             "lift": -20.5,
             "bridge": -18.9,
@@ -3814,9 +3839,9 @@
           "aim": true
         },
         "flavour.indie": {
-          "lufs": -19.3,
-          "peakDb": -2.5,
-          "lowPct": 31.3,
+          "lufs": -19.2,
+          "peakDb": -2.3,
+          "lowPct": 31.1,
           "ungated": -19.3,
           "seconds": 166.96,
           "sections": {
@@ -3824,9 +3849,9 @@
             "verse1": -20.7,
             "pre1": -18.1,
             "chorus1": -18.3,
-            "verse2": -20.7,
-            "pre2": -18.1,
-            "chorus2": -18.3,
+            "verse2": -20.5,
+            "pre2": -17.9,
+            "chorus2": -18.2,
             "lift": -22,
             "bridge": -19.9,
             "chorus3": -18.2,
@@ -3836,18 +3861,18 @@
           "aim": true
         },
         "flavour.jazz-soul": {
-          "lufs": -20.8,
+          "lufs": -20.7,
           "peakDb": -2.9,
-          "lowPct": 25.5,
-          "ungated": -20.8,
+          "lowPct": 25.4,
+          "ungated": -20.7,
           "seconds": 166.96,
           "sections": {
             "intro": -22.9,
             "verse1": -21.9,
             "pre1": -20.5,
             "chorus1": -19.8,
-            "verse2": -21.9,
-            "pre2": -20.5,
+            "verse2": -21.8,
+            "pre2": -20.4,
             "chorus2": -19.8,
             "lift": -22.9,
             "bridge": -20.3,
@@ -3858,31 +3883,31 @@
           "aim": true
         },
         "flavour.funk": {
-          "lufs": -18.4,
+          "lufs": -18.3,
           "peakDb": -4,
-          "lowPct": 49.9,
-          "ungated": -18.4,
+          "lowPct": 49.7,
+          "ungated": -18.3,
           "seconds": 166.96,
           "sections": {
             "intro": -20.8,
             "verse1": -19.5,
             "pre1": -17.7,
-            "chorus1": -17.7,
-            "verse2": -19.5,
-            "pre2": -17.7,
+            "chorus1": -17.8,
+            "verse2": -19.4,
+            "pre2": -17.5,
             "chorus2": -17.7,
             "lift": -17.8,
             "bridge": -17.9,
             "chorus3": -17.7,
             "outro": -18.9
           },
-          "contrastLu": 1.7,
-          "aim": false
+          "contrastLu": 1.6,
+          "aim": true
         },
         "flavour.electronic": {
           "lufs": -19.1,
-          "peakDb": -5.6,
-          "lowPct": 71.6,
+          "peakDb": -5.3,
+          "lowPct": 71.3,
           "ungated": -19.1,
           "seconds": 166.96,
           "sections": {
@@ -3890,16 +3915,16 @@
             "verse1": -20.2,
             "pre1": -18.1,
             "chorus1": -18.3,
-            "verse2": -20.2,
+            "verse2": -20.1,
             "pre2": -18.1,
             "chorus2": -18.3,
-            "lift": -21.1,
+            "lift": -21,
             "bridge": -18.4,
             "chorus3": -18.3,
             "outro": -20.3
           },
           "contrastLu": 1.1,
-          "aim": false
+          "aim": true
         }
       },
       "spreadLu": 2.4,
@@ -4007,17 +4032,17 @@
           "learner": -21.6,
           "oak": {
             "flavour.pop": -22.8,
-            "flavour.indie": -23.8,
-            "flavour.jazz-soul": -26.2,
-            "flavour.funk": -22.5,
-            "flavour.electronic": -25.2
+            "flavour.indie": -23.7,
+            "flavour.jazz-soul": -26.1,
+            "flavour.funk": -22.6,
+            "flavour.electronic": -25.1
           },
           "diff": {
             "flavour.pop": 1.2,
-            "flavour.indie": 2.2,
-            "flavour.jazz-soul": 4.6,
-            "flavour.funk": 0.9,
-            "flavour.electronic": 3.6
+            "flavour.indie": 2.1,
+            "flavour.jazz-soul": 4.5,
+            "flavour.funk": 1,
+            "flavour.electronic": 3.5
           }
         },
         "U06.L06": {
@@ -4075,18 +4100,18 @@
           ],
           "learner": -20,
           "oak": {
-            "flavour.pop": -22.6,
-            "flavour.indie": -24,
-            "flavour.jazz-soul": -25.9,
-            "flavour.funk": -22,
-            "flavour.electronic": -19.8
+            "flavour.pop": -22.2,
+            "flavour.indie": -23.3,
+            "flavour.jazz-soul": -25.6,
+            "flavour.funk": -21.6,
+            "flavour.electronic": -19.7
           },
           "diff": {
-            "flavour.pop": 2.6,
-            "flavour.indie": 4,
-            "flavour.jazz-soul": 5.9,
-            "flavour.funk": 2,
-            "flavour.electronic": -0.2
+            "flavour.pop": 2.2,
+            "flavour.indie": 3.3,
+            "flavour.jazz-soul": 5.6,
+            "flavour.funk": 1.6,
+            "flavour.electronic": -0.3
           }
         },
         "U06.L09": {
@@ -4148,17 +4173,17 @@
           "learner": -18.5,
           "oak": {
             "flavour.pop": -25.2,
-            "flavour.indie": -26,
-            "flavour.jazz-soul": -28.1,
-            "flavour.funk": -25.1,
-            "flavour.electronic": -26.3
+            "flavour.indie": -26.7,
+            "flavour.jazz-soul": -28.5,
+            "flavour.funk": -25,
+            "flavour.electronic": -26.6
           },
           "diff": {
             "flavour.pop": 6.7,
-            "flavour.indie": 7.5,
-            "flavour.jazz-soul": 9.6,
-            "flavour.funk": 6.6,
-            "flavour.electronic": 7.8
+            "flavour.indie": 8.2,
+            "flavour.jazz-soul": 10,
+            "flavour.funk": 6.5,
+            "flavour.electronic": 8.1
           }
         },
         "U06.L12": {
@@ -4172,14 +4197,14 @@
           "learner": -19.7,
           "oak": {
             "flavour.pop": -18.5,
-            "flavour.indie": -19.3,
+            "flavour.indie": -19.2,
             "flavour.jazz-soul": -20.2,
             "flavour.funk": -18.2,
             "flavour.electronic": -18.8
           },
           "diff": {
             "flavour.pop": -1.2,
-            "flavour.indie": -0.4,
+            "flavour.indie": -0.5,
             "flavour.jazz-soul": 0.5,
             "flavour.funk": -1.5,
             "flavour.electronic": -0.9
@@ -4194,7 +4219,7 @@
         "flavour.pop": {
           "lufs": -20.2,
           "peakDb": -3.2,
-          "lowPct": 22,
+          "lowPct": 22.2,
           "ungated": -20.3,
           "seconds": 148.7,
           "sections": {
@@ -4202,19 +4227,19 @@
             "verse1": -20.7,
             "chorus1": -19,
             "verse2": -20.8,
-            "chorus2": -19,
+            "chorus2": -18.9,
             "bridge": -22.2,
             "break": -23.6,
             "chorus3": -19,
             "outro": -24
           },
-          "contrastLu": 2.4,
+          "contrastLu": 2.5,
           "aim": false
         },
         "flavour.indie": {
-          "lufs": -20.2,
+          "lufs": -20.1,
           "peakDb": -2.9,
-          "lowPct": 29.7,
+          "lowPct": 30.1,
           "ungated": -20.2,
           "seconds": 148.7,
           "sections": {
@@ -4222,7 +4247,7 @@
             "verse1": -21.6,
             "chorus1": -18.6,
             "verse2": -21.6,
-            "chorus2": -18.6,
+            "chorus2": -18.5,
             "bridge": -21.4,
             "break": -23.7,
             "chorus3": -18.5,
@@ -4232,17 +4257,17 @@
           "aim": true
         },
         "flavour.jazz-soul": {
-          "lufs": -20.5,
+          "lufs": -20.4,
           "peakDb": -3.6,
-          "lowPct": 19.1,
+          "lowPct": 19.3,
           "ungated": -20.5,
           "seconds": 148.7,
           "sections": {
             "intro": -22.5,
             "verse1": -21.4,
             "chorus1": -19.1,
-            "verse2": -21.4,
-            "chorus2": -19.1,
+            "verse2": -21.3,
+            "chorus2": -19,
             "bridge": -21.8,
             "break": -23.8,
             "chorus3": -19.1,
@@ -4254,33 +4279,33 @@
         "flavour.funk": {
           "lufs": -19.9,
           "peakDb": -5.2,
-          "lowPct": 46.2,
-          "ungated": -20,
+          "lowPct": 46.8,
+          "ungated": -19.9,
           "seconds": 148.7,
           "sections": {
-            "intro": -22.1,
+            "intro": -22,
             "verse1": -21.2,
             "chorus1": -18.8,
             "verse2": -21.2,
-            "chorus2": -18.8,
+            "chorus2": -18.7,
             "bridge": -20.4,
             "break": -23.7,
             "chorus3": -19,
             "outro": -19.5
           },
           "contrastLu": 2.4,
-          "aim": false
+          "aim": true
         },
         "flavour.electronic": {
           "lufs": -20.5,
-          "peakDb": -5.6,
-          "lowPct": 57.3,
+          "peakDb": -4.8,
+          "lowPct": 57.6,
           "ungated": -20.5,
           "seconds": 148.7,
           "sections": {
             "intro": -21.3,
             "verse1": -21.7,
-            "chorus1": -19.4,
+            "chorus1": -19.5,
             "verse2": -21.7,
             "chorus2": -19.5,
             "bridge": -20.3,
@@ -4330,15 +4355,39 @@
             "flavour.pop": -21,
             "flavour.indie": -20.9,
             "flavour.jazz-soul": -20.9,
-            "flavour.funk": -21.2,
+            "flavour.funk": -21.3,
             "flavour.electronic": -22.6
           },
           "diff": {
             "flavour.pop": -2.3,
             "flavour.indie": -2.4,
             "flavour.jazz-soul": -2.4,
-            "flavour.funk": -2.1,
+            "flavour.funk": -2,
             "flavour.electronic": -0.7
+          }
+        },
+        "U07.L11": {
+          "sections": [
+            "chorus1"
+          ],
+          "parts": [
+            "lead",
+            "vox"
+          ],
+          "learner": -18.7,
+          "oak": {
+            "flavour.pop": -21.2,
+            "flavour.indie": -20.8,
+            "flavour.jazz-soul": -21.1,
+            "flavour.funk": -21.3,
+            "flavour.electronic": -22
+          },
+          "diff": {
+            "flavour.pop": 2.5,
+            "flavour.indie": 2.1,
+            "flavour.jazz-soul": 2.4,
+            "flavour.funk": 2.6,
+            "flavour.electronic": 3.3
           }
         },
         "U07.L03": {
@@ -4351,18 +4400,18 @@
           ],
           "learner": -22.1,
           "oak": {
-            "flavour.pop": -22.9,
-            "flavour.indie": -22.4,
-            "flavour.jazz-soul": -22.3,
-            "flavour.funk": -21.8,
-            "flavour.electronic": -22.5
+            "flavour.pop": -22.6,
+            "flavour.indie": -22.2,
+            "flavour.jazz-soul": -22.2,
+            "flavour.funk": -21.6,
+            "flavour.electronic": -22.4
           },
           "diff": {
-            "flavour.pop": 0.8,
-            "flavour.indie": 0.3,
-            "flavour.jazz-soul": 0.2,
-            "flavour.funk": -0.3,
-            "flavour.electronic": 0.4
+            "flavour.pop": 0.5,
+            "flavour.indie": 0.1,
+            "flavour.jazz-soul": 0.1,
+            "flavour.funk": -0.5,
+            "flavour.electronic": 0.3
           }
         },
         "U07.L04": {
@@ -4424,14 +4473,14 @@
           "oak": {
             "flavour.pop": -23.6,
             "flavour.indie": -23.8,
-            "flavour.jazz-soul": -23.2,
+            "flavour.jazz-soul": -23.1,
             "flavour.funk": -23.5,
             "flavour.electronic": -24.4
           },
           "diff": {
             "flavour.pop": -0.8,
             "flavour.indie": -0.6,
-            "flavour.jazz-soul": -1.2,
+            "flavour.jazz-soul": -1.3,
             "flavour.funk": -0.9,
             "flavour.electronic": 0
           }
@@ -4515,7 +4564,7 @@
       "bars": 58,
       "flavours": {
         "flavour.pop": {
-          "lufs": -18.7,
+          "lufs": -18.8,
           "peakDb": -1.8,
           "lowPct": 28.4,
           "ungated": -18.8,
@@ -4525,7 +4574,7 @@
             "verse1": -18.7,
             "chorus1": -18.1,
             "verse2": -18.7,
-            "chorus2": -18.1,
+            "chorus2": -18.2,
             "bridge": -20,
             "stop": -21.5,
             "chorus3": -18.1,
@@ -4546,7 +4595,7 @@
             "verse1": -20.9,
             "chorus1": -18.6,
             "verse2": -20.9,
-            "chorus2": -18.6,
+            "chorus2": -18.7,
             "bridge": -21.4,
             "stop": -23,
             "chorus3": -18.6,
@@ -4580,7 +4629,7 @@
         "flavour.funk": {
           "lufs": -18.2,
           "peakDb": -3,
-          "lowPct": 55.8,
+          "lowPct": 56,
           "ungated": -18.2,
           "seconds": 145,
           "sections": {
@@ -4588,7 +4637,7 @@
             "verse1": -19.1,
             "chorus1": -17.4,
             "verse2": -19.1,
-            "chorus2": -17.4,
+            "chorus2": -17.5,
             "bridge": -18.7,
             "stop": -20.1,
             "chorus3": -17.2,
@@ -4596,12 +4645,12 @@
             "end": -18.7
           },
           "contrastLu": 1.9,
-          "aim": false
+          "aim": true
         },
         "flavour.electronic": {
           "lufs": -18,
           "peakDb": -2.7,
-          "lowPct": 59.2,
+          "lowPct": 59.1,
           "ungated": -18,
           "seconds": 145,
           "sections": {
@@ -4609,15 +4658,15 @@
             "verse1": -18.7,
             "chorus1": -17.3,
             "verse2": -18.7,
-            "chorus2": -17.3,
-            "bridge": -19.3,
+            "chorus2": -17.2,
+            "bridge": -19.2,
             "stop": -19,
-            "chorus3": -17.2,
-            "outro": -17.7,
-            "end": -16.7
+            "chorus3": -17.3,
+            "outro": -17.8,
+            "end": -16.9
           },
           "contrastLu": 1.8,
-          "aim": false
+          "aim": true
         }
       },
       "spreadLu": 2.4,
@@ -4662,14 +4711,14 @@
             "flavour.pop": -21.6,
             "flavour.indie": -21.8,
             "flavour.jazz-soul": -22.7,
-            "flavour.funk": -19.7,
+            "flavour.funk": -19.8,
             "flavour.electronic": -18.1
           },
           "diff": {
             "flavour.pop": 1.7,
             "flavour.indie": 1.9,
             "flavour.jazz-soul": 2.8,
-            "flavour.funk": -0.2,
+            "flavour.funk": -0.1,
             "flavour.electronic": -1.8
           }
         },
@@ -4712,15 +4761,39 @@
             "flavour.pop": -20.7,
             "flavour.indie": -21.1,
             "flavour.jazz-soul": -22,
-            "flavour.funk": -20.1,
-            "flavour.electronic": -20.8
+            "flavour.funk": -20.3,
+            "flavour.electronic": -20.6
           },
           "diff": {
             "flavour.pop": 5.6,
             "flavour.indie": 6,
             "flavour.jazz-soul": 6.9,
-            "flavour.funk": 5,
-            "flavour.electronic": 5.7
+            "flavour.funk": 5.2,
+            "flavour.electronic": 5.5
+          }
+        },
+        "U08.L06": {
+          "sections": [
+            "chorus1"
+          ],
+          "parts": [
+            "kick",
+            "bass"
+          ],
+          "learner": -17.4,
+          "oak": {
+            "flavour.pop": -20.7,
+            "flavour.indie": -21.1,
+            "flavour.jazz-soul": -22.1,
+            "flavour.funk": -20.2,
+            "flavour.electronic": -20.8
+          },
+          "diff": {
+            "flavour.pop": 3.3,
+            "flavour.indie": 3.7,
+            "flavour.jazz-soul": 4.7,
+            "flavour.funk": 2.8,
+            "flavour.electronic": 3.4
           }
         },
         "U08.L05": {
@@ -4735,16 +4808,16 @@
           "oak": {
             "flavour.pop": -24.5,
             "flavour.indie": -25.5,
-            "flavour.jazz-soul": -26.4,
+            "flavour.jazz-soul": -26.5,
             "flavour.funk": -23.2,
-            "flavour.electronic": -24.2
+            "flavour.electronic": -24.3
           },
           "diff": {
             "flavour.pop": 4.5,
             "flavour.indie": 5.5,
-            "flavour.jazz-soul": 6.4,
+            "flavour.jazz-soul": 6.5,
             "flavour.funk": 3.2,
-            "flavour.electronic": 4.2
+            "flavour.electronic": 4.3
           }
         }
       }
@@ -4755,8 +4828,8 @@
       "flavours": {
         "flavour.pop": {
           "lufs": -19.2,
-          "peakDb": -4.4,
-          "lowPct": 21.8,
+          "peakDb": -2.8,
+          "lowPct": 22.2,
           "ungated": -19.3,
           "seconds": 153.6,
           "sections": {
@@ -4764,7 +4837,7 @@
             "verse1": -19.8,
             "chorus1": -18,
             "verse2": -19.8,
-            "chorus2": -18,
+            "chorus2": -17.9,
             "bridge": -21.9,
             "reprise": -19.8,
             "chorus3": -17.8,
@@ -4774,21 +4847,21 @@
           "aim": false
         },
         "flavour.indie": {
-          "lufs": -19.5,
+          "lufs": -19.4,
           "peakDb": -2.3,
-          "lowPct": 31.2,
+          "lowPct": 31.8,
           "ungated": -19.6,
           "seconds": 153.6,
           "sections": {
             "intro": -22.3,
             "verse1": -20.3,
             "chorus1": -18.2,
-            "verse2": -20.3,
-            "chorus2": -18.2,
+            "verse2": -20.2,
+            "chorus2": -18.1,
             "bridge": -21.9,
             "reprise": -20.3,
             "chorus3": -17.8,
-            "outro": -20.7
+            "outro": -20.6
           },
           "contrastLu": 3.1,
           "aim": true
@@ -4796,7 +4869,7 @@
         "flavour.jazz-soul": {
           "lufs": -20.4,
           "peakDb": -2.8,
-          "lowPct": 17.4,
+          "lowPct": 17.8,
           "ungated": -20.5,
           "seconds": 153.6,
           "sections": {
@@ -4804,39 +4877,39 @@
             "verse1": -21,
             "chorus1": -19.8,
             "verse2": -21,
-            "chorus2": -19.8,
+            "chorus2": -19.6,
             "bridge": -21.1,
             "reprise": -20.6,
             "chorus3": -19.3,
             "outro": -21.3
           },
-          "contrastLu": 1.7,
+          "contrastLu": 1.8,
           "aim": true
         },
         "flavour.funk": {
           "lufs": -19.1,
           "peakDb": -4.6,
-          "lowPct": 48.7,
+          "lowPct": 49.2,
           "ungated": -19.2,
           "seconds": 153.6,
           "sections": {
             "intro": -21.7,
-            "verse1": -20.6,
+            "verse1": -20.5,
             "chorus1": -18.4,
             "verse2": -20.5,
-            "chorus2": -18.4,
+            "chorus2": -18.2,
             "bridge": -18.1,
             "reprise": -19.7,
             "chorus3": -18,
-            "outro": -20.4
+            "outro": -20.7
           },
           "contrastLu": 2,
-          "aim": false
+          "aim": true
         },
         "flavour.electronic": {
           "lufs": -19.1,
           "peakDb": -3.3,
-          "lowPct": 57,
+          "lowPct": 57.1,
           "ungated": -19.2,
           "seconds": 153.6,
           "sections": {
@@ -4844,14 +4917,14 @@
             "verse1": -20.1,
             "chorus1": -18.3,
             "verse2": -20.1,
-            "chorus2": -18.3,
+            "chorus2": -18.2,
             "bridge": -20,
             "reprise": -18.7,
             "chorus3": -17.9,
-            "outro": -20
+            "outro": -20.5
           },
           "contrastLu": 1.8,
-          "aim": false
+          "aim": true
         }
       },
       "spreadLu": 1.3,
@@ -4865,18 +4938,18 @@
           ],
           "learner": -24,
           "oak": {
-            "flavour.pop": -21.7,
-            "flavour.indie": -21.7,
+            "flavour.pop": -21.8,
+            "flavour.indie": -21.6,
             "flavour.jazz-soul": -22.4,
-            "flavour.funk": -21.8,
-            "flavour.electronic": -21.6
+            "flavour.funk": -21.7,
+            "flavour.electronic": -22
           },
           "diff": {
-            "flavour.pop": -2.3,
-            "flavour.indie": -2.3,
+            "flavour.pop": -2.2,
+            "flavour.indie": -2.4,
             "flavour.jazz-soul": -1.6,
-            "flavour.funk": -2.2,
-            "flavour.electronic": -2.4
+            "flavour.funk": -2.3,
+            "flavour.electronic": -2
           }
         },
         "U09.L02": {
@@ -4895,17 +4968,17 @@
           "learner": -17.4,
           "oak": {
             "flavour.pop": -24.7,
-            "flavour.indie": -25.3,
-            "flavour.jazz-soul": -27.4,
-            "flavour.funk": -24.1,
-            "flavour.electronic": -22.6
+            "flavour.indie": -25.2,
+            "flavour.jazz-soul": -27.3,
+            "flavour.funk": -24,
+            "flavour.electronic": -22.5
           },
           "diff": {
             "flavour.pop": 7.3,
-            "flavour.indie": 7.9,
-            "flavour.jazz-soul": 10,
-            "flavour.funk": 6.7,
-            "flavour.electronic": 5.2
+            "flavour.indie": 7.8,
+            "flavour.jazz-soul": 9.9,
+            "flavour.funk": 6.6,
+            "flavour.electronic": 5.1
           }
         },
         "U09.L03": {
@@ -4921,14 +4994,14 @@
           "oak": {
             "flavour.pop": -26.2,
             "flavour.indie": -25.6,
-            "flavour.jazz-soul": -26.8,
+            "flavour.jazz-soul": -26.7,
             "flavour.funk": -25.3,
             "flavour.electronic": -22.4
           },
           "diff": {
             "flavour.pop": 9.1,
             "flavour.indie": 8.5,
-            "flavour.jazz-soul": 9.7,
+            "flavour.jazz-soul": 9.6,
             "flavour.funk": 8.2,
             "flavour.electronic": 5.3
           }
@@ -4949,18 +5022,76 @@
           ],
           "learner": -16.9,
           "oak": {
-            "flavour.pop": -25.4,
-            "flavour.indie": -25.6,
-            "flavour.jazz-soul": -27.9,
-            "flavour.funk": -24.4,
-            "flavour.electronic": -22.1
+            "flavour.pop": -25.2,
+            "flavour.indie": -25.4,
+            "flavour.jazz-soul": -27.7,
+            "flavour.funk": -24.3,
+            "flavour.electronic": -21.7
           },
           "diff": {
-            "flavour.pop": 8.5,
-            "flavour.indie": 8.7,
-            "flavour.jazz-soul": 11,
-            "flavour.funk": 7.5,
-            "flavour.electronic": 5.2
+            "flavour.pop": 8.3,
+            "flavour.indie": 8.5,
+            "flavour.jazz-soul": 10.8,
+            "flavour.funk": 7.4,
+            "flavour.electronic": 4.8
+          }
+        },
+        "U09.L06": {
+          "sections": [
+            "outro"
+          ],
+          "parts": [
+            "lead",
+            "chords",
+            "bass",
+            "kick",
+            "snare",
+            "hats"
+          ],
+          "learner": -13.6,
+          "oak": {
+            "flavour.pop": -39.3,
+            "flavour.indie": -41.9,
+            "flavour.jazz-soul": -37.7,
+            "flavour.funk": -47.4,
+            "flavour.electronic": -40.3
+          },
+          "diff": {
+            "flavour.pop": 25.7,
+            "flavour.indie": 28.3,
+            "flavour.jazz-soul": 24.1,
+            "flavour.funk": 33.8,
+            "flavour.electronic": 26.7
+          }
+        },
+        "U09.L07": {
+          "sections": [
+            "intro",
+            "verse1",
+            "chorus1",
+            "verse2",
+            "chorus2",
+            "chorus3"
+          ],
+          "parts": [
+            "lead",
+            "chords",
+            "bass"
+          ],
+          "learner": -17.5,
+          "oak": {
+            "flavour.pop": -24.7,
+            "flavour.indie": -25.2,
+            "flavour.jazz-soul": -27.3,
+            "flavour.funk": -24.1,
+            "flavour.electronic": -22.5
+          },
+          "diff": {
+            "flavour.pop": 7.2,
+            "flavour.indie": 7.7,
+            "flavour.jazz-soul": 9.8,
+            "flavour.funk": 6.6,
+            "flavour.electronic": 5
           }
         }
       }
@@ -5649,7 +5780,7 @@
             "end": -17.6
           },
           "contrastLu": 1.8,
-          "aim": false
+          "aim": true
         },
         "flavour.electronic": {
           "lufs": -19.4,
@@ -5658,7 +5789,7 @@
           "ungated": -19.4,
           "seconds": 166.36,
           "sections": {
-            "intro": -19,
+            "intro": -18.9,
             "verse1": -20.5,
             "chorus1": -18.5,
             "verse2": -20.4,
@@ -5667,10 +5798,10 @@
             "turn": -20.6,
             "chorus3": -18.5,
             "outro": -19,
-            "end": -18.8
+            "end": -19.1
           },
           "contrastLu": 1.7,
-          "aim": false
+          "aim": true
         }
       },
       "spreadLu": 1.8,
@@ -6119,12 +6250,12 @@
             "verse1": -21.7,
             "chorus1": -19.7,
             "verse2": -20.4,
-            "chorus2": -19.7,
+            "chorus2": -19.6,
             "bridge": -20.8,
             "chorus3": -19.5,
             "outro": -19.3
           },
-          "contrastLu": 1.7,
+          "contrastLu": 1.8,
           "aim": true
         },
         "flavour.jazz-soul": {
@@ -6138,9 +6269,9 @@
             "verse1": -22.5,
             "chorus1": -19.4,
             "verse2": -21.7,
-            "chorus2": -19.4,
+            "chorus2": -19.3,
             "bridge": -20.2,
-            "chorus3": -19.4,
+            "chorus3": -19.3,
             "outro": -19.8
           },
           "contrastLu": 2.5,
@@ -6163,16 +6294,16 @@
             "outro": -18.4
           },
           "contrastLu": 2,
-          "aim": false
+          "aim": true
         },
         "flavour.electronic": {
           "lufs": -19.9,
           "peakDb": -5.1,
-          "lowPct": 61.2,
+          "lowPct": 61.3,
           "ungated": -19.9,
           "seconds": 153.6,
           "sections": {
-            "intro": -21.4,
+            "intro": -21.5,
             "verse1": -22.3,
             "chorus1": -18.6,
             "verse2": -21.1,
@@ -6182,7 +6313,7 @@
             "outro": -20
           },
           "contrastLu": 2.7,
-          "aim": false
+          "aim": true
         }
       },
       "spreadLu": 2,
@@ -6220,7 +6351,7 @@
             "chords",
             "bass"
           ],
-          "learner": -14.1,
+          "learner": -14,
           "oak": {
             "flavour.pop": -27.3,
             "flavour.indie": -26.2,
@@ -6229,11 +6360,11 @@
             "flavour.electronic": -27.9
           },
           "diff": {
-            "flavour.pop": 13.2,
-            "flavour.indie": 12.1,
-            "flavour.jazz-soul": 14.6,
-            "flavour.funk": 10.5,
-            "flavour.electronic": 13.8
+            "flavour.pop": 13.3,
+            "flavour.indie": 12.2,
+            "flavour.jazz-soul": 14.7,
+            "flavour.funk": 10.6,
+            "flavour.electronic": 13.9
           }
         },
         "U14.L03": {
@@ -6251,14 +6382,14 @@
           "oak": {
             "flavour.pop": -25.4,
             "flavour.indie": -25.5,
-            "flavour.jazz-soul": -27.4,
+            "flavour.jazz-soul": -27.5,
             "flavour.funk": -22.7,
             "flavour.electronic": -22.5
           },
           "diff": {
             "flavour.pop": 10.1,
             "flavour.indie": 10.2,
-            "flavour.jazz-soul": 12.1,
+            "flavour.jazz-soul": 12.2,
             "flavour.funk": 7.4,
             "flavour.electronic": 7.2
           }
@@ -6367,7 +6498,7 @@
         "flavour.indie": {
           "lufs": -20,
           "peakDb": -2.4,
-          "lowPct": 28.4,
+          "lowPct": 28.3,
           "ungated": -20,
           "seconds": 166.36,
           "sections": {
@@ -6375,13 +6506,13 @@
             "verse1": -21.2,
             "chorus1": -18.6,
             "solo": -21.7,
-            "verse2": -21.2,
+            "verse2": -21.1,
             "chorus2": -18.6,
             "bridge": -20,
             "outro": -19.1,
             "end": -21.3
           },
-          "contrastLu": 2.7,
+          "contrastLu": 2.6,
           "aim": true
         },
         "flavour.jazz-soul": {
@@ -6395,7 +6526,7 @@
             "verse1": -21,
             "chorus1": -19.4,
             "solo": -20.4,
-            "verse2": -21,
+            "verse2": -20.9,
             "chorus2": -19.4,
             "bridge": -19.8,
             "outro": -21.3,
@@ -6422,11 +6553,11 @@
             "end": -20.8
           },
           "contrastLu": 1.8,
-          "aim": false
+          "aim": true
         },
         "flavour.electronic": {
           "lufs": -19,
-          "peakDb": -5,
+          "peakDb": -4.9,
           "lowPct": 59.4,
           "ungated": -19,
           "seconds": 166.36,
@@ -6435,14 +6566,14 @@
             "verse1": -20.4,
             "chorus1": -18.2,
             "solo": -19.7,
-            "verse2": -20.4,
+            "verse2": -20.3,
             "chorus2": -18.2,
             "bridge": -18.3,
             "outro": -18.1,
-            "end": -20.3
+            "end": -19.9
           },
           "contrastLu": 1.7,
-          "aim": false
+          "aim": true
         }
       },
       "spreadLu": 1.8,
@@ -6485,17 +6616,17 @@
           "learner": -17.1,
           "oak": {
             "flavour.pop": -26.4,
-            "flavour.indie": -26.1,
-            "flavour.jazz-soul": -28.6,
+            "flavour.indie": -26.6,
+            "flavour.jazz-soul": -28.8,
             "flavour.funk": -24.2,
-            "flavour.electronic": -26.2
+            "flavour.electronic": -26.3
           },
           "diff": {
             "flavour.pop": 9.3,
-            "flavour.indie": 9,
-            "flavour.jazz-soul": 11.5,
+            "flavour.indie": 9.5,
+            "flavour.jazz-soul": 11.7,
             "flavour.funk": 7.1,
-            "flavour.electronic": 9.1
+            "flavour.electronic": 9.2
           }
         },
         "U15.L03": {
@@ -6512,14 +6643,14 @@
           "oak": {
             "flavour.pop": -24.7,
             "flavour.indie": -25.7,
-            "flavour.jazz-soul": -27.1,
+            "flavour.jazz-soul": -27,
             "flavour.funk": -22.8,
             "flavour.electronic": -20.8
           },
           "diff": {
             "flavour.pop": 7.8,
             "flavour.indie": 8.8,
-            "flavour.jazz-soul": 10.2,
+            "flavour.jazz-soul": 10.1,
             "flavour.funk": 5.9,
             "flavour.electronic": 3.9
           }

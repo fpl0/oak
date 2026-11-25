@@ -75,6 +75,8 @@ const BY_FAMILY: Readonly<Record<string, string>> = {
     "Hear the triad first, then the note on top. A major 7th sits just under the next root and shimmers; a dominant 7th leans toward home; a diminished 7th is all tension.",
   "fam.chd.inversion":
     "Listen only to the lowest note. With the root at the bottom a chord sounds solid; with the 3rd, lighter and on the move; with the 5th, unsettled.",
+  "fam.har.motion":
+    "Follow the top note and the bass from chord to chord. Moving together by the same amount each time, the chords are parallel; the top note staying close while the bass moves, they are voice-led.",
   "fam.har.function":
     "Every chord has a job. Home sounds at rest, away moves off it, and tension wants to come back. Listen to how much each chord wants to move.",
   "fam.har.cadence":

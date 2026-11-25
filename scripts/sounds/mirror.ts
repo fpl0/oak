@@ -42,8 +42,15 @@ import {
   type RecordedKitSpec,
   ROLE_LEVEL_DB,
   SOURCES,
-  type SrcRef,
 } from "./library.ts";
+import {
+  KIT_ADDITIONS,
+  type MixdownV5,
+  ONE_SHOT_APPENDS,
+  ONE_SHOTS_V5,
+  SOURCES_V5,
+  type SrcRefV5,
+} from "./library-v5.ts";
 import {
   BUDGET_BYTES,
   type CreditEntry,
@@ -84,6 +91,15 @@ const args = new Set(process.argv.slice(2));
 const update = args.has("--update");
 const offline = args.has("--offline");
 const rebuild = args.has("--rebuild");
+
+/** Every upstream source: v4's (library.ts) and the ones v5 adds (library-v5.ts). */
+const ALL_SOURCES = { ...SOURCES, ...SOURCES_V5 };
+/**
+ * v5 adds sounds (library-v5.ts); a v4 build plans exactly the v4 pack, so the v4 lock stays reproducible
+ * until PACK_VERSION moves.
+ */
+const WITH_V5 = PACK_VERSION !== "v4";
+type SrcRef = SrcRefV5;
 
 const sha256 = (data: Uint8Array | string) => createHash("sha256").update(data).digest("hex");
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -138,6 +154,7 @@ function validate(path: string, body: Uint8Array) {
     !(head.startsWith("ID3") || (body[0] === 0xff && ((body[1] ?? 0) & 0xe0) === 0xe0))
   )
     throw new Error(`${path}: not an MP3 file`);
+  if (/\.ogg$/i.test(path) && !head.startsWith("OggS")) throw new Error(`${path}: not an Ogg file`);
   if (/_file\.js$/.test(path)) {
     const text = new TextDecoder().decode(body);
     if (!text.includes("={") || !text.includes("zones"))
@@ -152,7 +169,7 @@ let previousLock: PackLock | undefined;
 
 /** The URL of an upstream file (an archive member is `<archive url>#<member>`). */
 function sourceUrl(r: SrcRef): string {
-  const s = SOURCES[r.src];
+  const s = ALL_SOURCES[r.src];
   if (!isSafeSamplePath(r.path)) throw new Error(`library: unsafe path ${r.path}`);
   return s.kind === "github"
     ? `https://raw.githubusercontent.com/${s.repo}/${s.commit}/${encodePath(r.path)}`
@@ -178,7 +195,7 @@ function getSource(r: SrcRef): Promise<Uint8Array> {
   let p = inflight.get(url);
   if (!p) {
     p = (async () => {
-      const s = SOURCES[r.src];
+      const s = ALL_SOURCES[r.src];
       let body: Uint8Array;
       if (s.kind === "github") {
         body = await cached(url, async () => new Uint8Array(await (await fetchRetry(url)).arrayBuffer()));
@@ -214,6 +231,47 @@ function getSource(r: SrcRef): Promise<Uint8Array> {
   return p;
 }
 
+/**
+ * The sha256 of an upstream file for a recipe. A file the previous lock already lists is not fetched again:
+ * its URL names the pinned commit (GitHub) or it is a member of the archive whose pin the previous lock's
+ * credit carries, so the bytes behind it cannot have changed. This is what lets a new pack version reuse every
+ * unchanged derived file (`build`) without downloading the sources again; a file that must be rendered is still
+ * fetched and checked against the lock (`getSource`).
+ */
+async function sourceHash(r: SrcRef): Promise<string> {
+  const url = sourceUrl(r);
+  const s = ALL_SOURCES[r.src];
+  const prev = previousLock?.sources?.find((x) => x.url === url);
+  const pinned =
+    s.kind === "github" || (previousLock?.credits?.[r.src]?.pinned ?? "").includes(`sha256 ${s.sha256}`);
+  if (prev && pinned && !rebuild) {
+    if (!lockSources.has(url)) lockSources.set(url, prev);
+    return prev.sha256;
+  }
+  return sha256(await getSource(r));
+}
+
+/**
+ * Ogg Vorbis (the v5 spoken words) decoded by ffmpeg to mono float at 44.1 kHz. mirror.ts is not part of any
+ * recipe, so the decoder is not either: like LAME for the MP3s, the lock is the source of truth for the files
+ * decoded here (a different ffmpeg may round differently; --rebuild would show it).
+ */
+function decodeOgg(bytes: Uint8Array, name: string): Pcm {
+  const p = Bun.spawnSync({
+    cmd: ["ffmpeg", "-v", "error", "-i", "pipe:0", "-ac", "1", "-ar", String(RATE), "-f", "f32le", "pipe:1"],
+    stdin: bytes,
+    stdout: "pipe",
+    stderr: "pipe",
+  });
+  if (p.exitCode !== 0) throw new Error(`ffmpeg: ${name}: ${new TextDecoder().decode(p.stderr)}`);
+  const out = new Uint8Array(p.stdout);
+  const view = new DataView(out.buffer, out.byteOffset, out.byteLength);
+  const x = new Float32Array(Math.floor(out.byteLength / 4));
+  for (let i = 0; i < x.length; i++) x[i] = view.getFloat32(i * 4, true);
+  return { sampleRate: RATE, channels: [x] };
+}
+const isOgg = (b: Uint8Array) => b[0] === 0x4f && b[1] === 0x67 && b[2] === 0x67 && b[3] === 0x53;
+
 const decoded = new Map<string, Promise<Pcm>>();
 /** An upstream file decoded, at 44.1 kHz. */
 function getPcm(r: SrcRef, keepRate = false): Promise<Pcm> {
@@ -221,7 +279,7 @@ function getPcm(r: SrcRef, keepRate = false): Promise<Pcm> {
   let p = decoded.get(key);
   if (!p) {
     p = getSource(r).then((b) => {
-      const pcm = decodeAudio(b, r.path);
+      const pcm = isOgg(b) ? decodeOgg(b, r.path) : decodeAudio(b, r.path);
       return keepRate ? pcm : toRate(pcm, RATE);
     });
     decoded.set(key, p);
@@ -241,6 +299,8 @@ interface Planned {
   content?: string | Uint8Array;
   recipe?: string;
   render?: () => Promise<Uint8Array>;
+  /** a v5 kit variant appended to a v4 role (library-v5.ts) */
+  added?: true;
 }
 
 type SampleMap = Record<string, string | string[] | Record<string, string | string[]>>;
@@ -302,7 +362,7 @@ async function resolvePlan(lock: PackLock | undefined) {
     brk: codeHash(RECIPE_CODE.brk),
     table: codeHash(RECIPE_CODE.table),
   };
-  const inputs = async (refs: SrcRef[]) => (await Promise.all(refs.map(getSource))).map(sha256);
+  const inputs = (refs: SrcRef[]) => Promise.all(refs.map(sourceHash));
 
   // 1. Maps copied from the Strudel CDN (piano, uzu-drumkit), unchanged since v1.
   const upstreamCache = new Map<string, Promise<SampleMap>>();
@@ -375,7 +435,9 @@ async function resolvePlan(lock: PackLock | undefined) {
     for (const note of spec.notes) {
       const files: string[] = [];
       for (let li = 0; li < layers; li++) {
-        const ref = note.layers[Math.min(li, note.layers.length - 1)] as SrcRef;
+        const ref = note.layers[
+          Math.min(li, note.layers.length - 1)
+        ] as PitchedSpec["notes"][number]["layers"][number];
         const file = `src/${alias}/${alias}_${note.midi}_${li}.mp3`;
         files.push(file);
         if (plan.some((p) => p.path === `${v}/${file}`)) continue;
@@ -432,11 +494,34 @@ async function resolvePlan(lock: PackLock | undefined) {
         NonNullable<RecordedKitSpec["roles"][DrumRole]>,
       ][]) {
         const layers = Math.max(...def.variants.map((x) => x.length));
+        // v4's variants, then v5's appended ones (library-v5.ts) with their own length and level
+        const rows: { variant: (Mixdown | MixdownV5)[]; maxSec: number; level: number; added: boolean }[] =
+          def.variants.map((variant, vi) => ({
+            variant,
+            maxSec: def.maxSec,
+            level: Array.isArray(def.levelDb)
+              ? (def.levelDb[vi] ?? ROLE_LEVEL_DB[role])
+              : (def.levelDb ?? ROLE_LEVEL_DB[role]),
+            added: false,
+          }));
+        const add = WITH_V5 ? KIT_ADDITIONS[kit]?.[role] : undefined;
+        for (const [i, variant] of (add?.variants ?? []).entries()) {
+          // a new variant with more layers would move every v4 file's index in the map (n * layers + layer)
+          if (variant.length > layers)
+            throw new Error(`library-v5: ${kit} ${role} has ${layers} layers; an appended variant has more`);
+          rows.push({
+            variant,
+            maxSec: (add as NonNullable<typeof add>).maxSec,
+            level: (add as NonNullable<typeof add>).levelDb[i] ?? ROLE_LEVEL_DB[role],
+            added: true,
+          });
+        }
         const list: string[] = [];
         const grid: string[][] = [];
-        for (const [vi, variant] of def.variants.entries()) {
+        for (const [vi, { variant, maxSec, level, added }] of rows.entries()) {
           const row: string[] = [];
           for (let li = 0; li < layers; li++) {
+            // a v5 hit's refs may name a v5 source; render.ts only hands them back to getPcm
             const hit = variant[Math.min(li, variant.length - 1)] as Mixdown;
             const file = `kits/${kit}/${role}_${vi}_${Math.min(li, variant.length - 1)}.flac`;
             row.push(file);
@@ -444,15 +529,12 @@ async function resolvePlan(lock: PackLock | undefined) {
             if (plan.some((p) => p.path === `${v}/${file}`)) continue;
             const refs = hit.mics.map((m) => m.ref);
             for (const r of refs) credit(r.src, kit);
-            const level = Array.isArray(def.levelDb)
-              ? (def.levelDb[vi] ?? ROLE_LEVEL_DB[role])
-              : (def.levelDb ?? ROLE_LEVEL_DB[role]);
             const recipe = sha256(
               JSON.stringify({
                 code: CODE.kit,
                 hit,
                 role,
-                maxSec: def.maxSec,
+                maxSec,
                 lofi: !!spec.lofi,
                 level,
                 input: await inputs(refs),
@@ -464,8 +546,8 @@ async function resolvePlan(lock: PackLock | undefined) {
               group: `kit-${kit}`,
               credit: refs[0]?.src as string,
               recipe,
-              render: async () =>
-                encodeFlac(await renderHit(hit, role, def.maxSec, !!spec.lofi, level, getPcm)),
+              ...(added ? { added: true as const } : {}),
+              render: async () => encodeFlac(await renderHit(hit, role, maxSec, !!spec.lofi, level, getPcm)),
             });
           }
           grid.push(row);
@@ -519,9 +601,26 @@ async function resolvePlan(lock: PackLock | undefined) {
 
   // 4. One-shots: hand percussion, textures, foley; and Oak's tape bed.
   const perc: SampleMap = {};
-  for (const [name, spec] of Object.entries(ONE_SHOTS)) {
+  // v4's one-shots (with any hits v5 appends to a v4 name), then v5's new names (library-v5.ts)
+  type OneShot = (typeof ONE_SHOTS)[keyof typeof ONE_SHOTS];
+  const oneShots: [string, OneShot, (Mixdown | MixdownV5)[], string][] = Object.entries(ONE_SHOTS).map(
+    ([name, spec]) => [
+      name,
+      spec,
+      [...spec.hits, ...(WITH_V5 ? (ONE_SHOT_APPENDS[name] ?? []) : [])],
+      name === "conga" || name === "bongo" || name === "clave" ? "perc" : "textures",
+    ],
+  );
+  if (WITH_V5)
+    for (const [name, { group, hits, ...rest }] of Object.entries(ONE_SHOTS_V5)) {
+      if (name in ONE_SHOTS) throw new Error(`library-v5: ${name} is already a v4 one-shot`);
+      // render.ts reads only the spec's numbers (length, level, stereo); its type names v4's literal specs
+      oneShots.push([name, rest as unknown as OneShot, hits, group]);
+    }
+  for (const [name, spec, hits, group] of oneShots) {
     const list: string[] = [];
-    for (const [i, hit] of spec.hits.entries()) {
+    for (const [i, h] of hits.entries()) {
+      const hit = h as Mixdown;
       const file = `perc/${name}_${i}.flac`;
       list.push(file);
       const refs = hit.mics.map((m) => m.ref);
@@ -529,7 +628,7 @@ async function resolvePlan(lock: PackLock | undefined) {
       plan.push({
         path: `${v}/${file}`,
         sourceUrl: `generated:scripts/sounds/mirror.ts#oneshot(${refs.map(sourceUrl).join(" + ")})`,
-        group: name === "conga" || name === "bongo" || name === "clave" ? "perc" : "textures",
+        group,
         credit: refs[0]?.src as string,
         recipe: sha256(
           JSON.stringify({
@@ -589,8 +688,9 @@ async function resolvePlan(lock: PackLock | undefined) {
     breakMap[name] = [file];
     credit("oak-breaks", name);
     const kitsUsed = [...new Set(spec.tracks.map((t) => t.voice.kit))];
+    // a break plays only the variants its spec names, all of them v4's: the variants v5 appends are not inputs
     const kitRecipe = plan
-      .filter((p) => kitsUsed.some((k) => p.path.startsWith(`${v}/kits/${k}/`)))
+      .filter((p) => !p.added && kitsUsed.some((k) => p.path.startsWith(`${v}/kits/${k}/`)))
       .map((p) => p.recipe);
     plan.push({
       path: `${v}/${file}`,
@@ -824,6 +924,22 @@ async function main() {
           stats.kept++;
           derivedOut.set(p.path, body);
           return { ...want, group: p.group };
+        }
+      }
+      // A new pack version: a derived file whose recipe is unchanged is the previous version's file, byte for
+      // byte (scripts/sounds/v5-lock.test.ts), so it is copied rather than rendered again.
+      const old =
+        !want && lock && lock.packVersion !== PACK_VERSION
+          ? locked.get(`${lock.packVersion}${p.path.slice(PACK_VERSION.length)}`)
+          : undefined;
+      if (!rebuild && old?.derived && old.recipe === p.recipe) {
+        const from = insideRoot(PACK_DIR, old.path);
+        const body = existsSync(from) ? new Uint8Array(await readFile(from)) : null;
+        if (body && sha256(body) === old.sha256) {
+          await writeAtomic(dest, body);
+          stats.copied++;
+          derivedOut.set(p.path, body);
+          return { ...old, path: p.path, group: p.group };
         }
       }
       if (frozen && want && want.recipe !== p.recipe)

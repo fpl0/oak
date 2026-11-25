@@ -530,12 +530,19 @@ describe("Wave 5 robustness: random learners from X1 through C3–C5 and X2, and
         sim.history.push(...seed.done);
         sim.gyms = seed.done.filter((id) => id.startsWith("GYM.")).length;
         let t = START;
+        // A backup is due every `backupEvery` days and taken on the first day the learner plays once it is due: a
+        // skipped day no longer drops it (Oak 2.0 W2's longer course moved the skips onto the day-40 backup of
+        // short-gappy, so the run had 2 backups instead of 3).
+        let lastBackup = -1;
         for (let d = 0; d < 320 && sim.reviewDaysPast < 25; d++) {
           t += DAY;
           h.clock.set(new Date(t).toISOString());
           if (sim.abandoned === null && sim.r() < p.skip) continue;
           await sim.day();
-          if (d % p.backupEvery === p.backupEvery - 1) await sim.backup(`day ${d}`);
+          if (d - lastBackup >= p.backupEvery) {
+            await sim.backup(`day ${d}`);
+            lastBackup = d;
+          }
         }
         await sim.backup("end");
         console.log(

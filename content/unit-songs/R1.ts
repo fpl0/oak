@@ -28,6 +28,12 @@
 //   No two of them share a place: three thin parts make one sixteenth-note rhythm.
 // - The lift is R1.L05's displaced figure: the clav's three hits (1, 2, the "and" of 2) come back an eighth later in
 //   every other bar (the "and" of 1, the "and" of 2, beat 3), while the drums and the bass keep the bar.
+// - The intro is where R1.L06's one-line groove plays once the learner takes it (the kick, the snare and the hats,
+//   no two at once); until then Oak opens with the chorus pocket.
+// - The last chorus is not a copy of the first (Oak 2.0 W2, the W0 audit's "repeats varied", re-read on the rendered
+//   song: chorus2's horns and guitar matched chorus1's bar for bar in every flavour, and indie's whole chorus did): in
+//   its second half the guitar scratches sixteenths, and in its last two bars the horns shout into the outro. Both
+//   are parts every take keeps (`oakKeeps` of R1.L03), so the change survives the learner's choruses.
 //
 // The song is straight everywhere else, in every flavour, jazz-soul included (contracts §5.11 rule 7: R1's other takes
 // are straight sixteenth grooves the learner writes). The harmony is the unit's: minor seventh chords and the Bands' i7
@@ -357,6 +363,14 @@ const REST = "~:16";
 const H_ANSWER = "~:10 [g4,b4,e5]:1 ~:1 [g4,b4,e5]:1 ~:1 [a4,d5,g5]:2";
 const H_ONE = "[g4,b4,e5]:2 ~:14";
 const H_CHORUS = [H_ONE, H_ANSWER, REST, H_ANSWER, H_ONE, H_ANSWER, REST, H_ANSWER];
+/**
+ * The last chorus's last two bars (bars 52–53, Oak 2.0 W2): the horns shout instead of resting and answering. Bar 7
+ * hits in the hook's rests and under its long notes (the "and" of 2, beat 3, the "and" of 4); bar 8 hits on 1, then
+ * climbs on beat 3, its "and", beat 4 and its "and", through the tune's empty second half into the outro. Only E G A B D, so nothing sits a half step from Em7 or from R1.L03's clav.
+ */
+const H_SHOUT_7 = "~:6 [g4,b4,e5]:1 ~:1 [a4,d5,g5]:2 ~:4 [g4,b4,e5]:2";
+const H_SHOUT_8 = "[g4,b4,e5]:2 ~:6 [g4,b4,e5]:1 ~:1 [a4,d5,g5]:1 ~:1 [b4,e5,g5]:2 [b4,e5,a5]:2";
+const H_CHORUS2 = [...H_CHORUS.slice(0, 6), H_SHOUT_7, H_SHOUT_8];
 /** Over D7 in the verse and G7 in the bridge: three notes of the chord, held through beats 3 and 4. */
 const H_D7 = "~:8 [f#4,a4,c5]:8";
 const H_G7 = "~:8 [f4,b4,d5]:8";
@@ -403,7 +417,7 @@ const HORNS: BySection = {
   break: tune("break", [REST, REST, REST, H_BREAK, REST, REST, REST, H_BREAK]),
   lift: tune("lift", [H_LIFT_ONE, H_LIFT_DM, REST, H_LIFT_GM, H_LIFT_ONE, H_LIFT_DM, REST, H_LIFT_GM]),
   stop: tune("stop", H_STOP),
-  chorus2: tune("chorus2", H_CHORUS),
+  chorus2: tune("chorus2", H_CHORUS2),
   outro: tune("outro", [REST, H_ANSWER, REST, "[g4,b4,e5]:16"]),
 };
 
@@ -422,13 +436,18 @@ const KEYS: Readonly<Partial<Record<SectionId, Bars>>> = {
   outro: (i, n) => (i === n - 1 ? "X..............." : CLAV_POCKET),
 };
 const CHANK = "..x...x...x...x.";
+/**
+ * The last chorus's second half (bars 50–53, Oak 2.0 W2): the guitar scratches sixteenths, soft (`g`) around its
+ * chank on each "and" (`x`), and leaves Oak's clav pocket (1, the "a" of 2, its neighbour, the "e" of 4) alone.
+ */
+const SCRATCH = ".gxgg.x.ggxgg.xg";
 const GTR: Readonly<Partial<Record<SectionId, Bars>>> = {
   intro: CHANK,
   verse: "......x.......x.",
   chorus1: CHANK,
   break: ".x.......x.....x",
   lift: "....x.......x...",
-  chorus2: CHANK,
+  chorus2: (i) => (i < 4 ? CHANK : SCRATCH),
   outro: (i, n) => (i === n - 1 ? "X..............." : CHANK),
 };
 const PART_VEL: Vel = { x: 0.85, X: 1, g: 0.5 };
@@ -1027,7 +1046,7 @@ const DRUM_PARTS: SongPartId[] = ["kick", "snare", "hats"];
 export const R1_SONG = defineUnitSong({
   id: "usong.R1",
   unit: "R1",
-  version: 1,
+  version: 2,
   title: "In the pocket",
   meter: "4/4",
   key: { tonic: "E", mode: "minor" },
@@ -1089,6 +1108,12 @@ export const R1_SONG = defineUnitSong({
       [...DRUM_PARTS, "bass", "keys", "gtr"],
       "Your bass, clav and guitar, each on places of its own, play the break in C minor.",
       ["horns"],
+    ),
+    take(
+      "R1.L06",
+      ["intro"],
+      [...DRUM_PARTS],
+      "Your one-line drum part, no two drums at once, opens the song.",
     ),
     take(
       "R1.L05",

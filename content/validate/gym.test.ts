@@ -26,10 +26,10 @@ describe("the slot rule (contracts §2.5)", () => {
   test("placing slots by the rule reproduces the default order exactly", () => {
     expect(placeGymSlots(order.filter((s) => !s.startsWith("GYM.")))).toEqual([...order]);
   });
-  test("no slot before U07.L01, and the core has GYM.01 to GYM.17 in sequence", () => {
+  test("no slot before U07.L01, and the core has GYM.01 to GYM.18 in sequence", () => {
     expect(order.indexOf(gyms[0] as SessionId)).toBeGreaterThan(order.indexOf(GYM_SLOT_RULE.startsAt));
     expect<string[]>(gyms).toEqual(
-      Array.from({ length: 17 }, (_, i) => `GYM.${String(i + 1).padStart(2, "0")}`),
+      Array.from({ length: 18 }, (_, i) => `GYM.${String(i + 1).padStart(2, "0")}`),
     );
   });
   test("at most four core sessions between transcription sessions, except inside a capstone", () => {
@@ -92,7 +92,7 @@ describe("what a slot plays (contracts §2.5, §2.9)", () => {
     expect([cft?.inGymSlots, cft?.sessions, cft?.kind]).toEqual([true, 4, "transcribe"]);
     const at = (id: string) => order.indexOf(id as SessionId);
     const sessions = ["CF-T.S1", "CF-T.S2", "CF-T.S3", "CF-T.S4"];
-    expect(sessions.map((id) => at(id) + 1)).toEqual([156, 161, 166, 171]);
+    expect(sessions.map((id) => at(id) + 1)).toEqual([162, 167, 172, 177]);
     expect(at("CF-T.S1")).toBeGreaterThan(at("U15.L01"));
     expect(cft?.opensAfter).toEqual({ lessonsCompleted: ["U15.L01"] });
     for (const id of sessions) {
@@ -102,19 +102,19 @@ describe("what a slot plays (contracts §2.5, §2.9)", () => {
       expect([id, run]).toEqual([id, GYM_SLOT_RULE.afterCoreSessions]);
     }
     expect(order.slice(at("CF-T.S1"), at("CF-T.S4")).filter((x) => x.startsWith("GYM."))).toEqual([]);
-    // The last gym slot before it and the first after it: GYM.15 and GYM.16.
+    // The last gym slot before it and the first after it: GYM.16 and GYM.17.
     expect(
       order
         .slice(0, at("CF-T.S1"))
         .filter((x) => x.startsWith("GYM."))
         .at(-1),
-    ).toBe("GYM.15");
-    expect(order.slice(at("CF-T.S4")).find((x) => x.startsWith("GYM."))).toBe("GYM.16");
+    ).toBe("GYM.16");
+    expect(order.slice(at("CF-T.S4")).find((x) => x.startsWith("GYM."))).toBe("GYM.17");
   });
-  test("the default order ends with the Album Single: CF-A.S1–S4 are sessions 182–185", () => {
-    expect(order.length).toBe(185);
+  test("the default order ends with the Album Single: CF-A.S1–S4 are sessions 188–191", () => {
+    expect(order.length).toBe(191);
     expect(order.slice(-4)).toEqual(["CF-A.S1", "CF-A.S2", "CF-A.S3", "CF-A.S4"] as SessionId[]);
-    expect(order.at(-5)).toBe("GYM.17" as SessionId);
+    expect(order.at(-5)).toBe("GYM.18" as SessionId);
   });
   test("transcription capstones are transcription sessions, so they take a slot (X1 after C2)", () => {
     for (const c of capstones.filter((x) => x.kind === "transcribe"))

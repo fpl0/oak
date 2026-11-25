@@ -80,7 +80,7 @@ const TAP_FEEDBACK = {
 
 export default defineLesson({
   id: "U08.L04",
-  version: 4,
+  version: 5,
   title: "Lock with the Kick",
   objective:
     "I can give the kick drum and the bass one rhythm, named once in a const, so they hit as one instrument.",

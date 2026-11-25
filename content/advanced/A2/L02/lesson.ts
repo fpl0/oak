@@ -133,7 +133,7 @@ const thinAgainstThick = (label: string): RubricRule => ({
 
 export default defineLesson({
   id: "A2.L02",
-  version: 4,
+  version: 5,
   title: "Texture & Density",
   objective: "I can thin a section out and fill another, so the full one lands.",
   key: { tonic: "A", mode: "minor" },

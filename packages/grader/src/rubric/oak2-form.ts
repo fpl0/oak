@@ -223,6 +223,9 @@ function exitOrder(pc: Piece, span: [number, number], ctx: RubricContext): strin
   const inLast = tr.filter((t) => t.exit >= span[0]);
   const leavers = inLast.filter((t) => t.exit < last && leaves(t.name, t.exit));
   if (leavers.length < 2) return null;
+  // Oak's call: parts that all stop in the same bar leave together, not in turn, so the leavers need at least two
+  // different last bars; two of them may still stop together as one stage (X14, U09.L06 S4).
+  if (new Set(leavers.map((t) => t.exit)).size < 2) return null;
   for (const a of inLast) for (const b of inLast) if (a.entry < b.entry && a.exit < b.exit) return null;
   const order = [...leavers].sort((a, b) => a.exit - b.exit);
   return `the parts leave one by one at the end (${order.map((t) => `${nameWord(t.name)} after ${barText(t.exit, ctx)}`).join(", ")}), the reverse of how they came in`;
@@ -356,8 +359,8 @@ function finalHit(pc: Piece, ctx: RubricContext, sigs: readonly string[]): strin
 
 /**
  * `ends-on-purpose` (U09.L06 Endings; F1 on CF-A): the last section (the last 4 bars without `arrange()`) ends the
- * piece on purpose, in any of `modes` (default all): **exit-order** ≥ 2 parts stop inside it, in the reverse order of
- * their entry (ties allowed); **shrinking-tail** it loops material heard before it and the loop gets shorter at least
+ * piece on purpose, in any of `modes` (default all): **exit-order** ≥ 2 parts stop inside it, in at least two different
+ * bars, in the reverse order of their entry (two parts may stop together); **shrinking-tail** it loops material heard before it and the loop gets shorter at least
  * once; **build-out** parts are added through it and its final bar is the fullest; **fades-out** its material repeats
  * while the summed level falls by ≥ 9 dB; **cadence** the last chord change is V→I or IV→I, on a bar heard nowhere
  * earlier; **final-hit** a last onset, on a bar heard nowhere earlier, then ≥ 1 beat of silence. A loop that plays
@@ -430,10 +433,18 @@ function densestSection(pc: Piece, sections: readonly SectionInfo[]): SectionInf
 }
 
 /**
+ * A section with every part counts as carved when it plays at most this share of the fullest section's onsets per bar
+ * (Oak's call: the `contrast` and `arc` threshold, a quarter fewer notes, so thinning you can hear counts).
+ */
+const CARVED_THIN = 0.75;
+
+/**
  * `carved` (U09.L07 Carve It; A2.L08 Peak First): every section is the fullest section with parts or notes taken out.
  * The fullest (most onsets per bar) has every track; in every other section each track plays only bars that are its
- * bars in the fullest with notes deleted (a sub-multiset of one of them); at least `minDiffer` (default 2) different
- * line-ups of tracks are heard. An additive build (a verse line the chorus never plays) fails, as do identical sections.
+ * bar at the same place in the fullest with notes deleted (a sub-multiset of it: a bar moved or reordered is new
+ * material); at least `minDiffer` (default 2, Oak's call) different versions of the section are heard, where a version
+ * is a line-up of tracks, or the full line-up thinned to at most `CARVED_THIN` of the fullest's onsets per bar. An
+ * additive build (a verse line the chorus never plays) fails, as do identical sections.
  */
 const carved: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx, p) => {
   const pc = readPiece(n, ctx, p, deps, true);
@@ -463,19 +474,38 @@ const carved: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx, p) =
       if (s === d) continue;
       for (let b = s.startBar; b < s.startBar + s.bars; b++) {
         const keys = barKeys(bars[b] ?? [], b);
-        if (keys.length === 0 || full.some((f) => subMultiset(keys, f))) continue;
+        // The bar at the same place of the fullest section (looped when this section is longer).
+        const same = full[(b - s.startBar) % d.bars] as string[];
+        if (keys.length === 0 || subMultiset(keys, same)) continue;
         return {
           ok: false,
           value: 0,
           target: 1,
-          detail: `${nameWord(t.name)} plays something in the ${sectionName(s)} (${barText(b, ctx)}) that it never plays in the ${sectionName(d)}, your fullest section: make the other sections by taking parts or notes out of the ${sectionName(d)}, not by writing new ones`,
+          detail: `${nameWord(t.name)} plays something in the ${sectionName(s)} (${barText(b, ctx)}) that it does not play at that place in the ${sectionName(d)}, your fullest section: make the other sections by taking parts or notes out of the ${sectionName(d)}, not by writing or moving notes`,
           where: { bar: barNo(b, ctx), track: t.name },
         };
       }
     }
   }
-  const lineups = new Set(sections.map((s) => tracksIn(pc, s.startBar, s.startBar + s.bars).join(",")));
-  const count = lineups.size;
+  const fullLineup = tracksIn(pc, ...dSpan).join(",");
+  const peak = onsetsIn(pc, ...dSpan) / Math.max(1, d.bars);
+  const versions = new Set(
+    sections.map((s) => {
+      const lineup = tracksIn(pc, s.startBar, s.startBar + s.bars).join(",");
+      if (lineup !== fullLineup) return `parts:${lineup}`;
+      const dens = onsetsIn(pc, s.startBar, s.startBar + s.bars) / Math.max(1, s.bars);
+      if (dens > peak * CARVED_THIN + 1e-9) return "full";
+      return `thin:${pc.tracks
+        .map((t) =>
+          perBar(t.events, pc.total)
+            .slice(s.startBar, s.startBar + s.bars)
+            .map((es, i) => barSig(es, s.startBar + i))
+            .join("/"),
+        )
+        .join("|")}`;
+    }),
+  );
+  const count = versions.size;
   if (count < minDiffer)
     return {
       ok: false,
@@ -483,14 +513,14 @@ const carved: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx, p) =
       target: minDiffer,
       detail:
         count === 1
-          ? "every section plays the same parts: take some parts out of some sections"
-          : `${count} different line-ups of parts; the brief asks for ${minDiffer}: take different parts out of another section`,
+          ? "every section plays the same parts with about as many notes: take some parts out of some sections, or thin them out"
+          : `${count} different versions of the ${sectionName(d)}; the brief asks for ${minDiffer}: take different parts or notes out of another section`,
     };
   return {
     ok: true,
     value: count,
     target: minDiffer,
-    detail: `every section is the ${sectionName(d)} with parts taken out (${count} different line-ups of parts)`,
+    detail: `every section is the ${sectionName(d)} with parts or notes taken out (${count} different versions)`,
   };
 };
 
@@ -527,6 +557,12 @@ interface Shift {
   /** Beats from the bar line: negative before it, positive after it. */
   beats: number;
   kind: "stops" | "early" | "late" | "carries" | "changes-late";
+  /**
+   * The beats the change could be heard at: `beats` widened over the track's beats that are silent both as played
+   * and as its loop would play them (a snare whose beat 3 is always empty, silent from beat 3, "stops" at beat 4 by
+   * its first missing hit but is heard leaving at beat 3).
+   */
+  span: [number, number];
 }
 
 /**
@@ -557,7 +593,14 @@ function moveAt(t: Track, a: SectionInfo, c: SectionInfo, u: number): Shift[] | 
       diff.slice(k).every((dd, j) => dd || (silent(got[k + j] as string) && silent(want[k + j] as string)));
     if (suffix) {
       const stops = got.slice(k).every(silent);
-      shifts.push({ track: t.name, beats: -(u - k), kind: stops ? "stops" : "early" });
+      let from = k;
+      while (from > 0 && silent(got[from - 1] as string) && silent(want[from - 1] as string)) from--;
+      shifts.push({
+        track: t.name,
+        beats: -(u - k),
+        kind: stops ? "stops" : "early",
+        span: [-(u - from), -(u - k)],
+      });
     }
   }
   if (expC !== null) {
@@ -572,12 +615,31 @@ function moveAt(t: Track, a: SectionInfo, c: SectionInfo, u: number): Shift[] | 
     if (prefix) {
       // Carrying on is playing what the track played in `a` (its loop's bar there) past the bar line.
       const prev = beatSigs(t, expA ?? b - 1, u);
+      // A track silent in both loops that adds a hit on the downbeat (a crash) marks the bar line; it does not
+      // change off it (X14 round 2, A2.L09 S7).
+      if (
+        shifts.length === 0 &&
+        prev.every(silent) &&
+        want.every(silent) &&
+        t.events.some((e) => R.eq(e.onset, rat(b)))
+      )
+        return "bar";
       const late = got.slice(0, k).every(silent);
       const carries = got.slice(0, k).every((g, j) => silent(g) || g === prev[j]);
-      shifts.push({ track: t.name, beats: k, kind: late ? "late" : carries ? "carries" : "changes-late" });
+      let to = k;
+      while (to < u - 1 && silent(got[to] as string) && silent(want[to] as string)) to++;
+      shifts.push({
+        track: t.name,
+        beats: k,
+        kind: late ? "late" : carries ? "carries" : "changes-late",
+        span: [k, to],
+      });
     }
   }
   if (shifts.length > 0) return shifts;
+  // A track silent in the bars on both sides of the bar line does not mark it, whatever it plays later (a crash in
+  // the second bar of the next section; X14 round 2, A2.L09 S7).
+  if (beatSigs(t, b - 1, u).every(silent) && beatSigs(t, b, u).every(silent)) return null;
   // No shift: does the track change at all across the seam (its bars in `a` against its bars in `c`)?
   const setA = new Set(aBars.length > 0 ? aBars : [sigsOf(b - 1)]);
   const setC = new Set(cBars.length > 0 ? cBars : [sigsOf(b)]);
@@ -610,8 +672,10 @@ const drumHits = (drums: readonly Track[], from: number, to: number): number =>
  * `staggered-boundary` (U09.L07 Carve It; A2.L09 Seams and Surprises; Fuzzy Boundaries): at ≥ `min` (default 1)
  * section seams, some but not all parts change state a beat or more off the bar line (stop early, carry on into the
  * next section, or come in late). Every part switching on the bar line fails; so does every changing part moving by
- * the same amount (the seam just moved). With `fill`: a drum fill in the bar before the seam (more drum hits than any
- * other bar of the section) that leaves the downbeat empty (`anticipate`) or runs past it (`hesitate`).
+ * the same amount (the seam just moved: one beat in every part's span). With `fill`: a drum fill in the bar before
+ * the seam (more drum hits than any other bar of the section, its last busier beat in the bar's second half) that
+ * leaves the downbeat empty where the drums usually play one (`anticipate`), or whose own drum lines run past the
+ * downbeat with more hits in the first beat than the section's later first beats (`hesitate`).
  */
 const staggeredBoundary: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx, p) => {
   const pc = readPiece(n, ctx, p, deps, true);
@@ -632,25 +696,43 @@ const staggeredBoundary: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n
     if (fill) {
       if (drums.length === 0 || a.bars < 2) continue;
       const beat = 1 / pc.u;
-      const before = drumHits(drums, b - 1, b);
-      const usual = Math.max(
-        ...Array.from({ length: a.bars - 1 }, (_, j) => drumHits(drums, a.startBar + j, a.startBar + j + 1)),
+      const earlier = Array.from({ length: a.bars - 1 }, (_, j) => a.startBar + j);
+      /** The most drum hits of `ts` in [bar + from, bar + from + len) over the given bars. */
+      const most = (ts: readonly Track[], from: number, len: number, bars: readonly number[]) =>
+        Math.max(0, ...bars.map((x) => drumHits(ts, x + from, x + from + len)));
+      // The fill: the drum lines with more hits in the bar before the seam than in any earlier bar of the section
+      // (judged line by line, so other lines may make room for it; X14 round 2, A2.L09 S5).
+      const fillers = drums.filter((t) => drumHits([t], b - 1, b) > most([t], 0, 1, earlier));
+      if (fillers.length === 0) continue;
+      // The fill peaks just before the downbeat (the book's "Fuzzy Boundaries"). Oak's call: its last beat (a beat
+      // where the fill's lines have more hits than in that beat of any earlier bar of the section) lies in the
+      // bar's second half, so a fill at the start of the bar followed by the usual groove is not one (X14 round 2,
+      // A2.L09 S4).
+      const fillBeats = Array.from({ length: pc.u }, (_, j) => j).filter(
+        (j) =>
+          drumHits(fillers, b - 1 + j * beat, b - 1 + (j + 1) * beat) >
+          most(fillers, j * beat, beat, earlier),
       );
-      if (before <= usual) continue;
+      if ((fillBeats.at(-1) ?? -1) < pc.u / 2) continue;
+      const later = c.bars > 1 ? Array.from({ length: c.bars - 1 }, (_, j) => b + 1 + j) : earlier;
       const down = drumHits(drums, b, b + beat / 2);
-      const firstBeat = drumHits(drums, b, b + beat);
-      const usualFirst = Math.max(
-        0,
-        ...(c.bars > 1
-          ? Array.from({ length: c.bars - 1 }, (_, j) => drumHits(drums, b + 1 + j, b + 1 + j + beat))
-          : Array.from({ length: a.bars - 1 }, (_, j) =>
-              drumHits(drums, a.startBar + j, a.startBar + j + beat),
-            )),
-      );
-      if (fill === "anticipate" && down === 0)
+      // The empty downbeat is a gap only where the drums usually play one (X14 round 2: no downbeat anywhere is no
+      // gap). Oak's call: more than half of the two sections' other bars have a drum hit in their first half beat.
+      const others = [...earlier, ...later.filter((x) => !earlier.includes(x))];
+      const usualDown = others.filter((x) => drumHits(drums, x, x + beat / 2) > 0).length * 2 > others.length;
+      if (fill === "anticipate" && down === 0 && usualDown)
         found.push(`a drum fill before ${seam}, with an empty downbeat`);
-      if (fill === "hesitate" && firstBeat > usualFirst)
-        found.push(`a drum fill that runs past the downbeat at ${seam}`);
+      if (fill === "hesitate") {
+        // The fill itself runs on past the downbeat: its lines, or a line silent all through the section before
+        // (toms taking the fill over), have more hits after the downbeat inside the first beat than in that place
+        // of the section's later bars. A hit on the downbeat itself (a crash, a kick) marks the seam instead
+        // (X14 round 2, A2.L09 S5).
+        const quiet = drums.filter((t) => drumHits([t], a.startBar, b) === 0);
+        const runOn = [...fillers, ...quiet.filter((t) => !fillers.includes(t))];
+        const after = (x: number): number => drumHits(runOn, x, x + beat) - drumHits(runOn, x, x + 1e-6);
+        if (after(b) > Math.max(0, ...later.map(after)))
+          found.push(`a drum fill that runs past the downbeat at ${seam}`);
+      }
       continue;
     }
     const shifts: Shift[] = [];
@@ -661,10 +743,13 @@ const staggeredBoundary: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n
       else if (m) shifts.push(...m);
     }
     if (shifts.length === 0) continue;
-    const offsets = new Set(shifts.map((s) => s.beats));
-    if (onBar === 0 && offsets.size === 1) {
-      const s = shifts[0] as Shift;
-      moved ??= `at ${seam} the parts all change ${plural(Math.abs(s.beats), "beat")} ${s.beats < 0 ? "early" : "late"} together: that just moves the seam; let only some parts change off the bar line`;
+    // Every changing part moving at one moment only moves the seam. Oak's call: the parts move together when one
+    // beat lies in every part's span (X14 round 2, A2.L09 S7: kick, snare and hats all silent from beat 3).
+    const lo = Math.max(...shifts.map((s) => s.span[0]));
+    const hi = Math.min(...shifts.map((s) => s.span[1]));
+    if (onBar === 0 && lo <= hi) {
+      const beats = lo < 0 ? hi : lo;
+      moved ??= `at ${seam} the parts all change ${plural(Math.abs(beats), "beat")} ${beats < 0 ? "early" : "late"} together: that just moves the seam; let only some parts change off the bar line`;
       continue;
     }
     found.push(
@@ -689,11 +774,55 @@ const staggeredBoundary: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n
 
 // --- unique-event ----------------------------------------------------------------------------------------------
 
+/** Controls measured in hertz, heard as ratios. */
+const FREQUENCY_KEYS = ["cutoff", "hcutoff", "bandf"] as const;
+/**
+ * Oak's call, the floor `stepped-control` uses for held frequencies: values less than a third of an octave apart are
+ * heard as one setting, so a cutoff moved from 2000 to 1990 for one bar changes nothing (X14 round 2, A2.L09 S6).
+ */
+const SAME_SETTING_OCTAVES = 1 / 3;
+/** The track's events with each frequency control set to the lowest value of its run of near values. */
+function heardControls(events: readonly NEvent[]): NEvent[] {
+  const reps = new Map<string, Map<number, number>>();
+  for (const k of FREQUENCY_KEYS) {
+    const values = [
+      ...new Set(
+        events.map((e) => e.controls?.[k]).filter((v): v is number => typeof v === "number" && v > 0),
+      ),
+    ].sort((x, y) => x - y);
+    const m = new Map<number, number>();
+    let rep = values[0] ?? 0;
+    let prev = rep;
+    for (const v of values) {
+      if (Math.log2(v / prev) >= SAME_SETTING_OCTAVES - 1e-9) rep = v;
+      m.set(v, rep);
+      prev = v;
+    }
+    reps.set(k, m);
+  }
+  return events.map((e) => {
+    if (!e.controls) return e;
+    const c = { ...e.controls };
+    for (const k of FREQUENCY_KEYS) {
+      const v = c[k];
+      const r = typeof v === "number" ? reps.get(k)?.get(v) : undefined;
+      if (r !== undefined) c[k] = r;
+    }
+    return { ...e, controls: c };
+  });
+}
+/** The control settings a bar's events use, whatever their notes: a one-time effect is one of these. */
+const controlSet = (es: readonly NEvent[]): string =>
+  [...new Set(es.flatMap((e) => Object.entries(e.controls ?? {}).map(([k, v]) => `${k}=${String(v)}`)))]
+    .sort()
+    .join(",");
+
 /**
  * `unique-event` (U09.L07; A2.L09; Unique Events): at least `min` (default 1) bars hold a moment heard once: a track's
  * bar material (onsets with pitch or drum sound; with `controls`, its sound controls too) heard in exactly that one bar
  * of the piece, inside a section type that occurs ≥ 2 times, and no longer than that bar (the track's bars around it
- * are heard again). A whole section heard once (an intro, a bridge) is no moment.
+ * are heard again); or a stop, the track silent for that one bar while it plays around it and at that place of every
+ * other time the section comes. A whole section heard once (an intro, a bridge) is no moment.
  */
 const uniqueEvent: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx, p) => {
   const pc = readPiece(n, ctx, p, deps, true);
@@ -707,12 +836,43 @@ const uniqueEvent: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx,
     sections.find((s) => b >= s.startBar && b < s.startBar + s.bars);
   const moments = new Map<number, string>();
   const wholeOnce = new Set<string>();
+  const tally = (xs: readonly string[]): Map<string, number> => {
+    const m = new Map<string, number>();
+    for (const x of xs) m.set(x, (m.get(x) ?? 0) + 1);
+    return m;
+  };
+  const eventsOf = (t: Track): NEvent[] => (controls ? heardControls(t.events) : t.events);
   for (const t of pc.tracks) {
-    const bars = perBar(t.events, pc.total);
+    const bars = perBar(eventsOf(t), pc.total);
     const sigs = bars.map((es, b) => barSig(es, b, { dur: true, controls }));
-    const times = new Map<string, number>();
-    for (const s of sigs) times.set(s, (times.get(s) ?? 0) + 1);
-    const once = (b: number): boolean => sigs[b] !== "" && times.get(sigs[b] as string) === 1;
+    const times = tally(sigs);
+    // With `controls`, a bar whose notes are heard elsewhere is new only through its sound, and that sound must be
+    // heard in no other bar: the same effect in two bars with different notes is heard twice (X14 round 2, A2.L09 S6).
+    const plainTimes = tally(bars.map((es, b) => barSig(es, b, { dur: true })));
+    const plain = bars.map((es, b) => barSig(es, b, { dur: true }));
+    const sounds = bars.map(controlSet);
+    const soundTimes = tally(sounds);
+    const newSound = (b: number): boolean =>
+      !controls || plainTimes.get(plain[b] as string) === 1 || soundTimes.get(sounds[b] as string) === 1;
+    // A stop is a moment too: an empty bar in a section that comes back, where the track plays in the bars around it
+    // and at the same place of every other time that section comes.
+    const stop = (b: number): boolean => {
+      if (sigs[b] !== "") return false;
+      const s = sectionAtBar(b);
+      if (!s) return false;
+      const near = [b - 1, b + 1].filter((x) => x >= s.startBar && x < s.startBar + s.bars);
+      if (near.length === 0 || near.some((x) => sigs[x] === "")) return false;
+      const others = sections.filter((o) => o !== s && o.label === s.label);
+      return (
+        others.length > 0 &&
+        others.every((o) => {
+          const x = o.startBar + (b - s.startBar);
+          return x < o.startBar + o.bars && sigs[x] !== "";
+        })
+      );
+    };
+    const once = (b: number): boolean =>
+      (sigs[b] !== "" && times.get(sigs[b] as string) === 1 && newSound(b)) || stop(b);
     for (let b = 0; b < pc.total; b++) {
       if (!once(b)) continue;
       const s = sectionAtBar(b);
@@ -722,7 +882,12 @@ const uniqueEvent: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx,
       const hi = s.startBar + s.bars;
       if ((b - 1 >= lo && once(b - 1)) || (b + 1 < hi && once(b + 1))) continue;
       if (!moments.has(b))
-        moments.set(b, `${nameWord(t.name)} plays something once, in ${barText(b, ctx)} (${s.label})`);
+        moments.set(
+          b,
+          sigs[b] === ""
+            ? `${nameWord(t.name)} stops for one bar, once, in ${barText(b, ctx)} (${s.label})`
+            : `${nameWord(t.name)} plays something once, in ${barText(b, ctx)} (${s.label})`,
+        );
     }
   }
   // Sections heard once whose material is new to the piece (an intro, a bridge): new as a whole, no moment.
@@ -730,7 +895,7 @@ const uniqueEvent: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx,
     if ((count.get(s.label) ?? 0) > 1) continue;
     const inside = (b: number): boolean => b >= s.startBar && b < s.startBar + s.bars;
     const isNew = pc.tracks.some((t) => {
-      const sigs = perBar(t.events, pc.total).map((es, b) => barSig(es, b, { dur: true, controls }));
+      const sigs = perBar(eventsOf(t), pc.total).map((es, b) => barSig(es, b, { dur: true, controls }));
       const outside = new Set(sigs.filter((_, b) => !inside(b)));
       return sigs.some((x, b) => inside(b) && x !== "" && !outside.has(x));
     });
@@ -756,7 +921,10 @@ const uniqueEvent: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx,
 
 // --- arc ----------------------------------------------------------------------------------------------------
 
-/** A section counts as thinner than the fullest when its onsets per bar are this much lower (the `contrast` default). */
+/**
+ * A section counts as thinner than the fullest when its onsets per bar are at least this much lower (Oak's call, the
+ * `contrast` default `CONTRAST_THRESHOLDS.densityRatio`, read the same way: exactly a quarter fewer counts).
+ */
 const THINNER = 0.25;
 
 /**
@@ -771,7 +939,7 @@ const arc: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx, p) => {
   if (view.kind !== "sections") return { ok: false, detail: NEEDS_SECTIONS };
   const dens = view.sections.map((s) => s.features.density);
   const peak = Math.max(...dens);
-  const thin = dens.map((d) => d < peak * (1 - THINNER) - 1e-9);
+  const thin = dens.map((d) => d <= peak * (1 - THINNER) + 1e-9);
   if (!thin.some(Boolean))
     return {
       ok: false,

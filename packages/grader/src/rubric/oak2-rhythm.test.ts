@@ -90,6 +90,13 @@ describe("AC1 kick-bass-composite", () => {
     check(await run("kick-bass-composite", `${kick}\n${offBass.replace(".4", "1")}`), true);
     check(await run("kick-bass-composite", `${kick}\n${offBass}`, { minBassPerBar: 5 }), false);
   });
+  test("minBassPerBar holds in every bar, not on average (X14)", async () => {
+    const uneven = 'bass: note("<[~ ~ ~ ~] [~ [c2 c2] ~ [c2 c2]]>").s("sawtooth").clip(.2)';
+    const half = 'drums: s("bd ~ bd ~")';
+    check(await run("kick-bass-composite", `${half}\n${uneven}`, { minBassPerBar: 2 }), false, /throughout/);
+    const even = 'bass: note("[~ c2 ~ c2]").s("sawtooth").clip(.2)';
+    check(await run("kick-bass-composite", `${half}\n${even}`, { minBassPerBar: 2 }), true);
+  });
 });
 
 describe("AC2 hocket", () => {
@@ -164,6 +171,139 @@ describe("AC2 hocket", () => {
       true,
     );
   });
+  // X9 (A2.L07): the given line is four bars long, and whole bars traded are call and response, not a hocket.
+  const LINE4 = [
+    "a4 b4 c5 d5 e5 d5 c5 b4",
+    "a4 b4 c5 d5 f5 e5 c5 b4",
+    "c5 d5 e5 f5 g5 f5 e5 d5",
+    "g5 f5 d5 c5 b4 c5 g5 e5",
+  ];
+  const pitches4 = [
+    ...[69, 71, 72, 74, 76, 74, 72, 71],
+    ...[69, 71, 72, 74, 77, 76, 72, 71],
+    ...[72, 74, 76, 77, 79, 77, 76, 74],
+    ...[79, 77, 74, 72, 71, 72, 79, 76],
+  ];
+  const params4 = { tracks: ["mel", "vox"], pitches: pitches4, steps: 8 };
+  const line4 = (keep: (i: number) => boolean) =>
+    `<${LINE4.map(
+      (bar, b) =>
+        `[${bar
+          .split(" ")
+          .map((note, s) => (keep(b * 8 + s) ? note : "~"))
+          .join(" ")}]`,
+    ).join(" ")}>`;
+  const split4 = (keep: (i: number) => boolean) =>
+    `mel: note("${line4(keep)}").s("square")\nvox: note("${line4((i) => !keep(i))}").s("piano")`;
+  test("a four-bar line loops: pitches cover the whole loop", async () => {
+    check(
+      await run(
+        "hocket",
+        split4((i) => i % 2 === 0),
+        params4,
+      ),
+      true,
+    );
+    // Turns of three notes that cross the bar line.
+    check(
+      await run(
+        "hocket",
+        split4((i) => Math.floor(i / 3) % 2 === 0),
+        params4,
+      ),
+      true,
+    );
+    // The same line over eight bars repeats the loop.
+    check(
+      await run(
+        "hocket",
+        split4((i) => i % 2 === 1),
+        params4,
+        { bars: 8 },
+      ),
+      true,
+    );
+    // Bar 1 of the line alone, read in every bar, is not the line.
+    check(
+      await run(
+        "hocket",
+        split4((i) => i % 2 === 0),
+        { ...params4, pitches: pitches4.slice(0, 8) },
+      ),
+      false,
+      /every note/,
+    );
+    check(
+      await run(
+        "hocket",
+        split4((i) => i % 2 === 0),
+        { ...params4, pitches: pitches4.slice(0, 12) },
+      ),
+      false,
+      /Choose/,
+    );
+  });
+  test("whole bars traded fail as call and response; turns inside the bar pass", async () => {
+    // One-bar line: mel plays bars 1 and 3, chords bars 2 and 4, every note once.
+    check(
+      await run(
+        "hocket",
+        'mel: note("<[c4 d4 e4 f4 g4 a4 b4 c5] ~>").s("sine")\nchords: note("<~ [c4 d4 e4 f4 g4 a4 b4 c5]>").s("triangle")',
+        hocketParams,
+      ),
+      false,
+      /take turns inside each bar/,
+    );
+    // Four-bar line: whole bars traded fail, and so do two bars each.
+    check(
+      await run(
+        "hocket",
+        split4((i) => Math.floor(i / 8) % 2 === 0),
+        params4,
+      ),
+      false,
+      /instead of trading whole bars/,
+    );
+    check(
+      await run(
+        "hocket",
+        split4((i) => i < 16),
+        params4,
+      ),
+      false,
+      /trading whole bars/,
+    );
+  });
+  // X14 round 2 (A2.L07): a bar-long phrase traded across the bar line is call and response too.
+  test("bar-long turns that cross the bar line fail; half-bar turns pass", async () => {
+    for (const offset of [1, 4])
+      check(
+        await run(
+          "hocket",
+          split4((i) => Math.floor((i + offset) / 8) % 2 === 0),
+          params4,
+        ),
+        false,
+        /instead of trading whole bars/,
+      );
+    check(
+      await run(
+        "hocket",
+        split4((i) => i % 8 < 4),
+        params4,
+      ),
+      true,
+    );
+    // Turns of five, four and three notes, crossing the bar line: none reaches a bar.
+    check(
+      await run(
+        "hocket",
+        split4((i) => Math.floor(i / 4) % 2 === 0 || i % 8 === 7),
+        params4,
+      ),
+      true,
+    );
+  });
 });
 
 describe("AC3 stepped-control", () => {
@@ -172,6 +312,14 @@ describe("AC3 stepped-control", () => {
   test("passes held values across bars and within a bar", async () => {
     check(await run("stepped-control", `${notes}.lpf("<400 400 2000 2000 800 800>")`, p, { bars: 6 }), true);
     check(await run("stepped-control", `${notes}.cutoff("400 2000 800 400")`, p), true);
+  });
+  test("cutoff jumps are heard in octaves, not as a share of the range (X14)", async () => {
+    const held = (v: string) => `${notes}.lpf("${v}")`;
+    check(await run("stepped-control", held("400 800 3000 3000"), p), true);
+    check(await run("stepped-control", held("500 700 3000 3000"), p), true);
+    check(await run("stepped-control", held("400 800 1600 3200"), p), true);
+    check(await run("stepped-control", held("2000 2010 2020 2030"), p), false, /clearer jumps/);
+    check(await run("stepped-control", held("18000 18001 18002 18003"), p), false, /clearer jumps/);
   });
   test("rejects a sine sweep, constant value, small jumps and single-note holds", async () => {
     check(await run("stepped-control", `${notes}.lpf(sine.range(300, 3000))`, p), false, /Hold/);

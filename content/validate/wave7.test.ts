@@ -1,6 +1,6 @@
 // Wave 7: the advanced tracks as one course with the core (contracts §2.6, §2.7, §4.3, §7.6). The track gates are
 // the ones contracts §4.3 lists; each track lesson is judged at the earliest point a learner can take it (the
-// course graph); every legal interleaving of the tracks with U14–U17 is a complete order of all 259 sessions;
+// course graph); every legal interleaving of the tracks with U14–U17 is a complete order of all 270 sessions;
 // the end of the course is reached only when every session is done; and every shape and rule the registries
 // plan for the tracks is implemented or planned, with valid parameters.
 import { describe, expect, setDefaultTimeout, test } from "bun:test";
@@ -35,12 +35,12 @@ const S = (id: string) => id as SessionId;
 const precedes = (a: string, b: string) => atOrBefore(g, S(a), S(b));
 
 describe("counts (contracts §2.7)", () => {
-  test("34 jazz, 20 rhythm, 20 arrangement sessions; 259 in all", () => {
+  test("35 jazz, 21 rhythm, 23 arrangement sessions; 270 in all", () => {
     expect(trackOrder.J).toHaveLength(SESSION_COUNTS.jazz);
     expect(trackOrder.R).toHaveLength(SESSION_COUNTS.rhythm);
     expect(trackOrder.A).toHaveLength(SESSION_COUNTS.arrangement);
     expect(ALL).toHaveLength(SESSION_COUNTS.total);
-    expect(SESSION_COUNTS.total).toBe(259);
+    expect(SESSION_COUNTS.total).toBe(270);
     const inTracks = new Set([...trackOrder.J, ...trackOrder.R, ...trackOrder.A]);
     const core = new Set(registries.syllabus.defaultOrder);
     for (const id of ALL) expect([id, inTracks.has(id) !== core.has(id)]).toEqual([id, true]);
@@ -116,7 +116,7 @@ const trackRank = new Map(
   [...trackOrder.J, ...trackOrder.R, ...trackOrder.A].map((id, i) => [id as SessionId, i] as const),
 );
 
-describe("every legal interleaving ends at session 259 (contracts §7.6)", () => {
+describe("every legal interleaving ends at session 270 (contracts §7.6)", () => {
   // Tracks as early as they open (the learner takes every track session the day it opens), and as late as
   // possible (the core first, as the default order has it), and three seeded random interleavings between.
   const early = legalOrder((id) =>
@@ -136,9 +136,9 @@ describe("every legal interleaving ends at session 259 (contracts §7.6)", () =>
   });
   const orders = { early, late, random1: randoms[0], random2: randoms[1], random3: randoms[2] };
   for (const [name, order] of Object.entries(orders))
-    test(`${name}: every one of the 259 sessions once, each after everything it needs`, () => {
-      expect(order).toHaveLength(259);
-      expect(new Set(order).size).toBe(259);
+    test(`${name}: every one of the 270 sessions once, each after everything it needs`, () => {
+      expect(order).toHaveLength(270);
+      expect(new Set(order).size).toBe(270);
       const at = new Map((order ?? []).map((id, i) => [id, i]));
       for (const id of order ?? [])
         for (const r of g.nodes.get(id)?.requires ?? [])
@@ -152,7 +152,7 @@ describe("every legal interleaving ends at session 259 (contracts §7.6)", () =>
     expect(i("J4.L01")).toBeLessThan(i("U16.L01"));
   });
   test("the late order is the default order of the core, then the tracks", () => {
-    expect(late.slice(0, 185)).toEqual(registries.syllabus.defaultOrder as SessionId[]);
+    expect(late.slice(0, 191)).toEqual(registries.syllabus.defaultOrder as SessionId[]);
   });
   test("You have completed Oak: reached only when every session but the gym slots is done", () => {
     const ms = milestones.find((m) => m.id === "ms.28");
@@ -228,8 +228,8 @@ const TRACK_LESSON_IDS = trackSessions.filter((id) => /\.L\d\d$/.test(id));
 const trackLessons = authoredLessons.filter((l) => !l.sample && TRACK_LESSON_IDS.includes(l.def.id));
 
 describe("the advanced tracks are complete (contracts §2.6, §2.7)", () => {
-  test("all 50 track lessons are authored and load: J1–J5 (22), R1–R3 (15), A1 (7) and A2 (6)", () => {
-    expect(TRACK_LESSON_IDS).toHaveLength(50);
+  test("all 55 track lessons are authored and load: J1–J5 (23), R1–R3 (16), A1 (7) and A2 (9)", () => {
+    expect(TRACK_LESSON_IDS).toHaveLength(55);
     expect(trackLessons.map((l) => l.def.id as string).sort()).toEqual([...TRACK_LESSON_IDS].sort());
   });
   test("J.CP1, J.CP2, R.CP and A.CP have two or three authored items and a Make", () => {

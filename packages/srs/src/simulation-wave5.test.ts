@@ -4,7 +4,7 @@
 // cadences) and the U10–U11 decks (content/decks `WAVE5_DECKS`: minor keys, minor-key chords, scales as degrees,
 // the twelve bars, dominant sevenths) beside the three older ones, each promoted deck at one new card a day,
 // introduced in course order. The five criteria must hold on every run and target (the gate's seeds and the
-// held-out ones) over the 300 days, and again over the stretch that ends with X2.S2 (session 131 of the default
+// held-out ones) over the 300 days, and again over the stretch that ends with X2.S2 (session 137 of the default
 // order since 1.6 added U05.L09 and C3.S4, the end of Wave 5's course). The table is printed for the report.
 import { describe, expect, test } from "bun:test";
 import { PROMOTED_DECKS, WAVE5_DECKS } from "../../../content/decks/index.ts";
@@ -104,10 +104,11 @@ describe("§7.4 with Wave 5's families and every deck, through X2.S2 and over 30
     for (const [id, lesson] of catalog.deckBatches)
       if (wave5.has(id))
         expect([id, lesson, defaultOrder.includes(lesson as never)]).toEqual([id, lesson, true]);
-    // At 20 and 25 minutes a lesson is one session, so X2.S2 is session 131 of the default order; at 15 minutes a
+    // At 20 and 25 minutes a lesson is one session, so X2.S2 is session 137 of the default order (131 before Oak 2.0
+    // W2's five core lessons and one more gym slot); at 15 minutes a
     // lesson takes two sessions and the 300 days end before X2 (the window is then the whole run).
-    expect(defaultOrder.indexOf("X2.S2") + 1).toBe(131);
-    for (const { t, w } of runs) if (t !== 15) expect(w.sessions).toBe(131 + 1);
+    expect(defaultOrder.indexOf("X2.S2") + 1).toBe(137);
+    for (const { t, w } of runs) if (t !== 15) expect(w.sessions).toBe(137 + 1);
   });
   test("through X2.S2: p95 planned warm-up within budget; ≤ 12 active; oldest due p95 ≤ 7 d; first review ≤ 7 d; review day ≤ 12 min", () => {
     for (const { t, seed, w } of runs) {

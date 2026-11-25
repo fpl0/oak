@@ -131,11 +131,12 @@ describe("ids and gates", () => {
 
   test("the track orders: J2.L04 is the one lesson that can be passed over; A1.L01–L04 are side lessons", () => {
     const j = trackLessons(syllabus, "J");
-    expect(j).toHaveLength(22);
+    // Oak 2.0 W2: J3.L05, R1.L06, and A2.L07–L09 in the syllabus.
+    expect(j).toHaveLength(23);
     expect(j.filter((l) => l.optional).map((l) => l.id)).toEqual(["J2.L04"]);
-    expect(trackLessons(syllabus, "R")).toHaveLength(15);
+    expect(trackLessons(syllabus, "R")).toHaveLength(16);
     const a = trackLessons(syllabus, "A");
-    expect(a).toHaveLength(13);
+    expect(a).toHaveLength(16);
     expect(a.filter((l) => l.side).map((l) => l.id)).toEqual(["A1.L01", "A1.L02", "A1.L03", "A1.L04"]);
   });
 });

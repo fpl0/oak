@@ -924,6 +924,14 @@ export const J3_SONG = defineUnitSong({
       "Your rootless chords play the opening and the first four bars of each time through, all in F.",
       ["bass", "lead"],
     ),
+    // J3.L05's loop is all minor 11th chords (stacks of 4ths over their lowest notes), and every room is a ii–V–I:
+    // only its ii is a minor chord, so the loop fits no room. A side step; the song's notes are unchanged.
+    {
+      lesson: "J3.L05",
+      kind: "side",
+      reason:
+        "Every room of the song is a ii–V–I, and this loop stays on minor 11th chords, so it stays a sketch of its own.",
+    },
     take(
       "J3.L02",
       ["head1-c", "head2-c"],

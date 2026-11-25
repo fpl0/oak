@@ -418,6 +418,11 @@ interface Kit {
   snare: BySlot<string | null>;
   hats: BySlot<string | null>;
   perc: BySlot<string | null>;
+  /**
+   * One section's own percussion, where a repeated section must not be a copy of the first (PLAN §7, W2): the second
+   * verse and the second chorus. Oak's percussion survives every U15 take.
+   */
+  only?: { perc?: Partial<Record<SectionId, string>> };
   bass: BySlot<BassBar>;
   /** The chords' rhythm (`struct`) in each section. */
   comp: BySlot<string>;
@@ -480,6 +485,14 @@ const POP: Kit = {
     bridge: v("<[cr, [~ ~ tb ~ ~ ~ tb ~]] [~ ~ tb ~ ~ ~ tb ~]!3 [cr, tb*8] [tb*8]!3>"),
     outro: v("<[cr, tb*8] [tb*8]!3 [cr, tb*8] [tb*8]!3>"),
     end: v("cr"),
+  },
+  only: {
+    perc: {
+      // The second verse: a shaker on the off-beats under the crash.
+      verse2: v("<[cr, [~ sh]*4] [[~ sh]*4]!7>"),
+      // The second chorus: the tambourine moves to the off-beats in its last four bars.
+      chorus2: v("<[cr, [~ ~ tb ~ ~ ~ tb ~]] [~ ~ tb ~ ~ ~ tb ~]!3 [cr, [~ tb]*4] [[~ tb]*4]!3>"),
+    },
   },
   bass: {
     intro: INTRO_BASS("{r}@8", "{r}@3 {r} {r}@4"),
@@ -550,6 +563,14 @@ const INDIE: Kit = {
     bridge: v("<[cr, [~ ~ tb ~ ~ ~ tb ~]] [~ ~ tb ~ ~ ~ tb ~]!3 [cr, tb*8] [tb*8]!3>"),
     outro: v("<[cr, tb*8] [tb*8]!3 [cr, tb*8] [tb*8]!3>"),
     end: v("cr"),
+  },
+  only: {
+    perc: {
+      // The second verse: a shaker on the off-beats under the crash.
+      verse2: v("<[cr, [~ sh]*4] [[~ sh]*4]!7>"),
+      // The second chorus: the tambourine moves to the off-beats in its last four bars.
+      chorus2: v("<[cr, [~ ~ tb ~ ~ ~ tb ~]] [~ ~ tb ~ ~ ~ tb ~]!3 [cr, [~ tb]*4] [[~ tb]*4]!3>"),
+    },
   },
   bass: {
     intro: INTRO_BASS("{r}@8", "{r}@3 {r}@3 {r}@2"),
@@ -630,6 +651,14 @@ const JAZZ: Kit = {
     bridge: v("<[cr, [rd ~ rd ~ rd ~ rd ~]] [rd ~ rd ~ rd ~ rd ~]!3 [cr, rd*8] [rd*8]!3>", V8),
     outro: v("<[cr, rd*8] [rd*8]!3 [cr, rd*8] [rd*8]!3>", V8),
     end: v("cr"),
+  },
+  only: {
+    perc: {
+      // The second verse: a shaker on the off-beats joins the ride.
+      verse2: v(`<[cr, ${RIDE}, [~ sh]*4] [${RIDE}, [~ sh]*4]!7>`, V8),
+      // The second chorus: the tambourine joins the ride on 2 and 4 in its last four bars.
+      chorus2: v("<[cr, rd*8] [rd*8]!3 [cr, rd*8, [~ ~ tb ~ ~ ~ tb ~]] [rd*8, [~ ~ tb ~ ~ ~ tb ~]]!3>", V8),
+    },
   },
   bass: {
     intro: INTRO_BASS("{r}@8", "{r}@4 {f}@4"),
@@ -723,6 +752,14 @@ const FUNK: Kit = {
     bridge: v("<cr ~!3 [cr, [~ tb ~ tb]] [~ tb ~ tb]!3>"),
     outro: v("<[cr, [~ cb]*4] [[~ cb]*4]!3 [cr, [~ cb]*4] [[~ cb]*4]!3>"),
     end: v("cr"),
+  },
+  only: {
+    perc: {
+      // The second verse: a shaker on the off-beats under the crash.
+      verse2: v("<[cr, [~ sh]*4] [[~ sh]*4]!7>"),
+      // The second chorus: a shaker on the off-beats joins the cowbell in its last four bars.
+      chorus2: v("<[cr, [~ cb ~ cb]] [~ cb ~ cb]!3 [cr, [~ cb ~ cb], [~ sh]*4] [[~ cb ~ cb], [~ sh]*4]!3>"),
+    },
   },
   bass: {
     intro: INTRO_BASS("{r}@16", FK_BASS_V),
@@ -824,6 +861,14 @@ const ELECTRONIC: Kit = {
     bridge: v("<cr ~!5 [~ ~ ~ ~ ~ ~ [lt lt] [ht ht]] ~>"),
     outro: v("<[cr, rd*8] [rd*8]!3 [cr, rd*8] [rd*8]!3>", V8),
     end: v("cr"),
+  },
+  only: {
+    perc: {
+      // The second verse: a shaker on the off-beats under the crash.
+      verse2: v("<[cr, [~ sh]*4] [[~ sh]*4]!7>"),
+      // The second chorus: a shaker in eighths joins the ride in its last four bars.
+      chorus2: v("<[cr, [~ rd]*4] [[~ rd]*4]!3 [cr, [~ rd]*4, sh*8] [[~ rd]*4, sh*8]!3>"),
+    },
   },
   bass: {
     intro: INTRO_BASS("{r}@8", "{r}@5 {r}@3"),
@@ -931,9 +976,9 @@ function code(flavour: FlavourId): string {
     return syn ? `${line}.s("${syn.bassSound[slot]}")${syn.bass[slot]}` : line;
   });
   /** With `banks`, each section names its machine; otherwise the track does, once. */
-  const drums = (by: BySlot<string | null>): BySection =>
+  const drums = (by: BySlot<string | null>, own: Partial<Record<SectionId, string>> = {}): BySection =>
     mapSections((id) => {
-      const p = by[SLOT[id]];
+      const p = own[id] ?? by[SLOT[id]];
       if (p === null || !k.banks) return p;
       return `${p}.bank("${k.banks[id] ?? k.bank}")`;
     });
@@ -964,7 +1009,7 @@ function code(flavour: FlavourId): string {
     track("kick", kick808(drums(k.kick)), `${bank}${sw}.gain(${num(k.gain.kick)})`),
     track("snare", drums(k.snare), `${bank}${sw}.gain(${num(k.gain.snare)})`),
     track("hats", drums(k.hats), `${bank}${sw}.gain(${num(k.gain.hats)})`),
-    track("perc", drums(k.perc), `${bank}${sw}.gain(${num(k.gain.perc)})`),
+    track("perc", drums(k.perc, k.only?.perc), `${bank}${sw}.gain(${num(k.gain.perc)})`),
   ];
   return [...tracks.flatMap((t) => t.consts), "", ...tracks.map((t) => t.line)].join("\n");
 }
@@ -991,7 +1036,7 @@ const PITCHED: SongPartId[] = ["lead", "chords", "bass"];
 export const U15_SONG = defineUnitSong({
   id: "usong.U15",
   unit: "U15",
-  version: 1,
+  version: 2,
   title: "Visitors",
   meter: "4/4",
   key: { tonic: "C", mode: "major" },

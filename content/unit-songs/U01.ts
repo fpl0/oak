@@ -145,13 +145,23 @@ function perBar(bars: readonly string[]): string {
 const bars = (count: number, bar: string, last?: string): string[] =>
   Array.from({ length: count }, (_, i) => (last !== undefined && i === count - 1 ? last : bar));
 
-/** One labelled track: a const per section kind it plays (`kickVerse`), `silence` where it rests, one arrange(). */
-function track(label: string, bySection: Readonly<Partial<Record<Kind, string>>>, tail: string) {
+/**
+ * One labelled track: a const per section kind it plays (`kickVerse`), `silence` where it rests, one arrange(). A
+ * section's own variant (`byId`) gets the kind's name with the section's number among its kind (`percChorus2`).
+ */
+function track(
+  label: string,
+  bySection: Readonly<Partial<Record<Kind, string>>>,
+  tail: string,
+  byId: Readonly<Record<string, string>> = {},
+) {
   const consts: string[] = [];
-  const entries = SECTIONS.map(({ bars: n, type }) => {
-    const pattern = bySection[type as Kind];
+  const entries = SECTIONS.map(({ id, bars: n, type }) => {
+    const own = byId[id];
+    const pattern = own ?? bySection[type as Kind];
     if (pattern === undefined) return `[${n}, silence]`;
-    const name = `${label}${cap(type)}`;
+    const nth = SECTIONS.filter((x) => x.type === type).findIndex((x) => x.id === id) + 1;
+    const name = `${label}${cap(type)}${own === undefined ? "" : nth}`;
     if (!consts.some((c) => c.startsWith(`const ${name} =`))) consts.push(`const ${name} = ${pattern}`);
     return `[${n}, ${name}]`;
   });
@@ -174,6 +184,11 @@ interface Kit {
   snare: DrumBars;
   hats: DrumBars;
   perc: DrumBars;
+  /**
+   * One section's own drum bars, where a repeated section must not be a copy of the first (PLAN §7, W2): the second
+   * chorus's percussion. Played with the accents of the section's kind.
+   */
+  only?: Partial<Record<"perc", Partial<Record<string, string[]>>>>;
   /** Accents per drum line and kind (a `.velocity()` pattern), when the line has one. */
   accents: Partial<Record<"kick" | "snare" | "hats" | "perc", Partial<Record<Kind, string>>>>;
   gains: {
@@ -241,6 +256,14 @@ const CRASHES = {
   chorus: ["cr", "~", "~", "~", "cr", "~", "~", "~"],
   outro: ["cr", "~", "~", "cr"],
 };
+/**
+ * The second chorus is not a copy of the first (PLAN §7, W2): the percussion adds a tambourine on the off-beat eighths
+ * (a shaker in eighths in the funk and electronic kits, which shake in their bridges), under the same crashes, so the
+ * last chorus is the fullest part of the song. Perc stays Oak's after every U01 take, so the learner hears it with
+ * their own groove.
+ */
+const chorus2With = (layer: string): string[] =>
+  CRASHES.chorus.map((c) => (c === "~" ? layer : `[${c}, ${layer}]`));
 const KICK_BUILD = bars(4, "bd ~ ~ ~", "bd ~ bd [bd bd]");
 /** Roots held on 1 and 3 in the opening; its last bar walks into the verse in quarters. */
 const HALVES: BassBar = (r, i, n) => (i === n - 1 ? `[${r}@2 ${r} ${r}]` : `[${r}@2 ${r}@2]`);
@@ -294,6 +317,7 @@ const KITS: Record<FlavourId, Kit> = {
       outro: bars(4, "hh hh hh hh hh hh hh oh", "~"),
     },
     perc: { ...CRASHES, bridge: bars(4, "rd*4") },
+    only: { perc: { chorus2: chorus2With("[~ tb]*4") } },
     accents: {
       snare: CLAP_LEVEL,
       hats: { intro: "[.8 .6]*4", verse: EIGHTHS, chorus: EIGHTHS, outro: EIGHTHS },
@@ -348,6 +372,7 @@ const KITS: Record<FlavourId, Kit> = {
       outro: bars(4, "[hh oh]*4", "~"),
     },
     perc: { ...CRASHES, bridge: bars(4, "[~ tb]*4") },
+    only: { perc: { chorus2: chorus2With("[~ tb]*4") } },
     accents: {
       snare: CLAP_LEVEL,
       hats: { intro: "[.8 .6]*4", verse: EIGHTHS, chorus: EIGHTHS, outro: EIGHTHS },
@@ -415,6 +440,8 @@ const KITS: Record<FlavourId, Kit> = {
       bridge: bars(4, "rd*4"),
       outro: bars(4, "rd*8", "rd ~ ~ ~"),
     },
+    // The jazz kit marks its sections with the ride (it has no crash): the soul tambourine joins it on the off-beats.
+    only: { perc: { chorus2: bars(8, "[rd*8, [~ tb]*4]") } },
     accents: { perc: { intro: QUARTERS, verse: EIGHTHS, chorus: EIGHTHS, bridge: QUARTERS, outro: EIGHTHS } },
     gains: { kick: 0.22, snare: 0.34, hats: 0.24, perc: 0.21, bass: 0.7, chords: 0.47, lead: 0.52 },
     bass: {
@@ -470,6 +497,7 @@ const KITS: Record<FlavourId, Kit> = {
       outro: bars(4, "[hh hh oh hh]*4", "~"),
     },
     perc: { ...CRASHES, bridge: bars(4, "sh*8") },
+    only: { perc: { chorus2: chorus2With("sh*8") } },
     accents: {
       snare: CLAP_LEVEL,
       hats: { intro: "[.8 .6]*4", verse: SIXTEENTHS, chorus: SIXTEENTHS, outro: SIXTEENTHS },
@@ -537,6 +565,7 @@ const KITS: Record<FlavourId, Kit> = {
       outro: bars(4, "[hh hh oh hh]*4", "~"),
     },
     perc: { ...CRASHES, intro: ["~", "~", "~", "~"], bridge: bars(4, "sh*8") },
+    only: { perc: { chorus2: chorus2With("sh*8") } },
     accents: {
       snare: { ...CLAP_LEVEL, verse: ".85" },
       hats: { intro: "[.8 .6]*4", verse: SIXTEENTHS, chorus: SIXTEENTHS, outro: SIXTEENTHS },
@@ -607,6 +636,8 @@ function code(f: FlavourId): string {
   const bank = k.bank && !k.banks ? `.bank("${k.bank}")` : "";
   /** With `banks`, each section names its machine; otherwise the track does, once. */
   const sectionBank = (kind: Kind) => (k.banks ? `.bank("${k.banks[kind] ?? k.bank}")` : "");
+  const drumBars = (label: "kick" | "snare" | "hats" | "perc", kind: Kind, b: readonly string[]) =>
+    `s("${perBar(b)}")${sectionBank(kind)}${velocity(k.accents[label]?.[kind])}`;
   const drum = (label: "kick" | "snare" | "hats" | "perc") =>
     track(
       label,
@@ -614,10 +645,16 @@ function code(f: FlavourId): string {
         KINDS.flatMap((kind) => {
           const b = k[label][kind];
           if (!b || b.every((x) => x === "~")) return [];
-          return [[kind, `s("${perBar(b)}")${sectionBank(kind)}${velocity(k.accents[label]?.[kind])}`]];
+          return [[kind, drumBars(label, kind, b)]];
         }),
       ),
       `${bank}${label === "kick" && /^(RolandTR808|oak808)$/.test(k.bank) ? KICK_808 : ""}.gain(${num(k.gains[label])})`,
+      Object.fromEntries(
+        Object.entries(label === "perc" ? (k.only?.perc ?? {}) : {}).map(([id, b]) => {
+          const kind = (SECTIONS.find((x) => x.id === id) as UnitSongSection).type as Kind;
+          return [id, drumBars(label, kind, b as string[])];
+        }),
+      ),
     );
   /** A section's own sound and synth controls, when the kit changes them by section; else the track's sound. */
   const voiced = (part: Kit["bass"] | Kit["chords"], kind: Kind) =>
@@ -677,7 +714,7 @@ const KIT = ["kick", "snare", "hats"];
 export const U01_SONG = defineUnitSong({
   id: "usong.U01",
   unit: "U01",
-  version: 1,
+  version: 2,
   title: "Count me in",
   meter: "4/4",
   key: { tonic: "C", mode: "major" },

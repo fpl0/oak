@@ -30,8 +30,8 @@ const seconds = async (code: string, bars: number): Promise<number> =>
   (await evalHeadless(code, bars)).cps ** -1 * bars;
 
 describe("pace: listen steps fit their minutes", () => {
-  test("the 46 lessons of the three tracks are all here", () => {
-    expect(wave7.length).toBe(46);
+  test("the 51 lessons of the three tracks are all here", () => {
+    expect(wave7.length).toBe(51);
   });
   test("every listen step's items fill at most 85% of its minutes", async () => {
     const over: string[] = [];
