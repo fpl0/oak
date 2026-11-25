@@ -6,8 +6,8 @@
 // `.mask()` by bar (U09.L05), endings (U09.L06). Not yet: `.early` and `.late` (U13.L01). Spec: content/specs/U09.md.
 //
 // How it is graded (PLAN §5; W0 rules, docs/design/oak2/W0.md "W0 close"): S4 `carved` (the fullest section holds
-// every part, every other section's bars are bars of it with parts or notes taken out, at least two different
-// line-ups of parts); S5 `staggered-boundary` (at a seam some parts, not all, change a beat or more off the bar line;
+// every part, every other section's bars are its bars at the same place with parts or notes taken out, at least
+// two different versions: a part left out, or every part kept with a quarter of the notes gone, Oak's call, X14); S5 `staggered-boundary` (at a seam some parts, not all, change a beat or more off the bar line;
 // a whole-bar move or every part moving by the same amount does not count); S6 `unique-event` (one bar of a part heard
 // once in the piece, inside a section that comes back, never a whole new section). The Make's one required rule is
 // `carved`; the seam, the once-only bar and the arc are suggestions (PLAN §2 rule 1). The Make carves the chords, the
@@ -150,7 +150,7 @@ const CARVED_RULE = (required: boolean) =>
   rule(
     "carved",
     "carved",
-    "The fullest section has every part, every other section plays only what it plays with parts or notes taken out, and the sections play at least two different sets of parts",
+    "The fullest section has every part, every other section plays only what it plays at the same place with parts or notes taken out, and at least one section leaves out a part or a quarter of the notes",
     required,
     { minDiffer: 2 },
   );
@@ -288,7 +288,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Every part plays in every section. Carve the song by deleting only: put `silence` in place of a part in a section, or mask some of its bars. Keep the chorus whole and add no notes. Done when the sections play at least two different sets of parts.",
+          "Every part plays in every section. Carve the song by deleting only: put `silence` in place of a part in a section, or mask some of its bars. Keep the chorus whole and add no notes. Done when at least one section leaves out a part or a quarter of the notes.",
         skills: [{ skill: "F06", w: 1 }],
         code: { starter: S4_STARTER },
         reference: { solutions: [CARVED], bars: 16 },
@@ -541,7 +541,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Every part of your song plays in every section, over Oak's drums. Carve it by deleting only: rest parts with `silence`, mask bars, or take notes out of a part, and keep one section whole. Done when the sections play at least two different sets of parts.",
+          "Every part of your song plays in every section, over Oak's drums. Carve it by deleting only: rest parts with `silence`, mask bars, or take notes out of a part, and keep one section whole. Done when at least one section leaves out a part or a quarter of the notes.",
         skills: [{ skill: "F06", w: 1 }],
         code: { starter: FULL },
         bars: [16, 32],
@@ -574,6 +574,23 @@ export default defineLesson({
             expect: "pass",
           },
           { name: "the lesson's carve", response: { code: CARVED }, expect: "pass" },
+          {
+            name: "every part kept, the intro and outro thinned to the first beat of each bar",
+            response: {
+              code: carved({
+                chords: { Intro: `${LOOP}.mask("<1 0 1 0>")`, Outro: `${LOOP}.mask("<1 1 1 0>")` },
+                bass: {
+                  Intro: 'n("<[0 ~ ~ ~] [5 ~ ~ ~] [3 ~ ~ ~] [4 ~ ~ ~]>").scale("C2:major")',
+                  Outro: 'n("<[0 ~ ~ ~] [5 ~ ~ ~] [3 ~ ~ ~] [4 ~ ~ ~]>").scale("C2:major")',
+                },
+                mel: {
+                  Intro: 'n("<[7 ~ ~ ~] [0 ~ ~ ~] [3 ~ ~ ~] [4 ~ ~ ~]>").scale("C4:major")',
+                  Outro: 'n("<[7 ~ ~ ~] [0 ~ ~ ~] [3 ~ ~ ~] [4 ~ ~ ~]>").scale("C4:major")',
+                },
+              }),
+            },
+            expect: "pass",
+          },
           {
             name: "beyond the brief: thinned notes, a verse and chorus twice, a bar heard once",
             response: {

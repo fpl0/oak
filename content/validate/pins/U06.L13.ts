@@ -8,6 +8,26 @@ import type { Oak2Pin } from "./types.ts";
 const T = "setcpm(122/4)\n\n";
 const SHAPE = "[c3,eb3,g3,bb3]";
 
+// X14 adversarial review (W2 Task 14): the confirmed findings, pinned after the rule or step was fixed.
+const X14: Oak2Pin[] = [
+  {
+    owner: "U06.L13",
+    at: "S6",
+    name: "X14: one chord moved only by octaves",
+    kind: "book-miss",
+    expect: "fail",
+    code: 'setcpm(122/4)\n\nchords: note("[c3,eb3,g3,bb3]").transpose("<0 12 24 12>").s("piano")\n',
+  },
+  {
+    owner: "U06.L13",
+    at: "S6",
+    name: "X14: the shape an octave up and back, nothing else",
+    kind: "book-miss",
+    expect: "fail",
+    code: 'setcpm(122/4)\n\nchords: note("[c3,eb3,g3,bb3]").struct("[~ x]*4").transpose("<0 12>").s("rhodes")\n',
+  },
+];
+
 export default [
   // S4: slide the shape to the target's four heights.
   {
@@ -94,4 +114,5 @@ export default [
     says: "Move the shape yourself",
     code: `${T}chords: chord("<C F G>").voicing().s("piano")`,
   },
+  ...X14,
 ] satisfies Oak2Pin[];

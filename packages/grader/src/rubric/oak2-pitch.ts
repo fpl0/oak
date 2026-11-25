@@ -84,6 +84,7 @@ const sameShape: CorrectionRule = (n, ctx, p) => {
   const events = notes(n, ref);
   if (!events.length) return missing(ctx, ref);
   const first = events[0] as Note;
+  // Oak's call: two heights (the shape and one move) by default.
   const target = num(p, "minShifts", 2);
   if (usesVoicing(ctx.code, new Set(events.map((e) => e.track))))
     return result(
@@ -113,7 +114,8 @@ const sameShape: CorrectionRule = (n, ctx, p) => {
       .map((m, i) => m - (c.midis[i] as number))
       .join(",");
   const wrong = chords.find((c) => shape(c) !== shape(initial));
-  const shifts = new Set(chords.map((c) => c.midis[0])).size;
+  // Heights are pitch classes of the lowest note: the same chord an octave up does not move the harmony (X14, U06.L13).
+  const shifts = new Set(chords.map((c) => mod12(c.midis[0] as number))).size;
   if (wrong)
     return result(
       false,
@@ -161,18 +163,34 @@ const bassNamesChord: CorrectionRule = (n, ctx, p) => {
     const midi = Math.min(...lows.map((e) => e.midi));
     return identifyChord([...slot.midis, midi])[0]?.quality === quality;
   });
-  const value = matches.filter(Boolean).length / slots.length;
+  // Each stack counts for as long as it sounds over that bass (to the next onset or release of either part), so a
+  // wrong bass under most of a bar is not outvoted by short right notes after it (X14, J3.L05).
+  const ends = [
+    ...new Map([...chords, ...bass].flatMap((e) => [e.onset, atEnd(e)]).map((t) => [String(t), t])).values(),
+  ].sort(R.cmp);
+  const lengths = slots.map((slot) => {
+    const next = ends.find((t) => R.lt(slot.at, t));
+    return next ? time(R.sub(next, slot.at)) : 0;
+  });
+  const total = lengths.reduce((a, b) => a + b, 0);
+  const value =
+    total > EPS
+      ? lengths.reduce((a, l, i) => a + (matches[i] ? l : 0), 0) / total
+      : matches.filter(Boolean).length / slots.length;
+  // Oak's call: three quarters of the time by default; a step that says "all through the bar" sets `min: 1`.
+  const min = num(p, "min", 0.75);
+  const met = value >= min - EPS;
   const wrong = slots[matches.indexOf(false)];
   return result(
-    value >= 0.75,
-    value >= 0.75
+    met,
+    met
       ? `The bass makes the requested ${quality} harmony`
       : `Change the bass beneath the chords to make the requested ${quality} harmony`,
     ctx,
     bass[0]?.track ?? bassRef,
     wrong?.at,
     value,
-    0.75,
+    min,
   );
 };
 
@@ -402,6 +420,7 @@ const gapFill: CorrectionRule = (n, ctx, p) => {
       events[0]?.track ?? ref,
       events[0]?.onset,
     );
+  // Oak's calls, not rules of music: a leap is 5 semitones or more, and most (60 %) of the leaps are filled.
   const leap = num(p, "leap", 5);
   const target = num(p, "ratio", 0.6);
   const exempt = arpeggioLeaps(events);
@@ -410,7 +429,14 @@ const gapFill: CorrectionRule = (n, ctx, p) => {
     const interval = next.midi - e.midi;
     if (Math.abs(interval) < leap || exempt.has(i)) return [];
     const after = events[i + 2];
-    return [{ note: next, filled: !!after && (after.midi - next.midi) * interval < 0 }];
+    // Filled: the next note turns back and lands inside the space the leap jumped over, not on or past its start (a
+    // leap straight back is a second leap, X14 U07.L01).
+    return [
+      {
+        note: next,
+        filled: !!after && (after.midi - next.midi) * interval < 0 && (after.midi - e.midi) * interval > 0,
+      },
+    ];
   });
   if (!counted.length)
     return result(

@@ -47,6 +47,7 @@ test("the skill graph is ordered in every legal order (contracts §4.2 rule 1)",
  * flam against them.
  */
 const NO_BAND: Record<string, string> = {
+  "U09.L06": "an ending is heard in the silence after it; a Band playing on would fill it",
   "U11.L07": "the shuffle's swung hats are the learner's; a Band's straight hats would flam against them",
   "U11.L08": "the swung shuffle of U11.L07 again, hats, kick and snare in the learner's code",
   // U13 Rhythm II: the groove is the lesson, so kick, snare and hats are lines of the learner's code in every

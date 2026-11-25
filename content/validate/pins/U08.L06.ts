@@ -129,4 +129,16 @@ const PINS: Oak2Pin[] = [
   },
 ];
 
-export default PINS;
+// X14 adversarial review (W2 Task 14): the confirmed findings, pinned after the rule or step was fixed.
+const X14: Oak2Pin[] = [
+  {
+    owner: "U08.L06",
+    at: "S6",
+    name: "X14: no bass in bar 1, four notes in bar 2 (two a bar on average only)",
+    kind: "extra",
+    expect: "fail",
+    code: 'setcpm(96/4)\n\nkick: s("bd ~ bd ~")\nsnare: s("~ sd ~ sd")\nbass: n("<0 4 5 3>").struct("<[~ ~ ~ ~] [~ [x x] ~ [x x]]>").scale("C2:major").s("ebass").lpf(600)\n',
+  },
+];
+
+export default [...PINS, ...X14];

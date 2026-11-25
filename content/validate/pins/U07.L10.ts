@@ -8,6 +8,18 @@ const T = "setcpm(104/4)\n\n";
 const FROZEN = "<[9 ~ 9 7] [4 ~ 4 4] [7 ~ 7 5] [7 ~ 5 3]>";
 const mel = (pattern: string, tail = "") => `${T}mel: n("${pattern}").scale("C4:major")${tail}.s("piano")`;
 
+// X14 adversarial review (W2 Task 14): the confirmed findings, pinned after the rule or step was fixed.
+const X14: Oak2Pin[] = [
+  {
+    owner: "U07.L10",
+    at: "S5",
+    name: "X14: five of the twelve frozen notes changed (more than one in four)",
+    kind: "extra",
+    expect: "fail",
+    code: 'setcpm(104/4)\n\nmel: n("<[0 ~ 9 7] [0 ~ 4 4] [0 ~ 7 5] [0 ~ 0 3]>").scale("C4:major").s("piano")\n',
+  },
+];
+
 export default [
   {
     owner: "U07.L10",
@@ -43,4 +55,5 @@ export default [
     expect: "pass",
     code: mel("<[9 ~ 9 7] [4 ~ 4 ~] [7 ~ 7 5] [7@2 5 3]>"),
   },
+  ...X14,
 ] satisfies Oak2Pin[];

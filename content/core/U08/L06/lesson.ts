@@ -237,7 +237,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Change the bass's rhythm in `.struct()` so every bass note starts between two kicks, never with one. Keep the kick line as it is. Done when no bass note starts on beat 1 or beat 3 and each bar still has at least two bass notes.",
+          "Change the bass's rhythm in `.struct()` so every bass note starts between two kicks, never with one. Keep the kick line as it is. Done when no bass note starts on beat 1 or beat 3 or rings into one, and each bar still has at least two bass notes.",
         skills: [{ skill: "B04", w: 1 }],
         code: { starter: S4_STARTER },
         reference: { solutions: [S4_SOLUTION], bars: 4 },

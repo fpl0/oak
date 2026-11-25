@@ -15,6 +15,34 @@ const loop = (lpf: string) =>
     `chords: note("<[c4,e4,g4]*8 [c4,f4,a4]*8>").s("sawtooth").decay(.12).sustain(0).lpf(${lpf}).gain(.35)`,
   ].join("\n");
 
+// X14 adversarial review (W2 Task 14): the confirmed findings, pinned after the rule or step was fixed.
+const X14: Oak2Pin[] = [
+  {
+    owner: "A1.L06",
+    at: "S8",
+    name: "X14: cutoff steps of 1 Hz at 18 kHz (no step anyone hears)",
+    kind: "book-miss",
+    expect: "fail",
+    code: 'setcpm(100/4)\n\nkick: s("bd ~ bd ~")\nsnare: s("~ sd ~ sd").room(.5).roomsize(6)\nhats: s("hh*8").gain(.5)\nbass: note("<[c2 ~ c2 g1] [f1 ~ f1 c2]>").s("sawtooth").lpf(500).decay(.2).sustain(0)\nchords: note("<[c4,e4,g4]*8 [c4,f4,a4]*8>")\n  .s("sawtooth")\n  .decay(.12)\n  .sustain(0)\n  .lpf("18000 18001 18002 18003")\n  .gain(.35)\n',
+  },
+  {
+    owner: "A1.L06",
+    at: "S8",
+    name: "X14: held cutoffs 400, 800, 3000: an octave, then more",
+    kind: "book-other-way",
+    expect: "pass",
+    code: 'setcpm(100/4)\n\nkick: s("bd ~ bd ~")\nsnare: s("~ sd ~ sd").room(.5).roomsize(6)\nhats: s("hh*8").gain(.5)\nbass: note("<[c2 ~ c2 g1] [f1 ~ f1 c2]>").s("sawtooth").lpf(500).decay(.2).sustain(0)\nchords: note("<[c4,e4,g4]*8 [c4,f4,a4]*8>")\n  .s("sawtooth")\n  .decay(.12)\n  .sustain(0)\n  .lpf("400 800 3000 3000")\n  .gain(.35)\n',
+  },
+  {
+    owner: "A1.L06",
+    at: "S8",
+    name: "X14: held cutoffs 500, 700, 3000",
+    kind: "book-other-way",
+    expect: "pass",
+    code: 'setcpm(100/4)\n\nkick: s("bd ~ bd ~")\nsnare: s("~ sd ~ sd").room(.5).roomsize(6)\nhats: s("hh*8").gain(.5)\nbass: note("<[c2 ~ c2 g1] [f1 ~ f1 c2]>").s("sawtooth").lpf(500).decay(.2).sustain(0)\nchords: note("<[c4,e4,g4]*8 [c4,f4,a4]*8>")\n  .s("sawtooth")\n  .decay(.12)\n  .sustain(0)\n  .lpf("500 700 3000")\n  .gain(.35)\n',
+  },
+];
+
 export default [
   {
     owner: "A1.L06",
@@ -50,4 +78,5 @@ export default [
     expect: "pass",
     code: loop('"400@3 2000@3 1200@2"'),
   },
+  ...X14,
 ] satisfies Oak2Pin[];

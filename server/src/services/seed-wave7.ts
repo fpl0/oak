@@ -383,7 +383,7 @@ const J = {
   firstTwo: ["J1.L01", "J1.L02"],
   toCp1: ["J1.L03", "J1.L04", "J1.L05", "J2.L01", "J2.L02", "J2.L03"],
   jc1: ["JC1.S1", "JC1.S2"],
-  toJ3L02: ["J2.L04", "J3.L01"],
+  toJ3L02: ["J2.L04", "J3.L01", "J3.L05"],
   toJ4L03: ["J3.L02", "J3.L03", "J3.L04", "J4.L01", "J4.L02"],
   toJc2: ["J4.L03", "J4.L04"],
   jc2: ["JC2.S1", "JC2.S2"],
@@ -393,7 +393,7 @@ const J = {
 };
 const R = {
   firstTwo: ["R1.L01", "R1.L02"],
-  toR2L04: ["R1.L03", "R1.L04", "R1.L05", "R2.L01", "R2.L02", "R2.L03"],
+  toR2L04: ["R1.L03", "R1.L04", "R1.L06", "R1.L05", "R2.L01", "R2.L02", "R2.L03"],
   toR3L02: ["R2.L04", "R2.L05", "R3.L01"],
   toCp: ["R3.L02", "R3.L03", "R3.L04", "R3.L05"],
   rc1: ["RC1.S1", "RC1.S2"],
@@ -401,7 +401,8 @@ const R = {
 };
 const A = {
   side: ["A1.L01", "A1.L02", "A1.L03", "A1.L04"],
-  toA2L04: ["A1.L05", "A1.L06", "A1.L07", "A2.L01", "A2.L02", "A2.L03"],
+  // Oak 2.0 W2: the track order puts A2.L08 and A2.L09 after A2.L02, and A2.L07 after A2.L03.
+  toA2L04: ["A1.L05", "A1.L06", "A1.L07", "A2.L01", "A2.L02", "A2.L08", "A2.L09", "A2.L03", "A2.L07"],
   toCp: ["A2.L04", "A2.L05", "A2.L06"],
   ac1: ["AC1.S1", "AC1.S2"],
   ac1Release: ["AC1.S3"],
@@ -415,6 +416,7 @@ const JAZZ_ALL = [
   "J.CP1",
   ...J.jc1,
   "J3.L01",
+  "J3.L05",
   ...J.toJ4L03,
   ...J.toJc2,
   ...J.jc2,
@@ -528,6 +530,7 @@ export const WAVE7_WALKS: Readonly<Record<string, Wave7Walk>> = {
       ...R.firstTwo,
       "R1.L03",
       "R1.L04",
+      "R1.L06",
       "R1.L05",
       ...A.side,
       ...A.toA2L04,
@@ -596,7 +599,7 @@ export const WAVE7_SEED_DESCRIPTIONS: readonly DevSeedPoint[] = [
   },
   {
     point: "J3.L02 next",
-    description: "Through JC1 released, J2.L04 and J3.L01 (tb.mode.duck, tb.offset). Today: J3.L02.",
+    description: "Through JC1 released, J2.L04, J3.L01 and J3.L05 (tb.mode.duck, tb.offset). Today: J3.L02.",
   },
   { point: "J4.L03 next", description: "J3.L02–L04 and J4.L01–L02 (snd.mutetpt) done. Today: J4.L03." },
   { point: "JC2 open", description: "J4.L03–L04 done. Today: JC2.S1." },
@@ -626,7 +629,7 @@ export const WAVE7_SEED_DESCRIPTIONS: readonly DevSeedPoint[] = [
   },
   {
     point: "R2.L04 next",
-    description: "R1.L03–L05 (snd.clav) and R2.L01–L03 (tb.meter.odd) done. Today: R2.L04.",
+    description: "R1.L03–L06 (snd.clav) and R2.L01–L03 (tb.meter.odd) done. Today: R2.L04.",
   },
   {
     point: "R3.L02 next",
@@ -646,7 +649,8 @@ export const WAVE7_SEED_DESCRIPTIONS: readonly DevSeedPoint[] = [
   { point: "A1.L05 next", description: "Core complete, A1.L01–L04 done, focus A. Today: A1.L05." },
   {
     point: "A2.L04 next",
-    description: "A1.L05–L07 (tb.crush, tb.vib, tb.fm …) and A2.L01–L03 (tb.fscope) done. Today: A2.L04.",
+    description:
+      "A1.L05–L07 (tb.crush, tb.vib, tb.fm …) and A2.L01–L03 and A2.L07–L09 (tb.fscope) done. Today: A2.L04.",
   },
   {
     point: "A.CP due",

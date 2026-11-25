@@ -90,6 +90,13 @@ describe("AC1 kick-bass-composite", () => {
     check(await run("kick-bass-composite", `${kick}\n${offBass.replace(".4", "1")}`), true);
     check(await run("kick-bass-composite", `${kick}\n${offBass}`, { minBassPerBar: 5 }), false);
   });
+  test("minBassPerBar holds in every bar, not on average (X14)", async () => {
+    const uneven = 'bass: note("<[~ ~ ~ ~] [~ [c2 c2] ~ [c2 c2]]>").s("sawtooth").clip(.2)';
+    const half = 'drums: s("bd ~ bd ~")';
+    check(await run("kick-bass-composite", `${half}\n${uneven}`, { minBassPerBar: 2 }), false, /throughout/);
+    const even = 'bass: note("[~ c2 ~ c2]").s("sawtooth").clip(.2)';
+    check(await run("kick-bass-composite", `${half}\n${even}`, { minBassPerBar: 2 }), true);
+  });
 });
 
 describe("AC2 hocket", () => {
@@ -172,6 +179,14 @@ describe("AC3 stepped-control", () => {
   test("passes held values across bars and within a bar", async () => {
     check(await run("stepped-control", `${notes}.lpf("<400 400 2000 2000 800 800>")`, p, { bars: 6 }), true);
     check(await run("stepped-control", `${notes}.cutoff("400 2000 800 400")`, p), true);
+  });
+  test("cutoff jumps are heard in octaves, not as a share of the range (X14)", async () => {
+    const held = (v: string) => `${notes}.lpf("${v}")`;
+    check(await run("stepped-control", held("400 800 3000 3000"), p), true);
+    check(await run("stepped-control", held("500 700 3000 3000"), p), true);
+    check(await run("stepped-control", held("400 800 1600 3200"), p), true);
+    check(await run("stepped-control", held("2000 2010 2020 2030"), p), false, /clearer jumps/);
+    check(await run("stepped-control", held("18000 18001 18002 18003"), p), false, /clearer jumps/);
   });
   test("rejects a sine sweep, constant value, small jumps and single-note holds", async () => {
     check(await run("stepped-control", `${notes}.lpf(sine.range(300, 3000))`, p), false, /Hold/);

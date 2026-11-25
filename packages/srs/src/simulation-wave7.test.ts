@@ -1,14 +1,14 @@
-// The contract gate of §7.4 over the WHOLE course, session 1 to session 259 (contracts 1.8 §2.7): every family of
+// The contract gate of §7.4 over the WHOLE course, session 1 to session 270 (contracts 2.2 §2.7; 259 before Oak 2.0 W2): every family of
 // the catalog as content/families.ts tunes it (Wave 7: stage G, the rest of stage H, the sound families, with the
 // level gates of the track lessons) and every fact deck, the advanced tracks' ten among them (content/decks
-// wave7.ts, one new card a day each), introduced in complete LEGAL orders of all 259 sessions (§7.6):
+// wave7.ts, one new card a day each), introduced in complete LEGAL orders of all 270 sessions (§7.6):
 //   - "early": each track taken the day it opens, so J1–J3 and R1–R3 interleave with U14–U17 and A1.L01–L04 sit
 //     in U03–U09 (the earliest legal route of every track lesson);
 //   - "core, then J R A" and the five other orders of the three tracks after the core;
 //   - two seeded random interleavings of the core and the tracks.
 // Every order runs at 20 minutes, the tightest target (one session a lesson on a 300-second warm-up, Wave 6's
 // measurement); the early order and the first random interleaving run at 15 and 25 minutes as well, each to the
-// end of its 259 sessions (430 at 15 minutes, where a lesson takes two). On every run, over the whole run: p95
+// end of its 270 sessions (430 at 15 minutes, where a lesson takes two). On every run, over the whole run: p95
 // planned warm-up within the budget; at most 12 active perceptual and production families on every day; p95 age
 // of the oldest undelivered due card at most 7 days; every perceptual and production family's first review set
 // within 7 days of the lesson that seeded it, none left unreviewed; the "a little more" review day p95 at most
@@ -98,15 +98,15 @@ const line = ({ order, t, seed, r, end }: Run) => {
 const cards = decks.reduce((n, d) => n + d.cards.length, 0);
 console.log(
   [
-    `Whole course (259 sessions), ${PERCEPTUAL.size} perceptual and production families (${TRACK_FAMILIES.size} opened by the tracks), ${cards} deck cards in ${decks.length} decks: order target seed | sessions to the last of the 259 (day) | planned warm-up p95 s | active max | oldest undelivered p95 d | first-review wait max d (track families) [never] | "a little more" p95 s (§7.4) | review day under d22 p95 s | families seeded / graduated+resting at the end | deck cards not yet dealt | fact cards`,
+    `Whole course (270 sessions), ${PERCEPTUAL.size} perceptual and production families (${TRACK_FAMILIES.size} opened by the tracks), ${cards} deck cards in ${decks.length} decks: order target seed | sessions to the last of the 270 (day) | planned warm-up p95 s | active max | oldest undelivered p95 d | first-review wait max d (track families) [never] | "a little more" p95 s (§7.4) | review day under d22 p95 s | families seeded / graduated+resting at the end | deck cards not yet dealt | fact cards`,
     ...runs.map(line),
   ].join("\n"),
 );
 
-describe("§7.4 over the whole course, 259 sessions, the tracks in every order", () => {
+describe("§7.4 over the whole course, 270 sessions, the tracks in every order", () => {
   test("the orders are complete and legal, and really differ: early interleaves the tracks with U14–U17", () => {
     for (const [name, list] of Object.entries(ORDERS)) {
-      expect([name, list.length, new Set(list).size]).toEqual([name, 259, 259]);
+      expect([name, list.length, new Set(list).size]).toEqual([name, 270, 270]);
     }
     const early = ORDERS.early as readonly string[];
     expect(early.indexOf("J1.L01")).toBeLessThan(early.indexOf("U14.L03"));
@@ -121,7 +121,7 @@ describe("§7.4 over the whole course, 259 sessions, the tracks in every order",
     expect(TRACK_FAMILIES.size).toBeGreaterThanOrEqual(6);
   });
 
-  test("every run reaches session 259 of its order", () => {
+  test("every run reaches session 270 of its order", () => {
     for (const { order, t, seed, end, last } of runs)
       expect([order, t, seed, last, end >= 0]).toEqual([order, t, seed, last, true]);
   });

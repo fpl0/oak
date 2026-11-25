@@ -188,17 +188,32 @@ function staffProblems(s: Shown, m: WorkbenchModel, lead = false): string[] {
       .staves.filter((st) => !st.perc)
       .flatMap((st) => st.voices.flatMap((v) => v.flatMap((n) => n.midis)))
       .sort((a, b) => a - b);
-    const sounding = m.events
-      .filter(
-        (e) =>
-          shown.has(e.id) &&
-          e.midi !== null &&
-          e.onset >= page.startBar &&
-          e.onset < page.startBar + page.bars,
-      )
-      .map((e) => Math.round(e.midi as number))
-      .sort((a, b) => a - b);
-    if (drawn.join() !== sounding.join())
+    const inPage = m.events.filter(
+      (e) =>
+        shown.has(e.id) && e.midi !== null && e.onset >= page.startBar && e.onset < page.startBar + page.bars,
+    );
+    const sounding = inPage.map((e) => Math.round(e.midi as number)).sort((a, b) => a - b);
+    // U07.L11 (Oak 2.0 W2) writes a motif and its copy on two tracks; where they meet in unison (the same pitch at
+    // the same onset: the mirror's axis note, a copy not yet moved) the staff may draw one notehead for both. Only
+    // such a unison may be drawn once; every other sounding note is drawn.
+    const unisons = new Map<number, number>();
+    if (s.where.startsWith("U07.L11")) {
+      const seen = new Map<string, number>();
+      for (const e of inPage) {
+        const k = `${e.onset}|${Math.round(e.midi as number)}`;
+        seen.set(k, (seen.get(k) ?? 0) + 1);
+      }
+      for (const [k, c] of seen) {
+        const midi = Number(k.split("|")[1]);
+        if (c > 1) unisons.set(midi, (unisons.get(midi) ?? 0) + c - 1);
+      }
+    }
+    const left = new Map<number, number>();
+    for (const x of sounding) left.set(x, (left.get(x) ?? 0) + 1);
+    for (const x of drawn) left.set(x, (left.get(x) ?? 0) - 1);
+    const mergedOnly =
+      unisons.size > 0 && [...left].every(([midi, c]) => c >= 0 && c <= (unisons.get(midi) ?? 0));
+    if (drawn.join() !== sounding.join() && !mergedOnly)
       out.push(`${s.where}${lead ? " lead" : ""} page ${p}: drew ${drawn} for ${sounding}`);
     if (!h) continue;
     const check = checkAbc(page.abc.abc);

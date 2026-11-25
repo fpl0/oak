@@ -223,6 +223,9 @@ function exitOrder(pc: Piece, span: [number, number], ctx: RubricContext): strin
   const inLast = tr.filter((t) => t.exit >= span[0]);
   const leavers = inLast.filter((t) => t.exit < last && leaves(t.name, t.exit));
   if (leavers.length < 2) return null;
+  // Oak's call: parts that all stop in the same bar leave together, not in turn, so the leavers need at least two
+  // different last bars; two of them may still stop together as one stage (X14, U09.L06 S4).
+  if (new Set(leavers.map((t) => t.exit)).size < 2) return null;
   for (const a of inLast) for (const b of inLast) if (a.entry < b.entry && a.exit < b.exit) return null;
   const order = [...leavers].sort((a, b) => a.exit - b.exit);
   return `the parts leave one by one at the end (${order.map((t) => `${nameWord(t.name)} after ${barText(t.exit, ctx)}`).join(", ")}), the reverse of how they came in`;
@@ -356,8 +359,8 @@ function finalHit(pc: Piece, ctx: RubricContext, sigs: readonly string[]): strin
 
 /**
  * `ends-on-purpose` (U09.L06 Endings; F1 on CF-A): the last section (the last 4 bars without `arrange()`) ends the
- * piece on purpose, in any of `modes` (default all): **exit-order** ≥ 2 parts stop inside it, in the reverse order of
- * their entry (ties allowed); **shrinking-tail** it loops material heard before it and the loop gets shorter at least
+ * piece on purpose, in any of `modes` (default all): **exit-order** ≥ 2 parts stop inside it, in at least two different
+ * bars, in the reverse order of their entry (two parts may stop together); **shrinking-tail** it loops material heard before it and the loop gets shorter at least
  * once; **build-out** parts are added through it and its final bar is the fullest; **fades-out** its material repeats
  * while the summed level falls by ≥ 9 dB; **cadence** the last chord change is V→I or IV→I, on a bar heard nowhere
  * earlier; **final-hit** a last onset, on a bar heard nowhere earlier, then ≥ 1 beat of silence. A loop that plays
@@ -430,10 +433,18 @@ function densestSection(pc: Piece, sections: readonly SectionInfo[]): SectionInf
 }
 
 /**
+ * A section with every part counts as carved when it plays at most this share of the fullest section's onsets per bar
+ * (Oak's call: the `contrast` and `arc` threshold, a quarter fewer notes, so thinning you can hear counts).
+ */
+const CARVED_THIN = 0.75;
+
+/**
  * `carved` (U09.L07 Carve It; A2.L08 Peak First): every section is the fullest section with parts or notes taken out.
  * The fullest (most onsets per bar) has every track; in every other section each track plays only bars that are its
- * bars in the fullest with notes deleted (a sub-multiset of one of them); at least `minDiffer` (default 2) different
- * line-ups of tracks are heard. An additive build (a verse line the chorus never plays) fails, as do identical sections.
+ * bar at the same place in the fullest with notes deleted (a sub-multiset of it: a bar moved or reordered is new
+ * material); at least `minDiffer` (default 2, Oak's call) different versions of the section are heard, where a version
+ * is a line-up of tracks, or the full line-up thinned to at most `CARVED_THIN` of the fullest's onsets per bar. An
+ * additive build (a verse line the chorus never plays) fails, as do identical sections.
  */
 const carved: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx, p) => {
   const pc = readPiece(n, ctx, p, deps, true);
@@ -463,19 +474,38 @@ const carved: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx, p) =
       if (s === d) continue;
       for (let b = s.startBar; b < s.startBar + s.bars; b++) {
         const keys = barKeys(bars[b] ?? [], b);
-        if (keys.length === 0 || full.some((f) => subMultiset(keys, f))) continue;
+        // The bar at the same place of the fullest section (looped when this section is longer).
+        const same = full[(b - s.startBar) % d.bars] as string[];
+        if (keys.length === 0 || subMultiset(keys, same)) continue;
         return {
           ok: false,
           value: 0,
           target: 1,
-          detail: `${nameWord(t.name)} plays something in the ${sectionName(s)} (${barText(b, ctx)}) that it never plays in the ${sectionName(d)}, your fullest section: make the other sections by taking parts or notes out of the ${sectionName(d)}, not by writing new ones`,
+          detail: `${nameWord(t.name)} plays something in the ${sectionName(s)} (${barText(b, ctx)}) that it does not play at that place in the ${sectionName(d)}, your fullest section: make the other sections by taking parts or notes out of the ${sectionName(d)}, not by writing or moving notes`,
           where: { bar: barNo(b, ctx), track: t.name },
         };
       }
     }
   }
-  const lineups = new Set(sections.map((s) => tracksIn(pc, s.startBar, s.startBar + s.bars).join(",")));
-  const count = lineups.size;
+  const fullLineup = tracksIn(pc, ...dSpan).join(",");
+  const peak = onsetsIn(pc, ...dSpan) / Math.max(1, d.bars);
+  const versions = new Set(
+    sections.map((s) => {
+      const lineup = tracksIn(pc, s.startBar, s.startBar + s.bars).join(",");
+      if (lineup !== fullLineup) return `parts:${lineup}`;
+      const dens = onsetsIn(pc, s.startBar, s.startBar + s.bars) / Math.max(1, s.bars);
+      if (dens > peak * CARVED_THIN + 1e-9) return "full";
+      return `thin:${pc.tracks
+        .map((t) =>
+          perBar(t.events, pc.total)
+            .slice(s.startBar, s.startBar + s.bars)
+            .map((es, i) => barSig(es, s.startBar + i))
+            .join("/"),
+        )
+        .join("|")}`;
+    }),
+  );
+  const count = versions.size;
   if (count < minDiffer)
     return {
       ok: false,
@@ -483,14 +513,14 @@ const carved: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx, p) =
       target: minDiffer,
       detail:
         count === 1
-          ? "every section plays the same parts: take some parts out of some sections"
-          : `${count} different line-ups of parts; the brief asks for ${minDiffer}: take different parts out of another section`,
+          ? "every section plays the same parts with about as many notes: take some parts out of some sections, or thin them out"
+          : `${count} different versions of the ${sectionName(d)}; the brief asks for ${minDiffer}: take different parts or notes out of another section`,
     };
   return {
     ok: true,
     value: count,
     target: minDiffer,
-    detail: `every section is the ${sectionName(d)} with parts taken out (${count} different line-ups of parts)`,
+    detail: `every section is the ${sectionName(d)} with parts or notes taken out (${count} different versions)`,
   };
 };
 
@@ -693,7 +723,8 @@ const staggeredBoundary: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n
  * `unique-event` (U09.L07; A2.L09; Unique Events): at least `min` (default 1) bars hold a moment heard once: a track's
  * bar material (onsets with pitch or drum sound; with `controls`, its sound controls too) heard in exactly that one bar
  * of the piece, inside a section type that occurs ≥ 2 times, and no longer than that bar (the track's bars around it
- * are heard again). A whole section heard once (an intro, a bridge) is no moment.
+ * are heard again); or a stop, the track silent for that one bar while it plays around it and at that place of every
+ * other time the section comes. A whole section heard once (an intro, a bridge) is no moment.
  */
 const uniqueEvent: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx, p) => {
   const pc = readPiece(n, ctx, p, deps, true);
@@ -712,7 +743,24 @@ const uniqueEvent: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx,
     const sigs = bars.map((es, b) => barSig(es, b, { dur: true, controls }));
     const times = new Map<string, number>();
     for (const s of sigs) times.set(s, (times.get(s) ?? 0) + 1);
-    const once = (b: number): boolean => sigs[b] !== "" && times.get(sigs[b] as string) === 1;
+    // A stop is a moment too: an empty bar in a section that comes back, where the track plays in the bars around it
+    // and at the same place of every other time that section comes.
+    const stop = (b: number): boolean => {
+      if (sigs[b] !== "") return false;
+      const s = sectionAtBar(b);
+      if (!s) return false;
+      const near = [b - 1, b + 1].filter((x) => x >= s.startBar && x < s.startBar + s.bars);
+      if (near.length === 0 || near.some((x) => sigs[x] === "")) return false;
+      const others = sections.filter((o) => o !== s && o.label === s.label);
+      return (
+        others.length > 0 &&
+        others.every((o) => {
+          const x = o.startBar + (b - s.startBar);
+          return x < o.startBar + o.bars && sigs[x] !== "";
+        })
+      );
+    };
+    const once = (b: number): boolean => (sigs[b] !== "" && times.get(sigs[b] as string) === 1) || stop(b);
     for (let b = 0; b < pc.total; b++) {
       if (!once(b)) continue;
       const s = sectionAtBar(b);
@@ -722,7 +770,12 @@ const uniqueEvent: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx,
       const hi = s.startBar + s.bars;
       if ((b - 1 >= lo && once(b - 1)) || (b + 1 < hi && once(b + 1))) continue;
       if (!moments.has(b))
-        moments.set(b, `${nameWord(t.name)} plays something once, in ${barText(b, ctx)} (${s.label})`);
+        moments.set(
+          b,
+          sigs[b] === ""
+            ? `${nameWord(t.name)} stops for one bar, once, in ${barText(b, ctx)} (${s.label})`
+            : `${nameWord(t.name)} plays something once, in ${barText(b, ctx)} (${s.label})`,
+        );
     }
   }
   // Sections heard once whose material is new to the piece (an intro, a bridge): new as a whole, no moment.
@@ -756,7 +809,10 @@ const uniqueEvent: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx,
 
 // --- arc ----------------------------------------------------------------------------------------------------
 
-/** A section counts as thinner than the fullest when its onsets per bar are this much lower (the `contrast` default). */
+/**
+ * A section counts as thinner than the fullest when its onsets per bar are at least this much lower (Oak's call, the
+ * `contrast` default `CONTRAST_THRESHOLDS.densityRatio`, read the same way: exactly a quarter fewer counts).
+ */
 const THINNER = 0.25;
 
 /**
@@ -771,7 +827,7 @@ const arc: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx, p) => {
   if (view.kind !== "sections") return { ok: false, detail: NEEDS_SECTIONS };
   const dens = view.sections.map((s) => s.features.density);
   const peak = Math.max(...dens);
-  const thin = dens.map((d) => d < peak * (1 - THINNER) - 1e-9);
+  const thin = dens.map((d) => d <= peak * (1 - THINNER) + 1e-9);
   if (!thin.some(Boolean))
     return {
       ok: false,

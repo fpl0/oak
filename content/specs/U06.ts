@@ -1368,7 +1368,7 @@ export const U06: UnitSpec = {
         tracks: ["drums"],
         flavours: "Drums only from the Band: the chords leave C major, so the Band's chords would clash.",
       },
-      srs: [],
+      srs: [{ family: "fam.har.motion", mode: "seed", level: 1 }],
       singOn: "syllables",
       mistakes: [
         'S4: the signs flipped (`<0 2 -3 -5>`), the four moves in one bar, `.transpose("<0 0 0 0>")`: `harmony.pcset`; the right chords in the inversion nearest the last: `rubric.unmet`; the unchanged starter: `code.unchanged`',
@@ -1383,7 +1383,7 @@ export const U06: UnitSpec = {
       notes: [
         'Seventh-chord names wait for U12: the shape is "a minor chord with one more 3rd on top" and is always written as notes, never `chord("Cm7")`.',
         'Song: a side step ("One chord shape slid by half steps leaves the song\'s key on purpose").',
-        "`fam.har.motion` (voice-led or parallel?) is seeded here by the integrator once X12 lands.",
+        "`fam.har.motion` (voice-led or parallel?) is seeded on S2, the close-or-block cards.",
       ],
     },
   ],

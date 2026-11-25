@@ -81,8 +81,9 @@ const kickBass =
         return result(false, `Let each ${ref} note finish before another bass note starts`);
     }
     const bars = fullBars(n, ctx, deps);
-    const count = bars.reduce((sum, b) => sum + onsets(inBar(bass, b)).length, 0);
-    if (!bars.length || count / bars.length < num(p, "minBassPerBar", 1))
+    // Oak's call: `minBassPerBar` notes in every full bar, not on average (X14, U08.L06 S6 "at least two notes a bar").
+    const min = num(p, "minBassPerBar", 1);
+    if (!bars.length || bars.some((b) => onsets(inBar(bass, b)).length < min))
       return result(false, `Add more ${ref} notes between the kicks throughout the piece`);
     return result(true, "The kick and bass take turns as one line");
   };
@@ -135,6 +136,13 @@ const hocket =
     return result(true, "Both sounds share the complete line without doubling its notes");
   };
 
+/** Controls measured in hertz, whose steps are heard as ratios. */
+const FREQUENCY_KEYS = new Set(["cutoff", "hcutoff", "bandf"]);
+/** Oak's call: the smallest jump between held frequencies, in octaves (a third of an octave). */
+const STEP_OCTAVES = 1 / 3;
+/** Oak's call: the smallest jump between other held values, as a share of their range. */
+const STEP_RANGE = 0.2;
+
 const steppedControl: CorrectionRule = (n, _ctx, p) => {
   const ref = str(p, "track", "@melody");
   const events = heard(n, ref);
@@ -166,7 +174,14 @@ const steppedControl: CorrectionRule = (n, _ctx, p) => {
     return result(false, `Give ${control} on ${ref} more different held values`);
   if (runs.some((r) => r.count < 2))
     return result(false, `Hold each ${control} value on ${ref} for several notes before changing it`);
-  if (runs.some((r, i) => i > 0 && Math.abs(r.value - (runs[i - 1]?.value ?? r.value)) + EPS < range * 0.2))
+  // A clear jump (Oak's call): for a frequency (cutoff, high-pass, band) at least a third of an octave, as the ear hears
+  // pitch; for any other control at least a fifth of the range the values span (X14, A1.L06 S8).
+  const freq = FREQUENCY_KEYS.has(key);
+  const clear = (a: number, b: number): boolean =>
+    freq && a > 0 && b > 0
+      ? Math.abs(Math.log2(b / a)) + EPS >= STEP_OCTAVES
+      : Math.abs(b - a) + EPS >= range * STEP_RANGE;
+  if (runs.some((r, i) => i > 0 && !clear(runs[i - 1]?.value ?? r.value, r.value)))
     return result(false, `Make clearer jumps between the held ${control} values on ${ref}`);
   return result(true, `${control} holds steady on ${ref} then jumps to a new value`);
 };
@@ -247,6 +262,8 @@ function material(events: readonly NEvent[]): string {
     .join("|");
 }
 
+// Oak's calls in `depth-layers`: a background part steps forward in at most one bar in eight, and its louder or
+// busier bars are the measure of "steps forward"; the book names the layers, not these numbers.
 const depthLayers =
   (deps: CorrectionDeps): CorrectionRule =>
   (n, ctx, p) => {
@@ -298,6 +315,8 @@ const depthLayers =
         );
   };
 
+// Oak's calls in `linear-drums`: its density and evenly-spaced-hit thresholds below are Oak's reading of "no single
+// timekeeper", not numbers from the book.
 const linearDrums =
   (deps: CorrectionDeps): CorrectionRule =>
   (n, ctx, p) => {

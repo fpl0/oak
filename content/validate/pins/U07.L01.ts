@@ -8,6 +8,26 @@ const T = "setcpm(92/4)\n\n";
 const gap = (bar1: string, bar3: string) =>
   `${T}mel: n("<${bar1} [2 ~ 1 ~] ${bar3} [4 2 0@2]>").scale("C4:major").s("piano")`;
 
+// X14 adversarial review (W2 Task 14): the confirmed findings, pinned after the rule or step was fixed.
+const X14: Oak2Pin[] = [
+  {
+    owner: "U07.L01",
+    at: "S9",
+    name: "X14: up an octave and straight back down (a yo-yo, not a fill)",
+    kind: "book-miss",
+    expect: "fail",
+    code: 'setcpm(92/4)\n\nmel: n("<[0 ~ 7 0] [2 ~ 1 ~] [2 ~ 9 2] [4 2 0@2]>").scale("C4:major").s("piano")\n',
+  },
+  {
+    owner: "U07.L01",
+    at: "S9",
+    name: "X14: up a 5th and straight back to the start note",
+    kind: "book-miss",
+    expect: "fail",
+    code: 'setcpm(92/4)\n\nmel: n("<[0 ~ 4 0] [2 ~ 1 ~] [2 ~ 6 2] [4 2 0@2]>").scale("C4:major").s("piano")\n',
+  },
+];
+
 export default [
   {
     owner: "U07.L01",
@@ -42,4 +62,5 @@ export default [
     expect: "pass",
     code: gap("[7 4 2 0]", "[2 ~ 7 6]"),
   },
+  ...X14,
 ] satisfies Oak2Pin[];

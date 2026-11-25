@@ -11,9 +11,9 @@
 //
 // What the rules hear (evaluated for this lesson with `identifyChord`, @oak/theory, which `bass-names-chord` uses):
 // D G C F over D reads "m11"; over G, C or F "7sus4"; over A or B♭ "69"; E A D G over E "m11", over A or D "7sus4";
-// G C F over D "m11". The rule reads the quality only, at every moment three or more chord notes sound, and needs
-// three in four of those moments to be the minor 11th: a bass that plays D only on beat 3 of a held chord gets one
-// moment in two. `stack-intervals` reads the gaps between neighbouring notes from the lowest up, so the four right
+// G C F over D "m11". The rule reads the quality only, wherever three or more chord notes sound, weighted by how
+// long each sounds over its bass (X14), and needs the minor 11th for three quarters of that time (Oak's call; S4,
+// "all through the bar", needs all of it): a bass that plays D only on beat 3 of a held chord gets half the bar. `stack-intervals` reads the gaps between neighbouring notes from the lowest up, so the four right
 // letters spread over two octaves (D C G F) are not a stack of 4ths.
 //
 // The corrections-pass standard (AUTHORING §20.2) on every graded step: the reference, three other right answers,
@@ -68,19 +68,20 @@ const STACK_SOLUTION = stackAnswer(chords(LOOP));
 
 /** One stack on D, held a bar at a time, over a bass on G and C: G7sus all through. */
 const HELD_LINE = `chords: note("${ON_D}").s("rhodes")`;
-const BASS_STARTER = code(RIDE, HELD_LINE, 'bass: note("⟪[g1 c2]⟫").s("upright")');
-const bassAnswer = (notes: string) => code(RIDE, HELD_LINE, bass(notes));
+// STYLE rule 3: drums, then bass, then chords (X14: a learner who moved the bass up tripped the edit check).
+const BASS_STARTER = code(RIDE, 'bass: note("⟪[g1 c2]⟫").s("upright")', HELD_LINE);
+const bassAnswer = (notes: string) => code(RIDE, bass(notes), HELD_LINE);
 const BASS_SOLUTION = bassAnswer("[d2 d2]");
 
 /** Both graded steps' and the Make's chord-naming rule: the bass makes each stack a minor 11th. */
-const minorEleven = (label: string): RubricRule => ({
+const minorEleven = (label: string, min = 0.75): RubricRule => ({
   id: "bass-names-m11",
   label,
   required: true,
   skills: ["J09"],
   rule: "custom",
   fn: "bass-names-chord",
-  params: { chords: "chords", bass: "bass", quality: "m11" },
+  params: { chords: "chords", bass: "bass", quality: "m11", min },
 });
 
 // ---- S5: which one is home -----------------------------------------------------------------------------------
@@ -348,7 +349,9 @@ export default defineLesson({
         // in three moments of four. D only on beat 3, or D and its 5th, fail; D an octave lower passes.
         matcher: {
           m: "rubric",
-          rules: [minorEleven("The bass under the stack makes it a minor 11th chord, all through the bar")],
+          rules: [
+            minorEleven("The bass under the stack makes it a minor 11th chord, all through the bar", 1),
+          ],
         },
         constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
         target: { audible: true },
@@ -364,7 +367,7 @@ export default defineLesson({
         tests: [
           { name: "reference", response: { code: BASS_SOLUTION }, expect: "pass" },
           { name: "one D held all bar", response: { code: bassAnswer("d2") }, expect: "pass" },
-          { name: "D an octave lower", response: { code: bassAnswer("d1") }, expect: "pass" },
+          { name: "D on every beat", response: { code: bassAnswer("[d2 d2 d2 d2]") }, expect: "pass" },
           { name: "D and the D above", response: { code: bassAnswer("[d2 d3]") }, expect: "pass" },
           {
             name: "unchanged",
@@ -386,7 +389,7 @@ export default defineLesson({
           },
           {
             name: "the stack changed instead: a D chord in 3rds over the old bass",
-            response: { code: code(RIDE, 'chords: note("[d3,f3,a3,c4]").s("rhodes")', bass("[g1 c2]")) },
+            response: { code: code(RIDE, bass("[g1 c2]"), 'chords: note("[d3,f3,a3,c4]").s("rhodes")') },
             expect: "fail",
             feedback: ["code.edit-outside"],
           },
@@ -463,7 +466,7 @@ export default defineLesson({
         saveAs: "sketch",
         rubric: [
           minorEleven(
-            "Wherever three or more chord notes sound, the bass under them makes a minor 11th chord, three times in four",
+            "Wherever three or more chord notes sound, the bass under them makes a minor 11th chord for at least three quarters of the time",
           ),
           {
             id: "fourths-or-a-third",

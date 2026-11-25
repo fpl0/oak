@@ -115,9 +115,10 @@ describe("Wave 7: the authored track lessons are here", () => {
     for (const id of EXEMPLARS) expect(ids).toContain(id);
     expect(ids).toEqual(lessonIds);
   });
-  test("all 46 track lessons (J 22, R 15, A1.L05–L07 and A2 9) and the four track checkpoints are graded here", () => {
+  // Oak 2.0 W2 adds J3.L05, R1.L06 and A2.L08 here; A2.L07 and A2.L09 make A 12 when they land (decision 113).
+  test("all 49 track lessons (J 23, R 16, A1.L05–L07 and A2 7) and the four track checkpoints are graded here", () => {
     const by = (re: RegExp) => lessonIds.filter((id) => re.test(id)).length;
-    expect([by(/^J/), by(/^R/), by(/^A/)]).toEqual([22, 15, 9]);
+    expect([by(/^J/), by(/^R/), by(/^A/)]).toEqual([23, 16, 10]);
     expect(CHECKPOINTS.map((c) => c.id as string).sort()).toEqual(["A.CP", "J.CP1", "J.CP2", "R.CP"]);
   });
   test("every graded step of every track lesson pins at least one pass and one mistake", () => {

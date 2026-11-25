@@ -7,6 +7,26 @@ import type { Oak2Pin } from "./types.ts";
 const tempo = "setcpm(96/4)\n\n";
 const drums = (order: string, speeds: string) => `${tempo}drums: s("brk").slice(4, "${order}")${speeds}`;
 
+// X14 adversarial review (W2 Task 14): the confirmed findings, pinned after the rule or step was fixed.
+const X14: Oak2Pin[] = [
+  {
+    owner: "A2.L04",
+    at: "S8",
+    name: "X14: every piece cut to a click with .end(.01): gaps after each",
+    kind: "book-miss",
+    expect: "fail",
+    code: 'setcpm(96/4)\n\ndrums: s("brk").slice(4, "<[0 1 2 3] [0 1 2 3]*2 [0 1]>").speed("<1 2 .5>").end(.01)\n',
+  },
+  {
+    owner: "A2.L04",
+    at: "S8",
+    name: "X14: .end(1): every piece runs on into the next",
+    kind: "book-miss",
+    expect: "fail",
+    code: 'setcpm(96/4)\n\ndrums: s("brk").slice(4, "<[0 1 2 3] [0 1 2 3]*2 [0 1]>").speed("<1 2 .5>").end(1)\n',
+  },
+];
+
 export default [
   {
     owner: "A2.L04",
@@ -50,4 +70,5 @@ export default [
     expect: "pass",
     code: `${tempo}drums: s("brk").speed("<1 2 .5>").slice(4, "<[0 1 2 3] [0 1 2 3]*2 [0 1]>")`,
   },
+  ...X14,
 ] satisfies Oak2Pin[];

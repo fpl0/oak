@@ -71,8 +71,8 @@ const twelve = (o: {
     ],
     [
       "drums: arrange([4, drumsIntro], [4, drumsVerse], [4, drumsOutro])",
-      'chords: arrange([4, chordsIntro], [4, chordsVerse], [4, chordsOutro]).s("piano")',
       'bass: arrange([4, bassIntro], [4, bassVerse], [4, bassOutro]).s("ebass").lpf(600)',
+      'chords: arrange([4, chordsIntro], [4, chordsVerse], [4, chordsOutro]).s("piano")',
       'mel: arrange([4, melIntro], [4, melVerse], [4, melOutro]).s("piano")',
     ],
   );
@@ -140,8 +140,8 @@ const LANDING = song(
   ],
   [
     "drums: arrange([4, drumsVerse], [4, drumsOutro])",
-    'chords: arrange([4, chordsVerse], [4, chordsOutro]).s("piano")',
     'bass: arrange([4, bassVerse], [4, bassOutro]).s("ebass").lpf(600)',
+    'chords: arrange([4, chordsVerse], [4, chordsOutro]).s("piano")',
     'mel: arrange([4, melVerse], [4, melOutro]).s("piano")',
   ],
 );
@@ -387,7 +387,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "In the intro the chords come in first, then the bass, then the tune. In the last four bars, make them leave in the reverse order, tune first: add a `.mask()` in each highlighted place. Done when at least two of them stop before the last bar, and none stops before a part that came in after it.",
+          "In the intro the chords come in first, then the bass, then the tune. In the last four bars, make them leave in the reverse order, tune first: add a `.mask()` in each highlighted place. Done when they stop in at least two different bars before the last one, and none stops before a part that came in after it.",
         skills: [{ skill: "F06", w: 1 }],
         code: { starter: S4_STARTER },
         reference: { solutions: [S4_SOLUTION], bars: 12 },
@@ -396,7 +396,7 @@ export default defineLesson({
           rules: [
             ENDS(
               ["exit-order"],
-              "In the last section at least two parts stop before the end, and none stops before a part that came in after it",
+              "In the last section parts stop before the end in at least two different bars, and none stops before a part that came in after it",
               true,
             ),
           ],
@@ -478,7 +478,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "The outro plays the phrase's last bar, G E D C, four times. Rewrite the highlighted pattern as four bars inside `< >`: that bar twice, then its second half twice in one bar, then its last note four times. Done when each repeat of the loop is shorter than the one before.",
+          "The outro plays the phrase's last bar, G E D C, four times. Rewrite the highlighted pattern as four bars inside `< >`: that bar twice, then its second half twice in one bar, then its last note four times. Done when the loop gets shorter after its first two bars, and again at the end.",
         skills: [{ skill: "F06", w: 1 }],
         code: { starter: S5_STARTER },
         reference: { solutions: [SHRINKING], bars: 8 },
@@ -595,7 +595,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "The eight-bar outro plays the verse twice, and the song just stops. Rewrite the outro so it ends on purpose: let the parts leave in turn, shrink a loop of the last bar, fade a repeating loop, or land on a new last bar with C after G or one final hit. Done when the checklist says so.",
+          "The eight-bar outro plays the verse twice, and the song just stops. Rewrite the outro so it ends on purpose: let the parts leave in turn, shrink a loop of the last bar, fade a repeating loop, or land on a new last bar with C after G or one final hit. Done when it ends one of those ways.",
         skills: [{ skill: "F06", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [16, 32],

@@ -165,7 +165,8 @@ describe("§7.4 over the whole core with the U12–U17 families and decks", () =
       ].sort(),
     );
     expect(END).toBe("CF-A.S4");
-    expect(defaultOrder.length).toBe(185);
+    // 185 before Oak 2.0 W2's five core lessons and one more gym slot (contracts 2.2).
+    expect(defaultOrder.length).toBe(191);
     // Every level gate of a core lesson names a session of the order (a gate on a lesson nobody reaches would
     // hold a family at its level for ever).
     for (const [id, gates] of Object.entries(catalog.levelGates))
@@ -179,7 +180,7 @@ describe("§7.4 over the whole core with the U12–U17 families and decks", () =
       expect([t, seed, w.wave6Seeded]).toEqual([t, seed, WAVE6_FAMILIES.size]);
       // 125 lessons, two sessions each at 15 minutes, and 60 other sessions; light sessions after a long break add a few.
       if (t === 15) expect(w.sessions).toBeGreaterThanOrEqual(125 * 2 + 60);
-      else expect(w.sessions).toBeGreaterThanOrEqual(185);
+      else expect(w.sessions).toBeGreaterThanOrEqual(191);
     }
   });
 

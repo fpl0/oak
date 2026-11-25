@@ -361,7 +361,7 @@ export const U07: UnitSpec = {
         tracks: ["drums"],
         flavours: "Drums only from the Band; the motif is the learner's `piano`, the copy `rhodes`.",
       },
-      srs: [],
+      srs: [{ family: "fam.code.functions", mode: "review-if-due", level: 4 }],
       singOn: "syllables",
       mistakes: [
         "S4: a copy moved up instead of mirrored, or only the first two numbers mirrored: `rubric.unmet`; the motif mirrored instead of the copy: `melody.wrong-degree`; the unchanged starter: `code.unchanged`",
@@ -376,7 +376,7 @@ export const U07: UnitSpec = {
       notes: [
         "The motif `0 2 4@2 3 1 ~ ~` (C E G~ F D, rest) has an uneven rhythm on purpose: a rotation (order moved, rhythm kept) and a time shift (rhythm moved, order kept) then sound different and the rules tell them apart (evaluated: onsets 0, 1/8, 1/4, 1/2, 5/8; shifted an eighth, 1/8 … 3/4).",
         "Song: a take of `chorus1` (lead, vox), from Oak's starter; it replaces U07.L02's take there (later takes override earlier ones). Opening from U07.L02's saved code was not chosen: a four-bar sequence cannot be shifted in time by hand without crossing bar lines.",
-        "`fam.code.functions` (inversion, rotation, time shift) is seeded here by the integrator once X12 lands.",
+        "`fam.code.functions` (inversion, rotation, time shift): its level 4 categories open with this lesson; S5 reviews the family if due.",
       ],
     },
     {

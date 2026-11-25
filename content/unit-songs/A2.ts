@@ -1024,7 +1024,12 @@ export const A2_SONG = defineUnitSong({
       ["lead", "pad", "chords", "bass"],
       "Your chorus, with more notes in every bar than its verse, plays the song's first chorus.",
     ),
-    { lesson: "A2.L08", kind: "side", reason: "Placeholder until this lesson is written." },
+    {
+      lesson: "A2.L08",
+      kind: "side",
+      reason:
+        "Peak First builds a whole arrangement of its own, down from its chorus, so it stays a sketch beside the song.",
+    },
     { lesson: "A2.L09", kind: "side", reason: "Placeholder until this lesson is written." },
     take(
       "A2.L03",

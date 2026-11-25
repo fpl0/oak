@@ -102,7 +102,7 @@ const PINS: Oak2Pin[] = [
     name: "the tune drops out and comes back: no part has left for good",
     kind: "book-miss",
     expect: "fail",
-    says: "In the last section at least two parts stop before the end",
+    says: "In the last section parts stop before the end in at least two different bars",
     code: s4(
       `${CLOSE_MEL}.mask("<1 0 1 0>")`,
       `${CLOSE_ROOTS}.mask("<1 1 0 0>")`,
@@ -218,4 +218,24 @@ const PINS: Oak2Pin[] = [
   },
 ];
 
-export default PINS;
+// X14 adversarial review (W2 Task 14): the confirmed findings, pinned after the rule or step was fixed.
+const X14: Oak2Pin[] = [
+  {
+    owner: "U09.L06",
+    at: "S4",
+    name: "X14: tune, bass and chords all stop after the same bar while the drums play on",
+    kind: "book-miss",
+    expect: "fail",
+    code: 'setcpm(100/4)\n\nconst chordsIntro = chord("<C Am F G>").voicing()\nconst chordsVerse = chord("<C Am F G>").voicing()\nconst chordsOutro = chord("<F G C C>").voicing().mask("<1 1 0 0>")\nconst bassIntro = n("<0 5 3 4>").scale("C2:major").mask("<0 1 1 1>")\nconst bassVerse = n("<0 5 3 4>").scale("C2:major")\nconst bassOutro = n("<3 4 0 0>").scale("C2:major").mask("<1 1 0 0>")\nconst melIntro = n("<~ ~ [7 ~ 4 2] [0 ~ 2 ~]>").scale("C4:major")\nconst melVerse = n("<[7 ~ 4 2] [0 ~ 2 ~] [3 ~ 5 3] [4 ~ ~ ~]>").scale("C4:major")\nconst melOutro = n("<[5 ~ 3 ~] [6 ~ 4 ~] [7 ~ 4 2] [0 ~ ~ ~]>").scale("C4:major").mask("<1 1 0 0>")\nconst drumsIntro = s("bd hh sd hh bd hh sd hh").gain("[.8 .4]*4")\nconst drumsVerse = s("bd hh sd hh bd hh sd hh").gain("[.8 .4]*4")\nconst drumsOutro = s("<[bd hh sd hh bd hh sd hh]!3 [bd ~ ~ ~]>").gain("[.8 .4]*4")\n\ndrums: arrange([4, drumsIntro], [4, drumsVerse], [4, drumsOutro])\nchords: arrange([4, chordsIntro], [4, chordsVerse], [4, chordsOutro]).s("piano")\nbass: arrange([4, bassIntro], [4, bassVerse], [4, bassOutro]).s("ebass").lpf(600)\nmel: arrange([4, melIntro], [4, melVerse], [4, melOutro]).s("piano")\n',
+  },
+  {
+    owner: "U09.L06",
+    at: "S4",
+    name: "X14: tune and bass stop together, the chords a bar later: a two-stage exit counts (Oak's call, decisions)",
+    kind: "extra",
+    expect: "pass",
+    code: 'setcpm(100/4)\n\nconst chordsIntro = chord("<C Am F G>").voicing()\nconst chordsVerse = chordsIntro\nconst chordsOutro = chord("<F G C C>").voicing().mask("<1 1 1 0>")\nconst bassIntro = n("<0 5 3 4>").scale("C2:major").mask("<0 1 1 1>")\nconst bassVerse = n("<0 5 3 4>").scale("C2:major")\nconst bassOutro = n("<3 4 0 0>").scale("C2:major").mask("<1 0 0 0>")\nconst melIntro = n("<~ ~ [7 ~ 4 2] [0 ~ 2 ~]>").scale("C4:major")\nconst melVerse = n("<[7 ~ 4 2] [0 ~ 2 ~] [3 ~ 5 3] [4 ~ ~ ~]>").scale("C4:major")\nconst melOutro = n("<[5 ~ 3 ~] [6 ~ 4 ~] [7 ~ 4 2] [0 ~ ~ ~]>").scale("C4:major").mask("<1 0 0 0>")\nconst drumsIntro = s("bd hh sd hh bd hh sd hh").gain("[.8 .4]*4")\nconst drumsVerse = drumsIntro\nconst drumsOutro = s("<[bd hh sd hh bd hh sd hh]!3 [bd ~ ~ ~]>").gain("[.8 .4]*4")\n\ndrums: arrange([4, drumsIntro], [4, drumsVerse], [4, drumsOutro])\nbass: arrange([4, bassIntro], [4, bassVerse], [4, bassOutro]).s("ebass").lpf(600)\nchords: arrange([4, chordsIntro], [4, chordsVerse], [4, chordsOutro]).s("piano")\nmel: arrange([4, melIntro], [4, melVerse], [4, melOutro]).s("piano")\n',
+  },
+];
+
+export default [...PINS, ...X14];

@@ -14,9 +14,29 @@ const chords = (stacks: string, tail = COMP) => `chords: note("<${stacks}>")${ta
 const s3 = (line: string) => `${T}${RIDE}\n${LOOP_BASS}\n${line}`;
 /** S4: one stack of 4ths on D held through each bar; the learner's bass decides its name. */
 const HELD = 'chords: note("[d3,g3,c4,f4]").s("rhodes")';
-const s4 = (bass: string) => `${T}${RIDE}\n${HELD}\nbass: note("${bass}").s("upright")`;
+const s4 = (bass: string) => `${T}${RIDE}\nbass: note("${bass}").s("upright")\n${HELD}`;
 const make = (stacks: string, bass: string, tail = COMP) =>
   `${T}${chords(stacks, tail)}\nbass: note("<${bass}>").s("upright")`;
+
+// X14 adversarial review (W2 Task 14): the confirmed findings, pinned after the rule or step was fixed.
+const X14: Oak2Pin[] = [
+  {
+    owner: "J3.L05",
+    at: "S6",
+    name: "X14: G (or A) under three quarters of every bar, four short Ds (or Es) after",
+    kind: "book-miss",
+    expect: "fail",
+    code: 'setcpm(132/4)\n\nbass: note("<[g1@12 d2 d2 d2 d2] [g1@12 d2 d2 d2 d2] [a1@12 e2 e2 e2 e2] [g1@12 d2 d2 d2 d2]>")\n  .s("upright")\nchords: note("<[d3,g3,c4,f4] [d3,g3,c4,f4] [e3,a3,d4,g4] [d3,g3,c4,f4]>")\n  .s("rhodes")\n',
+  },
+  {
+    owner: "J3.L05",
+    at: "S4",
+    name: "X14: D under three beats, G on beat 4 (not all through the bar)",
+    kind: "book-miss",
+    expect: "fail",
+    code: s4("[d2 d2 d2 g1]"),
+  },
+];
 
 export default [
   // ---- S3: build the stacks ----------------------------------------------------------------------------------
@@ -91,4 +111,5 @@ export default [
     expect: "pass",
     code: make("[g3,c4,f4] [g3,c4,f4] [a3,d4,g4] [g3,c4,f4]", "d2 d2 e2 d2"),
   },
+  ...X14,
 ] satisfies Oak2Pin[];

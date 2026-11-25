@@ -323,6 +323,7 @@ export default defineLesson({
           ],
         },
         correct: { choice: ["kept"] },
+        srs: [{ family: "fam.code.functions", mode: "review-if-due" }],
         feedbackText: {
           "id.wrong":
             "Card A is `.rev()`: it turns the whole bar round, so it starts with the rest and ends on a long note. Card B keeps the motif's rhythm. Play both again.",

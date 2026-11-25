@@ -1,6 +1,7 @@
 // Peak first: write the complete palette before deciding where its parts sit out.
 // The Make starts with bass and chords, unlike U09.L07's everything-everywhere starter.
-// `carved` accepts deleted notes, but minDiffer counts distinct sets of playing tracks.
+// `carved` accepts deleted notes in place; minDiffer counts versions of the peak: a part left out, or every part kept
+// with a quarter of the notes gone (Oak's call, X14). A bar moved to another place is new material and fails.
 // The arc is a suggestion: starting with the peak must still pass the required rule.
 import { defineLesson, type HintLadder, type RubricRule, type TestCase } from "@oak/content-kit";
 
@@ -95,7 +96,7 @@ const RICH = song(CARVING, { ...FULL, mel: 'n("<[0 2 4 7] [2 0 2 4] [4 2 6 4] [1
 const CARVED: RubricRule = {
   id: "carved-from-peak",
   label:
-    "Every section is the fullest one with parts or notes taken away; at least two sections differ in which parts play",
+    "Every section is the fullest one with parts or notes taken away, each bar at its own place; at least one section leaves out a part or a quarter of the notes",
   required: true,
   skills: ["D09", "F05", "F06"],
   rule: "custom",
@@ -165,7 +166,8 @@ export default defineLesson({
       id: "S1",
       kind: "listen",
       title: "Start with everything",
-      minutes: 0.5,
+      // 4 + 16 bars at 90 BPM is 53 s of listening: 1.25 minutes keeps it under 85 % of the step (X14 integration).
+      minutes: 1.25,
       ui: { panels: ROLL, band: DRUMS },
       exercise: {
         kind: "listen",
@@ -266,7 +268,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Make the intro, verse and outro from the chorus by taking parts or notes away, using silence or a mask. Add nothing and keep the chorus full. Done when at least two sections differ in which parts play and none plays a note absent from the chorus.",
+          "Make the intro, verse and outro from the chorus by taking parts or notes away, using silence or a mask. Add nothing and keep the chorus full. Done when at least one section leaves out a part or a quarter of the notes and none plays a note the chorus does not play at that place.",
         skills: [
           { skill: "D09", w: 0.5 },
           { skill: "F05", w: 0.5 },
@@ -348,7 +350,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Write your own fullest section in the Chorus consts, then make the intro, verse and outro by taking parts or notes away. The bass and chords are a starting point. Done when every section uses only the fullest section's material and at least two sections differ in which parts play.",
+          "Write your own fullest section in the Chorus consts, then make the intro, verse and outro by taking parts or notes away. The bass and chords are a starting point. Done when every section plays only what the fullest section plays at the same place, and at least one section leaves out a part or a quarter of the notes.",
         skills: [
           { skill: "D09", w: 0.5 },
           { skill: "F06", w: 0.5 },

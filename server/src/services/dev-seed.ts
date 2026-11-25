@@ -359,13 +359,14 @@ export function planSeed(point: string, order: readonly string[]): SeedPlan {
       extra: { kind: "ladder-song", level: 6, realism: 1 },
       gapDays: null,
     }),
+    // U09.L03, the day before GYM.05 since Oak 2.0 W2 moved the slots (it was U09.L04).
     "ladder level-up due": () => ({
-      upTo: inOrder("U09.L04"),
+      upTo: inOrder("U09.L03"),
       extra: { kind: "ladder-levelup" },
       gapDays: null,
     }),
     "ladder realism-up due": () => ({
-      upTo: inOrder("U09.L04"),
+      upTo: inOrder("U09.L03"),
       extra: { kind: "ladder-realism" },
       gapDays: null,
     }),

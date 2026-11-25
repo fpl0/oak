@@ -145,6 +145,7 @@ export default defineLesson({
           ],
         },
         correct: { choice: ["block"] },
+        srs: [{ family: "fam.har.motion", mode: "seed" }],
         feedbackText: {
           "id.wrong":
             "Card A keeps its notes close: from bar 1 to bar 2 the C and the Eb stay put. Card B lifts all four notes together. Play both again.",

@@ -224,4 +224,40 @@ const PINS: Oak2Pin[] = [
   },
 ];
 
-export default PINS;
+// X14 adversarial review (W2 Task 14): the confirmed findings, pinned after the rule or step was fixed.
+const X14: Oak2Pin[] = [
+  {
+    owner: "U09.L07",
+    at: "S4",
+    name: "X14: the intro plays the chorus chords in another order (bars moved, not deleted)",
+    kind: "book-miss",
+    expect: "fail",
+    code: 'setcpm(100/4)\n\nconst chordsIntro = chord("<G F Am C>").voicing()\nconst chordsVerse = chord("<C Am F G>").voicing()\nconst chordsChorus = chordsVerse\nconst chordsOutro = chordsVerse\nconst bassVerse = n("<[0 ~ 0 0] [5 ~ 5 5] [3 ~ 3 3] [4 ~ 4 4]>").scale("C2:major")\nconst bassChorus = bassVerse\nconst melChorus = n("<[7 ~ 4 2] [0 ~ 2 ~] [3 ~ 5 3] [4 ~ ~ ~]>").scale("C4:major")\nconst melOutro = melChorus\n\nbass: arrange([4, silence], [4, bassVerse], [4, bassChorus], [4, silence]).s("ebass").lpf(600)\nchords: arrange([4, chordsIntro], [4, chordsVerse], [4, chordsChorus], [4, chordsOutro]).s("piano")\nmel: arrange([4, silence], [4, silence], [4, melChorus], [4, melOutro]).s("piano")\n',
+  },
+  {
+    owner: "U09.L07",
+    at: "S4",
+    name: "X14: every part kept, each thinned by deleting notes, four clearly different sections",
+    kind: "book-other-way",
+    expect: "pass",
+    code: 'setcpm(100/4)\n\nconst chordsIntro = chord("<C Am F G>").voicing().mask("<1 0 1 0>")\nconst chordsVerse = chord("<C Am F G>").voicing()\nconst chordsChorus = chord("<C Am F G>").voicing()\nconst chordsOutro = chord("<C Am F G>").voicing().mask("<1 1 1 0>")\nconst bassIntro = n("<[0 ~ ~ ~] [5 ~ ~ ~] [3 ~ ~ ~] [4 ~ ~ ~]>").scale("C2:major")\nconst bassVerse = n("<[0 ~ 0 ~] [5 ~ 5 ~] [3 ~ 3 ~] [4 ~ 4 ~]>").scale("C2:major")\nconst bassChorus = n("<[0 ~ 0 0] [5 ~ 5 5] [3 ~ 3 3] [4 ~ 4 4]>").scale("C2:major")\nconst bassOutro = n("<[0 ~ ~ ~] [5 ~ ~ ~] [3 ~ ~ ~] [4 ~ ~ ~]>").scale("C2:major")\nconst melIntro = n("<[7 ~ ~ ~] [0 ~ ~ ~] [3 ~ ~ ~] [4 ~ ~ ~]>").scale("C4:major")\nconst melVerse = n("<[7 ~ 4 ~] [0 ~ 2 ~] [3 ~ 5 ~] [4 ~ ~ ~]>").scale("C4:major")\nconst melChorus = n("<[7 ~ 4 2] [0 ~ 2 ~] [3 ~ 5 3] [4 ~ ~ ~]>").scale("C4:major")\nconst melOutro = n("<[7 ~ ~ ~] [0 ~ ~ ~] [3 ~ ~ ~] [4 ~ ~ ~]>").scale("C4:major")\n\nchords: arrange([4, chordsIntro], [4, chordsVerse], [4, chordsChorus], [4, chordsOutro]).s("piano")\nbass: arrange([4, bassIntro], [4, bassVerse], [4, bassChorus], [4, bassOutro]).s("ebass").lpf(600)\nmel: arrange([4, melIntro], [4, melVerse], [4, melChorus], [4, melOutro]).s("piano")\n',
+  },
+  {
+    owner: "U09.L07",
+    at: "S6",
+    name: "X14: a drum stop, the drums masked out for bar 12 only",
+    kind: "book-other-way",
+    expect: "pass",
+    code: 'setcpm(100/4)\n\nconst chordsVerse = chord("<C Am F G>").voicing()\nconst chordsChorus = chord("<F G C C>").voicing()\nconst bassVerse = n("<0 5 3 4>").scale("C2:major")\nconst bassChorus = n("<[3 3 3 3] [4 4 4 4] [0 0 0 0] [0 0 0 0]>").scale("C2:major")\nconst melVerse = n("<[7 ~ 4 2] [0 ~ 2 ~] [3 ~ 5 3] [4 ~ ~ ~]>").scale("C4:major")\nconst melChorus = n("<[7 ~ 5 ~] [6 ~ 4 ~] [7 ~ 9 7] [7 ~ ~ ~]>").scale("C4:major")\nconst drumsVerse = s("bd hh sd hh bd hh sd hh").gain(".8 .4 .8 .4 .8 .4 .8 .4")\nconst drumsChorus = s("bd hh sd oh bd hh sd oh").gain(".8 .4 .8 .4 .8 .4 .8 .4")\nconst drumsVerse2 = drumsVerse.mask("<1 1 1 0>")\n\ndrums: arrange([4, drumsVerse], [4, drumsChorus], [4, drumsVerse2], [4, drumsChorus])\nchords: arrange([4, chordsVerse], [4, chordsChorus], [4, chordsVerse], [4, chordsChorus]).s("piano")\nbass: arrange([4, bassVerse], [4, bassChorus], [4, bassVerse], [4, bassChorus]).s("ebass").lpf(600)\nmel: arrange([4, melVerse], [4, melChorus], [4, melVerse], [4, melChorus]).s("piano")\n',
+  },
+  {
+    owner: "U09.L07",
+    at: "S7",
+    name: "X14: the intro chords reordered against the chorus (bars moved, not deleted)",
+    kind: "book-miss",
+    expect: "fail",
+    code: 'setcpm(100/4)\n\nconst chordsIntro = chord("<G F Am C>").voicing()\nconst chordsVerse = chord("<C Am F G>").voicing()\nconst chordsChorus = chordsVerse\nconst chordsOutro = chordsVerse\nconst bassIntro = n("<[0 ~ 0 0] [5 ~ 5 5] [3 ~ 3 3] [4 ~ 4 4]>").scale("C2:major")\nconst bassVerse = bassIntro\nconst bassChorus = bassIntro\nconst bassOutro = bassIntro\nconst melChorus = n("<[7 ~ 4 2] [0 ~ 2 ~] [3 ~ 5 3] [4 ~ ~ ~]>").scale("C4:major")\n\nbass: arrange([4, bassIntro], [4, bassVerse], [4, bassChorus], [4, bassOutro]).s("ebass").lpf(600)\nchords: arrange([4, chordsIntro], [4, chordsVerse], [4, chordsChorus], [4, chordsOutro]).s("piano")\nmel: arrange([4, silence], [4, silence], [4, melChorus], [4, silence]).s("piano")\n',
+  },
+];
+
+export default [...PINS, ...X14];

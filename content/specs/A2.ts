@@ -64,6 +64,8 @@ const VOX = "<[~ ~ 0 2] [~ 0 2 ~] [2 ~ ~ 4] [~ 1 ~ -1]>";
 
 export const A2: UnitSpec = {
   unit: "A2",
+  // A2.L07 (X9) and A2.L09 (X11) are in the syllabus but not yet on this branch; their rows join when they merge.
+  covers: ["A2.L01", "A2.L02", "A2.L08", "A2.L03", "A2.L04", "A2.L05", "A2.L06"],
   title: "Arrangement & Mix",
   summary:
     "The second unit of the Arrangement & Sound track (contracts §2.6): six lessons that open after U10.CP and follow A1.L07 in the track's order, then the track checkpoint A.CP over A1–A2 and the two capstones. A1 shaped one sound at a time; A2 shapes how the parts sound together. Each part has a job and a height (A2.L01, the exemplar: registers, why low close chords turn to mud, Oak's spectrum panel); a section can be thin or thick (A2.L02); a second line can answer the tune (A2.L03); a recorded drum break can be cut up and played in a new order (A2.L04); every part gets its level and its room (A2.L05); and one tune can wear two styles (A2.L06). Every lesson works on the A2 loop, a minor loop in the learner's own code over the Band's drums, and every Make ends with that loop (or the learner's own) sounding more like a finished record. A.CP checks it all; AC1 arranges a public-domain tune twice in two genres and AC2 is a neo-soul ballad, the last capstones of the course.",
@@ -303,6 +305,104 @@ export const A2: UnitSpec = {
         'Today offer: "Make your loop breathe: a thin verse and a full chorus around the same tune."',
         "Evaluated: the hook's verse plays 5 or 6 events a bar (a two-note chord, one bass note, the tune's two or three notes), the chorus 24 or 25 (three-note chords four times, eight bass notes, a two-note pad, the tune): the grader's `contrast` density is events per bar over the section (`spanStats`), chord notes counted one by one, so a thicker voicing counts as well as more onsets.",
         '`silence` in `arrange()` (`[4, silence]`) is Strudel\'s empty pattern (evaluated, and linted at A2.L02 with the hook). The form map opens with `panels: ["form"]` (`tb.lens.form`, U09.L02).',
+      ],
+    },
+    {
+      id: "A2.L08",
+      author: "content-lead",
+      idea: "Write the fullest section first, every part you will use playing together, then make every other section by taking parts or notes away from it. The arrangement then changes without a new idea at every turn, and the peak has somewhere to grow from (DeSantis, Arranging as a Subtractive Process; Dramatic Arc).",
+      hook: {
+        hear: "Sixteen bars of the A2 loop as intro, verse, chorus and outro, all cut from one five-part chorus (hats, bass, chords, tune, strings): the hats wait through the intro, the tune and strings sit out the verse, everything plays in the chorus, and bass and chords are left for the outro.",
+        code: `${T()}const hatsChorus = s("hh*8")\nconst bassChorus = note("<a1 f1 c2 g1>")\nconst chordsChorus = n("${CHORDS}")\nconst melChorus = n("${TUNE}")\nconst voxChorus = n("${VOX}")\nconst hatsIntro = silence\nconst bassIntro = bassChorus\nconst chordsIntro = chordsChorus\nconst melIntro = melChorus\nconst voxIntro = voxChorus\nconst hatsVerse = hatsChorus\nconst bassVerse = bassChorus\nconst chordsVerse = chordsChorus\nconst melVerse = silence\nconst voxVerse = silence\nconst hatsOutro = silence\nconst bassOutro = bassChorus\nconst chordsOutro = chordsChorus\nconst melOutro = silence\nconst voxOutro = silence\n\nhats: arrange([4, hatsIntro], [4, hatsVerse], [4, hatsChorus], [4, hatsOutro]).gain(.35)\nbass: arrange([4, bassIntro], [4, bassVerse], [4, bassChorus], [4, bassOutro]).s("ebass").lpf(700)\nchords: arrange([4, chordsIntro], [4, chordsVerse], [4, chordsChorus], [4, chordsOutro]).scale("A3:minor").s("piano").gain(.5)\nmel: arrange([4, melIntro], [4, melVerse], [4, melChorus], [4, melOutro]).scale("A4:minor").s("square").lpf(2000).gain(.5)\nvox: arrange([4, voxIntro], [4, voxVerse], [4, voxChorus], [4, voxOutro]).scale("A3:minor").s("strings").gain(.4)`,
+      },
+      key: Am,
+      meter: "4/4",
+      bpm: BPM,
+      canDo: ["cd.compose.peak-first"],
+      uses: [...BASE, ...L01, "snd.ebass", "tb.arrange", "tb.mask"],
+      steps: [
+        {
+          kind: "listen",
+          exercise: "listen",
+          minutes: 1.25,
+          what: "Start with everything: the five-part chorus alone (4 bars), then the same palette spread over intro, verse, chorus and outro (16 bars).",
+        },
+        {
+          kind: "predict",
+          exercise: "predict",
+          answer: ["number"],
+          minutes: 0.5,
+          what: "Count the verse: how many labelled parts play in the verse alone (`count`: 3, the hats, bass and chords).",
+        },
+        {
+          kind: "investigate",
+          exercise: "run-investigate",
+          answer: ["choice"],
+          minutes: 1,
+          panels: ["form"],
+          what: "Find the omission: which labelled part plays in the chorus but sits out the intro (choice: the hats).",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1.25,
+          graded: true,
+          what: "Carve from the peak: every section plays the full chorus; make the intro, verse and outro by taking parts or notes away. Graded: `custom` `carved { minDiffer: 2 }` (every bar of a section is the chorus's bar at the same place with notes deleted; at least one section leaves out a part or keeps every part with a quarter of the notes gone, Oak's call). Right answers: `silence`, masks, notes erased inside parts, the peak placed first. Wrong: the same part removed everywhere, a new note in the verse, the chorus thinner than a section. Pins: content/validate/pins/A2.L08.ts (an additive build, bars moved to another place, identical sections fail; thinning every part passes).",
+        },
+        {
+          kind: "compare",
+          exercise: "identify",
+          answer: ["choice"],
+          minutes: 0.5,
+          what: "Place the peak: the same four sections in two orders (two audio cards); which builds to the chorus and falls away after it? The pass text names the **dramatic arc** and says opening at full strength is another choice.",
+          term: "term.dramatic-arc",
+        },
+        {
+          kind: "make",
+          exercise: "code-make",
+          answer: ["code"],
+          minutes: 2.75,
+          what: "Your fullest moment: write your own chorus from the bass and chords, then carve the intro, verse and outro from it.",
+        },
+      ],
+      wrapAt: 4,
+      make: {
+        brief:
+          "Write your own fullest section in the Chorus consts, then make the intro, verse and outro by taking parts or notes away. The bass and chords are a starting point.",
+        required: {
+          rule: "custom",
+          label:
+            "Every section is the fullest one with parts or notes taken away, each bar at its own place; at least one section leaves out a part or a quarter of the notes",
+          why: "`carved { minDiffer: 2 }`: the starter (every section the same) fails; a note the chorus does not play at that place fails (an additive build, or a bar moved); a part missing from the fullest section fails.",
+        },
+        suggestions: ["the fullest section with a thinner one before and after it (`custom` `arc`)"],
+        band: "band.aeolian-4bar",
+        tracks: ["drums"],
+        flavours: "The Band's drums in the flavour's kit; the five parts are the learner's.",
+      },
+      srs: [],
+      mistakes: [
+        "S4 and Make: the same part removed from every section, the starter unchanged, a new note in the verse, the chorus losing a part still heard in the verse: `rubric.unmet` with the rule's detail",
+        "S4 unchanged: `code.unchanged`",
+        "S5: the version that opens at full strength: `id.wrong`",
+      ],
+      connects: {
+        back: "A2.L02 thinned a verse so the chorus landed; U09.L07 carved a song that played everything everywhere.",
+        forward:
+          "A2.L09 blurs the seams between the sections carved here; A2.L03 fills a thin section with a second line.",
+      },
+      epr: {
+        enjoyment:
+          "The learner writes the best moment of the song first, then hears four sections come out of it without writing a new note.",
+        pace: "One idea: arrange down from the peak. Texture and density were A2.L02's, sections and masks U09's, seams A2.L09's.",
+        return:
+          "The Coda says: you can build an arrangement down from its fullest section. Next: seams that blur and one surprise.",
+      },
+      notes: [
+        "Oak 2.0 W2, written by Codex X10 (plan `docs/superpowers/plans/2026-11-25-oak2-w2.md` Task 9); this row was added at integration.",
+        'Song: a side step ("Peak First builds a whole arrangement of its own, down from its chorus, so it stays a sketch beside the song.").',
+        "S1 is 1.25 minutes: its two items play 53 seconds at 90 BPM (`wave7-learner.test.ts`, listen items at most 85 % of the step).",
       ],
     },
     {

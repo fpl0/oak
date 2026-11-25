@@ -118,6 +118,13 @@ mel: arrange([4, melVerse], [4, melOutro])`;
     );
     await failsWith("ends-on-purpose", code, /leave one by one/, { modes: ["exit-order"] });
   });
+  test("exit-order: parts that all stop in the same bar leave together, not in turn (X14)", async () => {
+    const code = EXIT.replace(
+      'const melOutro = n("<[0 2 4 2] ~ ~ ~>")',
+      'const melOutro = n("<[0 2 4 2] [4 2 0 ~] ~ ~>")',
+    );
+    await failsWith("ends-on-purpose", code, /leave one by one/, { modes: ["exit-order"] });
+  });
 
   test("fades-out: the repeating outro fades by more than 9 dB", async () => {
     const code = `setcpm(120/4)
@@ -320,7 +327,7 @@ mel: arrange([4, melIntro], [4, melVerse], [4, melChorus])`;
     const r = await failsWith(
       "carved",
       code,
-      /`bass` plays something in the verse .* never plays in the chorus/,
+      /`bass` plays something in the verse .* does not play at that place in the chorus/,
     );
     expect(r.where?.track).toBe("bass");
   });
@@ -337,8 +344,26 @@ mel: arrange([4, melIntro], [4, melVerse], [4, melChorus])`;
       .replace("const melVerse = silence", `const melVerse = ${FULL_MEL}`);
     await failsWith("carved", code, /every section plays the same parts/);
   });
-  test("minDiffer asks for more line-ups", async () => {
-    await failsWith("carved", CARVED, /3 different line-ups.*asks for 4/, { minDiffer: 4 });
+  test("minDiffer asks for more versions", async () => {
+    await failsWith("carved", CARVED, /3 different versions.*asks for 4/, { minDiffer: 4 });
+  });
+  test("a bar moved to another place is new material, not carving (X14 book miss)", async () => {
+    const code = CARVED.replace('const bassVerse = n("<0 4 5 3>")', 'const bassVerse = n("<4 0 3 5>")');
+    await failsWith("carved", code, /`bass` plays something in the verse .* at that place/);
+  });
+  test("every part kept and thinned by a quarter or more is carving too (X14 other way)", async () => {
+    const code = CARVED.replace("const drumsIntro = silence", 'const drumsIntro = s("bd ~ ~ ~")')
+      .replace('const drumsVerse = s("bd sd bd sd")', 'const drumsVerse = s("bd ~ bd ~")')
+      .replace(
+        "const melIntro = silence",
+        'const melIntro = n("<[0 ~ ~ ~] [4 ~ ~ ~]>").scale("C4:major").s("piano")',
+      )
+      .replace(
+        "const melVerse = silence",
+        'const melVerse = n("<[0 ~ 4 ~] [4 ~ 0 ~]>").scale("C4:major").s("piano")',
+      );
+    const r = await passes("carved", code);
+    expect(r.detail).toMatch(/3 different versions/);
   });
   test("edge 1: a named track with no events fails naming it", async () => {
     await failsWith("carved", CARVED, /`keys` plays nothing/, { tracks: ["keys", "bass"] });
@@ -490,6 +515,14 @@ mel: arrange([4, melVerse], [4, melChorus], [4, melVerse], [4, melChorus])`;
   test("nothing heard once fails", async () => {
     await failsWith("unique-event", PLAIN, /nothing happens only once/);
   });
+  test("a one-bar stop in the second verse is a moment too (X14 other way)", async () => {
+    const code = `${BASE}
+const drumsVerse2 = drumsVerse.mask("<1 1 1 0>")
+drums: arrange([4, drumsVerse], [4, drumsChorus], [4, drumsVerse2], [4, drumsChorus])
+mel: arrange([4, melVerse], [4, melChorus], [4, melVerse], [4, melChorus])`;
+    const r = await passes("unique-event", code);
+    expect(r.detail).toMatch(/`drums` stops for one bar, once, in bar 12 \(verse\)/);
+  });
   test("a whole section heard once (a bridge) is no unique event (book miss)", async () => {
     const code = `${BASE}
 const drumsBridge = s("hh*8")
@@ -569,6 +602,13 @@ describe("arc", () => {
   });
   test("flat density fails", async () => {
     await failsWith("arc", piece("mid", "mid", "mid"), /about as busy/);
+  });
+  test("exactly a quarter thinner counts, as in `contrast` (X14)", async () => {
+    const code = `setcpm(120/4)
+const drumsA = s("bd sd bd ~")
+const drumsB = s("bd sd bd sd")
+drums: arrange([2, drumsA], [2, drumsB], [2, drumsA])`;
+    await passes("arc", code);
   });
   test("edge 1: a named track with no events fails naming it", async () => {
     await failsWith("arc", piece("thin", "full", "thin"), /`bass` plays nothing/, { tracks: ["bass"] });

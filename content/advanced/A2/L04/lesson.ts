@@ -486,6 +486,9 @@ export default defineLesson({
               track: "drums",
               controls: [
                 { control: "begin", scale: "exact", tol: 0 },
+                // Where each piece stops: `.end()` unlocks in this lesson, and cutting a piece short or letting it run
+                // into the next is the gap or overlap the step is about (X14).
+                { control: "end", scale: "exact", tol: 0 },
                 { control: "speed", scale: "linear", tol: 0.05 },
               ],
             },

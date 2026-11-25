@@ -103,6 +103,16 @@ describe("same-shape", () => {
   });
 });
 
+describe("same-shape (X14)", () => {
+  test("one chord moved only by octaves does not move the harmony", async () => {
+    await check(
+      "same-shape",
+      piece('chords: note("[c3,eb3,g3,bb3]").transpose("<0 12 24 12>").s("piano")'),
+      false,
+    );
+  });
+});
+
 describe("bass-names-chord", () => {
   const a = piece('bass: note("a1").s("sawtooth")\nchords: note("[e3,a3,d4,g4,c5]").s("piano")');
   const d = piece('bass: note("d2").s("sawtooth")\nchords: note("[a3,d4,g4,c5,f5]").s("piano")');
@@ -134,6 +144,15 @@ describe("bass-names-chord", () => {
     expect(
       await check("bass-names-chord", code.replace("a1 a1 a1 c2", "a1 a1 c2 c2"), false, { quality: "m11" }),
     ).toMatchObject({ value: 0.5, target: 0.75 });
+  });
+  test("weighs each stack by how long it sounds: short right notes do not outvote a long wrong one (X14)", async () => {
+    const code = piece(
+      'bass: note("g1@12 d2 d2 d2 d2").s("sawtooth")\nchords: note("[d3,g3,c4,f4]").s("piano")',
+    );
+    expect(await check("bass-names-chord", code, false, { quality: "m11" })).toMatchObject({ value: 0.25 });
+    const all = piece('bass: note("d2 d2 d2 g1").s("sawtooth")\nchords: note("[d3,g3,c4,f4]").s("piano")');
+    await check("bass-names-chord", all, true, { quality: "m11" });
+    await check("bass-names-chord", all, false, { quality: "m11", min: 1 });
   });
 });
 
@@ -269,6 +288,12 @@ describe("gap-fill", () => {
     await check("gap-fill", piece('mel: note("c3 f#3 c#4 g4 d5").s("piano")'), false, { track: "mel" });
     const r = await check("gap-fill", piece('mel: note("c4 d4 e4 f4").s("piano")'), false, { track: "mel" });
     expect(r.detail).toContain("no leap yet");
+  });
+  test("a leap straight back to its start, or past it, is no fill (X14)", async () => {
+    await check("gap-fill", piece('mel: note("c4 c5 c4 d4").s("piano")'), false, { track: "mel", ratio: 1 });
+    await check("gap-fill", piece('mel: note("c4 g4 c4 d4").s("piano")'), false, { track: "mel", ratio: 1 });
+    await check("gap-fill", piece('mel: note("c4 g4 b3 c4").s("piano")'), false, { track: "mel", ratio: 1 });
+    await check("gap-fill", piece('mel: note("c4 g4 e4 d4").s("piano")'), true, { track: "mel", ratio: 1 });
   });
   test("a terminal leap has no answer and an all-arpeggio line has no eligible leap", async () => {
     await check("gap-fill", piece('mel: note("c4 d4 e4 c5").s("piano")'), false, { track: "mel" });

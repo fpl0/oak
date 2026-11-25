@@ -367,8 +367,10 @@ export default defineLesson({
                 rhythmTol: [1, 16],
                 track: "mel",
               },
-              // Oak's call, kept loose: a quarter of the notes may change.
-              min: 0.75,
+              // Oak's call, kept loose: a quarter of the notes may change. The score is 0.7 × the share of right
+              // pitches + 0.3 × the rhythm, so with the rhythm kept 0.82 is "3 in 4 pitches" as the label says
+              // (0.75 let a third of them change; X14).
+              min: 0.82,
             },
             {
               id: "frozen",
