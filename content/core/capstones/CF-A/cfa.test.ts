@@ -1,10 +1,13 @@
 // CF-A Album Single (contracts §6.6 CF-A, content/specs/CF.md): the brief of content/capstones.ts graded through the
 // real grader in capstone mode, the way the capstone workspace grades a save.
-//   - The rubric: the three required lines of §6.6 (four of the six devices, a bridge, two minutes), the five
-//     suggestions of the spec (never blocking), and the rules each session works on.
+//   - The rubric: the four required lines of §6.6 (four of the six devices, a bridge, two minutes and, since Oak 2.0
+//     W4, an ending on purpose), the five suggestions of the spec and the book's three (seam, once, arc; never
+//     blocking, no skills), and the rules each session works on.
 //   - The plan of CF-A.S1 meets the bridge and the length and has none of the devices.
 //   - One passing piece per shipped flavour with four, five and six devices, each device named with its bar; three
 //     devices fail and the line says which three and which are still open.
+//   - The ending checks the book's point (PLAN §2 rule 4): an outro where the parts leave one by one, one last hit and
+//     a fade pass; a song that just stops and a loop whose last bar is the I it ends every pass on fail that line alone.
 //   - The device list the brief and the card use: the six of `CORE_DEVICES`, each met in a lesson before CF-A.
 import { beforeAll, describe, expect, setDefaultTimeout, test } from "bun:test";
 import type { ComposeBriefEx, GradeResult, KeySpec, SessionId } from "@oak/content-kit";
@@ -73,22 +76,35 @@ beforeAll(async () => {
 });
 
 describe("CF-A's brief", () => {
-  test("three required lines, exactly as contracts §6.6 writes them, then the spec's five suggestions", () => {
+  test("four required lines (§6.6 and W4's ending), then the spec's five suggestions and the book's three", () => {
     expect(brief.rubric.map((r) => [r.id, r.rule, r.required])).toEqual([
       ["devices", "device-count", true],
       ["bridge", "form", true],
       ["duration", "duration-sec", true],
+      ["ending", "custom", true],
       ["groove-lock", "groove-lock", false],
       ["contrast", "contrast", false],
       ["motif", "motif-reuse", false],
       ["chord-tones", "chord-tones-strong", false],
       ["range", "range", false],
+      ["seam", "custom", false],
+      ["once", "custom", false],
+      ["arc", "custom", false],
     ]);
-    const [devices, bridge, duration] = brief.rubric;
+    const [devices, bridge, duration, ending] = brief.rubric;
     expect(devices).toMatchObject({ devices: [...CORE_DEVICES], min: 4 });
     expect(bridge).toMatchObject({ pattern: "*", contains: ["bridge"] });
     expect(duration).toMatchObject({ min: 120 });
+    // Any of U09.L06's endings, graded with the lesson's skill.
+    expect(ending).toMatchObject({ fn: "ends-on-purpose", skills: ["F06"], label: "It ends on purpose" });
+    expect(ending && "params" in ending).toBe(false);
+    expect(brief.rubric.slice(-3).map((r) => [r.id, (r as { fn?: string }).fn, r.skills])).toEqual([
+      ["seam", "staggered-boundary", []],
+      ["once", "unique-event", []],
+      ["arc", "arc", []],
+    ]);
     expect(brief.minDurationSec).toBe(120);
+    expect([cfa?.version, brief.version]).toEqual([2, 2]);
   });
   test("each session works on its own lines; S1 opens the plan; only S4 reviews and releases", () => {
     const ids = new Set(brief.rubric.map((r) => r.id));
@@ -159,8 +175,10 @@ describe("CF-A on the real grader (capstone mode)", () => {
   test("pop, five devices, each with its bar (♭VII beside ♭VI is a borrowed chord, not a modal colour)", async () => {
     const r = await grade(CF_A_PIECES.pop);
     // Its bass is the syncopated-bass device, pushed off a kick on 1 and 3: the groove-lock suggestion stays open.
-    expect([r.status, failing(r)]).toEqual(["pass", ["groove-lock"]]);
-    expect(r.analysis?.durationSec).toBe(134.4);
+    // No seam is blurred and the fullest section is the last chorus, so the seam and arc suggestions stay open too.
+    expect([r.status, failing(r)]).toEqual(["pass", ["groove-lock", "seam", "arc"]]);
+    // 56 bars and the four-bar outro at 100 BPM.
+    expect(r.analysis?.durationSec).toBe(144);
     expect(devices(r)).toEqual({
       "syncopated bass": 1,
       suspension: 4,
@@ -216,7 +234,7 @@ describe("CF-A on the real grader (capstone mode)", () => {
     const r = await grade(CF_A_PIECES.noBridge);
     expect(requiredFailing(r)).toContain("bridge");
     expect(detail(r, "bridge")).toStartWith(
-      "the form is verse chorus verse chorus verse chorus chorus2: there is no bridge yet",
+      "the form is verse chorus verse chorus verse chorus chorus2 outro: there is no bridge yet",
     );
   });
   // Corrections pass (theory-g 1): a device has to be heard. Every line muted is no song, however it is written;
@@ -232,9 +250,43 @@ describe("CF-A on the real grader (capstone mode)", () => {
     expect(muted.diagnostics.map((d) => d.id)).toContain("make.silent");
     expect((await grade(tail(".2"))).status).toBe("pass");
   });
-  test("48 bars at 100 BPM are 115.2 s: `duration` fails alone", async () => {
+  test("44 bars at 100 BPM are 105.6 s: `duration` fails alone", async () => {
     const r = await grade(CF_A_PIECES.short);
     expect(requiredFailing(r)).toEqual(["duration"]);
-    expect(detail(r, "duration")).toBe("115.2 s long; at least 120 s");
+    expect(detail(r, "duration")).toBe("105.6 s long; at least 120 s");
+  });
+});
+
+describe("CF-A's ending (Oak 2.0 W4 F1; DeSantis, Three Ways to End)", () => {
+  test("every passing flavour ends with an outro where the parts leave one by one", async () => {
+    const keyed: [string, KeySpec][] = [
+      [CF_A_PIECES.pop, C],
+      [CF_A_PIECES.six, C],
+      [CF_A_PIECES.indie, C],
+      [CF_A_PIECES.jazzSoul, { tonic: "F", mode: "major" }],
+      [CF_A_PIECES.funk, { tonic: "E", mode: "minor" }],
+    ];
+    for (const [code, key] of keyed) {
+      const r = await grade(code, key);
+      expect([r.status, requiredFailing(r)]).toEqual(["pass", []]);
+      expect((r.rubric ?? []).find((x) => x.ruleId === "ending")?.ok).toBe(true);
+    }
+  });
+  test("one last hit and a fade end on purpose too, though the starter shows neither", async () => {
+    for (const code of [CF_A_PIECES.hit, CF_A_PIECES.fade]) {
+      const r = await grade(code);
+      expect([r.status, requiredFailing(r)]).toEqual(["pass", []]);
+    }
+  });
+  test("a song that keeps every other line and simply stops fails the ending alone", async () => {
+    const r = await grade(CF_A_PIECES.stops);
+    expect([r.status, requiredFailing(r)]).toEqual(["fail", ["ending"]]);
+    expect(r.diagnostics.map((d) => d.id)).toContain("rubric.unmet");
+    expect(detail(r, "ending")).toStartWith("the last section (the chorus) plays on like the rest");
+  });
+  test("a loop whose last bar is the I that ends every pass is no cadence written for the end", async () => {
+    const r = await grade(CF_A_PIECES.loopEnds);
+    expect([r.status, requiredFailing(r)]).toEqual(["fail", ["ending"]]);
+    expect(detail(r, "ending")).toStartWith("the last section (the outro) plays on like the rest");
   });
 });

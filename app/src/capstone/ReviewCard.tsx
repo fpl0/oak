@@ -1,7 +1,9 @@
 // Claude's structured review beside the piece (contracts §10.6, ux §6.5): two or three strengths anchored to bars,
 // the revision(s) with "Try the revision", one listening question, the liner note. Every bar range is a link: it
 // lights those bars on the roll and the staff (and loops them in a Workbench that follows the tutor's bars). The
-// header line says the review never affects pass or fail.
+// header line says the review never affects pass or fail. Oak 2.0 W4 F4: when the learner asked one question, its
+// answer comes first ("Your question, answered"); strengths are shown only when there are some (none is a valid
+// review). A review stored before W4 (no `answer`) renders exactly as before.
 import type { CapstoneReview } from "@oak/api";
 import { clsx } from "clsx";
 import { Check, FilePlus2 } from "lucide-react";
@@ -10,6 +12,8 @@ import { readDone, writeDone } from "../tutor/review-done.ts";
 import { Button } from "../ui/kit/Button.tsx";
 
 export const REVIEW_HEADER = "Claude's comments never affect pass or fail.";
+/** Oak 2.0 W4 F4: the heading over the answer to the learner's question. */
+export const REVIEW_ANSWER_HEADING = "Your question, answered";
 
 export function barsLabel(b: readonly number[]): string {
   const from = b[0] ?? 1;
@@ -77,6 +81,8 @@ export function ReviewCard({
   heading?: string | undefined;
 }) {
   const H = headingLevel === 2 ? "h2" : "h3";
+  const answer =
+    typeof review.answer === "string" && review.answer.trim() !== "" ? review.answer.trim() : null;
   const [done, setDone] = useState<number[]>(() => (doneId ? readDone(doneId) : []));
   const toggle = (i: number) => {
     if (!doneId) return;
@@ -92,17 +98,25 @@ export function ReviewCard({
         </p>
       )}
       <p className="text-text-3">{REVIEW_HEADER}</p>
-      <div>
-        <H className="mb-1 font-sans text-sm font-semibold text-text-2">What works</H>
-        <ul className="flex flex-col gap-1.5" data-testid="review-strengths">
-          {review.strengths.map((s) => (
-            <li key={s.text} className="flex items-start gap-2">
-              <BarLink bars={s.bars} onBars={onBars} className="mt-0.5" />
-              <span>{s.text}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {answer !== null && (
+        <div data-testid="review-answer">
+          <H className="mb-1 font-sans text-sm font-semibold text-text-2">{REVIEW_ANSWER_HEADING}</H>
+          <p className="text-text [overflow-wrap:anywhere]">{answer}</p>
+        </div>
+      )}
+      {review.strengths.length > 0 && (
+        <div>
+          <H className="mb-1 font-sans text-sm font-semibold text-text-2">What works</H>
+          <ul className="flex flex-col gap-1.5" data-testid="review-strengths">
+            {review.strengths.map((s) => (
+              <li key={s.text} className="flex items-start gap-2">
+                <BarLink bars={s.bars} onBars={onBars} className="mt-0.5" />
+                <span>{s.text}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div className="flex flex-col gap-2">
         <H className="font-sans text-sm font-semibold text-text-2">
           {review.revisions.length === 1 ? "One revision to try" : "Revisions to try"}

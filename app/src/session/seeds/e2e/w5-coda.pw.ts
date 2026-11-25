@@ -180,7 +180,8 @@ test("the ladder level-up Coda: earned by the second graded pass, offered once, 
   test.setTimeout(240_000);
   // Ladder L1 at R2 with no graded pass at R2 yet (the "ladder level-up due" seed earned its offer on its own last
   // day, so no session of today could announce it): two days of graded L1 passes at R2 open L2 in the browser.
-  await seed(request, "after U09.L04");
+  // U09.L03: the day before GYM.05 since Oak 2.0 W2 moved the gym slots (decision 103; it was U09.L04).
+  await seed(request, "after U09.L03");
   const before = await api<{ level: number; realism: number; levelUp: unknown }>(
     request,
     "GET",
@@ -624,7 +625,8 @@ test("a gym day on ladder L5: the folk song and its next phrase, explained, and 
   const errors = watch(page);
   await seed(request, "ladder L5");
   const plan = await api<{ kind: string; mapItemId: string }>(request, "GET", "/api/session/today");
-  expect(plan).toMatchObject({ kind: "gym", mapItemId: "GYM.07" });
+  // GYM.08 since Oak 2.0 W2 moved the gym slots (the seed's own description, server/src/services/seed-wave5.ts).
+  expect(plan).toMatchObject({ kind: "gym", mapItemId: "GYM.08" });
   await useUiPrefs(page, { theme: "paper" });
   const open = async (p: Page) => {
     await openToday(p);

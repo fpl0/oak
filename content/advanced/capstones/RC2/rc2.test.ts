@@ -73,6 +73,8 @@ describe("RC2's brief", () => {
       ["bell", "euclid", true],
       ["parts", "tracks", false],
       ["montuno", "custom", false],
+      // Oak 2.0 W4 F1: the book's ending as a suggestion (no skills, never blocks).
+      ["ending", "custom", false],
     ]);
     const [clave, bars, tresillo, poly, , bell] = brief.rubric;
     expect(clave).toMatchObject({ track: "perc", type: "son", direction: "3-2", minBars: 8 });

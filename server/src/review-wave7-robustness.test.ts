@@ -1,5 +1,5 @@
 // Adversarial review of Wave 7 data and scheduling (review:robustness), through the HTTP API on the real course: the
-// random walk of wave7-sim.test.ts to session 259 and beyond, with the misbehaviours a real learner and a flaky
+// random walk of wave7-sim.test.ts to session 270 and beyond, with the misbehaviours a real learner and a flaky
 // network add, each checked against the server's own answers and an independent model of contracts §2.6, §4.3, §7.6:
 //  - a track checkpoint FAILED now and then (gating items at .5): it holds back its track's capstones and nothing else
 //    (§7.6 rule 5), the next track lesson still opens, and the checkpoint comes back until it is passed;
@@ -9,7 +9,7 @@
 //    lesson completed twice, a capstone released twice (one album track), the focus set twice, an unknown focus 400;
 //  - a session ABANDONED after its warm-up (never ended): the next day plans as if it never started;
 //  - the warm-up within the budget of the day's kind on every day, with every family of stages G and H open after the
-//    tracks; the course's sessions never go back and never pass 259;
+//    tracks; the course's sessions never go back and never pass 270;
 //  - the whole course completes exactly once, and stays complete (nothing announced again) across backup → restore,
 //    and on the restored server's next days.
 // `OAK_ROBUST_SEEDS=1,2,3 bun test --isolate server/src/review-wave7-robustness.test.ts` replays any seeds.
@@ -73,17 +73,19 @@ type T = "J" | "R" | "A";
 const ORDER: Record<T, string[]> = {
   J: [
     ...["J1.L01", "J1.L02", "J1.L03", "J1.L04", "J1.L05", "J2.L01", "J2.L02", "J2.L03", "J2.L04", "J.CP1"],
-    ...["JC1.S1", "JC1.S2", "J3.L01", "J3.L02", "J3.L03", "J3.L04", "J4.L01", "J4.L02", "J4.L03", "J4.L04"],
-    ...["JC2.S1", "JC2.S2", "J5.L01", "J5.L02", "J5.L03", "J5.L04", "J5.L05", "J.CP2", "JC3.S1", "JC3.S2"],
-    ...["JC3.S3", "JC4.S1", "JC4.S2", "JC4.S3"],
+    ...["JC1.S1", "JC1.S2", "J3.L01", "J3.L05", "J3.L02", "J3.L03", "J3.L04", "J4.L01", "J4.L02", "J4.L03"],
+    ...["J4.L04", "JC2.S1", "JC2.S2", "J5.L01", "J5.L02", "J5.L03", "J5.L04", "J5.L05", "J.CP2", "JC3.S1"],
+    ...["JC3.S2", "JC3.S3", "JC4.S1", "JC4.S2", "JC4.S3"],
   ],
   R: [
-    ...["R1.L01", "R1.L02", "R1.L03", "R1.L04", "R1.L05", "R2.L01", "R2.L02", "R2.L03", "R2.L04", "R2.L05"],
-    ...["R3.L01", "R3.L02", "R3.L03", "R3.L04", "R3.L05", "R.CP", "RC1.S1", "RC1.S2", "RC2.S1", "RC2.S2"],
+    ...["R1.L01", "R1.L02", "R1.L03", "R1.L04", "R1.L06", "R1.L05", "R2.L01", "R2.L02", "R2.L03", "R2.L04"],
+    ...["R2.L05", "R3.L01", "R3.L02", "R3.L03", "R3.L04", "R3.L05", "R.CP", "RC1.S1", "RC1.S2", "RC2.S1"],
+    ...["RC2.S2"],
   ],
   A: [
-    ...["A1.L01", "A1.L02", "A1.L03", "A1.L04", "A1.L05", "A1.L06", "A1.L07", "A2.L01", "A2.L02", "A2.L03"],
-    ...["A2.L04", "A2.L05", "A2.L06", "A.CP", "AC1.S1", "AC1.S2", "AC1.S3", "AC2.S1", "AC2.S2", "AC2.S3"],
+    ...["A1.L01", "A1.L02", "A1.L03", "A1.L04", "A1.L05", "A1.L06", "A1.L07", "A2.L01", "A2.L02", "A2.L08"],
+    ...["A2.L09", "A2.L03", "A2.L07", "A2.L04", "A2.L05", "A2.L06", "A.CP", "AC1.S1", "AC1.S2", "AC1.S3"],
+    ...["AC2.S1", "AC2.S2", "AC2.S3"],
   ],
 };
 const trackOf = (id: string): T | null =>
@@ -623,7 +625,7 @@ class Sim {
   }
 }
 
-describe("Wave 7 simulation: the three tracks in the learner's order to session 259 and sixty days beyond", () => {
+describe("Wave 7 simulation: the three tracks in the learner's order to session 270 and sixty days beyond", () => {
   for (const p of PROFILES)
     test(`${p.name}: every day per the rules, the whole course completed once, then review days`, async () => {
       const h = await harness({ dev: true, content: course, now: new Date(START).toISOString() });
@@ -689,8 +691,8 @@ describe("Wave 7 simulation: the three tracks in the learner's order to session 
         const whole = await sim.me.api<WholeCourse>("GET", "/api/course/whole");
         expect({ stage: whole.stage, done: whole.sessionsDone, total: whole.sessionsTotal }).toEqual({
           stage: "complete",
-          done: 259,
-          total: 259,
+          done: 270,
+          total: 270,
         });
         expect(whole.album).toMatchObject({ released: 20, total: 20 });
         const progress = await sim.me.api<CourseProgress>("GET", "/api/lessons/progress");

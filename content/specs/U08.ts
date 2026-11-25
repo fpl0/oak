@@ -55,7 +55,7 @@ export const U08: UnitSpec = {
   unit: "U08",
   title: "Bass Lines",
   summary:
-    "Five lessons on the line at the bottom of a song. The bass first plays each chord's root on its downbeat (the floor under the chord), then a three-note vocabulary of root, 5th and octave moved onto each root the way a chord stack is (`n(\"[0 ~ 4 ~]\").add(n(\"<0 4 5 3>\"))`), then approach notes that lead into the next chord a step or a half step away, then a rhythm shared with the kick drum, named once in a `const` and used by both lines. The unit closes by taking bass lines down by ear and choosing the bass's tone (`fingerbass`, the synth-bass recipe, the filter). The learner's genres live on these bass lines: pop's root eighths, rock's root–5th, disco's octave bounce, soul's approach notes, funk's lock with the kick. U08 has no checkpoint of its own: U09.CP covers U08 and U09. U08.L01 sits before U07.CP in the default order (session 76); U08.L02–L05 follow C2 and X1.",
+    "Six lessons on the line at the bottom of a song. The bass first plays each chord's root on its downbeat (the floor under the chord), then a three-note vocabulary of root, 5th and octave moved onto each root the way a chord stack is (`n(\"[0 ~ 4 ~]\").add(n(\"<0 4 5 3>\"))`), then approach notes that lead into the next chord a step or a half step away, then a rhythm shared with the kick drum, named once in a `const` and used by both lines, and, from Oak 2.0 (U08.L06), its opposite: a bass that plays only between the kicks, so kick and bass take turns as one line. The unit closes by taking bass lines down by ear and choosing the bass's tone (`fingerbass`, the synth-bass recipe, the filter). The learner's genres live on these bass lines: pop's root eighths, rock's root–5th, disco's octave bounce, soul's approach notes, funk's lock with the kick. U08 has no checkpoint of its own: U09.CP covers U08 and U09. U08.L01 sits before U07.CP in the default order (session 76); U08.L02–L05 follow C2 and X1.",
   conventions: [
     'A bass line is written in degrees an octave below the chords: `n("<0 4 5 3>").scale("C2:major").s("ebass").lpf(600)` under chords stacked from C3. "The bass takes the chord\'s own number": the number in the chords\' `.add()` is the bass\'s `n` (both count from 0), so the off-by-one of U06 (degree 6 written as 6) is again the realistic mistake, and every graded step that turns chords into a bass pins it (`melody.wrong-degree`).',
     'A bass shape is a cell moved onto each root with `.add()`, exactly like a chord stack (U06.L01): `n("[0 ~ 4 ~]").add(n("<0 4 5 3>"))` is root–5th under I V vi IV. The cell goes on the left (`.add()` keeps the structure of the pattern on its left, U06.L08). Inside a major key the 5th above every root but vii° is a perfect 5th (n + 4) and the octave is n + 7; "the octave is 8" is the off-by-one to pin (n 8 is degree 9).',
@@ -493,6 +493,103 @@ export const U08: UnitSpec = {
       notes: [
         'Evaluated: `s("bd").struct("x ~ ~ x ~ ~ x ~")` hits at 0, 3/8 and 3/4 of the bar; the bass with the same `.struct(hits)` hits at the same three onsets with each bar\'s root.',
         "`fam.rhy.groove-lock` unlocks here (contracts §7.3); the lesson seeds it and plays one generator step at level 1.",
+      ],
+    },
+    {
+      id: "U08.L06",
+      author: "content-lead",
+      idea: 'Oak 2.0 W2 (DeSantis, "Bass Lines and Kick Drums as a Single Composite"). The opposite of the groove lock: the bass plays only in the gaps between the kicks and stops before the next kick, so the two take turns and are heard as one low line, a composite line.',
+      hook: {
+        hear: "Over the Band's chords: the bass on every kick (they blur into one thud), then the same notes in the gaps between the kicks (kick, bass, kick, bass, bass).",
+        code: `${T(96)}kick: s("bd ~ bd ~")\nsnare: s("~ sd ~ sd")\nhats: s("hh*8").gain(.5)\nbass: n("${AXIS}").struct("~ ~ x ~ ~ x ~ x").scale("C2:major").s("ebass").lpf(600)`,
+      },
+      key: C,
+      meter: "4/4",
+      bpm: 96,
+      canDo: ["cd.compose.kick-bass-line"],
+      uses: [...BASE, ...DRUMS, "tb.clip", "tb.legato"],
+      steps: [
+        {
+          kind: "listen",
+          exercise: "listen",
+          minutes: 0.5,
+          what: "Two items over the Band's chords: the bass on the kicks, then the bass between them.",
+        },
+        {
+          kind: "compare",
+          exercise: "identify",
+          answer: ["choice"],
+          minutes: 0.5,
+          what: 'Two cards with the bass starting between the kicks: one holds its first note through the kick on beat 3 (`.struct("~ x@2 x")`), the other is cut short with `.clip(.5)`. Pick the one where each bass note has stopped when the next kick hits.',
+        },
+        {
+          kind: "investigate",
+          exercise: "run-investigate",
+          answer: ["number"],
+          minutes: 1,
+          what: "A bass on every beat under a kick on 1 and 3: how many bass notes in bar 1 start with a kick? (number: 2)",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1.25,
+          graded: true,
+          what: 'Move the bass into the gaps by changing its `.struct()`; keep the kick. `all`: `rhythm` on `kick` + custom `kick-bass-composite` `{ bass: "bass", minBassPerBar: 2 }` (no bass note within a 32nd of a kick, none sounding when a kick hits, one at a time, two a bar on average).',
+          term: "term.composite-line",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1.25,
+          graded: true,
+          what: "The bass starts in the gaps but `@2` holds a note through the kick on beat 3: shorten every note with `.clip(.5)` (or `.legato`, or the lengths in the rhythm). Same matcher as S4.",
+        },
+        {
+          kind: "make",
+          exercise: "code-make",
+          answer: ["code"],
+          minutes: 2.75,
+          what: "A kick and a bass that take turns as one line, under the Band's chords.",
+        },
+      ],
+      wrapAt: 4,
+      make: {
+        brief:
+          "Write a kick and a bass that take turns: the bass only where the kick is silent, each note stopped before the next kick, at least two bass notes a bar. Move the bass, the kick or both.",
+        required: {
+          rule: "custom",
+          label: "The bass plays only between the kicks, at least two notes a bar",
+          why: 'custom `kick-bass-composite` `{ bass: "bass", minBassPerBar: 2 }`. A token one-note bass fails, a bass that rings through a kick fails, and a bass too quiet to hear (dropped by the grader at more than 24 dB under the loudest part) fails; the kick moved into the bass\'s gaps passes. The starter (the bass on the kicks on 1 and 3) fails.',
+        },
+        suggestions: ["a snare on 2 and 4 (`onsets`)"],
+        band: "band.axis-4bar",
+        tracks: ["chords"],
+        flavours:
+          "Chords from the Band in the flavour's voicing; the learner's drums use the default kit; jazz-soul swaps `ebass` for `upright`.",
+      },
+      srs: [{ family: "fam.rhy.groove-lock", mode: "review-if-due" }],
+      mistakes: [
+        "S4: a new rhythm that still starts with the kicks: `rubric.unmet`; one note left on beat 1: `rubric.unmet`; the kick moved instead: `rhythm.displaced`",
+        "S5: `.clip(1)` or `.clip(2)` (the right function, no shorter): `rubric.unmet`; the kick on beat 3 deleted to make room: `rhythm.missing`",
+        "the unchanged starters: `code.unchanged`; Make starter: `rubric.unmet`",
+      ],
+      connects: {
+        back: "U08.L04 gave the kick and the bass one rhythm; U02.L08 made notes short with `.clip()`.",
+        forward:
+          "U08.L05 chooses the bass's tone; the electronic flavour's songs are where kick and bass most often take turns.",
+      },
+      epr: {
+        enjoyment:
+          "The low end opens up: every kick and every bass note is heard, bouncing off each other, the feel of funk and house bass lines.",
+        pace: "One idea, the opposite of the last lesson's, with one tool the learner already has (`.clip()`). No new syntax.",
+        return:
+          "The Coda says: you can lock a bass to the kick or set it against the kick. Next: the bass's tone.",
+      },
+      notes: [
+        'Evaluated: kick on 1 and 3, bass on beat 2, the "and" of 3 and the "and" of 4: each bass note an eighth, ending at or before the next kick; the rule reads note ends from the written length (`.clip()` included).',
+        "The take plays in the song's first chorus (I V vi IV, the loop's roots), not a verse (I IV I V).",
       ],
     },
     {

@@ -1,14 +1,17 @@
 // Oak 2.0 W1: the places in the sketch editor that W1 tools fill (a registry, so no task edits SketchEditor for
 // another). Wired in stage B; SketchEditor renders each slot in its place, in this order. W3 widened the props
-// (`lastRunCode`, `meter`, `keySpec`, `saveVersion`).
+// (`lastRunCode`, `meter`, `keySpec`, `saveVersion`); W4 added `compareWith`.
 import type { KeySpec, MeterId, SketchDetail, SketchDimension, SketchVersion } from "@oak/api";
 import type { EditorHandle } from "@oak/strudel";
 import type { ComponentType } from "react";
 import { CommitGuard } from "./CommitGuard.tsx";
 import { CardsPanel } from "./cards/CardsPanel.tsx";
 import { CatalogLines } from "./catalog/CatalogLines.tsx";
+import { ErasePassSlot } from "./ErasePassSlot.tsx";
+import { FinishAnywaySlot } from "./FinishAnyway.tsx";
 import { SoundsLikeButton } from "./habits/SoundsLikeButton.tsx";
 import { MakeBlankButton } from "./MakeBlankButton.tsx";
+import { MatchedVersionCompare } from "./MatchedVersionCompare.tsx";
 import { SoundTools } from "./SoundTools.tsx";
 import { TempoTry } from "./TempoTry.tsx";
 import { TransformMenu } from "./variation/TransformMenu.tsx";
@@ -42,6 +45,8 @@ export interface EditorSlotProps {
     dimension: SketchDimension;
     note: string | null;
   }): Promise<SketchVersion | null>;
+  /** Oak 2.0 W4: the version the history's Compare picked, or `null` (the matched version compare reads it). */
+  compareWith: SketchVersion | null;
 }
 
 export type EditorSlotPlace = "header" | "toolbar" | "aside";
@@ -63,4 +68,8 @@ export const EDITOR_SLOTS: readonly EditorSlot[] = [
   { id: "variation", place: "aside", Component: VariationPanel },
   { id: "cards", place: "aside", Component: CardsPanel },
   { id: "catalog-lines", place: "aside", Component: CatalogLines },
+  // Oak 2.0 W4 (PLAN F6, F3, F5), wired in stage B. The matched compare is Studio's only version compare.
+  { id: "finish-anyway", place: "header", Component: FinishAnywaySlot },
+  { id: "erase-pass", place: "aside", Component: ErasePassSlot },
+  { id: "matched-compare", place: "aside", Component: MatchedVersionCompare },
 ];

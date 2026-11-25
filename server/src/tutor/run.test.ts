@@ -520,7 +520,10 @@ describe("listening notes and reviews", () => {
       ports.lessons.reviews.set("capstone:C2", REVIEW_SOURCE);
       const backend = new ScriptedBackend(channel === "tool" ? "anthropic-api" : "claude-cli");
       backend.channel = channel;
-      backend.deliveries = [{ ...CAPSTONE_REVIEW, strengths: [] }, CAPSTONE_REVIEW];
+      backend.deliveries = [
+        { ...CAPSTONE_REVIEW, strengths: [...CAPSTONE_REVIEW.strengths, ...CAPSTONE_REVIEW.strengths] },
+        CAPSTONE_REVIEW,
+      ];
       const events: TutorEvent[] = [];
       const prep = await prepareTurn({ thread: capstone, kind: "review-capstone", userText: "" }, ports);
       const result = await runReview(prep, backend, (e) => events.push(e), never, ports);
@@ -558,7 +561,11 @@ describe("listening notes and reviews", () => {
     ports.lessons.reviews.set("capstone:C2", REVIEW_SOURCE);
     const backend = new ScriptedBackend("claude-cli");
     backend.channel = "direct";
-    backend.deliveries = [{}, { ...CAPSTONE_REVIEW, strengths: [] }, CAPSTONE_REVIEW];
+    backend.deliveries = [
+      {},
+      { ...CAPSTONE_REVIEW, strengths: [...CAPSTONE_REVIEW.strengths, ...CAPSTONE_REVIEW.strengths] },
+      CAPSTONE_REVIEW,
+    ];
     const events: TutorEvent[] = [];
     const prep = await prepareTurn(
       { thread: { subjectKind: "capstone", subjectId: "C2" }, kind: "review-capstone", userText: "" },

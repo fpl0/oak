@@ -183,7 +183,7 @@ export const CF: UnitSpec = {
             "Ask for a review (optional, two revisions, never pass or fail), then release: the title, one line for the sleeve, the cover.",
           ],
           checks: [
-            'The whole rubric of contracts §6.6 CF-A on the code being released: `device-count` ≥ 4 of the six, `form` contains a bridge, `duration-sec` ≥ 120. Labels: "At least 4 devices", "The form has a bridge", "At least 2 minutes".',
+            'The whole rubric of contracts §6.6 CF-A on the code being released: `device-count` ≥ 4 of the six, `form` contains a bridge, `duration-sec` ≥ 120 and (Oak 2.0 W4) `ends-on-purpose` in any of U09.L06\'s endings. Labels: "At least 4 devices", "The form has a bridge", "At least 2 minutes", "It ends on purpose". The book\'s seam, once-only and arc lines are suggestions with no skills.',
             "Release is allowed once the three required lines are met on that code (contracts §6.6 Release). The suggestions and the Master card never block it. The tutor review (contracts §10.6, `reviewRevisions: 2`) is offered before release.",
           ],
           ends: 'Review offered (`review: true`), then release (`release: true`): album track CF-A v1 in the slot "single", the last track of Side A, with its recording, a tree-ring cover whose rings follow the sections, deterministic liner notes and the learner\'s line. If CF-T and every other core track are out, this release completes the core: the Coda is the finale (content/specs/END.md). If something is still open, the Coda says what in one line.',

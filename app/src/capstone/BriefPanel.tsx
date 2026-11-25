@@ -2,7 +2,7 @@
 // living Requirements checklist, going past the brief, Claude's review, and a quiet "Report a grading problem".
 import type { CapstoneDef, CapstoneReview, CapstoneState, FlavourId } from "@oak/api";
 import { clsx } from "clsx";
-import { Check, Circle, Lock, MessageSquareText, Sparkles } from "lucide-react";
+import { Check, Circle, Lock, Sparkles } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Button } from "../ui/kit/Button.tsx";
 import { SegmentedControl } from "../ui/kit/Controls.tsx";
@@ -10,6 +10,7 @@ import { Checklist } from "./Checklist.tsx";
 import type { ChecklistRow, Readiness } from "./checklist.ts";
 import { FLAVOUR_TITLE } from "./content.ts";
 import type { ReviewWait } from "./queries.ts";
+import { ReviewAsk } from "./ReviewAsk.tsx";
 import { ReviewCard } from "./ReviewCard.tsx";
 import type { SessionView } from "./sessions.ts";
 import type { RowExtra } from "./wave5.ts";
@@ -46,7 +47,8 @@ export interface BriefPanelProps {
   /** Where the last review request stands (`useCapstoneReview`). */
   reviewWait: ReviewWait;
   canRequestReview: boolean;
-  onRequestReview(): void;
+  /** Oak 2.0 W4 F4: `question` is the learner's one question for the review, or `null` for none. */
+  onRequestReview(question: string | null): void;
   onReport(note: string | null): Promise<void>;
 }
 
@@ -208,15 +210,13 @@ function ReviewSection(p: BriefPanelProps) {
         </p>
       )}
       {r && p.reviewWait.kind !== "idle" ? <ReviewWaitNote wait={p.reviewWait} /> : null}
-      <Button
-        size="sm"
-        icon={<MessageSquareText aria-hidden className="size-4" />}
+      <ReviewAsk
         disabled={!p.canRequestReview || p.reviewWait.kind === "pending"}
-        onClick={p.onRequestReview}
-        data-testid="request-review"
-      >
-        {p.reviewWait.kind === "pending" ? "Review requested" : r ? "Ask for a new review" : "Request review"}
-      </Button>
+        onRequest={(question) => p.onRequestReview(question)}
+        label={
+          p.reviewWait.kind === "pending" ? "Review requested" : r ? "Ask for a new review" : "Request review"
+        }
+      />
       {!p.canRequestReview && (
         <p className="text-sm text-text-3">Check your track once first: the review reads that check.</p>
       )}

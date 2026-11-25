@@ -58,7 +58,8 @@ export const C7_NO_RUN = c7({ chorus: "<F G C Am F G [Ab G] C>", lift: false });
 /**
  * CF-A, passing (the finale spec's pop reference): C major, 100 BPM, 56 bars (2:14), verse chorus verse chorus
  * bridge chorus and a last chorus a whole step up; V7/vi to vi, the minor iv and ♭VI–♭VII, a 4–3 suspension, a bass
- * between the beats.
+ * between the beats. It ends on purpose (Oak 2.0 W4): in the last chorus the tune leaves two bars before the end and
+ * the chords one bar before (`…Chorus3`).
  */
 export const CF_A_SINGLE = `setcpm(100/4)
 
@@ -72,13 +73,15 @@ const bassBridge = n("<3 3 0 0 5b 6b 4 4>").struct("x ~ x ~")
 const melVerse = n("<[4 ~ 4 2] [0 ~ ~ ~] [3 4 5 7] [7@2 6@2]>")
 const melChorus = n("<[7 ~ 7 5] [8 ~ 8 ~] [9 8 6 4#] [5 ~ ~ ~] [7 ~ 7 5] [8 ~ 8 9] [7 ~ ~ ~] ~>")
 const melBridge = n("<[5b ~ 4 3] [5b ~ 4 ~] [4 ~ 2 0] ~ [7 ~ 5b 4] [8 ~ 6b 3] [8 ~ ~ ~] [6 ~ ~ ~]>")
+const chordsChorus3 = chordsChorus2.mask("<1!7 0>")
+const melChorus3 = melChorus.mask("<1!6 0!2>")
 
 kick: s("bd ~ bd ~").gain(.8)
 snare: s("~ sd ~ sd").gain(.8)
 hats: s("hh*8").gain(.4)
-chords: arrange([8, chordsVerse], [8, chordsChorus], [8, chordsVerse], [8, chordsChorus], [8, chordsBridge], [8, chordsChorus], [8, chordsChorus2]).s("piano").gain(.5).room(.3)
+chords: arrange([8, chordsVerse], [8, chordsChorus], [8, chordsVerse], [8, chordsChorus], [8, chordsBridge], [8, chordsChorus], [8, chordsChorus3]).s("piano").gain(.5).room(.3)
 bass: arrange([8, bassVerse], [8, bassChorus], [8, bassVerse], [8, bassChorus], [8, bassBridge], [8, bassChorus], [8, bassChorus]).scale("<C2:major!48 D2:major!8>").s("ebass").lpf(700)
-mel: arrange([8, melVerse], [8, melChorus], [8, melVerse], [8, melChorus], [8, melBridge], [8, melChorus], [8, melChorus]).scale("<C4:major!48 D4:major!8>").s("piano").room(.25)`;
+mel: arrange([8, melVerse], [8, melChorus], [8, melVerse], [8, melChorus], [8, melBridge], [8, melChorus], [8, melChorus3]).scale("<C4:major!48 D4:major!8>").s("piano").room(.25)`;
 
 /** CF-A's plan with nothing in it yet (the first session): a verse, a chorus and a bridge at full length, no device. */
 export const CF_A_PLAN = `setcpm(100/4)
@@ -103,11 +106,11 @@ export const CF_A_NO_BRIDGE = CF_A_SINGLE.replaceAll("[8, chordsBridge]", "[8, c
 
 /** CF-A a chorus short: 48 bars at 100 BPM, 1:55 (the `duration` line stays open, 4 more bars asked). */
 export const CF_A_SHORT = CF_A_SINGLE.replace(
-  "[8, chordsBridge], [8, chordsChorus], [8, chordsChorus2]",
-  "[8, chordsBridge], [8, chordsChorus2]",
+  "[8, chordsBridge], [8, chordsChorus], [8, chordsChorus3]",
+  "[8, chordsBridge], [8, chordsChorus3]",
 )
   .replace("[8, bassBridge], [8, bassChorus], [8, bassChorus]", "[8, bassBridge], [8, bassChorus]")
-  .replace("[8, melBridge], [8, melChorus], [8, melChorus]", "[8, melBridge], [8, melChorus]")
+  .replace("[8, melBridge], [8, melChorus], [8, melChorus3]", "[8, melBridge], [8, melChorus3]")
   .replaceAll("major!48", "major!40");
 
 /**
@@ -123,10 +126,10 @@ export const CF_A_PLAIN = CF_A_SINGLE.replace(
     'n("<[5b ~ 4 3] [5b ~ 4 ~] [4 ~ 2 0] ~ [7 ~ 5b 4] [8 ~ 6b 3] [8 ~ ~ ~] [6 ~ ~ ~]>")',
     'n("<[5 ~ 4 3] [5 ~ 4 ~] [4 ~ 2 0] ~ [7 ~ 5 4] [8 ~ 6 3] [8 ~ ~ ~] [6 ~ ~ ~]>")',
   )
-  .replace("[8, chordsChorus2]", "[8, chordsChorus]")
+  .replace("[8, chordsChorus3]", "[8, chordsChorus]")
   .replaceAll("<C2:major!48 D2:major!8>", "C2:major")
   .replaceAll("<C4:major!48 D4:major!8>", "C4:major");
 /** CF_A_PLAIN with its last chorus lifted a whole step (the modulation device). */
-export const CF_A_LIFTED = CF_A_PLAIN.replace("[8, chordsChorus]).s(", "[8, chordsChorus2]).s(")
+export const CF_A_LIFTED = CF_A_PLAIN.replace("[8, chordsChorus]).s(", "[8, chordsChorus3]).s(")
   .replace('.scale("C2:major")', '.scale("<C2:major!48 D2:major!8>")')
   .replace('.scale("C4:major")', '.scale("<C4:major!48 D4:major!8>")');

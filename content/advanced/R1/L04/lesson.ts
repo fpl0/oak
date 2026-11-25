@@ -139,7 +139,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R1.L04",
-  version: 4,
+  version: 5,
   title: "Interlock",
   objective: "I can make bass, clav and guitar fit into each other's gaps, so together they play one rhythm.",
   key: { tonic: "C", mode: "minor" },

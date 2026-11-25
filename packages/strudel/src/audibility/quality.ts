@@ -3,6 +3,8 @@
 // (are the aliases loudness-matched?). Renders come from the audibility harness (`render-frame.ts`).
 import type { Stereo } from "./metrics.ts";
 
+export { loudness, peakDb } from "@oak/audio/loudness";
+
 export const mono = (r: Stereo): Float32Array => {
   const out = new Float32Array(r.left.length);
   for (let i = 0; i < out.length; i++) out[i] = ((r.left[i] as number) + (r.right[i] as number)) / 2;
@@ -213,75 +215,6 @@ export function scanClicks(x: Float32Array, sampleRate: number, fromSec: number,
     if (jump > worst.worstDb) worst = { worstDb: jump, atSec: i / sampleRate };
   }
   return worst;
-}
-
-/** One biquad over a whole signal (direct form I). */
-function biquad(x: Float64Array, b: [number, number, number], a: [number, number]): Float64Array {
-  const y = new Float64Array(x.length);
-  let x1 = 0;
-  let x2 = 0;
-  let y1 = 0;
-  let y2 = 0;
-  for (let i = 0; i < x.length; i++) {
-    const x0 = x[i] as number;
-    const y0 = b[0] * x0 + b[1] * x1 + b[2] * x2 - a[0] * y1 - a[1] * y2;
-    x2 = x1;
-    x1 = x0;
-    y2 = y1;
-    y1 = y0;
-    y[i] = y0;
-  }
-  return y;
-}
-
-/** ITU-R BS.1770 K-weighting at any sample rate (the libebur128 derivation of the two filters). */
-function kWeight(x: Float32Array, fs: number): Float64Array {
-  let K = Math.tan((Math.PI * 1681.974450955533) / fs);
-  const Vh = 10 ** (3.999843853973347 / 20);
-  const Vb = Vh ** 0.4996667741545416;
-  let Q = 0.7071752369554196;
-  let a0 = 1 + K / Q + K * K;
-  const shelf = biquad(
-    Float64Array.from(x),
-    [(Vh + (Vb * K) / Q + K * K) / a0, (2 * (K * K - Vh)) / a0, (Vh - (Vb * K) / Q + K * K) / a0],
-    [(2 * (K * K - 1)) / a0, (1 - K / Q + K * K) / a0],
-  );
-  K = Math.tan((Math.PI * 38.13547087602444) / fs);
-  Q = 0.5003270373238773;
-  a0 = 1 + K / Q + K * K;
-  return biquad(shelf, [1, -2, 1], [(2 * (K * K - 1)) / a0, (1 - K / Q + K * K) / a0]);
-}
-
-/**
- * Integrated loudness (LUFS) per BS.1770-4: K-weighting, 400 ms blocks with 75 % overlap, the −70 LUFS
- * absolute gate and the −10 LU relative gate. −Infinity when nothing passes the gates.
- */
-export function loudness(r: Stereo, fs: number): number {
-  const l = kWeight(r.left, fs);
-  const rr = kWeight(r.right, fs);
-  const block = Math.round(0.4 * fs);
-  const hop = Math.round(0.1 * fs);
-  const blocks: number[] = [];
-  for (let i = 0; i + block <= l.length; i += hop) {
-    let s = 0;
-    for (let j = i; j < i + block; j++) s += (l[j] as number) ** 2 + (rr[j] as number) ** 2;
-    blocks.push(s / block);
-  }
-  const lufs = (z: number) => -0.691 + 10 * Math.log10(z);
-  const abs = blocks.filter((z) => z > 0 && lufs(z) > -70);
-  if (abs.length === 0) return Number.NEGATIVE_INFINITY;
-  const mean = (zs: number[]) => zs.reduce((a, b) => a + b, 0) / zs.length;
-  const rel = lufs(mean(abs)) - 10;
-  const gated = abs.filter((z) => lufs(z) > rel);
-  return lufs(mean(gated));
-}
-
-/** Peak absolute sample, dBFS. */
-export function peakDb(r: Stereo): number {
-  let p = 0;
-  for (let i = 0; i < r.left.length; i++)
-    p = Math.max(p, Math.abs(r.left[i] as number), Math.abs(r.right[i] as number));
-  return p > 0 ? 20 * Math.log10(p) : Number.NEGATIVE_INFINITY;
 }
 
 /**

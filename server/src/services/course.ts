@@ -39,6 +39,7 @@ import type { StepStateRow } from "../db/repos/lessons.ts";
 import { conflict, notFound } from "../errors.ts";
 import type { CanDoService } from "./cando.ts";
 import type { CapstoneSessionsService } from "./capstone-sessions.ts";
+import { recordCapstoneCheck } from "./check-history.ts";
 import { LearnerTime, type ServiceContext } from "./context.ts";
 import { openFamilyLevels } from "./family-levels.ts";
 import { GatesService } from "./gates.ts";
@@ -835,7 +836,7 @@ export class CourseService {
   /** A rubric run on the draft: stored as `lastResult`; rules give evidence at 1.5 unless the version is tutor-assisted. */
   capstoneCheck(
     id: string,
-    body: { sketchId: string; sketchVersion: number; result: GradeResult },
+    body: { sessionId?: string | null; sketchId: string; sketchVersion: number; result: GradeResult },
   ): CapstoneState {
     tx(this.#repos.db, () => {
       const row = this.#capstoneRow(id);
@@ -850,6 +851,15 @@ export class CourseService {
         checked: { sketchId: body.sketchId, version: body.sketchVersion },
         startedAt: row.startedAt ?? now,
         updatedAt: now,
+      });
+      // Oak 2.0 W4 F2: one history row per accepted check (a refused one threw above and writes nothing).
+      recordCapstoneCheck(this.#repos.db, {
+        capstoneId: id,
+        sessionId: body.sessionId ?? null,
+        sketchId: body.sketchId,
+        sketchVersion: body.sketchVersion,
+        passed: body.result.status === "pass",
+        at: now,
       });
       const def: CapstoneDef | null = this.#content.capstoneDef(id);
       // A re-check of a version that already gave rubric evidence is practice (docs/design/retry.md §3.6): the

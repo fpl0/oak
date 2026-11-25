@@ -1,10 +1,11 @@
 // One sketch (ux §2.3 "Studio / Sketchbook"): free play in the full Workbench. Every successful Run saves a
 // version (autosave; edits not run yet survive a reload in this browser), Mod+S saves a named version, the
-// history compares any earlier version with A/B, the Band layer (pop or jazz-soul kit) follows the sketch's
+// history compares any earlier version (Oak 2.0 W4: offline, at matched loudness, in the `matched-compare` slot), the Band layer (pop or jazz-soul kit) follows the sketch's
 // key and tempo, locked tools are hints that never block (contracts §3.1 rule 4), an imported version opens
 // as text until the strict check passes (§11.3), Claude can be asked for a listening note, and the code
 // exports as a .js file. Oak 2.0 W1: Jam (every Run is a take; the tutor, hints, tips and compare wait; only lint
-// errors show), the takes panel after a jam, Focus one part, and the editor slots other W1 tools fill.
+// errors show), the takes panel after a jam, Focus one part, and the editor slots other W1 tools fill. Oak 2.0 W4:
+// Delete and Archive first offer "Finish it anyway" (PLAN F6).
 import type { SketchDetail, SketchDimension, SketchVersion, TakeState } from "@oak/api";
 import { type KeySpec, type LintResult, labelledLines, type MeterId } from "@oak/content-kit";
 import { sectionsFromAst } from "@oak/grader";
@@ -40,6 +41,7 @@ import { Workbench } from "../workbench/Workbench.tsx";
 import { BandOptions } from "./BandOptions.tsx";
 import { clearDraft, readDraft, readLength, writeDraft, writeLength } from "./draft.ts";
 import { EDITOR_SLOTS, type EditorSlotPlace, type EditorSlotProps } from "./editor-slots.ts";
+import { FinishAnywayDialog } from "./FinishAnyway.tsx";
 import { FocusPanel, FocusToggle } from "./FocusPart.tsx";
 import { JamBar, JamToggle } from "./JamBar.tsx";
 import { JAM_TUTOR_NOTICE, JAM_WORDS, studioChrome } from "./jam.ts";
@@ -139,6 +141,8 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
     needsReview(latest) ? { code: latest.code, version: latest.version } : null,
   );
   const [compare, setCompare] = useState<SketchVersion | null>(null);
+  // Oak 2.0 W4 (PLAN F6): Delete or Archive asked for; "Finish it anyway" asks first.
+  const [abandoning, setAbandoning] = useState<"delete" | "archive" | null>(null);
   const [lint, setLint] = useState<LintResult | null>(null);
   const [status, setStatus] = useState<SaveStatus>({
     kind: "saved",
@@ -463,6 +467,20 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
     }
   };
 
+  const archive = () => patch.mutate({ params: { id }, body: { archived: !sketch.archived } });
+  // Oak 2.0 W4 (PLAN F6): before a sketch with parts is deleted or archived, "Finish it anyway" asks first; its
+  // second button goes on with the existing flow (Delete keeps its own confirm). Unarchive, an imported version
+  // under review and a sketch with no unmuted part go straight on.
+  const abandon = (kind: "delete" | "archive") => {
+    const offer =
+      review === null &&
+      (kind === "delete" || !sketch.archived) &&
+      labelledLines(liveRef.current).some((l) => !l.muted);
+    if (offer) setAbandoning(kind);
+    else if (kind === "delete") void remove();
+    else archive();
+  };
+
   // --- Oak 2.0 W1: jam on and off, building from takes, focus ----------------------------------------------
   const toggleJam = (on: boolean) => {
     setJam(on);
@@ -536,6 +554,7 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
     editor: editorHandle,
     applyCode,
     saveVersion,
+    compareWith: compare,
   };
   const slots = (place: EditorSlotPlace) =>
     EDITOR_SLOTS.filter((s) => s.place === place).map(({ id: slotId, Component }) => (
@@ -621,7 +640,7 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
           <Button
             variant="ghost"
             icon={<Archive aria-hidden className="size-4" />}
-            onClick={() => patch.mutate({ params: { id }, body: { archived: !sketch.archived } })}
+            onClick={() => abandon("archive")}
           >
             {sketch.archived ? "Unarchive" : "Archive"}
           </Button>
@@ -629,7 +648,7 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
             variant="ghost"
             icon={<Trash2 aria-hidden className="size-4" />}
             loading={del.isPending}
-            onClick={() => void remove()}
+            onClick={() => abandon("delete")}
           >
             Delete
           </Button>
@@ -810,8 +829,9 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
                 band={bandSetup}
                 initialMutes={mutes.current}
                 onMutes={onWorkbenchMutes}
-                target={compare && chrome.compare ? { code: compare.code, audible: "always" } : null}
-                abLabels={compare ? { a: "now", b: versionLabel(compare) } : { a: "now", b: "earlier" }}
+                // Oak 2.0 W4 (PLAN F5): a version is compared offline at matched loudness in the `matched-compare`
+                // slot, so the live A/B strip is off here.
+                target={null}
                 onChange={onChange}
                 onEvaluated={onEvaluated}
                 lintFloor={chrome.lintFloor}
@@ -942,6 +962,22 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
         version={latest}
         liner={liner}
       />
+      {abandoning !== null ? (
+        <FinishAnywayDialog
+          open
+          onClose={() => setAbandoning(null)}
+          code={liveCode}
+          applyCode={applyCode}
+          target={{ kind: "sketch", sketch, liveCode }}
+          abandon={{
+            kind: abandoning,
+            goOn: abandoning === "delete" ? () => void remove() : archive,
+          }}
+          play={() => {
+            if (editorHandle && !editorHandle.disposed) void editorHandle.play();
+          }}
+        />
+      ) : null}
     </div>
   );
 }

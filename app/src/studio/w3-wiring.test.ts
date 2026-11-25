@@ -29,7 +29,8 @@ const { cardDeck } = await import("./card-deck.ts");
 
 describe("W3 registries", () => {
   test("the editor slots are W1's three, then W3's six, in their places", () => {
-    expect(EDITOR_SLOTS.map((s) => [s.id, s.place])).toEqual([
+    // W4 appends its slots after these (app/src/capstone/w4-wiring.test.ts pins the whole list).
+    expect(EDITOR_SLOTS.slice(0, 9).map((s) => [s.id, s.place])).toEqual([
       ["make-blank", "header"],
       ["sound-tools", "toolbar"],
       ["commit-guard", "aside"],
@@ -43,8 +44,9 @@ describe("W3 registries", () => {
     for (const s of EDITOR_SLOTS) expect(typeof s.Component).toBe("function");
   });
 
-  test("the start slots are With a card, in plain descriptive words", () => {
-    expect(START_SLOTS.map((s) => s.id)).toEqual(["with-card"]);
+  test("the start slots open with With a card, in plain descriptive words", () => {
+    // W4 appends "From a form you mapped" (app/src/capstone/w4-wiring.test.ts).
+    expect(START_SLOTS[0]?.id).toBe("with-card");
     for (const s of START_SLOTS) {
       expect(isDescriptive(s.label)).toBe(true);
       expect(isDescriptive(s.detail)).toBe(true);

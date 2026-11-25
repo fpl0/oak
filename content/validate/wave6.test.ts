@@ -1,6 +1,6 @@
 // Wave 6 tooling: what content CI adds for the end of the core (AUTHORING §19). The registries hold U12–U17,
 // C6, C7 and the two finales before their lessons are written (terms, can-dos, milestones, repertoire, the
-// default order through session 185); contracts 1.6 is applied everywhere it lands (U05.L09 split out of
+// default order through session 191); contracts 1.6 is applied everywhere it lands (U05.L09 split out of
 // U05.L04, C3 in four sessions, the nine promoted fact decks, X1's chord stages at 0.85); and the two
 // course-position rules of the wave hold: chromatic degrees only from U15.L01, and a Make that opens with an
 // earlier sketch names a lesson that is done by then.
@@ -48,15 +48,15 @@ describe("contracts 1.6", () => {
     // landmark held here.
     expect(CONTRACTS_VERSION).toBe("1.9");
     expect(SESSION_COUNTS).toMatchObject({
-      coreLessons: 125,
+      coreLessons: 130,
       coreCapstoneSessions: 30,
-      core: 185,
-      total: 259,
+      core: 191,
+      total: 270,
     });
-    expect(ORDER.length).toBe(185);
-    expect(LANDMARKS.firstComposedSong).toEqual({ session: "C2.S2", n: 80 });
-    expect(LANDMARKS.tracksOpen).toEqual({ session: "U13.CP", n: 147 });
-    expect(LANDMARKS.coreComplete).toEqual({ session: "CF-A.S4", n: 185 });
+    expect(ORDER.length).toBe(191);
+    expect(LANDMARKS.firstComposedSong).toEqual({ session: "C2.S2", n: 82 });
+    expect(LANDMARKS.tracksOpen).toEqual({ session: "U13.CP", n: 153 });
+    expect(LANDMARKS.coreComplete).toEqual({ session: "CF-A.S4", n: 191 });
     for (const { session, n } of Object.values(LANDMARKS))
       expect([session, at(session)]).toEqual([session, n]);
   });
@@ -129,7 +129,7 @@ describe("contracts 1.6", () => {
     expect(c3?.brief?.rubric.map((r) => r.id)).toEqual(
       expect.arrayContaining(["form", "contrast", "duration", "groove-lock", "leadsheet"]),
     );
-    expect([at("C3.S3"), at("C3.S4"), at("GYM.06")]).toEqual([99, 100, 101]);
+    expect([at("C3.S3"), at("C3.S4"), at("GYM.07")]).toEqual([105, 106, 107]);
   });
 
   test("d18: X1's chord stages pass at 0.85, like its melody", () => {
@@ -174,9 +174,9 @@ describe("the registries hold U12–U17 before their lessons are written", () =>
   test("33 lessons in six units, in the default order with their checkpoints and capstones", () => {
     expect(wave6Lessons.length).toBe(33);
     for (const id of wave6Lessons) expect([id, at(id) > 0]).toEqual([id, true]);
-    expect(["U13.CP", "U14.CP", "U17.CP"].map(at)).toEqual([147, 155, 177]);
-    expect(["C6.S1", "C6.S2", "C7.S1", "C7.S2", "C7.S3"].map(at)).toEqual([157, 158, 178, 179, 180]);
-    expect(at("U12.L01")).toBe(125);
+    expect(["U13.CP", "U14.CP", "U17.CP"].map(at)).toEqual([153, 161, 183]);
+    expect(["C6.S1", "C6.S2", "C7.S1", "C7.S2", "C7.S3"].map(at)).toEqual([163, 164, 184, 185, 186]);
+    expect(at("U12.L01")).toBe(131);
     expect(at("U12.L01")).toBeLessThan(at("U11.CP"));
   });
   test("every lesson of U12–U17 awards at least one can-do, whose skills are introduced by then", () => {
@@ -300,11 +300,14 @@ describe("the registries hold U12–U17 before their lessons are written", () =>
     expect(by("C7")?.opensAfter).toEqual({ checkpoints: ["U17.CP"] });
     expect(by("CF-A")?.opensAfter).toEqual({ capstones: ["C7"] });
     expect(by("CF-T")).toMatchObject({ inGymSlots: true, kind: "transcribe" });
+    // Oak 2.0 W4 F1 adds the book's moves as W0 custom rules (`ends-on-purpose`, required on CF-A only; the seam,
+    // once-only and arc suggestions); no other custom rule is in these rubrics.
+    const BOOK = ["ends-on-purpose", "staggered-boundary", "unique-event", "arc"];
     for (const id of ["C6", "C7", "CF-A"])
       expect([
         id,
         by(id)
-          ?.brief?.rubric.filter((r) => r.rule === "custom")
+          ?.brief?.rubric.filter((r) => r.rule === "custom" && !BOOK.includes((r as { fn: string }).fn))
           .map((r) => r.id),
       ]).toEqual([id, []]);
     // The required lines are contracts §6.6 exactly; a brief may add `required: false` suggestions beside them.
@@ -312,7 +315,7 @@ describe("the registries hold U12–U17 before their lessons are written", () =>
       by(id)
         ?.brief?.rubric.filter((r) => r.required)
         .map((r) => r.rule);
-    expect(required("CF-A")).toEqual(["device-count", "form", "duration-sec"]);
+    expect(required("CF-A")).toEqual(["device-count", "form", "duration-sec", "custom"]);
     expect(required("C7")).toEqual(["contains-rn", "contains-rn", "key-change", "bars"]);
     expect(required("C6")).toEqual(["mode", "bars"]);
     expect(TRANSCRIBE_PASS["CF-T"]).toMatchObject({

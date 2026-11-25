@@ -24,7 +24,9 @@ const ALLOWED: Record<string, string[]> = {
   pitch: ["content-kit", "theory"],
   drills: ["content-kit", "theory", "pitch"],
   srs: ["content-kit"],
-  strudel: ["content-kit", "theory", "grader", "drills"],
+  // Oak 2.0 W4 (X19): the audibility harness re-exports the BS.1770 loudness from `@oak/audio/loudness`, one
+  // implementation shared with the album normalisation. `@oak/audio` never imports `@oak/strudel`, so there is no cycle.
+  strudel: ["content-kit", "theory", "grader", "drills", "audio"],
   audio: ["content-kit", "theory", "pitch"],
 };
 const ISOMORPHIC = ["content-kit", "api", "theory", "grader", "notation", "pitch", "drills", "srs"];

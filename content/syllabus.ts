@@ -300,10 +300,26 @@ export const units: UnitDef[] = [
       "C04",
     ),
     lesson("U06.L12", "Comping Patterns", "Chord rhythms locked to the drums with `.struct()`.", "", "H06"),
+    // Oak 2.0 W2 (contracts 2.2): new lessons are placed by array position, as U05.L09 is.
+    lesson(
+      "U06.L13",
+      "Parallel Chords",
+      "One chord shape moved by half steps: the deep-house colour that leaves the key on purpose.",
+      "",
+      "H01 H06",
+    ),
   ]),
   unit("U07", "Melody", "core", "U07.CP", [
     lesson("U07.L01", "Shape", "Contour, range, steps vs leaps.", "", "M01"),
     lesson("U07.L02", "Motif & Variation", "Repetition, sequence, retrograde.", "M02"),
+    // Oak 2.0 W2 (contracts 2.2): taught directly after U07.L02.
+    lesson(
+      "U07.L11",
+      "Turn It Around",
+      "Transform a motif: upside down, backwards with its rhythm kept, rotated, moved in time.",
+      "",
+      "M02",
+    ),
     lesson("U07.L03", "Landing on Chord Tones", "Chord tones on strong beats.", "M03"),
     lesson(
       "U07.L04",
@@ -339,6 +355,14 @@ export const units: UnitDef[] = [
       "Shared rhythm and syncopated bass; `const` pattern variables.",
       "B04",
     ),
+    // Oak 2.0 W2 (contracts 2.2): taught directly after U08.L04.
+    lesson(
+      "U08.L06",
+      "Kick and Bass, One Line",
+      "The bass plays between the kicks, so kick and bass sound as one line.",
+      "",
+      "B04 B01",
+    ),
     lesson(
       "U08.L05",
       "Bass Dictation & Tone",
@@ -358,6 +382,21 @@ export const units: UnitDef[] = [
     lesson("U09.L03", "AABA & Strophic", "Two more song forms.", "F03"),
     lesson("U09.L04", "The Energy Curve", "Builds and drops with signals.", "F05"),
     lesson("U09.L05", "Arranging in Code", "Layer entries and exits with `.mask()`.", "F06"),
+    // Oak 2.0 W2 (contracts 2.2).
+    lesson(
+      "U09.L06",
+      "Endings",
+      "End on purpose: parts leave in turn, a loop shrinks, a fade, a final hit or a cadence.",
+      "",
+      "F06 F05",
+    ),
+    lesson(
+      "U09.L07",
+      "Carve It",
+      "Start from everything everywhere and only delete; leave a seam and one moment heard once.",
+      "",
+      "F06 F05",
+    ),
   ]),
   unit("U10", "Minor", "core", "U10.CP", [
     lesson("U10.L01", "The Dark Twin", "Natural minor, ♭3 ♭6 ♭7, do-based minor solfège.", "S05"),
@@ -526,6 +565,8 @@ export const units: UnitDef[] = [
   ]),
   unit("J3", "Voicings, Comping & Walking", "J", null, [
     lesson("J3.L01", "Rootless A/B Voicings", '`mode("duck")` and `.offset()`.', "J09"),
+    // Oak 2.0 W2 (contracts 2.2): taught directly after J3.L01.
+    lesson("J3.L05", "Fourths", "Quartal voicings, and the bass decides the chord's name.", "", "J09"),
     lesson("J3.L02", "Drop-2 & Spread", "Wider voicings and where they sit.", "", "J09"),
     lesson("J3.L03", "Comping Rhythms", "Charleston and pushes.", "", "H06 R10"),
     lesson("J3.L04", "Walking Bass", "Four to the bar with approach tones.", "B05"),
@@ -548,6 +589,14 @@ export const units: UnitDef[] = [
     lesson("R1.L02", "Swing Ratios", "8th vs 16th swing; patterned swing amount.", "", "R13"),
     lesson("R1.L03", "The One", "16th funk drums and ghost notes.", "R14"),
     lesson("R1.L04", "Interlock", "Bass, clav and guitar as one machine.", "", "R14 B04"),
+    // Oak 2.0 W2 (contracts 2.2): taught directly after R1.L04.
+    lesson(
+      "R1.L06",
+      "One Drummer, One Line",
+      "Linear drumming: no two drums at once, grouped 3+3+2.",
+      "",
+      "R14 R10",
+    ),
     lesson(
       "R1.L05",
       "Displacement & Laid-Back Feel",
@@ -594,6 +643,21 @@ export const units: UnitDef[] = [
       "D08",
     ),
     lesson("A2.L02", "Texture & Density", "Thin vs thick.", "D09", "F05"),
+    // Oak 2.0 W2 (contracts 2.2): A2.L08 and A2.L09 follow A2.L02; A2.L07 follows A2.L03.
+    lesson(
+      "A2.L08",
+      "Peak First",
+      "Write the fullest section first, then make every other section by taking parts away.",
+      "",
+      "D09 F05 F06",
+    ),
+    lesson(
+      "A2.L09",
+      "Seams and Surprises",
+      "Fills that anticipate or hesitate across a seam; an effect switched on once.",
+      "",
+      "F06 D09",
+    ),
     lesson(
       "A2.L03",
       "Counter-Melody & Re-Voicing per Section",
@@ -601,6 +665,7 @@ export const units: UnitDef[] = [
       "",
       "D09 M07",
     ),
+    lesson("A2.L07", "Hocket", "One line split across two sounds, note by note.", "", "D09 M07"),
     lesson("A2.L04", "Sampling", "Chop Oak's CC0 `brk` break loop.", "D11"),
     lesson("A2.L05", "Mix & Dynamics", "Levels, compression, room for each part.", "D10"),
     lesson("A2.L06", "Genre Translation", "One idea in two idioms.", "", "D09 F06"),
@@ -649,7 +714,7 @@ export const trackGates: TrackGate[] = [
 ];
 
 /**
- * The default linear order of the core (contracts §2.5): 185 sessions, gym slots included as GYM.nn.
+ * The default linear order of the core (contracts §2.5): 191 sessions, gym slots included as GYM.nn.
  * A checkpoint sits after the next unit's L01 so it falls on a later day than the unit's last lesson.
  */
 // biome-ignore format: about ten sessions to a line, as in contracts §2.5
@@ -658,21 +723,22 @@ export const defaultOrder: SessionId[] = [
   "U01.L09", "U02.L01", "U01.CP", "C0.S1", "U02.L02", "U02.L03", "U02.L04", "U02.L05", "U02.L06", "U02.L07",
   "U02.L08", "U03.L01", "U02.CP", "C1.S1", "U03.L02", "U03.L03", "U03.L04", "U03.L05", "U03.L06", "U03.L07",
   "U03.L08", "U03.L09", "U03.L10", "U03.L11", "U04.L01", "U03.CP", "U04.L02", "U04.L03", "U04.L04", "U05.L01",
-  "U04.CP", "U05.L02", "U05.L03", "U05.L04", "U05.L09", "U05.L05", "U05.L06", "U05.L07", "U05.L08", "U06.L01", "U05.CP",
-  "U06.L02", "U06.L03", "U06.L04", "U06.L05", "U06.L06", "U06.L07", "U06.L08", "U06.L09", "U06.L10", "U06.L11",
-  "U06.L12", "U07.L01", "U06.CP", "U07.L02", "U07.L03", "GYM.01", "U07.L04", "U07.L05", "U07.L06", "U07.L07",
-  "GYM.02", "U07.L08", "U07.L09", "U07.L10", "U08.L01", "GYM.03", "U07.CP", "C2.S1", "C2.S2", "X1.S1",
-  "X1.S2", "X1.S3", "U08.L02", "U08.L03", "U08.L04", "U08.L05", "GYM.04", "U09.L01", "U09.L02", "U09.L03",
-  "U09.L04", "GYM.05", "U09.L05", "U10.L01", "U09.CP", "C3.S1", "C3.S2", "C3.S3", "C3.S4", "GYM.06", "U10.L02",
-  "U10.L03", "U10.L04", "U10.L05", "GYM.07", "U10.L06", "U10.L07", "U10.L08", "U10.L09", "GYM.08", "U11.L01",
-  "U10.CP", "C4.S1", "C4.S2", "GYM.09", "U11.L02", "U11.L03", "U11.L04", "U11.L05", "GYM.10", "U11.L06",
-  "U11.L07", "U11.L08", "U12.L01", "GYM.11", "U11.CP", "C5.S1", "C5.S2", "X2.S1", "X2.S2", "U12.L02",
-  "U12.L03", "U12.L04", "U12.L05", "GYM.12", "U12.L06", "U13.L01", "U13.L02", "U13.L03", "GYM.13", "U13.L04",
-  "U13.L05", "U13.L06", "U14.L01", "GYM.14", "U13.CP", "U14.L02", "U14.L03", "U14.L04", "GYM.15", "U14.L05",
-  "U14.L06", "U15.L01", "U14.CP", "CF-T.S1", "C6.S1", "C6.S2", "U15.L02", "U15.L03", "CF-T.S2", "U15.L04",
-  "U15.L05", "U15.L06", "U16.L01", "CF-T.S3", "U16.L02", "U16.L03", "U16.L04", "U16.L05", "CF-T.S4", "U17.L01",
-  "U17.L02", "U17.L03", "U17.L04", "GYM.16", "U17.CP", "C7.S1", "C7.S2", "C7.S3", "GYM.17", "CF-A.S1",
-  "CF-A.S2", "CF-A.S3", "CF-A.S4",
+  "U04.CP", "U05.L02", "U05.L03", "U05.L04", "U05.L09", "U05.L05", "U05.L06", "U05.L07", "U05.L08", "U06.L01",
+  "U05.CP", "U06.L02", "U06.L03", "U06.L04", "U06.L05", "U06.L06", "U06.L07", "U06.L08", "U06.L09", "U06.L10",
+  "U06.L11", "U06.L12", "U06.L13", "U07.L01", "U06.CP", "U07.L02", "U07.L11", "GYM.01", "U07.L03", "U07.L04",
+  "U07.L05", "U07.L06", "GYM.02", "U07.L07", "U07.L08", "U07.L09", "U07.L10", "GYM.03", "U08.L01", "U07.CP",
+  "C2.S1", "C2.S2", "X1.S1", "X1.S2", "X1.S3", "U08.L02", "U08.L03", "U08.L04", "U08.L06", "GYM.04",
+  "U08.L05", "U09.L01", "U09.L02", "U09.L03", "GYM.05", "U09.L04", "U09.L05", "U09.L06", "U09.L07", "GYM.06",
+  "U10.L01", "U09.CP", "C3.S1", "C3.S2", "C3.S3", "C3.S4", "GYM.07", "U10.L02", "U10.L03", "U10.L04",
+  "U10.L05", "GYM.08", "U10.L06", "U10.L07", "U10.L08", "U10.L09", "GYM.09", "U11.L01", "U10.CP", "C4.S1",
+  "C4.S2", "GYM.10", "U11.L02", "U11.L03", "U11.L04", "U11.L05", "GYM.11", "U11.L06", "U11.L07", "U11.L08",
+  "U12.L01", "GYM.12", "U11.CP", "C5.S1", "C5.S2", "X2.S1", "X2.S2", "U12.L02", "U12.L03", "U12.L04",
+  "U12.L05", "GYM.13", "U12.L06", "U13.L01", "U13.L02", "U13.L03", "GYM.14", "U13.L04", "U13.L05", "U13.L06",
+  "U14.L01", "GYM.15", "U13.CP", "U14.L02", "U14.L03", "U14.L04", "GYM.16", "U14.L05", "U14.L06", "U15.L01",
+  "U14.CP", "CF-T.S1", "C6.S1", "C6.S2", "U15.L02", "U15.L03", "CF-T.S2", "U15.L04", "U15.L05", "U15.L06",
+  "U16.L01", "CF-T.S3", "U16.L02", "U16.L03", "U16.L04", "U16.L05", "CF-T.S4", "U17.L01", "U17.L02", "U17.L03",
+  "U17.L04", "GYM.17", "U17.CP", "C7.S1", "C7.S2", "C7.S3", "GYM.18", "CF-A.S1", "CF-A.S2", "CF-A.S3",
+  "CF-A.S4",
 ];
 
 /** Default order inside each advanced track (contracts §2.6): the order of its table. */
@@ -680,17 +746,19 @@ export const defaultOrder: SessionId[] = [
 export const trackOrder: Record<TrackId, SessionId[]> = {
   J: [
     "J1.L01", "J1.L02", "J1.L03", "J1.L04", "J1.L05", "J2.L01", "J2.L02", "J2.L03", "J2.L04", "J.CP1",
-    "JC1.S1", "JC1.S2", "J3.L01", "J3.L02", "J3.L03", "J3.L04", "J4.L01", "J4.L02", "J4.L03", "J4.L04",
-    "JC2.S1", "JC2.S2", "J5.L01", "J5.L02", "J5.L03", "J5.L04", "J5.L05", "J.CP2", "JC3.S1", "JC3.S2",
-    "JC3.S3", "JC4.S1", "JC4.S2", "JC4.S3",
+    "JC1.S1", "JC1.S2", "J3.L01", "J3.L05", "J3.L02", "J3.L03", "J3.L04", "J4.L01", "J4.L02", "J4.L03",
+    "J4.L04", "JC2.S1", "JC2.S2", "J5.L01", "J5.L02", "J5.L03", "J5.L04", "J5.L05", "J.CP2", "JC3.S1",
+    "JC3.S2", "JC3.S3", "JC4.S1", "JC4.S2", "JC4.S3",
   ],
   R: [
-    "R1.L01", "R1.L02", "R1.L03", "R1.L04", "R1.L05", "R2.L01", "R2.L02", "R2.L03", "R2.L04", "R2.L05",
-    "R3.L01", "R3.L02", "R3.L03", "R3.L04", "R3.L05", "R.CP", "RC1.S1", "RC1.S2", "RC2.S1", "RC2.S2",
+    "R1.L01", "R1.L02", "R1.L03", "R1.L04", "R1.L06", "R1.L05", "R2.L01", "R2.L02", "R2.L03", "R2.L04",
+    "R2.L05", "R3.L01", "R3.L02", "R3.L03", "R3.L04", "R3.L05", "R.CP", "RC1.S1", "RC1.S2", "RC2.S1",
+    "RC2.S2",
   ],
   A: [
-    "A1.L01", "A1.L02", "A1.L03", "A1.L04", "A1.L05", "A1.L06", "A1.L07", "A2.L01", "A2.L02", "A2.L03",
-    "A2.L04", "A2.L05", "A2.L06", "A.CP", "AC1.S1", "AC1.S2", "AC1.S3", "AC2.S1", "AC2.S2", "AC2.S3",
+    "A1.L01", "A1.L02", "A1.L03", "A1.L04", "A1.L05", "A1.L06", "A1.L07", "A2.L01", "A2.L02", "A2.L08",
+    "A2.L09", "A2.L03", "A2.L07", "A2.L04", "A2.L05", "A2.L06", "A.CP", "AC1.S1", "AC1.S2", "AC1.S3",
+    "AC2.S1", "AC2.S2", "AC2.S3",
   ],
 };
 
@@ -706,25 +774,25 @@ export default syllabus;
 
 /** Session counts of contracts §2.7; content/validate proves the data adds up to them. */
 export const SESSION_COUNTS = {
-  coreLessons: 125,
+  coreLessons: 130,
   coreCheckpoints: 13,
   coreCapstoneSessions: 30,
-  gymSessions: 17,
-  core: 185,
-  jazz: 34,
-  rhythm: 20,
-  arrangement: 20,
-  advanced: 74,
-  total: 259,
+  gymSessions: 18,
+  core: 191,
+  jazz: 35,
+  rhythm: 21,
+  arrangement: 23,
+  advanced: 79,
+  total: 270,
 } as const;
 
 /** Landmarks of the default order (contracts §2.5), as 1-based session numbers. */
 export const LANDMARKS: Record<string, { session: SessionId; n: number }> = {
   firstAlbumTrack: { session: "C0.S1", n: 14 },
   firstChordsInOwnCode: { session: "U05.L01", n: 40 },
-  firstComposedSong: { session: "C2.S2", n: 80 },
-  tracksOpen: { session: "U13.CP", n: 147 },
-  coreComplete: { session: "CF-A.S4", n: 185 },
+  firstComposedSong: { session: "C2.S2", n: 82 },
+  tracksOpen: { session: "U13.CP", n: 153 },
+  coreComplete: { session: "CF-A.S4", n: 191 },
 };
 
 export type { CapstoneId, CheckpointId, LessonId };

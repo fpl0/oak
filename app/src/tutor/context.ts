@@ -830,7 +830,13 @@ function refuse(notice: TutorNotice): AskResult {
   return { ok: false, notice };
 }
 
-function ask(kind: ThreadKind, userText: string, label: string, subject?: TutorSubject): AskResult {
+function ask(
+  kind: ThreadKind,
+  userText: string,
+  label: string,
+  subject?: TutorSubject,
+  reviewQuestion?: string,
+): AskResult {
   const st = useTutorContext.getState();
   const subj = subject ?? st.subject ?? GENERAL_SUBJECT;
   if (st.availability === "off") return refuse({ kind: "off", message: OFF_COPY[st.offReason ?? "ready"] });
@@ -841,16 +847,19 @@ function ask(kind: ThreadKind, userText: string, label: string, subject?: TutorS
         subj.closedNotice ??
         "The tutor is closed here: checkpoints and drill trials are yours alone. It opens again after.",
     });
+  const request = buildTurnRequest(
+    subj,
+    kind,
+    userText,
+    st.subject && sameThread(st.subject.thread, subj.thread) ? st.excluded : [],
+    st.lenses,
+  );
+  // Oak 2.0 W4 F4: the review's one question rides on this request only, never on the thread's subject.
+  if (reviewQuestion !== undefined) request.reviewQuestion = reviewQuestion;
   const a: TutorAsk = {
     id: nextAskId++,
     kind,
-    request: buildTurnRequest(
-      subj,
-      kind,
-      userText,
-      st.subject && sameThread(st.subject.thread, subj.thread) ? st.excluded : [],
-      st.lenses,
-    ),
+    request,
     label,
     at: Date.now(),
     ...(subject ? { subject } : {}),
@@ -907,6 +916,11 @@ export function askReview(capstone: {
   albumVersion?: number;
   /** After the first release (revision mode): the review's try-it code may be applied (contracts §10.7). */
   released?: boolean;
+  /**
+   * Oak 2.0 W4 F4: the learner's one question for this review (`reviewQuestion`, answered first). `null`, absent or
+   * blank: no question.
+   */
+  question?: string | null;
 }): AskResult {
   const subject: TutorSubject = {
     thread: { subjectKind: "capstone", subjectId: capstone.capstoneId },
@@ -920,7 +934,14 @@ export function askReview(capstone: {
     subject.albumTrackId = capstone.albumTrackId;
     subject.albumVersion = capstone.albumVersion;
   }
-  return ask("review-capstone", capstone.note ?? "Please review my draft.", "Request review", subject);
+  const question = capstone.question?.trim().slice(0, 300);
+  return ask(
+    "review-capstone",
+    capstone.note ?? "Please review my draft.",
+    "Request review",
+    subject,
+    question ? question : undefined,
+  );
 }
 
 /**

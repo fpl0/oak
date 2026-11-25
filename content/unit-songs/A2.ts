@@ -958,7 +958,7 @@ const take = (
 export const A2_SONG = defineUnitSong({
   id: "usong.A2",
   unit: "A2",
-  version: 1,
+  version: 2,
   title: "Room to breathe",
   meter: "4/4",
   key: { tonic: "A", mode: "minor" },
@@ -1024,12 +1024,30 @@ export const A2_SONG = defineUnitSong({
       ["lead", "pad", "chords", "bass"],
       "Your chorus, with more notes in every bar than its verse, plays the song's first chorus.",
     ),
+    {
+      lesson: "A2.L08",
+      kind: "side",
+      reason:
+        "Peak First builds a whole arrangement of its own, down from its chorus, so it stays a sketch beside the song.",
+    },
+    {
+      lesson: "A2.L09",
+      kind: "side",
+      reason:
+        "Seams and Surprises writes its own sixteen bars of drums across two seams, so it stays a sketch beside the song.",
+    },
     take(
       "A2.L03",
       ["verse2"],
       ["lead", "vox", "chords", "bass"],
       "Your loop with a second tune that answers the first plays the song's second verse.",
     ),
+    {
+      lesson: "A2.L07",
+      kind: "side",
+      reason:
+        "This lesson shares a line of its own between two sounds, note by note, so it stays a sketch beside the song.",
+    },
     take(
       "A2.L04",
       ["break"],

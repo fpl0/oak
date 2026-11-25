@@ -160,7 +160,8 @@ describe("Wave 7 dev seeds (wave7.md §6)", () => {
         ["after J2.L02", { kind: "lesson", id: "J2.L03" }, "J"],
         ["after JC1.S1", { kind: "capstone", id: "JC1.S2" }, "J"],
         ["after R2.L03", { kind: "lesson", id: "R2.L04" }, "R"],
-        ["after A2.L03", { kind: "lesson", id: "A2.L04" }, "A"],
+        // Oak 2.0 W2: A2.L07 Hocket follows A2.L03 (content/syllabus.ts trackOrder.A).
+        ["after A2.L03", { kind: "lesson", id: "A2.L07" }, "A"],
       ];
       for (const [point, today, focus] of cases) {
         const r = await h.json<DevSeedResult & { error?: { message: string } }>("POST", "/api/dev/seed", {
@@ -216,7 +217,8 @@ async function checkToday(h: Harness, point: string): Promise<SessionPlan> {
     if (want.id !== null && want.focus !== "core") {
       const t = plan.track;
       expect({ point, track: t?.trackId }).toEqual({ point, track: want.focus });
-      expect(t?.sessionsTotal).toBe(want.focus === "J" ? 34 : 20);
+      // Contracts 2.2 (Oak 2.0 W2): J 35, R 21, A 23 sessions (content/syllabus.ts SESSION_COUNTS; were 34, 20, 20).
+      expect(t?.sessionsTotal).toBe({ J: 35, R: 21, A: 23 }[want.focus]);
     }
   } else if (plan.mapItemId === null) expect({ point, note: plan.note }).toEqual({ point, note: FALLBACK });
   return plan;
@@ -241,7 +243,8 @@ async function deepChecks(h: Harness, point: string): Promise<void> {
         .filter(([, id]) => authored(full, id));
       expect(offers as unknown[]).toEqual(want.map(([t, id]) => [t, id]));
       const progress = await ok<CourseProgress>(h, "GET", "/api/lessons/progress");
-      expect(progress.mapTotal).toBe(259);
+      // 270 since Oak 2.0 W2 (content/syllabus.ts SESSION_COUNTS.total; it was 259).
+      expect(progress.mapTotal).toBe(270);
       expect(progress.course).toBe("in-progress");
       break;
     }
@@ -353,7 +356,7 @@ async function deepChecks(h: Harness, point: string): Promise<void> {
       }
       const whole = await ok<WholeCourse>(h, "GET", "/api/course/whole");
       expect(whole.stage).toBe("complete");
-      expect(whole.sessionsDone).toBe(259);
+      expect(whole.sessionsDone).toBe(270);
       expect(whole.album).toMatchObject({ released: 20, total: 20 });
       const summary = lastSummary(h);
       expect(summary.courseComplete?.stage).toBe("complete");
@@ -365,8 +368,8 @@ async function deepChecks(h: Harness, point: string): Promise<void> {
       ]);
       const progress = await ok<CourseProgress>(h, "GET", "/api/lessons/progress");
       expect({ done: progress.mapDone, total: progress.mapTotal, course: progress.course }).toEqual({
-        done: 259,
-        total: 259,
+        done: 270,
+        total: 270,
         course: "complete",
       });
       break;

@@ -207,6 +207,22 @@ export function reviewTargetOf(
   return {};
 }
 
+/** Keep the learner's review question only on the capstone review channel. */
+export function forwardedTurnBody(
+  kind: TutorTurnRequest["kind"],
+  rest: Omit<TutorTurnRequest, "kind">,
+  target: Record<string, string | number>,
+): Record<string, unknown> {
+  const { reviewQuestion, ...other } = rest;
+  if (!REVIEW_KINDS.has(kind)) return other;
+  return {
+    thread: rest.thread,
+    userText: rest.userText,
+    ...target,
+    ...(kind === "review-capstone" && reviewQuestion !== undefined ? { reviewQuestion } : {}),
+  };
+}
+
 /**
  * The SSE turn endpoints of the contract. The browser sends `TutorTurnRequest` (with `kind`, and
  * `explain` arrives on `tutor.hint`); the tutor's routes fix the kind by path and refuse a `kind`
@@ -248,9 +264,7 @@ export function tutorTurnRoutes(app: Hono, d: AppDeps): void {
         return errorResponse(badRequest(`a ${kind} request does not belong on ${contract[name].path}`));
       const target = reviewTargetOf(kind, rest);
       if (typeof target === "string") return errorResponse(badRequest(target));
-      const body = REVIEW_KINDS.has(kind)
-        ? { thread: rest.thread, userText: rest.userText, ...target }
-        : rest;
+      const body = forwardedTurnBody(kind, rest, target);
       const headers = new Headers(c.req.raw.headers);
       headers.delete("content-length");
       headers.set("content-type", "application/json");

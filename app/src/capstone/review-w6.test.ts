@@ -164,6 +164,9 @@ describe("C7 Chromatic Colour", () => {
   });
 });
 
+// Oak 2.0 W4 F1: CF-A now also requires an ending on purpose (`ending`, contracts §6.6). These Wave 6 review pieces
+// stop at the end of their last chorus, so that line is open on every one of them and nothing else changes: each
+// "passes" below as "only the ending is open" (decision 133).
 describe("CF-A Album Single", () => {
   const devices = async (code: string) => {
     const r = await check("CF-A", code);
@@ -174,7 +177,7 @@ describe("CF-A Album Single", () => {
   test("pop in G at 120, 64 bars: four devices at the bars where they sound; 2:08", async () => {
     const r = await devices(P.CFA_G_POP);
     expect(r.key).toEqual({ tonic: "G", mode: "major" });
-    expect(r.result.status).toBe("pass");
+    expect(r.open).toEqual(["ending"]);
     // B7 in the chorus's third bar (13 + 2), Cm in the bridge's fifth (37 + 4), the 4–3 in the verse's last bar
     // (5 + 3), the pushed bass from the verse (the intro has none).
     expect(r.firstBars).toEqual({
@@ -199,7 +202,7 @@ describe("CF-A Album Single", () => {
   test("indie in A minor at 90: A7 into Dm, the Dorian IV borrowed, a pushed chorus bass, the last chorus in B minor", async () => {
     const r = await devices(P.CFA_AMIN_INDIE);
     expect(r.key).toEqual({ tonic: "A", mode: "minor" });
-    expect(r.result.status).toBe("pass");
+    expect(r.open).toEqual(["ending"]);
     expect(r.firstBars).toMatchObject({
       "secondary dominant": 12,
       "borrowed chord": 2,
@@ -212,7 +215,7 @@ describe("CF-A Album Single", () => {
 
   test("funk in F at 104, exactly two minutes: E♭ alone is modal colour, B♭m is borrowed", async () => {
     const r = await devices(P.CFA_F_FUNK);
-    expect(r.result.status).toBe("pass");
+    expect(r.open).toEqual(["ending"]);
     expect(r.analysis.durationSec).toBeCloseTo(120, 6);
     expect(r.firstBars).toMatchObject({
       "secondary dominant": 11,
@@ -224,7 +227,7 @@ describe("CF-A Album Single", () => {
 
   test("three devices: the count is open and names what is there and what is not", async () => {
     const r = await devices(P.CFA_MISS_THREE);
-    expect(r.open).toEqual(["devices"]);
+    expect(r.open).toEqual(["devices", "ending"]);
     expect(r.detail("devices")).toBe(
       "3 of the 4 asked for: secondary dominant (bar 15), borrowed chord (bar 41), syncopated bass (bar 5); still open: modulation, suspension, modal colour",
     );
@@ -232,7 +235,7 @@ describe("CF-A Album Single", () => {
 
   test("a bridge that is the chorus renamed: the borrowed chord it carried is gone, and the suggestion line says it is no different from the chorus", async () => {
     const r = await devices(P.CFA_MISS_BRIDGE_RENAMED);
-    expect(r.open).toEqual(["devices"]);
+    expect(r.open).toEqual(["devices", "ending"]);
     expect(r.firstBars["borrowed chord"]).toBeNull();
     // The form rule counts a section named for a bridge (contracts §6.3); the suggestion line says what is wrong.
     expect(r.rows.find((x) => x.id === "bridge")?.state).toBe("met");
@@ -241,7 +244,7 @@ describe("CF-A Album Single", () => {
 
   test("1:52: only the length is open, and it says by how much", async () => {
     const r = await devices(P.CFA_MISS_SHORT);
-    expect(r.open).toEqual(["duration"]);
+    expect(r.open).toEqual(["duration", "ending"]);
     expect(r.detail("duration")).toBe("112 s long; at least 120 s");
     expect(
       runningLength(capstone("CF-A").brief?.rubric ?? [], {

@@ -48,6 +48,8 @@ export function libraryRoutes(mount: Mounter, d: AppDeps): void {
   mount("album.track", ({ params }) => lib.track(params.id));
   mount("album.createTrack", ({ body }) => lib.createTrack(body));
   mount("album.addVersion", ({ params, body }) => lib.addTrackVersion(params.id, body));
+  // Oak 2.0 W4 F6: the Shelf (listed in `OAK2_BUILT` by the W4 integrator).
+  mount("album.patchTrack", ({ params, body }) => lib.patchTrack(params.id, body));
   // Wave 6 (d20): a recording on a version that already has one is another take; nothing is replaced, so the
   // `album.audio.replace` nonce is accepted and no longer needed (an older client cannot delete a recording).
   mount("album.putAudio", ({ params, query, bytes, contentType }) =>

@@ -169,7 +169,8 @@ content-kit                      (zod only)
   │    ├─ pitch                  (content-kit, theory; pitchy)
   │    │    ├─ drills            (content-kit, theory, pitch)
   │    │    └─ audio             (content-kit, theory, pitch; signalsmith-stretch)        browser only
-  │    └─ strudel                (content-kit, theory, grader, drills; every @strudel/*, superdough,
+  │    └─ strudel                (content-kit, theory, grader, drills, audio [Oak 2.0 W4: BS.1770 loudness
+  │                               through `@oak/audio/loudness`]; every @strudel/*, superdough,
   │                               CodeMirror, worker-timers)                               browser only
   └─ srs                         (content-kit; ts-fsrs)
 

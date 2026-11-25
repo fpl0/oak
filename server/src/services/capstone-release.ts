@@ -120,8 +120,11 @@ export class CapstoneReleaseService {
           latest.sketchVersion === body.sketchVersion &&
           latest.linerNotesMd === linerNotesMd &&
           JSON.stringify(latest.theoryTags) === JSON.stringify(body.theoryTags)
-        )
+        ) {
+          // Only where the track sits may differ (Oak 2.0 W4 F6): no new version for it.
+          if (body.shelved !== undefined) repos.album.setShelved(existing.id, body.shelved);
           return { trackId: existing.id, unlocks, canDo: [] as CanDoEntry[] };
+        }
       }
       // Wave 7 (content-kit `CapstoneDef.versions`, AC1): a two-version capstone is released as ONE album track
       // holding both versions, version one first (track version 1) and version two after it (track version 2).
@@ -144,6 +147,12 @@ export class CapstoneReleaseService {
       if (both !== null)
         for (const d of both.slice(1)) track = this.d.library.addTrackVersion(track.id, { ...version, ...d });
       if (review.success) repos.album.setReview(track.id, track.currentVersion, review.data);
+      // Oak 2.0 W4 F6: `true` puts the track on the Shelf, `false` on the album, absent keeps where it is (a first
+      // release: the album). The release itself is unchanged: released, unlocks, can-dos, the side's count.
+      if (body.shelved !== undefined && body.shelved !== (track.shelved === true)) {
+        repos.album.setShelved(track.id, body.shelved);
+        track = this.d.library.track(track.id);
+      }
       const first = row.status !== "released";
       repos.capstones.save({
         ...row,

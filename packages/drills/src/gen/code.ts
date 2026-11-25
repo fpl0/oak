@@ -8,7 +8,7 @@ import { buildPiece } from "../build.ts";
 import { type DrillTrialResult, gradeAnswer } from "../grade.ts";
 import { keysFor, parsePc, spellMidi, stepToMidi } from "../kernel.ts";
 import { parseMini, parseMiniCode } from "../mini.ts";
-import { atom, type Node, query, seq, stack } from "../pat.ts";
+import { atom, type Node, print, query, rest, seq, stack } from "../pat.ts";
 import type { Rng, TrialResponse } from "../types.ts";
 import {
   cueOf,
@@ -435,6 +435,8 @@ interface FnCase {
   correct: FnCand;
   near: FnCand[];
   bars: number;
+  played?: Node;
+  motif?: string;
 }
 type FnBuilder = (ctx: GenCtx, key: KeySpec) => FnCase;
 
@@ -444,7 +446,74 @@ const nScale = (steps: readonly number[], key: KeySpec, octave: number, cycles =
     (s) => [stepToMidi(s, key, octave)],
   );
 
+/** An uneven motif keeps changing pitches in place distinct from moving the whole rhythm. */
+export function transformRhythmOk(events: readonly { t: number; dur: number }[]): boolean {
+  const first = events.filter((e) => e.t >= 0 && e.t < 1).sort((a, b) => a.t - b.t);
+  if (first.length < 3) return false;
+  const lengths = first.map((e) => e.dur);
+  const restGap = first.some(
+    (e, i) =>
+      (first[(i + 1) % first.length]?.t as number) + (i === first.length - 1 ? 1 : 0) > e.t + e.dur + 1e-9,
+  );
+  return restGap && Math.max(...lengths) > Math.min(...lengths) + 1e-9;
+}
+
+function transformCase(ctx: GenCtx, key: KeySpec, kind: "inversion" | "rotation" | "time-shift"): FnCase {
+  const degrees = ctx.rng.shuffle([0, 1, 2, 4, 6]).slice(0, 3);
+  const octave = ctx.rng.pick([3, 4]);
+  const rhythm = (ds: readonly number[]) =>
+    seq([atom(ds[0] as number), atom(ds[1] as number), rest, atom(ds[2] as number), rest], [2, 1, 1, 1, 1]);
+  const original = rhythm(degrees);
+  const rotated = rhythm([degrees[2] as number, degrees[0] as number, degrees[1] as number]);
+  // Move the final written rest to the start: all note onsets move one sixth of a bar later, modulo one bar.
+  const shifted = seq(
+    [rest, atom(degrees[0] as number), atom(degrees[1] as number), rest, atom(degrees[2] as number)],
+    [1, 2, 1, 1, 1],
+  );
+  const centreTwice = Math.min(...degrees) + Math.max(...degrees);
+  const inverted = rhythm(degrees.map((d) => centreTwice - d));
+  const reversed = seq(
+    [rest, atom(degrees[2] as number), rest, atom(degrees[1] as number), atom(degrees[0] as number)],
+    [1, 1, 1, 1, 2],
+  );
+  const lineOf = (node: Node) => `n("${print(node).text}").scale("${scaleStr(key, octave)}")`;
+  const mk = (node: Node, code = lineOf(node)) =>
+    fnCand(
+      code,
+      query(node, 2).map((e) => ({
+        t: e.onset[0] / e.onset[1],
+        midi: stepToMidi(Number(e.v), key, octave),
+      })),
+    );
+  const checked = query(original, 1).map((e) => ({ t: e.onset[0] / e.onset[1], dur: e.dur[0] / e.dur[1] }));
+  if (!transformRhythmOk(checked))
+    throw new Error("transform motif must have a rest and unequal note lengths");
+  const correctNode = kind === "inversion" ? inverted : kind === "rotation" ? rotated : shifted;
+  const correct = mk(correctNode);
+  // Keep rests and durations in the stimulus; the older builders retain their original even-slot path.
+  const toNotes = (node: Node): Node =>
+    node.t === "atom"
+      ? atom(spellMidi(stepToMidi(Number(node.v), key, octave), key).code)
+      : node.t === "rest"
+        ? rest
+        : { ...node, items: node.items.map(toNotes) };
+  // A second plain degree line prevents recognizing inversion by the absence of a transform call.
+  const degreeShift = kind === "inversion" ? ctx.rng.pick([1, 2]) : 0;
+  const near =
+    kind === "inversion"
+      ? [mk(reversed, `${lineOf(original)}.rev()`), mk(rhythm(degrees.map((degree) => degree + degreeShift)))]
+      : kind === "rotation"
+        ? [mk(reversed, `${lineOf(original)}.rev()`), mk(shifted)]
+        : [mk(rotated), mk(original)];
+  if (new Set([correct.sig, ...near.map((c) => c.sig)]).size !== 3)
+    throw new Error("ambiguous transform candidates");
+  return { correct, near, bars: 2, played: toNotes(correctNode), motif: lineOf(original) };
+}
+
 const FN_BUILDERS: Readonly<Record<string, FnBuilder>> = {
+  inversion: (ctx, key) => transformCase(ctx, key, "inversion"),
+  rotation: (ctx, key) => transformCase(ctx, key, "rotation"),
+  "time-shift": (ctx, key) => transformCase(ctx, key, "time-shift"),
   scale(ctx, key) {
     const oct = ctx.rng.pick([3, 4]);
     const steps = randomSteps(ctx.rng, 4);
@@ -605,7 +674,7 @@ export const codeFunctions: Generator = {
   generate(ctx) {
     const build = FN_BUILDERS[ctx.category] ?? (FN_BUILDERS.scale as FnBuilder);
     const key = pickKey(ctx, "major");
-    const { correct, near, bars } = build(ctx, key);
+    const { correct, near, bars, played, motif } = build(ctx, key);
     const cands = pickCandidates(ctx.rng, correct, near, [], 3);
     const sound = ctx.category === "root-notes" ? ctx.rng.pick(["ebass", "upright"]) : pickSound(ctx);
     // The played code is the plain note list (the learner never sees it): what the candidates must match.
@@ -630,7 +699,7 @@ export const codeFunctions: Generator = {
         {
           label: "mel",
           src: "note",
-          pat: byCycle.length === 1 ? ((pat as { items: Node[] }).items[0] as Node) : pat,
+          pat: played ?? (byCycle.length === 1 ? ((pat as { items: Node[] }).items[0] as Node) : pat),
           s: sound,
           gain: jitter(ctx, 0.75),
         },
@@ -644,6 +713,7 @@ export const codeFunctions: Generator = {
       optionLabels: Object.fromEntries(options.map((o) => [o, `\`${o}\``])),
       prompt: PROMPT_PICK_CODE,
       fn: ctx.category,
+      ...(motif ? { motif } : {}),
     });
   },
 };

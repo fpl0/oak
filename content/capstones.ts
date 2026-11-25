@@ -49,6 +49,23 @@ const opt = (id: string, label: string, skills: SkillRef[], body: Body): RubricR
 const custom = (fn: string, params?: Record<string, unknown>): Body =>
   (params ? { rule: "custom", fn, params } : { rule: "custom", fn }) as Body;
 
+// Oak 2.0 W4 F1 (docs/oak2/PLAN.md §2 rule 1, §6 F1): the book's arranging moves on the capstones. "Three Ways to
+// End" is required on CF-A only (taught in core U09.L06, graded there with F06); everywhere else a move of the book
+// is a suggestion: `required: false` and no skills, so an unticked line never becomes mastery evidence and never
+// blocks a pass. Labels are the book's moves in plain words.
+const ENDING_LABEL = "It ends on purpose";
+/** The ending as a suggestion (C6, C7, JC1–JC4, RC1, RC2). */
+const optEnding = (): RubricRule => opt("ending", ENDING_LABEL, [], custom("ends-on-purpose"));
+/**
+ * Fuzzy Boundaries, Unique Events and Dramatic Arc as suggestions, on the capstones from C3 on whose brief is written
+ * in `arrange()` sections (C3, C4, C7, CF-A, JC3): without sections the W0 rules can only say "needs sections".
+ */
+const sectionSuggestions = (): RubricRule[] => [
+  opt("seam", "At one seam, some parts change before or after the others", [], custom("staggered-boundary")),
+  opt("once", "Something happens once and never again", [], custom("unique-event")),
+  opt("arc", "It builds to its fullest section and thins after it", [], custom("arc")),
+];
+
 /**
  * The sessions of a capstone (contracts §2.4, §2.6). The last one offers the tutor review (§10.6: every
  * capstone gets one) and releases the piece to the album (Wave 4 `review`, `release`); a learner's draft
@@ -103,13 +120,19 @@ interface ComposeSpec {
    * the picked song's melody to the grader as `GradeContext.songMelody`.
    */
   song?: SongId[];
+  /**
+   * The content version of the capstone and of its brief exercise (contracts §11.7 rule 2: a rubric change bumps
+   * it); default 1. Oak 2.0 W4 F1 bumped the capstones whose rubric gained the book's lines to 2.
+   */
+  version?: number;
 }
 
 function compose(c: ComposeSpec): CapstoneDef {
+  const version = c.version ?? 1;
   const brief: ComposeBriefEx = {
     kind: "compose-brief",
     id: "brief",
-    version: 1,
+    version,
     title: c.title,
     prompt: c.brief,
     skills: c.skills.map((skill) => ({ skill, w: 1 })),
@@ -132,7 +155,7 @@ function compose(c: ComposeSpec): CapstoneDef {
     sessions: c.sessions.length,
     opensAfter: c.opensAfter,
     kind: "compose",
-    version: 1,
+    version,
     ...(c.key ? { key: c.key } : {}),
     meter: c.meter,
     ...(c.bpm ? { bpm: c.bpm } : {}),
@@ -251,6 +274,13 @@ export const CUSTOM_RUBRIC_FNS = {
   // differs from the bar before it), stands for §6.6's `fill-last-bar`.
   "bars-differ":
     "the loop has `min` different bars; with `last`, its last bar differs from the one before it",
+  // Oak 2.0 W4 F1 (contracts §6.6): the W0 form rules (packages/grader/src/rubric/oak2-form.ts), required on CF-A
+  // (`ends-on-purpose`) and otherwise optional book suggestions with no skills.
+  "ends-on-purpose":
+    "the piece ends on purpose: parts leave one by one, the closing phrase shrinks, it builds to a last hit, it fades, or it lands on a cadence or a final hit",
+  "staggered-boundary": "at one seam, some but not all parts change before or after the others",
+  "unique-event": "something happens once, inside a section, and never again",
+  arc: "the piece builds to its fullest section and thins after it",
 } as const;
 
 /** C0's reference intro (tests and the release preview): four bars, the fill a sixteenth-note snare-tom run. */
@@ -1089,8 +1119,18 @@ const POP_PLAN: SinglePlan = [
   [8, "Chorus"],
   [8, "Chorus2"],
 ];
+/**
+ * How a single ends (U09.L06 Endings, DeSantis's "Three Ways to End"; CF-A's required `ending` line since Oak 2.0 W4):
+ * `exits` a four-bar outro where the tune leaves after two bars and the chords after three, the bass and drums
+ * playing to the end; `hit` one new last bar, every part on beat 1 and then silence; `fade` a four-bar outro that
+ * loops IV–I while every part fades to a tenth of its level (not to 0: the grader leaves out notes 24 dB under the
+ * mix, W2.md); `none` the last chorus simply stops.
+ */
+type SingleEnding = "exits" | "hit" | "fade" | "none";
 interface PopSingle {
   plan?: SinglePlan;
+  /** How the single ends; default `exits`. */
+  ending?: SingleEnding;
   verse?: string;
   bassVerse?: string;
   /** The last chorus a whole step up (a `chordsChorus2` and the key plan after `arrange()`); default true. */
@@ -1101,46 +1141,117 @@ interface PopSingle {
   suspension?: boolean;
 }
 /**
+ * A fade over a four-bar outro (W2's U09.L06 fade form), from `top` down to .08, a tenth of the loudest part: not to
+ * 0, since the grader leaves out notes more than 24 dB under the loudest (W2.md "Rule findings not changed").
+ */
+const fade4 = (top: number): string => `.gain(saw.range(${String(top).replace(/^0/, "")}, .08).slow(4))`;
+/**
  * The pop single (content/specs/finale-reference.ts, CF.md "Tests"): C major at 100 BPM, verse chorus verse chorus
- * bridge chorus and a last chorus a whole step up, 56 bars, 134.4 s. V7/vi to vi in the chorus (E7 to Am); the
- * minor iv and ♭VI–♭VII in the bridge (Fm, A♭, B♭); the lift; a 4–3 suspension at the verse's cadence; a bass
- * that lands between the beats. Five devices: ♭VII beside ♭VI is a borrowed chord, not a modal colour.
+ * bridge chorus and a last chorus a whole step up, then its ending (`exits` by default: four bars, 60 bars in all,
+ * 144 s). V7/vi to vi in the chorus (E7 to Am); the minor iv and ♭VI–♭VII in the bridge (Fm, A♭, B♭); the lift; a
+ * 4–3 suspension at the verse's cadence; a bass that lands between the beats. Five devices: ♭VII beside ♭VI is a
+ * borrowed chord, not a modal colour. The ending is in the key of the last chorus (D after the lift), on IV, V and
+ * I only, so it adds no device.
  */
 const popSingle = (o: PopSingle = {}): string => {
   const lift = o.lift ?? true;
-  const plan = (o.plan ?? POP_PLAN).map(([b, s]) =>
+  const ending = o.ending ?? "exits";
+  const body = (o.plan ?? POP_PLAN).map(([b, s]) =>
     !lift && s === "Chorus2" ? ([b, "Chorus"] as const) : ([b, s] as const),
   );
+  const tail: SinglePlan = ending === "none" ? [] : ending === "hit" ? [[1, "End"]] : [[4, "Outro"]];
+  const plan = [...body, ...tail];
   const bars = plan.reduce((n, [b]) => n + b, 0);
+  const lifted = plan.findIndex(([, s]) => s === "Chorus2");
+  const liftAt = plan.slice(0, lifted < 0 ? plan.length : lifted).reduce((n, [b]) => n + b, 0);
   const keys = (octave: number) =>
-    lift ? `"<C${octave}:major!${bars - 8} D${octave}:major!8>"` : `"C${octave}:major"`;
+    lift ? `"<C${octave}:major!${liftAt} D${octave}:major!${bars - liftAt}>"` : `"C${octave}:major"`;
   const groove = o.groove ?? "x ~ ~ x ~ x ~ ~";
+  // IV, V and I of the key the song ends in.
+  const [iv, v, i] = lift ? ["G", "A", "D"] : ["F", "G", "C"];
+  // The hit and the fade need the drums in sections (they stop, or fade, at the end); otherwise they play throughout.
+  const drumsInSections = ending === "hit" || ending === "fade";
+  const DRUMS = {
+    kick: ['s("bd ~ bd ~")', 0.8],
+    snare: ['s("~ sd ~ sd")', 0.8],
+    hats: ['s("hh*8")', 0.4],
+  } as const;
+  const beat = (role: keyof typeof DRUMS): string =>
+    `${DRUMS[role][0]}.gain(${String(DRUMS[role][1]).replace(/^0/, "")})`;
+  const drumParts: Record<string, Record<string, string>> = {};
+  const drumUses: Record<string, Record<string, string | null>> = {};
+  if (drumsInSections)
+    for (const role of ["kick", "snare", "hats"] as const) {
+      const [pattern, level] = DRUMS[role];
+      const last =
+        ending === "fade"
+          ? `${pattern}${fade4(level)}`
+          : role === "kick"
+            ? 's("[bd,cr] ~ ~ ~").gain(.8)'
+            : null;
+      // One const per section name (the grader reads a section's name from each const), the beat in each, and
+      // the last chorus playing the chorus's, as the bass and the tune do.
+      const names = [...new Set(body.map(([, s]) => (s === "Chorus2" ? "Chorus" : s)))];
+      drumParts[role] = {
+        ...Object.fromEntries(names.map((n) => [n, beat(role)])),
+        ...(last ? { [tail[0]?.[1] as string]: last } : {}),
+      };
+      drumUses[role] = { Chorus2: "Chorus", ...(last ? {} : { [tail[0]?.[1] as string]: null }) };
+    }
+  // In the fade the chords' level lives in their consts, so the outro's fade is not overridden after `arrange()`.
+  const chordLevel = ending === "fade" ? ".gain(.5)" : "";
+  const chordsOf = (names: string): string => `chord("${names}").voicing()${chordLevel}`;
+  const ends: Record<SingleEnding, { bass?: string; chords?: string; mel?: string }> = {
+    none: {},
+    exits: {
+      bass: `n("<3 4 0 0>").struct("${groove}")`,
+      chords: `chord("<${iv} ${v} ${i} ${i}>").voicing().mask("<1 1 1 0>")`,
+      mel: 'n("<[7 ~ 7 5] [4 ~ ~ ~]>").mask("<1 1 0 0>")',
+    },
+    hit: { bass: 'n("[0 ~ ~ ~]")', chords: `chord("[${i} ~ ~ ~]").voicing()`, mel: 'n("[7 ~ ~ ~]")' },
+    fade: {
+      bass: `n("<3 0>").struct("${groove}")${fade4(0.8)}`,
+      chords: `chord("<${iv} ${i}>").voicing()${fade4(0.5)}`,
+      mel: `n("<[7 ~ 7 5] [4 ~ ~ ~]>")${fade4(0.8)}`,
+    },
+  };
+  const last = tail[0]?.[1];
+  const end = (role: "bass" | "chords" | "mel"): Record<string, string> => {
+    const code = ends[ending][role];
+    return last && code ? { [last]: code } : {};
+  };
   return single({
     bpm: 100,
     plan,
-    plain: ['kick: s("bd ~ bd ~").gain(.8)', 'snare: s("~ sd ~ sd").gain(.8)', 'hats: s("hh*8").gain(.4)'],
+    plain: drumsInSections
+      ? []
+      : ['kick: s("bd ~ bd ~").gain(.8)', 'snare: s("~ sd ~ sd").gain(.8)', 'hats: s("hh*8").gain(.4)'],
     parts: {
+      ...drumParts,
       bass: {
         Verse: `${o.bassVerse ?? 'n("<0 5 3 4>")'}.struct("${groove}")`,
         Chorus: `n("<3 4 2 5 3 4 0 0>").struct("${groove}")`,
         Bridge: 'n("<3 3 0 0 5b 6b 4 4>").struct("x ~ x ~")',
+        ...end("bass"),
       },
       chords: {
-        Verse: `chord("${o.verse ?? "<C Am F G>"}").voicing()`,
-        Chorus: 'chord("<F G E7 Am F G C C>").voicing()',
-        Bridge: 'chord("<Fm Fm C C Ab Bb G G>").voicing()',
-        Chorus2: 'chord("<G A F#7 Bm G A D D>").voicing()',
+        Verse: chordsOf(o.verse ?? "<C Am F G>"),
+        Chorus: chordsOf("<F G E7 Am F G C C>"),
+        Bridge: chordsOf("<Fm Fm C C Ab Bb G G>"),
+        Chorus2: chordsOf("<G A F#7 Bm G A D D>"),
+        ...end("chords"),
       },
       mel: {
         Verse: `n("<[4 ~ 4 2] [0 ~ ~ ~] [3 4 5 7] ${o.suspension === false ? "[6 ~ ~ ~]" : "[7@2 6@2]"}>")`,
         Chorus: 'n("<[7 ~ 7 5] [8 ~ 8 ~] [9 8 6 4#] [5 ~ ~ ~] [7 ~ 7 5] [8 ~ 8 9] [7 ~ ~ ~] ~>")',
         Bridge: 'n("<[5b ~ 4 3] [5b ~ 4 ~] [4 ~ 2 0] ~ [7 ~ 5b 4] [8 ~ 6b 3] [8 ~ ~ ~] [6 ~ ~ ~]>")',
+        ...end("mel"),
       },
     },
-    uses: { bass: { Chorus2: "Chorus" }, mel: { Chorus2: "Chorus" } },
+    uses: { ...drumUses, bass: { Chorus2: "Chorus" }, mel: { Chorus2: "Chorus" } },
     tails: {
       bass: `.scale(${keys(2)}).s("ebass").lpf(700)`,
-      chords: '.s("piano").gain(.5).room(.3)',
+      chords: `.s("piano")${chordLevel ? "" : ".gain(.5)"}.room(.3)`,
       mel: `.scale(${keys(4)}).s("piano").room(.25)`,
     },
   });
@@ -1151,58 +1262,64 @@ const popSingle = (o: PopSingle = {}): string => {
  * verse turns I–♭VII–IV–I (C B♭ F C: the Mixolydian colour) with the tune singing the ♭7, B♭; the chorus pulls
  * through D7 to G (V7/V) and holds D over C before falling to C (a 9–8 suspension); the bridge is eight bars in A
  * minor (the key plan after `arrange()`), Am F Dm E twice: E major, A minor's own V with its G♯, makes A the home
- * of the bridge rather than vi of C. A plain bass, no borrowed chord. Clean guitar, acoustic lead, LinnDrum.
+ * of the bridge rather than vi of C. A plain bass, no borrowed chord. Clean guitar, acoustic lead, LinnDrum. The
+ * four-bar outro loops IV–I (F C) after the drums have stopped: with `exits` the tune leaves after its second bar and
+ * the chords after the third, the bass alone to the end; with `loop` every part plays on to the last bar, the C that
+ * ends every pass of the loop (no ending on purpose: that bar was heard before).
  */
-const CF_A_INDIE = single({
-  bpm: 84,
-  plan: [
-    [8, "Verse"],
-    [8, "Chorus"],
-    [8, "Verse"],
-    [8, "Bridge"],
-    [8, "Chorus"],
-    [4, "Outro"],
-  ],
-  parts: {
-    kick: { Verse: 's("bd ~ ~ ~ bd ~ ~ ~")', Chorus: 's("bd ~ bd ~ bd ~ bd ~")', Bridge: 's("bd ~ ~ ~")' },
-    snare: { Verse: 's("~ ~ sd ~")', Chorus: 's("~ sd ~ sd")', Bridge: 's("~ ~ sd ~")' },
-    hats: { Verse: 's("hh*8").gain(.35)', Chorus: 's("[hh hh hh oh]*2").gain(.4)' },
-    bass: {
-      Verse: 'n("<0 6b 3 0>")',
-      Chorus: 'n("<3 4 0 5 3 1 4 4>")',
-      Bridge: 'n("<0 5 3 4 0 5 3 4>")',
-      Outro: 'n("<3 0>")',
+const indieSingle = (outro: "exits" | "loop"): string =>
+  single({
+    bpm: 84,
+    plan: [
+      [8, "Verse"],
+      [8, "Chorus"],
+      [8, "Verse"],
+      [8, "Bridge"],
+      [8, "Chorus"],
+      [4, "Outro"],
+    ],
+    parts: {
+      kick: { Verse: 's("bd ~ ~ ~ bd ~ ~ ~")', Chorus: 's("bd ~ bd ~ bd ~ bd ~")', Bridge: 's("bd ~ ~ ~")' },
+      snare: { Verse: 's("~ ~ sd ~")', Chorus: 's("~ sd ~ sd")', Bridge: 's("~ ~ sd ~")' },
+      hats: { Verse: 's("hh*8").gain(.35)', Chorus: 's("[hh hh hh oh]*2").gain(.4)' },
+      bass: {
+        Verse: 'n("<0 6b 3 0>")',
+        Chorus: 'n("<3 4 0 5 3 1 4 4>")',
+        Bridge: 'n("<0 5 3 4 0 5 3 4>")',
+        Outro: 'n("<3 0>")',
+      },
+      chords: {
+        Verse: 'chord("<C Bb F C>").voicing()',
+        Chorus: 'chord("<F G C Am F D7 G G>").voicing()',
+        Bridge: 'chord("<Am F Dm E Am F Dm E>").voicing()',
+        Outro: `chord("<F C>").voicing()${outro === "exits" ? '.mask("<1 1 1 0>")' : ""}`,
+      },
+      mel: {
+        Verse: 'n("<[4 ~ 4 2] [6b ~ 3 ~] [5 ~ 3 ~] [2 ~ ~ ~]>")',
+        Chorus: 'n("<[7 ~ 5 3] [4 ~ 6 8] [8@2 7@2] [5 ~ ~ ~] [7 ~ 5 3] [8 ~ 7 3#] [4 ~ 6 ~] [4 ~ ~ ~]>")',
+        Bridge: 'n("<[4 ~ 2 0] [2 ~ ~ ~] [3 ~ 2 0] [4 ~ ~ ~] [4 ~ 2 0] [2 ~ 0 ~] [3 ~ 2 1] [4 ~ ~ ~]>")',
+        Outro: `n("<[3 ~ 5 ~] [0 ~ ~ ~]>")${outro === "exits" ? '.mask("<1 1 0 0>")' : ""}`,
+      },
     },
-    chords: {
-      Verse: 'chord("<C Bb F C>").voicing()',
-      Chorus: 'chord("<F G C Am F D7 G G>").voicing()',
-      Bridge: 'chord("<Am F Dm E Am F Dm E>").voicing()',
-      Outro: 'chord("<F C>").voicing()',
+    uses: {
+      kick: { Outro: null },
+      snare: { Outro: null },
+      hats: { Bridge: null, Outro: null },
     },
-    mel: {
-      Verse: 'n("<[4 ~ 4 2] [6b ~ 3 ~] [5 ~ 3 ~] [2 ~ ~ ~]>")',
-      Chorus: 'n("<[7 ~ 5 3] [4 ~ 6 8] [8@2 7@2] [5 ~ ~ ~] [7 ~ 5 3] [8 ~ 7 3#] [4 ~ 6 ~] [4 ~ ~ ~]>")',
-      Bridge: 'n("<[4 ~ 2 0] [2 ~ ~ ~] [3 ~ 2 0] [4 ~ ~ ~] [4 ~ 2 0] [2 ~ 0 ~] [3 ~ 2 1] [4 ~ ~ ~]>")',
-      Outro: 'n("<[3 ~ 5 ~] [0 ~ ~ ~]>")',
+    tails: {
+      kick: '.bank("LinnDrum")',
+      snare: '.bank("LinnDrum")',
+      hats: '.bank("LinnDrum")',
+      bass: '.scale("<C2:major!24 A1:minor!8 C2:major!12>").s("ebass").lpf(700)',
+      chords: '.s("cleangtr").gain(.5)',
+      mel: '.scale("<C4:major!24 A3:minor!8 C4:major!12>").s("acgtr").room(.25)',
     },
-  },
-  uses: {
-    kick: { Outro: null },
-    snare: { Outro: null },
-    hats: { Bridge: null, Outro: null },
-  },
-  tails: {
-    kick: '.bank("LinnDrum")',
-    snare: '.bank("LinnDrum")',
-    hats: '.bank("LinnDrum")',
-    bass: '.scale("<C2:major!24 A1:minor!8 C2:major!12>").s("ebass").lpf(700)',
-    chords: '.s("cleangtr").gain(.5)',
-    mel: '.scale("<C4:major!24 A3:minor!8 C4:major!12>").s("acgtr").room(.25)',
-  },
-});
+  });
+const CF_A_INDIE = indieSingle("exits");
 
 /**
- * Jazz-soul, four devices: F major at 76 BPM, verse chorus verse bridge chorus, 40 bars (126.3 s), sevenths on
+ * Jazz-soul, four devices: F major at 76 BPM, verse chorus verse bridge chorus and a four-bar outro where the tune
+ * leaves after two bars and the chords after three, 44 bars (138.9 s), sevenths on
  * Rhodes over an upright that lands between the beats (the syncopated bass). The chorus opens IV–iv–I (B♭^7 to the
  * borrowed B♭m7, the tune falling la to le, D to D♭, with it); the bridge is a chain of dominants A7 D7 G7, each resolving by root into the next and the last
  * into C7 (secondary dominants); the verse's cadence holds F over C7 and falls to E (a 4–3 suspension). No key change.
@@ -1215,6 +1332,7 @@ const CF_A_JAZZ = single({
     [8, "Verse"],
     [8, "Bridge"],
     [8, "Chorus"],
+    [4, "Outro"],
   ],
   plain: [
     'kick: s("bd ~ ~ bd").gain(.7)',
@@ -1226,16 +1344,19 @@ const CF_A_JAZZ = single({
       Verse: 'n("<0 5 1 4>").struct("x ~ ~ x ~ ~ x ~")',
       Chorus: 'n("<3 3 0 5 1 4 0 0>").struct("x ~ ~ x ~ ~ x ~")',
       Bridge: 'n("<2 2 5 5 1 1 4 4>").struct("x ~ ~ x ~ ~ x ~")',
+      Outro: 'n("<3 4 0 0>").struct("x ~ ~ x ~ ~ x ~")',
     },
     chords: {
       Verse: 'chord("<F^7 Dm7 Gm7 C7>").voicing()',
       Chorus: 'chord("<Bb^7 Bbm7 F^7 D7 Gm7 C7 F^7 F^7>").voicing()',
       Bridge: 'chord("<A7 A7 D7 D7 G7 G7 C7 C7>").voicing()',
+      Outro: 'chord("<Bb^7 C7 F^7 F^7>").voicing().mask("<1 1 1 0>")',
     },
     mel: {
       Verse: 'n("<[4 ~ 2 4] [5 ~ 2 ~] [1 ~ 4 7] [7@2 6@2]>")',
       Chorus: 'n("<[5 ~ 4 2] [5b ~ 4 ~] [4 ~ 2 0] [2 ~ 0 ~] [3 ~ 1 3] [4 ~ 3 1] [2 ~ ~ ~] ~>")',
       Bridge: 'n("<[4# ~ 6 4#] [4# ~ ~ ~] [2 ~ 0# ~] [0# ~ ~ ~] [1 ~ 3# ~] [6 ~ ~ ~] [4 ~ 3 2] [4 ~ ~ ~]>")',
+      Outro: 'n("<[5 ~ 4 2] [4 ~ ~ ~]>").mask("<1 1 0 0>")',
     },
   },
   tails: {
@@ -1246,14 +1367,14 @@ const CF_A_JAZZ = single({
 });
 
 /**
- * Funk, four devices: E at 104 BPM, verse chorus verse chorus bridge chorus and a last chorus a half step up, 56
- * bars (129.2 s). The verse is an E Dorian groove on i and IV (Em7 A7) with C♯, the Dorian 6, on beat 1 (modal
+ * Funk, four devices: E at 104 BPM, verse chorus verse chorus bridge chorus, a last chorus a half step up and a
+ * four-bar outro in F minor where the tune and then the chords leave, 60 bars (138.5 s). The verse is an E Dorian groove on i and IV (Em7 A7) with C♯, the Dorian 6, on beat 1 (modal
  * colour); the chorus, in E minor, reaches B7 through F♯7 (V7/V) and the bridge through D7 to G (V7/III); a
  * sixteenth-note bass that pushes off the beat; the last chorus lifted to F minor (a `chordsChorus2` and the key plan).
  */
 const CF_A_FUNK = single({
   bpm: 104,
-  plan: POP_PLAN,
+  plan: [...POP_PLAN, [4, "Outro"]],
   plain: [
     'kick: s("bd ~ ~ bd ~ ~ bd ~").gain(.8)',
     'snare: s("~ ~ sd ~ ~ ~ sd ~").gain(.8)',
@@ -1264,42 +1385,54 @@ const CF_A_FUNK = single({
       Verse: 'n("<[0 ~ ~ 0 ~ ~ 4 ~ 0 ~ ~ 0 ~ 4 ~ ~] [3 ~ ~ 3 ~ ~ 6 ~ 3 ~ ~ 3 ~ 4 ~ ~]>")',
       Chorus: 'n("<5 6 4 0 5 1 4 4>").struct("x ~ ~ x ~ ~ x ~ x ~ ~ x ~ x ~ ~")',
       Bridge: 'n("<3 3 6 6 2 2 1 4>").struct("x ~ ~ x ~ ~ x ~ x ~ ~ x ~ x ~ ~")',
+      Outro: 'n("<3 4 0 0>").struct("x ~ ~ x ~ ~ x ~ x ~ ~ x ~ x ~ ~")',
     },
     chords: {
       Verse: 'chord("<Em7 A7>").voicing()',
       Chorus: 'chord("<C^7 D7 Bm7 Em7 C^7 F#7 B7 B7>").voicing()',
       Bridge: 'chord("<Am7 Am7 D7 D7 G^7 G^7 F#7 B7>").voicing()',
       Chorus2: 'chord("<Db^7 Eb7 Cm7 Fm7 Db^7 G7 C7 C7>").voicing()',
+      Outro: 'chord("<Bbm7 C7 Fm7 Fm7>").voicing().mask("<1 1 1 0>")',
     },
     mel: {
       Verse: 'n("<[4 ~ 5 4] [5 ~ 3 ~] [4 ~ 5 7] [5 ~ ~ ~]>")',
       Chorus: 'n("<[7 ~ 6 4] [5 ~ 3 ~] [4 ~ 6 ~] [0 ~ ~ ~] [7 ~ 6 4] [8 ~ 3# ~] [8 ~ 6# 4] [4 ~ ~ ~]>")',
       Bridge: 'n("<[3 ~ 2 0] [3 ~ ~ ~] [5 ~ 3 ~] [5 ~ ~ ~] [6 ~ 4 2] [4 ~ ~ ~] [3# ~ 1 ~] [6# ~ ~ ~]>")',
+      Outro: 'n("<[7 ~ 6 4] [4 ~ ~ ~]>").mask("<1 1 0 0>")',
     },
   },
   uses: { bass: { Chorus2: "Chorus" }, mel: { Chorus2: "Chorus" } },
   tails: {
-    bass: '.scale("<E2:dorian!8 E2:minor!8 E2:dorian!8 E2:minor!24 F2:minor!8>").s("fingerbass").lpf(800)',
+    bass: '.scale("<E2:dorian!8 E2:minor!8 E2:dorian!8 E2:minor!24 F2:minor!12>").s("fingerbass").lpf(800)',
     chords: '.s("organ").gain(.45)',
-    mel: '.scale("<E4:dorian!8 E4:minor!8 E4:dorian!8 E4:minor!24 F4:minor!8>").s("piano")',
+    mel: '.scale("<E4:dorian!8 E4:minor!8 E4:dorian!8 E4:minor!24 F4:minor!12>").s("piano")',
   },
 });
 
 /** Exported for the CF-A golden test (content/core/capstones/CF-A): the pieces the brief's tests grade. */
 export const CF_A_PIECES = {
   template: CF_A_TEMPLATE,
+  /** The pop single; its four-bar outro lets the tune, then the chords leave (exit order). */
   pop: popSingle(),
   /** Six devices: the pop single with a Mixolydian verse, I–♭VII–IV–V (C B♭ F G). */
   six: popSingle({ verse: "<C Bb F G>", bassVerse: 'n("<0 6b 3 4>")' }),
   indie: CF_A_INDIE,
   jazzSoul: CF_A_JAZZ,
   funk: CF_A_FUNK,
+  /** Ends on purpose another way: one new last bar, every part on beat 1 with a crash, then silence. */
+  hit: popSingle({ ending: "hit" }),
+  /** Ends on purpose another way: a four-bar outro looping IV–I while every part fades to a tenth. */
+  fade: popSingle({ ending: "fade" }),
+  /** Book miss: everything else passes, but the last section is the chorus again and the song simply stops. */
+  stops: popSingle({ lift: false, ending: "none" }),
+  /** Book miss: the indie outro loops F C to its last bar, the C that ends every pass of the loop. */
+  loopEnds: indieSingle("loop"),
   /** Three devices: no lift and a bass on the beat (secondary dominant, borrowed chord, suspension). */
   three: popSingle({ lift: false, groove: "x ~ x ~" }),
   /** No bridge: the bridge's eight bars are a third verse. */
   noBridge: popSingle({ plan: POP_PLAN.map(([b, s]) => [b, s === "Bridge" ? "Verse" : s] as const) }),
-  /** 48 bars at 100 BPM, 115.2 s: the second verse cut. */
-  short: popSingle({ plan: POP_PLAN.filter((_, i) => i !== 2) }),
+  /** 44 bars at 100 BPM, 105.6 s: the second verse and the second chorus cut, the outro kept. */
+  short: popSingle({ plan: POP_PLAN.filter((_, i) => i !== 2 && i !== 3) }),
 } as const;
 
 // --- CF-T Standard Transcription (author:finale) -------------------------------------------------------------
@@ -2126,6 +2259,7 @@ export const capstones: readonly CapstoneDef[] = [
   }),
   compose({
     id: "C3",
+    version: 2,
     title: "C3 Verse–Chorus Demo",
     objective: "A verse–chorus demo with contrasting sections, at least 90 seconds long.",
     opensAfter: { checkpoints: ["U09.CP"] },
@@ -2162,6 +2296,7 @@ export const capstones: readonly CapstoneDef[] = [
         rule: "notates",
         view: "lead-sheet",
       }),
+      ...sectionSuggestions(),
     ],
     sessions: [
       ["Groove & changes", "Groove and changes for verse and chorus."],
@@ -2176,7 +2311,7 @@ export const capstones: readonly CapstoneDef[] = [
       { starter: C3_TEMPLATE, focusRules: ["groove-lock"] },
       { focusRules: ["contrast", "groove-lock"] },
       { focusRules: ["form", "contrast", "duration", "groove-lock", "leadsheet"] },
-      { focusRules: ["form", "contrast", "duration", "groove-lock", "leadsheet"] },
+      { focusRules: ["form", "contrast", "duration", "groove-lock", "leadsheet", "seam", "once", "arc"] },
     ],
     canDo: ["cd.compose.verse-chorus"],
     // One ladder for the four sessions: the lock (S1), the lift (S2), the length and the page (S3, S4).
@@ -2378,6 +2513,7 @@ export const capstones: readonly CapstoneDef[] = [
   }),
   compose({
     id: "C4",
+    version: 2,
     title: "C4 Minor Indie Ballad",
     objective: "An Aeolian verse i–VI–III–VII and a chorus cadence with the major V.",
     opensAfter: { checkpoints: ["U10.CP"] },
@@ -2415,6 +2551,7 @@ export const capstones: readonly CapstoneDef[] = [
         over: "i",
       }),
       tempo(60, 95),
+      ...sectionSuggestions(),
     ],
     sessions: [
       ["Aeolian verse", "Aeolian verse i–VI–III–VII."],
@@ -2422,7 +2559,7 @@ export const capstones: readonly CapstoneDef[] = [
     ],
     sessionExtras: [
       { starter: C4_TEMPLATE, focusRules: ["aeolian", "minor-colour", "tempo"] },
-      { focusRules: ["aeolian", "major-v", "minor-colour", "ends-on-1", "tempo"] },
+      { focusRules: ["aeolian", "major-v", "minor-colour", "ends-on-1", "tempo", "seam", "once", "arc"] },
     ],
     canDo: ["cd.compose.minor-ballad"],
     hints: ladder(
@@ -2832,6 +2969,7 @@ export const capstones: readonly CapstoneDef[] = [
   }),
   compose({
     id: "C6",
+    version: 2,
     title: "C6 Modal Vamp",
     objective: "A Mixolydian or Dorian vamp that makes its characteristic tone heard.",
     opensAfter: { checkpoints: ["U14.CP"] },
@@ -2859,12 +2997,16 @@ export const capstones: readonly CapstoneDef[] = [
         },
       ),
       req("bars", "At least 16 bars, written out", ["F01"], { rule: "bars", min: 16 }),
+      optEnding(),
     ],
     sessions: [
       ["The vamp", "Mixolydian or Dorian vamp and characteristic tone."],
       ["Melody, groove, release", "Melody, groove, release."],
     ],
-    sessionExtras: [{ starter: C6_TEMPLATE, focusRules: ["mode"] }, { focusRules: ["mode", "bars"] }],
+    sessionExtras: [
+      { starter: C6_TEMPLATE, focusRules: ["mode"] },
+      { focusRules: ["mode", "bars", "ending"] },
+    ],
     canDo: ["cd.compose.modal-vamp"],
     hints: ladder(
       "One note makes your mode sound unlike major or minor, and the ear catches it on beat 1 or 3. Which note is it, and where does it fall in your bars?",
@@ -3093,6 +3235,7 @@ export const capstones: readonly CapstoneDef[] = [
   }),
   compose({
     id: "C7",
+    version: 2,
     title: "C7 Chromatic Colour",
     objective: "Colour chords (a secondary dominant and ♭VI–♭VII–I) and a final-chorus key lift.",
     opensAfter: { checkpoints: ["U17.CP"] },
@@ -3153,6 +3296,8 @@ export const capstones: readonly CapstoneDef[] = [
         axes: ["pitch", "density", "harmony", "register", "energy"],
         minAxes: 2,
       }),
+      optEnding(),
+      ...sectionSuggestions(),
     ],
     sessions: [
       ["Colour chords", "Colour chords: a secondary dominant and ♭VI–♭VII–I."],
@@ -3162,7 +3307,20 @@ export const capstones: readonly CapstoneDef[] = [
     sessionExtras: [
       { starter: C7_TEMPLATE, focusRules: ["secondary", "mixture"] },
       { focusRules: ["secondary", "mixture", "bars", "chord-tones", "contrast"] },
-      { focusRules: ["secondary", "mixture", "lift", "bars", "chord-tones", "contrast"] },
+      {
+        focusRules: [
+          "secondary",
+          "mixture",
+          "lift",
+          "bars",
+          "chord-tones",
+          "contrast",
+          "ending",
+          "seam",
+          "once",
+          "arc",
+        ],
+      },
     ],
     canDo: ["cd.compose.chromatic"],
     hints: ladder(
@@ -3356,6 +3514,7 @@ export const capstones: readonly CapstoneDef[] = [
   }),
   compose({
     id: "CF-A",
+    version: 2,
     title: "CF-A Core Finale: Album Single",
     objective:
       "An album single of at least two minutes with a bridge and four or more of the six harmonic and rhythmic devices.",
@@ -3363,15 +3522,17 @@ export const capstones: readonly CapstoneDef[] = [
     meter: "4/4",
     bpm: [60, 160],
     // No key: the single is in whatever key the learner writes it, major or minor (the analysis reads it from the
-    // code and from the key plan after `arrange()`).
+    // code and from the key plan after `arrange()`). Oak 2.0 W4 added the ending sentence and tightened the rest to
+    // keep the prompt within AUTHORING's 60 words.
     brief:
-      "Write your single, the last track of Side A: a song of your own, two minutes or longer, with a verse, a chorus and a bridge. Use four or more of the six devices on the devices card; most are already on your record, and the card plays them back. Key, tempo, groove, sounds and form are yours.",
+      "Write your single, the last track of Side A: two minutes or more, with a verse, a chorus, a bridge and four or more devices from the devices card. End it on purpose: the parts leave one by one, the last phrase gets shorter, it builds to one last hit, or it fades away. The rest is yours.",
     starter: CF_A_TEMPLATE,
     skills: ["H12", "H13", "H14", "F02"],
     minDurationSec: 120,
-    // The binding rubric of contracts §6.6 CF-A, exactly: three required lines (pinned by the grader's capstone-wave6
-    // test and content/validate/wave6.test.ts), then the spec's five suggestions. The device line opens into the six
-    // rows of CF_A_DEVICES on the checklist.
+    // The binding rubric of contracts §6.6 CF-A: the three required lines of Wave 6 (pinned by the grader's
+    // capstone-wave6 test and content/validate/wave6.test.ts) and, since Oak 2.0 W4 (F1), a fourth: it ends on
+    // purpose, any of U09.L06's endings (graded there with F06). Then the spec's five suggestions and the book's
+    // three (seam, once, arc; no skills). The device line opens into the six rows of CF_A_DEVICES on the checklist.
     rubric: [
       req("devices", "At least 4 devices", ["H12", "H13", "H14"], {
         rule: "device-count",
@@ -3380,6 +3541,7 @@ export const capstones: readonly CapstoneDef[] = [
       }),
       req("bridge", "The form has a bridge", ["F03"], { rule: "form", pattern: "*", contains: ["bridge"] }),
       req("duration", "At least 2 minutes", ["F06"], { rule: "duration-sec", min: 120 }),
+      req("ending", ENDING_LABEL, ["F06"], custom("ends-on-purpose")),
       // The spec's five suggestions (content/specs/CF.md): ticked or unticked lines, never failures.
       opt("groove-lock", "The bass lands with the kick", ["B04"], {
         rule: "groove-lock",
@@ -3412,6 +3574,7 @@ export const capstones: readonly CapstoneDef[] = [
         track: "@melody",
         maxSpan: 19,
       }),
+      ...sectionSuggestions(),
     ],
     sessions: [
       ["Form & groove", "Plan the form (verse, chorus, bridge) and groove."],
@@ -3431,11 +3594,15 @@ export const capstones: readonly CapstoneDef[] = [
           "devices",
           "bridge",
           "duration",
+          "ending",
           "groove-lock",
           "contrast",
           "motif",
           "chord-tones",
           "range",
+          "seam",
+          "once",
+          "arc",
         ],
       },
     ],
@@ -3482,6 +3649,30 @@ export const capstones: readonly CapstoneDef[] = [
         response: { code: CF_A_PIECES.funk },
         expect: "pass",
       },
+      // Oak 2.0 W4 F1, fidelity rule 4: the ending line checks the book's point. Every passing piece above ends with
+      // an outro where the parts leave one by one; these two end on purpose in ways the starter never shows.
+      {
+        name: "ends on one last hit: a new last bar, every part on beat 1 with a crash, then silence",
+        response: { code: CF_A_PIECES.hit },
+        expect: "pass",
+      },
+      {
+        name: "ends with a fade: the outro loops IV–I while every part falls to a tenth of its level",
+        response: { code: CF_A_PIECES.fade },
+        expect: "pass",
+      },
+      {
+        name: "book miss: every other line met, but the last chorus simply stops",
+        response: { code: CF_A_PIECES.stops },
+        expect: "fail",
+        feedback: ["rubric.unmet"],
+      },
+      {
+        name: "book miss: the outro loops F C to the end, and its last C is the bar that ends every pass",
+        response: { code: CF_A_PIECES.loopEnds },
+        expect: "fail",
+        feedback: ["rubric.unmet"],
+      },
       {
         name: "three devices: no lift and a bass on the beat",
         response: { code: CF_A_PIECES.three },
@@ -3495,7 +3686,7 @@ export const capstones: readonly CapstoneDef[] = [
         feedback: ["rubric.unmet"],
       },
       {
-        name: "too short: 48 bars at 100 BPM are 115.2 seconds",
+        name: "too short: 44 bars at 100 BPM are 105.6 seconds",
         response: { code: CF_A_PIECES.short },
         expect: "fail",
         feedback: ["rubric.unmet"],
@@ -3531,6 +3722,7 @@ export const capstones: readonly CapstoneDef[] = [
   }),
   compose({
     id: "JC1",
+    version: 2,
     title: "JC1 ii–V Ballad",
     objective: "16 bars over chained ii–Vs in at least 3 keys, with a guide-tone melody.",
     opensAfter: { checkpoints: ["J.CP1"] },
@@ -3567,6 +3759,7 @@ export const capstones: readonly CapstoneDef[] = [
         min: 4,
         roles: ["drums", "bass", "chords", "melody"],
       }),
+      optEnding(),
     ],
     sessions: [
       ["The changes", "16 bars over chained ii–Vs in at least 3 keys."],
@@ -3574,7 +3767,7 @@ export const capstones: readonly CapstoneDef[] = [
     ],
     sessionExtras: [
       { starter: JC1_TEMPLATE, focusRules: ["bars", "ii-v"] },
-      { focusRules: ["bars", "ii-v", "guide-tones", "tempo", "parts"] },
+      { focusRules: ["bars", "ii-v", "guide-tones", "tempo", "parts", "ending"] },
     ],
     canDo: ["cd.compose.ii-v-ballad"],
     hints: ladder(
@@ -3684,6 +3877,7 @@ export const capstones: readonly CapstoneDef[] = [
   }),
   compose({
     id: "JC2",
+    version: 2,
     title: "JC2 Jazz Blues in F",
     objective:
       "Jazz-blues changes, shell comping and walking bass from one chord() pattern; an original head.",
@@ -3759,6 +3953,7 @@ export const capstones: readonly CapstoneDef[] = [
         min: 100,
         max: 180,
       }),
+      optEnding(),
     ],
     sessions: [
       ["The band", "Changes, shell comping and walking bass from one `chord()` pattern."],
@@ -3767,7 +3962,17 @@ export const capstones: readonly CapstoneDef[] = [
     sessionExtras: [
       { starter: JC2_TEMPLATE, focusRules: ["form", "walking", "swing", "one-pattern"] },
       {
-        focusRules: ["form", "walking", "swing", "one-pattern", "head", "head-sound", "chord-tones", "tempo"],
+        focusRules: [
+          "form",
+          "walking",
+          "swing",
+          "one-pattern",
+          "head",
+          "head-sound",
+          "chord-tones",
+          "tempo",
+          "ending",
+        ],
       },
     ],
     canDo: ["cd.compose.jazz-blues"],
@@ -3872,6 +4077,7 @@ export const capstones: readonly CapstoneDef[] = [
   }),
   compose({
     id: "JC3",
+    version: 2,
     title: "JC3 Rhythm-Changes Contrafact",
     objective: "A 32-bar AABA contrafact on rhythm changes in B♭.",
     opensAfter: { checkpoints: ["J.CP2"] },
@@ -3936,6 +4142,8 @@ export const capstones: readonly CapstoneDef[] = [
         }),
       ),
       opt("tempo", "Tempo between 120 and 220 BPM", ["R02"], { rule: "tempo-bpm", min: 120, max: 220 }),
+      optEnding(),
+      ...sectionSuggestions(),
     ],
     sessions: [
       ["A sections", "A sections in B♭."],
@@ -3946,7 +4154,19 @@ export const capstones: readonly CapstoneDef[] = [
       { focusRules: ["a-changes", "chord-tones", "original"] },
       { focusRules: ["form", "bars", "bridge", "bridge-guides", "chord-tones", "original"] },
       {
-        focusRules: ["form", "bars", "a-changes", "bridge", "chord-tones", "bridge-guides", "original"],
+        focusRules: [
+          "form",
+          "bars",
+          "a-changes",
+          "bridge",
+          "chord-tones",
+          "bridge-guides",
+          "original",
+          "ending",
+          "seam",
+          "once",
+          "arc",
+        ],
       },
     ],
     canDo: ["cd.compose.contrafact"],
@@ -4012,6 +4232,7 @@ export const capstones: readonly CapstoneDef[] = [
   }),
   compose({
     id: "JC4",
+    version: 2,
     title: "JC4 Reharmonize a Standard",
     objective: "Reharmonize Georgia on My Mind or Body and Soul with three devices, melody untouched.",
     opensAfter: { checkpoints: ["J.CP2"] },
@@ -4051,6 +4272,7 @@ export const capstones: readonly CapstoneDef[] = [
         voice: "top",
         minRatio: 0.7,
       }),
+      optEnding(),
     ],
     sessions: [
       ["Analyse", "Analyse Georgia on My Mind or Body and Soul (both 1930)."],
@@ -4062,7 +4284,7 @@ export const capstones: readonly CapstoneDef[] = [
       // transcribe capstone): the session's own work is one device under the untouched tune.
       { focusRules: ["melody", "devices"] },
       { focusRules: ["melody", "tensions", "devices"] },
-      { focusRules: ["melody", "tensions", "devices", "top-voice"] },
+      { focusRules: ["melody", "tensions", "devices", "top-voice", "ending"] },
     ],
     canDo: ["cd.compose.reharm"],
     hints: ladder(
@@ -4080,6 +4302,7 @@ export const capstones: readonly CapstoneDef[] = [
   }),
   compose({
     id: "RC1",
+    version: 2,
     title: "RC1 16th-Note Funk",
     objective: "A 16th-note funk pocket with ghost notes, a syncopated bass and horn stabs.",
     opensAfter: { checkpoints: ["R.CP"] },
@@ -4152,6 +4375,7 @@ export const capstones: readonly CapstoneDef[] = [
         anyOf: ["snd.clav"],
       }),
       opt("displaced", "A figure that comes back displaced", ["R15"], custom("displaced-copy")),
+      optEnding(),
     ],
     sessions: [
       [
@@ -4176,6 +4400,7 @@ export const capstones: readonly CapstoneDef[] = [
           "parts",
           "clav",
           "displaced",
+          "ending",
         ],
       },
     ],
@@ -4189,6 +4414,7 @@ export const capstones: readonly CapstoneDef[] = [
   }),
   compose({
     id: "RC2",
+    version: 2,
     title: "RC2 Clave & Polyrhythm",
     objective:
       "Son clave 3-2 on the 2-bar 8th grid with tresillo bass, a 3:2 layer and Euclidean percussion.",
@@ -4261,6 +4487,7 @@ export const capstones: readonly CapstoneDef[] = [
         ["R18"],
         custom("clave-aligned", { track: "keys", clave: "perc" }),
       ),
+      optEnding(),
     ],
     sessions: [
       ["Clave & tresillo", "Son clave 3-2 on the 2-bar 8th grid with tresillo bass."],
@@ -4268,7 +4495,7 @@ export const capstones: readonly CapstoneDef[] = [
     ],
     sessionExtras: [
       { focusRules: ["clave", "bars", "tresillo", "parts", "montuno"] },
-      { focusRules: ["clave", "bars", "tresillo", "poly", "euclid", "bell", "parts", "montuno"] },
+      { focusRules: ["clave", "bars", "tresillo", "poly", "euclid", "bell", "parts", "montuno", "ending"] },
     ],
     canDo: ["cd.compose.clave"],
     hints: ladder(

@@ -177,9 +177,15 @@ describe("300-day simulation: companion assertions (spike S7)", () => {
       expect(w.all.max).toBeLessThanOrEqual(5);
       expect(w.all.p50).toBeLessThanOrEqual(3);
       // A concept family needs no slot; one created deferred is released while the forecast is open. Every
-      // one gets its first set (measured at most 9 days after its lesson).
-      expect(w.concept.censored).toBe(0);
+      // one gets its first set (measured at most 9 days after its lesson), so none waits 10 days.
       expect(w.concept.max).toBeLessThanOrEqual(10);
+      // A run can end while one seeded in its last days is still inside that wait: it is not left unreviewed,
+      // so it must have waited less than the 10 days (counting its wait so far). Since Oak 2.0 W2's six core
+      // sessions (contracts 2.2) the 20-minute i9 run reaches J2.L04 four days before its last session, and
+      // fam.jzz.chord-scale, created deferred there, is still waiting when the run ends.
+      const unreviewed = w.conceptPerFamily.filter((c) => c.censored);
+      expect(unreviewed).toHaveLength(w.concept.censored);
+      for (const c of unreviewed) expect([c.family, c.waitDays < 10]).toEqual([c.family, true]);
     }
   });
 

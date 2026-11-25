@@ -59,3 +59,39 @@ export function reviewNeverDelivered(): Cassette {
     response("msg_v2", [textBlock(0, ["As I said, lovely."])], "end_turn"),
   );
 }
+
+export const REVIEW_ANSWER =
+  "Not yet: bar 8 stops the bass on degree 4, so the phrase still leans forward; ending it on degree 1 would settle it.";
+
+export function reviewAnsweredQuestion(): Cassette {
+  return cassette(
+    "review-answered-question",
+    response(
+      "msg_q1",
+      [
+        thinkingBlock(0, ["Read the ending."]),
+        submit("toolu_q1", { ...CAPSTONE_REVIEW, answer: REVIEW_ANSWER }),
+      ],
+      "tool_use",
+    ),
+  );
+}
+
+export function reviewQuestionUnanswered(): Cassette {
+  return cassette(
+    "review-question-unanswered",
+    response(
+      "msg_q1",
+      [thinkingBlock(0, ["Draft."]), submit("toolu_q1", { ...CAPSTONE_REVIEW, answer: null })],
+      "tool_use",
+    ),
+    response(
+      "msg_q2",
+      [
+        thinkingBlock(0, ["Answer the question."]),
+        submit("toolu_q2", { ...CAPSTONE_REVIEW, answer: REVIEW_ANSWER }),
+      ],
+      "tool_use",
+    ),
+  );
+}

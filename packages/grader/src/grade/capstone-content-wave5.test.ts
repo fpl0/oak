@@ -25,6 +25,14 @@ import { toolbox } from "../../../../content/toolbox.ts";
 import { gradeExercise, gradePhraseCheck, initRealm, phraseCheckPassed } from "../index.ts";
 import { SONG_LADDER_MATCHERS } from "./song-ladder.ts";
 
+/** The W0 rules W4 puts on capstones as the book's suggestions (PLAN §6 F1). */
+const BOOK_FNS: ReadonlySet<string> = new Set([
+  "ends-on-purpose",
+  "staggered-boundary",
+  "unique-event",
+  "arc",
+]);
+
 setDefaultTimeout(180_000);
 const C_MAJOR: KeySpec = { tonic: "C", mode: "major" };
 const unlocked = (c: CapstoneDef) => unlockedAt(courseGraph(), toolbox, c.sessionDefs[0]?.id as SessionId);
@@ -82,7 +90,14 @@ for (const id of ["C3", "C4", "C5"] as const) {
         );
         if (t.expect === "pass") {
           expect(r.status).toBe("pass");
-          expect(failing).toEqual([]);
+          // Oak 2.0 W4 F1: the book's seam, once-only and arc lines are suggestions with no skills; a passing piece
+          // may leave them open (they never block). Every other line is met.
+          const book = new Set(
+            (brief?.rubric ?? [])
+              .filter((x) => !x.required && x.rule === "custom" && BOOK_FNS.has((x as { fn: string }).fn))
+              .map((x) => x.id),
+          );
+          expect(failing.filter((f) => !book.has(f))).toEqual([]);
         } else {
           expect(r.status).not.toBe("pass");
           // A known-wrong piece fails on a required rule of the rubric (never only on an evaluation error).

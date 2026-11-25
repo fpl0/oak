@@ -37,11 +37,11 @@ const next = {
 } as const;
 
 describe("Wave 7 contract", () => {
-  test("the course counts add up to 259 (contracts §2.7)", () => {
+  test("the course counts add up to 270 (contracts §2.7, changelog 2.2)", () => {
     expect(COURSE_SESSIONS.core + COURSE_SESSIONS.J + COURSE_SESSIONS.R + COURSE_SESSIONS.A).toBe(
       COURSE_SESSIONS.total,
     );
-    expect(COURSE_SESSIONS.total).toBe(259);
+    expect(COURSE_SESSIONS.total).toBe(270);
   });
   test("track capstone sessions: J 10, R 4, A 6 (contracts §2.7)", () => {
     const by = (t: string) =>
@@ -193,15 +193,15 @@ describe("Wave 7 contract", () => {
       stage: "complete",
       completedAt: AT,
       sessionId: "s1",
-      sessionsDone: 259,
-      sessionsTotal: 259,
+      sessionsDone: 270,
+      sessionsTotal: 270,
       core: "complete",
       tracks: [],
       album: { released: 20, total: 20, latestTrackId: "t20" },
       stats: {
         firstDay: "2026-04-02",
         days: 210,
-        sessions: 259,
+        sessions: 270,
         activeMinutes: 4800,
         lessons: 175,
         tracksReleased: 20,

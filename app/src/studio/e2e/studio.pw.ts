@@ -1,5 +1,5 @@
-// The Studio against the real server: create, edit, autosave on Run, reload, a named version (Mod+S), A/B
-// against an earlier version, the Band layer audible on the master bus, locked tools as hints that never
+// The Studio against the real server: create, edit, autosave on Run, reload, a named version (Mod+S), the matched
+// compare of an earlier version, the Band layer audible on the master bus, locked tools as hints that never
 // block, an imported version that opens as text until the strict check passes, export, the listening note
 // through the fake tutor, the shortcut sheet, keyboard-only use and the screenshots of both themes and sizes.
 import { fileURLToPath } from "node:url";
@@ -130,7 +130,7 @@ test("edit, Run saves a version, reload keeps it; edits not run yet are restored
   await expect(page.locator(".cm-content")).not.toContainText("clap:");
 });
 
-test("Mod+S names a version; history compares any earlier version with A/B", async ({ page }) => {
+test("Mod+S names a version; history compares any earlier version at matched loudness", async ({ page }) => {
   const id = await createSketch(page, "Named");
   await openSketch(page, id);
   await typeAtEnd(page, 'bass: s("bd*2")');
@@ -145,20 +145,27 @@ test("Mod+S names a version; history compares any earlier version with A/B", asy
   await expect(page.getByTestId("version-row")).toHaveCount(1);
   await page.getByRole("checkbox", { name: "Named only" }).uncheck();
 
+  // Oak 2.0 W4 (PLAN F5): the compare is the matched card in the aside (both rendered offline, played at the same
+  // loudness), not the live A/B strip.
   await page.getByRole("button", { name: "Compare with version 1" }).click();
-  const ab = page.getByTestId("ab-controls");
-  await expect(ab).toContainText("B · v1");
-  await page.getByTestId("ab-b").click();
-  await expect(page.getByTestId("ab-now")).toContainText("B · v1", { timeout: 15_000 });
-  // B is hidden code: the editor itself is not playing, but the master bus is.
+  const card = page.getByTestId("matched-version-compare");
+  await expect(card.getByTestId("versions-compare")).toBeVisible();
+  await expect(page.getByTestId("ab-controls")).toHaveCount(0);
+  await expect(card.getByTestId("compare-a")).toHaveText("A: now");
+  await expect(card.getByTestId("compare-b")).toHaveText("B: version 1");
+  await card.getByTestId("compare-b").click();
+  await expect(card.getByTestId("compare-note")).toContainText(
+    /Matched in loudness|already play at the same loudness/,
+    { timeout: 90_000 },
+  );
+  await expect(card.getByTestId("compare-b")).toHaveAttribute("aria-pressed", "true");
+  // The editor itself is not playing; the rendered version is.
   await expect(page.locator(WB)).toHaveAttribute("data-playing", "0");
-  expect(await rms(page, 1200)).toBeGreaterThan(0.005);
-  await page.getByTestId("ab-a").click();
-  await expect(page.getByTestId("ab-now")).toContainText("A · now", { timeout: 15_000 });
-  await expect(page.locator(WB)).toHaveAttribute("data-playing", "1");
-  await page.getByTestId("ab-now").getByRole("button", { name: "Stop" }).click();
+  await card.getByTestId("compare-a").click();
+  await expect(card.getByTestId("compare-a")).toHaveAttribute("aria-pressed", "true");
+  await card.getByRole("button", { name: "Stop" }).click();
   await page.getByRole("button", { name: "Stop comparing with version 1" }).click();
-  await expect(ab).toHaveCount(0);
+  await expect(card).toHaveCount(0);
 
   // "Open" puts an earlier version back in the editor without rewriting history.
   await page.getByRole("button", { name: "Open version 1 in the editor" }).click();
@@ -266,7 +273,7 @@ test("an imported version opens as text and runs only after the strict check pas
   // Comparing with the imported version is refused while it fails the check.
   await page.getByRole("button", { name: "Compare with version 2" }).click();
   await expect(page.getByText(/did not pass the safety check/)).toBeVisible();
-  await expect(page.getByTestId("ab-controls")).toHaveCount(0);
+  await expect(page.getByTestId("matched-version-compare")).toHaveCount(0);
 });
 
 test("export shows the code with its liner notes and downloads a .js file", async ({ page }) => {
@@ -367,6 +374,7 @@ for (const m of SCREENSHOT_MATRIX) {
       expect((box?.y ?? 0) + (box?.height ?? 0)).toBeLessThanOrEqual(m.height);
     }
     await page.getByRole("button", { name: "Compare with version 1" }).click();
+    await expect(page.getByTestId("matched-version-compare")).toBeVisible();
     await shoot(page, SHOTS, "sketch", m.theme);
     expect(errors).toEqual([]);
   });

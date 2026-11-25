@@ -10,6 +10,7 @@ import { createRepos } from "./db/repos/index.ts";
 import type { AppDeps, GraderHosts } from "./deps.ts";
 import { ApiError, errorResponse } from "./errors.ts";
 import { catalogsRoutes } from "./routes/catalogs.ts";
+import { checkHistoryRoutes } from "./routes/check-history.ts";
 import { courseRoutes } from "./routes/course.ts";
 import { createMounter } from "./routes/define.ts";
 import { habitsRoutes } from "./routes/habits.ts";
@@ -103,6 +104,8 @@ export function buildApp(d: AppDeps): Hono {
   lineageRoutes(mount, d.services.lineage);
   habitsRoutes(mount, d.services.habits);
   catalogsRoutes(mount, d.services.catalogs);
+  // Oak 2.0 W4: the history of a capstone's checks (F2); `album.patchTrack` (the Shelf) is in libraryRoutes.
+  checkHistoryRoutes(mount, d.services.checkHistory);
   // Oak 2.0 (contracts §13): endpoints not built yet answer the typed 501 (routes/oak2.ts).
   oak2PendingRoutes(mount);
   tutorTurnRoutes(app, d);

@@ -723,7 +723,7 @@ describe("the end of the written course moves to after X2 / U12.L01", () => {
       .flatMap((u) => u.lessons.map((l) => l.id as string)),
   );
 
-  test("the default order puts U12.L01 before GYM.11 and U11.CP", () => {
+  test("the default order puts U12.L01 before GYM.12 and U11.CP", () => {
     const i = order.indexOf("U12.L01");
     expect(i).toBeGreaterThan(order.indexOf("U11.L08"));
     expect(i).toBeLessThan(order.indexOf("U11.CP"));
@@ -736,8 +736,8 @@ describe("the end of the written course moves to after X2 / U12.L01", () => {
     const v = todayView({ plan, boot: boot(), lastEnded: null, titleOf });
     expect(v.state).toBe("checkpoint");
     expect(v.primary?.action).toBe("start");
-    // GYM.11 in between is a slot, not the map's next item.
-    expect(mapNextId("GYM.11", "U11.CP", authored, order)).toBe("U11.CP");
+    // GYM.12 in between is a slot, not the map's next item (GYM.11 before Oak 2.0 W2's five core lessons).
+    expect(mapNextId("GYM.12", "U11.CP", authored, order)).toBe("U11.CP");
   });
 
   test("C5 and X2 are planned past the unwritten U12.L01: capstone days, not the edge", () => {

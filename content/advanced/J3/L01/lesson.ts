@@ -119,7 +119,7 @@ const KEYS = { roll: false, staff: false, keyboard: true } as const;
 
 export default defineLesson({
   id: "J3.L01",
-  version: 4,
+  version: 5,
   title: "Rootless A/B Voicings",
   objective:
     "I can voice a ii–V–I with rootless A and B voicings, by hand and with the left-hand dictionary.",

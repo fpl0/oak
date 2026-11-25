@@ -5,7 +5,18 @@ import { CapstoneReviewSchema, OakApiError } from "@oak/api";
 import { editorId } from "@oak/strudel";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { clsx } from "clsx";
-import { Check, Code2, Download, MessageSquareText, Mic2, Pencil, Play, Square, Trash2 } from "lucide-react";
+import {
+  Archive,
+  Check,
+  Code2,
+  Download,
+  MessageSquareText,
+  Mic2,
+  Pencil,
+  Play,
+  Square,
+  Trash2,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useCapstoneContent } from "../capstone/content.ts";
 import { recordingSeconds, recordPerformance } from "../capstone/engine.ts";
@@ -55,6 +66,8 @@ import { LinerNotes } from "./AlbumPage.tsx";
 import { ExportButton } from "./ExportButton.tsx";
 import { audioFileName, changeSummary, currentTakeOf, takeFileName, takesOf } from "./model.ts";
 import { useCoverMusic } from "./music.ts";
+import { SHELF_COPY } from "./ShelfDrawer.tsx";
+import { useAlbumPatchTrack } from "./shelf-queries.ts";
 
 export function TrackPage({ trackId, v }: { trackId: string; v: number | undefined }) {
   const track = useAlbumTrack(trackId);
@@ -89,6 +102,7 @@ export function TrackPage({ trackId, v }: { trackId: string; v: number | undefin
 function Track({ t, v }: { t: AlbumTrackDetail; v: number | undefined }) {
   const navigate = useNavigate();
   const del = useAlbumDeleteTrack();
+  const shelfPatch = useAlbumPatchTrack();
   const version = t.versions.find((x) => x.version === (v ?? t.currentVersion)) ?? t.versions.at(-1);
   const sketch = useSketch(version?.sketchId ?? "none");
   const codeOf = (x: AlbumTrackVersion | undefined) =>
@@ -300,6 +314,24 @@ function Track({ t, v }: { t: AlbumTrackDetail; v: number | undefined }) {
                 Open the sketch
               </Link>
             ) : null}
+            {/* Oak 2.0 W4 F6: the Shelf keeps a finished piece off the album; every version stays. */}
+            {songTrack ? null : (
+              <Button
+                variant="ghost"
+                icon={<Archive aria-hidden className="size-4" />}
+                loading={shelfPatch.isPending}
+                onClick={async () => {
+                  try {
+                    await shelfPatch.mutateAsync({ params: { id: t.id }, body: { shelved: !t.shelved } });
+                  } catch (e) {
+                    toast.error(SHELF_COPY.failed, e instanceof Error ? e.message : undefined);
+                  }
+                }}
+                data-testid="track-shelf"
+              >
+                {t.shelved ? SHELF_COPY.toAlbum : SHELF_COPY.toShelf}
+              </Button>
+            )}
             <Button
               variant="ghost"
               icon={<Trash2 aria-hidden className="size-4" />}

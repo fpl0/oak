@@ -267,6 +267,22 @@ const v = (mini: string, velocity?: string): string =>
 const RIDE = "rd ~ rd rd rd ~ rd rd";
 /** A crash on the first bar of a section of `n` bars, then the pattern. */
 const crashed = (pattern: string, n: number): string => `<[cr, ${pattern}] [${pattern}]!${n - 1}>`;
+/**
+ * The A sections are not copies of each other (PLAN §7, W2). The second A ends on a longer fill into the solo
+ * (`fillInto`), and in the fourth bar of the last A, where the tune lands on C, the drums hit beat 1 and lay out for
+ * three beats while the bass and the tune play on (`layOut`): a moment heard once. `layOut` takes the section's bars as
+ * `[bar 1, bar 2, bar 3, bar 5, bar 6, bar 7, bar 8]` (one pattern: every bar alike) and the bar that lays out.
+ */
+const layOut = (bar: string | readonly string[], out: string): string => {
+  const b = typeof bar === "string" ? Array.from({ length: 7 }, () => bar) : bar;
+  return `<${[...b.slice(0, 3), out, ...b.slice(3)].map((x) => (x === "~" ? "~" : `[${x}]`)).join(" ")}>`;
+};
+/** The seven bars `layOut` keeps when the eighth fills: six of `bar`, then `fill`. */
+const withFill = (bar: string, fill: string): string[] => [...Array.from({ length: 6 }, () => bar), fill];
+/** The last A's ride pattern (a crash on its first bar), laying out after beat 1 of bar 4. */
+const RIDE_A3 = layOut([`cr, ${RIDE}`, ...Array.from({ length: 6 }, () => RIDE)], "rd ~ ~ ~");
+/** The second A's last bar: the snare fills the whole bar into the solo. */
+const FILL_INTO = "~ sd [sd sd] [sd sd sd sd]";
 /** Swung eighths, as every J1 Make declares them. */
 const SWING = ".swingBy(1/3, 4)";
 
@@ -345,7 +361,7 @@ const POP: Kit = {
     bridge: v("bd ~ ~ ~ ~ ~ ~ ~"),
     solo: v("bd ~ ~ bd bd ~ ~ ~"),
     outro: v("bd ~ ~ ~ bd ~ ~ ~"),
-    only: { end: v("bd") },
+    only: { a3: v(layOut("bd ~ ~ ~ bd ~ ~ ~", "bd ~ ~ ~")), end: v("bd") },
   },
   snare: {
     intro: v("~ rim ~ rim"),
@@ -353,7 +369,11 @@ const POP: Kit = {
     bridge: v("<[~ ~ rim ~]!3 [~ ~ [~ sd] [sd sd]]>"),
     solo: v("<[~ sd ~ sd]!7 [~ sd [~ sd] [sd sd]]>"),
     outro: v("<[~ sd ~ sd]!3 [~ sd [~ sd] [sd sd]]>"),
-    only: { end: null },
+    only: {
+      a2: v(`<[~ rim ~ rim]!7 [${FILL_INTO}]>`),
+      a3: v(layOut(withFill("~ rim ~ rim", "~ rim [~ sd] [sd sd]"), "~")),
+      end: null,
+    },
   },
   hats: {
     intro: v("~ hh ~ hh"),
@@ -361,7 +381,7 @@ const POP: Kit = {
     bridge: v("~ hh ~ hh"),
     solo: v("hh*8", V8),
     outro: v("~ hh ~ hh"),
-    only: { end: null },
+    only: { a3: v(layOut("~ hh ~ hh", "~")), end: null },
   },
   ride: {
     intro: v("rd*4"),
@@ -369,7 +389,10 @@ const POP: Kit = {
     bridge: v(crashed(RIDE, 4), V8),
     solo: v(crashed(RIDE, 8), V8),
     outro: v(crashed(RIDE, 4), V8),
-    only: { end: v("cr") },
+    only: {
+      a3: v(layOut(["cr, rd*4", "rd*4", "rd*4", "rd*4", "rd*4", "rd*4", "rd*4"], "rd ~ ~ ~")),
+      end: v("cr"),
+    },
   },
   bass: {
     intro: "{r}@3 {r} {r}@4",
@@ -411,7 +434,7 @@ const INDIE: Kit = {
     bridge: v("bd ~ ~ ~ ~ ~ ~ ~"),
     solo: v("bd ~ ~ bd ~ ~ bd ~"),
     outro: v("bd ~ ~ ~ ~ ~ bd ~"),
-    only: { end: v("bd") },
+    only: { a3: v(layOut("bd ~ ~ ~ ~ ~ bd ~", "bd ~ ~ ~")), end: v("bd") },
   },
   snare: {
     intro: v("~ ~ rim ~"),
@@ -419,7 +442,11 @@ const INDIE: Kit = {
     bridge: v("<[~ ~ rim ~]!3 [~ ~ rim [sd sd]]>"),
     solo: v("<[~ sd ~ sd]!7 [~ sd [~ sd] [sd sd]]>"),
     outro: v("<[~ ~ sd ~]!3 [~ ~ sd [sd sd]]>"),
-    only: { end: null },
+    only: {
+      a2: v(`<[~ ~ sd ~]!7 [${FILL_INTO}]>`),
+      a3: v(layOut(withFill("~ ~ sd ~", "~ ~ sd [sd sd]"), "~")),
+      end: null,
+    },
   },
   hats: {
     intro: v("~ hh ~ hh"),
@@ -427,7 +454,7 @@ const INDIE: Kit = {
     bridge: v("~ hh ~ hh"),
     solo: v("hh*8", V8),
     outro: v("~ hh ~ hh"),
-    only: { end: null },
+    only: { a3: v(layOut("~ hh ~ hh", "~")), end: null },
   },
   ride: {
     intro: v("rd*4"),
@@ -435,7 +462,7 @@ const INDIE: Kit = {
     bridge: v(crashed("rd*4", 4)),
     solo: v(crashed(RIDE, 8), V8),
     outro: v(crashed(RIDE, 4), V8),
-    only: { end: v("cr") },
+    only: { a3: v(RIDE_A3, V8), end: v("cr") },
   },
   bass: {
     intro: "{r}@6 {r}@2",
@@ -490,7 +517,7 @@ const JAZZ: Kit = {
     bridge: v("bd ~ ~ ~"),
     solo: v("<[bd*4]!3 [bd ~ bd [~ bd]]>"),
     outro: v("bd*4"),
-    only: { end: v("bd") },
+    only: { a3: v(layOut("bd*4", "bd ~ ~ ~")), end: v("bd") },
   },
   snare: {
     intro: `${v("sd*4")}.n(${BRUSH})`,
@@ -498,7 +525,11 @@ const JAZZ: Kit = {
     bridge: v("<[~ ~ ~ rim]!3 [~ ~ [~ sd] [sd sd]]>"),
     solo: v("<[~ ~ ~ ~ ~ sd ~ ~] [~ ~ ~ sd ~ ~ ~ ~] [~ sd ~ ~ ~ ~ ~ sd] [~ ~ ~ ~ ~ sd ~ sd]>"),
     outro: v("<[~ ~ ~ rim]!3 [~ sd [~ sd] [sd sd]]>"),
-    only: { a3: v("<[~ ~ ~ rim]!7 [~ rim [~ sd] [sd sd]]>"), end: null },
+    only: {
+      a2: `${v("<[sd*4]!7 [sd [sd sd] [sd sd] [sd sd sd sd]]>")}.n(${BRUSH})`,
+      a3: v(layOut(withFill("~ ~ ~ rim", "~ rim [~ sd] [sd sd]"), "~")),
+      end: null,
+    },
   },
   // The hi-hat's foot (the jazz kit's second hi-hat, `n` 1) on 2 and 4.
   hats: {
@@ -507,7 +538,7 @@ const JAZZ: Kit = {
     bridge: FOOT,
     solo: FOOT,
     outro: FOOT,
-    only: { end: null },
+    only: { a3: `${v(layOut("~ hh ~ hh", "~"))}.n(1)`, end: null },
   },
   ride: {
     intro: v(RIDE, V8),
@@ -515,7 +546,7 @@ const JAZZ: Kit = {
     bridge: v(crashed(RIDE, 4), V8),
     solo: v(crashed(RIDE, 8), V8),
     outro: v(crashed(RIDE, 4), V8),
-    only: { end: v("cr") },
+    only: { a3: v(RIDE_A3, V8), end: v("cr") },
   },
   bass: {
     intro: "{r}@2 {f}@2",
@@ -558,7 +589,7 @@ const FUNK: Kit = {
     bridge: v("bd ~ ~ ~ ~ ~ ~ ~"),
     solo: v("bd ~ ~ bd bd ~ bd ~"),
     outro: v("bd ~ ~ bd bd ~ ~ ~"),
-    only: { end: v("bd") },
+    only: { a3: v(layOut("bd ~ ~ bd bd ~ ~ ~", "bd ~ ~ ~")), end: v("bd") },
   },
   snare: {
     intro: v("~ rim ~ rim"),
@@ -566,7 +597,11 @@ const FUNK: Kit = {
     bridge: v("<[~ ~ sd ~]!3 [~ ~ sd [sd sd]]>"),
     solo: v("<[~ [sd,cp] ~ [sd,cp]]!7 [~ sd [sd sd] [sd sd]]>"),
     outro: v("<[~ sd ~ sd]!3 [~ sd [sd sd] [sd sd]]>"),
-    only: { end: null },
+    only: {
+      a2: v(`<[~ sd ~ sd]!7 [${FILL_INTO}]>`),
+      a3: v(layOut(withFill("~ sd ~ sd", "~ sd [~ sd] [sd sd]"), "~")),
+      end: null,
+    },
   },
   hats: {
     intro: v("~ hh ~ hh"),
@@ -574,7 +609,7 @@ const FUNK: Kit = {
     bridge: v("~ hh ~ hh"),
     solo: v("hh*8", V8),
     outro: v("~ hh ~ hh"),
-    only: { end: null },
+    only: { a3: v(layOut("~ hh ~ hh", "~")), end: null },
   },
   ride: {
     intro: v(RIDE, V8),
@@ -582,7 +617,7 @@ const FUNK: Kit = {
     bridge: v(crashed(RIDE, 4), V8),
     solo: v(crashed("rd*4", 8)),
     outro: v(crashed(RIDE, 4), V8),
-    only: { end: v("cr") },
+    only: { a3: v(RIDE_A3, V8), end: v("cr") },
   },
   bass: {
     intro: "{r}@2 ~ {o} {r}@2 {o} ~",
@@ -643,7 +678,7 @@ const ELECTRONIC: Kit = {
     bridge: v("bd ~ ~ ~ ~ ~ ~ ~"),
     solo: v("bd*4"),
     outro: v("bd ~ ~ ~ ~ ~ bd ~"),
-    only: { end: v("bd") },
+    only: { a3: v(layOut("bd ~ ~ ~ ~ ~ bd ~", "bd ~ ~ ~")), end: v("bd") },
   },
   snare: {
     intro: v("~ sd ~ sd"),
@@ -651,7 +686,11 @@ const ELECTRONIC: Kit = {
     bridge: v("<[~ ~ sd ~]!3 [~ ~ sd [sd sd]]>"),
     solo: v("<[~ cp ~ cp]!7 [~ cp [~ cp] [cp cp]]>"),
     outro: v("<[~ sd ~ sd]!3 [~ sd [~ sd] [sd sd]]>"),
-    only: { end: null },
+    only: {
+      a2: v(`<[~ sd ~ sd]!7 [${FILL_INTO}]>`),
+      a3: v(layOut(withFill("~ sd ~ sd", "~ sd ~ [sd sd]"), "~")),
+      end: null,
+    },
   },
   hats: {
     intro: v("hh*8", V8),
@@ -659,7 +698,7 @@ const ELECTRONIC: Kit = {
     bridge: v("~ hh ~ hh"),
     solo: v("[~ oh]*4"),
     outro: v("hh*8", V8),
-    only: { end: null },
+    only: { a3: v(layOut("hh*8", "~"), V8), end: null },
   },
   ride: {
     intro: v(RIDE, V8),
@@ -667,7 +706,7 @@ const ELECTRONIC: Kit = {
     bridge: v(crashed(RIDE, 4), V8),
     solo: v(crashed(RIDE, 8), V8),
     outro: v(crashed(RIDE, 4), V8),
-    only: { end: v("cr") },
+    only: { a3: v(RIDE_A3, V8), end: v("cr") },
   },
   bass: {
     intro: "{r}@6 {r}@2",
@@ -831,7 +870,7 @@ const PITCHED: SongPartId[] = ["lead", "chords", "bass"];
 export const J1_SONG = defineUnitSong({
   id: "usong.J1",
   unit: "J1",
-  version: 1,
+  version: 2,
   title: "Two-five street",
   meter: "4/4",
   key: { tonic: "C", mode: "major" },

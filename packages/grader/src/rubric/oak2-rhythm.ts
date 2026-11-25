@@ -81,20 +81,44 @@ const kickBass =
         return result(false, `Let each ${ref} note finish before another bass note starts`);
     }
     const bars = fullBars(n, ctx, deps);
-    const count = bars.reduce((sum, b) => sum + onsets(inBar(bass, b)).length, 0);
-    if (!bars.length || count / bars.length < num(p, "minBassPerBar", 1))
+    // Oak's call: `minBassPerBar` notes in every full bar, not on average (X14, U08.L06 S6 "at least two notes a bar").
+    const min = num(p, "minBassPerBar", 1);
+    if (!bars.length || bars.some((b) => onsets(inBar(bass, b)).length < min))
       return result(false, `Add more ${ref} notes between the kicks throughout the piece`);
     return result(true, "The kick and bass take turns as one line");
   };
 
+/**
+ * The start of the first turn of a shared line that lasts a bar (one cycle) or more: a run of notes on one part,
+ * from its first onset to the other part's next onset (or to the end of its last note). Undefined when none does.
+ */
+function longTurn(parts: readonly NEvent[][]): Rat | undefined {
+  const tagged = parts
+    .flatMap((part, i) => part.map((e) => ({ e, i })))
+    .sort((a, b) => R.cmp(a.e.onset, b.e.onset));
+  let start = 0;
+  for (let j = 1; j <= tagged.length; j++) {
+    const here = tagged[j];
+    const from = tagged[start] as { e: NEvent; i: number };
+    if (here && here.i === from.i) continue;
+    const to = here ? here.e.onset : endOf((tagged[j - 1] as { e: NEvent }).e);
+    if (!R.lt(R.sub(to, from.e.onset), rat(1))) return from.e.onset;
+    start = j;
+  }
+  return undefined;
+}
+
+// `pitches` is the whole given line, `steps` per bar: one bar, or a line of several bars that loops (`pitches[0..steps-1]`
+// is bar 1 of the loop). The loop is counted from cycle 0, as Strudel's `<...>` counts it (X9, A2.L07's four-bar line).
 const hocket =
   (deps: CorrectionDeps): CorrectionRule =>
   (n, ctx, p) => {
     const refs = strs(p, "tracks");
     const pitches = nums(p, "pitches");
     const steps = num(p, "steps", 0);
-    if (refs.length !== 2 || ![8, 16].includes(steps) || pitches.length !== steps)
+    if (refs.length !== 2 || ![8, 16].includes(steps) || !pitches.length || pitches.length % steps !== 0)
       return result(false, "Choose two parts and a complete line to share between them");
+    const loopBars = pitches.length / steps;
     const parts = refs.map((ref) => heard(n, ref));
     for (let i = 0; i < parts.length; i++) if (!parts[i]?.length) return missing(refs[i] as string);
     const sounds = parts.map((part) => new Set(part.map((e) => controlValue(e, "s", n.cps))));
@@ -103,8 +127,12 @@ const hocket =
     const bars = fullBars(n, ctx, deps);
     if (!bars.length) return result(false, "Play a full bar of the shared line");
     const counts = [0, 0];
+    // Bars whose notes all came from one part while the line had two or more notes there.
+    const oneSided: number[] = [];
     for (const b of bars) {
+      const at = (b % loopBars) * steps;
       const cells: NEvent[][] = Array.from({ length: steps }, () => []);
+      const players = new Set<number>();
       for (let i = 0; i < parts.length; i++) {
         for (const e of inBar(parts[i] as NEvent[], b)) {
           const step = R.mul(R.frac(e.onset), rat(steps));
@@ -112,11 +140,14 @@ const hocket =
             return result(false, "Place each shared note on its place in the given line");
           cells[step[0]]?.push(e);
           counts[i] = (counts[i] ?? 0) + 1;
+          players.add(i);
         }
       }
+      if (players.size < 2 && pitches.slice(at, at + steps).filter((m) => m !== -1).length >= 2)
+        oneSided.push(b);
       for (let s = 0; s < steps; s++) {
         const cell = cells[s] as NEvent[];
-        const want = pitches[s];
+        const want = pitches[at + s];
         if (cell.length !== (want === -1 ? 0 : 1) || (want !== -1 && cell[0]?.midi !== want))
           return {
             ok: false,
@@ -130,10 +161,32 @@ const hocket =
     if (merged.some((e, i) => i > 0 && R.lt(e.onset, endOf(merged[i - 1] as NEvent))))
       return result(false, "Shorten the shared notes so each finishes before the next one starts");
     const total = (counts[0] ?? 0) + (counts[1] ?? 0);
+    // Oak's call: each sound plays at least a quarter of the notes (the book gives no share).
     if (!total || counts.some((c) => c / total < 0.25))
       return result(false, `Give both ${refs[0]} and ${refs[1]} a share of the line`);
+    // A hocket passes the line between the sounds note by note; trading whole bars is call and response (PLAN §5,
+    // the book's "Linear Rhythm in Melodies"). Oak's call: every bar of the line with two or more notes holds notes
+    // from both sounds, and no turn lasts a bar or more, counted from its first note to the other sound's next note
+    // (a bar-long phrase traded across the bar line is call and response too; X14 round 2, A2.L07). Shorter turns
+    // are not capped, so halves of a bar traded every bar still pass.
+    const first = oneSided[0];
+    const tooLong = first === undefined ? longTurn(parts as NEvent[][]) : undefined;
+    const turnAt = first !== undefined ? rat(first) : tooLong;
+    if (turnAt !== undefined)
+      return {
+        ok: false,
+        detail: `Let ${refs[0]} and ${refs[1]} take turns inside each bar instead of trading whole bars`,
+        where: locAt(turnAt, ctx),
+      };
     return result(true, "Both sounds share the complete line without doubling its notes");
   };
+
+/** Controls measured in hertz, whose steps are heard as ratios. */
+const FREQUENCY_KEYS = new Set(["cutoff", "hcutoff", "bandf"]);
+/** Oak's call: the smallest jump between held frequencies, in octaves (a third of an octave). */
+const STEP_OCTAVES = 1 / 3;
+/** Oak's call: the smallest jump between other held values, as a share of their range. */
+const STEP_RANGE = 0.2;
 
 const steppedControl: CorrectionRule = (n, _ctx, p) => {
   const ref = str(p, "track", "@melody");
@@ -166,7 +219,14 @@ const steppedControl: CorrectionRule = (n, _ctx, p) => {
     return result(false, `Give ${control} on ${ref} more different held values`);
   if (runs.some((r) => r.count < 2))
     return result(false, `Hold each ${control} value on ${ref} for several notes before changing it`);
-  if (runs.some((r, i) => i > 0 && Math.abs(r.value - (runs[i - 1]?.value ?? r.value)) + EPS < range * 0.2))
+  // A clear jump (Oak's call): for a frequency (cutoff, high-pass, band) at least a third of an octave, as the ear hears
+  // pitch; for any other control at least a fifth of the range the values span (X14, A1.L06 S8).
+  const freq = FREQUENCY_KEYS.has(key);
+  const clear = (a: number, b: number): boolean =>
+    freq && a > 0 && b > 0
+      ? Math.abs(Math.log2(b / a)) + EPS >= STEP_OCTAVES
+      : Math.abs(b - a) + EPS >= range * STEP_RANGE;
+  if (runs.some((r, i) => i > 0 && !clear(runs[i - 1]?.value ?? r.value, r.value)))
     return result(false, `Make clearer jumps between the held ${control} values on ${ref}`);
   return result(true, `${control} holds steady on ${ref} then jumps to a new value`);
 };
@@ -247,6 +307,8 @@ function material(events: readonly NEvent[]): string {
     .join("|");
 }
 
+// Oak's calls in `depth-layers`: a background part steps forward in at most one bar in eight, and its louder or
+// busier bars are the measure of "steps forward"; the book names the layers, not these numbers.
 const depthLayers =
   (deps: CorrectionDeps): CorrectionRule =>
   (n, ctx, p) => {
@@ -298,6 +360,8 @@ const depthLayers =
         );
   };
 
+// Oak's calls in `linear-drums`: its density and evenly-spaced-hit thresholds below are Oak's reading of "no single
+// timekeeper", not numbers from the book.
 const linearDrums =
   (deps: CorrectionDeps): CorrectionRule =>
   (n, ctx, p) => {

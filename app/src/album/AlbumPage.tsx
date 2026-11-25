@@ -38,6 +38,7 @@ import { Chip, Page, Skeleton } from "../ui/kit/basics.tsx";
 import { ErrorState } from "../ui/kit/QueryState.tsx";
 import { albumSides, audioFileName, runtime, type Slot, sideARecord } from "./model.ts";
 import { useCoverMusic } from "./music.ts";
+import { ShelfDrawer } from "./ShelfDrawer.tsx";
 import { pauseOtherAudio, SideARecord, SideRecord } from "./SideARecord.tsx";
 import { ALBUM_TITLE_MAX, cleanAlbumTitle, DEFAULT_ALBUM_TITLE, useAlbumTitle } from "./title.ts";
 import { Vinyl } from "./Vinyl.tsx";
@@ -360,6 +361,8 @@ export function AlbumPage() {
             </ol>
           </section>
         ))}
+        {/* Oak 2.0 W4 F6: finished pieces kept off the album, after the sides; hidden while empty. */}
+        <ShelfDrawer shelf={album.data?.shelf ?? []} />
         {/* Unit songs (spec 2026-11-24 §5.5 "Album"): every unit's song, open or released, after the sides, so the
             hero and Side A stay at the top of the page. */}
         <AlbumSongs />
@@ -632,12 +635,15 @@ function SlotRow({
   const [open, setOpen] = useState(false);
   if (slot.kind === "empty") {
     const s = slot;
+    // Oak 2.0 W4 F6: a released capstone with no track on the album is on the Shelf (it still counts as finished).
     const where =
       s.status === "open"
         ? "Open now"
         : s.status === "in_progress"
           ? `In progress · ${s.sessionsDone} of ${s.sessionsTotal} sessions`
-          : (s.lockedReason ?? "Opens later in the course");
+          : s.status === "released"
+            ? "On the Shelf"
+            : (s.lockedReason ?? "Opens later in the course");
     const reachable = s.status === "open" || s.status === "in_progress";
     return (
       <li className="flex items-center gap-4 border-b border-border/60 py-3" data-slot={s.capstone.id}>

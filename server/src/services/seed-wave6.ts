@@ -193,17 +193,20 @@ mel: arrange([8, melVerse], [8, melChorus], [8, melBridge], [8, melChorus], [8, 
 /**
  * CF-A.S4 and the release: the single arranged to length — verse chorus verse chorus bridge chorus and the last
  * chorus a whole step up, 56 bars at 100 BPM (134.4 seconds). The pop reference of content/specs/CF.md, which
- * content/specs/finale.test.ts grades with the real grader.
+ * content/specs/finale.test.ts grades with the real grader. It ends on purpose (CF-A's `ending` line since Oak 2.0
+ * W4): in the last chorus the tune leaves two bars before the end and the chords one bar before (`…Chorus3`).
  */
 export const CFA_SINGLE = `setcpm(100/4)
 
 ${CFA_CONSTS}
 ${CFA_TUNES}
+const chordsChorus3 = chordsChorus2.mask("<1!7 0>")
+const melChorus3 = melChorus.mask("<1!6 0!2>")
 
 ${CFA_KIT}
-chords: arrange([8, chordsVerse], [8, chordsChorus], [8, chordsVerse], [8, chordsChorus], [8, chordsBridge], [8, chordsChorus], [8, chordsChorus2]).s("piano").gain(.5).room(.3)
+chords: arrange([8, chordsVerse], [8, chordsChorus], [8, chordsVerse], [8, chordsChorus], [8, chordsBridge], [8, chordsChorus], [8, chordsChorus3]).s("piano").gain(.5).room(.3)
 bass: arrange([8, bassVerse], [8, bassChorus], [8, bassVerse], [8, bassChorus], [8, bassBridge], [8, bassChorus], [8, bassChorus]).scale("<C2:major!48 D2:major!8>").s("ebass").lpf(700)
-mel: arrange([8, melVerse], [8, melChorus], [8, melVerse], [8, melChorus], [8, melBridge], [8, melChorus], [8, melChorus]).scale("<C4:major!48 D4:major!8>").s("piano").room(.25)`;
+mel: arrange([8, melVerse], [8, melChorus], [8, melVerse], [8, melChorus], [8, melBridge], [8, melChorus], [8, melChorus3]).scale("<C4:major!48 D4:major!8>").s("piano").room(.25)`;
 
 /** The seeded draft of a Wave 6 compose capstone session, by index (the last one is the release). */
 export const WAVE6_CAPSTONE_DRAFTS: Readonly<Record<string, readonly string[]>> = {
@@ -224,22 +227,22 @@ export const WAVE6_SEED_DESCRIPTIONS: readonly DevSeedPoint[] = [
   {
     point: "after X2 (U12.L02 next)",
     description:
-      "The Wave 5 point “X2 released” under its Wave 6 name: C5 and X2 on the album, U12.L01 done (it precedes GYM.11), chord.seventh unlocked. Today is U12.L02.",
+      "The Wave 5 point “X2 released” under its Wave 6 name: C5 and X2 on the album, U12.L01 done (it precedes GYM.12), chord.seventh unlocked. Today is U12.L02.",
   },
   {
     point: "after U12.L05",
     description:
-      "U12.L02–L05 done (chord.seventh-dim, the diatonic sevenths, fam.chd.quality-7th seeded), the last yesterday. Today is GYM.12, a gym slot.",
+      "U12.L02–L05 done (chord.seventh-dim, the diatonic sevenths, fam.chd.quality-7th seeded), the last yesterday. Today is GYM.13, a gym slot.",
   },
   {
     point: "after U13.L03",
     description:
-      "GYM.12, U12.L06 (tb.dict.lefthand, jazzgtr) and U13.L01–L03 (tb.early, tb.late, tb.velocity, cleangtr) done. Today is GYM.13.",
+      "GYM.13, U12.L06 (tb.dict.lefthand, jazzgtr) and U13.L01–L03 (tb.early, tb.late, tb.velocity, cleangtr) done. Today is GYM.14.",
   },
   {
     point: "U13.CP due",
     description:
-      "GYM.13, U13.L04–L06 (tb.meter.compound, tb.ply), U14.L01 and GYM.14 done. Today's New block is U13.CP.",
+      "GYM.14, U13.L04–L06 (tb.meter.compound, tb.ply), U14.L01 and GYM.15 done. Today's New block is U13.CP.",
   },
   {
     point: "tracks open (after U13.CP)",
@@ -253,7 +256,7 @@ export const WAVE6_SEED_DESCRIPTIONS: readonly DevSeedPoint[] = [
   {
     point: "U14.CP due",
     description:
-      "U14.L04, GYM.15, U14.L05–L06 and U15.L01 (tb.n.chromatic; CF-T's gate met) done. Today's New block is U14.CP.",
+      "U14.L04, GYM.16, U14.L05–L06 and U15.L01 (tb.n.chromatic; CF-T's gate met) done. Today's New block is U14.CP.",
   },
   {
     point: "CF-T open (U15.L01 done)",
@@ -288,7 +291,7 @@ export const WAVE6_SEED_DESCRIPTIONS: readonly DevSeedPoint[] = [
     point: "after U17.L02",
     description: "U16.L04–L05 (snd.tenor), CF-T.S4 (CF-T released) and U17.L01–L02 done. Today is U17.L03.",
   },
-  { point: "U17.CP due", description: "U17.L03–L04 and GYM.16 done. Today's New block is U17.CP." },
+  { point: "U17.CP due", description: "U17.L03–L04 and GYM.17 done. Today's New block is U17.CP." },
   {
     point: "C7 open",
     description: "U17.CP passed yesterday (gate J.reharmonization recorded): C7 is open and today is C7.S1.",
@@ -301,9 +304,9 @@ export const WAVE6_SEED_DESCRIPTIONS: readonly DevSeedPoint[] = [
   {
     point: "C7 released",
     description:
-      "C7 released: 40 bars, the last chorus a whole step up for eight bars (a key plan on the tune, the chord names moved in chordsChorus2). Today is GYM.17.",
+      "C7 released: 40 bars, the last chorus a whole step up for eight bars (a key plan on the tune, the chord names moved in chordsChorus2). Today is GYM.18.",
   },
-  { point: "CF-A open", description: "GYM.17 done: CF-A is open and today is CF-A.S1." },
+  { point: "CF-A open", description: "GYM.18 done: CF-A is open and today is CF-A.S1." },
   {
     point: "CF-A.S3 done",
     description:
@@ -312,7 +315,7 @@ export const WAVE6_SEED_DESCRIPTIONS: readonly DevSeedPoint[] = [
   {
     point: "core complete",
     description:
-      "Everything through CF-A.S4 (session 185): all twelve Side A tracks released with recordings; yesterday's summary carries coreComplete. Today is a review day (or the gym slot's day) with plan.core complete and plan.tracks set; course.completion.stage is complete. Needs a CF-T standard with an answer key.",
+      "Everything through CF-A.S4 (session 191): all twelve Side A tracks released with recordings; yesterday's summary carries coreComplete. Today is a review day (or the gym slot's day) with plan.core complete and plan.tracks set; course.completion.stage is complete. Needs a CF-T standard with an answer key.",
   },
   {
     point: "ladder L8",
@@ -332,7 +335,7 @@ export const WAVE6_SEED_DESCRIPTIONS: readonly DevSeedPoint[] = [
   {
     point: "two takes (d20)",
     description:
-      "“C3 released” with a second take recorded on version 1: takes of 2, currentTake 2 (take 1 is still served with ?take=1). Today is GYM.06.",
+      "“C3 released” with a second take recorded on version 1: takes of 2, currentTake 2 (take 1 is still served with ?take=1). Today is GYM.07.",
   },
   {
     point: "second tab (d21)",

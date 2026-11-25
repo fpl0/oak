@@ -6,9 +6,9 @@
 // into the tracks. The decks are the core's (content/decks/index.ts `decks`): the advanced tracks' ten are
 // simulated with the whole course, all 259 sessions in every order, in simulation-wave7.test.ts.
 //
-// At 20 and 25 minutes a lesson is one session and the 300 days of the gate hold the whole core. At 15 minutes a
-// lesson takes two, so the run is 480 days: the first time the 15-minute learner's review load is simulated past
-// U11. The five criteria must hold on every run and target (the gate's seeds and the held-out ones), over the
+// At 20 and 25 minutes a lesson is one session and about 300 days hold the whole core and four weeks of tracks. At
+// 15 minutes a lesson takes two, so the run is about 480 days: the first time the 15-minute learner's review load
+// is simulated past U11. The run grows with the core (`daysFor`). The five criteria must hold on every run and target (the gate's seeds and the held-out ones), over the
 // stretch that ends with CF-A.S4 and over the whole run: p95 planned warm-up within the budget; at most 12 active
 // perceptual and production families on every day; p95 age of the oldest undelivered due card at most 7 days;
 // every perceptual and production family's first review set within 7 days of its lesson, none left unreviewed;
@@ -45,8 +45,21 @@ const SEEDS = ["a1", "b2", "c3", "d4", "e5", "f6", "g7", "h8", "i9", "j0"];
 const GATE_SEEDS = SEEDS.slice(0, 5);
 /** The last session of the core in the default order. */
 const END = defaultOrder[defaultOrder.length - 1] as string;
-/** Days simulated: the core at two sessions a lesson needs about 310 sessions (15 minutes). */
-const daysFor = (t: 15 | 20 | 25) => (t === 15 ? 480 : 300);
+/** Sessions of the core at a target: two a lesson at 15 minutes. */
+const coreSessions = (t: 15 | 20 | 25, lessons: number, sessions: number) =>
+  t === 15 ? sessions + lessons : sessions;
+/**
+ * Days simulated: the core and about four weeks of tracks after it, the tail in which the last decks drain and
+ * resting families come back (the two health tests below are read at the end of the run). The bounds were measured
+ * on the core of contracts 1.6, 185 sessions with 125 lessons: 300 days at 20 and 25 minutes (the core ended on day
+ * 273), 480 at 15 (day 448). At 5 sessions a week every session the core gains ends it 7/5 of a day later, and the
+ * run moves with it so the tail keeps its length: Oak 2.0 W2's five lessons and one gym slot (191 sessions, 130
+ * lessons, contracts 2.2) end the core on day 281 and 463 and the run on day 308 and 495.
+ */
+const CORE_LESSONS = defaultOrder.filter((id) => /\.L\d+$/.test(id)).length;
+const daysFor = (t: 15 | 20 | 25) =>
+  (t === 15 ? 480 : 300) +
+  Math.round(((coreSessions(t, CORE_LESSONS, defaultOrder.length) - coreSessions(t, 125, 185)) * 7) / 5);
 const GAPS: [number, number][] = [
   [61, 64],
   [145, 154],
@@ -165,7 +178,10 @@ describe("§7.4 over the whole core with the U12–U17 families and decks", () =
       ].sort(),
     );
     expect(END).toBe("CF-A.S4");
-    expect(defaultOrder.length).toBe(185);
+    // 185 before Oak 2.0 W2's five core lessons and one more gym slot (contracts 2.2).
+    expect(defaultOrder.length).toBe(191);
+    // The run grows with the core: 8 days at 20 and 25 minutes, 15 at 15 (`daysFor`).
+    expect([CORE_LESSONS, daysFor(15), daysFor(20), daysFor(25)]).toEqual([130, 495, 308, 308]);
     // Every level gate of a core lesson names a session of the order (a gate on a lesson nobody reaches would
     // hold a family at its level for ever).
     for (const [id, gates] of Object.entries(catalog.levelGates))
@@ -179,7 +195,7 @@ describe("§7.4 over the whole core with the U12–U17 families and decks", () =
       expect([t, seed, w.wave6Seeded]).toEqual([t, seed, WAVE6_FAMILIES.size]);
       // 125 lessons, two sessions each at 15 minutes, and 60 other sessions; light sessions after a long break add a few.
       if (t === 15) expect(w.sessions).toBeGreaterThanOrEqual(125 * 2 + 60);
-      else expect(w.sessions).toBeGreaterThanOrEqual(185);
+      else expect(w.sessions).toBeGreaterThanOrEqual(191);
     }
   });
 
@@ -243,7 +259,8 @@ describe("§7.4 over the whole core with the U12–U17 families and decks", () =
   test("as written, the decks drain: a few dozen cards of the last units are still to come when the core ends, a handful at the end of the run", () => {
     // U16 and U17 open their decks 20 and 13 sessions before the core ends, at one new card a day each, so their
     // last cards are dealt after it (measured: 0 at 15 minutes, up to 31 of 341 at 20 and 25; 1 at most at the end
-    // of the run).
+    // of the run). Oak 2.0 W2 (191 sessions): 0 at 15 minutes, up to 15 at 20 and 25, none at the end of the run;
+    // with the run still 300 days long its tail after the core was 8 days shorter and 20 d4 ended with 11.
     for (const { t, seed, s, w } of written) {
       expect([t, seed, w.deckPendingAtEnd <= 40]).toEqual([t, seed, true]);
       expect([t, seed, s.deckPending.atEnd <= 5]).toEqual([t, seed, true]);

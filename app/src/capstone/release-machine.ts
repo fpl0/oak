@@ -16,6 +16,11 @@ export interface ReleaseDetails {
   /** The learner's one line for the liner notes. */
   line: string;
   includeReviewNote: boolean;
+  /**
+   * Oak 2.0 W4 F6: "Put it on the Shelf, not on the album". `true` releases to the Shelf, `false` to the album;
+   * absent until the learner chooses (the workspace then sends the track's current place).
+   */
+  shelved?: boolean;
 }
 
 export interface ReleaseContext extends ReleaseDetails {
@@ -138,6 +143,7 @@ export const releaseMachine = setup({
           title: context.title.trim(),
           line: context.line.trim(),
           includeReviewNote: context.includeReviewNote,
+          ...(context.shelved === undefined ? {} : { shelved: context.shelved }),
           recording: context.recording,
           otherTakes: context.takes.filter((_, i) => i !== context.chosen),
         }),

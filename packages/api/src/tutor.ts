@@ -119,6 +119,11 @@ export const TutorTurnRequestSchema = z.strictObject({
   albumVersion: z.number().int().positive().exactOptional(),
   /** Wave 4: a transcription review of one version of the subject's project (default: its current version). */
   transcriptionVersion: z.number().int().nonnegative().exactOptional(),
+  /**
+   * Oak 2.0 W4 F4: the one question the learner asks a capstone or track review; the review answers it first
+   * (`CapstoneReview.answer`). At most 300 characters (Oak's call). Absent = no question.
+   */
+  reviewQuestion: z.string().trim().min(1).max(300).exactOptional(),
 });
 export type TutorTurnRequest = z.infer<typeof TutorTurnRequestSchema>;
 
@@ -140,6 +145,11 @@ export const CapstoneReviewSchema = z.strictObject({
   ),
   listeningQuestion: z.string(),
   linerNote: z.string(),
+  /**
+   * Oak 2.0 W4 F4: the answer to the learner's `reviewQuestion`, shown first; `null` without a question. Absent from
+   * reviews stored before W4, which still parse.
+   */
+  answer: z.string().nullable().optional(),
 });
 export type CapstoneReview = z.infer<typeof CapstoneReviewSchema>;
 
@@ -165,7 +175,7 @@ export type ReviewValue = CapstoneReview | TranscriptionReview;
 
 /** Counts and word limits a strict JSON Schema cannot express; the server checks them. */
 export const REVIEW_LIMITS = {
-  strengths: [2, 3],
+  strengths: [0, 3],
   strengthWords: 40,
   titleWords: 8,
   whyWords: 50,
@@ -176,6 +186,7 @@ export const REVIEW_LIMITS = {
   flagWords: 30,
   questionWords: 30,
   linerNoteWords: 60,
+  answerWords: 60, // Oak's call: a direct, brief answer to the learner's question.
 } as const;
 
 /** Exactly 1 revision for C0 to C4 and X1; exactly 2 for C5 and every later capstone. */

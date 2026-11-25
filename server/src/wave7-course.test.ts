@@ -90,7 +90,7 @@ describe("the tracks' order and checkpoints (contracts §2.6, §7.6)", () => {
     expect(cp2[0]).toBe("J2.L04");
     expect(cp2.at(-1)).toBe("J5.L04");
     expect(cp2).not.toContain("J5.L05");
-    expect(idx.lessonsCovered("R.CP").length).toBe(15);
+    expect(idx.lessonsCovered("R.CP").length).toBe(16); // 15 before Oak 2.0 W2 added R1.L06
     expect(idx.lessonsCovered("A.CP")).toEqual(idx.trackLessons("A"));
     for (const cp of TRACK_CHECKPOINTS) expect(idx.lessonsCovered(cp.cpId).at(-1)).toBe(cp.afterLesson);
   });

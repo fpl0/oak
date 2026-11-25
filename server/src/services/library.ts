@@ -18,6 +18,7 @@ import {
   type SketchVersion,
   TAKE_STATES,
   type TakeState,
+  type TrackPatch,
   type Transcription,
   type TranscriptionDetail,
   type TranscriptionSettings,
@@ -219,19 +220,39 @@ export class LibraryService {
 
   // --- album ------------------------------------------------------------------------------------
 
-  /** `GET /album`. Wave 7 (wave7.md §5.5): with the two sides of the record, released and total per side. */
+  /**
+   * `GET /album`. Wave 7 (wave7.md §5.5): with the two sides of the record, released and total per side. Oak 2.0 W4
+   * F6: shelved tracks are listed under `shelf`, never under `tracks`; a shelved capstone track still counts in its
+   * side's `released` (a piece on the Shelf counts as finished, PLAN §10 call 1).
+   */
   album(): Album {
-    const tracks = this.#repos.album.tracks();
+    const all = this.#repos.album.tracks();
     const sides = ALBUM_SIDES.map((side) => {
       const caps = new Set<string>(side.capstones);
       return {
         side: side.side,
         title: side.title,
-        released: tracks.filter((t) => t.capstoneId !== null && caps.has(t.capstoneId)).length,
+        released: all.filter((t) => t.capstoneId !== null && caps.has(t.capstoneId)).length,
         total: side.capstones.length,
       };
     });
-    return { tracks, sides };
+    return {
+      tracks: all.filter((t) => t.shelved !== true),
+      shelf: all.filter((t) => t.shelved === true),
+      sides,
+    };
+  }
+
+  /**
+   * `PATCH /album/tracks/:id` (Oak 2.0 W4 F6): put a track on the Shelf (`shelved: true`) or back on the album.
+   * Nothing else changes: the track keeps every version and take, a capstone stays released. `{}` changes nothing.
+   */
+  patchTrack(id: string, body: TrackPatch): AlbumTrackDetail {
+    tx(this.#repos.db, () => {
+      if (this.#repos.album.track(id) === null) throw notFound(`track ${id}`);
+      if (body.shelved !== undefined) this.#repos.album.setShelved(id, body.shelved);
+    });
+    return this.track(id);
   }
 
   /**
@@ -389,6 +410,8 @@ export class LibraryService {
     theoryTags: string[];
     attribution: string | null;
     includeReviewNote?: boolean;
+    /** Oak 2.0 W4 F6: create the track on the Shelf (absent = on the album). */
+    shelved?: boolean | undefined;
   }): AlbumTrackDetail {
     const id = newId("trk");
     tx(this.#repos.db, () => {
@@ -410,6 +433,7 @@ export class LibraryService {
         currentVersion: 1,
         coverSeed: sha256(new TextEncoder().encode(`${id}:${body.title}`)).slice(0, 16),
         createdAt: version.createdAt,
+        shelved: body.shelved === true,
       });
       this.#repos.album.insertVersion(version);
       if (body.capstoneId !== null) {

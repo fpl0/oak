@@ -12,6 +12,7 @@ import { CanDoService } from "./cando.ts";
 import { CapstoneReleaseService } from "./capstone-release.ts";
 import { CapstoneSessionsService } from "./capstone-sessions.ts";
 import { CatalogsService } from "./catalogs.ts";
+import { CheckHistoryService } from "./check-history.ts";
 import type { ServiceContext } from "./context.ts";
 import { CourseService } from "./course.ts";
 import { GatesService } from "./gates.ts";
@@ -76,6 +77,8 @@ export interface Services {
   habits: HabitsService;
   /** Oak 2.0 W3 (PLAN S6): the catalog of attributes. */
   catalogs: CatalogsService;
+  /** Oak 2.0 W4 (PLAN F2): every rubric check of a capstone's drafts, oldest first. */
+  checkHistory: CheckHistoryService;
 }
 
 export interface ServiceOptions {
@@ -234,6 +237,7 @@ export function createServices(ctx: ServiceContext, opts: ServiceOptions): Servi
     lineage: new LineageService(ctx),
     habits: new HabitsService(ctx),
     catalogs: new CatalogsService(ctx),
+    checkHistory: new CheckHistoryService(ctx),
   };
   return services;
 }

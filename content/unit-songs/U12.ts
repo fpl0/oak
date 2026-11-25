@@ -358,6 +358,8 @@ const POP: Kit = {
     only: {
       verse2: v("<[cr, [~ sh]*4] [[~ sh]*4]!3>"),
       turn: v("<cr ~ ~ ~>"),
+      // The second chorus: the tambourine moves to the off-beats in its last four bars.
+      chorus2: v("<[cr, [~ tb ~ tb]] [~ tb ~ tb]!3 [cr, [~ tb]*4] [[~ tb]*4]!3>"),
       chorus3: v("<[cr, tb*8] [tb*8]!3>"),
       end: v("cr"),
     },
@@ -429,6 +431,8 @@ const INDIE: Kit = {
     only: {
       verse2: v("<[cr, [~ tb]*2] [[~ tb]*2]!3>"),
       turn: v("<cr ~ ~ ~>"),
+      // The second chorus: the tambourine moves to the off-beats in its last four bars.
+      chorus2: v("<[cr, [~ tb ~ tb]] [~ tb ~ tb]!3 [cr, [~ tb]*4] [[~ tb]*4]!3>"),
       chorus3: v("<[cr, tb*8] [tb*8]!3>"),
       end: v("cr"),
     },
@@ -508,6 +512,8 @@ const JAZZ: Kit = {
     outro: v(`<[cr, ${RIDE}] [${RIDE}]!3>`, V8),
     only: {
       turn: v("<[cr, rd*4] [rd*4]!3>"),
+      // The second chorus: the tambourine joins the ride on 2 and 4 in its last four bars.
+      chorus2: v("<[cr, rd*8] [rd*8]!3 [cr, rd*8, [~ tb]*2] [rd*8, [~ tb]*2]!3>", V8),
       chorus3: v("<[cr, rd*8, [~ tb]*4] [rd*8, [~ tb]*4]!3>"),
       end: v("cr"),
     },
@@ -596,6 +602,8 @@ const FUNK: Kit = {
     only: {
       verse2: v("<[cr, sh*8] [sh*8]!3>", V8),
       turn: v("<cr ~ ~ ~>"),
+      // The second chorus: a shaker on the off-beats joins the cowbell in its last four bars.
+      chorus2: v("<[cr, [~ cb ~ cb]] [~ cb ~ cb]!3 [cr, [~ cb ~ cb], [~ sh]*4] [[~ cb ~ cb], [~ sh]*4]!3>"),
       chorus3: v("<[cr, [~ cb]*4] [[~ cb]*4]!3>"),
       end: v("cr"),
     },
@@ -696,7 +704,13 @@ const ELECTRONIC: Kit = {
     chorus: v("<[cr, [~ rd]*4] [[~ rd]*4]!3>"),
     bridge: v("<cr ~!7>"),
     outro: v("<cr ~ ~ ~>"),
-    only: { turn: v("<cr ~ ~ ~>"), chorus3: v("<[cr, rd*8] [rd*8]!3>", V8), end: v("cr") },
+    only: {
+      turn: v("<cr ~ ~ ~>"),
+      // The second chorus: a shaker in eighths joins the ride in its last four bars.
+      chorus2: v("<[cr, [~ rd]*4] [[~ rd]*4]!3 [cr, [~ rd]*4, sh*8] [[~ rd]*4, sh*8]!3>"),
+      chorus3: v("<[cr, rd*8] [rd*8]!3>", V8),
+      end: v("cr"),
+    },
   },
   bass: {
     intro: IN_AT_2("{r}"),
@@ -866,7 +880,7 @@ const PITCHED: SongPartId[] = ["lead", "chords", "bass"];
 export const U12_SONG = defineUnitSong({
   id: "usong.U12",
   unit: "U12",
-  version: 1,
+  version: 2,
   title: "Seventh heaven",
   meter: "4/4",
   key: { tonic: "C", mode: "major" },
