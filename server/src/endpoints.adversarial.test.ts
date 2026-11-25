@@ -174,15 +174,17 @@ describe("bodies and parameters", () => {
 
 describe("§11.6: every destructive endpoint needs its own nonce", () => {
   const destructive = ENDPOINTS.filter((e) => e.confirm !== undefined);
-  test("all seven of §11.6 are marked destructive", () => {
+  test("every endpoint of §11.6 is marked destructive (Oak 2.0 adds scraps.delete and templates.delete)", () => {
     expect(destructive.map((e) => e.name as string).sort()).toEqual(
       [
         "album.deleteTrack",
         "audio.delete",
         "backup.import",
         "data.reset",
+        "scraps.delete",
         "settings.anthropicKey.delete",
         "sketches.delete",
+        "templates.delete",
         "transcriptions.delete",
       ].sort(),
     );
