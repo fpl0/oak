@@ -276,7 +276,7 @@ describe("UserTemplatesService through the secured contract side app", () => {
     try {
       const imported = await b.destructive("POST", "/api/backup/import", "backup.import", "*", bytes);
       expect(imported.status).toBe(200);
-      // Import replaces the database connection, so construct the service only after it finishes.
+      // The plan builds the side app after a backup import, never before: import rewrites every row of the same Db.
       const restored = sideApp(b);
       const items = await restored.list();
       expect(items).toEqual(before.map((t) => ({ ...t, reviewBeforeRun: true })));
