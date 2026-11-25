@@ -129,3 +129,12 @@ describe("words", () => {
     expect(STUDIO_OFFER_WORDS.justPlay(".rev()")).toStartWith("Just play: try .rev()");
   });
 });
+
+test("X24 AC24: Today offers a style the learner would never play", () => {
+  expect(STUDIO_OFFER_WORDS.outside).toBe(
+    "Outside your lane: pick a style you would never play for yourself and a track its fans love. Listen, then write what they hear in it.",
+  );
+  for (const value of Object.values(STUDIO_OFFER_WORDS)) {
+    if (typeof value === "string") expect(value).not.toContain("usually skip");
+  }
+});

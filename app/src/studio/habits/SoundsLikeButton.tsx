@@ -1,9 +1,8 @@
-// Oak 2.0 W3 (PLAN §4 S6): "Sounds like something you made before?" in the sketch editor's header (slot
-// `sounds-like`, place `header`). It opens the habits mirror's sentences; "Not this time" on one puts that habit on
-// this sketch as an avoidance card (`habit.<id>`, through `sketches.patch { cards }`), which the Cards panel then shows.
-// It only describes and offers: nothing is counted or blocked.
+// Oak 2.0: the learner names their own repeats first (Avoidance List, p. 20), then reveals Oak's habits mirror.
+// The field stays in memory for this editor only; cards from the field come in a later release.
+// "Not this time" still puts an Oak habit on this sketch as an avoidance card through sketches.patch.
 import { History } from "lucide-react";
-import { useState } from "react";
+import { useId, useRef, useState } from "react";
 import { errorWords } from "../../lib/error-words.ts";
 import { useSketchPatch } from "../../lib/queries.ts";
 import { Button } from "../../ui/kit/Button.tsx";
@@ -13,10 +12,21 @@ import { toast } from "../../ui/kit/Toast.tsx";
 import { CARD_WORDS } from "../cards/model.ts";
 import type { EditorSlotProps } from "../editor-slots.ts";
 import { notBuilt, useHabits } from "./habits-queries.ts";
-import { HABIT_WORDS, habitCardId, notThisTime } from "./model.ts";
+import { HABIT_CATEGORIES, HABIT_WORDS, habitCardId, notThisTime, withCategory } from "./model.ts";
 
 export function SoundsLikeButton({ sketch }: EditorSlotProps) {
   const [open, setOpen] = useState(false);
+  const [sketchId, setSketchId] = useState(sketch.id);
+  const [same, setSame] = useState("");
+  const [revealed, setRevealed] = useState(false);
+  const field = useRef<HTMLTextAreaElement>(null);
+  const fieldId = useId();
+  // Reset before rendering another sketch, so its habits never appear behind the old reveal.
+  if (sketchId !== sketch.id) {
+    setSketchId(sketch.id);
+    setSame("");
+    setRevealed(false);
+  }
   return (
     <>
       <Button
@@ -34,7 +44,44 @@ export function SoundsLikeButton({ sketch }: EditorSlotProps) {
         title={HABIT_WORDS.soundsLike}
         className="w-[min(94vw,32rem)]"
       >
-        {open ? <HabitList sketchId={sketch.id} cards={sketch.cards} /> : null}
+        <div className="flex flex-col gap-3">
+          <label htmlFor={fieldId}>{HABIT_WORDS.sameAsk}</label>
+          <textarea
+            id={fieldId}
+            ref={field}
+            value={same}
+            onChange={(e) => setSame(e.target.value)}
+            // Oak's call: keep this short reflection bounded without making a writing target.
+            maxLength={1000}
+            data-testid="sounds-like-same"
+            data-autofocus
+            className="rounded-control border border-border bg-surface p-2 text-text"
+          />
+          <fieldset aria-label={HABIT_WORDS.sameAsk} className="m-0 flex flex-wrap gap-2 border-0 p-0">
+            {HABIT_CATEGORIES.map((word) => (
+              <Button
+                key={word}
+                size="sm"
+                data-testid="sounds-like-prompt"
+                data-category={word}
+                onClick={() => {
+                  setSame((text) => withCategory(text, word));
+                  field.current?.focus();
+                }}
+              >
+                {word}
+              </Button>
+            ))}
+          </fieldset>
+          <Button
+            disabled={same.trim() === ""}
+            onClick={() => setRevealed(true)}
+            data-testid="sounds-like-reveal"
+          >
+            {HABIT_WORDS.reveal}
+          </Button>
+          {open && revealed ? <HabitList sketchId={sketch.id} cards={sketch.cards} /> : null}
+        </div>
       </Dialog>
     </>
   );

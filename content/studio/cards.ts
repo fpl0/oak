@@ -22,7 +22,7 @@ export const STUDIO_CARDS: readonly StudioCard[] = [
     unlock: "U01.L01",
     source: "Choosing a Tempo",
     check: { kind: "tempo" },
-    text: "Pick a tempo you have not used before: play it slower and faster with Tempo try, and choose by feel.",
+    text: "Pick a tempo: play it slower and faster with Tempo try, and choose by feel.",
   },
   {
     id: "card.drums-last",

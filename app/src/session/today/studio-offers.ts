@@ -1,7 +1,7 @@
 // Oak 2.0 W3 (PLAN §4 S6): Studio's calm offers on Today. On a light day, one "Just play" line: a toolbox tool whose
 // demo is live and editable and is never saved (its own "Open in Studio" keeps it), or, about one light day in four,
 // a sketch over a Band style the learner has not used yet. And now and then "Outside your lane": a catalog of a track
-// from a style the learner usually skips. Each is one line, never a primary button, never a goal. Which days are light
+// from a style the learner would never play for themselves. Each is one line, never a primary button, never a goal. Which days are light
 // and how often each offer shows are Oak's calls (W3 fidelity rule 4). Pure: tested in studio-offers.test.ts.
 import type { FlavourId } from "@oak/content-kit";
 import { STUDIO_FLAVOURS } from "../../studio/model.ts";
@@ -83,7 +83,7 @@ export const STUDIO_OFFER_WORDS = {
   bandStyle: (style: string) => `Just play: a sketch over the ${style} Band, a style you have not used yet.`,
   startBand: "Start it",
   outside:
-    "Outside your lane: pick a style you usually skip and a track its fans love. Listen, then write what they hear in it.",
+    "Outside your lane: pick a style you would never play for yourself and a track its fans love. Listen, then write what they hear in it.",
   openOutside: "Try it",
   notNow: "Not now",
   bandFailed: "The sketch was not created. Try again from Studio.",

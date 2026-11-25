@@ -301,7 +301,7 @@ describe("AC8 and AC9 habit cards", () => {
     ],
     [
       "tempo.84-92",
-      "Not this time: a tempo outside 84 to 92 BPM.",
+      "This time, try a tempo outside 84 to 92 BPM.",
       "Instead, try Tempo try and pick a tempo by feel.",
       { kind: "tempo" },
     ],

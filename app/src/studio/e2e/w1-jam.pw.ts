@@ -1,6 +1,6 @@
 // Oak 2.0 W1 (S3 jam then edit, S4 focus one part) against the real server: Jam hides every hint, tip and compare
 // and closes the tutor with its own notice; edited Runs are takes; Jam off opens the takes; Cut hides a take (never
-// deletes it); Build writes a new version from picked lines; the timebox asks once and never stops the playback;
+// deletes it); Build writes a new version from picked lines; the timebox names a stop and break and never stops the playback;
 // Focus mutes the other lines; the rough-pass row only describes. Run at the wave gate only (Task 9 Step B6).
 import { expect, type Page, test } from "@playwright/test";
 import { api, createSketch, openSketch, typeAtEnd, unlockFirstLessons, WB } from "./helpers.ts";
@@ -105,7 +105,7 @@ test("jam then edit: takes, cut, build, timebox, focus and the rough pass", asyn
   expect(built.code).not.toContain("bass:");
   await expect(page.locator(".cm-content")).toContainText('kick: s("bd*2")');
 
-  // Timebox: the question appears when the clock runs out, and the playback keeps going.
+  // Timebox: the stop-and-break line appears when the clock runs out, and the playback keeps going.
   await page.getByTestId("jam-toggle").click();
   await page.clock.install();
   await page.getByTestId("timebox-task").fill("groove");
@@ -116,11 +116,11 @@ test("jam then edit: takes, cut, build, timebox, focus and the rough pass", asyn
   await page.keyboard.press("ControlOrMeta+Enter");
   await expect(page.locator(WB)).toHaveAttribute("data-playing", "1", { timeout: 20_000 });
   await page.clock.fastForward("05:01");
-  await expect(page.getByText("Time's up for “groove”. Switch to editing?")).toBeVisible();
+  await expect(page.getByText("Time's up for “groove”. Stop here and take a short break.")).toBeVisible();
   await expect(page.locator(WB)).toHaveAttribute("data-playing", "1");
-  await page.getByTestId("timebox-keep").click();
+  await page.getByTestId("timebox-switch").click();
   await page.keyboard.press("ControlOrMeta+.");
-  await page.getByTestId("jam-toggle").click();
+  await expect(page.getByTestId("jam-toggle")).toHaveAttribute("aria-pressed", "false");
 
   // Focus on the drums line: the other lines are muted (their chips show it), the self-check asks the learner.
   await page.locator(".cm-line", { hasText: "drums:" }).click();

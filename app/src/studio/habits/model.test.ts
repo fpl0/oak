@@ -2,7 +2,7 @@
 // only describe (W3 Review Focus 1 and 4).
 import { describe, expect, test } from "bun:test";
 import { isDescriptive } from "../descriptive.ts";
-import { HABIT_WORDS, habitCardId, notThisTime } from "./model.ts";
+import { HABIT_CATEGORIES, HABIT_WORDS, habitCardId, notThisTime, withCategory } from "./model.ts";
 
 describe("Not this time", () => {
   const at = "2026-11-25T10:00:00.000Z";
@@ -37,4 +37,12 @@ describe("words", () => {
     for (const [k, v] of Object.entries(HABIT_WORDS))
       expect({ k, ok: isDescriptive(v) }).toEqual({ k, ok: true });
   });
+});
+
+test("X24 AC18: category prompts preserve text and start a new line", () => {
+  expect(withCategory("", "Sound")).toBe("Sound: ");
+  expect(withCategory("a", "Form")).toBe("a\nForm: ");
+  expect(withCategory("a\n", "Melody")).toBe("a\nMelody: ");
+  expect(HABIT_CATEGORIES).toEqual(["Sound", "Harmony", "Melody", "Rhythm", "Form"]);
+  for (const category of HABIT_CATEGORIES) expect(isDescriptive(category)).toBe(true);
 });

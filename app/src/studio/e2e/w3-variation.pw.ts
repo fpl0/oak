@@ -1,6 +1,6 @@
 // Oak 2.0 W3 Task 1 (PLAN §4 S5 variation) against the real server: a transform rewrites the line under the cursor
 // as one undoable change (Invert, then Mod+Z; Time shift writes a JS fraction); siblings each change one picked
-// dimension and are described against their parent ("You changed the rhythm."), then play back to back; three kept
+// dimension and play back to back before being described against their parent ("You changed the rhythm."); three kept
 // generations with a Run between the second and the third make a chain of 1, 2, 3 (the Run never becomes a parent),
 // and a third generation that puts back what the second changed is noted. Run only at the wave gate (W3 Task 6 B6),
 // after stage A has mounted `sketches.lineage`.
@@ -107,7 +107,7 @@ test("transforms rewrite the line under the cursor as one undoable change", asyn
   expect(errors).toEqual([]);
 });
 
-test("siblings: each changes one picked dimension, is described, and they play back to back", async ({
+test("siblings: each changes one picked dimension and is described after playing back to back", async ({
   page,
 }) => {
   const errors = watchErrors(page);
@@ -145,14 +145,15 @@ test("siblings: each changes one picked dimension, is described, and they play b
 
   const rows = panel.getByTestId("sibling-row");
   await expect(rows).toHaveCount(2);
-  await expect(rows.nth(0).getByTestId("variation-change")).toHaveText("You changed the rhythm.", {
-    timeout: 30_000,
-  });
-  await expect(rows.nth(1).getByTestId("variation-change")).not.toHaveText(/should|must|missing|%|✓|✗/);
-
+  await expect(panel.getByTestId("variation-change")).toHaveCount(0);
   await panel.getByTestId("back-to-back-play").click();
   await expect(panel.getByTestId("back-to-back-now")).toContainText("Playing", { timeout: 30_000 });
-  await panel.getByTestId("back-to-back-stop").click();
+  // Four bars each at 90 BPM: Oak waits for the parent and sibling to finish.
+  await expect(rows.nth(0).getByTestId("variation-change")).toHaveText("You changed the rhythm.", {
+    timeout: 60_000,
+  });
+  await expect(rows.nth(1).getByTestId("variation-change")).toBeVisible({ timeout: 60_000 });
+  await expect(rows.nth(1).getByTestId("variation-change")).not.toHaveText(/should|must|missing|%|✓|✗/);
   await expect(panel.getByTestId("back-to-back-now")).toHaveCount(0);
   expect(errors).toEqual([]);
 });

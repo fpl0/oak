@@ -1,7 +1,7 @@
 // Oak 2.0 W3 (PLAN §4 S6, "Catalog of Attributes"; "Outside your lane"): the flow that makes a catalog.
 //  1. Pick a reference: a unit song (played with the song player, Oak's own version), one of the learner's
 //     transcription projects, or one of their audio files. "Outside your lane" instead asks for a style the learner
-//     usually skips and a track its fans love, in their own words (Oak never plays or reads it).
+//     would never play for themselves and a track its fans love, in their own words (Oak never plays or reads it).
 //  2. Listen, then write the six lines (each optional, at most 400 characters).
 //  3. "Hide it and write" stops the reference, starts a sketch whose code holds the lines as comments and saves the
 //     catalog naming it; "Save the lines only" saves the catalog alone.
@@ -163,7 +163,14 @@ export function LineFields({
   const ids = useId();
   return (
     <div className="flex flex-col gap-3">
-      {outside ? <p className="text-sm text-text-2">{CATALOG_WORDS.outsideLines}</p> : null}
+      {outside ? (
+        <>
+          <p className="text-sm text-text-2">{CATALOG_WORDS.outsideLines}</p>
+          <p className="text-sm text-text-2" data-testid="outside-use">
+            {CATALOG_WORDS.outsideUse}
+          </p>
+        </>
+      ) : null}
       {CATALOG_LINES.map((k) => (
         <label key={k} className="flex flex-col gap-1 text-sm" htmlFor={`${ids}-${k}`}>
           <span className="font-medium text-text-2">{LINE_LABELS[k]}</span>

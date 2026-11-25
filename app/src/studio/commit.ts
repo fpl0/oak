@@ -149,7 +149,8 @@ export const COMMIT_COPY = {
   plainSwitch: "Plain sounds",
   listenMenu: "Listen through…",
   listenOn: (mode: string) => `Listening through: ${mode}. Your code is unchanged.`,
-  heardPrompt: "Write one thing you heard into your code.",
+  heardPrompt:
+    "Listen for something that seems to be there but isn't in the code: a note, a rhythm. Write it down, then try to make it real.",
   heardAdd: "Add to code",
   notNow: "Not now",
   noLine: "Put the cursor on a labelled line to commit its sound.",

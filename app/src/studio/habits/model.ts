@@ -20,6 +20,8 @@ export const HABIT_WORDS = {
     "What your sketches have in common so far. Oak reads your own sketches; its starting lines and defaults are left out.",
   empty: "Nothing to mirror yet. Habits show once a few of your sketches share something.",
   soundsLike: "Sounds like something you made before?",
+  sameAsk: "What sounds the same as before?",
+  reveal: "Show what Oak reads across your sketches",
   soundsLikeIntro:
     "What your sketches share so far. “Not this time” puts that habit on this sketch as a card.",
   notThisTime: "Not this time",
@@ -28,3 +30,11 @@ export const HABIT_WORDS = {
   loadFailed: "Oak could not read your habits just now.",
   notYet: "The habits mirror arrives with this update.",
 } as const;
+
+/** The book's five categories (Avoidance List, p. 20), in this order; each is a prompt button. */
+export const HABIT_CATEGORIES = ["Sound", "Harmony", "Melody", "Rhythm", "Form"] as const;
+
+/** Appends a category prompt on its own line, preserving what the learner wrote. */
+export function withCategory(text: string, category: (typeof HABIT_CATEGORIES)[number]): string {
+  return `${text}${text !== "" && !text.endsWith("\n") ? "\n" : ""}${category}: `;
+}

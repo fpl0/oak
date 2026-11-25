@@ -1,5 +1,5 @@
 // Oak 2.0 W1 (S4 plain sounds and listen-through, S7 commit sounds) against the real server: plain sounds say so
-// and leave the code alone; listen-through runs on the master bus and, switched off, asks for one thing heard, which
+// and leave the code alone; listen-through runs on the master bus and asks while on for an illusion heard, which
 // "Add to code" writes after the tempo line; a committed line's sound change is noticed and put back; leaving the
 // sketch turns both listening modes off. Run at the wave gate only (Task 9 Step B6).
 import { expect, type Page, test } from "@playwright/test";
@@ -7,7 +7,8 @@ import { api, createSketch, openSketch, unlockFirstLessons, WB } from "./helpers
 
 // `COMMIT_COPY` in app/src/studio/commit.ts (written out: the spec does not load app modules).
 const PLAIN_ON = "Plain sounds: you hear one plain sound per part. Your code is unchanged.";
-const HEARD_PROMPT = "Write one thing you heard into your code.";
+const HEARD_PROMPT =
+  "Listen for something that seems to be there but isn't in the code: a note, a rhythm. Write it down, then try to make it real.";
 
 const CODE = [
   "setcpm(90/4)",
@@ -50,6 +51,7 @@ test("plain sounds, listen-through and commit sounds", async ({ page }) => {
   await page.getByTestId("listen-through").selectOption("muffled");
   await expect(page.getByTestId("listen-through-on")).toContainText("Muffled");
   await expect.poll(() => listenThrough(page)).toBe("muffled");
+  await expect(page.getByTestId("heard-prompt")).toContainText(HEARD_PROMPT);
   expect(await editorText(page)).toBe(before);
   await page.getByTestId("listen-through").selectOption("off");
   await expect.poll(() => listenThrough(page)).toBe(null);

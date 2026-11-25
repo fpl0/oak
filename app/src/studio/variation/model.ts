@@ -25,7 +25,7 @@ export interface VariationState {
 export const DIMENSION_WORDS: Readonly<Record<SketchDimension, string>> = {
   sound: "the sound",
   rhythm: "the rhythm",
-  notes: "the notes",
+  notes: "the notes of a part",
   harmony: "the harmony",
   form: "the form",
 };
@@ -212,4 +212,13 @@ export function writeVariation(sketchId: string, state: VariationState): void {
   } catch {
     // private mode or a full store: the draft lives in memory only
   }
+}
+
+/** Oak's line for a sibling waits until the learner has heard its parent and it back to back (PLAN §2 rule 3). */
+export function changeLineReady(
+  heard: ReadonlySet<number>,
+  parentVersion: number,
+  childVersion: number,
+): boolean {
+  return heard.has(parentVersion) && heard.has(childVersion);
 }

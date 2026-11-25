@@ -85,3 +85,10 @@ describe("Studio deck", () => {
     expect(toolboxById.has("tb.nope")).toBe(false);
   });
 });
+
+test("X24 AC28: new-tempo asks the learner to choose by feel", () => {
+  expect(STUDIO_CARDS.find((c) => c.id === "card.new-tempo")?.text).toBe(
+    "Pick a tempo: play it slower and faster with Tempo try, and choose by feel.",
+  );
+  expect(STUDIO_CARDS.every((c) => !c.text.includes("not used before"))).toBe(true);
+});

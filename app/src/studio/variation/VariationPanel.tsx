@@ -2,7 +2,8 @@
 //   - Siblings: copies of one version (the one the editor shows when the learner starts), each changing one dimension
 //     the learner picks. "Change it" puts the parent's code in the editor; the learner edits and Runs as usual; "Keep
 //     this sibling" saves the draft as a child of the parent. Each kept sibling is described against its parent after
-//     Oak has read both (`readPiece` + `diffDimensions`). "Play them back to back" plays the parent, then each sibling.
+//     the learner has heard both back to back, then Oak reads both (`readPiece` + `diffDimensions`).
+//     "Play them back to back" plays the parent, then each sibling.
 //   - Generations: a chain where each generation changes one dimension against the one before. The parent of the next
 //     generation is the chain's tip, so Runs in between never become parents. The chain view lists the chain first to
 //     last (`sketches.lineage`) with a note where a generation changes back what its parent changed.
@@ -24,6 +25,7 @@ import { BackToBack } from "./BackToBack.tsx";
 import { lineageNotBuilt, localChain, useLineage } from "./lineage-queries.ts";
 import {
   chainTip,
+  changeLineReady,
   DIMENSION_NAMES,
   describeChange,
   generationsOnly,
@@ -68,6 +70,7 @@ export function VariationPanel(props: EditorSlotProps) {
     writeVariation(sketch.id, next);
   };
   const [tab, setTab] = useState<Tab>(state.draft?.mode === "generation" ? "generations" : "siblings");
+  const [heard, setHeard] = useState<ReadonlySet<number>>(() => new Set());
   const [picking, setPicking] = useState<VariationMode | null>(null);
   const [pick, setPick] = useState<SketchDimension | null>(null);
   const [keeping, setKeeping] = useState(false);
@@ -282,6 +285,8 @@ export function VariationPanel(props: EditorSlotProps) {
           <Siblings
             ctx={ctx}
             parentVersion={state.siblingParent}
+            heard={heard}
+            onHeard={(version) => setHeard((before) => new Set([...before, version]))}
             jam={jam}
             onUseCurrent={
               draft === null &&
@@ -318,11 +323,15 @@ export function VariationPanel(props: EditorSlotProps) {
 function Siblings({
   ctx,
   parentVersion,
+  heard,
+  onHeard,
   jam,
   onUseCurrent,
 }: {
   ctx: Ctx;
   parentVersion: number | null;
+  heard: ReadonlySet<number>;
+  onHeard(version: number): void;
   jam: boolean;
   onUseCurrent: (() => void) | null;
 }) {
@@ -344,10 +353,16 @@ function Siblings({
       </div>
     );
   const siblings = siblingsOf(ctx.sketch.versions, parent.version);
+  const versionById = new Map<string, number>();
+  const sequenceItem = (v: SketchVersion, label: string) => {
+    const item = itemOf(v, label, ctx);
+    versionById.set(item.id, v.version);
+    return item;
+  };
   const playable = siblings.flatMap((s, i) =>
-    needsReview(s) ? [] : [itemOf(s, W.siblingRow(i + 1, s.dimension ?? "sound"), ctx)],
+    needsReview(s) ? [] : [sequenceItem(s, W.siblingRow(i + 1, s.dimension ?? "sound"))],
   );
-  const items = [itemOf(parent, W.parentIs, ctx), ...playable];
+  const items = [sequenceItem(parent, W.parentIs), ...playable];
   return (
     <div className="flex flex-col gap-2">
       <p className="text-sm text-text-2">{W.parentOf(parent.version)}</p>
@@ -368,14 +383,23 @@ function Siblings({
               </p>
               {needsReview(s) ? (
                 <Imported />
-              ) : !jam && s.dimension ? (
+              ) : !jam && s.dimension && changeLineReady(heard, parent.version, s.version) ? (
                 <ChangeLine ctx={ctx} parent={parent} child={s} picked={s.dimension} />
               ) : null}
             </li>
           ))}
         </ol>
       )}
-      {playable.length > 0 ? <BackToBack items={items} playLabel={W.playSiblings} /> : null}
+      {playable.length > 0 ? (
+        <BackToBack
+          items={items}
+          playLabel={W.playSiblings}
+          onPlayed={(item) => {
+            const version = versionById.get(item.id);
+            if (version !== undefined) onHeard(version);
+          }}
+        />
+      ) : null}
       {onUseCurrent ? (
         <div>
           <Button size="sm" variant="ghost" onClick={onUseCurrent}>

@@ -2,8 +2,8 @@
 // `toolbar`). Two listening modes and a commit:
 //   - Plain sounds: the learner's bass, chords and tune each play one plain sound (`EditorHandle.setPlainSounds`).
 //   - Listen through…: the mix as through a wall, a small speaker or very quietly (`MasterBus.setListenThrough`),
-//     before the speakers only (never the record tap or the meters). Switched off after use, it asks the learner to
-//     write one thing they heard; "Add to code" writes it as a comment after the tempo line, through `applyCode`.
+//     before the speakers only (never the record tap or the meters). While listening, the learner names an illusion
+//     to try in the code; "Add to code" writes it as a comment after the tempo line, through `applyCode`.
 //   - Commit sounds of <line>: keeps that line's sound as it is in the saved version; CommitGuard asks about later
 //     changes.
 // The two listening modes change only what is heard, say so on screen while on, never touch the code, and are off
@@ -61,35 +61,41 @@ function PlainSoundsSwitch({ editor }: { editor: EditorSlotProps["editor"] }) {
 
 function ListenThrough({ liveCode, applyCode }: Pick<EditorSlotProps, "liveCode" | "applyCode">) {
   const [mode, setMode] = useState<ListenThroughMode | null>(null);
-  /** The mode last heard, once it was switched off: the learner is asked what they heard. */
+  /** The accepted mode the learner is writing about, kept through Off until added or dismissed. */
   const [heardFrom, setHeardFrom] = useState<ListenThroughMode | null>(null);
   const [heard, setHeard] = useState("");
   const id = useId();
   const heardId = useId();
+  const choiceRun = useRef(0);
   const modeRef = useRef(mode);
   modeRef.current = mode;
   // Off when the editor closes: the master bus is shared by every page.
   useEffect(
     () => () => {
+      choiceRun.current++;
       if (modeRef.current !== null) peekOak()?.master.setListenThrough(null);
     },
     [],
   );
   const choose = async (choice: ListenChoice) => {
+    const run = ++choiceRun.current;
     const next = choice === "off" ? null : choice;
     const before = mode;
     setMode(next);
     if (next === null) peekOak()?.master.setListenThrough(null);
     else {
-      setHeardFrom(null);
       try {
-        (await getOak()).master.setListenThrough(next);
+        const oak = await getOak();
+        // A newer choice or a closed editor must not reveal an old mode after audio finishes loading.
+        if (run !== choiceRun.current) return;
+        oak.master.setListenThrough(next);
+        setHeardFrom(next);
       } catch {
+        if (run !== choiceRun.current) return;
         setMode(before); // audio did not start: the shell's audio status says why
         return;
       }
     }
-    if (next === null && before !== null) setHeardFrom(before);
   };
   const add = () => {
     if (heardFrom === null || heard.trim() === "") return;
