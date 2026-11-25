@@ -10,6 +10,7 @@
     "./waveview": "./src/waveview.ts",
     "./master-meter": "./src/master-meter.ts",
     "./mix-meter": "./src/mix-meter.ts",
+    "./loudness": "./src/loudness.ts",
     "./tap-notation": "./src/tap-notation.ts"
   }
 }
