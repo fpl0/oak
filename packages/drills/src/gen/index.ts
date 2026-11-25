@@ -11,6 +11,7 @@ import { inKey, isolated, singIv, spellIv } from "./interval.ts";
 import { jazzChordScale, jazzExtension, jazzGuide, jazzSubs, jazzVoicing } from "./jazz.ts";
 import { circle, modeId, scaleSpell } from "./key.ts";
 import { melDictation, melEcho, melSight, notRead } from "./melody.ts";
+import { harmonyMotion } from "./motion.ts";
 import { melodyNct } from "./nct.ts";
 import { compare, keyboard, match, steps } from "./pitch.ts";
 import { chromaticChord, modulation, progression } from "./progression.ts";
@@ -75,6 +76,7 @@ const ALL: readonly Generator[] = [
   grooveLock,
   polyrhythm,
   melodyNct,
+  harmonyMotion,
   progression,
   chromaticChord,
   modulation,
