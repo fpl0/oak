@@ -924,6 +924,7 @@ export const J3_SONG = defineUnitSong({
       "Your rootless chords play the opening and the first four bars of each time through, all in F.",
       ["bass", "lead"],
     ),
+    { lesson: "J3.L05", kind: "side", reason: "Placeholder until this lesson is written." },
     take(
       "J3.L02",
       ["head1-c", "head2-c"],

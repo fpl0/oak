@@ -944,6 +944,7 @@ export const U08_SONG = defineUnitSong({
       ["kick", "bass"],
       "Your kick and bass, sharing one rhythm, drive the last two loud parts of the song.",
     ),
+    { lesson: "U08.L06", kind: "side", reason: "Placeholder until this lesson is written." },
     take(
       "U08.L05",
       ["bridge"],

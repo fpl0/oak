@@ -919,6 +919,7 @@ export const U06_SONG = defineUnitSong({
       "Your chords, in a rhythm of your own, play the last two loud parts over Oak's drums, bass and tune.",
       ["bass", "lead"],
     ),
+    { lesson: "U06.L13", kind: "side", reason: "Placeholder until this lesson is written." },
   ],
   releaseAfter: "U06.CP",
 });

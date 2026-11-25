@@ -905,6 +905,7 @@ export const U07_SONG = defineUnitSong({
       ["lead", "vox"],
       "Your four bars built from one idea play twice in the first loud part of the song.",
     ),
+    { lesson: "U07.L11", kind: "side", reason: "Placeholder until this lesson is written." },
     take(
       "U07.L03",
       ["chorus2"],

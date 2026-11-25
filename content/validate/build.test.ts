@@ -50,8 +50,8 @@ describe("build", () => {
     const course = JSON.parse(readFileSync(join(tmp, "a", "course-index.json"), "utf8")) as {
       sessions: { id: string; defaultOrder: number | null; earStages?: string[] }[];
     };
-    expect(course.sessions.length).toBe(259);
-    expect(course.sessions.filter((s) => s.defaultOrder !== null).length).toBe(185);
+    expect(course.sessions.length).toBe(270);
+    expect(course.sessions.filter((s) => s.defaultOrder !== null).length).toBe(191);
     expect(course.sessions.find((s) => s.id === "U03.L02")?.earStages).toEqual(["B"]);
     const graph = JSON.parse(readFileSync(join(tmp, "a", "skill-graph.json"), "utf8")) as {
       nodes: unknown[];

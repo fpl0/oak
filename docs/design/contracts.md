@@ -117,6 +117,7 @@ This replaces curriculum §1. `content/syllabus.ts` is written from these tables
 | A1.L01–L04 open as optional side lessons once U03.L02 is done. | A1 |
 | U05.L04 split (1.6): `.arp()` stays in U05.L04 "Arpeggios"; chord-symbol names are U05.L09 "Chord Names", taught directly after it. No lesson ID changed; a learner who completed U05.L04 before the split is recorded as having completed U05.L09. | U05.L04, U05.L09 |
 | C3 takes four sessions (1.6): C3.S3 arranges and writes the lead sheet; C3.S4 records the take, reviews and releases. | C3.S3, C3.S4 |
+| Oak 2.0 W2 (2.2): ten lessons from *Making Music* (DeSantis 2015) go inside the existing units, each placed by array position after the lesson it follows; no lesson ID changes. Five core lessons add five sessions, and the slot rule (§2.5) then places one more gym slot (GYM.18). | U06.L13, U07.L11, U08.L06, U09.L06, U09.L07, R1.L06, J3.L05, A2.L07–L09 |
 
 ### 2.2 Reading the tables
 
@@ -204,7 +205,7 @@ This replaces curriculum §1. `content/syllabus.ts` is written from these tables
 | U05.L08 | Let Strudel Voice It | Compare `chord().voicing()` with your hand voicing (unlocks only once the U05.L07 gate check is passed at ≥0.9). | — | C05 N05 |
 | U05.CP | Triads checkpoint | Checkpoint over U05. | — | — |
 
-**U06 Diatonic Harmony** — 12 lessons + CP = 13 sessions
+**U06 Diatonic Harmony** — 13 lessons + CP = 14 sessions
 
 | ID | Title | Objective | Introduces | Practises |
 |---|---|---|---|---|
@@ -220,14 +221,16 @@ This replaces curriculum §1. `content/syllabus.ts` is written from these tables
 | U06.L10 | Seventh Colour (preview) | Stack one more third, `n("[0,2,4,6]")`: an Imaj7–vi7–ii7–V7 neo-soul loop. Formal seventh-chord theory waits for U12. | C10 | — |
 | U06.L11 | Slash Chords & Walking Down | The descending bass I–V⁶–vi (C–G/B–Am), line cliché, pedal; the bass track decides the inversion. | H15 | C04 |
 | U06.L12 | Comping Patterns | Chord rhythms locked to the drums with `.struct()`. | — | H06 |
+| U06.L13 | Parallel Chords | One chord shape moved by half steps: the deep-house colour that leaves the key on purpose. | — | H01 H06 |
 | U06.CP | Diatonic checkpoint | Checkpoint over U06. | — | — |
 
-**U07 Melody** — 10 lessons + CP = 11 sessions
+**U07 Melody** — 11 lessons + CP = 12 sessions
 
 | ID | Title | Objective | Introduces | Practises |
 |---|---|---|---|---|
 | U07.L01 | Shape | Contour, range, steps vs leaps. | — | M01 |
 | U07.L02 | Motif & Variation | Repetition, sequence, retrograde. | M02 | — |
+| U07.L11 | Turn It Around | Transform a motif: upside down, backwards with its rhythm kept, rotated, moved in time. | — | M02 |
 | U07.L03 | Landing on Chord Tones | Chord tones on strong beats. | M03 | — |
 | U07.L04 | Passing & Neighbour Tones | Stepwise non-chord tones between and around chord tones. | M04 | — |
 | U07.L05 | Leaning & Holding | Appoggiatura; 4–3 and 9–8 suspensions. | M05 | — |
@@ -238,7 +241,7 @@ This replaces curriculum §1. `content/syllabus.ts` is written from these tables
 | U07.L10 | Hook Lab | Hooks and controlled chance. | M09 | — |
 | U07.CP | Melody checkpoint | Checkpoint over U07. | — | — |
 
-**U08 Bass Lines** — 5 lessons = 5 sessions (no checkpoint of its own; covered by U09.CP)
+**U08 Bass Lines** — 6 lessons = 6 sessions (no checkpoint of its own; covered by U09.CP)
 
 | ID | Title | Objective | Introduces | Practises |
 |---|---|---|---|---|
@@ -246,9 +249,10 @@ This replaces curriculum §1. `content/syllabus.ts` is written from these tables
 | U08.L02 | Root–Five–Octave | The three-note bass vocabulary. | B02 | — |
 | U08.L03 | Walking Up to It | Diatonic and chromatic approach tones. | B03 | — |
 | U08.L04 | Lock with the Kick | Shared rhythm and syncopated bass; `const` pattern variables. | B04 | — |
+| U08.L06 | Kick and Bass, One Line | The bass plays between the kicks, so kick and bass sound as one line. | — | B04 B01 |
 | U08.L05 | Bass Dictation & Tone | Transcribe bass lines; shape the bass sound. | — | B01 V05 E09 |
 
-**U09 Form** — 5 lessons + CP = 6 sessions
+**U09 Form** — 7 lessons + CP = 8 sessions
 
 | ID | Title | Objective | Introduces | Practises |
 |---|---|---|---|---|
@@ -257,6 +261,8 @@ This replaces curriculum §1. `content/syllabus.ts` is written from these tables
 | U09.L03 | AABA & Strophic | Two more song forms. | F03 | — |
 | U09.L04 | The Energy Curve | Builds and drops with signals. | F05 | — |
 | U09.L05 | Arranging in Code | Layer entries and exits with `.mask()`. | F06 | — |
+| U09.L06 | Endings | End on purpose: parts leave in turn, a loop shrinks, a fade, a final hit or a cadence. | — | F06 F05 |
+| U09.L07 | Carve It | Start from everything everywhere and only delete; leave a seam and one moment heard once. | — | F06 F05 |
 | U09.CP | Bass & form checkpoint | Checkpoint over U08–U09. | — | — |
 
 **U10 Minor** — 9 lessons + CP = 10 sessions
@@ -401,39 +407,40 @@ Repertoire limits for capstones: X1 uses Aura Lee (1861) or Red River Valley (tr
 
 **What fills a slot.** If CF-T is open (U15.L01 reached) and unfinished, the slot is the next CF-T session. Otherwise it is a gym session, and it receives the next free ID `GYM.nn` when it starts. Odd-numbered gym sessions are **graded ladder** sessions at the learner's current ladder level and realism level (§6.12). Even-numbered gym sessions are **own-audio** sessions (self-assessed, "hum it, Oak drafts it" available); if the learner has no audio project, an even slot is a ladder session one realism level up.
 
-**Counting.** A gym session is a full session in the plan and in the pace estimate (§9.6). In the default order the core has GYM.01–GYM.17. Gym IDs are ordinals of the learner's own history: a learner who takes an optional extra gym session from Today uses the next number, and later numbers shift for that learner only. In the advanced tracks the slot rule does not run; Today offers the gym once a week as an alternative chip, and those sessions also take the next `GYM.nn`.
+**Counting.** A gym session is a full session in the plan and in the pace estimate (§9.6). In the default order the core has GYM.01–GYM.18. Gym IDs are ordinals of the learner's own history: a learner who takes an optional extra gym session from Today uses the next number, and later numbers shift for that learner only. In the advanced tracks the slot rule does not run; Today offers the gym once a week as an alternative chip, and those sessions also take the next `GYM.nn`.
 
 **Default linear order of the core** (session number : ID). A checkpoint is placed after the next unit's L01 so it always falls on a later day than the unit's last lesson; the last checkpoint (U17.CP) follows a gym slot for the same reason. The planner follows this order unless the learner chooses otherwise.
 
 ```
-1:U00.L01 2:U00.L02 3:U01.L01 4:U01.L02 5:U01.L03 6:U01.L04 7:U01.L05 8:U01.L06 9:U01.L07 10:U01.L08 11:U01.L09
-12:U02.L01 13:U01.CP 14:C0.S1 15:U02.L02 16:U02.L03 17:U02.L04 18:U02.L05 19:U02.L06 20:U02.L07 21:U02.L08
-22:U03.L01 23:U02.CP 24:C1.S1 25:U03.L02 26:U03.L03 27:U03.L04 28:U03.L05 29:U03.L06 30:U03.L07 31:U03.L08
-32:U03.L09 33:U03.L10 34:U03.L11 35:U04.L01 36:U03.CP 37:U04.L02 38:U04.L03 39:U04.L04 40:U05.L01 41:U04.CP
-42:U05.L02 43:U05.L03 44:U05.L04 45:U05.L09 46:U05.L05 47:U05.L06 48:U05.L07 49:U05.L08 50:U06.L01 51:U05.CP
-52:U06.L02 53:U06.L03 54:U06.L04 55:U06.L05 56:U06.L06 57:U06.L07 58:U06.L08 59:U06.L09 60:U06.L10 61:U06.L11
-62:U06.L12 63:U07.L01 64:U06.CP 65:U07.L02 66:U07.L03 67:GYM.01 68:U07.L04 69:U07.L05 70:U07.L06 71:U07.L07
-72:GYM.02 73:U07.L08 74:U07.L09 75:U07.L10 76:U08.L01 77:GYM.03 78:U07.CP 79:C2.S1 80:C2.S2 81:X1.S1 82:X1.S2
-83:X1.S3 84:U08.L02 85:U08.L03 86:U08.L04 87:U08.L05 88:GYM.04 89:U09.L01 90:U09.L02 91:U09.L03 92:U09.L04
-93:GYM.05 94:U09.L05 95:U10.L01 96:U09.CP 97:C3.S1 98:C3.S2 99:C3.S3 100:C3.S4 101:GYM.06 102:U10.L02
-103:U10.L03 104:U10.L04 105:U10.L05 106:GYM.07 107:U10.L06 108:U10.L07 109:U10.L08 110:U10.L09 111:GYM.08
-112:U11.L01 113:U10.CP 114:C4.S1 115:C4.S2 116:GYM.09 117:U11.L02 118:U11.L03 119:U11.L04 120:U11.L05 121:GYM.10
-122:U11.L06 123:U11.L07 124:U11.L08 125:U12.L01 126:GYM.11 127:U11.CP 128:C5.S1 129:C5.S2 130:X2.S1 131:X2.S2
-132:U12.L02 133:U12.L03 134:U12.L04 135:U12.L05 136:GYM.12 137:U12.L06 138:U13.L01 139:U13.L02 140:U13.L03
-141:GYM.13 142:U13.L04 143:U13.L05 144:U13.L06 145:U14.L01 146:GYM.14 147:U13.CP 148:U14.L02 149:U14.L03
-150:U14.L04 151:GYM.15 152:U14.L05 153:U14.L06 154:U15.L01 155:U14.CP 156:CF-T.S1 157:C6.S1 158:C6.S2
-159:U15.L02 160:U15.L03 161:CF-T.S2 162:U15.L04 163:U15.L05 164:U15.L06 165:U16.L01 166:CF-T.S3 167:U16.L02
-168:U16.L03 169:U16.L04 170:U16.L05 171:CF-T.S4 172:U17.L01 173:U17.L02 174:U17.L03 175:U17.L04 176:GYM.16
-177:U17.CP 178:C7.S1 179:C7.S2 180:C7.S3 181:GYM.17 182:CF-A.S1 183:CF-A.S2 184:CF-A.S3 185:CF-A.S4
+1:U00.L01 2:U00.L02 3:U01.L01 4:U01.L02 5:U01.L03 6:U01.L04 7:U01.L05 8:U01.L06 9:U01.L07 10:U01.L08
+11:U01.L09 12:U02.L01 13:U01.CP 14:C0.S1 15:U02.L02 16:U02.L03 17:U02.L04 18:U02.L05 19:U02.L06 20:U02.L07
+21:U02.L08 22:U03.L01 23:U02.CP 24:C1.S1 25:U03.L02 26:U03.L03 27:U03.L04 28:U03.L05 29:U03.L06 30:U03.L07
+31:U03.L08 32:U03.L09 33:U03.L10 34:U03.L11 35:U04.L01 36:U03.CP 37:U04.L02 38:U04.L03 39:U04.L04 40:U05.L01
+41:U04.CP 42:U05.L02 43:U05.L03 44:U05.L04 45:U05.L09 46:U05.L05 47:U05.L06 48:U05.L07 49:U05.L08 50:U06.L01
+51:U05.CP 52:U06.L02 53:U06.L03 54:U06.L04 55:U06.L05 56:U06.L06 57:U06.L07 58:U06.L08 59:U06.L09 60:U06.L10
+61:U06.L11 62:U06.L12 63:U06.L13 64:U07.L01 65:U06.CP 66:U07.L02 67:U07.L11 68:GYM.01 69:U07.L03 70:U07.L04
+71:U07.L05 72:U07.L06 73:GYM.02 74:U07.L07 75:U07.L08 76:U07.L09 77:U07.L10 78:GYM.03 79:U08.L01 80:U07.CP
+81:C2.S1 82:C2.S2 83:X1.S1 84:X1.S2 85:X1.S3 86:U08.L02 87:U08.L03 88:U08.L04 89:U08.L06 90:GYM.04
+91:U08.L05 92:U09.L01 93:U09.L02 94:U09.L03 95:GYM.05 96:U09.L04 97:U09.L05 98:U09.L06 99:U09.L07 100:GYM.06
+101:U10.L01 102:U09.CP 103:C3.S1 104:C3.S2 105:C3.S3 106:C3.S4 107:GYM.07 108:U10.L02 109:U10.L03 110:U10.L04
+111:U10.L05 112:GYM.08 113:U10.L06 114:U10.L07 115:U10.L08 116:U10.L09 117:GYM.09 118:U11.L01 119:U10.CP 120:C4.S1
+121:C4.S2 122:GYM.10 123:U11.L02 124:U11.L03 125:U11.L04 126:U11.L05 127:GYM.11 128:U11.L06 129:U11.L07 130:U11.L08
+131:U12.L01 132:GYM.12 133:U11.CP 134:C5.S1 135:C5.S2 136:X2.S1 137:X2.S2 138:U12.L02 139:U12.L03 140:U12.L04
+141:U12.L05 142:GYM.13 143:U12.L06 144:U13.L01 145:U13.L02 146:U13.L03 147:GYM.14 148:U13.L04 149:U13.L05 150:U13.L06
+151:U14.L01 152:GYM.15 153:U13.CP 154:U14.L02 155:U14.L03 156:U14.L04 157:GYM.16 158:U14.L05 159:U14.L06 160:U15.L01
+161:U14.CP 162:CF-T.S1 163:C6.S1 164:C6.S2 165:U15.L02 166:U15.L03 167:CF-T.S2 168:U15.L04 169:U15.L05 170:U15.L06
+171:U16.L01 172:CF-T.S3 173:U16.L02 174:U16.L03 175:U16.L04 176:U16.L05 177:CF-T.S4 178:U17.L01 179:U17.L02 180:U17.L03
+181:U17.L04 182:GYM.17 183:U17.CP 184:C7.S1 185:C7.S2 186:C7.S3 187:GYM.18 188:CF-A.S1 189:CF-A.S2 190:CF-A.S3
+191:CF-A.S4
 ```
 
-Landmarks: first album track (C0) at session 14; first chords in the learner's own code (U05.L01) at session 40; first composed song (C2) released at session 80; J and R tracks open at session 147; core complete at session 185.
+Landmarks: first album track (C0) at session 14; first chords in the learner's own code (U05.L01) at session 40; first composed song (C2) released at session 82; J and R tracks open at session 153; core complete at session 191.
 
 ### 2.6 Advanced tracks
 
 Each track opens at its gate and can interleave with U14–U17. Order inside a track is fixed (J2.L04 is the one lesson that can be passed over, §7.6); order between tracks is the learner's choice. Track checkpoints gate only the track capstones.
 
-**Jazz Harmony** — 34 sessions. Gate: J1–J3 open after U13.CP; J2.L04 also needs U14.CP; J4 needs U15.L06; J5 needs U17.CP.
+**Jazz Harmony** — 35 sessions. Gate: J1–J3 open after U13.CP; J2.L04 also needs U14.CP; J4 needs U15.L06; J5 needs U17.CP.
 
 | ID | Title | Objective | Introduces | Practises |
 |---|---|---|---|---|
@@ -450,6 +457,7 @@ Each track opens at its gate and can interleave with U14–U17. Order inside a t
 | JC1.S1 | Capstone: ii–V Ballad (1/2) | 16 bars over chained ii–Vs in at least 3 keys. | — | — |
 | JC1.S2 | Capstone: ii–V Ballad (2/2) | Guide-tone melody; release. | — | — |
 | J3.L01 | Rootless A/B Voicings | `mode("duck")` and `.offset()`. | J09 | — |
+| J3.L05 | Fourths | Quartal voicings, and the bass decides the chord's name. | — | J09 |
 | J3.L02 | Drop-2 & Spread | Wider voicings and where they sit. | — | J09 |
 | J3.L03 | Comping Rhythms | Charleston and pushes. | — | H06 R10 |
 | J3.L04 | Walking Bass | Four to the bar with approach tones. | B05 | — |
@@ -472,7 +480,7 @@ Each track opens at its gate and can interleave with U14–U17. Order inside a t
 | JC4.S2 | Capstone: Reharmonize a Standard (2/3) | Reharmonize with ≥3 devices; melody untouched. | — | — |
 | JC4.S3 | Capstone: Reharmonize a Standard (3/3) | Voice-lead and release. | — | — |
 
-**Advanced Rhythm** — 20 sessions. Gate: opens after U13.CP.
+**Advanced Rhythm** — 21 sessions. Gate: opens after U13.CP.
 
 | ID | Title | Objective | Introduces | Practises |
 |---|---|---|---|---|
@@ -480,6 +488,7 @@ Each track opens at its gate and can interleave with U14–U17. Order inside a t
 | R1.L02 | Swing Ratios | 8th vs 16th swing; patterned swing amount. | — | R13 |
 | R1.L03 | The One | 16th funk drums and ghost notes. | R14 | — |
 | R1.L04 | Interlock | Bass, clav and guitar as one machine. | — | R14 B04 |
+| R1.L06 | One Drummer, One Line | Linear drumming: no two drums at once, grouped 3+3+2. | — | R14 R10 |
 | R1.L05 | Displacement & Laid-Back Feel | Shifted figures; microtiming with `.late()` (never `nudge`). | R15 | — |
 | R2.L01 | Five & Seven | 5/4 and 7/8 groupings; odd-meter tempo lines. | R16 | — |
 | R2.L02 | Odd Grooves | 7/8 and 9/8 (2+2+2+3). | — | R16 |
@@ -497,7 +506,7 @@ Each track opens at its gate and can interleave with U14–U17. Order inside a t
 | RC2.S1 | Capstone: Clave & Polyrhythm (1/2) | Son clave 3-2 on the 2-bar 8th grid with tresillo bass. | — | — |
 | RC2.S2 | Capstone: Clave & Polyrhythm (2/2) | A 3:2 layer and Euclidean percussion; release. | — | — |
 
-**Arrangement & Sound** — 20 sessions. Gate: A1.L01–L04 open as optional side lessons once U03.L02 is done; A1.L05–L07 after U09.CP; A2 after U10.CP; AC1 after A.CP + U11.CP (its tunes need dominant sevenths and the 12-bar form; Sweet Georgia Brown is offered only once U15.L05 is done); AC2 after A.CP + J3.L04 + R1.L05.
+**Arrangement & Sound** — 23 sessions. Gate: A1.L01–L04 open as optional side lessons once U03.L02 is done; A1.L05–L07 after U09.CP; A2 after U10.CP; AC1 after A.CP + U11.CP (its tunes need dominant sevenths and the 12-bar form; Sweet Georgia Brown is offered only once U15.L05 is done); AC2 after A.CP + J3.L04 + R1.L05.
 
 | ID | Title | Objective | Introduces | Practises |
 |---|---|---|---|---|
@@ -510,7 +519,10 @@ Each track opens at its gate and can interleave with U14–U17. Order inside a t
 | A1.L07 | FM & Supersaw | Two richer synth sources. | — | D07 |
 | A2.L01 | Roles & Registers | Frequency space and why low thirds turn to mud; Oak's spectrum panel. | D08 | — |
 | A2.L02 | Texture & Density | Thin vs thick. | D09 | F05 |
+| A2.L08 | Peak First | Write the fullest section first, then make every other section by taking parts away. | — | D09 F05 F06 |
+| A2.L09 | Seams and Surprises | Fills that anticipate or hesitate across a seam; an effect switched on once. | — | F06 D09 |
 | A2.L03 | Counter-Melody & Re-Voicing per Section | A second line and section-specific voicings. | — | D09 M07 |
+| A2.L07 | Hocket | One line split across two sounds, note by note. | — | D09 M07 |
 | A2.L04 | Sampling | Chop Oak's CC0 `brk` break loop. | D11 | — |
 | A2.L05 | Mix & Dynamics | Levels, compression, room for each part. | D10 | — |
 | A2.L06 | Genre Translation | One idea in two idioms. | — | D09 F06 |
@@ -533,10 +545,10 @@ Each track opens at its gate and can interleave with U14–U17. Order inside a t
 | U03 Major Scale & Degrees | 11 | 1 | — | 12 |
 | U04 Intervals (compressed) | 4 | 1 | — | 5 |
 | U05 Triads | 9 | 1 | — | 10 |
-| U06 Diatonic Harmony | 12 | 1 | — | 13 |
-| U07 Melody | 10 | 1 | C2 (2), X1 (3) | 16 |
-| U08 Bass Lines | 5 | 0 | — | 5 |
-| U09 Form | 5 | 1 | C3 (4) | 10 |
+| U06 Diatonic Harmony | 13 | 1 | — | 14 |
+| U07 Melody | 11 | 1 | C2 (2), X1 (3) | 17 |
+| U08 Bass Lines | 6 | 0 | — | 6 |
+| U09 Form | 7 | 1 | C3 (4) | 12 |
 | U10 Minor | 9 | 1 | C4 (2) | 12 |
 | U11 Pentatonic & Blues | 8 | 1 | C5 (2), X2 (2) | 13 |
 | U12 Seventh Chords | 6 | 0 | — | 6 |
@@ -545,16 +557,16 @@ Each track opens at its gate and can interleave with U14–U17. Order inside a t
 | U15 Secondary Dominants | 6 | 0 | — | 6 |
 | U16 Borrowed Chords | 5 | 0 | — | 5 |
 | U17 Modulation | 4 | 1 | C7 (3), CF-A (4) | 12 |
-| Transcription Gym (GYM.01–GYM.17) | — | — | — | 17 |
+| Transcription Gym (GYM.01–GYM.18) | — | — | — | 18 |
 | CF-T in gym slots | — | — | CF-T (4) | 4 |
-| **Core total** | **125** | **13** | **30** | **185** |
-| Jazz Harmony | 22 | 2 | 10 | 34 |
-| Advanced Rhythm | 15 | 1 | 4 | 20 |
-| Arrangement & Sound | 13 | 1 | 6 | 20 |
-| **Advanced total** | | | | **74** |
-| **Grand total** | | | | **259** |
+| **Core total** | **130** | **13** | **30** | **191** |
+| Jazz Harmony | 23 | 2 | 10 | 35 |
+| Advanced Rhythm | 16 | 1 | 4 | 21 |
+| Arrangement & Sound | 16 | 1 | 6 | 23 |
+| **Advanced total** | | | | **79** |
+| **Grand total** | | | | **270** |
 
-At 5 sessions a week the core takes about 37 weeks and the whole course about 52. The pace estimate on `/progress` is computed from measured session data, never from these numbers.
+At 5 sessions a week the core takes about 38 weeks and the whole course about 54. The pace estimate on `/progress` is computed from measured session data, never from these numbers.
 
 ### 2.8 Repertoire by stage
 
@@ -1681,6 +1693,7 @@ Every capstone also gets a tutor review (§10.6), which never affects pass or fa
 5. Inversions and slash chords are read from the lowest sounding note across all pitched learner tracks at the chord's onset, so a separate `bass:` track sets the inversion. A default `voicing()` with no bass track often has the 3rd or 5th lowest (`chord("C").voicing()` → E3 C4 E4 G4 C5), so a rule that needs root position (`cadence` PAC) is only authored where the lesson has given the learner a way to put the root in the bass.
 6. A `(symbol, dict)` pair that Strudel voices wrongly (`Caug` in `triads`, `C69` in `lefthand`) is treated exactly like a missing pair: lint error `code.chord-not-in-dict`, never authored, never an expected answer. STYLE §5.2 is the list; a content-CI test re-derives it by voicing every pair and comparing pitch classes with `@oak/theory`.
 7. `@oak/theory` owns the single chord-spelling table (STYLE §5.1): quality ↔ code spelling ↔ lead-sheet display ↔ jazz glyph. `parseChordSymbol`, `toLeadSheet`, `toCode` and the lint's chord-family map all derive from it; no other package spells a chord.
+8. **The written exception (2.2): a chord shape is graded on its notes.** Where a step's point is one chord shape moved as a block (U06.L13 Parallel Chords, the custom rule `same-shape`), the shape is read from the sounding notes of hand-voiced chords: the half-step gaps inside every chord of the track are equal and the chord sits at ≥ `minShifts` different heights. `.voicing()` is refused there, because it moves each chord's notes to the nearest place and so changes the shape; the rule says so in its detail line. The same holds for quartal stacks (J3.L05, `stack-intervals`) and for `bass-names-chord`, which names the chord from its notes and the bass under them. Everywhere else rules 1–7 stand.
 
 ### 6.8 Key-relative analysis and key changes
 
@@ -2729,3 +2742,4 @@ Amended request bodies: `SketchVersionCreateSchema` gains optional `takeState`, 
 | 1.9 | 2026-11-24 | The fifth flavour, `flavour.electronic` (same version, unit-songs branch). §1.2 flavour grammar; §5.10 table row and the electronic paragraph (oak909, acid sawtooth bass, sawtooth stabs, square lead; straight; four-note chords from U06.L10; ships `S1`); every Band and unit song carries electronic code. |
 | 1.9 | 2026-11-24 | Unit songs, infrastructure (same version, unit-songs branch). §5.11 rule 2: the one composer moves to `packages/grader/src/song/compose.ts` (`@oak/grader/song`), re-exported unchanged as `@oak/strudel/song-compose`, because the grader's Workbench analysis composes songs and the grader may not import the adapter. Rule 8: song levels are set and guarded by the song loudness harness (`songs.pw.ts`, `sound-songs.json`), not by staying under the Bands. Rules 9–10: sound pack v4 names no part lists (`conga bongo clave`, the foley one-shots, `sbd`, the six breaks) stand for kit sounds (`drumPartsOfSound`); a break belongs to every drum part. Rule 18 names `AlbumSource.songRelease`. The grader's drum tables classify the v4 names additively (`DRUM_MAP`: hand percussion, foley and breaks `perc`, `sbd` `kick`; the lint's sample-index names; `tables()` is a sample loader the base lint checks); no rubric rule, matcher or test changes. |
 | 2.0 | 2026-11-24 | Oak 2.0 W0 foundations (`docs/oak2/PLAN.md` revision 2). §13 (new): migration 0012 (tables `scraps`, `user_templates`, `capstone_check_history`, `later_items`, `catalogs`; columns `sketch_versions.take_state/parent_version/generation/dimension`, `sketches.committed_json/cards_json`, `album_tracks.shelved`; additive only, no CHECK on status-like text, scraps and templates marked for review on import), the seventeen 2.0 endpoints (`OAK2_ENDPOINTS`, typed 501 until built), their enums and shapes. §11.6: `DELETE /api/scraps/:id` and `DELETE /api/templates/:id` need a nonce (`scrap.delete`, `template.delete`). §11.11: rows for the 0012 tables and columns. The ledger stays §12, so Oak 2.0 is §13. |
+| 2.2 | 2026-11-25 | Oak 2.0 W2, the course (`docs/oak2/PLAN.md` §5; numbered after W1's 2.1, renumbered at integration if W1 lands later). §2.1, §2.3, §2.6: ten lessons inside the existing units, each placed by array position after the lesson it follows (the U05.L09 precedent): U06.L13 Parallel Chords, U07.L11 Turn It Around, U08.L06 Kick and Bass, One Line, U09.L06 Endings, U09.L07 Carve It, R1.L06 One Drummer, One Line, J3.L05 Fourths, A2.L08 Peak First, A2.L09 Seams and Surprises, A2.L07 Hocket. No lesson ID changes and no skill node is added (the graph stays 143 nodes). §2.5: the five core lessons add five sessions, and the slot rule then places one more gym slot, so the core is 191 sessions with GYM.01–GYM.18 (W2's plan said 190 and 17; the rule, which `content/validate/gym.test.ts` proves, gives 191 and 18); landmarks C2.S2 82, U13.CP 153, CF-A.S4 191. §2.7: 130 core lessons, 191 core sessions; Jazz 35, Rhythm 21, Arrangement 23; 79 advanced; 270 in all. §6.7 rule 8: the written exception for a chord shape graded on its notes (`same-shape`; `.voicing()` refused). `CONTRACTS_VERSION` stays as W0 left it until integration with W1. |

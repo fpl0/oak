@@ -1090,6 +1090,7 @@ export const R1_SONG = defineUnitSong({
       "Your bass, clav and guitar, each on places of its own, play the break in C minor.",
       ["horns"],
     ),
+    { lesson: "R1.L06", kind: "side", reason: "Placeholder until this lesson is written." },
     take(
       "R1.L05",
       ["lift"],

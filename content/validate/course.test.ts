@@ -190,7 +190,7 @@ describe("U03 and U04 are complete (contracts §2.3, §2.5)", () => {
   });
 });
 
-/** Wave 4's units, U05–U07 with their checkpoints, gym slots and C2/X1: sessions 42–83 of the default order. */
+/** Wave 4's units, U05–U07 with their checkpoints, gym slots and C2/X1: sessions 42–85 of the default order. */
 const WAVE4 = ORDER.slice(ORDER.indexOf("U05.L02" as SessionId), ORDER.indexOf("X1.S3" as SessionId) + 1);
 const W4_LESSONS = ["U05.L01", ...WAVE4.filter((s) => /^U0[5-7]\.L\d{2}$/.test(s))] as SessionId[];
 const w4course = W4_LESSONS.map((id) => byId.get(id)).filter((l): l is LoadedLesson => Boolean(l));
@@ -198,19 +198,18 @@ const w4course = W4_LESSONS.map((id) => byId.get(id)).filter((l): l is LoadedLes
 describe("U05–U07, C2 and X1 are complete (contracts §2.3–§2.5)", () => {
   test("the default order runs U05.L02 … X1.S3 as §2.5 prints it, gym slots and capstone sessions included", () => {
     // U05.L09 "Chord Names" follows U05.L04, the lesson it was split out of (contracts 1.6).
-    expect(ORDER.slice(41, 83)).toEqual([
+    expect(ORDER.slice(41, 85)).toEqual([
       ...["U05.L02", "U05.L03", "U05.L04", "U05.L09", "U05.L05", "U05.L06", "U05.L07", "U05.L08", "U06.L01"],
-      "U05.CP",
-      ...["U06.L02", "U06.L03", "U06.L04", "U06.L05", "U06.L06", "U06.L07", "U06.L08", "U06.L09", "U06.L10"],
-      ...["U06.L11", "U06.L12", "U07.L01", "U06.CP", "U07.L02", "U07.L03", "GYM.01", "U07.L04", "U07.L05"],
-      ...["U07.L06", "U07.L07", "GYM.02", "U07.L08", "U07.L09", "U07.L10", "U08.L01", "GYM.03", "U07.CP"],
-      ...["C2.S1", "C2.S2", "X1.S1", "X1.S2", "X1.S3"],
+      ...["U05.CP", "U06.L02", "U06.L03", "U06.L04", "U06.L05", "U06.L06", "U06.L07", "U06.L08", "U06.L09"],
+      ...["U06.L10", "U06.L11", "U06.L12", "U06.L13", "U07.L01", "U06.CP", "U07.L02", "U07.L11", "GYM.01"],
+      ...["U07.L03", "U07.L04", "U07.L05", "U07.L06", "GYM.02", "U07.L07", "U07.L08", "U07.L09", "U07.L10"],
+      ...["GYM.03", "U08.L01", "U07.CP", "C2.S1", "C2.S2", "X1.S1", "X1.S2", "X1.S3"],
     ] as SessionId[]);
   });
-  test("all 31 lessons of U05–U07 are authored and load", () => {
+  test("all 33 lessons of U05–U07 are authored and load", () => {
     expect(errors.filter((e) => e.folderId && W4_LESSONS.includes(e.folderId as SessionId))).toEqual([]);
     expect(W4_LESSONS.filter((id) => !byId.has(id))).toEqual([]);
-    expect(W4_LESSONS.length).toBe(31);
+    expect(W4_LESSONS.length).toBe(33);
   });
   test("U05.CP, U06.CP and U07.CP have two or three authored items and a Make", async () => {
     const { defs } = await loadCheckpointFiles();
@@ -270,7 +269,7 @@ describe("U05–U07, C2 and X1 are complete (contracts §2.3–§2.5)", () => {
 });
 
 // Wave 5: U08–U11 with A1.L01–L04, the checkpoints U09.CP–U11.CP and the capstones C3–C5 and X2 (sessions
-// 76 and 84–131 of the default order). The cross-lesson scans below read them like every authored lesson.
+// 79 and 86–137 of the default order). The cross-lesson scans below read them like every authored lesson.
 const WAVE5 = ORDER.slice(ORDER.indexOf("U08.L02" as SessionId), ORDER.indexOf("X2.S2" as SessionId) + 1);
 const W5_LESSONS = [
   "U08.L01",
@@ -282,22 +281,21 @@ const w5course = W5_LESSONS.map((id) => byId.get(id)).filter((l): l is LoadedLes
 describe("U08–U11, A1, C3–C5 and X2 are complete (contracts §2.3–§2.6)", () => {
   test("the default order runs U08.L02 … X2.S2 as §2.5 prints it, gym slots and capstone sessions included", () => {
     expect(WAVE5).toEqual([
-      ...["U08.L02", "U08.L03", "U08.L04", "U08.L05", "GYM.04", "U09.L01", "U09.L02", "U09.L03", "U09.L04"],
-      ...["GYM.05", "U09.L05", "U10.L01", "U09.CP", "C3.S1", "C3.S2", "C3.S3", "C3.S4", "GYM.06"],
-      ...["U10.L02", "U10.L03", "U10.L04", "U10.L05", "GYM.07", "U10.L06", "U10.L07", "U10.L08", "U10.L09"],
-      "GYM.08",
-      ...["U11.L01", "U10.CP", "C4.S1", "C4.S2", "GYM.09", "U11.L02", "U11.L03", "U11.L04", "U11.L05"],
-      ...["GYM.10", "U11.L06", "U11.L07", "U11.L08", "U12.L01", "GYM.11", "U11.CP", "C5.S1", "C5.S2"],
-      ...["X2.S1", "X2.S2"],
+      ...["U08.L02", "U08.L03", "U08.L04", "U08.L06", "GYM.04", "U08.L05", "U09.L01", "U09.L02", "U09.L03"],
+      ...["GYM.05", "U09.L04", "U09.L05", "U09.L06", "U09.L07", "GYM.06", "U10.L01", "U09.CP", "C3.S1"],
+      ...["C3.S2", "C3.S3", "C3.S4", "GYM.07", "U10.L02", "U10.L03", "U10.L04", "U10.L05", "GYM.08"],
+      ...["U10.L06", "U10.L07", "U10.L08", "U10.L09", "GYM.09", "U11.L01", "U10.CP", "C4.S1", "C4.S2"],
+      ...["GYM.10", "U11.L02", "U11.L03", "U11.L04", "U11.L05", "GYM.11", "U11.L06", "U11.L07", "U11.L08"],
+      ...["U12.L01", "GYM.12", "U11.CP", "C5.S1", "C5.S2", "X2.S1", "X2.S2"],
     ] as SessionId[]);
     expect([ORDER.indexOf("U08.L02" as SessionId) + 1, ORDER.indexOf("X2.S2" as SessionId) + 1]).toEqual([
-      84, 131,
+      86, 137,
     ]);
   });
-  test("all 31 lessons of U08–U11 and the four side lessons are authored and load", () => {
+  test("all 34 lessons of U08–U11 and the four side lessons are authored and load", () => {
     expect(errors.filter((e) => e.folderId && W5_LESSONS.includes(e.folderId as SessionId))).toEqual([]);
     expect(W5_LESSONS.filter((id) => !byId.has(id))).toEqual([]);
-    expect(W5_LESSONS.length).toBe(31);
+    expect(W5_LESSONS.length).toBe(34);
   });
   test("U09.CP, U10.CP and U11.CP have two or three authored items and a Make", async () => {
     const { defs } = await loadCheckpointFiles();
@@ -376,7 +374,7 @@ describe("U08–U11, A1, C3–C5 and X2 are complete (contracts §2.3–§2.6)",
 });
 
 // Wave 6, the end of the core: U12–U17 with U13.CP, U14.CP and U17.CP, the capstones C6 and C7 and the finale in
-// two parts, CF-T in gym slots from U15.L01 and CF-A at the very end (sessions 125 and 132–185 of the default
+// two parts, CF-T in gym slots from U15.L01 and CF-A at the very end (sessions 131 and 138–191 of the default
 // order). The cross-lesson scans below read them like every authored lesson; their music is
 // u12-u17-music.test.ts.
 const WAVE6 = ORDER.slice(ORDER.indexOf("U12.L02" as SessionId));
@@ -386,18 +384,18 @@ const w6course = W6_LESSONS.map((id) => byId.get(id)).filter((l): l is LoadedLes
 describe("U12–U17, C6, C7 and the core finale are complete (contracts §2.3–§2.5)", () => {
   test("the default order runs U12.L02 … CF-A.S4 as §2.5 prints it, gym slots and capstone sessions included", () => {
     expect(WAVE6).toEqual([
-      ...["U12.L02", "U12.L03", "U12.L04", "U12.L05", "GYM.12", "U12.L06", "U13.L01", "U13.L02", "U13.L03"],
-      ...["GYM.13", "U13.L04", "U13.L05", "U13.L06", "U14.L01", "GYM.14", "U13.CP", "U14.L02", "U14.L03"],
-      ...["U14.L04", "GYM.15", "U14.L05", "U14.L06", "U15.L01", "U14.CP", "CF-T.S1", "C6.S1", "C6.S2"],
+      ...["U12.L02", "U12.L03", "U12.L04", "U12.L05", "GYM.13", "U12.L06", "U13.L01", "U13.L02", "U13.L03"],
+      ...["GYM.14", "U13.L04", "U13.L05", "U13.L06", "U14.L01", "GYM.15", "U13.CP", "U14.L02", "U14.L03"],
+      ...["U14.L04", "GYM.16", "U14.L05", "U14.L06", "U15.L01", "U14.CP", "CF-T.S1", "C6.S1", "C6.S2"],
       ...["U15.L02", "U15.L03", "CF-T.S2", "U15.L04", "U15.L05", "U15.L06", "U16.L01", "CF-T.S3", "U16.L02"],
-      ...["U16.L03", "U16.L04", "U16.L05", "CF-T.S4", "U17.L01", "U17.L02", "U17.L03", "U17.L04", "GYM.16"],
-      ...["U17.CP", "C7.S1", "C7.S2", "C7.S3", "GYM.17", "CF-A.S1", "CF-A.S2", "CF-A.S3", "CF-A.S4"],
+      ...["U16.L03", "U16.L04", "U16.L05", "CF-T.S4", "U17.L01", "U17.L02", "U17.L03", "U17.L04", "GYM.17"],
+      ...["U17.CP", "C7.S1", "C7.S2", "C7.S3", "GYM.18", "CF-A.S1", "CF-A.S2", "CF-A.S3", "CF-A.S4"],
     ] as SessionId[]);
-    // U12.L01 sits among the Wave 5 sessions (125); the core ends on CF-A.S4, session 185.
+    // U12.L01 sits among the Wave 5 sessions (131); the core ends on CF-A.S4, session 191.
     expect([ORDER.indexOf("U12.L01" as SessionId) + 1, ORDER.indexOf("U12.L02" as SessionId) + 1]).toEqual([
-      125, 132,
+      131, 138,
     ]);
-    expect([ORDER.length, ORDER.at(-1)]).toEqual([185, "CF-A.S4"]);
+    expect([ORDER.length, ORDER.at(-1)]).toEqual([191, "CF-A.S4"]);
   });
   test("all 33 lessons of U12–U17 are authored and load", () => {
     expect(errors.filter((e) => e.folderId && W6_LESSONS.includes(e.folderId as SessionId))).toEqual([]);

@@ -202,6 +202,10 @@
       "kind": "canDo"
     },
     {
+      "id": "cd.code.linear-drums",
+      "kind": "canDo"
+    },
+    {
       "id": "cd.code.mix",
       "kind": "canDo"
     },
@@ -235,6 +239,10 @@
     },
     {
       "id": "cd.code.pushes",
+      "kind": "canDo"
+    },
+    {
+      "id": "cd.code.quartal",
       "kind": "canDo"
     },
     {
@@ -334,6 +342,10 @@
       "kind": "canDo"
     },
     {
+      "id": "cd.compose.carve",
+      "kind": "canDo"
+    },
+    {
       "id": "cd.compose.chord-tones",
       "kind": "canDo"
     },
@@ -367,6 +379,10 @@
     },
     {
       "id": "cd.compose.drum-intro",
+      "kind": "canDo"
+    },
+    {
+      "id": "cd.compose.ending",
       "kind": "canDo"
     },
     {
@@ -406,6 +422,10 @@
       "kind": "canDo"
     },
     {
+      "id": "cd.compose.hocket",
+      "kind": "canDo"
+    },
+    {
       "id": "cd.compose.hook",
       "kind": "canDo"
     },
@@ -415,6 +435,10 @@
     },
     {
       "id": "cd.compose.jazz-blues",
+      "kind": "canDo"
+    },
+    {
+      "id": "cd.compose.kick-bass-line",
       "kind": "canDo"
     },
     {
@@ -446,7 +470,15 @@
       "kind": "canDo"
     },
     {
+      "id": "cd.compose.parallel-chords",
+      "kind": "canDo"
+    },
+    {
       "id": "cd.compose.passing-tones",
+      "kind": "canDo"
+    },
+    {
+      "id": "cd.compose.peak-first",
       "kind": "canDo"
     },
     {
@@ -482,6 +514,10 @@
       "kind": "canDo"
     },
     {
+      "id": "cd.compose.seams",
+      "kind": "canDo"
+    },
+    {
       "id": "cd.compose.seventh-colour",
       "kind": "canDo"
     },
@@ -491,6 +527,10 @@
     },
     {
       "id": "cd.compose.texture",
+      "kind": "canDo"
+    },
+    {
+      "id": "cd.compose.transform-motif",
       "kind": "canDo"
     },
     {
@@ -10659,6 +10699,10 @@
       "kind": "gymSession"
     },
     {
+      "id": "GYM.18",
+      "kind": "gymSession"
+    },
+    {
       "id": "A1.L01",
       "kind": "lesson"
     },
@@ -10711,6 +10755,18 @@
       "kind": "lesson"
     },
     {
+      "id": "A2.L07",
+      "kind": "lesson"
+    },
+    {
+      "id": "A2.L08",
+      "kind": "lesson"
+    },
+    {
+      "id": "A2.L09",
+      "kind": "lesson"
+    },
+    {
       "id": "J1.L01",
       "kind": "lesson"
     },
@@ -10760,6 +10816,10 @@
     },
     {
       "id": "J3.L04",
+      "kind": "lesson"
+    },
+    {
+      "id": "J3.L05",
       "kind": "lesson"
     },
     {
@@ -10816,6 +10876,10 @@
     },
     {
       "id": "R1.L05",
+      "kind": "lesson"
+    },
+    {
+      "id": "R1.L06",
       "kind": "lesson"
     },
     {
@@ -11079,6 +11143,10 @@
       "kind": "lesson"
     },
     {
+      "id": "U06.L13",
+      "kind": "lesson"
+    },
+    {
       "id": "U07.L01",
       "kind": "lesson"
     },
@@ -11119,6 +11187,10 @@
       "kind": "lesson"
     },
     {
+      "id": "U07.L11",
+      "kind": "lesson"
+    },
+    {
       "id": "U08.L01",
       "kind": "lesson"
     },
@@ -11139,6 +11211,10 @@
       "kind": "lesson"
     },
     {
+      "id": "U08.L06",
+      "kind": "lesson"
+    },
+    {
       "id": "U09.L01",
       "kind": "lesson"
     },
@@ -11156,6 +11232,14 @@
     },
     {
       "id": "U09.L05",
+      "kind": "lesson"
+    },
+    {
+      "id": "U09.L06",
+      "kind": "lesson"
+    },
+    {
+      "id": "U09.L07",
       "kind": "lesson"
     },
     {
@@ -17424,6 +17508,10 @@
       "kind": "term"
     },
     {
+      "id": "term.composite-line",
+      "kind": "term"
+    },
+    {
       "id": "term.compound-interval",
       "kind": "term"
     },
@@ -17528,6 +17616,10 @@
       "kind": "term"
     },
     {
+      "id": "term.dramatic-arc",
+      "kind": "term"
+    },
+    {
       "id": "term.drop-2",
       "kind": "term"
     },
@@ -17556,6 +17648,10 @@
       "kind": "term"
     },
     {
+      "id": "term.fade-out",
+      "kind": "term"
+    },
+    {
       "id": "term.feedback",
       "kind": "term"
     },
@@ -17576,11 +17672,23 @@
       "kind": "term"
     },
     {
+      "id": "term.foreground",
+      "kind": "term"
+    },
+    {
       "id": "term.form",
       "kind": "term"
     },
     {
       "id": "term.frequency",
+      "kind": "term"
+    },
+    {
+      "id": "term.fuzzy-boundary",
+      "kind": "term"
+    },
+    {
+      "id": "term.gap-fill",
       "kind": "term"
     },
     {
@@ -17641,6 +17749,10 @@
     },
     {
       "id": "term.hemiola",
+      "kind": "term"
+    },
+    {
+      "id": "term.hocket",
       "kind": "term"
     },
     {
@@ -17716,6 +17828,10 @@
       "kind": "term"
     },
     {
+      "id": "term.linear-drumming",
+      "kind": "term"
+    },
+    {
       "id": "term.loop",
       "kind": "term"
     },
@@ -17733,6 +17849,10 @@
     },
     {
       "id": "term.major-triad",
+      "kind": "term"
+    },
+    {
+      "id": "term.melodic-inversion",
       "kind": "term"
     },
     {
@@ -17820,6 +17940,14 @@
       "kind": "term"
     },
     {
+      "id": "term.outro",
+      "kind": "term"
+    },
+    {
+      "id": "term.parallel-chords",
+      "kind": "term"
+    },
+    {
       "id": "term.parallel-minor",
       "kind": "term"
     },
@@ -17856,6 +17984,10 @@
       "kind": "term"
     },
     {
+      "id": "term.pitch-rotation",
+      "kind": "term"
+    },
+    {
       "id": "term.pivot-chord",
       "kind": "term"
     },
@@ -17877,6 +18009,10 @@
     },
     {
       "id": "term.pulse",
+      "kind": "term"
+    },
+    {
+      "id": "term.quartal-voicing",
       "kind": "term"
     },
     {
@@ -18117,6 +18253,10 @@
     },
     {
       "id": "term.twelve-bar-blues",
+      "kind": "term"
+    },
+    {
+      "id": "term.unique-event",
       "kind": "term"
     },
     {

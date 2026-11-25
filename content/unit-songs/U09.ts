@@ -850,6 +850,8 @@ export const U09_SONG = defineUnitSong({
       "U09.L02",
       "Your song from Verse & Chorus opens with your own intro, its parts coming in one at a time.",
     ),
+    { lesson: "U09.L06", kind: "side", reason: "Placeholder until this lesson is written." },
+    { lesson: "U09.L07", kind: "side", reason: "Placeholder until this lesson is written." },
   ],
   releaseAfter: "U09.CP",
 });
