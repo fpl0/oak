@@ -49,6 +49,17 @@ export {
   inputKindOf,
   outputKindOf,
 } from "./devices.ts";
+// Oak 2.0 W4 (X19): BS.1770 loudness and normalising a take to a target with a peak cap. Also the subpath
+// `@oak/audio/loudness`, which bun tests should import (this index pulls the `?worker&url` worklet).
+export {
+  applyGain,
+  loudness,
+  loudnessOf,
+  type NormalizeResult,
+  normalizeGain,
+  peakDb,
+  peakDbOf,
+} from "./loudness.ts";
 // Wave 6 (CF-A "Master"): the loudness read-out of a play-through and the reference listen at matched loudness.
 export {
   type BufferLike,
