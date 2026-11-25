@@ -110,3 +110,103 @@ describe("The Shelf after Fill it all (S6)", () => {
     expect(byTest("shelf-fill-first")).toBeNull();
   });
 });
+
+describe("Finish it anyway owner calls (X25)", () => {
+  afterEach(() => {
+    localStorage.removeItem("oak.studio.length.sk_w5");
+  });
+
+  for (const sections of [3, 4]) {
+    test(`an unarranged sketch fills 64 bars with ${sections} sections`, async () => {
+      const { writeLength } = await import("./draft.ts");
+      const { sectionsFromAst } = await import("@oak/grader");
+      writeLength("sk_w5", 4);
+      let received = "";
+      function FillHost() {
+        const [code, setCode] = useState('drums: s("bd*4")\nbass: note("c2").s("sine")\n');
+        return (
+          <FinishAnywayDialog
+            open
+            onClose={() => {}}
+            code={code}
+            applyCode={(next) => {
+              received = next;
+              setCode(next);
+            }}
+            target={{ kind: "sketch", sketch, liveCode: code }}
+          />
+        );
+      }
+      root = createRoot(container);
+      act(() => root.render(<FillHost />));
+      const selected = container.querySelector('[aria-label="Sections"] [aria-checked="true"]');
+      expect(selected?.textContent).toBe("4");
+      if (sections === 3) {
+        const three = [
+          ...container.querySelectorAll<HTMLButtonElement>('[aria-label="Sections"] button'),
+        ].find((button) => button.textContent === "3");
+        expect(three).toBeDefined();
+        act(() => three?.click());
+      }
+      click("finish-fill");
+      const read = sectionsFromAst(received);
+      if (!read || !("sections" in read)) throw new Error("filled sections could not be read");
+      expect(read.totalBars).toBe(64);
+      expect(read.sections.map((s) => s.bars)).toEqual(sections === 3 ? [24, 20, 20] : [16, 16, 16, 16]);
+    });
+  }
+
+  test("a stored two-bar loop fills three sections with 22, 22 and 20 bars", async () => {
+    const { writeLength } = await import("./draft.ts");
+    const { sectionsFromAst } = await import("@oak/grader");
+    writeLength("sk_w5", 2);
+    let received = "";
+    function FillHost() {
+      const [code, setCode] = useState('drums: s("bd*4")\nbass: note("c2").s("sine")\n');
+      return (
+        <FinishAnywayDialog
+          open
+          onClose={() => {}}
+          code={code}
+          applyCode={(next) => {
+            received = next;
+            setCode(next);
+          }}
+          target={{ kind: "sketch", sketch, liveCode: code }}
+        />
+      );
+    }
+    root = createRoot(container);
+    act(() => root.render(<FillHost />));
+    const three = [...container.querySelectorAll<HTMLButtonElement>('[aria-label="Sections"] button')].find(
+      (button) => button.textContent === "3",
+    );
+    expect(three).toBeDefined();
+    act(() => three?.click());
+    click("finish-fill");
+    const read = sectionsFromAst(received);
+    if (!read || !("sections" in read)) throw new Error("filled sections could not be read");
+    expect(read.totalBars).toBe(64);
+    expect(read.sections.map((s) => s.bars)).toEqual([22, 22, 20]);
+  });
+
+  test("the ask screen gives the reason once and the steps do not repeat it", () => {
+    mount(HALF, true);
+    expect(byTest("finish-anyway-ask")).not.toBeNull();
+    expect(container.querySelectorAll('[data-testid="finish-anyway-reason"]')).toHaveLength(1);
+    expect(byTest("finish-anyway-reason")?.tagName).toBe("P");
+    expect(byTest("finish-anyway-reason")?.textContent).toBe(FINISH_COPY.reason);
+    click("finish-anyway-start");
+    expect(byTest("finish-anyway")).not.toBeNull();
+    expect(byTest("finish-anyway-reason")).toBeNull();
+  });
+
+  test("without abandon the steps begin with the reason exactly once", () => {
+    mount(HALF);
+    expect(container.querySelectorAll('[data-testid="finish-anyway-reason"]')).toHaveLength(1);
+    const reason = byTest("finish-anyway-reason");
+    expect(reason?.tagName).toBe("P");
+    expect(reason?.textContent).toBe(FINISH_COPY.reason);
+    expect(byTest("finish-anyway")?.firstElementChild).toBe(reason);
+  });
+});

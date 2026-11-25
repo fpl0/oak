@@ -138,3 +138,10 @@ describe("carveCell and sectionGrid", () => {
 test("every new string is descriptive", () => {
   for (const [k, v] of Object.entries(FINISH_COPY)) expect([k, isDescriptive(v)]).toEqual([k, true]);
 });
+
+test("the book's reason is verbatim and descriptive", () => {
+  expect(FINISH_COPY.reason).toBe(
+    "Finishing is practised by finishing; a piece on the Shelf stays off the album.",
+  );
+  expect(isDescriptive(FINISH_COPY.reason)).toBe(true);
+});

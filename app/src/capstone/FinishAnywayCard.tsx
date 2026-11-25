@@ -1,16 +1,16 @@
 // Oak 2.0 W4 F6 (DeSantis, Fail Better): the capstone workspace's "Finish it anyway" card (`CAPSTONE_SLOTS` entry
 // `finish-anyway`, registered by the W4 integrator). Shown while the draft is half arranged (some parts in sections,
-// some not) and not released; it opens the same dialog as Studio, whose last step for a capstone is the release with
+// some not), changed from the starter and not released; it opens Studio's dialog, ending with the release with
 // "Put it on the Shelf" ticked.
 import { useState } from "react";
 import { FinishAnywayDialog } from "../studio/FinishAnyway.tsx";
-import { arrangementState, FINISH_COPY } from "../studio/finish-anyway.ts";
+import { FINISH_COPY, showsCapstoneFinishCard } from "../studio/finish-anyway.ts";
 import { Button } from "../ui/kit/Button.tsx";
 import type { CapstoneSlotProps } from "./workspace-slots.ts";
 
-export function FinishAnywayCard({ def, liveCode, released, editor, applyCode }: CapstoneSlotProps) {
+export function FinishAnywayCard({ def, liveCode, starter, released, editor, applyCode }: CapstoneSlotProps) {
   const [open, setOpen] = useState(false);
-  if (!open && (released || arrangementState(liveCode) !== "half")) return null;
+  if (!open && !showsCapstoneFinishCard({ liveCode, starter, released })) return null;
   return (
     <div
       className="flex flex-wrap items-center justify-between gap-3 rounded-card border border-border bg-surface p-3"
