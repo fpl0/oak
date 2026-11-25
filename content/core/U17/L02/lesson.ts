@@ -118,6 +118,27 @@ const song = (o: SongParts = {}) =>
 /** The hook and the target of S6: the last chorus a whole step up, on every line. */
 const SONG = song();
 
+/**
+ * S1's example (PLAN §7, W2): the song with one more bar, on D, after the lifted chorus, so the hook lands on the new
+ * key's home chord instead of stopping on G and looping. The graded song (`SONG`, S6's target) stays twelve bars.
+ */
+const HOOK = `${TEMPO}${[
+  CHORDS_VERSE,
+  CHORDS_CHORUS,
+  chordsChorus2("D A Bm G"),
+  'const chordsOutro = chord("D").voicing()',
+  BASS_VERSE,
+  BASS_CHORUS,
+  'const bassOutro = n("0")',
+  melVerse(),
+  melChorus(),
+  'const melOutro = n("7")',
+].join("\n")}\n\n${[
+  'chords: arrange([4, chordsVerse], [4, chordsChorus], [4, chordsChorus2], [1, chordsOutro]).s("piano")',
+  'bass: arrange([4, bassVerse], [4, bassChorus], [4, bassChorus], [1, bassOutro]).scale("<C2:major!8 D2:major!5>").s("ebass").lpf(700)',
+  'mel: arrange([4, melVerse], [4, melChorus], [4, melChorus], [1, melOutro]).scale("<C4:major!8 D4:major!5>").s("piano")',
+].join("\n")}`;
+
 /** S6: chords and bass lift; the tune's key is still inside its two sections. */
 const IN_C = scale("C4:major");
 const SECTIONS_STARTER = song({ inVerse: `⟪${IN_C}⟫`, inChorus: `⟪${IN_C}⟫`, mel: "⟪⟫" });
@@ -177,7 +198,7 @@ const C_MAJOR = { tonic: "C", mode: "major" } as const;
 
 export default defineLesson({
   id: "U17.L02",
-  version: 5,
+  version: 6,
   title: "Truck-Driver & Direct Modulation",
   objective:
     'I can lift a last chorus into a new key: a key plan in .scale("<…>") on every line written in degrees, after arrange(), and new names for the chords.',
@@ -196,11 +217,11 @@ export default defineLesson({
       title: "The last chorus",
       minutes: 0.75,
       ui: { panels: ROLL, rollLabels: "note", band: DRUMS, initialPanels: ["form"] },
-      example: { id: "hook", code: SONG, bars: 12 },
+      example: { id: "hook", code: HOOK, bars: 13 },
       exercise: {
         kind: "listen",
         id: "the-last-chorus",
-        version: 1,
+        version: 2,
         role: "practice",
         prompt:
           "Listen to the song: a verse, a chorus, then the chorus again from bar 9. Listen for what the band does to the chorus at bar 9: higher, lower or the same? Then notice what that does to the energy of the song.",
@@ -209,9 +230,9 @@ export default defineLesson({
         tests: [],
         items: [
           {
-            code: SONG,
-            caption: "Verse, chorus, chorus. The last chorus starts at bar 9.",
-            bars: 12,
+            code: HOOK,
+            caption: "Verse, chorus, chorus, and one bar on D to end. The last chorus starts at bar 9.",
+            bars: 13,
           },
         ],
       },

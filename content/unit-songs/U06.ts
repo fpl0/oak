@@ -87,6 +87,14 @@ const KIND: Readonly<Record<SectionId, Kind>> = {
 /** What one track plays in each section: a Strudel expression, or `null` where it rests. */
 type BySection = Readonly<Record<SectionId, string | null>>;
 type ByKind = Readonly<Record<Kind, string | null>>;
+/**
+ * The sections that repeat an earlier one. A drum track may give any of them its own pattern (Oak 2.0 W2, the
+ * repeats varied: docs/oak2/audit-core.md U06 "Repeats varied"), so the second verse, climb and loud part are not
+ * copies of the first; the builder names the const after the section (`hatsVerse2`, `snarePrechorus2`, `percChorus2`).
+ */
+type Repeat = "verse2" | "pre2" | "chorus2" | "chorus3";
+const REPEATS: readonly SectionId[] = ["verse2", "pre2", "chorus2", "chorus3"];
+type Drums = ByKind & Partial<Record<Repeat, string>>;
 
 const cap = (s: string): string => `${s.slice(0, 1).toUpperCase()}${s.slice(1)}`;
 /** A number as Strudel code is written in this repo: `.4`, not `0.4`. */
@@ -267,10 +275,10 @@ interface Kit {
   lpf: number;
   chordsPan: number;
   leadPan: number;
-  kick: ByKind & { chorus3?: string };
-  snare: ByKind & { chorus3?: string };
-  hats: ByKind & { chorus3?: string };
-  perc: ByKind & { chorus3?: string };
+  kick: Drums;
+  snare: Drums;
+  hats: Drums;
+  perc: Drums;
   /** Bass notes; the downbeat of every bar is the chord's root in every kit. */
   bass: ByKind;
   /** The chords' rhythm (`struct`) in each section. */
@@ -315,6 +323,7 @@ const POP: Kit = {
     intro: v(SNARE_PICKUP("~ sd ~ sd", "~ sd [~ sd] [sd sd]")),
     verse: v("<[~ sd ~ sd]!7 [~ sd ~ [sd sd]]>"),
     pre: v("<[~ sd ~ sd]!3 [~ sd [sd sd] [sd sd sd sd]]>"),
+    pre2: v("<[~ sd ~ sd]!2 [~ sd [sd sd] [sd sd sd sd]] [sd*8]>"),
     chorus: v("<[~ [sd,cp] ~ [sd,cp]]!7 [~ [sd,cp] [~ sd] [sd sd]]>", "1 .85"),
     lift: v("<[~ ~ sd ~]!3 [~ ~ sd [sd sd]]>"),
     bridge: v("<[~ sd ~ sd]!3 [~ sd [sd sd sd] [sd sd sd]]>"),
@@ -323,6 +332,7 @@ const POP: Kit = {
   hats: {
     intro: v("<[~ hh]*4!2 [hh*8]!2>", V8),
     verse: v("hh*8", V8),
+    verse2: v("[hh hh hh oh]*2", V8),
     pre: v("[hh hh hh oh]*2", V8),
     chorus: v("[hh hh hh oh]*2", V8),
     lift: v("~ hh ~ hh"),
@@ -332,8 +342,10 @@ const POP: Kit = {
   perc: {
     intro: v("<[~ sh]*4!2 cr ~>"),
     verse: v("<cr ~!7>"),
+    verse2: v("<[cr, [~ sh]*4] [~ sh]*4!7>"),
     pre: v("~ tb ~ tb"),
     chorus: v("<[cr, [~ tb]*4] [~ tb]*4!3 [cr, [~ tb]*4] [~ tb]*4!3>"),
+    chorus2: v("<[cr, rd*4, [~ tb]*4] [rd*4, [~ tb]*4]!3 [cr, rd*4, [~ tb]*4] [rd*4, [~ tb]*4]!3>"),
     chorus3: v("<[cr, tb*8] [tb*8]!3 [cr, tb*8] [tb*8]!3>"),
     lift: v("<[cr, rd*4] [rd*4]!3>"),
     bridge: v("<cr ~!3>"),
@@ -383,6 +395,7 @@ const INDIE: Kit = {
     intro: v(SNARE_PICKUP("~ ~ sd ~", "~ ~ sd [sd sd]")),
     verse: v("<[~ ~ sd ~]!7 [~ ~ sd [sd sd]]>"),
     pre: v("<[~ sd ~ sd]!3 [~ sd [sd sd] [sd sd sd sd]]>"),
+    pre2: v("<[~ sd ~ sd]!2 [~ sd [sd sd] [sd sd sd sd]] [sd*8]>"),
     chorus: v("<[~ sd ~ sd]!7 [~ sd [~ sd] [sd sd]]>"),
     lift: v("<[~ ~ sd ~]!3 [~ ~ sd [sd sd]]>"),
     bridge: v("<[~ sd ~ sd]!3 [~ sd [sd sd sd] [sd sd sd]]>"),
@@ -391,6 +404,7 @@ const INDIE: Kit = {
   hats: {
     intro: v("<[~ hh]*4!2 [hh*8]!2>", V8),
     verse: v("hh*8", V8),
+    verse2: v("[hh hh hh oh]*2", V8),
     pre: v("[hh oh]*4", V8),
     chorus: v("[hh oh]*4", V8),
     lift: v("hh*4", V4),
@@ -400,8 +414,10 @@ const INDIE: Kit = {
   perc: {
     intro: v("<[~ tb]*2!2 cr ~>"),
     verse: v("<cr ~!7>"),
+    verse2: v("<[cr, [~ sh]*4] [~ sh]*4!7>"),
     pre: v("[~ tb]*4"),
     chorus: v("<[cr, [~ tb]*4] [~ tb]*4!3 [cr, [~ tb]*4] [~ tb]*4!3>"),
+    chorus2: v("<[cr, rd*4, [~ tb]*4] [rd*4, [~ tb]*4]!3 [cr, rd*4, [~ tb]*4] [rd*4, [~ tb]*4]!3>"),
     chorus3: v("<[cr, tb*8] [tb*8]!3 [cr, tb*8] [tb*8]!3>"),
     lift: v("<[cr, [~ tb]*2] [~ tb]*2!3>"),
     bridge: v("<cr ~!3>"),
@@ -455,6 +471,7 @@ const JAZZ: Kit = {
     intro: v(SNARE_PICKUP("~ rim ~ rim", "~ rim ~ [~ ~ sd sd]")),
     verse: v("<[~ rim ~ rim]!7 [~ rim ~ [sd sd]]>"),
     pre: v("<[~ sd ~ sd]!3 [~ sd [~ sd] [sd sd]]>"),
+    pre2: v("<[~ sd ~ sd]!2 [~ sd [~ sd] [sd sd]] [sd*8]>"),
     chorus: v("<[~ sd ~ sd]!7 [~ sd [~ sd] [sd sd]]>"),
     lift: v("~ ~ sd ~"),
     bridge: v("~ rim ~ rim"),
@@ -472,8 +489,10 @@ const JAZZ: Kit = {
   perc: {
     intro: v("rd ~ rd rd rd ~ rd rd", V8),
     verse: v("<[cr, rd ~ rd rd rd ~ rd rd] [rd ~ rd rd rd ~ rd rd]!7>", V8),
+    verse2: v("<[cr, rd ~ rd rd rd ~ rd rd, [~ sh]*4] [rd ~ rd rd rd ~ rd rd, [~ sh]*4]!7>", V8),
     pre: v("rd*8", V8),
     chorus: v("<[cr, rd*8] [rd*8]!3 [cr, rd*8] [rd*8]!3>", V8),
+    chorus2: v("<[cr, rd*8, [~ tb]*4] [rd*8, [~ tb]*4]!3 [cr, rd*8, [~ tb]*4] [rd*8, [~ tb]*4]!3>", V8),
     chorus3: v("<[cr, rd*8, [~ sh]*4] [rd*8, [~ sh]*4]!3 [cr, rd*8, [~ sh]*4] [rd*8, [~ sh]*4]!3>"),
     lift: v("<[cr, rd*4] [rd*4]!3>"),
     bridge: v("<[cr, [rd rd rd]*4] [rd rd rd]*4!3>"),
@@ -528,6 +547,9 @@ const FUNK: Kit = {
     intro: v(SNARE_PICKUP("~ ~ ~ ~ sd ~ ~ ~ ~ ~ ~ ~ sd ~ ~ ~", "~ ~ ~ ~ sd ~ ~ ~ ~ ~ ~ ~ sd sd sd sd")),
     verse: v("~ ~ ~ ~ sd ~ ~ sd ~ ~ ~ ~ sd ~ ~ sd", FUNK_GHOSTS),
     pre: v("<[~ ~ ~ ~ sd ~ ~ sd ~ ~ ~ ~ sd ~ ~ sd]!3 [~ ~ ~ ~ sd ~ ~ ~ sd ~ sd ~ sd sd sd sd]>"),
+    pre2: v(
+      "<[~ ~ ~ ~ sd ~ ~ sd ~ ~ ~ ~ sd ~ ~ sd]!2 [~ ~ ~ ~ sd ~ ~ ~ sd ~ sd ~ sd sd sd sd] [sd ~ sd ~ sd ~ sd ~ sd sd sd sd sd sd sd sd]>",
+    ),
     chorus: v(
       "<[~ ~ ~ ~ [sd,cp] ~ ~ ~ ~ ~ ~ ~ [sd,cp] ~ ~ ~]!7 [~ ~ ~ ~ [sd,cp] ~ ~ ~ ~ ~ sd ~ sd sd sd sd]>",
     ),
@@ -538,6 +560,7 @@ const FUNK: Kit = {
   hats: {
     intro: v("<[~ hh]*8!2 [hh*16]!2>", V16),
     verse: v("hh*16", V16),
+    verse2: v("[hh hh oh hh]*4", V16),
     pre: v("hh*16", V16),
     chorus: v("[hh hh hh hh hh hh oh hh]*2", V16),
     lift: v("hh*8", V8),
@@ -547,8 +570,12 @@ const FUNK: Kit = {
   perc: {
     intro: v("<[~ sh]*4!2 cr ~>"),
     verse: v("<cr ~!7>"),
+    verse2: v("<[cr, [~ sh]*4] [~ sh]*4!7>"),
     pre: v("[~ sh]*8"),
     chorus: v("<[cr, [~ cb ~ cb]] [~ cb ~ cb]!3 [cr, [~ cb ~ cb]] [~ cb ~ cb]!3>"),
+    chorus2: v(
+      "<[cr, [~ cb ~ cb], [~ sh]*8] [[~ cb ~ cb], [~ sh]*8]!3 [cr, [~ cb ~ cb], [~ sh]*8] [[~ cb ~ cb], [~ sh]*8]!3>",
+    ),
     chorus3: v("<[cr, [~ cb]*4] [[~ cb]*4]!3 [cr, [~ cb]*4] [[~ cb]*4]!3>"),
     lift: v("<cr [~ sh]*4!3>"),
     bridge: v("<cr ~!3>"),
@@ -627,6 +654,7 @@ const ELECTRONIC: Kit = {
     intro: v(SNARE_PICKUP("~ sd ~ sd", "~ sd ~ [sd sd]")),
     verse: v("<[~ sd ~ sd]!7 [~ sd ~ [sd sd]]>"),
     pre: v("<[~ cp ~ cp]!2 [sd*8] [sd*16]>"),
+    pre2: v("<[~ cp ~ cp] [sd*4] [sd*8] [sd*16]>"),
     chorus: v("<[~ cp ~ cp]!7 [~ cp [~ cp] [cp cp]]>"),
     lift: v("~ ~ sd ~"),
     bridge: v("<[~ cp ~ cp]!3 [~ cp [cp cp cp] [cp cp cp]]>"),
@@ -635,6 +663,7 @@ const ELECTRONIC: Kit = {
   hats: {
     intro: v("<[~ hh]*4!2 [hh*8]!2>", V8),
     verse: v("hh*8", V8),
+    verse2: v("[hh hh hh oh]*2", V8),
     pre: v("[hh hh oh hh]*4", V16),
     chorus: v("[hh hh oh hh]*4", V16),
     lift: v("hh*4", V4),
@@ -644,8 +673,10 @@ const ELECTRONIC: Kit = {
   perc: {
     intro: v("<~ ~ cr ~>"),
     verse: v("<[cr, [~ sh]*4] [~ sh]*4!7>"),
+    verse2: v("<[cr, sh*8] [sh*8]!7>"),
     pre: v("<cr ~!3>"),
     chorus: v("<cr ~!3 cr ~!3>"),
+    chorus2: v("<[cr, rd*4] [rd*4]!3 [cr, rd*4] [rd*4]!3>"),
     chorus3: v("<[cr, [~ rd]*4] [~ rd]*4!3 [cr, [~ rd]*4] [~ rd]*4!3>"),
     lift: v("<cr ~!3>"),
     bridge: v("<cr ~!2 [~ ~ [lt lt] [ht ht]]>"),
@@ -739,10 +770,10 @@ function code(flavour: FlavourId): string {
       syn ? `note("${line}").s("${syn.bassSound[kind]}")${syn.bass[kind]}` : `note("${line}")`,
     );
   });
-  /** A drum track: the later loud parts may play their own pattern; with `banks`, each section names its machine. */
-  const drums = (by: ByKind & { chorus3?: string }): BySection =>
+  /** A drum track: a repeated section may play its own pattern; with `banks`, each section names its machine. */
+  const drums = (by: Drums): BySection =>
     mapSections((id, kind) => {
-      const p = id === "chorus3" && by.chorus3 ? by.chorus3 : by[kind];
+      const p = (REPEATS.includes(id) ? by[id as Repeat] : undefined) ?? by[kind];
       if (p === null) return null;
       const bank = k.banks ? `.bank("${k.banks[kind] ?? k.bank}")` : "";
       return swing(kind, `${p}${bank}`);
@@ -797,7 +828,8 @@ const take = (
 export const U06_SONG = defineUnitSong({
   id: "usong.U06",
   unit: "U06",
-  version: 1,
+  // 2: Oak 2.0 W2, the second verse, climb and loud part vary their drums (no longer copies of the first).
+  version: 2,
   title: "The long way home",
   meter: "4/4",
   key: { tonic: "C", mode: "major" },
@@ -919,7 +951,12 @@ export const U06_SONG = defineUnitSong({
       "Your chords, in a rhythm of your own, play the last two loud parts over Oak's drums, bass and tune.",
       ["bass", "lead"],
     ),
-    { lesson: "U06.L13", kind: "side", reason: "Placeholder until this lesson is written." },
+    {
+      lesson: "U06.L13",
+      kind: "side",
+      reason:
+        "One chord shape slid by half steps leaves the song's key on purpose, so this loop stays a sketch of its own.",
+    },
   ],
   releaseAfter: "U06.CP",
 });

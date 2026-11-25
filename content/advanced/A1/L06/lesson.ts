@@ -98,13 +98,39 @@ const MORPHING = code(
   lead(".vib(5).vibmod(.25)"),
 );
 
+/**
+ * S8 (Oak 2.0, Rhythm of Automation): the chords pulse in short eighths, C then F, over the drums and the bass, and
+ * their cutoff moves. A slow wave glides it: every chord gets a new value. Steps hold a value for two chords or
+ * more and then jump, so the movement itself has a rhythm. `stepped-control` reads the cutoff each chord starts with:
+ * at least three different held values, each held for two chords or more, the jumps clear (a fifth of the range at
+ * least: Oak's call, in the rule, never shown to the learner).
+ */
+const PULSE = "<[c4,e4,g4]*8 [c4,f4,a4]*8>";
+const pulse = (lpf: string, tail = "") =>
+  `chords: note("${PULSE}").s("sawtooth").decay(.12).sustain(0).lpf(${lpf})${tail}.gain(.35)`;
+const pulsing = (lpf: string, tail = "") => code(KICK, SNARE, HATS, BASS, pulse(lpf, tail));
+const STEPS_STARTER = pulsing("⟪sine.range(400, 3000).slow(2)⟫");
+const STEPS_SOLUTION = pulsing('"400 1200 2000 2800"');
+
+/**
+ * S9 (optional, Humanizing With Automation): the same pulse, its decay and cutoff drifting slowly on `perlin` (a
+ * smooth random wave, U09.L04), so no two chords are quite the same length or brightness, like a player's touch.
+ */
+const DRIFT = code(
+  KICK,
+  SNARE,
+  HATS,
+  BASS,
+  `chords: note("${PULSE}").s("sawtooth").decay(perlin.range(.08, .2)).sustain(0).lpf(perlin.range(900, 1600).slow(3)).gain(.35)`,
+);
+
 const NONE = { roll: false, staff: false, keyboard: false } as const;
 const ROLL = { roll: true, staff: false, keyboard: false } as const;
 const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L06",
-  version: 4,
+  version: 5,
   title: "Movement",
   objective:
     "I can make a sound move while it plays, with vibrato, a phaser, tremolo or a slow filter sweep.",
@@ -450,6 +476,136 @@ export default defineLesson({
             feedback: ["id.wrong"],
           },
         ],
+      },
+    },
+    {
+      // Oak 2.0 (W2): the book's Rhythm of Automation. Placed before the Make (step ids are never renumbered).
+      id: "S8",
+      kind: "modify",
+      title: "Steps, not sweeps",
+      minutes: 1,
+      graded: true,
+      ui: { panels: ROLL },
+      exercise: {
+        kind: "code-modify",
+        id: "steps-not-sweeps",
+        version: 1,
+        role: "check",
+        prompt:
+          "The chords' cutoff glides on a slow wave, so every chord is a little brighter or darker than the last. Replace the wave in `.lpf()` with cutoff values that each hold for two chords or more, then jump. Keep the chords as they are. Done when the cutoff jumps between at least three held values.",
+        skills: [{ skill: "D07", w: 1 }],
+        code: { starter: STEPS_STARTER },
+        reference: { solutions: [STEPS_SOLUTION], bars: 2 },
+        matcher: {
+          m: "all",
+          of: [
+            { m: "events", pitch: "absolute", rhythm: "onsets", durations: false, tracks: ["chords"] },
+            {
+              m: "rubric",
+              rules: [
+                {
+                  id: "steps-not-sweeps",
+                  label:
+                    "The chords' cutoff holds a value for two chords or more, then jumps, with three values or more",
+                  required: true,
+                  skills: ["D07"],
+                  rule: "custom",
+                  fn: "stepped-control",
+                  params: { track: "chords", control: "lpf", minSteps: 3 },
+                },
+              ],
+            },
+          ],
+        },
+        constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
+        target: { audible: true, showRoll: false },
+        feedbackText: {
+          "rubric.unmet":
+            "Not yet: {label}. Listen to the chords: a glide changes on every chord, steps stay put for a while and then jump.",
+        },
+        hints: ladder(
+          "Listen to the chords: their brightness changes on every one. Which part of the line makes it glide?",
+          "A wave in `.lpf()` gives each chord a new value. A pattern of numbers in quotes holds each number for its share of the bar.",
+          "Four numbers in the quotes give each one a beat, two chords. Choose them far apart, from dark to bright.",
+        ),
+        tests: [
+          { name: "reference", response: { code: STEPS_SOLUTION }, expect: "pass" },
+          {
+            name: "a new order in each bar",
+            response: { code: pulsing('"<[400 1200 2000 2800] [2800 2000 1200 400]>"') },
+            expect: "pass",
+          },
+          {
+            name: "half a bar per value",
+            response: { code: pulsing('"<[400 1600] [800 3200]>"') },
+            expect: "pass",
+          },
+          {
+            name: "the wave cut into steps with .segment()",
+            response: { code: pulsing("saw.range(400, 2000).segment(4)") },
+            expect: "pass",
+          },
+          {
+            name: "unchanged",
+            response: { code: pulsing("sine.range(400, 3000).slow(2)") },
+            expect: "fail",
+            feedback: ["code.unchanged"],
+          },
+          {
+            name: "the right function, a new value on every chord: still a glide",
+            response: { code: pulsing('"400 800 1600 3200 400 800 1600 3200"') },
+            expect: "fail",
+            feedback: ["rubric.unmet"],
+          },
+          {
+            name: "one value for the whole loop: nothing moves",
+            response: { code: pulsing("1200") },
+            expect: "fail",
+            feedback: ["rubric.unmet"],
+          },
+          {
+            name: "the chords made longer as well",
+            response: {
+              code: code(
+                KICK,
+                SNARE,
+                HATS,
+                BASS,
+                `chords: note("<[c4,e4,g4]*4 [c4,f4,a4]*4>").s("sawtooth").decay(.12).sustain(0).lpf("400 800 1600 3200").gain(.35)`,
+              ),
+            },
+            expect: "fail",
+            feedback: ["code.edit-outside"],
+          },
+        ],
+      },
+    },
+    {
+      // Oak 2.0 (W2): the book's Humanizing With Automation, an optional, ungraded run.
+      id: "S9",
+      kind: "run",
+      title: "Slow drift",
+      minutes: 0.75,
+      optional: true,
+      ui: { panels: NONE },
+      example: { id: "drift", code: DRIFT, bars: 4 },
+      exercise: {
+        kind: "run-investigate",
+        id: "slow-drift",
+        version: 1,
+        role: "practice",
+        prompt:
+          "Run the loop and listen to the chords for four bars: each one is a little shorter or longer, brighter or darker, than the one before. Then change the numbers in the two `.range()` calls, wider or narrower, and run it again.",
+        skills: [{ skill: "D07", w: 1 }],
+        hints: ladder(
+          "Listen to one chord after another. Are any two exactly the same?",
+          "`perlin` is a slow random wave. `.range()` sets the lowest and highest value it gives the decay and the cutoff.",
+          "Pull the two numbers of the decay's range closer together for a steadier hand, further apart for a looser one.",
+        ),
+        code: { starter: DRIFT },
+        mustPlayLoops: 1,
+        questions: [],
+        tests: [],
       },
     },
     {

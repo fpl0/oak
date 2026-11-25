@@ -79,9 +79,22 @@ const S4_MATCHER: Matcher = {
   ],
 };
 
-/** S5: the hook brought back four times, then chance on top. */
+/**
+ * S5 "Freeze it" (Oak 2.0 W2; DeSantis, "Randomness and Responsibility"): chance proposes, the writer keeps. The
+ * starter is the hook brought back four times with `.sometimesBy(.4, …)` moving some notes a 3rd up. Strudel's
+ * chance is seeded by the cycle, so its first four bars are always the same (evaluated: E5 E5 C5 | G4 G4 G4 |
+ * C5 C5 A4 | C5 A4 F4, that is `[9 ~ 9 7] [4 ~ 4 4] [7 ~ 7 5] [7 ~ 5 3]`). The learner writes them as fixed notes,
+ * takes the chance call out and may change what they dislike: graded by `matches` (at least 3 in 4 of the frozen
+ * notes, Oak's loose call) and `no-chance` (no `?`, `.degradeBy()`, `.sometimesBy()` left on `mel`). Taking the
+ * chance call out without keeping its result plays the hook as written, which differs in 5 of 12 notes and fails.
+ * Fidelity pins: content/validate/pins/U07.L10.ts.
+ */
 const S5_HOOK = "<[7 ~ 7 5] [4 ~ 4 2] [7 ~ 7 5] [5 ~ 5 3]>";
-const s5 = (tail = "") => code(mel(S5_HOOK, tail));
+const CHANCE = ".sometimesBy(.4, x => x.scaleTranspose(2))";
+const FROZEN = "<[9 ~ 9 7] [4 ~ 4 4] [7 ~ 7 5] [7 ~ 5 3]>";
+const s5 = (pattern: string, tail = "") => code(mel(pattern, tail));
+const FREEZE_STARTER = s5(S5_HOOK, CHANCE);
+const FREEZE_REFERENCE = s5(FROZEN);
 
 /**
  * S6, by ear: a two-bar hook with a one-beat pickup. 5 | 1' . 1' 7 | 6 . 5 . (G4 | C5 C5 B4 | A4 G4): a 4th
@@ -109,7 +122,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L10",
-  version: 4,
+  version: 5,
   title: "Hook Lab",
   objective:
     "I can write a short hook that comes back and is easy to sing, and let chance change a few of its repeats.",
@@ -322,63 +335,99 @@ export default defineLesson({
     {
       id: "S5",
       kind: "modify",
-      title: "Let chance in",
-      minutes: 1,
+      title: "Freeze it",
+      minutes: 1.25,
+      graded: true,
       ui: { panels: ROLL, rollLabels: "degree", band: BAND },
       exercise: {
         kind: "code-modify",
-        id: "let-chance-in",
+        id: "freeze-it",
         version: 1,
-        role: "practice",
+        role: "check",
         prompt:
-          "Add one chance tool to the `mel` line, after `.scale()`: `.degradeBy(.2)` leaves out about one note in five; `.sometimesBy(.25, x => x.scaleTranspose(2))` moves about one in four up a 3rd. A `?` after one note also works. Done when at least one repeat of the hook sounds different from the first.",
+          "Run the hook and read its first four bars on the roll. Freeze them: write those notes as fixed numbers in `n`, one bar per item, and delete the chance call. Then change any note you dislike, up to one in four. Done when no chance is left and 3 in 4 notes match what chance played.",
         skills: [{ skill: "M09", w: 1 }],
-        code: { starter: s5() },
-        // Twelve bars: the four-bar hook three times, so a repeat can be heard to change (corrections gate, AS-44).
-        reference: { solutions: [s5(".degradeBy(.2)")], bars: 12 },
+        code: { starter: FREEZE_STARTER },
+        reference: { solutions: [FREEZE_REFERENCE], bars: 4 },
         matcher: {
           m: "rubric",
           rules: [
             {
-              id: "chance",
-              label: "Chance makes at least one four-bar repeat differ from the first",
+              id: "kept",
+              label: "At least 3 in 4 of the notes are the ones chance played in the first four bars",
               required: true,
               skills: ["M09"],
-              // Corrections gate (AS-44): a repeat really changes; a chance tool that changes nothing does not count.
+              rule: "matches",
+              reference: { solutions: [FREEZE_REFERENCE], bars: 4, tracks: ["mel"] },
+              matcher: {
+                m: "melody",
+                pitch: "absolute",
+                wPitch: 0.7,
+                wRhythm: 0.3,
+                rhythmTol: [1, 16],
+                track: "mel",
+              },
+              // Oak's call, kept loose: a quarter of the notes may change.
+              min: 0.75,
+            },
+            {
+              id: "frozen",
+              label: "No chance left on `mel`: no `?`, `.degradeBy()` or `.sometimesBy()`",
+              required: true,
+              skills: ["M09"],
               rule: "custom",
-              fn: "chance-varies",
-              params: { bars: 4, alsoUses: ["tb.mini.maybe", "tb.degradeBy", "tb.sometimesBy"] },
+              fn: "no-chance",
+              params: { track: "mel" },
             },
           ],
         },
-        feedbackText: {
-          "rubric.unmet":
-            "No chance yet: every repeat is still the same. Add `.degradeBy()` or `.sometimesBy()` after `.scale()`, or a `?` after a note.",
-        },
         target: { audible: false },
+        feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
-          "The hook repeats exactly. Which of the three chance tools would you try first: `?`, `.degradeBy()` or `.sometimesBy()`?",
-          "The chance call goes in the chain after `.scale()` and before `.s()`. Its first number is how often it acts, from 0 to 1.",
-          "With `.degradeBy()` the number is the share of notes left out: a fifth is .2.",
+          "Chance changes some notes of the hook. Which notes did it change in the first four bars? The roll shows them.",
+          "Write what the roll shows, one item per bar in `< >`, with the rests where they are. Then delete the `.sometimesBy()` call.",
+          "Bar 3 came out as written, `[7 ~ 7 5]`. Bar 1 did not: read its three notes on the roll.",
         ),
         tests: [
-          { name: "reference", response: { code: s5(".degradeBy(.2)") }, expect: "pass" },
+          { name: "reference", response: { code: FREEZE_REFERENCE }, expect: "pass" },
           {
-            name: "sometimes a 3rd up",
-            response: { code: s5(".sometimesBy(.25, x => x.scaleTranspose(2))") },
+            name: "frozen, then bar 2's last note moved back down",
+            response: { code: s5("<[9 ~ 9 7] [4 ~ 4 2] [7 ~ 7 5] [7 ~ 5 3]>") },
             expect: "pass",
           },
           {
-            name: "a question mark on one note",
-            response: { code: code(mel("<[7 ~ 7 5] [4 ~ 4 2?] [7 ~ 7 5] [5 ~ 5 3?]>")) },
+            name: "frozen, on a room",
+            response: { code: s5(FROZEN, ".room(.3)") },
             expect: "pass",
           },
-          { name: "unchanged", response: { code: s5() }, expect: "fail", feedback: ["code.unchanged"] },
           {
-            name: "louder instead of chance",
-            response: { code: s5(".gain(.8)") },
+            name: "frozen, the last bar's top note held",
+            response: { code: s5("<[9 ~ 9 7] [4 ~ 4 4] [7 ~ 7 5] [7@2 5 3]>") },
+            expect: "pass",
+          },
+          {
+            name: "unchanged",
+            response: { code: FREEZE_STARTER },
+            expect: "fail",
+            feedback: ["code.unchanged"],
+          },
+          {
+            name: "the notes frozen but the chance call kept",
+            response: { code: s5(FROZEN, CHANCE) },
             expect: "fail",
             feedback: ["rubric.unmet"],
+          },
+          {
+            name: "the chance call deleted and the hook left as written",
+            response: { code: s5(S5_HOOK) },
+            expect: "fail",
+            feedback: ["rubric.unmet", "melody.wrong-degree"],
+          },
+          {
+            name: "the frozen bars written an octave too low",
+            response: { code: code(`mel: n("${FROZEN}").scale("C3:major").s("piano")`) },
+            expect: "fail",
+            feedback: ["melody.octave"],
           },
         ],
       },

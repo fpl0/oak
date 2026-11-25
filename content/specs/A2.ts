@@ -470,6 +470,14 @@ export const A2: UnitSpec = {
           what: "Which order: the break chopped in four (a fixed item, tests in the lesson). Options, worded as what is heard: as recorded (`0 1 2 3`), the two middle beats swapped (`0 2 1 3`), beat 2 played again on beat 4 (`0 1 2 1`). The stimulus is `0 2 1 3`: the first snare lands on beat 3, a kick on beat 2. (`0 1 2 1` is near the recorded bar, since beat 2 and beat 4 both hold a snare: it is the plausible wrong answer.)",
         },
         {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1,
+          graded: true,
+          what: 'Oak 2.0 (W2), the book\'s Sampling the Old-Fashioned Way: speed changes the rhythm. `brk` at 96 BPM cut into four, `.speed("<1 2 .5>")` given; bars 2 and 3 still play the four pieces on the beats (`⟪[0 1 2 3] [0 1 2 3]⟫`), so bar 2 leaves gaps and bar 3 runs over. Place the pieces so each fills its place: `[0 1 2 3]*2` in bar 2 (double time, an octave up), `[0 1]` in bar 3 (half time, an octave down). Graded: `rhythm` on `drums` and `controls` on `begin` (exact) and `speed` (linear, .05). Right answers: the eight written out, `.speed()` before `.slice()`, three `arrange()` sections with `.speed(1)`, `.speed(2)`, `.speed(.5)`. Wrong: every speed 1 with the new rhythm, each piece twice in bar 2, the two bars swapped. Pins: content/validate/pins/A2.L04.ts.',
+        },
+        {
           kind: "make",
           exercise: "code-make",
           answer: ["code"],
@@ -583,6 +591,15 @@ export const A2: UnitSpec = {
           what: "What is too loud: the A2 loop with one part too loud for its place (a fixed item, tests in the lesson). The bass, the chords or the tune? The stimulus has the bass 9 dB above the tune.",
         },
         {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1,
+          graded: true,
+          what: 'Oak 2.0 (W2), the book\'s Foreground, Middle Ground, Background: front, middle, back. Eight bars on Am over the Band\'s drums: a tune that changes every bar, chords (`[0,2,4]@3 [0,2,4]`, `.gain(⟪.25⟫)`) and a bass that repeat. Make the chords step forward for one bar of the eight, louder or busier, and settle back. Graded: `events` on `mel` and `custom` `depth-layers { front: "mel", back: ["chords", "bass"] }` over 8 rendered bars (Oak\'s thresholds, in the rule: a background repeats in 3 bars of 4, a step forward is 3 dB louder or half again as busy, in at most one bar of eight). Right answers: bar 8 or bar 4 at `.5`, eighth-note chords in bar 8, the bass stepping forward instead. Wrong: the chords louder in every bar, forward in two bars, raised by a hair, the tune changed. Pins: content/validate/pins/A2.L05.ts.',
+          term: "term.foreground",
+        },
+        {
           kind: "make",
           exercise: "code-make",
           answer: ["code"],
@@ -692,6 +709,12 @@ export const A2: UnitSpec = {
           minutes: 1.25,
           graded: true,
           what: "Same tune: two short versions (a fixed item, tests in the lesson). Is it the same tune in two styles, or two different tunes in one style? The stimulus keeps the drums and changes two notes of the tune: two tunes.",
+        },
+        {
+          kind: "listen",
+          exercise: "listen",
+          minutes: 0.5,
+          what: "Oak 2.0 (W2), the book's Creating Harmony 2 for non-jazz ears, ungraded: the house pad. A strings pad C E G B over a 909 kick on every beat, then the same pad over a held low A: one soft minor chord on A with G and B above it (a minor 9th; the name waits for U12). The pass text says the bass names the chord.",
         },
         {
           kind: "make",

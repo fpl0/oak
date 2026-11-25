@@ -1,0 +1,51 @@
+{/* U06.L13 Parallel Chords: prose only, one <Step> per step of lesson.ts. Code lives in lesson.ts. */}
+
+<Step id="S1">
+Every chord you have stacked so far came from the key: the same stack of degrees, moved with `.add()`, turned major on 1 and minor on 6. This loop does something else, and you will hear it at once.
+
+<Example id="hook" views="code,roll" autoplay />
+
+<OnPass>One colour, four heights. The same dark chord, a minor chord with one more 3rd on top, slides from C to F, Eb and Bb, and never changes its mood. It is the sound of deep house, and it leaves C major on purpose.</OnPass>
+</Step>
+
+<Step id="S2">
+The same four chords can be played two ways: each note stepping to the nearest note of the next chord, as you did with inversions, or the whole stack moved at once.
+
+<Choice exercise="close-or-as-a-block" />
+
+<OnPass>Card B. When the whole stack moves, every note moves by the same distance, so the chords slide rather than step. Card A sounds smoother and more settled; card B sounds like one chord on the move.</OnPass>
+</Step>
+
+<Step id="S3">
+The hook does all of its moving with one function, `.transpose()`, which you met when you moved notes by half steps.
+
+<Example id="how-far" views="code,roll" />
+
+<OnPass>Three half steps, and all four notes moved: C Eb G Bb became Eb Gb Bb Db. `.transpose()` moves every note of the line the same distance, so the gaps inside the chord stay the same.</OnPass>
+</Step>
+
+<Step id="S4">
+One shape, held for four bars. Make it slide to the target's four heights.
+
+<Editor exercise="slide-the-shape" />
+
+<OnPass>C, Bb, Eb, F: four chords, one shape. A chord shape moved as a block, every note by the same number of half steps, makes **parallel chords**. Because the shape never adapts to the key, the chords bring in notes from outside it, and that is the colour.</OnPass>
+</Step>
+
+<Step id="S5">
+Now by ear, with three-note chords this time.
+
+<Choice exercise="which-one-slides" />
+
+<OnPass>Card A: C minor, A minor, F minor, G minor, one colour on every root. Card B played the key's own chords, C, Am, F and G, so its colour changed with every bar.</OnPass>
+</Step>
+
+<Step id="S6">
+Take the shape, or build your own, and slide it. Mix in what you have: `.struct()` for the rhythm of the hits, a bass on each chord's lowest note. Until today the key chose your chords; now you can choose one colour and move it anywhere.
+
+<Make exercise="your-sliding-loop" />
+
+<CanDo id="cd.compose.parallel-chords" />
+
+<Recap />
+</Step>

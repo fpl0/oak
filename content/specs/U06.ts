@@ -58,7 +58,7 @@ export const U06: UnitSpec = {
   unit: "U06",
   title: "Diatonic Harmony",
   summary:
-    "Twelve lessons on the chords of a key and what they do. The seven triads stacked on the seven degrees (`.add(n(\"…\"))` moves one stack onto any root) are the key's diatonic chords; they get Roman numerals, graded by degree and quality, never by string; they have jobs (home, away, tension) and phrases end with cadences. The ear learns to hear the bass first and to sing the roots, and then takes down whole loops in stages: bass, quality, numeral. The schemas the learner's genres run on are met as loops over the pop and jazz-soul Bands before they are named: the four-chord loop and its rotations (with the deceptive V→vi), doo-wop and three-chord rock (with the plagal IV→I). Then the pace of the changes (harmonic rhythm), a first taste of sevenths for the neo-soul loop, slash chords and the walking-down bass, and comping with `.struct()`. Ear-training stage D continues (`fam.har.rn`, `fam.har.function`, `fam.har.cadence`, `fam.har.bass`, `fam.har.schema`, `fam.har.progression`). U06.CP follows U07.L01 in the default order; U06.L03 and later need U05.CP (contracts §7.6 rule 2).",
+    "Thirteen lessons on the chords of a key and what they do. The seven triads stacked on the seven degrees (`.add(n(\"…\"))` moves one stack onto any root) are the key's diatonic chords; they get Roman numerals, graded by degree and quality, never by string; they have jobs (home, away, tension) and phrases end with cadences. The ear learns to hear the bass first and to sing the roots, and then takes down whole loops in stages: bass, quality, numeral. The schemas the learner's genres run on are met as loops over the pop and jazz-soul Bands before they are named: the four-chord loop and its rotations (with the deceptive V→vi), doo-wop and three-chord rock (with the plagal IV→I). Then the pace of the changes (harmonic rhythm), a first taste of sevenths for the neo-soul loop, slash chords and the walking-down bass, and comping with `.struct()`. Oak 2.0 adds U06.L13, parallel chords: one shape moved by half steps, out of the key on purpose. Ear-training stage D continues (`fam.har.rn`, `fam.har.function`, `fam.har.cadence`, `fam.har.bass`, `fam.har.schema`, `fam.har.progression`). U06.CP follows U07.L01 in the default order; U06.L03 and later need U05.CP (contracts §7.6 rule 2).",
   conventions: [
     'Chords in learner code are degree stacks moved with `.add(n("…"))`, written before `.scale()`: `n("[0,2,4]").add(n("<0 4 5 3>")).scale("C3:major")` is I V vi IV (contracts §0.4: `.add("…")` without `n()` changes nothing, and `.add(n(…))` after `.scale()` changes nothing). The number in `.add()` is the root\'s `n`, so a numeral\'s number is its degree minus one: "`n` counts from 0, so V is 4". That off-by-one (V written as 5) is the realistic mistake of the unit; every graded code step that turns numerals into code pins it.',
     '`chord()` and `.voicing()` are open (the U05.L07 gate is met by U05.L08). Learner code may use symbols anywhere a stack would do; tests include one passing answer in symbols where a step allows it. A voicing is graded only by pitch classes and the bass (contracts §6.7): never author a check on its octave, top note or note count. `chord("C/E")` is a lint error (STYLE §5.3): a slash chord is a stack whose lowest note is not the root, or a `bass:` track (U06.L11).',
@@ -845,6 +845,14 @@ export const U06: UnitSpec = {
           what: "A four-bar loop played with its chords hidden: click the bars that hold two chords (`bar-buttons`, `bars: 4`; the fixed stimulus `<0 [3 4] 5 [1 4]>`: bars 2 and 4).",
         },
         {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1.25,
+          graded: true,
+          what: 'Oak 2.0 W2 (DeSantis, "Harmonic Rhythm"), S8 "Busy notes, slow chords": eight bars of I V | vi IV, two chords a bar, under a tune of eighth notes; the breakdown in bars 5–8 halves the chords\' pace, the same chords in order, one a bar, and keeps the tune (`all`: `events` on `mel` unchanged + `pcset` per onset on `chords` + custom `chords-per-bar { one: 4, max: 1 }` on bars 5–8). `.slow(2)` on the whole loop slows the tune too and fails.',
+        },
+        {
           kind: "make",
           exercise: "code-make",
           answer: ["code"],
@@ -857,9 +865,9 @@ export const U06: UnitSpec = {
         brief:
           "Write a four- or eight-bar loop over the drums and set its pace: one chord in some bars, two in others. Try the faster changes just before the end.",
         required: {
-          rule: "harmonic-rhythm",
-          label: "Some bars change chord twice",
-          why: "`harmonic-rhythm` with `changesPerBar: [1.25, 2]`: the average over the loop. The starter changes once a bar (1.0); two in half the bars is 1.5.",
+          rule: "custom",
+          label: "At least one bar with one chord and one with two, never more than two",
+          why: "`chords-per-bar` with `{ one: 1, two: 1, max: 2 }`, as the lesson grades it (review finding theory-d 3: the average of `harmonic-rhythm` failed the hint's own `<0 5 1 [4 0]>`). The starter changes once a bar.",
         },
         suggestions: [
           'the loop ends home (`cadence` `types: ["PAC", "IAC", "PC"]`, `at: "last"`)',
@@ -874,6 +882,7 @@ export const U06: UnitSpec = {
       mistakes: [
         "S4: the four chords without brackets (`<0 4 5 3 1 4>`): six bars of one chord, `harmony.pcset` from bar 3; ii IV for vi IV (`[1 3]`): `harmony.pcset`; the unchanged starter: `code.unchanged`",
         "S6: bar 3 clicked (one chord held): `id.wrong`",
+        "S8: one chord a bar but only the first of each pair: `harmony.pcset`; the tune slowed with the chords: `melody.missing-note`; the unchanged starter: `code.unchanged`",
         "Make starter (one a bar): `rubric.unmet`; every bar changing four times (a chord a beat, 4.0): `rubric.unmet`",
       ],
       connects: {
@@ -1284,6 +1293,97 @@ export const U06: UnitSpec = {
         '`.struct()` takes the rhythm from its pattern and the notes from the chain: on a stack, every hit plays the whole chord (evaluated: `"~ x ~ [~ x]"` hits at 1/4 and 7/8 of the bar).',
         "Comping rhythm is checked with the `events` matcher on onsets only: the chords themselves are given, so pitch is octave-free and never the point.",
         "The Make's rule is `uses`, as in U05.L04 (`.arp()`): the idea is the tool's rhythm, and any comping rhythm the learner picks is good music.",
+      ],
+    },
+    {
+      id: "U06.L13",
+      author: "content-lead",
+      idea: 'Oak 2.0 W2 (DeSantis, "Parallel Harmony"). One chord shape moved by half steps, every note the same distance, keeps its colour and slides out of the key on purpose: the sound of deep house. The key\'s own chords change shape as they move; parallel chords never do.',
+      hook: {
+        hear: "Deep house over the Band's drums: one dark four-note shape (a minor chord with one more 3rd) struck on every off-beat, sliding from C to F, Eb and Bb, a bass on each chord's lowest note.",
+        code: `${T(122)}bass: note("<c2 f2 eb2 bb1>").struct("x ~ ~ x ~ ~ x ~").s("ebass").lpf(600)\nchords: note("[c3,eb3,g3,bb3]").transpose("<0 5 3 -2>").struct("[~ x]*4").s("rhodes").gain(.7)`,
+      },
+      key: C,
+      meter: "4/4",
+      bpm: 122,
+      canDo: ["cd.compose.parallel-chords"],
+      uses: [...BASE, ...NAMES, ...VOICED, "tb.transpose", "tb.struct"],
+      steps: [
+        {
+          kind: "listen",
+          exercise: "listen",
+          minutes: 0.5,
+          what: "The hook: does the chords' colour change, or does one colour slide?",
+        },
+        {
+          kind: "compare",
+          exercise: "identify",
+          answer: ["choice"],
+          minutes: 0.5,
+          what: "The hook's four chords voiced close (each note to the nearest note of the next chord, by hand) and moved as one block. Pick the block.",
+        },
+        {
+          kind: "investigate",
+          exercise: "run-investigate",
+          answer: ["number", "choice"],
+          minutes: 1,
+          what: "How many half steps above bar 1 is bar 3's chord (number: 3); which notes moved (choice: every note).",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1.25,
+          graded: true,
+          what: 'Slide the shape: `.transpose("<0 -2 3 5>")` on `note("[c3,eb3,g3,bb3]")` (`all`: `pcset` per onset on `chords` + custom `same-shape { track: "chords", minShifts: 3 }`). The right chords re-voiced close pass `pcset` and fail `same-shape`.',
+          term: "term.parallel-chords",
+        },
+        {
+          kind: "compare",
+          exercise: "identify",
+          answer: ["choice"],
+          minutes: 1.25,
+          graded: true,
+          what: "Two cards on the roots C A F G: parallel minor triads (one colour) and the key's own C Am F G. Pick the parallel chords.",
+        },
+        {
+          kind: "make",
+          exercise: "code-make",
+          answer: ["code"],
+          minutes: 2.75,
+          what: "A loop of one chord shape at two heights or more, by `.transpose()` or by hand.",
+        },
+      ],
+      wrapAt: 4,
+      make: {
+        brief:
+          "Write a loop of up to four bars from one chord shape, this one or your own, and move it to at least two heights by half steps.",
+        required: {
+          rule: "custom",
+          label: "Every chord on `chords` has the same shape, and it sits at two heights or more",
+          why: '`same-shape { track: "chords", minShifts: 2 }` (contracts §6.7 rule 8, the written exception): the starter\'s shape never moves; `.voicing()` is refused because it changes the shape.',
+        },
+        suggestions: ['a bass on its own line (`tracks` with `roles: ["bass"]`)'],
+        band: "band.axis-4bar",
+        tracks: ["drums"],
+        flavours: "Drums only from the Band: the chords leave C major, so the Band's chords would clash.",
+      },
+      srs: [],
+      singOn: "syllables",
+      mistakes: [
+        'S4: the signs flipped (`<0 2 -3 -5>`), the four moves in one bar, `.transpose("<0 0 0 0>")`: `harmony.pcset`; the right chords in the inversion nearest the last: `rubric.unmet`; the unchanged starter: `code.unchanged`',
+        "S5: the key's own chords picked: `id.wrong`",
+        "Make starter (the shape never moves) and the key's own seventh stacks: `rubric.unmet`",
+      ],
+      connects: {
+        back: "U02.L05 moved notes by half steps with `.transpose()`; U06.L01 moved stacks inside the key with `.add(n(…))`; U06.L10 added one more 3rd.",
+        forward:
+          "U12 names the minor-seventh shape; J3.L05 stacks 4ths and lets the bass name the chord; Studio's transforms move any line by half steps.",
+      },
+      notes: [
+        'Seventh-chord names wait for U12: the shape is "a minor chord with one more 3rd on top" and is always written as notes, never `chord("Cm7")`.',
+        'Song: a side step ("One chord shape slid by half steps leaves the song\'s key on purpose").',
+        "`fam.har.motion` (voice-led or parallel?) is seeded here by the integrator once X12 lands.",
       ],
     },
   ],

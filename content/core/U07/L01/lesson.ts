@@ -64,6 +64,19 @@ const SHAPE_WRONG = {
     "Not that shape. Hum it back and draw it in the air with one hand: where is the highest note, and where is the lowest?",
 } as const;
 
+/**
+ * S9 (Oak 2.0 W2; DeSantis, "Creating Melodies 1"): after a leap a tune tends to turn back and fill the gap it
+ * jumped. A tendency, not a law: the rule `gap-fill` counts the leaps of a 4th or more (5 half steps) and asks that
+ * most of them, 6 in 10, be followed by a move the other way (Oak's call, kept loose, never shown as a rule of
+ * music); the leaps inside an arpeggio (a chord's notes in a row) are left out. The starter leaps up in bars 1 and 3
+ * and keeps climbing (evaluated: C4 G4 A4, then A4 down to E4 and on down; E4 C5 D5, then D5 down to G4 and on
+ * down, so none of its four leaps turns back). Fidelity pins: content/validate/pins/U07.L01.ts.
+ */
+const GAP = (bar1: string, bar3: string, bar4 = "[4 2 0@2]") =>
+  code(mel(`<${bar1} [2 ~ 1 ~] ${bar3} ${bar4}>`));
+const GAP_STARTER = code(mel("<⟪[0 ~ 4 5]⟫ [2 ~ 1 ~] ⟪[2 ~ 7 8]⟫ [4 2 0@2]>"));
+const GAP_REFERENCE = GAP("[0 ~ 4 3]", "[2 ~ 7 6]");
+
 /** The Make's starter: every bar an arpeggio of its chord, so every move is a leap. */
 const ARPEGGIOS = "<[0 2 4 7] [3 5 7 10] [0 2 4 7] [4 6 8 11] [0 2 4 7] [3 5 7 10] [4 6 8 11] [7 ~ ~ ~]>";
 const MAKE_STARTER = code(mel(ARPEGGIOS));
@@ -76,7 +89,7 @@ const STAFF = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L01",
-  version: 4,
+  version: 5,
   title: "Shape",
   objective: "I can shape a melody: mostly steps, a leap or two, and one high point placed on purpose.",
   key: { tonic: "C", mode: "major" },
@@ -87,6 +100,7 @@ export default defineLesson({
   terms: [
     { id: "term.contour", step: "S3" },
     { id: "term.climax", step: "S5" },
+    { id: "term.gap-fill", step: "S9" },
   ],
   canDo: ["cd.compose.contour"],
   wrapAt: "S4",
@@ -479,6 +493,85 @@ export default defineLesson({
       minutes: 0.5,
       ui: { panels: STAFF, staffLabels: "degree" },
       example: { id: "on-the-page", code: HOOK, bars: 8 },
+    },
+    {
+      id: "S9",
+      kind: "modify",
+      title: "Leap, then turn back",
+      minutes: 1,
+      graded: true,
+      ui: { panels: ROLL, rollLabels: "degree", band: DRUMS },
+      exercise: {
+        kind: "code-modify",
+        id: "leap-then-turn-back",
+        version: 1,
+        role: "check",
+        prompt:
+          "Bars 1 and 3 each leap up and keep climbing. Rewrite them so the note after each leap moves back down, toward the notes the leap jumped over. Keep bars 2 and 4 as they are. Done when, after most leaps of a 4th or more, the next note turns back the other way.",
+        skills: [{ skill: "M01", w: 1 }],
+        code: { starter: GAP_STARTER },
+        reference: { solutions: [GAP_REFERENCE], bars: 4 },
+        matcher: {
+          m: "rubric",
+          rules: [
+            {
+              id: "turns-back",
+              label: "After most leaps of a 4th or more, the next note turns back the other way",
+              required: true,
+              skills: ["M01"],
+              rule: "custom",
+              fn: "gap-fill",
+              params: { track: "mel", ratio: 0.6, leap: 5 },
+            },
+          ],
+        },
+        constraints: [{ c: "edit-only-regions", feedback: "code.edit-outside" }],
+        target: { audible: true, showRoll: false },
+        feedbackText: { "rubric.unmet": "{label}: not yet. {detail}." },
+        hints: ladder(
+          "Find the leaps on the roll: the big jumps up in bars 1 and 3. What does the tune do right after each one?",
+          "After a leap up, make the next note lower than the leap's top note. A step down is the usual answer.",
+          "Bar 1 leaps from home up to `4`, degree 5. Let its last note step back down from there.",
+        ),
+        tests: [
+          { name: "reference", response: { code: GAP_REFERENCE }, expect: "pass" },
+          {
+            name: "turned back by a smaller leap",
+            response: { code: GAP("[0 ~ 4 2]", "[2 ~ 7 5]") },
+            expect: "pass",
+          },
+          {
+            name: "a bigger leap, then a step back",
+            response: { code: GAP("[0 ~ 5 4]", "[2 ~ 7 6]") },
+            expect: "pass",
+          },
+          { name: "in another rhythm", response: { code: GAP("[0 ~ 4 3]", "[2 7 6 ~]") }, expect: "pass" },
+          {
+            name: "unchanged",
+            response: { code: GAP("[0 ~ 4 5]", "[2 ~ 7 8]") },
+            expect: "fail",
+            feedback: ["code.unchanged"],
+          },
+          {
+            name: "turned back in bar 1 only",
+            response: { code: GAP("[0 ~ 4 3]", "[2 ~ 7 8]") },
+            expect: "fail",
+            feedback: ["rubric.unmet"],
+          },
+          {
+            name: "every leap followed by a step the same way",
+            response: { code: GAP("[0 ~ 5 6]", "[2 ~ 6 7]") },
+            expect: "fail",
+            feedback: ["rubric.unmet"],
+          },
+          {
+            name: "bar 4 changed as well",
+            response: { code: GAP("[0 ~ 4 3]", "[2 ~ 7 6]", "[4 ~ 0 ~]") },
+            expect: "fail",
+            feedback: ["code.edit-outside"],
+          },
+        ],
+      },
     },
     {
       id: "S8",

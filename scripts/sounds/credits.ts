@@ -4,6 +4,7 @@
 // what Oak changed). check.ts holds the licence allow-list and checks that every audio file is covered.
 
 import { SOURCES } from "./library.ts";
+import { MODIFIED_V5, SOURCES_V5 } from "./library-v5.ts";
 import { type CreditEntry, LEGACY_GM, SAMPLE_MAPS } from "./pack.config.ts";
 
 /** Licence texts shipped in LICENSES/ (copied byte-for-byte from their publishers; pinned in the lock). */
@@ -43,6 +44,7 @@ const MODIFIED: Record<string, string> = {
   bigrusty: HITS,
   sonicpi: "trimmed; levelled; FLAC",
   akwf: "unchanged (single-cycle WAV files)",
+  ...MODIFIED_V5,
 };
 
 /** Oak's own sounds (no upstream): released CC0 by Oak. */
@@ -70,7 +72,8 @@ export interface CreditItem {
 export function buildCredits(sounds: Map<string, Set<string>>): CreditItem[] {
   const out: CreditItem[] = [];
   const list = (id: string) => [...(sounds.get(id) ?? [])].sort();
-  for (const [id, s] of Object.entries(SOURCES)) {
+  // v5's sources (library-v5.ts) are listed only when a shipped file comes from them, like every source
+  for (const [id, s] of Object.entries({ ...SOURCES, ...SOURCES_V5 })) {
     if (!sounds.has(id)) continue;
     out.push({
       id,

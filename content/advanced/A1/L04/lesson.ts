@@ -90,13 +90,30 @@ const ROOMS_STARTER = rooms("⟪⟫", "⟪⟫");
 const ROOMS_RIFF_MOVED = rooms("", ".orbit(2)");
 const ROOMS_SNARE_MOVED = rooms(".orbit(2)", "");
 
+/**
+ * S8 (Oak 2.0, Silence and Noise): sparse chords, two hits a bar, dry and short, stacked on three lines (no `,` at
+ * this gate): C (C3 E3 G3) then F (C3 F3 A3), the Band's I | IV. Card B lays a quiet bed of brown noise (A1.L02's
+ * noise, low-passed) under the same chords, so the gaps between them are never silent.
+ */
+/** One voice of the sparse chords: its note under C in bar 1 and under F in bar 2, on beat 1 and the and of 3. */
+const sparse = (underC: string, underF: string) =>
+  `"<[${underC} ~ ~ ~ ~ ${underC} ~ ~] [${underF} ~ ~ ~ ~ ${underF} ~ ~]>"`;
+const DRY_SHORT = '.s("triangle").decay(.3).sustain(0).gain(.5)';
+const SPARSE = [
+  `chords: note(${sparse("c3", "c3")})${DRY_SHORT}`,
+  `chords2: note(${sparse("e3", "f3")})${DRY_SHORT}`,
+  `chords3: note(${sparse("g3", "a3")})${DRY_SHORT}`,
+];
+const CLINICAL = code(...SPARSE);
+const NOISE_BED = code(...SPARSE, 'bed: s("brown").lpf(800).gain(.12)');
+
 const NONE = { roll: false, staff: false, keyboard: false } as const;
 const ROLL = { roll: true, staff: false, keyboard: false } as const;
 const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L04",
-  version: 4,
+  version: 5,
   title: "Space",
   objective: "I can put my loop in a room and give a part echoes in time, each part in its own space.",
   key: { tonic: "C", mode: "major" },
@@ -452,6 +469,53 @@ export default defineLesson({
         correct: {},
         srs: [{ family: "fam.snd.params", mode: "review-if-due" }],
         tests: [],
+      },
+    },
+    {
+      // Oak 2.0 (W2): the book's Silence and Noise, an ungraded compare. Clinical gaps or a bed under them are both
+      // choices; the question only asks the learner to hear which card fills its gaps.
+      id: "S8",
+      kind: "compare",
+      title: "Clinical or a bed",
+      minutes: 0.5,
+      ui: { panels: NONE },
+      exercise: {
+        kind: "identify",
+        id: "clinical-or-a-bed",
+        version: 1,
+        role: "practice",
+        prompt:
+          "Listen to card A and card B: the same short, dry chords, two a bar. Listen to the gaps between the chords, and pick the card where something still sounds in them.",
+        skills: [{ skill: "D05", w: 1 }],
+        hints: ladder(
+          "Listen right after each chord dies away. Is it quiet there in both cards?",
+          "In one card the gaps are silent. In the other a soft, dark hiss stays under everything, chords or no chords.",
+          "Play card A, then card B, and listen to the end of beat 4 in each.",
+        ),
+        stimulus: { src: "code", code: CLINICAL, bars: 2, showCode: false },
+        cue: { context: "none", countInBars: 0, click: false, replays: -1 },
+        answer: {
+          ui: "choice",
+          layout: "audio-cards",
+          options: [
+            { id: "clinical", label: "Card A", audio: CLINICAL },
+            { id: "bed", label: "Card B", audio: NOISE_BED },
+          ],
+        },
+        correct: { choice: ["bed"] },
+        feedbackText: {
+          "id.wrong":
+            "Card A has nothing between its chords: each one dies away into silence. Listen to card B's gaps again: a soft, dark hiss carries on under them.",
+        },
+        tests: [
+          { name: "the card with a bed", response: { answer: { choice: ["bed"] } }, expect: "pass" },
+          {
+            name: "the clinical card",
+            response: { answer: { choice: ["clinical"] } },
+            expect: "fail",
+            feedback: ["id.wrong"],
+          },
+        ],
       },
     },
     {

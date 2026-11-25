@@ -60,6 +60,21 @@ const DRIVING = "<0 5 3 4 0 5 [3 1] [4 0]>";
 const HIDDEN = "<0 [3 4] 5 [1 4]>";
 const BARS: Choice[] = [1, 2, 3, 4].map((b) => ({ id: `bar-${b}`, label: `Bar ${b}` }));
 
+/**
+ * S8 (Oak 2.0 W2; DeSantis, "Harmonic Rhythm"): the chords' pace is not the tune's. Eight bars of I V and vi IV,
+ * two chords a bar, under a tune of eighth notes; the breakdown in bars 5 to 8 halves the chords' pace and keeps the
+ * tune. The tune is G E C E and A G E C (evaluated: beats 1 and 3 are chord notes at the fast pace; under the slow
+ * chords bar 6 puts A and E over G and bar 8 E over F, all eighth notes, so nothing is held a beat a half step from a
+ * chord note). Graded on what is heard: the tune unchanged (`events` on
+ * `mel`), the target's chords per onset (`pcset`), and one chord in each of bars 5 to 8 (`chords-per-bar` on those
+ * bars). Fidelity pins: content/validate/pins/U06.L08.ts.
+ */
+const BUSY = "<[4 2 0 2 4 2 0 2] [5 4 2 0 5 4 2 0]>";
+const TWICE = "[0 4] [5 3] [0 4] [5 3]";
+const breakdown = (bars5to8: string, tune = mel(BUSY)) => code(triads(`<${TWICE} ${bars5to8}>`), tune);
+const BREAKDOWN = breakdown("0 4 5 3");
+const BREAKDOWN_STARTER = breakdown(TWICE);
+
 /** The Make: I vi ii V, one chord a bar. */
 const MAKE_STARTER = code(triads("<0 5 1 4>"));
 
@@ -70,7 +85,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U06.L08",
-  version: 4,
+  version: 5,
   title: "Harmonic Rhythm",
   objective:
     "I can set the pace of a song by changing chords once or twice a bar, and speed up the changes to drive a phrase home.",
@@ -343,6 +358,99 @@ export default defineLesson({
             response: { answer: { choice: ["bar-2"] } },
             expect: "fail",
             feedback: ["id.wrong"],
+          },
+        ],
+      },
+    },
+    {
+      id: "S8",
+      kind: "modify",
+      title: "Busy notes, slow chords",
+      minutes: 1.25,
+      graded: true,
+      ui: { panels: ROLL, rollLabels: "degree", band: DRUMS },
+      exercise: {
+        kind: "code-modify",
+        id: "busy-notes-slow-chords",
+        version: 1,
+        role: "check",
+        prompt:
+          "Bars 5 to 8 are the breakdown. Slow the chords there to half their pace: the same four chords in the same order, I, V, vi, IV, one a bar. Keep the tune and bars 1 to 4 as they are. Done when bars 5 to 8 hold one chord each and the tune still plays eighth notes.",
+        skills: [{ skill: "H06", w: 1 }],
+        code: { starter: BREAKDOWN_STARTER },
+        reference: { solutions: [BREAKDOWN], bars: 8 },
+        matcher: {
+          m: "all",
+          of: [
+            { m: "events", pitch: "absolute", rhythm: "onsets", durations: false, tracks: ["mel"] },
+            { m: "pcset", perOnset: true, bass: false, tracks: ["chords"] },
+            {
+              m: "rubric",
+              rules: [
+                {
+                  id: "breakdown-one-a-bar",
+                  label: "Bars 5 to 8 each hold one chord",
+                  required: true,
+                  skills: ["H06"],
+                  rule: "custom",
+                  fn: "chords-per-bar",
+                  params: { one: 4, max: 1, harmony: "chords" },
+                  section: { bars: [5, 8] },
+                },
+              ],
+            },
+          ],
+        },
+        target: { audible: true, showRoll: false, revealRollAfter: 1 },
+        feedbackText: {
+          "harmony.pcset":
+            "Bar {bar}: your chord has {got}; the target has {exp}. In bars 5 to 8 the four chords keep their order, one a bar.",
+          "rubric.unmet": "{label}: not yet. Each of the last four items of the roots pattern is one bar.",
+          "melody.missing-note":
+            "Bar {bar}, {beatLabel}: the tune lost its note {exp}. Keep `mel` as it is; only the chords slow down.",
+          "melody.wrong-degree":
+            "Bar {bar}, {beatLabel}: the tune has {got} where it had {exp}. Keep `mel` as it is; only the chords slow down.",
+        },
+        hints: ladder(
+          "In bars 1 to 4 the chords change twice a bar. How many times a bar should they change in bars 5 to 8?",
+          "Each `< >` item of the roots is a bar, and brackets put two chords in it. Bars 5 to 8 are the last four items.",
+          "Bar 5 becomes I alone: its item is a single number, no brackets. Then V, vi and IV, one item each.",
+        ),
+        tests: [
+          { name: "reference", response: { code: BREAKDOWN }, expect: "pass" },
+          {
+            name: "each bracket stretched over two bars with @2",
+            response: { code: breakdown("[0 4]@2 [5 3]@2") },
+            expect: "pass",
+          },
+          { name: "V an octave lower", response: { code: breakdown("0 -3 5 3") }, expect: "pass" },
+          {
+            name: "the chords by name",
+            response: {
+              code: code(
+                'chords: chord("<[C G] [Am F] [C G] [Am F] C G Am F>").voicing().s("piano")',
+                mel(BUSY),
+              ),
+            },
+            expect: "pass",
+          },
+          {
+            name: "unchanged",
+            response: { code: BREAKDOWN_STARTER },
+            expect: "fail",
+            feedback: ["code.unchanged"],
+          },
+          {
+            name: "one chord a bar, but only the first of each pair",
+            response: { code: breakdown("0 5 0 5") },
+            expect: "fail",
+            feedback: ["harmony.pcset"],
+          },
+          {
+            name: "the tune slowed with the chords",
+            response: { code: breakdown("0 4 5 3", mel(BUSY).replace(".scale(", ".slow(2).scale(")) },
+            expect: "fail",
+            feedback: ["melody.missing-note"],
           },
         ],
       },

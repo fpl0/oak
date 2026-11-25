@@ -83,6 +83,19 @@ const SWAP_SOLUTION = swapped(drums("0 2 1 3"));
 /** S5: the stimulus, the middle swapped, drums alone so the order is plain. */
 const MIDDLE_SWAPPED = code(drums("0 2 1 3"));
 
+/**
+ * S8 (Oak 2.0, Sampling the Old-Fashioned Way): on an old sampler, speed, pitch and length are one dial. Three bars
+ * of the break's four pieces: bar 1 as recorded, bar 2 at twice the speed (each piece half a beat long, an octave
+ * up), bar 3 at half the speed (each piece two beats long, an octave down). The speeds are given; the learner places
+ * the pieces so each fills its place, so the speed sets the rhythm: the four pieces twice in bar 2 (double time),
+ * the first two in bar 3 (half time). Graded by what plays: the onsets (`rhythm`), and which piece at which speed
+ * on each (`controls` on `begin` and `speed`, event by event), so the speeds must stay three different values.
+ */
+const SPEEDS = '.speed("<1 2 .5>")';
+const atSpeeds = (order: string, speeds = SPEEDS) => code(`drums: s("brk").slice(4, "${order}")${speeds}`);
+const SPEED_STARTER = atSpeeds("<[0 1 2 3] ⟪[0 1 2 3] [0 1 2 3]⟫>");
+const SPEED_SOLUTION = atSpeeds("<[0 1 2 3] [0 1 2 3]*2 [0 1]>");
+
 /** S7 and the Make (S6) play at the song's tempo, 90 BPM: the tempo `brkboombap` was recorded at (breaks.json). */
 const SONG_BPM = 90;
 const songCode = (...lines: string[]) => `setcpm(${SONG_BPM}/4)\n\n${lines.join("\n")}`;
@@ -112,7 +125,7 @@ const BAND = { band: "band.aeolian-4bar", tracks: ["bass", "chords"] } as const;
 
 export default defineLesson({
   id: "A2.L04",
-  version: 4,
+  version: 5,
   title: "Sampling",
   objective: "I can cut a drum recording into pieces and play them back in an order of my own.",
   key: { tonic: "A", mode: "minor" },
@@ -434,6 +447,110 @@ export default defineLesson({
             response: { answer: { choice: ["boombap"], number: 2 } },
             expect: "fail",
             feedback: ["investigate.wrong"],
+          },
+        ],
+      },
+    },
+    {
+      // Oak 2.0 (W2): the book's Sampling the Old-Fashioned Way. Placed before the Make (step ids are never
+      // renumbered).
+      id: "S8",
+      kind: "modify",
+      title: "Speed changes the rhythm",
+      minutes: 1,
+      graded: true,
+      ui: { panels: ROLL },
+      exercise: {
+        kind: "code-modify",
+        id: "speed-changes-the-rhythm",
+        version: 1,
+        role: "check",
+        prompt:
+          "Bar 2 plays the break at twice its speed, bar 3 at half. Keep the speeds. Change the pieces of bars 2 and 3 so each piece fills its place: no gap after a piece, no piece running into the next. Keep bar 1. Done when bar 2 plays the four pieces twice and bar 3 the first two.",
+        skills: [{ skill: "D11", w: 1 }],
+        code: { starter: SPEED_STARTER },
+        reference: { solutions: [SPEED_SOLUTION], bars: 3 },
+        matcher: {
+          m: "all",
+          of: [
+            {
+              m: "rhythm",
+              tol: [1, 16],
+              durations: false,
+              perRole: false,
+              displacementCredit: 0.5,
+              tracks: ["drums"],
+            },
+            {
+              m: "controls",
+              track: "drums",
+              controls: [
+                { control: "begin", scale: "exact", tol: 0 },
+                { control: "speed", scale: "linear", tol: 0.05 },
+              ],
+            },
+          ],
+        },
+        target: { audible: true, showRoll: false },
+        feedbackText: {
+          "code.control-off":
+            "Not yet: a piece plays at another speed, or another piece plays, than the target's. Each bar keeps its speed: as recorded, twice as fast, half as fast.",
+        },
+        hints: ladder(
+          "Listen to bar 2: each piece ends halfway through its beat and a gap follows. What does twice the speed do to a piece's length?",
+          "At twice the speed a piece lasts half a beat, so a bar holds twice as many; at half the speed it lasts two beats, so a bar holds half as many.",
+          "In bar 2, play the whole phrase of four pieces in half a bar, then again. In bar 3, keep only its first half.",
+        ),
+        tests: [
+          { name: "reference", response: { code: SPEED_SOLUTION }, expect: "pass" },
+          {
+            name: "bar 2 written out in eight",
+            response: { code: atSpeeds("<[0 1 2 3] [0 1 2 3 0 1 2 3] [0 1]>") },
+            expect: "pass",
+          },
+          {
+            name: "the speeds written first",
+            response: {
+              code: code('drums: s("brk").speed("<1 2 .5>").slice(4, "<[0 1 2 3] [0 1 2 3]*2 [0 1]>")'),
+            },
+            expect: "pass",
+          },
+          {
+            name: "three bars of their own, each with its speed",
+            response: {
+              code: code(
+                'const recorded = s("brk").slice(4, "0 1 2 3").speed(1)',
+                'const double = s("brk").slice(4, "[0 1 2 3]*2").speed(2)',
+                'const half = s("brk").slice(4, "0 1").speed(.5)',
+                "",
+                "drums: arrange([1, recorded], [1, double], [1, half])",
+              ),
+            },
+            expect: "pass",
+          },
+          {
+            name: "unchanged",
+            response: { code: atSpeeds("<[0 1 2 3] [0 1 2 3] [0 1 2 3]>") },
+            expect: "fail",
+            feedback: ["code.unchanged"],
+          },
+          {
+            name: "the right function, every speed 1: the new rhythm written in, the pieces gapped and overlapping",
+            response: { code: atSpeeds("<[0 1 2 3] [0 1 2 3]*2 [0 1]>", '.speed("<1 1 1>")') },
+            expect: "fail",
+            feedback: ["code.control-off"],
+          },
+          {
+            name: "bar 2's eight places filled with each piece twice",
+            response: { code: atSpeeds("<[0 1 2 3] [0 0 1 1 2 2 3 3] [0 1]>") },
+            expect: "fail",
+            feedback: ["code.control-off"],
+          },
+          {
+            name: "the two bars swapped: eight pieces at half speed, two at double",
+            response: { code: atSpeeds("<[0 1 2 3] [0 1] [0 1 2 3]*2>") },
+            expect: "fail",
+            feedback: ["rhythm.missing"],
           },
         ],
       },

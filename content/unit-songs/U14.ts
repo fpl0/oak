@@ -363,7 +363,11 @@ const POP: Kit = {
     chorus: v("hh*16", V16),
     bridge: null,
     outro: v("<[hh*8]!7 ~>", V8),
-    only: { verse2: v("[hh hh hh oh]*2", V8) },
+    only: {
+      verse2: v("[hh hh hh oh]*2", V8),
+      // The second chorus: the hi-hat opens on the "and" of 4 at the end of every fourth bar.
+      chorus2: v("<[hh*16]!3 [hh!14 oh ~]>", V16),
+    },
   },
   perc: {
     intro: v("<cr ~ ~ ~ cr ~ ~ ~>"),
@@ -448,7 +452,11 @@ const INDIE: Kit = {
     // The floor tom rolls with the strum's three-three-two under the bridge's long chords.
     bridge: v("<[cr, [lt ~ ~ lt ~ ~ lt ~]] [lt ~ ~ lt ~ ~ lt ~]!7>"),
     outro: v("<cr ~ ~ ~ cr ~ ~ cr>"),
-    only: { chorus3: v("<[cr, tb*8] [tb*8]!3>", V8) },
+    only: {
+      // The second chorus: the tambourine moves to the off-beats in its last four bars.
+      chorus2: v("<[cr, [~ tb ~ tb]] [~ tb ~ tb]!3 [cr, [~ tb]*4] [[~ tb]*4]!3>"),
+      chorus3: v("<[cr, tb*8] [tb*8]!3>", V8),
+    },
   },
   bass: {
     intro: "{r}@8",
@@ -535,6 +543,12 @@ const JAZZ: Kit = {
     chorus: v("<[cr, rd*8] [rd*8]!3>", V8),
     bridge: v("<[cr, rd*4] [rd*4, [~ ~ ~ ~ ~ ~ lt lt]]!7>"),
     outro: v(`<[cr, ${RIDE}] [${RIDE}]!6 cr>`, V8),
+    // The choruses are not copies of each other: the tambourine joins the ride on 2 and 4 in the second chorus's last
+    // four bars, and on every off-beat in the last chorus.
+    only: {
+      chorus2: v("<[cr, rd*8] [rd*8]!3 [cr, rd*8, [~ tb]*2] [rd*8, [~ tb]*2]!3>", V8),
+      chorus3: v("<[cr, rd*8, [~ tb]*4] [rd*8, [~ tb]*4]!3>", V8),
+    },
   },
   bass: {
     intro: "{r}@8",
@@ -623,7 +637,12 @@ const FUNK: Kit = {
     chorus: v("<[cr, [~ cb ~ cb]] [~ cb ~ cb]!3>"),
     bridge: v("<[cr, [~ ~ ~ ~ ~ ~ lt lt]] [~ ~ ~ ~ ~ ~ lt lt]!7>"),
     outro: v("<cr ~ ~ ~ cr ~ ~ cr>"),
-    only: { verse2: v("<[cr, sh*8] [sh*8]!3>", V8), chorus3: v("<[cr, [~ cb]*4] [[~ cb]*4]!3>") },
+    only: {
+      verse2: v("<[cr, sh*8] [sh*8]!3>", V8),
+      // The second chorus: a shaker on the off-beats joins the cowbell in its last four bars.
+      chorus2: v("<[cr, [~ cb ~ cb]] [~ cb ~ cb]!3 [cr, [~ cb ~ cb], [~ sh]*4] [[~ cb ~ cb], [~ sh]*4]!3>"),
+      chorus3: v("<[cr, [~ cb]*4] [[~ cb]*4]!3>"),
+    },
   },
   bass: {
     intro: "{r}@16",
@@ -734,7 +753,11 @@ const ELECTRONIC: Kit = {
     chorus: v("<[cr, [~ rd]*4] [[~ rd]*4]!3>"),
     bridge: v("<cr ~ ~ ~ ~ ~ ~ [~ ~ [lt lt] [ht ht]]>"),
     outro: v("<cr ~ ~ ~ cr ~ ~ cr>"),
-    only: { chorus3: v("<[cr, rd*8] [rd*8]!3>", V8) },
+    only: {
+      // The second chorus: a shaker in eighths joins the ride in its last four bars.
+      chorus2: v("<[cr, [~ rd]*4] [[~ rd]*4]!3 [cr, [~ rd]*4, sh*8] [[~ rd]*4, sh*8]!3>"),
+      chorus3: v("<[cr, rd*8] [rd*8]!3>", V8),
+    },
   },
   bass: {
     intro: "{r}",
@@ -880,7 +903,7 @@ const take = (
 export const U14_SONG = defineUnitSong({
   id: "usong.U14",
   unit: "U14",
-  version: 1,
+  version: 2,
   title: "Four colours",
   meter: "4/4",
   key: { tonic: "G", mode: "mixolydian" },

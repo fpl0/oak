@@ -46,6 +46,22 @@ No code this time. A held chord gives a slow movement the most room to be heard.
 <OnPass>The brightness: an LFO on the cutoff. The notes and the level stayed put while the top of the sound opened and closed. The pad in the opening's loop 2 moved the same way.</OnPass>
 </Step>
 
+<Step id="S8">
+An LFO glides: it gives every chord a new cutoff. A setting can also move in steps, holding one value for a while and then jumping, so the movement keeps time with the drums.
+
+<Editor exercise="steps-not-sweeps" />
+
+<OnPass>The brightness now holds, then jumps, then holds again: the movement has a rhythm of its own, a second groove on top of the notes. A glide and a step can move the same setting, and they sound nothing alike.</OnPass>
+</Step>
+
+<Step id="S9">
+A player never strikes two chords exactly alike. A slow random wave can give your parts that small drift. <CodeRef fn="perlin" />
+
+<Example id="drift" views="code" />
+
+<OnPass>No two chords were quite the same length or brightness, yet nothing sounded wrong. A narrow drift sounds like a steady hand; a wide one, a loose one. A little of it keeps a loop that repeats for minutes from sounding stamped out.</OnPass>
+</Step>
+
 <Step id="S7">
 In your song, this loop plays both build-ups before the choruses: there Oak's chords pulse while their cutoff climbs for four bars, a pad swells in, the tune holds long notes with a vibrato, and a noise riser climbs under it all. Oak's chords keep playing under your pad. One more thing can move: the wave itself. `wt_morph` is a wavetable of many shapes in a row; `.wtrate()` sweeps through them that many times a second and `.wtdepth()` sets how far, so the pad changes colour while it holds. <CodeRef fn="wt" />
 

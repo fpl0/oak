@@ -156,13 +156,25 @@ const make = (o: Partial<Sections> = {}) =>
   });
 const SAME_TWICE = make();
 
+/**
+ * S7 (Oak 2.0, Creating Harmony 2): the house pad. Four notes held over a 909 kick on every beat, C E G B (a bright
+ * chord on C), then the same four notes with a low A held under them: A C E G B, heard as one soft minor chord on A
+ * with two notes stacked above it (the minor 9th of house and deep house; the name waits for sevenths, U12). The
+ * bass names the chord. Every pad note is in A minor's scale, and none sits a half step from the A.
+ */
+const HOUSE_KICK = `kick: s("bd*4")${TR909}.gain(.8)`;
+const HOUSE_PAD = 'pad: note("[c4,e4,g4,b4]").s("strings").attack(.3).release(.8).gain(.35)';
+const HOUSE_BASS = 'bass: note("a1").s("sawtooth").lpf(300).attack(.05).release(.5).gain(.6)';
+const PAD_ALONE = `${TEMPO}${HOUSE_KICK}\n${HOUSE_PAD}`;
+const PAD_OVER_A = `${TEMPO}${HOUSE_KICK}\n${HOUSE_PAD}\n${HOUSE_BASS}`;
+
 const NONE = { roll: false, staff: false, keyboard: false } as const;
 const ROLL = { roll: true, staff: false, keyboard: false } as const;
 const BAND_CHORDS = { band: "band.aeolian-4bar", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A2.L06",
-  version: 4,
+  version: 5,
   title: "Genre Translation",
   objective: "I can arrange one tune in two styles: a ballad and a driving version.",
   key: { tonic: "A", mode: "minor" },
@@ -428,6 +440,31 @@ export default defineLesson({
             expect: "fail",
             feedback: ["id.wrong"],
           },
+        ],
+      },
+    },
+    {
+      // Oak 2.0 (W2): the book's Creating Harmony 2 for non-jazz ears, an ungraded listen. Placed before the Make
+      // (step ids are never renumbered).
+      id: "S7",
+      kind: "listen",
+      title: "The house pad",
+      minutes: 0.5,
+      ui: { panels: ROLL },
+      example: { id: "house-pad", code: PAD_OVER_A, bars: 2 },
+      exercise: {
+        kind: "listen",
+        id: "the-house-pad",
+        version: 1,
+        role: "practice",
+        prompt:
+          "Listen to the pad in both loops: the same four notes, C E G B. Loop 2 adds one low note under them. Listen for how the pad's mood changes when it arrives.",
+        skills: [{ skill: "F06", w: 1 }],
+        hints: null,
+        tests: [],
+        items: [
+          { code: PAD_ALONE, caption: "Loop 1: the pad over the kick.", bars: 2 },
+          { code: PAD_OVER_A, caption: "Loop 2: the same pad, a low A held under it.", bars: 2 },
         ],
       },
     },

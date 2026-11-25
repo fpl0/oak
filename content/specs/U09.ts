@@ -107,11 +107,51 @@ const L05_SONG = [
   'mel: arrange([4, melIntro], [4, melVerse]).s("piano")',
 ].join("\n");
 
+/** U09.L06 (Oak 2.0 W2): the intro of Arranging in Code, the verse, and an outro the parts leave in reverse order. */
+const L06_HOOK = [
+  'const chordsIntro = chord("<C Am F G>").voicing().mask("<0 0 1 1>")',
+  'const chordsVerse = chord("<C Am F G>").voicing()',
+  'const chordsOutro = chord("<F G C C>").voicing().mask("<1 1 0 0>")',
+  'const bassIntro = n("<0 5 3 4>").scale("C2:major").mask("<0 1 1 1>")',
+  'const bassVerse = n("<0 5 3 4>").scale("C2:major")',
+  'const bassOutro = n("<3 4 0 0>").scale("C2:major").mask("<1 1 1 0>")',
+  'const melIntro = n("<~ ~ ~ [~ ~ 4 5]>").scale("C4:major")',
+  'const melVerse = n("<[7 ~ 4 2] [0 ~ 2 ~] [3 ~ 5 3] [4 ~ ~ ~]>").scale("C4:major")',
+  'const melOutro = n("<[5 ~ 3 ~] [6 ~ 4 ~] [7 ~ 4 2] [0 ~ ~ ~]>").scale("C4:major").mask("<1 0 0 0>")',
+  'const drumsIntro = s("bd hh sd hh bd hh sd hh").gain("[.8 .4]*4")',
+  'const drumsVerse = s("bd hh sd hh bd hh sd hh").gain("[.8 .4]*4")',
+  'const drumsOutro = s("<[bd hh sd hh bd hh sd hh]!3 [bd ~ ~ ~]>").gain("[.8 .4]*4")',
+  "",
+  "drums: arrange([4, drumsIntro], [4, drumsVerse], [4, drumsOutro])",
+  'chords: arrange([4, chordsIntro], [4, chordsVerse], [4, chordsOutro]).s("piano")',
+  'bass: arrange([4, bassIntro], [4, bassVerse], [4, bassOutro]).s("ebass").lpf(600)',
+  'mel: arrange([4, melIntro], [4, melVerse], [4, melOutro]).s("piano")',
+].join("\n");
+
+/** U09.L07 (Oak 2.0 W2): one loop carved into four sections. */
+const L07_HOOK = [
+  'const drumsVerse = s("bd ~ sd ~ bd ~ sd ~").gain(.8)',
+  'const drumsChorus = s("bd ~ sd ~ bd ~ sd ~").gain(.8)',
+  'const chordsIntro = chord("<C Am F G>").voicing()',
+  'const chordsVerse = chord("<C Am F G>").voicing()',
+  'const chordsChorus = chord("<C Am F G>").voicing()',
+  'const chordsOutro = chord("<C Am F G>").voicing()',
+  'const bassVerse = n("<[0 ~ 0 0] [5 ~ 5 5] [3 ~ 3 3] [4 ~ 4 4]>").scale("C2:major")',
+  'const bassChorus = n("<[0 ~ 0 0] [5 ~ 5 5] [3 ~ 3 3] [4 ~ 4 4]>").scale("C2:major")',
+  'const melChorus = n("<[7 ~ 4 2] [0 ~ 2 ~] [3 ~ 5 3] [4 ~ ~ ~]>").scale("C4:major")',
+  'const melOutro = n("<[7 ~ 4 2] [0 ~ 2 ~] [3 ~ 5 3] [4 ~ ~ ~]>").scale("C4:major")',
+  "",
+  "drums: arrange([4, silence], [4, drumsVerse], [4, drumsChorus], [4, silence])",
+  'chords: arrange([4, chordsIntro], [4, chordsVerse], [4, chordsChorus], [4, chordsOutro]).s("piano")',
+  'bass: arrange([4, silence], [4, bassVerse], [4, bassChorus], [4, silence]).s("ebass").lpf(600)',
+  'mel: arrange([4, silence], [4, silence], [4, melChorus], [4, melOutro]).s("piano")',
+].join("\n");
+
 export const U09: UnitSpec = {
   unit: "U09",
   title: "Form",
   summary:
-    "Five lessons on how a song is put together from sections, taught on the kind of music the learner has already made: the four-bar hooks of U07, C2's eight bars that loop and land, the bass lines of U08. Bars group into four-bar phrases and phrases into sections, the first bar of each four feeling strong (hypermeter, U09.L01); two sections that contrast, verse and chorus, written as section `const`s with one `arrange()` per labelled track (U09.L02, the exemplar); two more song forms, AABA with its bridge and strophic, heard in songs the learner already knows (U09.L03); the energy curve, with a build-up drawn by a signal (`saw.range(.2, .9).slow(4)`) and stepped with `.segment()` (U09.L04); and arranging, parts entering and leaving by bar with `.mask()` (U09.L05). U09.CP covers U08 and U09 and opens C3 Verse–Chorus Demo (four sessions since contracts 1.6) and the side lessons A1.L05–L07. In the default order U09.L01–L04 follow GYM.04; GYM.05 sits before U09.L05, and U10.L01 comes before U09.CP (session 96), so the checkpoint falls on a later day than the unit's last lesson.",
+    "Seven lessons on how a song is put together from sections, taught on the kind of music the learner has already made: the four-bar hooks of U07, C2's eight bars that loop and land, the bass lines of U08. Bars group into four-bar phrases and phrases into sections, the first bar of each four feeling strong (hypermeter, U09.L01); two sections that contrast, verse and chorus, written as section `const`s with one `arrange()` per labelled track (U09.L02, the exemplar); two more song forms, AABA with its bridge and strophic, heard in songs the learner already knows (U09.L03); the energy curve, with a build-up drawn by a signal (`saw.range(.2, .9).slow(4)`) and stepped with `.segment()` (U09.L04); arranging, parts entering and leaving by bar with `.mask()` (U09.L05); and, from Oak 2.0, endings written on purpose (U09.L06) and arranging by taking parts away from a loop where everything plays, with a blurred seam and a moment heard once (U09.L07). U09.CP covers U08 and U09 and opens C3 Verse–Chorus Demo (four sessions since contracts 1.6) and the side lessons A1.L05–L07. In the default order U09.L01–L04 follow GYM.04; GYM.05 sits before U09.L05, and U10.L01 comes before U09.CP (session 96), so the checkpoint falls on a later day than the unit's last lesson.",
   conventions: [
     'Sections in code (contracts §6.3, STYLE §10). Each section of each part is a `const` named `<role><Section>` in camelCase: `chordsVerse`, `bassChorus`, `melA`, `hatsBuild`, `fxBuild`; the role prefix is a label of STYLE §2, the section word one of `intro verse pre chorus bridge solo break head vamp lift outro` or a letter `a b c`, with a digit for a variant (`melChorus2` is a chorus). Every labelled track that changes between sections gets **one** `arrange()` at the root of its chain (`chords: arrange([4, chordsVerse], [4, chordsChorus]).s("piano")`), listing the same sections with the same bar counts as every other arranged track; a part that rests in a section uses `silence`; a part that never changes stays a plain line (a through track). `arrange()` is never wrapped (`stack(arrange(…))`, `arrange(…).mask(…)` across sections is fine only as a method chain on the same track).',
     "Sections restart (contracts §6.3 item 7, evaluated): inside `arrange()` every section plays from its own bar 1, so a section's length is a whole multiple of its pattern's length (`<C Am F G>` is four bars: sections of 4 or 8, never 6; `form.section-period` otherwise), a build drawn with `.slow(4)` inside a four-bar section starts again at each section, and an intro's `.mask(\"<0 1 1 1>\")` lets the bass in at bar 2 of the intro every time the intro plays. Anything that must run across sections (a fade over the whole song) goes after `arrange()`.",
@@ -528,6 +568,20 @@ export const U09: UnitSpec = {
           what: 'The riser is a smooth curve and plays nothing (`fxBuild = n(saw.range(0, 8)⟪⟫.slow(4))`): step it into eight notes with `.segment(8)` (`events`, absolute, `tracks: ["fx"]`, 12 bars; `must-use tb.segment`). Equivalent: `saw.segment(8).range(0, 8)` (the same eight values, evaluated).',
         },
         {
+          kind: "listen",
+          exercise: "listen",
+          minutes: 0.5,
+          what: 'Oak 2.0 W2 (DeSantis, "Repetition and Insistence"), S8: over drums only, `n(rand.range(0, 7).segment(8))` picks eight new notes every bar (4 bars), then its first bar, C4 A4 F4 F4 E4 D4 E4 F4, repeated eight times. Listen for the moment the repeated bar stops sounding random. Ungraded.',
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1,
+          optional: true,
+          what: 'S9 "Freeze the bar" (optional): write bar 1 of the `rand` line as fixed numbers, `n("[0 5 3 3 2 1 2 3]")`, so the same bar plays every time. `rubric`: `matches` ≥ 0.75 against that bar looped (melody, absolute; Oak\'s loose call: a quarter of the notes may change) + custom `no-chance` `{ track: "mel" }` (no `rand`, `?`, `.degradeBy()`, `.sometimesBy()` left).',
+        },
+        {
           kind: "make",
           exercise: "code-make",
           answer: ["code"],
@@ -556,6 +610,7 @@ export const U09: UnitSpec = {
       srs: [{ family: "fam.frm.sections", mode: "review-if-due", level: 2 }],
       mistakes: [
         "S4: `saw.range(.9, .2)` (falls instead of rising): fails the `controls` match; pin what the grader says",
+        "S9: the frozen notes with `.degradeBy(.2)` kept: `rubric.unmet` (no-chance) with `melody.missing-note`; bar 2's notes frozen instead: `rubric.unmet` (matches)",
         "S4: `saw.range(.2, .9)` without `.slow(4)` (rises every bar and drops back): fails",
         "S6: `.segment(4)` (four notes, C E G B): `melody.missing-note`; `.segment(8)` after `.slow(4)` (eight notes a bar, 32 in the build): `melody.extra-note`; pin what the grader prints",
         'S6: the riser written as fixed notes `n("<[0 1] [2 3] [4 5] [6 7]>")`: passes (same events); the step\'s prompt asks for `.segment()`, so add `must-use tb.segment` with `code.must-use`',
@@ -689,6 +744,233 @@ export const U09: UnitSpec = {
       notes: [
         'Evaluated: in the hook the bass plays bars 2–8, the chords bars 3–8, the tune\'s lead-in G A on beats 3 and 4 of bar 4 into C5 on bar 5. `.mask("<0 1 1 1>")` inside a const that sits in a four-bar section restarts with the section (contracts §6.3 item 7).',
         "The drop step's reference is verse (4 bars) then chorus (4 bars) with `bassVerse` masked `<1 1 1 0>`: the bass is silent in bar 4 only.",
+      ],
+    },
+    {
+      id: "U09.L06",
+      author: "content-lead",
+      idea: 'Oak 2.0 W2 (DeSantis, "Three Ways to End", "Short Loops as Endings"). A song ends on purpose: its parts leave one at a time in the reverse order they came in, a loop of the last bar gets shorter as it repeats, a repeating loop fades away, or the music lands on a new last bar, V to I or one final hit, and stops. The closing section is the outro.',
+      hook: {
+        hear: "Three twelve- and eight-bar songs on the same chords, each ending a different way: the intro of Arranging in Code mirrored (the tune leaves first, then the chords, then the bass, one kick last); the last bar looped shorter and shorter; a fill into C after G and one hit with a crash.",
+        code: `${T(100)}${L06_HOOK}`,
+      },
+      key: C,
+      meter: "4/4",
+      bpm: 100,
+      canDo: ["cd.compose.ending"],
+      uses: [...BASE, ...VOICED, ...FORM, ...DRUMS, "tb.mask", "tb.signal", "tb.range", "snd.drum.cr"],
+      steps: [
+        {
+          kind: "listen",
+          exercise: "listen",
+          minutes: 0.75,
+          what: "Three endings: parts leave in the reverse of the intro (12 bars), a shrinking loop of the last bar (8 bars), a fill, V to I and one last hit (8 bars).",
+        },
+        {
+          kind: "predict",
+          exercise: "predict",
+          answer: ["choice"],
+          minutes: 0.5,
+          what: "The hook's outro masks (`melOutro` `<1 0 0 0>`, `chordsOutro` `<1 1 0 0>`, `bassOutro` `<1 1 1 0>`): which part stops first? (`choose`: the tune.)",
+        },
+        {
+          kind: "investigate",
+          exercise: "run-investigate",
+          answer: ["choice", "number"],
+          panels: ["form"],
+          minutes: 1,
+          what: "The hook with the roll: which part plays the last bar alone (choice: the drums, one kick); the last bar the bass plays in (number: 11).",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          panels: ["form"],
+          minutes: 1.25,
+          graded: true,
+          what: 'A song whose intro brings the chords, then the bass, then the tune: in the outro make them leave in the reverse order with a `.mask()` on each outro part. `rubric`: custom `ends-on-purpose` `{ modes: ["exit-order"] }` (at least two parts stop inside the last section for good; none stops before a part that came in after it; ties allowed).',
+          term: "term.outro",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          minutes: 1.25,
+          graded: true,
+          what: "The outro loops the phrase's last bar, G E D C, four times: rewrite it as that bar twice, its second half twice, its last note four times. `rubric`: custom `ends-on-purpose` `{ modes: [\"shrinking-tail\"] }` (the loop of material heard before gets shorter at least once: one shortening is enough, Oak's call written in the rule).",
+        },
+        {
+          kind: "compare",
+          exercise: "identify",
+          answer: ["choice"],
+          minutes: 0.5,
+          what: "Two cards fade over their last four bars (`.gain(saw.range(.8, 0).slow(4))`): one fades a bar that repeats, the other fades over new chords. Pick the one that fades a loop.",
+          term: "term.fade-out",
+        },
+        {
+          kind: "make",
+          exercise: "code-make",
+          answer: ["code"],
+          panels: ["form"],
+          minutes: 2.75,
+          what: "Intro, verse and an eight-bar outro that is the verse twice: end the song on purpose, any way from today or a cadence on a new last bar.",
+        },
+      ],
+      wrapAt: 4,
+      make: {
+        brief:
+          "Your song from earlier lessons has an intro, a verse and an eight-bar outro that plays the verse twice and just stops. Rewrite the outro so the song ends on purpose: parts leave in turn, a loop of the last bar shrinks, a repeating loop fades, a build, or a new last bar that lands V to I or on one final hit.",
+        required: {
+          rule: "custom",
+          label: "The outro ends on purpose",
+          why: "custom `ends-on-purpose` with every mode (exit-order, shrinking-tail, build-out, fades-out, cadence, final-hit). `cadence` and `final-hit` count only on a last bar heard nowhere earlier, so a verse that already ended on a stop bar does not pass by being played again. The starter (the verse twice to the last beat) fails.",
+        },
+        suggestions: [],
+        band: false,
+        flavours:
+          "No Band: an ending is heard in the silence after it, and a Band would play on into it (AUTHORING §8 rule 8); the song carries its own drums. Jazz-soul swaps `piano` for `rhodes` and `ebass` for `upright`.",
+      },
+      srs: [{ family: "fam.frm.sections", mode: "review-if-due" }],
+      mistakes: [
+        "S4: the parts leave in the order they came in (chords first, tune last): `rubric.unmet`",
+        'S4: a `.mask("1")` on every outro part, nothing silenced: `rubric.unmet`; only the tune leaves: `rubric.unmet`',
+        "S5: the bar squeezed faster (`[[4 2 1 0]*2]`) instead of cut shorter: `rubric.unmet`; shorter, then back to the whole bar: `rubric.unmet`",
+        "Make: every part stopping at the same moment on a bar heard before: `rubric.unmet`; a fade down to 0 (see notes)",
+        "the unchanged starters: `code.unchanged`; Make starter: `rubric.unmet`",
+      ],
+      connects: {
+        back: "U09.L05 opened a song by bringing parts in with `.mask()`; U09.L04 drew a curve with `saw.range()`; U05's V to I ends a phrase.",
+        forward:
+          "U09.L07 carves a whole song out of one loop by taking parts away; C3 and every capstone from C6 on ask for a song that ends on purpose.",
+      },
+      epr: {
+        enjoyment:
+          "The learner's song stops sounding like a loop that was switched off and starts ending like a record: parts walking off one by one, a last bar that stutters shorter, a fade, or a final hit.",
+        pace: "One idea, four ways to do it, two of them graded (parts leaving, a shrinking loop). The fade and the cadence are heard and allowed in the Make; build-out is allowed without being taught.",
+        return:
+          "The Coda says: you can end a song on purpose in more than one way. Next: carving a song from one where everything plays all the time.",
+      },
+      notes: [
+        "Evaluated: in the hook the tune plays bar 9 only, the chords bars 9–10, the bass bars 9–11, and the drums end on one kick in bar 12; `ends-on-purpose` exit-order reads it as the tune after bar 9, the chords after bar 10, the bass after bar 11.",
+        "A fade to silence fails `fades-out` in production grading (W0 rule, reported in W2): the grader leaves out notes more than 24 dB under the loudest (`audibleInMix`), so the fade's last bars no longer repeat the loop. A fade down to `.05` or more passes; the Make's fade test and hint use `.1`.",
+        "The take fills the song's eight-bar outro (`usong.U09`), so the Make's outro is eight bars; it takes the drums there as well, because the Make carries its own.",
+      ],
+    },
+    {
+      id: "U09.L07",
+      author: "content-lead",
+      idea: 'Oak 2.0 W2 (DeSantis, "Arranging as a Subtractive Process", "The Power of Erasing", "Fuzzy Boundaries", "Unique Events"). Start from one loop that every part plays in every section and only delete, whole parts or notes, until the sections differ; let one part stop a beat or two before a seam (a fuzzy boundary); let one bar happen only once (a unique event).',
+      hook: {
+        hear: "One loop in four sections, twice: every part everywhere, then carved: chords alone in the intro, drums and bass in for the verse, the tune saved for the chorus, the outro thinning out.",
+        code: `${T(100)}${L07_HOOK}`,
+      },
+      key: C,
+      meter: "4/4",
+      bpm: 100,
+      canDo: ["cd.compose.carve"],
+      uses: [...BASE, ...VOICED, ...FORM, ...DRUMS, "tb.mask", "snd.drum.oh", "snd.drum.cr"],
+      steps: [
+        {
+          kind: "listen",
+          exercise: "listen",
+          minutes: 0.5,
+          what: "Two items, 16 bars each: everything everywhere, then the same loop carved.",
+        },
+        {
+          kind: "predict",
+          exercise: "predict",
+          answer: ["number"],
+          minutes: 0.5,
+          what: "The carved version's code: how many parts play in the verse? (`count`: 3, drums, chords, bass.)",
+        },
+        {
+          kind: "investigate",
+          exercise: "run-investigate",
+          answer: ["choice", "number"],
+          panels: ["form"],
+          minutes: 1,
+          what: "Which section plays every part (choice: the chorus); in how many sections is the bass silent (number: 2).",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          panels: ["form"],
+          minutes: 1.25,
+          graded: true,
+          what: "Everything everywhere (chords, bass, tune in four sections): carve by deleting only. `rubric`: custom `carved` `{ minDiffer: 2 }` (the fullest section has every part; every other section's bars are its bars with parts or notes taken out; at least two line-ups of parts).",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          panels: ["form"],
+          minutes: 1.25,
+          graded: true,
+          what: 'The carved song with hats of its own: the verse\'s hats stop for the last two beats before the chorus, `s("<hh*8 hh*8 hh*8 [hh*4 ~]>")`, while the rest change on the bar line. `rubric`: custom `staggered-boundary` `{ min: 1 }` (a whole-bar move or every part moving by the same amount does not count).',
+          term: "term.fuzzy-boundary",
+        },
+        {
+          kind: "modify",
+          exercise: "code-modify",
+          answer: ["code"],
+          panels: ["form"],
+          minutes: 1.25,
+          graded: true,
+          what: "Verse, chorus, verse, chorus with drums: a `drumsVerse2` whose last bar (bar 12) is a fill or a stop, heard once. `rubric`: custom `unique-event` `{ min: 1 }` (one bar of one part heard once, inside a section that comes back; a whole new section heard once does not count).",
+          term: "term.unique-event",
+        },
+        {
+          kind: "make",
+          exercise: "code-make",
+          answer: ["code"],
+          panels: ["form"],
+          minutes: 2.75,
+          what: "Your song with every part everywhere, over Oak's drums: carve it into sections.",
+        },
+      ],
+      wrapAt: 4,
+      make: {
+        brief:
+          "Every part of your song (chords, bass, tune) plays in every section over Oak's drums. Carve it by deleting only, so the sections differ; if you like, blur one seam or let one bar happen once.",
+        required: {
+          rule: "custom",
+          label: "The sections are carved from the fullest one",
+          why: "custom `carved` `{ minDiffer: 2 }`. An additive build (a part playing something the fullest section never plays) fails, and so does every section losing the same part. The starter fails.",
+        },
+        suggestions: [
+          "a fuzzy boundary at one seam (custom `staggered-boundary` `{ min: 1 }`)",
+          "one bar heard once inside a section played twice (custom `unique-event` `{ min: 1 }`)",
+          "an arc: the fullest section has a thinner one before and after it (custom `arc`)",
+        ],
+        band: "band.axis-4bar",
+        tracks: ["drums"],
+        flavours:
+          "Drums from the Band in the flavour's kit; the learner's chords, bass and tune are their own; jazz-soul swaps `piano` for `rhodes` and `ebass` for `upright`.",
+      },
+      srs: [{ family: "fam.frm.sections", mode: "review-if-due" }],
+      mistakes: [
+        "S4: a new bass line in the verse that the chorus never plays: `rubric.unmet`; the tune out of every section (one line-up): `rubric.unmet`; a section left out of one `arrange()`: `form.inconsistent-arrange`",
+        "S5: the hats silent for the whole bar before the chorus (a bar-line move): `rubric.unmet`; the first half silenced instead: `rubric.unmet`",
+        "S6: the fill written into `drumsVerse`, heard in both verses: `rubric.unmet`; `drumsVerse2` written but left out of the `arrange()`: `rubric.unmet`",
+        "the unchanged starters: `code.unchanged`; Make starter: `rubric.unmet`",
+      ],
+      connects: {
+        back: "U09.L02–L05 built songs up, section by section and part by part; U09.L06 ended them on purpose.",
+        forward:
+          "C3 Verse–Chorus Demo and every later capstone offer the seam, the once-only moment and the arc as suggestions; A2.L08 builds a whole arrangement down from its peak.",
+      },
+      epr: {
+        enjoyment:
+          "The learner finds an arrangement by taking away, the fast way producers work, and hears a drop of two beats or one bar that happens once make the song feel written rather than looped.",
+        pace: "One idea, subtractive arranging, with two small moves in its service (a blurred seam, a once-only bar). The arc is a suggestion only.",
+        return:
+          "The Coda says: you can arrange by taking parts away and blur a section change. Next: minor keys in U10, then the U09 checkpoint.",
+      },
+      notes: [
+        "`carved` counts line-ups of parts: a carve made only by masking bars and thinning notes, with every part still playing somewhere in every section, has one line-up and fails (W0 rule, reported in W2). The prompt asks for at least two different sets of parts, which is what the rule checks.",
+        "`staggered-boundary` reads shifts only in parts whose material repeats every one or two bars inside the sections on both sides of the seam (hats, a drum groove, a pedal): a bass or chords that change every bar can stop early or hold over without the rule seeing it (reported in W2). S5 therefore moves the hats.",
+        "The take fills the song's intro, verses and choruses with the learner's carved sections (four-bar sections looping inside the song's eight-bar ones); the outro stays the ending of U09.L06.",
       ],
     },
   ],

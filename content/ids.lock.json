@@ -1491,6 +1491,10 @@
       "kind": "example"
     },
     {
+      "id": "A1.L06@drift",
+      "kind": "example"
+    },
+    {
       "id": "A1.L06@hook",
       "kind": "example"
     },
@@ -1564,6 +1568,10 @@
     },
     {
       "id": "A2.L06@hook",
+      "kind": "example"
+    },
+    {
+      "id": "A2.L06@house-pad",
       "kind": "example"
     },
     {
@@ -1684,6 +1692,14 @@
     },
     {
       "id": "J3.L04@walking-trio",
+      "kind": "example"
+    },
+    {
+      "id": "J3.L05@held-stack",
+      "kind": "example"
+    },
+    {
+      "id": "J3.L05@over-d",
       "kind": "example"
     },
     {
@@ -1808,6 +1824,14 @@
     },
     {
       "id": "R1.L05@read-the-move",
+      "kind": "example"
+    },
+    {
+      "id": "R1.L06@one-line",
+      "kind": "example"
+    },
+    {
+      "id": "R1.L06@the-line",
       "kind": "example"
     },
     {
@@ -2439,6 +2463,14 @@
       "kind": "example"
     },
     {
+      "id": "U06.L13@hook",
+      "kind": "example"
+    },
+    {
+      "id": "U06.L13@how-far",
+      "kind": "example"
+    },
+    {
       "id": "U07.L01@find-the-top",
       "kind": "example"
     },
@@ -2575,6 +2607,18 @@
       "kind": "example"
     },
     {
+      "id": "U07.L11@hook",
+      "kind": "example"
+    },
+    {
+      "id": "U07.L11@moved-up",
+      "kind": "example"
+    },
+    {
+      "id": "U07.L11@which-copy",
+      "kind": "example"
+    },
+    {
       "id": "U08.L01@hook",
       "kind": "example"
     },
@@ -2615,6 +2659,14 @@
       "kind": "example"
     },
     {
+      "id": "U08.L06@count-the-collisions",
+      "kind": "example"
+    },
+    {
+      "id": "U08.L06@hook",
+      "kind": "example"
+    },
+    {
       "id": "U09.L01@count-the-phrases",
       "kind": "example"
     },
@@ -2643,6 +2695,10 @@
       "kind": "example"
     },
     {
+      "id": "U09.L04@chance-then-again",
+      "kind": "example"
+    },
+    {
       "id": "U09.L04@four-bars-that-rise",
       "kind": "example"
     },
@@ -2656,6 +2712,22 @@
     },
     {
       "id": "U09.L05@who-comes-in-when",
+      "kind": "example"
+    },
+    {
+      "id": "U09.L06@hook",
+      "kind": "example"
+    },
+    {
+      "id": "U09.L06@the-way-out",
+      "kind": "example"
+    },
+    {
+      "id": "U09.L07@hook",
+      "kind": "example"
+    },
+    {
+      "id": "U09.L07@where-the-bass-rests",
       "kind": "example"
     },
     {
@@ -3175,6 +3247,10 @@
       "kind": "exercise"
     },
     {
+      "id": "A1.L04/clinical-or-a-bed",
+      "kind": "exercise"
+    },
+    {
       "id": "A1.L04/dry-and-placed",
       "kind": "exercise"
     },
@@ -3248,6 +3324,14 @@
     },
     {
       "id": "A1.L06/other-things-that-move",
+      "kind": "exercise"
+    },
+    {
+      "id": "A1.L06/slow-drift",
+      "kind": "exercise"
+    },
+    {
+      "id": "A1.L06/steps-not-sweeps",
       "kind": "exercise"
     },
     {
@@ -3391,6 +3475,10 @@
       "kind": "exercise"
     },
     {
+      "id": "A2.L04/speed-changes-the-rhythm",
+      "kind": "exercise"
+    },
+    {
       "id": "A2.L04/swap-the-middle",
       "kind": "exercise"
     },
@@ -3400,6 +3488,10 @@
     },
     {
       "id": "A2.L04/which-order",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L05/front-middle-back",
       "kind": "exercise"
     },
     {
@@ -3443,6 +3535,10 @@
       "kind": "exercise"
     },
     {
+      "id": "A2.L06/the-house-pad",
+      "kind": "exercise"
+    },
+    {
       "id": "A2.L06/two-ways",
       "kind": "exercise"
     },
@@ -3452,6 +3548,30 @@
     },
     {
       "id": "A2.L06/what-stayed",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L08/carve-the-sections",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L08/count-verse-parts",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L08/find-the-missing-part",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L08/hear-the-build",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L08/hear-the-peak",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L08/write-your-peak",
       "kind": "exercise"
     },
     {
@@ -3796,6 +3916,30 @@
     },
     {
       "id": "J3.L04/your-walking-bass",
+      "kind": "exercise"
+    },
+    {
+      "id": "J3.L05/measure-the-stack",
+      "kind": "exercise"
+    },
+    {
+      "id": "J3.L05/same-notes-new-bass",
+      "kind": "exercise"
+    },
+    {
+      "id": "J3.L05/stack-the-fourths",
+      "kind": "exercise"
+    },
+    {
+      "id": "J3.L05/the-bass-names-it",
+      "kind": "exercise"
+    },
+    {
+      "id": "J3.L05/which-one-is-home",
+      "kind": "exercise"
+    },
+    {
+      "id": "J3.L05/your-loop-in-fourths",
       "kind": "exercise"
     },
     {
@@ -4172,6 +4316,30 @@
     },
     {
       "id": "R1.L05/your-figure-moved",
+      "kind": "exercise"
+    },
+    {
+      "id": "R1.L06/find-the-groups",
+      "kind": "exercise"
+    },
+    {
+      "id": "R1.L06/hats-in-the-gaps",
+      "kind": "exercise"
+    },
+    {
+      "id": "R1.L06/three-three-two",
+      "kind": "exercise"
+    },
+    {
+      "id": "R1.L06/together-or-in-turn",
+      "kind": "exercise"
+    },
+    {
+      "id": "R1.L06/top-or-bottom",
+      "kind": "exercise"
+    },
+    {
+      "id": "R1.L06/your-one-line-groove",
       "kind": "exercise"
     },
     {
@@ -5939,6 +6107,10 @@
       "kind": "exercise"
     },
     {
+      "id": "U06.L08/busy-notes-slow-chords",
+      "kind": "exercise"
+    },
+    {
       "id": "U06.L08/count-the-changes",
       "kind": "exercise"
     },
@@ -6075,6 +6247,30 @@
       "kind": "exercise"
     },
     {
+      "id": "U06.L13/close-or-as-a-block",
+      "kind": "exercise"
+    },
+    {
+      "id": "U06.L13/how-far-it-slides",
+      "kind": "exercise"
+    },
+    {
+      "id": "U06.L13/one-colour-four-places",
+      "kind": "exercise"
+    },
+    {
+      "id": "U06.L13/slide-the-shape",
+      "kind": "exercise"
+    },
+    {
+      "id": "U06.L13/which-one-slides",
+      "kind": "exercise"
+    },
+    {
+      "id": "U06.L13/your-sliding-loop",
+      "kind": "exercise"
+    },
+    {
       "id": "U07.L01/a-line-that-goes-somewhere",
       "kind": "exercise"
     },
@@ -6084,6 +6280,10 @@
     },
     {
       "id": "U07.L01/hear-the-shape",
+      "kind": "exercise"
+    },
+    {
+      "id": "U07.L01/leap-then-turn-back",
       "kind": "exercise"
     },
     {
@@ -6363,8 +6563,16 @@
       "kind": "exercise"
     },
     {
-      "id": "U07.L10/let-chance-in",
+      "id": "U07.L10/freeze-it",
       "kind": "exercise"
+    },
+    {
+      "id": "U07.L10/let-chance-in",
+      "kind": "exercise",
+      "retiredAt": "contracts-2.2",
+      "supersededBy": [
+        "U07.L10/freeze-it"
+      ]
     },
     {
       "id": "U07.L10/now-and-then",
@@ -6384,6 +6592,38 @@
     },
     {
       "id": "U07.L10/your-hook",
+      "kind": "exercise"
+    },
+    {
+      "id": "U07.L11/backwards-two-ways",
+      "kind": "exercise"
+    },
+    {
+      "id": "U07.L11/four-copies",
+      "kind": "exercise"
+    },
+    {
+      "id": "U07.L11/later-in-the-bar",
+      "kind": "exercise"
+    },
+    {
+      "id": "U07.L11/start-it-later",
+      "kind": "exercise"
+    },
+    {
+      "id": "U07.L11/under-the-motif",
+      "kind": "exercise"
+    },
+    {
+      "id": "U07.L11/upside-down",
+      "kind": "exercise"
+    },
+    {
+      "id": "U07.L11/what-a-copy-keeps",
+      "kind": "exercise"
+    },
+    {
+      "id": "U07.L11/which-copy",
       "kind": "exercise"
     },
     {
@@ -6535,6 +6775,30 @@
       "kind": "exercise"
     },
     {
+      "id": "U08.L06/bass-into-the-gaps",
+      "kind": "exercise"
+    },
+    {
+      "id": "U08.L06/count-the-collisions",
+      "kind": "exercise"
+    },
+    {
+      "id": "U08.L06/kick-and-bass-take-turns",
+      "kind": "exercise"
+    },
+    {
+      "id": "U08.L06/short-or-held",
+      "kind": "exercise"
+    },
+    {
+      "id": "U08.L06/stop-before-the-kick",
+      "kind": "exercise"
+    },
+    {
+      "id": "U08.L06/together-or-in-turn",
+      "kind": "exercise"
+    },
+    {
       "id": "U09.L01/count-the-phrases",
       "kind": "exercise"
     },
@@ -6615,7 +6879,15 @@
       "kind": "exercise"
     },
     {
+      "id": "U09.L04/chance-then-again",
+      "kind": "exercise"
+    },
+    {
       "id": "U09.L04/four-bars-that-rise",
+      "kind": "exercise"
+    },
+    {
+      "id": "U09.L04/freeze-the-bar",
       "kind": "exercise"
     },
     {
@@ -6668,6 +6940,62 @@
     },
     {
       "id": "U09.L05/who-comes-in-when",
+      "kind": "exercise"
+    },
+    {
+      "id": "U09.L06/end-your-song",
+      "kind": "exercise"
+    },
+    {
+      "id": "U09.L06/fade-a-loop",
+      "kind": "exercise"
+    },
+    {
+      "id": "U09.L06/leave-in-turn",
+      "kind": "exercise"
+    },
+    {
+      "id": "U09.L06/shrink-the-loop",
+      "kind": "exercise"
+    },
+    {
+      "id": "U09.L06/the-way-out",
+      "kind": "exercise"
+    },
+    {
+      "id": "U09.L06/three-ways-out",
+      "kind": "exercise"
+    },
+    {
+      "id": "U09.L06/who-goes-first",
+      "kind": "exercise"
+    },
+    {
+      "id": "U09.L07/blur-a-seam",
+      "kind": "exercise"
+    },
+    {
+      "id": "U09.L07/carve-your-song",
+      "kind": "exercise"
+    },
+    {
+      "id": "U09.L07/everything-then-less",
+      "kind": "exercise"
+    },
+    {
+      "id": "U09.L07/once-only",
+      "kind": "exercise"
+    },
+    {
+      "id": "U09.L07/take-parts-away",
+      "kind": "exercise"
+    },
+    {
+      "id": "U09.L07/where-the-bass-rests",
+      "kind": "exercise"
+    },
+    {
+      "id": "U09.L07/who-is-left",
       "kind": "exercise"
     },
     {
@@ -10439,6 +10767,10 @@
       "kind": "family"
     },
     {
+      "id": "fam.har.motion",
+      "kind": "family"
+    },
+    {
       "id": "fam.har.progression",
       "kind": "family"
     },
@@ -12708,6 +13040,10 @@
       "kind": "step"
     },
     {
+      "id": "A1.L04/S8",
+      "kind": "step"
+    },
+    {
       "id": "A1.L05/S1",
       "kind": "step"
     },
@@ -12761,6 +13097,14 @@
     },
     {
       "id": "A1.L06/S7",
+      "kind": "step"
+    },
+    {
+      "id": "A1.L06/S8",
+      "kind": "step"
+    },
+    {
+      "id": "A1.L06/S9",
       "kind": "step"
     },
     {
@@ -12908,6 +13252,10 @@
       "kind": "step"
     },
     {
+      "id": "A2.L04/S8",
+      "kind": "step"
+    },
+    {
       "id": "A2.L05/S1",
       "kind": "step"
     },
@@ -12936,6 +13284,10 @@
       "kind": "step"
     },
     {
+      "id": "A2.L05/S8",
+      "kind": "step"
+    },
+    {
       "id": "A2.L06/S1",
       "kind": "step"
     },
@@ -12957,6 +13309,34 @@
     },
     {
       "id": "A2.L06/S6",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L06/S7",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L08/S1",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L08/S2",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L08/S3",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L08/S4",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L08/S5",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L08/S6",
       "kind": "step"
     },
     {
@@ -13277,6 +13657,30 @@
     },
     {
       "id": "J3.L04/S5",
+      "kind": "step"
+    },
+    {
+      "id": "J3.L05/S1",
+      "kind": "step"
+    },
+    {
+      "id": "J3.L05/S2",
+      "kind": "step"
+    },
+    {
+      "id": "J3.L05/S3",
+      "kind": "step"
+    },
+    {
+      "id": "J3.L05/S4",
+      "kind": "step"
+    },
+    {
+      "id": "J3.L05/S5",
+      "kind": "step"
+    },
+    {
+      "id": "J3.L05/S6",
       "kind": "step"
     },
     {
@@ -13605,6 +14009,30 @@
     },
     {
       "id": "R1.L05/S6",
+      "kind": "step"
+    },
+    {
+      "id": "R1.L06/S1",
+      "kind": "step"
+    },
+    {
+      "id": "R1.L06/S2",
+      "kind": "step"
+    },
+    {
+      "id": "R1.L06/S3",
+      "kind": "step"
+    },
+    {
+      "id": "R1.L06/S4",
+      "kind": "step"
+    },
+    {
+      "id": "R1.L06/S5",
+      "kind": "step"
+    },
+    {
+      "id": "R1.L06/S6",
       "kind": "step"
     },
     {
@@ -15288,6 +15716,10 @@
       "kind": "step"
     },
     {
+      "id": "U06.L08/S8",
+      "kind": "step"
+    },
+    {
       "id": "U06.L09/S1",
       "kind": "step"
     },
@@ -15396,6 +15828,30 @@
       "kind": "step"
     },
     {
+      "id": "U06.L13/S1",
+      "kind": "step"
+    },
+    {
+      "id": "U06.L13/S2",
+      "kind": "step"
+    },
+    {
+      "id": "U06.L13/S3",
+      "kind": "step"
+    },
+    {
+      "id": "U06.L13/S4",
+      "kind": "step"
+    },
+    {
+      "id": "U06.L13/S5",
+      "kind": "step"
+    },
+    {
+      "id": "U06.L13/S6",
+      "kind": "step"
+    },
+    {
       "id": "U07.L01/S1",
       "kind": "step"
     },
@@ -15425,6 +15881,10 @@
     },
     {
       "id": "U07.L01/S8",
+      "kind": "step"
+    },
+    {
+      "id": "U07.L01/S9",
       "kind": "step"
     },
     {
@@ -15680,6 +16140,38 @@
       "kind": "step"
     },
     {
+      "id": "U07.L11/S1",
+      "kind": "step"
+    },
+    {
+      "id": "U07.L11/S2",
+      "kind": "step"
+    },
+    {
+      "id": "U07.L11/S3",
+      "kind": "step"
+    },
+    {
+      "id": "U07.L11/S4",
+      "kind": "step"
+    },
+    {
+      "id": "U07.L11/S5",
+      "kind": "step"
+    },
+    {
+      "id": "U07.L11/S6",
+      "kind": "step"
+    },
+    {
+      "id": "U07.L11/S7",
+      "kind": "step"
+    },
+    {
+      "id": "U07.L11/S8",
+      "kind": "step"
+    },
+    {
       "id": "U08.L01/S1",
       "kind": "step"
     },
@@ -15812,6 +16304,30 @@
       "kind": "step"
     },
     {
+      "id": "U08.L06/S1",
+      "kind": "step"
+    },
+    {
+      "id": "U08.L06/S2",
+      "kind": "step"
+    },
+    {
+      "id": "U08.L06/S3",
+      "kind": "step"
+    },
+    {
+      "id": "U08.L06/S4",
+      "kind": "step"
+    },
+    {
+      "id": "U08.L06/S5",
+      "kind": "step"
+    },
+    {
+      "id": "U08.L06/S6",
+      "kind": "step"
+    },
+    {
       "id": "U09.L01/S1",
       "kind": "step"
     },
@@ -15920,6 +16436,14 @@
       "kind": "step"
     },
     {
+      "id": "U09.L04/S8",
+      "kind": "step"
+    },
+    {
+      "id": "U09.L04/S9",
+      "kind": "step"
+    },
+    {
       "id": "U09.L05/S1",
       "kind": "step"
     },
@@ -15945,6 +16469,62 @@
     },
     {
       "id": "U09.L05/S7",
+      "kind": "step"
+    },
+    {
+      "id": "U09.L06/S1",
+      "kind": "step"
+    },
+    {
+      "id": "U09.L06/S2",
+      "kind": "step"
+    },
+    {
+      "id": "U09.L06/S3",
+      "kind": "step"
+    },
+    {
+      "id": "U09.L06/S4",
+      "kind": "step"
+    },
+    {
+      "id": "U09.L06/S5",
+      "kind": "step"
+    },
+    {
+      "id": "U09.L06/S6",
+      "kind": "step"
+    },
+    {
+      "id": "U09.L06/S7",
+      "kind": "step"
+    },
+    {
+      "id": "U09.L07/S1",
+      "kind": "step"
+    },
+    {
+      "id": "U09.L07/S2",
+      "kind": "step"
+    },
+    {
+      "id": "U09.L07/S3",
+      "kind": "step"
+    },
+    {
+      "id": "U09.L07/S4",
+      "kind": "step"
+    },
+    {
+      "id": "U09.L07/S5",
+      "kind": "step"
+    },
+    {
+      "id": "U09.L07/S6",
+      "kind": "step"
+    },
+    {
+      "id": "U09.L07/S7",
       "kind": "step"
     },
     {
