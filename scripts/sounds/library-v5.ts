@@ -23,13 +23,19 @@
 // Measured on the v4 files (2026-11-25): no v4 kit has a matched hat pair. jazzkit hh:0 (closed) and hh:1
 // (pedal) differ by 2-6 kHz in spectral centroid and 150-260 ms in decay; rockkit hh:0 (tip) and hh:1 (chik)
 // by 1-1.7 kHz; oak909/oak808 hh:1 is a longer hat than hh:0. The synthesised kits' pairs and soft strokes come
-// from synth-v5.ts (X13) when it lands.
+// from synth-v5.ts (X13), appended the same way (SYNTH_KIT_ADDITIONS below):
+//   oak909, oak808  hh:2 / hh:3   alternate hands of one synthesised hat (hh:0 and hh:1 are NOT a pair)
+//   oak909, oak808  hh:4          a soft hat stroke
+//   oak909, oak808  sd:3          a soft snare stroke
+//   oak909          sh:0, tb:0    a shaker and a tambourine of Oak's own (v4's oak909 had neither, so `s("sh")` and
+//                                 `s("tb")` on the 909 played the default kit's; they now play these)
 //
 // The soft strokes' levels (8-11 dB under the loud stroke of the same role) are Oak's call, not a rule of
 // drumming: a ghost note is a stroke played softly, so it is darker and shorter as well as quieter. Every level
 // and length in this file is "listen first" (docs/decisions.md): set by measurement, never heard.
 
 import type { DrumRole, OneShotSpec, Source, SourceId } from "./library.ts";
+import type { PlainRole } from "./synth-v5.ts";
 
 const CC0 = "https://creativecommons.org/publicdomain/zero/1.0/";
 
@@ -248,4 +254,30 @@ export const ONE_SHOT_APPENDS: Record<string, MixdownV5[]> = {
 /** What Oak did to the new sources' files (credits.ts). */
 export const MODIFIED_V5: Record<keyof typeof SOURCES_V5, string> = {
   kenney: "selected lines; decoded from Ogg Vorbis; trimmed; levelled; FLAC",
+};
+
+/** What synth-v5.ts renders for a synthesised kit's appended variant. */
+export type SynthAddition = "hand:0" | "hand:1" | "ghost" | "shaker" | "tambourine";
+
+/**
+ * Variants appended to the synthesised kits (kit -> role -> new variants, in `n` order after the v4 ones).
+ * A role v4's kit did not have starts at 0 (oak909's `sh` and `tb`). synth-v5.ts sets every level: the hat pair
+ * at the role's level, the soft strokes 10 dB under the kit's loud stroke (Oak's call, listen first).
+ */
+export const SYNTH_KIT_ADDITIONS: Record<"oak909" | "oak808", Partial<Record<DrumRole, SynthAddition[]>>> = {
+  oak909: { sd: ["ghost"], hh: ["hand:0", "hand:1", "ghost"], sh: ["shaker"], tb: ["tambourine"] },
+  oak808: { sd: ["ghost"], hh: ["hand:0", "hand:1", "ghost"] },
+};
+
+/**
+ * Oak's plain sounds (synth-v5.ts `renderPlain`): one per pitched role, the sounds "plain sounds" and the plain
+ * start play (`PLAIN_SOUNDS` in @oak/content-kit). Sample aliases (pack.config.ts `OAK_ALIASES`): a note every
+ * `PLAIN_STEP` half steps over `PLAIN_RANGES`, levelled to the piano. The tuned kick (`renderTunedKick`,
+ * `tkick`) is not shipped: superdough already pitches `s("sbd").note(…)` (source reading; the browser check
+ * the W2 plan asks for has not run).
+ */
+export const PLAIN_ALIASES: Record<PlainRole, string> = {
+  bass: "plainbass",
+  keys: "plainkeys",
+  lead: "plainlead",
 };

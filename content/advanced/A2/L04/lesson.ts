@@ -96,6 +96,19 @@ const atSpeeds = (order: string, speeds = SPEEDS) => code(`drums: s("brk").slice
 const SPEED_STARTER = atSpeeds("<[0 1 2 3] ⟪[0 1 2 3] [0 1 2 3]⟫>");
 const SPEED_SOLUTION = atSpeeds("<[0 1 2 3] [0 1 2 3]*2 [0 1]>");
 
+/**
+ * S9 (Oak 2.0, Implied Rhythm in Short Loops), optional: a tiny loop of speech and nothing else. One voice of sound pack
+ * v5's `speech` (Kenney's CC0 Voiceover Pack): "set" (`n` 5) on the first and fourth eighths of each bar and "go" (`n`
+ * 6) on the seventh, so the words fall 3 + 3 + 2 eighths apart. No drum plays the beat; the words alone make the
+ * rhythm, and the learner taps the words. Graded by the taps against the loop's onsets, as every tap step is. The
+ * clips are one syllable each, so a word is one tap. Listen first: the clips' length and level were set by
+ * measurement, never heard.
+ */
+const WORDS = code('vox: s("speech ~ ~ speech ~ ~ speech ~").n("5 ~ ~ 5 ~ ~ 6 ~")');
+/** Seconds after the count-in of the given eighth notes (96 BPM: an eighth is 0.3125 s). */
+const at = (eighths: number[]) => eighths.map((e) => Math.round((e * 30000) / BPM) / 1000);
+const bars4 = (perBar: number[]) => [0, 8, 16, 24].flatMap((b) => perBar.map((e) => b + e));
+
 /** S7 and the Make (S6) play at the song's tempo, 90 BPM: the tempo `brkboombap` was recorded at (breaks.json). */
 const SONG_BPM = 90;
 const songCode = (...lines: string[]) => `setcpm(${SONG_BPM}/4)\n\n${lines.join("\n")}`;
@@ -125,7 +138,7 @@ const BAND = { band: "band.aeolian-4bar", tracks: ["bass", "chords"] } as const;
 
 export default defineLesson({
   id: "A2.L04",
-  version: 5,
+  version: 6,
   title: "Sampling",
   objective: "I can cut a drum recording into pieces and play them back in an order of my own.",
   key: { tonic: "A", mode: "minor" },
@@ -555,6 +568,47 @@ export default defineLesson({
             expect: "fail",
             feedback: ["rhythm.missing"],
           },
+        ],
+      },
+    },
+    {
+      // Oak 2.0 (W5, sound pack v5): the book's Implied Rhythm in Short Loops, an optional tap step. Placed before the
+      // Make (step ids are never renumbered).
+      id: "S9",
+      kind: "tap",
+      title: "Tap the words",
+      minutes: 1.25,
+      optional: true,
+      ui: { panels: NONE, band: false },
+      exercise: {
+        kind: "tap",
+        id: "tap-the-words",
+        version: 1,
+        role: "practice",
+        prompt:
+          "A short loop of a voice, and nothing else: no drum plays the beat. Tap with the words, not with a count. Four bars after a bar of count-in. Done when each tap lands with a word.",
+        skills: [{ skill: "D11", w: 1 }],
+        hints: ladder(
+          "Listen to where the words fall, not to where a beat would be. Do they come at an even pace?",
+          "Two words come at the same distance, and the third comes sooner; then the loop starts again.",
+          "Count eighths quietly, 1 to 8: the words land on one, four and seven.",
+        ),
+        mode: "along",
+        stimulus: { src: "code", code: WORDS, bars: 4, showCode: false },
+        cue: { context: "none", countInBars: 1, click: false, replays: -1 },
+        bars: 4,
+        target: { track: "vox" },
+        tol: { windowMs: "auto", tempo: "locked", forgiveOffset: true, passF1: 0.8, passTiming: 0.7 },
+        feedbackText: {
+          "tap.missed":
+            "A word went by without a tap. Listen for each word, the short gap as well as the long ones.",
+          "tap.extra": "A tap landed where no word is. Tap the words you hear, not an even beat.",
+        },
+        tests: [
+          { name: "with the words: 3+3+2", response: { taps: at(bars4([0, 3, 6])) }, expect: "pass" },
+          { name: "on every beat, as a count", response: { taps: at(bars4([0, 2, 4, 6])) }, expect: "fail" },
+          { name: "on beats 1 and 3", response: { taps: at(bars4([0, 4])) }, expect: "fail" },
+          { name: "no taps", response: { taps: [] }, expect: "fail" },
         ],
       },
     },

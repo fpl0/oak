@@ -234,7 +234,7 @@ const FREEZE_STARTER = randomBar(`⟪${RANDOM_LINE}⟫`);
 
 export default defineLesson({
   id: "U09.L04",
-  version: 5,
+  version: 6,
   title: "The Energy Curve",
   objective: "I can draw a build-up with a signal so the chorus lands with more energy than the verse.",
   key: { tonic: "C", mode: "major" },
@@ -564,10 +564,11 @@ export default defineLesson({
       exercise: {
         kind: "code-modify",
         id: "freeze-the-bar",
-        version: 1,
+        // 2 (W5, owner item 1): the label and the Done-when line drop "3 in 4".
+        version: 2,
         role: "practice",
         prompt:
-          'Run the loop and read bar 1 on the roll. Replace the highlighted chance line with those eight notes as fixed numbers, `n("…")`, so the same bar plays every time. Change one note if you like. Done when no chance is left and 3 in 4 notes match bar 1.',
+          'Run the loop and read bar 1 on the roll. Replace the highlighted chance line with those eight notes as fixed numbers, `n("…")`, so the same bar plays every time. Change one note if you like. Done when no chance is left and all but a few notes match bar 1.',
         skills: [{ skill: "F05", w: 1 }],
         code: { starter: FREEZE_STARTER },
         reference: { solutions: [FROZEN], bars: 4 },
@@ -576,7 +577,7 @@ export default defineLesson({
           rules: [
             {
               id: "kept",
-              label: "At least 3 in 4 of the notes are the ones chance played in bar 1, in every bar",
+              label: "All but a few of the notes are the ones chance played in bar 1, in every bar",
               required: true,
               skills: ["F05"],
               rule: "matches",
@@ -590,8 +591,8 @@ export default defineLesson({
                 track: "mel",
               },
               // Oak's call, kept loose: a quarter of the notes may change. The score is 0.7 × the share of right
-              // pitches + 0.3 × the rhythm, so with the rhythm kept 0.82 is "3 in 4 pitches" as the label says
-              // (0.75 let a third of them change; X14).
+              // pitches + 0.3 × the rhythm, so with the rhythm kept 0.82 is 3 in 4 pitches (0.75 let a third of them
+              // change; X14). The label says "all but a few", never the number (W5, owner item 1).
               min: 0.82,
             },
             {

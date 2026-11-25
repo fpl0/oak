@@ -36,6 +36,14 @@ export const TRACK_TOOL_DEMOS: Readonly<Record<string, ToolDemo>> = {
     ),
     hint: "The vibraphone: struck metal bars with a soft, ringing tone, the lead voice of many jazz trios. Every note it plays on a beat belongs to the chord under it.",
   },
+  "snd.brush": {
+    code: trio(
+      'drums: s("rd [rd rd] rd [rd rd]").swingBy(1/3, 4).bank("jazzkit")',
+      'snare: s("brush ~ brush brush").n("0 ~ 1 2").gain(.8)',
+      BASS_TWO,
+    ),
+    hint: "Brushes on a snare, on their own line: n 0 is a sweep, a stir that keeps sounding under the beat; 1 and 2 are a soft and a firm tap. Try the taps on 2 and 4 only.",
+  },
   "chord.sixth-sus": {
     code: trio(
       RIDE,
@@ -438,6 +446,25 @@ export const TRACK_TOOL_DEMOS: Readonly<Record<string, ToolDemo>> = {
     ].join("\n"),
     hint: "Found sounds as percussion: foley, snap, impact, swoosh and scratch, chopped like a break.",
   },
+  "snd.fall": {
+    code: [
+      "setcpm(96/4)",
+      "",
+      'drums: s("brk").loopAt(1)',
+      'fx: s("~ ~ ~ fall").n("<0 1>").gain(.7)',
+      'bass: note("<[a1 ~ a1 c2] [f1 ~ f1 g1]>").s("fingerbass")',
+    ].join("\n"),
+    hint: "A trombone fall: a note that slides away at the end of a phrase. Placed on the last beat of the bar, it tips the loop into the next one.",
+  },
+  "snd.speech": {
+    code: [
+      "setcpm(96/4)",
+      "",
+      'drums: s("brk").loopAt(1)',
+      'vox: s("speech ~ ~ speech ~ ~ speech ~").n("5 ~ ~ 5 ~ ~ 6 ~")',
+    ].join("\n"),
+    hint: "Spoken words as a sound: n picks the word (0 to 3 count one to four; 4, 5 and 6 say ready, set, go). Where the words fall in the bar makes a rhythm of its own.",
+  },
   "snd.marimba": {
     code: pop(100, 'mel: n("<[0 2 4 2] [4 5 7 4]>").scale("C4:major").s("marimba")'),
     hint: "A marimba: wooden bars, a soft attack and a short ring. Try kalimba or glockenspiel on the same line.",
@@ -461,6 +488,10 @@ export const TRACK_TOOL_DEMOS: Readonly<Record<string, ToolDemo>> = {
   "snd.drum.bongo": {
     code: pop(100, 'perc: s("bongo*8").n("0 1 3 1 0 1 4 1")'),
     hint: "The bongos keep a steady eighth-note pattern: high and low drums, accented on the beat.",
+  },
+  "snd.drum.guiro": {
+    code: pop(100, 'perc: s("guiro ~ guiro guiro").n("0 ~ 1 1")'),
+    hint: "The güiro is a ridged gourd scraped with a stick: a long scrape on the beat, two short ones after it. n 2 is a fast scrape, n 3 a slow one.",
   },
   "snd.brk": {
     code: [

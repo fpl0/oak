@@ -49,8 +49,21 @@ const MODIFIED: Record<string, string> = {
 
 /** Oak's own sounds (no upstream): released CC0 by Oak. */
 const OAK: Record<string, { title: string; modified: string }> = {
-  "oak-oak909": { title: "oak909 drum machine", modified: "synthesised by scripts/sounds/drummachine.ts" },
-  "oak-oak808": { title: "oak808 drum machine", modified: "synthesised by scripts/sounds/drummachine.ts" },
+  "oak-oak909": {
+    title: "oak909 drum machine",
+    modified:
+      "synthesised by scripts/sounds/drummachine.ts; v5's hat pair, soft strokes, shaker and tambourine by scripts/sounds/synth-v5.ts",
+  },
+  "oak-oak808": {
+    title: "oak808 drum machine",
+    modified:
+      "synthesised by scripts/sounds/drummachine.ts; v5's hat pair and soft strokes by scripts/sounds/synth-v5.ts",
+  },
+  "oak-plain": {
+    title: "Oak plain sounds (plainbass, plainkeys, plainlead)",
+    modified:
+      "synthesised by scripts/sounds/synth-v5.ts: a sine bass with a quiet second harmonic, a decaying two-partial electric-piano-like tone, a rounded three-partial triangle lead",
+  },
   "oak-breaks": {
     title: "Oak breaks (brk, brkfunk, brkboombap, brkjungle, brkhouse, brkjazz, brklofi)",
     modified:
@@ -179,9 +192,9 @@ export function creditsMarkdown(version: string, items: CreditItem[]): string {
     `# Oak sound pack ${version}: credits and licences`,
     "",
     "CC BY works are credited as their authors ask; CC0, Unlicense and MIT works are credited as a courtesy.",
-    "Oak's own renders (drum machines, breaks, wavetables, tape) are released CC0. The last entry, the General",
-    "MIDI presets kept from earlier packs, is the one exception: its source SoundFonts' licences could not be",
-    "verified, and each is to be replaced. Licence texts are in LICENSES/.",
+    "Oak's own renders (drum machines, plain sounds, breaks, wavetables, tape) are released CC0. The last entry,",
+    "the General MIDI presets kept from earlier packs, is the one exception: its source SoundFonts' licences could",
+    "not be verified, and each is to be replaced. Licence texts are in LICENSES/.",
     "",
     "Music you make with these sounds is yours.",
     "",

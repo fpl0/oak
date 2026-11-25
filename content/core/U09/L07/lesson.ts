@@ -146,18 +146,20 @@ const rule = (id: string, fn: string, label: string, required: boolean, params =
   fn,
   params,
 });
+// "Clearly fewer notes" is `carved`'s own threshold (CARVED_THIN, a quarter fewer: Oak's call, kept in the rule and
+// never shown as a target; W5, owner item 1).
 const CARVED_RULE = (required: boolean) =>
   rule(
     "carved",
     "carved",
-    "The fullest section has every part, every other section plays only what it plays at the same place with parts or notes taken out, and at least one section leaves out a part or a quarter of the notes",
+    "The fullest section has every part, every other section plays only what it plays at the same place with parts or notes taken out, and at least one section leaves out a part or plays clearly fewer notes",
     required,
     { minDiffer: 2 },
   );
 
 export default defineLesson({
   id: "U09.L07",
-  version: 1,
+  version: 2,
   title: "Carve It",
   objective:
     "I can arrange by taking parts away from a loop where everything plays, blur one seam and let one moment happen once.",
@@ -285,10 +287,11 @@ export default defineLesson({
       exercise: {
         kind: "code-modify",
         id: "take-parts-away",
-        version: 1,
+        // 2 (W5, owner item 1): the label and the Done-when line drop "a quarter of the notes".
+        version: 2,
         role: "check",
         prompt:
-          "Every part plays in every section. Carve the song by deleting only: put `silence` in place of a part in a section, or mask some of its bars. Keep the chorus whole and add no notes. Done when at least one section leaves out a part or a quarter of the notes.",
+          "Every part plays in every section. Carve the song by deleting only: put `silence` in place of a part in a section, or mask some of its bars. Keep the chorus whole and add no notes. Done when at least one section leaves out a part or plays clearly fewer notes.",
         skills: [{ skill: "F06", w: 1 }],
         code: { starter: S4_STARTER },
         reference: { solutions: [CARVED], bars: 16 },
@@ -538,10 +541,11 @@ export default defineLesson({
       exercise: {
         kind: "code-make",
         id: "carve-your-song",
-        version: 2,
+        // 3 (W5, owner item 1): the label and the Done-when line drop "a quarter of the notes".
+        version: 3,
         role: "practice",
         prompt:
-          "Every part of your song plays in every section, over Oak's drums. Carve it by deleting only: rest parts with `silence`, mask bars, or take notes out of a part, and keep one section whole. Done when at least one section leaves out a part or a quarter of the notes.",
+          "Every part of your song plays in every section, over Oak's drums. Carve it by deleting only: rest parts with `silence`, mask bars, or take notes out of a part, and keep one section whole. Done when at least one section leaves out a part or plays clearly fewer notes.",
         skills: [{ skill: "F06", w: 1 }],
         code: { starter: FULL },
         bars: [16, 32],

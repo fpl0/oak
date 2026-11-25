@@ -41,7 +41,7 @@ export function encoderMismatchHint(
   const here = local.lame ? `this machine has "${local.lame}"` : "lame is not installed here";
   return [
     `  The lock's MP3s were encoded by "${locked.lame}"; ${here}. LAME writes its version into each file, so`,
-    "  only that exact LAME reproduces them. Either install it, or copy sounds/pack/v4 from a machine that built",
+    `  only that exact LAME reproduces them. Either install it, or copy sounds/pack/${path.split("/")[0]} from a machine that built`,
     "  the pack (the frozen run then reuses every file), or run with --update to re-lock under your LAME (this",
     "  changes the pack's hashes; do not commit that lock).",
   ].join("\n");

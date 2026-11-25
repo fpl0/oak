@@ -441,6 +441,16 @@ export const SOUND_CASES: SoundCase[] = [
   pitched("snd.marimba", "marimba", "c4 e4 g4 c5"),
   pitched("snd.kalimba", "kalimba", "c4 e4 g4 c5"),
   pitched("snd.glockenspiel", "glockenspiel", "c6 e6 g6 c7"),
+  // Sound pack v5: Oak's plain sounds (scripts/sounds/synth-v5.ts), and the sampled one-shots and voice lines.
+  pitched("snd.plainbass", "plainbass", "c2 e2 g2 c3"),
+  pitched("snd.plainkeys", "plainkeys"),
+  pitched("snd.plainlead", "plainlead", "c4 e4 g4 c5"),
+  ...["speech", "brush", "fall"].map((name) => ({
+    id: `snd.${name}`,
+    sound: name,
+    code: `s("${name} ${name}").n("0 1")`,
+  })),
+  drum("guiro"),
   pitched("snd.piano", "piano"),
   ...["sine", "triangle", "square", "sawtooth", "supersaw", "pulse"].map((w) => pitched(`snd.wave.${w}`, w)),
   pitched("snd.ebass", "ebass", "c2 e2 g2 c3"),
@@ -512,6 +522,10 @@ export const QUALITY_CASES: QualityCase[] = [
   // the top tines (B4 up) ring for under 0.3 s: too short for the tuning window, so the measured notes are lower
   q("kalimba", [61, 69], MID),
   q("glockenspiel", [81, 93], "c6 e6 g6 c7"),
+  // Sound pack v5: the plain sounds (synth-v5.ts), levelled to the piano at build time
+  q("plainbass", [33, 45, 57], LOW),
+  q("plainkeys", [57, 69, 81], MID),
+  q("plainlead", [57, 69, 81], MID),
 ];
 
 /**

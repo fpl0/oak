@@ -283,7 +283,9 @@ function frontTrial(ctx: GenCtx) {
     optionLabels: ROLE_LABELS,
     front,
     sounds,
-    prompt: "Which part is in front: which changes most from bar to bar?",
+    // W5, owner item 9: the question is only the one the answer is built on (the part with the most distinct bars);
+    // "in front" also asked about the fast, high part, which rate and register set against the answer on purpose.
+    prompt: "Which part changes most from bar to bar?",
   });
 }
 

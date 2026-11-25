@@ -122,7 +122,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L10",
-  version: 5,
+  version: 6,
   title: "Hook Lab",
   objective:
     "I can write a short hook that comes back and is easy to sing, and let chance change a few of its repeats.",
@@ -342,10 +342,11 @@ export default defineLesson({
       exercise: {
         kind: "code-modify",
         id: "freeze-it",
-        version: 1,
+        // 2 (W5, owner item 1): the label and the Done-when line drop "3 in 4".
+        version: 2,
         role: "check",
         prompt:
-          "Run the hook and read its first four bars on the roll. Freeze them: write those notes as fixed numbers in `n`, one bar per item, and delete the chance call. Then change any note you dislike, up to one in four. Done when no chance is left and 3 in 4 notes match what chance played.",
+          "Run the hook and read its first four bars on the roll. Freeze them: write those notes as fixed numbers in `n`, one bar per item, and delete the chance call. Then change a few notes you dislike, if you like. Done when no chance is left and all but a few notes match what chance played.",
         skills: [{ skill: "M09", w: 1 }],
         code: { starter: FREEZE_STARTER },
         reference: { solutions: [FREEZE_REFERENCE], bars: 4 },
@@ -354,7 +355,7 @@ export default defineLesson({
           rules: [
             {
               id: "kept",
-              label: "At least 3 in 4 of the notes are the ones chance played in the first four bars",
+              label: "All but a few of the notes are the ones chance played in the first four bars",
               required: true,
               skills: ["M09"],
               rule: "matches",
@@ -368,8 +369,8 @@ export default defineLesson({
                 track: "mel",
               },
               // Oak's call, kept loose: a quarter of the notes may change. The score is 0.7 × the share of right
-              // pitches + 0.3 × the rhythm, so with the rhythm kept 0.82 is "3 in 4 pitches" as the label says
-              // (0.75 let a third of them change; X14).
+              // pitches + 0.3 × the rhythm, so with the rhythm kept 0.82 is 3 in 4 pitches (0.75 let a third of them
+              // change; X14). The label says "all but a few", never the number (W5, owner item 1).
               min: 0.82,
             },
             {

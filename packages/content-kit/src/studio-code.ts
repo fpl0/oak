@@ -418,11 +418,12 @@ export function roleOfLabel(label: string): StudioRole {
 }
 
 /**
- * The sound each role plays while "plain sounds" is on (a listening mode: never written into the code). Oak's call
- * until W2's sound pack v5 plain role sounds replace these names here, in one edit.
+ * The sound each role plays while "plain sounds" is on (a listening mode: never written into the code): sound pack
+ * v5's plain role sounds (scripts/sounds/synth-v5.ts), one per pitched role. Before v5 they were triangle, piano and
+ * sine (Oak's call).
  */
 export const PLAIN_SOUNDS: Readonly<Record<"bass" | "chords" | "tune", string>> = {
-  bass: "triangle",
-  chords: "piano",
-  tune: "sine",
+  bass: "plainbass",
+  chords: "plainkeys",
+  tune: "plainlead",
 };

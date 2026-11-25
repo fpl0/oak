@@ -48,8 +48,11 @@ import {
   type MixdownV5,
   ONE_SHOT_APPENDS,
   ONE_SHOTS_V5,
+  PLAIN_ALIASES,
   SOURCES_V5,
   type SrcRefV5,
+  SYNTH_KIT_ADDITIONS,
+  type SynthAddition,
 } from "./library-v5.ts";
 import {
   BUDGET_BYTES,
@@ -77,6 +80,15 @@ import {
 import { insideRoot, isSafeSamplePath } from "./paths.ts";
 import { codeHash, RECIPE_CODE } from "./recipe.ts";
 import { renderHit, renderNote, renderOneShot, renderSynthHit, renderTape } from "./render.ts";
+import {
+  PLAIN_RANGES,
+  PLAIN_STEP,
+  type PlainRole,
+  renderGhost,
+  renderHandPerc,
+  renderHatPair,
+  renderPlain,
+} from "./synth-v5.ts";
 import { type Encoders, encoderMismatchHint, explainMissingTool, installedVersion } from "./tools.ts";
 import { OAK_TABLES, renderTable } from "./wavetables.ts";
 
@@ -98,7 +110,7 @@ const ALL_SOURCES = { ...SOURCES, ...SOURCES_V5 };
  * v5 adds sounds (library-v5.ts); a v4 build plans exactly the v4 pack, so the v4 lock stays reproducible
  * until PACK_VERSION moves.
  */
-const WITH_V5 = PACK_VERSION !== "v4";
+const WITH_V5 = (PACK_VERSION as string) !== "v4";
 type SrcRef = SrcRefV5;
 
 const sha256 = (data: Uint8Array | string) => createHash("sha256").update(data).digest("hex");
@@ -361,6 +373,7 @@ async function resolvePlan(lock: PackLock | undefined) {
     kit: codeHash(RECIPE_CODE.kit),
     brk: codeHash(RECIPE_CODE.brk),
     table: codeHash(RECIPE_CODE.table),
+    synth: codeHash(RECIPE_CODE.synth),
   };
   const inputs = (refs: SrcRef[]) => Promise.all(refs.map(sourceHash));
 
@@ -478,6 +491,39 @@ async function resolvePlan(lock: PackLock | undefined) {
       },
     };
   }
+  // v5: Oak's plain sounds (synth-v5.ts), one layer, a note every PLAIN_STEP half steps, in the same map.
+  if (WITH_V5)
+    for (const [role, alias] of Object.entries(PLAIN_ALIASES) as [PlainRole, string][]) {
+      const a = OAK_ALIASES[alias];
+      const [lo, hi] = PLAIN_RANGES[role];
+      if (!a || !isSampleAlias(a) || a.range[0] !== lo || a.range[1] !== hi)
+        throw new Error(`pack.config: ${alias} must be a sample alias over synth-v5.ts PLAIN_RANGES.${role}`);
+      credit("oak-plain", alias);
+      const byNote: Record<string, string[]> = {};
+      for (let midi = lo; midi <= hi; midi += PLAIN_STEP) {
+        const file = `src/${alias}/${alias}_${midi}_0.flac`;
+        byNote[noteName(midi)] = [file];
+        plan.push({
+          path: `${v}/${file}`,
+          sourceUrl: `generated:scripts/sounds/synth-v5.ts#renderPlain(${role}, ${midi}) (CC0 1.0, synthesised by Oak)`,
+          group: `inst-${alias}`,
+          credit: "oak-plain",
+          recipe: sha256(JSON.stringify({ code: CODE.synth, plain: role, midi })),
+          render: async () => encodeFlac(renderPlain(role, midi)),
+        });
+      }
+      srcMap[srcKey(alias)] = byNote;
+      manifest.sampleAliases = {
+        ...manifest.sampleAliases,
+        [alias]: {
+          sample: srcKey(alias),
+          layers: 1,
+          ...(a.gain !== undefined ? { gain: a.gain } : {}),
+          release: a.release,
+          range: a.range,
+        },
+      };
+    }
   addMap("oak-src.json", "", srcMap, "maps", "oak-src");
   report.tuning = tuning;
 
@@ -560,10 +606,13 @@ async function resolvePlan(lock: PackLock | undefined) {
       }
     } else {
       credit(`oak-${kit}`, kit);
-      const voices = renderSynthKitLazy(kit as "oak909" | "oak808");
+      const synthKit = kit as "oak909" | "oak808";
+      const voices = renderSynthKitLazy(synthKit);
       for (const role of DRUM_ROLES) {
-        const count = voices.count[role];
-        if (!count) continue;
+        const count = voices.count[role] ?? 0;
+        // v5 appends synth-v5.ts variants after the v4 ones (library-v5.ts SYNTH_KIT_ADDITIONS)
+        const added = WITH_V5 ? (SYNTH_KIT_ADDITIONS[synthKit][role] ?? []) : [];
+        if (!count && !added.length) continue;
         const list: string[] = [];
         for (let vi = 0; vi < count; vi++) {
           const file = `kits/${kit}/${role}_${vi}_0.flac`;
@@ -575,6 +624,20 @@ async function resolvePlan(lock: PackLock | undefined) {
             credit: `oak-${kit}`,
             recipe: sha256(JSON.stringify({ code: CODE.kit, kit, role, vi })),
             render: async () => encodeFlac(renderSynthHit((voices.get()[role] as Pcm[])[vi] as Pcm, role)),
+          });
+        }
+        for (const [i, what] of added.entries()) {
+          const vi = count + i;
+          const file = `kits/${kit}/${role}_${vi}_0.flac`;
+          list.push(file);
+          plan.push({
+            path: `${v}/${file}`,
+            sourceUrl: `generated:scripts/sounds/synth-v5.ts#${kit} ${role} ${what} (CC0 1.0, synthesised by Oak)`,
+            group: `kit-${kit}`,
+            credit: `oak-${kit}`,
+            recipe: sha256(JSON.stringify({ code: CODE.synth, kit, role, what })),
+            added: true,
+            render: async () => encodeFlac(renderSynthAddition(synthKit, role, what)),
           });
         }
         files[role] = list.map((f) => [f]);
@@ -792,6 +855,26 @@ async function resolvePlan(lock: PackLock | undefined) {
   // 9. Late JSON: breaks.json (after the breaks render), credits, manifest.
   const credits = () => buildCredits(sounds);
   return { plan, manifest, breakMeta, credits };
+}
+
+/** One appended variant of a synthesised kit (synth-v5.ts renders it, levelled). */
+const hatPairs = new Map<string, [Pcm, Pcm]>();
+function renderSynthAddition(kit: "oak909" | "oak808", role: DrumRole, what: SynthAddition): Pcm {
+  if (what === "hand:0" || what === "hand:1") {
+    let pair = hatPairs.get(kit);
+    if (!pair) {
+      pair = renderHatPair(kit);
+      hatPairs.set(kit, pair);
+    }
+    return pair[what === "hand:0" ? 0 : 1];
+  }
+  if (what === "ghost") {
+    if (role !== "sd" && role !== "hh") throw new Error(`library-v5: no soft stroke for ${kit} ${role}`);
+    return renderGhost(kit, role);
+  }
+  if ((what === "shaker") !== (role === "sh") || (what === "tambourine") !== (role === "tb"))
+    throw new Error(`library-v5: ${what} on ${kit} ${role}`);
+  return renderHandPerc(role as "sh" | "tb");
 }
 
 /** The synthesised kits, computed once and only when a file needs them. */

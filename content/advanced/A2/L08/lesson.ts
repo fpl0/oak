@@ -93,10 +93,12 @@ const RICH = song(CARVING, { ...FULL, mel: 'n("<[0 2 4 7] [2 0 2 4] [4 2 6 4] [1
   '.s("triangle").lpf(2000).room(.2)',
 );
 
+// "Clearly fewer notes" is `carved`'s own threshold (CARVED_THIN, a quarter fewer: Oak's call, kept in the rule and
+// never shown as a target; W5, owner item 1).
 const CARVED: RubricRule = {
   id: "carved-from-peak",
   label:
-    "Every section is the fullest one with parts or notes taken away, each bar at its own place; at least one section leaves out a part or a quarter of the notes",
+    "Every section is the fullest one with parts or notes taken away, each bar at its own place; at least one section leaves out a part or plays clearly fewer notes",
   required: true,
   skills: ["D09", "F05", "F06"],
   rule: "custom",
@@ -150,7 +152,7 @@ const DRUMS = { band: "band.aeolian-4bar", tracks: ["drums"] } as const;
 
 export default defineLesson({
   id: "A2.L08",
-  version: 1,
+  version: 2,
   title: "Peak First",
   objective: "Write the fullest section first, then make every other section by taking parts away.",
   key: { tonic: "A", mode: "minor" },
@@ -265,10 +267,11 @@ export default defineLesson({
       exercise: {
         kind: "code-modify",
         id: "carve-the-sections",
-        version: 1,
+        // 2 (W5, owner item 1): the label and the Done-when line drop "a quarter of the notes".
+        version: 2,
         role: "check",
         prompt:
-          "Make the intro, verse and outro from the chorus by taking parts or notes away, using silence or a mask. Add nothing and keep the chorus full. Done when at least one section leaves out a part or a quarter of the notes and none plays a note the chorus does not play at that place.",
+          "Make the intro, verse and outro from the chorus by taking parts or notes away, using silence or a mask. Add nothing and keep the chorus full. Done when at least one section leaves out a part or plays clearly fewer notes, and none plays a note the chorus does not play at that place.",
         skills: [
           { skill: "D09", w: 0.5 },
           { skill: "F05", w: 0.5 },
@@ -347,10 +350,11 @@ export default defineLesson({
       exercise: {
         kind: "code-make",
         id: "write-your-peak",
-        version: 1,
+        // 2 (W5, owner item 1): the label and the Done-when line drop "a quarter of the notes".
+        version: 2,
         role: "practice",
         prompt:
-          "Write your own fullest section in the Chorus consts, then make the intro, verse and outro by taking parts or notes away. The bass and chords are a starting point. Done when every section plays only what the fullest section plays at the same place, and at least one section leaves out a part or a quarter of the notes.",
+          "Write your own fullest section in the Chorus consts, then make the intro, verse and outro by taking parts or notes away. The bass and chords are a starting point. Done when every section plays only what the fullest section plays at the same place, and at least one section leaves out a part or plays clearly fewer notes.",
         skills: [
           { skill: "D09", w: 0.5 },
           { skill: "F06", w: 0.5 },

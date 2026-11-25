@@ -123,9 +123,9 @@ describe("velocity layer trims", () => {
   });
 
   test("trims apply to this pack's version only, by URL under its public root", () => {
-    const v4 = layerGains({ packVersion: LAYER_TRIMS.packVersion, publicRoot: "/sounds/v4" });
+    const v5 = layerGains({ packVersion: LAYER_TRIMS.packVersion, publicRoot: "/sounds/v5" });
     const [path, db] = Object.entries(LAYER_TRIMS.db)[0] as [string, number];
-    expect(v4.get(`/sounds/v4/${path}`)).toBeCloseTo(10 ** (db / 20), 12);
+    expect(v5.get(`/sounds/v5/${path}`)).toBeCloseTo(10 ** (db / 20), 12);
     expect(layerGains({ packVersion: "v9", publicRoot: "/sounds/v9" }).size).toBe(0);
   });
 
@@ -140,8 +140,8 @@ describe("velocity layer trims", () => {
     expect(withLayerTrims(trigger, ["/s/other.flac"], gains)).toBe(trigger);
   });
 
-  test("every trimmed file is a lower layer of a v4 kit role or sample alias", () => {
-    const root = resolve(import.meta.dirname, "../../../sounds/pack/v4");
+  test("every trimmed file is a lower layer of a v5 kit role or sample alias", () => {
+    const root = resolve(import.meta.dirname, "../../../sounds/pack/v5");
     const read = (f: string) => JSON.parse(readFileSync(`${root}/${f}`, "utf8"));
     const manifest = read("manifest.json");
     const lower = new Set<string>();

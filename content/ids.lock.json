@@ -3495,6 +3495,10 @@
       "kind": "exercise"
     },
     {
+      "id": "A2.L04/tap-the-words",
+      "kind": "exercise"
+    },
+    {
       "id": "A2.L04/what-each-piece-holds",
       "kind": "exercise"
     },
@@ -12772,6 +12776,10 @@
       "kind": "sound"
     },
     {
+      "id": "snd.brush",
+      "kind": "sound"
+    },
+    {
       "id": "snd.choir",
       "kind": "sound"
     },
@@ -12816,6 +12824,10 @@
       "kind": "sound"
     },
     {
+      "id": "snd.drum.guiro",
+      "kind": "sound"
+    },
+    {
       "id": "snd.drum.hh",
       "kind": "sound"
     },
@@ -12857,6 +12869,10 @@
     },
     {
       "id": "snd.ebass",
+      "kind": "sound"
+    },
+    {
+      "id": "snd.fall",
       "kind": "sound"
     },
     {
@@ -12924,6 +12940,18 @@
       "kind": "sound"
     },
     {
+      "id": "snd.plainbass",
+      "kind": "sound"
+    },
+    {
+      "id": "snd.plainkeys",
+      "kind": "sound"
+    },
+    {
+      "id": "snd.plainlead",
+      "kind": "sound"
+    },
+    {
       "id": "snd.rhodes",
       "kind": "sound"
     },
@@ -12933,6 +12961,10 @@
     },
     {
       "id": "snd.sbd",
+      "kind": "sound"
+    },
+    {
+      "id": "snd.speech",
       "kind": "sound"
     },
     {
@@ -13317,6 +13349,10 @@
     },
     {
       "id": "A2.L04/S8",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L04/S9",
       "kind": "step"
     },
     {

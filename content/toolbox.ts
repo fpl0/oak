@@ -399,6 +399,8 @@ export const toolbox: readonly ToolEntry[] = defineToolbox([
   drum("cb", "cowbell", "U01.L09", "percussion colour", ex(96, 'drums: s("cb ~ cb cb")')),
   drum("tb", "tambourine", "U01.L09", "percussion colour", ex(96, 'drums: s("~ tb ~ tb")')),
   row("F", "snd.jazzkit", "sound", '.bank("jazzkit") (Oak kit: brushes, ride)', "J1.L01", "swing feel", { preview: ["band:jazz-soul"], matches: ["jazzkit"], signature: '.bank("jazzkit")', meaning: "Oak's jazz kit: brushes and a ride cymbal.", demo: ex(120, 'drums: s("bd ~ sd ~, rd*4").bank("jazzkit")') }),
+  // Sound pack v5 (scripts/sounds/library-v5.ts): brushes on their own, a güiro, a trombone fall, spoken words.
+  row("F", "snd.brush", "sound", "brush (brushes on a snare, Swirly Drums, CC0)", "J1.L01", "swing feel", { matches: ["brush"], signature: 's("brush")', meaning: "Brushes on a snare on their own, chosen with `.n()`: 0 a sweep, 1 a soft tap, 2 a firm tap (Karoryfer Swirly Drums, CC0).", demo: ex(120, 'drums: s("brush ~ brush brush").n("0 ~ 1 2")') }),
   row("F", "snd.brk", "sound", "brk (CC0 break loop rendered by Oak)", "A2.L04", "sampling", { matches: ["brk"], signature: 's("brk")', meaning: "A one-bar drum break, rendered by Oak and free to use (CC0).", demo: ex(90, 'drums: s("brk").loopAt(1)') }),
   // Sound pack v4 (docs/design/samples/proposal.md §5.2): Oak's CC0 kits, the rendered breaks, hand percussion, foley.
   row("F", "snd.oak909", "sound", '.bank("oak909") (Oak\'s synthesised 909-style machine, CC0)', "U01.L03", "drum-machine timbre", { matches: ["oak909"], signature: '.bank("oak909")', meaning: "Oak's own 909-style drum machine, synthesised by Oak (CC0).", demo: ex(124, 'drums: s("bd cp bd cp").bank("oak909")') }),
@@ -408,8 +410,11 @@ export const toolbox: readonly ToolEntry[] = defineToolbox([
   drum("clave", "claves", "R3.L02", "clave direction", ex(100, 'perc: s("clave ~ ~ clave ~ ~ clave ~ ~ ~ clave ~ clave ~ ~ ~")')),
   drum("conga", "conga", "R3.L04", "the tumbao layer", ex(100, 'perc: s("~ ~ conga conga ~ ~ conga ~")')),
   drum("bongo", "bongos", "R3.L04", "the tumbao layer", ex(100, 'perc: s("bongo*8")')),
+  drum("guiro", "güiro", "R3.L04", "the tumbao layer", ex(100, 'perc: s("guiro ~ guiro guiro").n("0 ~ 1 1")'), { meaning: "The güiro sound, written `guiro`, chosen with `.n()`: 0 and 1 short scrapes, 2 a fast one, 3 a slow one (VCSL, CC0)." }),
   row("F", "snd.breaks", "sound", "brkfunk brkboombap brkjungle brkhouse brkjazz brklofi (CC0 breaks rendered by Oak)", "A2.L04", "choosing and fitting breaks", { matches: ["brkfunk", "brkboombap", "brkjungle", "brkhouse", "brkjazz", "brklofi"], signature: 's("brkfunk")', meaning: "Two-bar drum breaks, each at its own tempo (funk 100, boom-bap 90, jungle 170, house 124, jazz 140, lo-fi 80), rendered by Oak (CC0).", demo: ex(100, 'drums: s("brkfunk").loopAt(2)') }),
-  row("F", "snd.foley", "sound", "foley snap impact swoosh scratch drone (CC0 one-shots)", "A2.L04", "chopping one-shots", { matches: ["foley", "snap", "impact", "swoosh", "scratch", "drone"], signature: 's("foley")', meaning: "Found sounds, snaps, hits, sweeps, vinyl scratches and drones from Sonic Pi's CC0 samples.", demo: ex(100, 'fx: s("foley*4").chop(2)') }),
+  row("F", "snd.foley", "sound", "foley snap impact swoosh scratch drone (CC0 one-shots)", "A2.L04", "chopping one-shots", { matches: ["foley", "snap", "impact", "swoosh", "scratch", "drone"], signature: 's("foley")', meaning: "Found sounds, snaps, hits, sweeps, vinyl scratches and drones from Sonic Pi's CC0 samples; impact:2 is an acoustic bass-drum hit and swoosh:2 a cymbal swell (VCSL, CC0).", demo: ex(100, 'fx: s("foley*4").chop(2)') }),
+  row("F", "snd.fall", "sound", "fall (a trombone fall, VSCO 2 CE, CC0)", "A2.L04", "chopping one-shots", { matches: ["fall"], signature: 's("fall")', meaning: "A brass fall: a trombone note that drops away at the end of a phrase (`.n(0)` on B flat, `.n(1)` on F; VSCO 2 CE, CC0).", demo: ex(100, 'fx: s("~ ~ ~ fall")') }),
+  row("F", "snd.speech", "sound", "speech (spoken words, Kenney, CC0)", "A2.L04", "speed changes the rhythm", { matches: ["speech"], signature: 's("speech")', meaning: "Spoken words (Kenney's Voiceover Pack, CC0), chosen with `.n()`: 0 to 3 count one to four, 4 to 6 say ready, set, go, then short phrases.", demo: ex(100, 'fx: s("speech*4").n("0 1 2 3")') }),
   row("F", "snd.textures", "sound", "vinyl tape (texture beds)", "A1.L05", "lo-fi colour", { matches: ["vinyl", "tape"], signature: 's("vinyl")', meaning: "Background beds: vinyl surface noise and tape hiss.", demo: ex(80, 'fx: s("vinyl")') }),
   row("F", "snd.sbd", "sound", "sbd (a synthesised kick)", "A1.L03", "a kick is a falling sine", { matches: ["sbd"], signature: 's("sbd")', meaning: "A kick drum made by a synth: a sine whose pitch falls fast.", demo: ex(100, 'drums: s("sbd ~ sbd ~")') }),
 
@@ -419,6 +424,11 @@ export const toolbox: readonly ToolEntry[] = defineToolbox([
   wave("triangle", "U02.L06", "timbre"),
   wave("square", "U02.L06", "timbre"),
   wave("sawtooth", "U02.L06", "timbre"),
+  // Sound pack v5: Oak's plain sounds (scripts/sounds/synth-v5.ts), the sounds "plain sounds" plays (PLAIN_SOUNDS); each
+  // unlocks with the v4 sound it replaced there (triangle and sine at U02.L06, piano at U02.L01).
+  inst("plainbass", "Oak's plain bass: a sine with a quiet second harmonic, synthesised by Oak (CC0)", "U02.L06", "timbre", 'bass: note("c2 e2 g2 e2").s("plainbass")', { strudelCc: '.s("triangle")' }),
+  inst("plainkeys", "Oak's plain keys: a soft, decaying electric-piano-like tone, synthesised by Oak (CC0)", "U02.L01", "pitch", 'mel: note("c4 e4 g4 c5").s("plainkeys")', { strudelCc: '.s("piano")' }),
+  inst("plainlead", "Oak's plain lead: a rounded triangle-like tone, synthesised by Oak (CC0)", "U02.L06", "timbre", 'mel: note("c4 e4 g4 c5").s("plainlead")', { strudelCc: '.s("sine")' }),
   inst("ebass", "a real bass guitar, picked (FreePats Bass Guitar YR, CC0)", "C1.S1", "a real bass for the first loop", 'bass: note("c2 c2 g1 bb1").s("ebass").lpf(600)', { when: "start", fallbackAt: "U03.L03", preview: [...P0, "band"] }),
   inst("acgtr", "gm_acoustic_guitar_steel:5", "U03.L11", "folk melody colour", 'mel: n("0 2 4 7").scale("G3:major").s("acgtr")'),
   inst("upright", "a 1958 Otto Rubner double bass played pizzicato (D. Smolken, CC0)", "U05.L06", "bass register and bass clef", 'bass: note("c2 e2 g2 e2").s("upright")', { preview: ["band:jazz-soul"] }),

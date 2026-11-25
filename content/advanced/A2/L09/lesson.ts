@@ -79,6 +79,10 @@ const HESITATE = {
 const EARLY_HATS = { hatsVerse: 's("<hh*8 hh*8 hh*8 [hh*4 ~]>")' };
 const PLAIN = song();
 const EARLY = song(ANTICIPATE);
+// The S3 example (and S1's second item): the book's anticipation (Fuzzy Boundaries) brings the drums back on beat 2
+// of the new section with a crash, so the crash lands with the drums' return in bar 5 (W5, owner item 13; it was in
+// bar 6). S4's reference stays EARLY: the learner is not asked to move the crash.
+const GAP_AND_CRASH = song({ ...ANTICIPATE, percChorus: 's("<[~ cr ~ ~] ~ ~ ~>")' });
 const LATE = song(HESITATE);
 const UNIQUE = song().replace(".lpf(2000)", '.lpf("<2000!9 400 2000!6>")');
 const MAKE_STARTER = song({}, true);
@@ -149,7 +153,7 @@ const feedback = {
 
 export default defineLesson({
   id: "A2.L09",
-  version: 1,
+  version: 2,
   title: "Seams and Surprises",
   objective: "Fills that anticipate or hesitate across a seam; an effect switched on once.",
   key: { tonic: "A", mode: "minor" },
@@ -181,7 +185,7 @@ export default defineLesson({
         tests: [],
         items: [
           { code: PLAIN, bars: 6, caption: "Follow the drums into the chorus." },
-          { code: EARLY, bars: 6, caption: "Listen for space around the chorus's first beat." },
+          { code: GAP_AND_CRASH, bars: 6, caption: "Listen for space around the chorus's first beat." },
           { code: LATE, bars: 6, caption: "Follow the busy snare beyond the bar line." },
         ],
       },
@@ -219,25 +223,26 @@ export default defineLesson({
       title: "Find the crash",
       minutes: 1,
       ui: { panels: ROLL, initialPanels: ["form"] },
-      example: { id: "gap-and-crash", code: EARLY, bars: 8 },
+      example: { id: "gap-and-crash", code: GAP_AND_CRASH, bars: 8 },
       exercise: {
         kind: "run-investigate",
         id: "crash-place",
-        version: 1,
+        // 2 (W5, owner item 13): the crash moved to bar 5, beat 2, with the drums' return; so did the answer.
+        version: 2,
         role: "practice",
         prompt:
           "Find where the crash on the perc line lands relative to the fill and the drum gap at bar 5. Pick its bar and beat below.",
         skills: SKILLS,
-        code: { starter: EARLY },
+        code: { starter: GAP_AND_CRASH },
         mustPlayLoops: 1,
         feedbackText: {
           "investigate.wrong":
-            "Not quite. Follow the perc line after the first verse and count the empty chorus bars before its crash.",
+            "Not quite. Follow the perc line into the chorus and count the rests before its crash in the chorus's first bar.",
         },
         hints: ladder(
           "Follow the splashy cymbal after the fill. Does it land with the first returning drums or later?",
           "Read the chorus pattern in percChorus. Each item between angle brackets takes one bar.",
-          "The chorus begins at bar 5. Count its empty bars before the crash, then its rests inside the crash's bar.",
+          "The chorus begins at bar 5, the first item of percChorus. Count the rests before `cr` inside it: each one is a beat.",
         ),
         questions: [
           {
@@ -245,17 +250,28 @@ export default defineLesson({
             prompt: "Where is the first crash?",
             options: [
               { id: "five", label: "Bar 5, beat 1: at the start of the drum gap" },
-              { id: "six", label: "Bar 6, beat 1: after the fill and the drum gap" },
+              { id: "return", label: "Bar 5, beat 2: with the drums' return" },
+              { id: "six", label: "Bar 6, beat 1: a bar after the drums' return" },
               { id: "four", label: "Bar 4, beat 4: before the chorus" },
             ],
-            correct: ["six"],
+            correct: ["return"],
           },
         ],
         tests: [
-          { name: "crash after the gap", response: { answer: { choice: ["six"] } }, expect: "pass" },
+          {
+            name: "crash with the drums' return",
+            response: { answer: { choice: ["return"] } },
+            expect: "pass",
+          },
           {
             name: "crash placed on the gap",
             response: { answer: { choice: ["five"] } },
+            expect: "fail",
+            feedback: ["investigate.wrong"],
+          },
+          {
+            name: "crash a bar later, where it was before W5",
+            response: { answer: { choice: ["six"] } },
             expect: "fail",
             feedback: ["investigate.wrong"],
           },

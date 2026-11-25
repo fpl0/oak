@@ -102,8 +102,9 @@ const MORPHING = code(
  * S8 (Oak 2.0, Rhythm of Automation): the chords pulse in short eighths, C then F, over the drums and the bass, and
  * their cutoff moves. A slow wave glides it: every chord gets a new value. Steps hold a value for two chords or
  * more and then jump, so the movement itself has a rhythm. `stepped-control` reads the cutoff each chord starts with:
- * at least three different held values, each held for two chords or more, the jumps clear (a fifth of the range at
- * least: Oak's call, in the rule, never shown to the learner).
+ * at least three different held values (Oak's call, `minSteps`; the copy says "several", W5 owner item 1), each held
+ * for two chords or more, the jumps clear (a third of an octave for a cutoff: Oak's call, in the rule, never shown to
+ * the learner).
  */
 const PULSE = "<[c4,e4,g4]*8 [c4,f4,a4]*8>";
 const pulse = (lpf: string, tail = "") =>
@@ -130,7 +131,7 @@ const CHORDS = { band: "band.two-chord-vamp", tracks: ["chords"] } as const;
 
 export default defineLesson({
   id: "A1.L06",
-  version: 5,
+  version: 6,
   title: "Movement",
   objective:
     "I can make a sound move while it plays, with vibrato, a phaser, tremolo or a slow filter sweep.",
@@ -489,10 +490,11 @@ export default defineLesson({
       exercise: {
         kind: "code-modify",
         id: "steps-not-sweeps",
-        version: 1,
+        // 2 (W5, owner item 1): the label and the Done-when line drop "three".
+        version: 2,
         role: "check",
         prompt:
-          "The chords' cutoff glides on a slow wave, so every chord is a little brighter or darker than the last. Replace the wave in `.lpf()` with cutoff values that each hold for two chords or more, then jump. Keep the chords as they are. Done when the cutoff jumps between at least three held values.",
+          "The chords' cutoff glides on a slow wave, so every chord is a little brighter or darker than the last. Replace the wave in `.lpf()` with cutoff values that each hold for two chords or more, then jump. Keep the chords as they are. Done when the cutoff jumps between several held values.",
         skills: [{ skill: "D07", w: 1 }],
         code: { starter: STEPS_STARTER },
         reference: { solutions: [STEPS_SOLUTION], bars: 2 },
@@ -506,11 +508,12 @@ export default defineLesson({
                 {
                   id: "steps-not-sweeps",
                   label:
-                    "The chords' cutoff holds a value for two chords or more, then jumps, with three values or more",
+                    "The chords' cutoff holds a value for two chords or more, then jumps, between several values",
                   required: true,
                   skills: ["D07"],
                   rule: "custom",
                   fn: "stepped-control",
+                  // Oak's call: three held values at least, kept here and never shown as a target (W5, owner item 1).
                   params: { track: "chords", control: "lpf", minSteps: 3 },
                 },
               ],

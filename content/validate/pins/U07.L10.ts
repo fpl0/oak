@@ -36,7 +36,7 @@ export default [
     name: "a fixed tune unrelated to the frozen one: no chance, nothing kept",
     kind: "book-miss",
     expect: "fail",
-    says: "At least 3 in 4 of the notes are the ones chance played in the first four bars: not yet.",
+    says: "All but a few of the notes are the ones chance played in the first four bars: not yet.",
     code: mel("<[0 ~ 2 4] [5 ~ 4 2] [0 ~ 2 4] [2 ~ 1 0]>"),
   },
   {

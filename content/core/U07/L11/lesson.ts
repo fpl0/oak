@@ -101,7 +101,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L11",
-  version: 1,
+  version: 2,
   title: "Turn It Around",
   objective:
     "I can transform a motif: turn it upside down, start it from a later note with its rhythm kept, and move it later in time.",

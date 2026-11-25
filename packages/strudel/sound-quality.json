@@ -1069,6 +1069,159 @@
         "lufs": -22.1,
         "peakDb": -12.2
       }
+    },
+    {
+      "id": "snd.plainbass",
+      "sound": "plainbass",
+      "wave3": false,
+      "tuning": [
+        {
+          "midi": 33,
+          "expectedHz": 55,
+          "hz": 55,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 1,
+          "share": 0.99
+        },
+        {
+          "midi": 45,
+          "expectedHz": 110,
+          "hz": 110,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 1,
+          "share": 0.99
+        },
+        {
+          "midi": 57,
+          "expectedHz": 220,
+          "hz": 220,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 1,
+          "share": 0.99
+        }
+      ],
+      "clicks": [
+        {
+          "midi": 45,
+          "worstDb": 1.8,
+          "atSec": 0.216
+        },
+        {
+          "midi": 33,
+          "worstDb": -0.4,
+          "atSec": 0.15
+        }
+      ],
+      "loudness": {
+        "code": "note(\"c2 e2 g2 c3\").s(\"plainbass\")",
+        "lufs": -22.2,
+        "peakDb": -14.3
+      }
+    },
+    {
+      "id": "snd.plainkeys",
+      "sound": "plainkeys",
+      "wave3": false,
+      "tuning": [
+        {
+          "midi": 57,
+          "expectedHz": 220,
+          "hz": 220,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 1,
+          "share": 0.998
+        },
+        {
+          "midi": 69,
+          "expectedHz": 440,
+          "hz": 440,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 1,
+          "share": 0.998
+        },
+        {
+          "midi": 81,
+          "expectedHz": 880,
+          "hz": 880,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 1,
+          "share": 0.998
+        }
+      ],
+      "clicks": [
+        {
+          "midi": 69,
+          "worstDb": 0.4,
+          "atSec": 0.32
+        },
+        {
+          "midi": 57,
+          "worstDb": 0.2,
+          "atSec": 0.153
+        }
+      ],
+      "loudness": {
+        "code": "note(\"c4 e4 g4 c5\").s(\"plainkeys\")",
+        "lufs": -22.1,
+        "peakDb": -15
+      }
+    },
+    {
+      "id": "snd.plainlead",
+      "sound": "plainlead",
+      "wave3": false,
+      "tuning": [
+        {
+          "midi": 57,
+          "expectedHz": 220,
+          "hz": 220,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 1,
+          "share": 0.986
+        },
+        {
+          "midi": 69,
+          "expectedHz": 440,
+          "hz": 440,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 1,
+          "share": 0.986
+        },
+        {
+          "midi": 81,
+          "expectedHz": 880,
+          "hz": 880,
+          "cents": 0,
+          "octave": 0,
+          "clarity": 1,
+          "share": 0.987
+        }
+      ],
+      "clicks": [
+        {
+          "midi": 69,
+          "worstDb": 0.6,
+          "atSec": 0.401
+        },
+        {
+          "midi": 57,
+          "worstDb": 0.4,
+          "atSec": 0.15
+        }
+      ],
+      "loudness": {
+        "code": "note(\"c4 e4 g4 c5\").s(\"plainlead\")",
+        "lufs": -22.2,
+        "peakDb": -14.6
+      }
     }
   ],
   "drones": [

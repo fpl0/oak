@@ -8,7 +8,7 @@ import { toolbox } from "../../../content/toolbox.ts";
 import type { WorkbenchServices } from "./services.tsx";
 
 /** The pack version this page loads: sounds/pack.lock.json's `publicRoot` (kept-in-step.test.ts checks they agree). */
-export const STANDALONE_SOUNDS_ROOT = "/sounds/v4";
+export const STANDALONE_SOUNDS_ROOT = "/sounds/v5";
 
 let pending: Promise<WorkbenchServices> | null = null;
 

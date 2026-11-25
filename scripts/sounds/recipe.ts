@@ -16,6 +16,8 @@ export const RECIPE_CODE = {
   kit: ["render.ts", "library.ts", "drummachine.ts", "flac.ts"],
   brk: ["breaks.ts", "flac.ts", "audio.ts"],
   table: ["wavetables.ts", "audio.ts"],
+  /** v5: Oak's synthesised additions (synth-v5.ts, X13): plain sounds, the synth kits' hat pairs, soft strokes, sh, tb. */
+  synth: ["synth-v5.ts", "flac.ts"],
 } as const satisfies Record<string, readonly string[]>;
 
 const CLAUSE = String.raw`(?:\{[^}]*\}|\*(?:\s+as\s+\w+)?|\w+(?:\s*,\s*(?:\{[^}]*\}|\*\s+as\s+\w+))?)`;

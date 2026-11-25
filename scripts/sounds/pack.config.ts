@@ -12,6 +12,11 @@
 // Swirly), rockkit, lofikit, oak909 and oak808 (synthesised by Oak); six rendered breaks; hand percussion,
 // textures and foley; wavetables; credits.json, CREDITS.md and LICENSES/. The tidal-drum-machines banks and
 // the MC-303 jazz kit are retired: their names play the closest CC0 kit (KIT_ALIASES).
+// v5 (Oak 2.0 W2/W5): every v4 file kept byte for byte at its path and index (scripts/sounds/v5-lock.test.ts), plus
+// (library-v5.ts) matched hat pairs and soft snare strokes appended to the recorded kits, new one-shots `speech`
+// (Kenney's CC0 voice lines), `brush`, `guiro`, `fall`, and `impact:2`, `swoosh:2`; and Oak's synthesised additions
+// (synth-v5.ts): the plain sounds `plainbass`, `plainkeys`, `plainlead`, the 909's and 808's hat pairs and soft
+// strokes, the 909's `sh` and `tb`.
 
 import { BREAKS } from "./breaks.ts";
 import {
@@ -26,7 +31,7 @@ import {
 } from "./library.ts";
 import { OAK_TABLES } from "./wavetables.ts";
 
-export const PACK_VERSION = "v4";
+export const PACK_VERSION = "v5";
 
 /** Public URL prefix the app serves the pack from. Every rewritten `_base` starts with this. */
 export const PUBLIC_ROOT = `/sounds/${PACK_VERSION}`;
@@ -38,9 +43,10 @@ export const SOUNDFONT_CDN = "https://felixroos.github.io/webaudiofontdata/sound
 
 /**
  * The pack's hard size limit, enforced by check.ts (a failure, not a warning). Owner decision for v4:
- * quality first, up to about 80 MiB; the limit is the v4 pack's size (51.3 MiB) plus 10%, rounded up.
+ * quality first, up to about 80 MiB; the limit is the pack's size plus 10%, rounded up to a MiB. v4's limit was
+ * 57 MiB; v5 is 57.18 MiB (59,960,662 B), plus 10% 62.9 MiB, so the limit is 63 MiB.
  */
-export const BUDGET_BYTES = 57 * 1024 * 1024;
+export const BUDGET_BYTES = 63 * 1024 * 1024;
 
 /**
  * The one dated exception (2026-11-24): the General MIDI WebAudioFont presets the pack already shipped
@@ -235,6 +241,12 @@ export const OAK_ALIASES: Record<string, AliasSpec> = {
   marimba: sample(0.3, [41, 96], false, 0.93),
   kalimba: sample(0.5, [59, 96]),
   glockenspiel: sample(0.6, [79, 108], false, 0.68),
+  // v5: Oak's plain sounds (synth-v5.ts), levelled to the piano at build time; ranges are synth-v5.ts PLAIN_RANGES.
+  // Releases are Oak's call, as the closest v4 sound of the role (ebass, rhodes, tenor). Gains as above, measured on
+  // the v5 pack at gain 1: plainbass −0.1 LU (none), plainkeys +0.7 LU, plainlead +1.4 LU.
+  plainbass: sample(0.1, [28, 55]),
+  plainkeys: sample(0.35, [48, 84], false, 0.92),
+  plainlead: sample(0.15, [55, 91], false, 0.85),
 };
 
 export const isSampleAlias = (a: AliasSpec): a is SampleAliasSpec => a.kind === "sample";

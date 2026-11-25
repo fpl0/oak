@@ -1,7 +1,10 @@
 // The CI gate of contracts §7.4: a 300-day simulation with the course's real family and deck catalog
 // (content/families.ts, converted by sim/course-catalog.test-util.ts) introduced in the default course
 // order, 5 sessions a week (with a 4-, a 10- and a 4-day break), a simulated learner at about 85% mean
-// credit with about 10% of sets below 0.65, for each target, on five seeds.
+// credit with about 10% of sets below 0.65, for each target, on five seeds. The 300 days grow with the core
+// (decision 118 (b), the owner's pick at W5): 7/5 of a day for every session the default order holds beyond
+// contracts 1.6's 185, so the run's tail after the core keeps its length (191 sessions: 308 days), as the
+// as-written runs of simulation-wave6.test.ts do.
 //
 // What runs is the production code (`createSrs`, `planWarmup`, the governor, composites, `stepLevel`)
 // under the live configuration: decisions 2 and 27 of docs/decisions.md (`recommendedGovernor`, facts at
@@ -39,7 +42,13 @@ import {
   WARMUP_BUDGET_SEC,
 } from "./index.ts";
 import { COURSE_CATALOG, COURSE_ORDER } from "./sim/course-catalog.test-util.ts";
-import { DEFAULT_LEARNER, type SimOptions, type SimSummary, simulate } from "./sim/simulate.ts";
+import {
+  DEFAULT_LEARNER,
+  type SessionRow,
+  type SimOptions,
+  type SimSummary,
+  simulate,
+} from "./sim/simulate.ts";
 
 const TARGETS = [15, 20, 25] as const;
 const SEEDS = ["a1", "b2", "c3", "d4", "e5"];
@@ -52,10 +61,12 @@ const GAPS: [number, number][] = [
   [145, 154],
   [229, 232],
 ];
+/** Contracts §7.4: 300 days, grown by 7/5 of a day for every core session beyond contracts 1.6's 185 (decision 118). */
+const GATE_DAYS = 300 + Math.round(((defaultOrder.length - 185) * 7) / 5);
 const srs = await createSrs({ factRetention: DECISION_2.factRetention });
 const options = (seed: string, target: 15 | 20 | 25, over: Partial<SimOptions> = {}): SimOptions => ({
   seed,
-  days: 300,
+  days: GATE_DAYS,
   targetMinutes: target,
   calendar: "weekdays",
   gaps: GAPS,
@@ -77,6 +88,16 @@ const heldOut = TARGETS.flatMap((t) =>
 const everyRun = () => [...all(), ...heldOut];
 
 const r1 = (x: number) => Math.round(x * 10) / 10;
+/**
+ * Sessions from the first one after day `end` until the overflow is back to at most one set (90 s), read the way
+ * `SimSummary.sessionsToClearAfterGap` reads it; -1 = never.
+ */
+const sessionsToClear = (rows: readonly SessionRow[], end: number) => {
+  const i = rows.findIndex((r) => r.day > end);
+  if (i < 0) return -1;
+  const j = rows.findIndex((r, idx) => idx >= i && r.overflowSec <= 90);
+  return j < 0 ? -1 : j - i + 1;
+};
 const waitCell = (w: SimSummary["firstReviewWait"]["deferred"]) =>
   `${w.n} | ${w.p50}/${w.p95}/${w.max} | ${w.censored}`;
 console.log(
@@ -195,7 +216,9 @@ describe("300-day simulation: companion assertions (spike S7)", () => {
     // decks) beside this gate's padding of two term cards a lesson, about 250 fact cards the course does not
     // have; at 20 minutes (one session a lesson, the tightest target) the fact cards then leave the set forecast
     // rarely open, and on the runs with the weakest learner families rest to the end (measured: 27 of 30 runs
-    // have at most 6 resting and 60% back; 20 min b2 9 resting, i9 14, a1 7). The strict form of this assertion
+    // have at most 6 resting and 60% back; 20 min b2 9 resting, i9 14, a1 7). Oak 2.0 W2's fam.har.motion
+    // (U06.L13) left 25 of 30 at 300 days; with the gate grown with the core (decision 118 (b)), 26 of 30 at
+    // 308 days (20 min c3 9 resting, h8 9, i9 13, j0 12). The strict form of this assertion
     // is held on the course as written (simulation-wave6.test.ts: at most 6 resting, 60% back, on every run).
     const runs = everyRun();
     for (const { s } of runs) {
@@ -231,15 +254,31 @@ describe("300-day simulation: companion assertions (spike S7)", () => {
   // graduation no longer lets a family graduate before its first review (a family held at level 1 by a
   // gate needs the gated-ladder proof), and decision 27 starts every new family within days, so the U03–U06
   // stretch carries more first sets. The overflow bound is back at Wave 2's 1.2 budgets.
-  test("a returning learner is back to at most one set of overflow within 32 sessions of each break", () => {
-    for (const { s } of all()) {
+  // Decision 118 (b), the owner's pick at W5: only the break's own share is counted. Some overflow after a break
+  // is the course's, not the break's: U05–U07 seed families densely (fam.har.motion at U06.L13 since Oak 2.0 W2),
+  // so the same run without that break still carries overflow at the same day (measured: 20 min b2 needs 33
+  // sessions after its first break, 23 of them without the break). The break's own share is the sessions to clear
+  // after it minus the sessions the same seed and target need from the same day with that one break taken out.
+  test("a returning learner is back to at most one set of overflow within 32 sessions of each break, counting the break's own share", () => {
+    const shares: string[] = [];
+    for (const { t, seed, s } of all()) {
       expect(s.sessionsToClearAfterGap).toHaveLength(3);
-      for (const n of s.sessionsToClearAfterGap) {
-        expect(n).toBeGreaterThan(0);
-        expect(n).toBeLessThanOrEqual(32);
-      }
+      GAPS.forEach(([, end], k) => {
+        const n = s.sessionsToClearAfterGap[k] as number;
+        expect([t, seed, k, n > 0]).toEqual([t, seed, k, true]);
+        const without = simulate(srs, options(seed, t, { gaps: GAPS.filter((_, g) => g !== k) })).rows;
+        const base = sessionsToClear(without, end);
+        expect([t, seed, k, base > 0]).toEqual([t, seed, k, true]);
+        const own = Math.max(0, n - base);
+        shares.push(`${t} ${seed} #${k + 1}: ${n} - ${base} = ${own}`);
+        expect([t, seed, k, own]).toEqual([t, seed, k, Math.min(own, 32)]);
+      });
     }
-  });
+    console.log(
+      `the break's own share of the sessions to clear (with the break - without it):\n${shares.join("\n")}`,
+    );
+    // 45 more runs, one per gate run and break.
+  }, 120_000);
 
   test("steady-state overflow stays under two budgets and reviews are rarely late", () => {
     // Re-based in Wave 6 (1.2 → 1.6 budgets): with twelve decks two of the fifteen runs carry a budget and a
@@ -287,6 +326,8 @@ describe("300-day simulation: companion assertions (spike S7)", () => {
   });
 
   test("the simulated course order is the syllabus's: the default order, then the tracks; every family unlocks on it", () => {
+    // The gate grows with the core (decision 118): 191 sessions since Oak 2.0 W2, so 308 days.
+    expect([defaultOrder.length, GATE_DAYS]).toEqual([191, 308]);
     expect(COURSE_ORDER.slice(0, defaultOrder.length)).toEqual(defaultOrder);
     expect(new Set(COURSE_ORDER).size).toBe(COURSE_ORDER.length);
     for (const f of COURSE_CATALOG.families)
