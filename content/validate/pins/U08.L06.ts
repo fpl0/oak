@@ -1,8 +1,7 @@
 // U08.L06 Kick and Bass, One Line: fidelity pins (docs/oak2/PLAN.md §2 rule 4). The book's point (DeSantis, "Bass Lines
 // and Kick Drums as a Single Composite"): kick and bass take turns and are heard as one line. A bass that only looks
-// moved (a token note, a note that starts in a gap and rings through the next kick, a loud note left on the kick) must
-// fail; a composite reached another way (the kick moved into the bass's gaps, a house bass between four kicks, a pickup
-// into each kick) must pass.
+// moved (a token note or a loud note left on the kick) must fail; a composite reached another way (the kick moved,
+// a house bass, or the book's long notes with clear attacks) passes the Make. S4/S5 teach the stricter endings too.
 import type { Oak2Pin } from "./types.ts";
 
 const T = "setcpm(96/4)\n\n";
@@ -29,8 +28,8 @@ const PINS: Oak2Pin[] = [
   {
     owner: "U08.L06",
     at: "S4",
-    name: "moved off the kicks but held through them",
-    kind: "book-miss",
+    name: "held through the next kick: S4 asks for the endings too (the book's held form passes the Make)",
+    kind: "extra",
     expect: "fail",
     says: "Every bass note starts between two kicks and stops before the next one: Shorten bass notes",
     code: groove(bass("~ x@4 ~ x@2")),
@@ -92,7 +91,7 @@ const PINS: Oak2Pin[] = [
     name: "a token bass under the kick",
     kind: "book-miss",
     expect: "fail",
-    says: "The bass plays only between the kicks, at least two notes a bar: not yet",
+    says: "The bass plays between the kicks all through: not yet",
     code: make(KICK, bass("~ x ~ ~")),
   },
   {
@@ -126,6 +125,31 @@ const PINS: Oak2Pin[] = [
     kind: "book-other-way",
     expect: "pass",
     code: make('kick: s("bd*4")', bass("[~ x]*4")),
+  },
+  {
+    owner: "U08.L06",
+    at: "S6",
+    name: "the book's held composite: long notes starting in the gaps, ringing past the next kick",
+    kind: "book-other-way",
+    expect: "pass",
+    code: make(KICK, bass("~ x@4 ~ x@2")),
+  },
+  {
+    owner: "U08.L06",
+    at: "S6",
+    name: "four on the floor, long notes starting off the beat (the book's p. 161 shape)",
+    kind: "book-other-way",
+    expect: "pass",
+    code: make('kick: s("bd*4")', bass("~ x@3 ~ x@2 ~")),
+  },
+  {
+    owner: "U08.L06",
+    at: "S6",
+    name: "long notes that start with the kicks",
+    kind: "book-miss",
+    expect: "fail",
+    says: "The bass plays between the kicks all through: not yet",
+    code: make(KICK, bass("x@2 x@2")),
   },
 ];
 

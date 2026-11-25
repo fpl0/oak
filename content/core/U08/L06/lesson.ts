@@ -1,6 +1,6 @@
 // U08.L06 Kick and Bass, One Line (Oak 2.0 W2; DeSantis, *Making Music*, "Bass Lines and Kick Drums as a Single
 // Composite"). The opposite of Lock with the Kick: the bass plays in the gaps between the kicks, never with one, and
-// stops before the next kick, so the two take turns and you hear one low line instead of two parts. What the learner
+// in S4/S5 stops before the next kick; the Make also allows held notes with clear attacks. What the learner
 // has: one labelled line per drum (U01.L03), eighths and the "and" (U01.L04), `.struct()` (U06.L12), root bass lines
 // in degrees (U08.L01), `.clip()` for short notes (U02.L08), the groove lock (U08.L04). Not yet: the word for hits
 // between the beats (U13.L01), the bass's tone (U08.L05). Spec: content/specs/U08.md.
@@ -8,9 +8,9 @@
 // How it is graded (AUTHORING §18.1, §20.2; PLAN §2 rule 4): the learner writes the kick and the bass, so the Band
 // plays the chords only (`band.axis-4bar`, I V vi IV, the bass's roots). S4 and S5 keep the kick's rhythm (`rhythm`
 // on `kick`) and require `kick-bass-composite`: no bass note starts within a 32nd of a kick, no kick lands while a
-// bass note still sounds (its written length, `.clip()` included), one bass note at a time, and at least two bass
-// notes a bar on average. The Make's one required rule is the same composite. Fidelity pins (a token bass, a bass
-// ringing through the kicks; the kick moved instead, a house bass): content/validate/pins/U08.L06.ts.
+// bass note still sounds (its written length, `.clip()` included), and one bass note at a time.
+// Oak's call: two bass onsets in every full bar. The Make allows notes to ring past kicks when their attacks
+// stay clear (owner item 2). Fidelity pins: content/validate/pins/U08.L06.ts.
 import { defineLesson, type HintLadder, type Matcher, type RubricRule } from "@oak/content-kit";
 
 const BPM = 96;
@@ -59,15 +59,16 @@ const CHORDS = { band: "band.axis-4bar", tracks: ["chords"] } as const;
 const NONE = { roll: false, staff: false, keyboard: false } as const;
 const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
-/** Bass and kick take turns: the W0 rule, with at least two bass notes a bar. */
-const COMPOSITE = (id: string, label: string, required: boolean): RubricRule => ({
+/** Bass and kick take turns; the Make also accepts the book's held-bass form. */
+const COMPOSITE = (id: string, label: string, required: boolean, onsetsOnly = false): RubricRule => ({
   id,
   label,
   required,
   skills: ["B04"],
   rule: "custom",
   fn: "kick-bass-composite",
-  params: { bass: "bass", minBassPerBar: 2 },
+  // Oak's call: two bass onsets in every full bar.
+  params: { bass: "bass", minBassPerBar: 2, ...(onsetsOnly ? { onsetsOnly: true } : {}) },
 });
 /** The kick keeps its rhythm; the bass takes turns with it. */
 const KICK_KEPT_AND_TURNS: Matcher = {
@@ -92,7 +93,7 @@ const KICK_KEPT_AND_TURNS: Matcher = {
 
 export default defineLesson({
   id: "U08.L06",
-  version: 1,
+  version: 2,
   title: "Kick and Bass, One Line",
   objective:
     "I can write a bass that plays in the gaps between the kicks, so kick and bass sound as one line.",
@@ -237,7 +238,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Change the bass's rhythm in `.struct()` so every bass note starts between two kicks, never with one. Keep the kick line as it is. Done when no bass note starts on beat 1 or beat 3 or rings into one, and each bar still has at least two bass notes.",
+          "Change the bass's rhythm in `.struct()` so every bass note starts between two kicks, never with one. Keep the kick line as it is. Done when no bass note starts on beat 1 or beat 3 or rings into one, and the bass still plays between the kicks all through.",
         skills: [{ skill: "B04", w: 1 }],
         code: { starter: S4_STARTER },
         reference: { solutions: [S4_SOLUTION], bars: 4 },
@@ -377,16 +378,16 @@ export default defineLesson({
       exercise: {
         kind: "code-make",
         id: "kick-and-bass-take-turns",
-        version: 1,
+        version: 2,
         role: "practice",
         prompt:
-          "Write a kick and a bass for the first loud part of your song that take turns as one line. Move the bass, the kick or both. Done when no bass note starts with a kick or is still sounding when one hits, with at least two bass notes a bar.",
+          "Write a kick and a bass for the first loud part of your song that take turns as one line. Move the bass, the kick or both. Done when every bass note starts where the kick is silent, all through. A long note may ring past the next kick.",
         skills: [{ skill: "B04", w: 1 }],
         code: { starter: MAKE_STARTER },
         bars: [4, 8],
         saveAs: "sketch",
         rubric: [
-          COMPOSITE("turns", "The bass plays only between the kicks, at least two notes a bar", true),
+          COMPOSITE("turns", "The bass plays between the kicks all through", true, true),
           {
             id: "a-backbeat",
             label: "A snare on 2 and 4",
@@ -406,7 +407,7 @@ export default defineLesson({
         feedbackText: { "rubric.unmet": "{label}: not yet." },
         hints: ladder(
           "Right now the kick and the bass start together on beats 1 and 3. Give the bass the places the kick leaves empty.",
-          "Change the bass's `.struct()` so its notes fall where the kick line is silent, at least two a bar. Shorten any note that is still sounding when a kick hits.",
+          "Change the bass's `.struct()` so its notes start where the kick line is silent, in every bar.",
           "Beats 2 and 4 are free of the kick. So are the second halves of beats 1 and 3.",
         ),
         tests: [
@@ -446,6 +447,18 @@ export default defineLesson({
           {
             name: "the bass still on the kicks under a new kick",
             response: { code: code('kick: s("bd ~ ~ bd ~ ~ bd ~")', SNARE, bass("x ~ ~ x ~ ~ x ~")) },
+            expect: "fail",
+            feedback: ["rubric.unmet"],
+          },
+
+          {
+            name: "the book's long notes: each starts in a gap and rings past the next kick",
+            response: { code: code(KICK, SNARE, bass("~ x@4 ~ x@2")) },
+            expect: "pass",
+          },
+          {
+            name: "long notes that start with the kicks",
+            response: { code: code(KICK, SNARE, bass("x@2 x@2")) },
             expect: "fail",
             feedback: ["rubric.unmet"],
           },

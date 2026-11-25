@@ -553,7 +553,7 @@ export const R1: UnitSpec = {
           answer: ["code"],
           minutes: 1.25,
           graded: true,
-          what: "Kick on 1 and the and of 3, snare on 2, 4 and the last sixteenth, hats on every eighth on top of them. Rewrite the hats into the gaps. Graded: `custom` `linear-drums { minHitsPerBar: 6 }` (no two onsets together, beat 1 counted; six hits a bar; no drum's hits in a bar evenly spaced). The pass text names **linear drumming**.",
+          what: "Rewrite hats into the kick and snare gaps. `linear-drums { minHitsPerBar: 6 }` checks no simultaneous starts and no drum playing every eighth of the bar (every sixteenth included, and extra hits). Oak's call: six hits per bar on average; the label describes a shared line without a quota.",
           term: "term.linear-drumming",
         },
         {
@@ -562,7 +562,7 @@ export const R1: UnitSpec = {
           answer: ["code"],
           minutes: 1.25,
           graded: true,
-          what: "A linear groove whose hats run through the and of 2 and 4. Mark the starts of 3+3+2 (1, the and of 2, 4) with a change of drum or the loudest hit of the bar. Graded: `linear-drums { group: [3, 3, 2] }` (three bars in four).",
+          what: "Mark the starts of 3+3+2 with a change of drum or the loudest hit. `linear-drums { group: [3, 3, 2] }` keeps its group check (Oak's call: three bars in four) and uses the new every-eighth timekeeper check.",
         },
         {
           kind: "make",
@@ -575,16 +575,15 @@ export const R1: UnitSpec = {
       wrapAt: 4,
       make: {
         brief:
-          "Turn an ordinary beat (kick 1 and 3, snare 2 and 4, hats on every eighth) into a groove for one drummer: one drum at a time, at least six hits a bar, no drum keeping steady time alone. Then the groups of 3, 3 and 2, and a hi-hat that goes loud and soft like two hands.",
+          "Turn this ordinary beat into a groove for one drummer: one drum at a time, handed from drum to drum all through the bar, with no drum keeping time on every eighth or sixteenth. Also on the checklist: groups of 3, 3 and 2 eighths.",
         required: {
           rule: "custom",
           label:
-            "No two drums start together, beat 1 included; at least 6 hits a bar; and no drum's hits in a bar are evenly spaced",
-          why: "`custom` `linear-drums { minHitsPerBar: 6 }` (packages/grader/src/rubric/oak2-rhythm.ts, W0): every drum line read together. Fails (evaluated): the starter; the overlaps removed but the hats still on every eighth (the fidelity book-miss); a kick and a hat together on 1; the hats at `.gain(0)` (five hits). Passes: the lesson's hats in the gaps, the 3+3+2 line, a ride and toms and no hi-hat (the book-other-way), a two-bar line with a tom run at 100 BPM. The rule's even-spacing clause also refuses a snare on only 2 and 4 or a kick on only 1 and 3 (two evenly spaced hits): every groove of the lesson keeps them uneven, and the checklist label says so.",
+            "No two drums start together, beat 1 included; the line is handed from drum to drum all through the bar; and no drum plays every eighth or every sixteenth, keeping time on its own",
+          why: "`linear-drums { minHitsPerBar: 6 }` reads all drums together. Oak's call: six hits per bar on average. The book's simple kick on 1 and 3, snare on 2 and 4, and offbeat hats passes; hats covering every eighth fail even with extra sixteenths. Simultaneous starts still fail.",
         },
         suggestions: [
-          'a kick or a snare on the 1st, 4th and 7th eighths and on no other eighth (`custom` `grouping-accents`, `groups: ["3", "3", "2"]`, `track: "@drums"`)',
-          'the hats loud and soft like two hands (`velocity-ghosts` on `hats`, `on: "any"`, `min: 4`, `accents: 2`)',
+          'a kick or a snare on the 1st, 4th and 7th eighths (`grouping-accents`, `groups: ["3", "3", "2"]`, `track: "@drums"`, `minRatio: 1`, `allowOthers: true`); other accented eighths are allowed',
         ],
         band: "band.aeolian-4bar",
         tracks: ["bass", "chords"],

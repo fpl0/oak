@@ -10,12 +10,11 @@
 //
 // What the rule hears (`linear-drums`, packages/grader/src/rubric/oak2-rhythm.ts, evaluated for this lesson):
 // - two drums starting together anywhere fail, beat 1 included;
-// - fewer than six hits a bar (every drum line counted) fail;
-// - any drum whose hits in a bar are evenly spaced (two or more) fails: hats on every eighth, but also a snare on
-//   only 2 and 4 or a kick on only 1 and 3. So every groove here keeps its kick and snare off an even spacing: the
-//   kick on 1 and the "and" of 3, the snare on 2, 4 and the last sixteenth of the bar;
+// - Oak's call: fewer than six hits a bar on average (every drum line counted) fail;
+// - owner W5 item 3: a drum playing every eighth of the bar fails (every sixteenth included, and extra hits
+//   between eighths); sparse even parts such as a kick on 1 and 3 and a snare on 2 and 4 may share the line;
 // - with `group: [3, 3, 2]`, the hits on 1, the "and" of 2 and 4 must each be a different drum from the hit before
-//   them, or the loudest hit of the bar, in three bars of four.
+//   them, or the loudest hit of the bar, in three bars of four (Oak's call).
 //
 // The corrections-pass standard (AUTHORING §20.2) on every graded step: the reference, three other right answers,
 // the unchanged starter, a wrong answer that uses the right tool and fails on the effect (the hats moved but left
@@ -113,7 +112,8 @@ const LINEAR_RULE = (params: Record<string, unknown>, label: string, id: string)
 });
 /** What the rule checks, in the learner's words (AUTHORING §22.3). */
 const ONE_LINE_LABEL =
-  "No two drums start together, beat 1 included; at least 6 hits a bar; and no drum's hits in a bar are evenly spaced (hats on every eighth, or a snare on only 2 and 4, keep time on their own)";
+  "No two drums start together, beat 1 included; the line is handed from drum to drum all through the bar; and no drum plays every eighth or every sixteenth, keeping time on its own";
+// Oak's call: six hits per bar on average keeps the shared line moving.
 const ONE_LINE = LINEAR_RULE({ minHitsPerBar: 6 }, ONE_LINE_LABEL, "one-line");
 const THREE_THREE_TWO = LINEAR_RULE(
   { group: [3, 3, 2] },
@@ -132,7 +132,7 @@ const ROLL = { roll: true, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "R1.L06",
-  version: 1,
+  version: 2,
   title: "One Drummer, One Line",
   objective: "I can write a beat where no two drums hit together, one line handed from drum to drum.",
   key: { tonic: "E", mode: "minor" },
@@ -290,7 +290,7 @@ export default defineLesson({
       exercise: {
         kind: "code-modify",
         id: "hats-in-the-gaps",
-        version: 1,
+        version: 2,
         role: "check",
         prompt:
           "Rewrite the hi-hat string so no hat lands with a kick or a snare: hats only on places the kick and the snare leave empty, and not on every eighth. Keep the kick and the snare. Done when no two drums sound at once.",
@@ -376,7 +376,7 @@ export default defineLesson({
       exercise: {
         kind: "code-modify",
         id: "three-three-two",
-        version: 1,
+        version: 2,
         role: "check",
         prompt:
           "Split the bar into groups of 3, 3 and 2 eighths. Mark the start of each group, on 1, the and of 2 and 4: a kick or a snare where a hat was, or the loudest hat of the bar. Keep no two drums together. Done when all three starts are marked.",
@@ -497,11 +497,11 @@ export default defineLesson({
       exercise: {
         kind: "code-make",
         id: "your-one-line-groove",
-        version: 1,
+        version: 2,
         role: "practice",
         title: "One line",
         prompt:
-          "Turn this ordinary beat into a groove for one drummer: one drum at a time, at least six hits a bar, and no drum keeping steady time alone. It then opens your song. Also on the checklist: groups of 3, 3 and 2 eighths, and a hi-hat that goes loud and soft like two hands.",
+          "Turn this ordinary beat into a groove for one drummer: one drum at a time, handed from drum to drum all through the bar, and no drum keeping time on every eighth or every sixteenth. It then opens your song. Also on the checklist: groups of 3, 3 and 2 eighths.",
         skills: [
           { skill: "R14", w: 0.5 },
           { skill: "R10", w: 0.5 },
@@ -513,30 +513,18 @@ export default defineLesson({
           { ...ONE_LINE, id: "one-drum-at-a-time" },
           {
             id: "three-three-two-accents",
-            label:
-              "A kick or a snare on the 1st, 4th and 7th eighths of every bar (groups of 3, 3 and 2), and on no other eighth",
+            label: "A kick or a snare on the 1st, 4th and 7th eighths of every bar (groups of 3, 3 and 2)",
             required: false,
             skills: ["R10"],
             rule: "custom",
             fn: "grouping-accents",
-            params: { track: "@drums", groups: ["3", "3", "2"], minRatio: 1 },
-          },
-          {
-            id: "two-hands",
-            label: "At least 4 hi-hat hits are soft (level .4 or less) and 2 are loud (.8 or more)",
-            required: false,
-            skills: ["R14"],
-            rule: "velocity-ghosts",
-            track: "hats",
-            min: 4,
-            on: "any",
-            accents: 2,
+            params: { track: "@drums", groups: ["3", "3", "2"], minRatio: 1, allowOthers: true },
           },
         ],
         hints: ladder(
           "Find where two drums play at once: the hats sit on top of every kick and snare.",
-          "Clear the hats from the kick's and the snare's places. The kick on 1 and 3 and the snare on 2 and 4 are evenly spaced too: move one hit of each.",
-          "One way: the kick on 1 and the and of 3, the snare on 2, 4 and the last sixteenth, the hats on the eighths that are left.",
+          "Clear the hats from the kick's and the snare's places. Then look at what is left: a drum on every eighth still keeps time on its own.",
+          "One way: the kick on 1 and 3, the snare on 2 and 4, the hats only on the and of each beat.",
         ),
         tests: [
           {
@@ -559,9 +547,8 @@ export default defineLesson({
             expect: "pass",
           },
           {
-            // Meets both suggestions too: the kick alone on the 1st, 4th and 7th eighths, the snare and the loud
-            // hats between the eighths, the soft hats on them.
-            name: "every suggestion: the kick on the group starts, hats loud and soft in turn",
+            // Meets the grouping suggestion too: the kick marks the 1st, 4th and 7th eighths.
+            name: "every suggestion: the kick on the group starts",
             response: {
               code: make(
                 kick("bd ~ ~ ~ ~ ~ bd ~ ~ ~ ~ ~ bd ~ ~ ~"),
@@ -606,6 +593,30 @@ export default defineLesson({
           {
             name: "the hats in the gaps, silent: .gain(0)",
             response: { code: make(S4_KICK, S4_SNARE, hats(GAP_HATS, ".gain(0)")) },
+            expect: "fail",
+            feedback: ["rubric.unmet"],
+          },
+
+          {
+            name: "the book's simplest linear beat: kick on 1 and 3, snare on 2 and 4, hats on the ands",
+            response: {
+              code: make(
+                kick("bd ~ ~ ~ ~ ~ ~ ~ bd ~ ~ ~ ~ ~ ~ ~"),
+                snare("~ ~ ~ ~ sd ~ ~ ~ ~ ~ ~ ~ sd ~ ~ ~"),
+                hats("~ ~ hh ~ ~ ~ hh ~ ~ ~ hh ~ ~ ~ hh ~"),
+              ),
+            },
+            expect: "pass",
+          },
+          {
+            name: "nothing stacked, but the hats on every sixteenth the others leave and on every eighth",
+            response: {
+              code: make(
+                kick("~ bd ~ ~ ~ ~ ~ ~ ~ ~ ~ bd ~ ~ ~ ~"),
+                snare("~ ~ ~ ~ ~ sd ~ ~ ~ ~ ~ ~ ~ sd ~ sd"),
+                hats("hh ~ hh hh hh ~ hh hh hh hh hh ~ hh ~ hh ~"),
+              ),
+            },
             expect: "fail",
             feedback: ["rubric.unmet"],
           },

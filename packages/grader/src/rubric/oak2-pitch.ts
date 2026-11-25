@@ -142,6 +142,12 @@ const sameShape: CorrectionRule = (n, ctx, p) => {
 const bassNamesChord: CorrectionRule = (n, ctx, p) => {
   const chordsRef = str(p, "chords", "@chords");
   const bassRef = str(p, "bass", "@bass");
+  const stack = p.stack;
+  if (
+    stack !== undefined &&
+    (!Array.isArray(stack) || !stack.length || !stack.every((gap) => Number.isInteger(gap) && gap > 0))
+  )
+    return result(false, "Choose the gaps the chord notes are stacked in", ctx, chordsRef);
   const chords = notes(n, chordsRef);
   const bass = notes(n, bassRef);
   if (!chords.length) return missing(ctx, chordsRef);
@@ -157,7 +163,13 @@ const bassNamesChord: CorrectionRule = (n, ctx, p) => {
       chords[0]?.track ?? chordsRef,
       chords[0]?.onset,
     );
-  const matches = slots.map((slot) => {
+  const stacked = slots.map(
+    (slot) =>
+      stack === undefined ||
+      slot.midis.slice(1).every((midi, i) => (stack as number[]).includes(midi - (slot.midis[i] as number))),
+  );
+  const matches = slots.map((slot, i) => {
+    if (!stacked[i]) return false;
     const lows = heard(bass, slot.at);
     if (!lows.length) return false;
     const midi = Math.min(...lows.map((e) => e.midi));
@@ -181,6 +193,17 @@ const bassNamesChord: CorrectionRule = (n, ctx, p) => {
   const min = num(p, "min", 0.75);
   const met = value >= min - EPS;
   const wrong = slots[matches.indexOf(false)];
+  const wrongStack = slots[stacked.indexOf(false)];
+  if (!met && wrongStack)
+    return result(
+      false,
+      `Stack the chord notes ${(stack as number[]).join(" or ")} half steps apart so the bass can make the requested ${quality} harmony`,
+      ctx,
+      wrongStack.track,
+      wrongStack.at,
+      value,
+      min,
+    );
   return result(
     met,
     met

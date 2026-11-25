@@ -550,13 +550,17 @@ export const TRACK_CUSTOM_RULES: Readonly<Record<string, PlannedCustomRule>> = {
     params: { track: track("The accented line.", true), minRatio: ratio("Default 0.75.") },
   },
   "grouping-accents": {
-    doc: "R2.L01–L02: the groove's accents (kick, a louder hit, or a bass note) fall at the starts of the declared groups (`groupStarts`) of the meter's grouping, and nowhere else on the eighth grid, in at least `minRatio` of the bars.",
-    usedBy: ["R2.L01", "R2.L02"],
+    doc: "R2.L01–L02: the groove's accents (kick, a louder hit, or a bass note) fall at the starts of the declared groups (`groupStarts`) of the meter's grouping, and nowhere else on the eighth grid, in at least `minRatio` of the bars. `allowOthers` drops the nowhere-else requirement.",
+    usedBy: ["R2.L01", "R2.L02", "R1.L06"],
     params: {
       track: track("The accent line (default the kick)."),
       grouping: { kind: "rats", doc: "Unused; the grouping comes from the meter declaration or `groups`." },
       groups: { kind: "strings", doc: 'The grouping, e.g. ["2", "2", "3"].', required: true },
       minRatio: ratio("Default 1."),
+      allowOthers: {
+        kind: "boolean",
+        doc: "Accents may also fall on other eighths; every group start still needs one (default false; R1.L06's suggestion).",
+      },
     },
   },
   regrouped: {

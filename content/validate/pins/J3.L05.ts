@@ -111,5 +111,21 @@ export default [
     expect: "pass",
     code: make("[g3,c4,f4] [g3,c4,f4] [a3,d4,g4] [g3,c4,f4]", "d2 d2 e2 d2"),
   },
+  {
+    owner: "J3.L05",
+    at: "S6",
+    name: "minor 11ths voiced in 3rds: the bass names m11, the chords have no 4ths",
+    kind: "book-miss",
+    expect: "fail",
+    code: make("[f3,a3,c4,e4,g4] [f3,a3,c4,e4,g4] [g3,b3,d4,f#4,a4] [f3,a3,c4,e4,g4]", "d2 d2 e2 d2"),
+  },
+  {
+    owner: "J3.L05",
+    at: "S6",
+    name: "So What: four 4ths with a 3rd on top",
+    kind: "book-other-way",
+    expect: "pass",
+    code: make("[e3,a3,d4,g4,b4] [e3,a3,d4,g4,b4] [d3,g3,c4,f4,a4] [e3,a3,d4,g4,b4]", "e2 e2 d2 e2"),
+  },
   ...X14,
 ] satisfies Oak2Pin[];

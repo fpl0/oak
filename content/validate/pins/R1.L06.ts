@@ -108,4 +108,29 @@ export default [
     expect: "pass",
     code: make(KICK, SNARE, 'perc: s("~ ~ rd ~ ~ ~ lt mt rd ~ ~ ~ ~ ~ rd ~")'),
   },
+  {
+    owner: "R1.L06",
+    at: "S6",
+    name: "the book's extremely simple linear drumming: kick on 1 and 3, snare on 2 and 4, hats on the offbeat eighths",
+    kind: "book-other-way",
+    expect: "pass",
+    code: make(
+      'kick: s("bd ~ ~ ~ ~ ~ ~ ~ bd ~ ~ ~ ~ ~ ~ ~")',
+      'snare: s("~ ~ ~ ~ sd ~ ~ ~ ~ ~ ~ ~ sd ~ ~ ~")',
+      'hats: s("~ ~ hh ~ ~ ~ hh ~ ~ ~ hh ~ ~ ~ hh ~")',
+    ),
+  },
+  {
+    owner: "R1.L06",
+    at: "S6",
+    name: "hats on every eighth with extra sixteenths: still a timekeeper",
+    kind: "book-miss",
+    expect: "fail",
+    says: "Break up the evenly spaced hits",
+    code: make(
+      'kick: s("~ bd ~ ~ ~ ~ ~ ~ ~ ~ ~ bd ~ ~ ~ ~")',
+      'snare: s("~ ~ ~ ~ ~ sd ~ ~ ~ ~ ~ ~ ~ sd ~ sd")',
+      'hats: s("hh ~ hh hh hh ~ hh hh hh hh hh ~ hh ~ hh ~")',
+    ),
+  },
 ] satisfies Oak2Pin[];

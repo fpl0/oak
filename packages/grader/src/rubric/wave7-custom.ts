@@ -1048,9 +1048,15 @@ const groupingAccents: CorrectionRule = (n, ctx, p) => {
   if (selectTrack(n, ref).length === 0) return nothing(ref);
   const v = groupingView(n, { meter: ctx.meter, bars: barsOf(n, ctx), track: ref, groups });
   if (!("onStarts" in v)) return { ok: false, detail: v.notBuilt };
-  const ratio = v.onStarts.length ? v.onStarts.reduce((a, b) => a + b, 0) / v.onStarts.length : 0;
+  // W5 owner item 3: the linear groove may accent other eighths as well as every group start.
+  const starts = groups.map((_, i) => groups.slice(0, i).reduce((a, b) => a + b, 0));
+  const onStarts =
+    p.allowOthers === true
+      ? v.accents.map((accents) => (starts.every((at) => accents.includes(at)) ? 1 : 0))
+      : v.onStarts;
+  const ratio = onStarts.length ? onStarts.reduce((a, b) => a + b, 0) / onStarts.length : 0;
   const min = num(p, "minRatio", 1);
-  const badBar = v.onStarts.indexOf(0);
+  const badBar = onStarts.indexOf(0);
   const g = groups.join("+");
   return ratio >= min - EPS
     ? { ok: true, value: ratio, target: min, detail: `the accents mark ${g} in ${pct(ratio)} of the bars` }
@@ -1060,7 +1066,9 @@ const groupingAccents: CorrectionRule = (n, ctx, p) => {
         target: min,
         detail: `the accents mark the groups ${g} in ${pct(ratio)} of the bars; at least ${pct(min)}${
           badBar >= 0
-            ? `. In bar ${badBar + 1} an accent ${(v.accents[badBar] ?? []).length === 0 ? "is missing" : "falls inside a group, or a group starts without one"}`
+            ? p.allowOthers === true
+              ? `. In bar ${badBar + 1} a group starts without an accent`
+              : `. In bar ${badBar + 1} an accent ${(v.accents[badBar] ?? []).length === 0 ? "is missing" : "falls inside a group, or a group starts without one"}`
             : ""
         }`,
         ...(badBar >= 0 ? { where: { bar: badBar + 1 } } : {}),
