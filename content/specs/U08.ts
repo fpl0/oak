@@ -498,7 +498,7 @@ export const U08: UnitSpec = {
     {
       id: "U08.L06",
       author: "content-lead",
-      idea: 'Oak 2.0 W2 (DeSantis, "Bass Lines and Kick Drums as a Single Composite"). The opposite of the groove lock: the bass plays only in the gaps between the kicks and stops before the next kick, so the two take turns and are heard as one low line, a composite line.',
+      idea: 'Oak 2.0 W2 (DeSantis, "Bass Lines and Kick Drums as a Single Composite"). The bass starts in the gaps between kicks. S4/S5 teach short endings; the Make also accepts held notes with clear attacks.',
       hook: {
         hear: "Over the Band's chords: the bass on every kick (they blur into one thud), then the same notes in the gaps between the kicks (kick, bass, kick, bass, bass).",
         code: `${T(96)}kick: s("bd ~ bd ~")\nsnare: s("~ sd ~ sd")\nhats: s("hh*8").gain(.5)\nbass: n("${AXIS}").struct("~ ~ x ~ ~ x ~ x").scale("C2:major").s("ebass").lpf(600)`,
@@ -535,7 +535,7 @@ export const U08: UnitSpec = {
           answer: ["code"],
           minutes: 1.25,
           graded: true,
-          what: 'Move the bass into the gaps by changing its `.struct()`; keep the kick. `all`: `rhythm` on `kick` + custom `kick-bass-composite` `{ bass: "bass", minBassPerBar: 2 }` (no bass note within a 32nd of a kick, none sounding when a kick hits, one at a time, two a bar on average).',
+          what: 'Move the bass into the gaps in `.struct()`; keep the kick. `rhythm` on `kick` plus strict `kick-bass-composite { bass: "bass", minBassPerBar: 2 }`: clear attacks, no held overlap with kicks, one bass note at a time. Oak\'s call: two onsets in every full bar, kept out of the prompt.',
           term: "term.composite-line",
         },
         {
@@ -557,11 +557,11 @@ export const U08: UnitSpec = {
       wrapAt: 4,
       make: {
         brief:
-          "Write a kick and a bass that take turns: the bass only where the kick is silent, each note stopped before the next kick, at least two bass notes a bar. Move the bass, the kick or both.",
+          "Write a kick and a bass for the first loud part of your song that take turns. Every bass note starts where the kick is silent, all through; long notes may ring past the next kick.",
         required: {
           rule: "custom",
-          label: "The bass plays only between the kicks, at least two notes a bar",
-          why: 'custom `kick-bass-composite` `{ bass: "bass", minBassPerBar: 2 }`. A token one-note bass fails, a bass that rings through a kick fails, and a bass too quiet to hear (dropped by the grader at more than 24 dB under the loudest part) fails; the kick moved into the bass\'s gaps passes. The starter (the bass on the kicks on 1 and 3) fails.',
+          label: "The bass plays between the kicks all through",
+          why: 'custom `kick-bass-composite { bass: "bass", minBassPerBar: 2, onsetsOnly: true }`. Oak\'s call: two bass onsets in every full bar. Held notes with clear attacks pass; attacks on kicks, overlapping bass notes, token bass and inaudible bass fail. S4/S5 stay strict.',
         },
         suggestions: ["a snare on 2 and 4 (`onsets`)"],
         band: "band.axis-4bar",

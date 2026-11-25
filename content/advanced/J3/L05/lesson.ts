@@ -11,10 +11,11 @@
 //
 // What the rules hear (evaluated for this lesson with `identifyChord`, @oak/theory, which `bass-names-chord` uses):
 // D G C F over D reads "m11"; over G, C or F "7sus4"; over A or B♭ "69"; E A D G over E "m11", over A or D "7sus4";
-// G C F over D "m11". The rule reads the quality only, wherever three or more chord notes sound, weighted by how
+// G C F over D "m11". The rule reads the quality wherever three or more chord notes sound, weighted by how
 // long each sounds over its bass (X14), and needs the minor 11th for three quarters of that time (Oak's call; S4,
 // "all through the bar", needs all of it): a bass that plays D only on beat 3 of a held chord gets half the bar. `stack-intervals` reads the gaps between neighbouring notes from the lowest up, so the four right
-// letters spread over two octaves (D C G F) are not a stack of 4ths.
+// letters spread over two octaves (D C G F) are not a stack of 4ths. The Make checks gaps of 5 or 4 inside
+// `bass-names-chord`: minor 11ths voiced in 3rds fail, while So What with a 3rd on top passes (owner item 6).
 //
 // The corrections-pass standard (AUTHORING §20.2) on every graded step: the reference, three other right answers,
 // the unchanged starter, a wrong answer that fails on the effect, two realistic mistakes with different codes, and
@@ -74,14 +75,15 @@ const bassAnswer = (notes: string) => code(RIDE, bass(notes), HELD_LINE);
 const BASS_SOLUTION = bassAnswer("[d2 d2]");
 
 /** Both graded steps' and the Make's chord-naming rule: the bass makes each stack a minor 11th. */
-const minorEleven = (label: string, min = 0.75): RubricRule => ({
+// Oak's call: the Make needs the requested harmony for three quarters of the sounding time.
+const minorEleven = (label: string, min = 0.75, stack?: number[]): RubricRule => ({
   id: "bass-names-m11",
   label,
   required: true,
   skills: ["J09"],
   rule: "custom",
   fn: "bass-names-chord",
-  params: { chords: "chords", bass: "bass", quality: "m11", min },
+  params: { chords: "chords", bass: "bass", quality: "m11", min, ...(stack ? { stack } : {}) },
 });
 
 // ---- S5: which one is home -----------------------------------------------------------------------------------
@@ -107,7 +109,7 @@ const NONE = { roll: false, staff: false, keyboard: false } as const;
 
 export default defineLesson({
   id: "J3.L05",
-  version: 1,
+  version: 2,
   title: "Fourths",
   objective: "I can voice a chord in 4ths and name it from the note the bass plays under it.",
   key: { tonic: "C", mode: "major" },
@@ -454,11 +456,11 @@ export default defineLesson({
       exercise: {
         kind: "code-make",
         id: "your-loop-in-fourths",
-        version: 1,
+        version: 2,
         role: "practice",
         title: "Fourths",
         prompt:
-          "Here the bass plays G and A under the stacks, so every chord hangs. Make it your loop: stacks of 4ths in any rhythm, and a bass that makes every one a minor 11th, its lowest note under it. Also on the checklist: a 3rd on top of a stack, every gap 4 or 5 half steps.",
+          "Here the bass plays G and A under the stacks, so every chord hangs. Make it your loop: stacks of 4ths in any rhythm, every gap 4 or 5 half steps (a 3rd on top is fine), and a bass that makes every one a minor 11th, its lowest note under it.",
         skills: [{ skill: "J09", w: 1 }],
         swing: SWUNG,
         code: { starter: MAKE_STARTER },
@@ -466,17 +468,10 @@ export default defineLesson({
         saveAs: "sketch",
         rubric: [
           minorEleven(
-            "Wherever three or more chord notes sound, the bass under them makes a minor 11th chord for at least three quarters of the time",
+            "The chords are stacks of 4ths (every gap 4 or 5 half steps, a 3rd on top is fine), and the bass under them makes a minor 11th chord most of the time",
+            0.75, // Oak's call: the share of sounding time that must match.
+            [5, 4],
           ),
-          {
-            id: "fourths-or-a-third",
-            label: "Every chord's neighbouring notes are 4 or 5 half steps apart",
-            required: false,
-            skills: ["J09"],
-            rule: "custom",
-            fn: "stack-intervals",
-            params: { track: "chords", semitones: [5, 4] },
-          },
         ],
         // The override serves every rule of the rubric, suggestions included, so it stays neutral.
         feedbackText: { "rubric.unmet": "{label}: not yet." },
@@ -547,6 +542,28 @@ export default defineLesson({
             response: { code: make(chords(LOOP)) },
             expect: "fail",
             feedback: ["rubric.unmet"],
+          },
+
+          {
+            name: "minor 11ths voiced in 3rds over D and E: the right names, no 4ths",
+            response: {
+              code: make(
+                chords("[f3,a3,c4,e4,g4] [f3,a3,c4,e4,g4] [g3,b3,d4,f#4,a4] [f3,a3,c4,e4,g4]"),
+                LOOP_BASS,
+              ),
+            },
+            expect: "fail",
+            feedback: ["rubric.unmet"],
+          },
+          {
+            name: "So What: four 4ths and a 3rd on top",
+            response: {
+              code: make(
+                chords("[e3,a3,d4,g4,b4] [e3,a3,d4,g4,b4] [d3,g3,c4,f4,a4] [e3,a3,d4,g4,b4]"),
+                bass("<e2 e2 d2 e2>"),
+              ),
+            },
+            expect: "pass",
           },
         ],
       },

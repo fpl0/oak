@@ -281,16 +281,14 @@ export const J3: UnitSpec = {
       wrapAt: 4,
       make: {
         brief:
-          "The Rhodes plays stacks of 4ths over a bass on G and A, so every chord hangs. Make it your loop: stacks of 4ths in any rhythm, and a bass that makes every one a minor 11th. Then a 3rd on top of a stack, the shape pianists use on modal tunes.",
+          "Make your loop with stacks of 4ths in any rhythm, every gap 4 or 5 half steps (a 3rd on top is fine), and a bass that makes each a minor 11th.",
         required: {
           rule: "custom",
           label:
-            "Wherever three or more chord notes sound, the bass under them makes a minor 11th chord, three times in four",
-          why: '`custom` `bass-names-chord { chords: "chords", bass: "bass", quality: "m11" }` (packages/grader/src/rubric/oak2-pitch.ts, W0): at every moment three or more chord notes sound, `identifyChord` of the stack and the lowest bass note under it must report the quality `m11` (the string the rule reports, checked on the reference first), in 75 % of the moments. Fails (evaluated): the starter (G7sus, A7sus); held chords with the right bass only on beat 3 (one moment in two); no bass. Passes: the bass under each stack\'s lowest note, a 3rd on top, three-note stacks G C F over D, the stack moved a half step up for two bars at 160 BPM.',
+            "The chords are stacks of 4ths (every gap 4 or 5 half steps, a 3rd on top is fine), and the bass under them makes a minor 11th chord most of the time",
+          why: '`bass-names-chord { chords: "chords", bass: "bass", quality: "m11", min: 0.75, stack: [5, 4] }` combines the quality and neighbouring-gap checks in one required rule. Oak\'s call: matches cover three quarters of sounding time. Minor 11ths voiced in 3rds fail; So What and three-note stacks over D/E pass.',
         },
-        suggestions: [
-          "every chord's neighbouring notes 4 or 5 half steps apart, a 3rd allowed on top (`custom` `stack-intervals`, `semitones: [5, 4]`)",
-        ],
+        suggestions: [],
         band: "band.two-five-one",
         tracks: ["drums"],
         flavours:
@@ -316,7 +314,7 @@ export const J3: UnitSpec = {
       },
       notes: [
         "Oak 2.0 W2 (docs/superpowers/plans/2026-11-25-oak2-w2.md Task 3; lesson content/advanced/J3/L05, fidelity pins content/validate/pins/J3.L05.ts). Passes every content-CI section with the real grader (6 steps, 2 graded, 7 expert minutes).",
-        'What `identifyChord` reports (evaluated; `bass-names-chord` compares the quality only): D G C F over D, D1, D3 or E: m11; over G, C or F: 7sus4; over A or B♭: 69; E A D G over E: m11, over A or D: 7sus4; G C F over D: m11; `chord("Dm11").voicing()` plays A3 D4 G4 C5, which over D reads 7sus4. Known gaps for the integrator: a minor 11th written in 3rds over its root passes the Make (the plan keeps the 4ths a suggestion), and E under the D stack passes S4 and the Make (the quality is m11 with D as its root).',
+        "The Make now requires gaps of 5 or 4 inside the chord-naming rule: minor 11ths in 3rds fail and So What passes. Naming still checks quality, not equality between the bass pitch and the root: D G C F over D or E reads m11. S4 keeps its quality-only rule with `min: 1`.",
         "Song: a side step. Every room of J3's song is a ii–V–I and this loop stays on minor 11th chords, so no room fits it.",
       ],
     },

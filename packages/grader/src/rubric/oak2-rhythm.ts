@@ -3,7 +3,7 @@ import type { NEvent, Rat } from "@oak/content-kit";
 import { parseRat, R, rat } from "@oak/content-kit";
 import { METERS } from "@oak/theory";
 import { locAt, median, onsets, ratKey, sortEvents } from "../analyze/events.ts";
-import { evenCount, grooveLock } from "../analyze/groove.ts";
+import { grooveLock } from "../analyze/groove.ts";
 import { selectTrack } from "../analyze/tracks.ts";
 import {
   type AstNode,
@@ -65,6 +65,7 @@ const kickBass =
     if (!kicks.length) return missing("the kick drum");
     let window: Rat;
     try {
+      // Oak's call: a 32nd-note separation treats near attacks as collisions.
       window = parseRat(str(p, "window", "1/32"));
     } catch {
       return result(false, "Choose a valid gap between the kick and bass notes");
@@ -72,7 +73,7 @@ const kickBass =
     if (R.lt(window, rat(0))) return result(false, "Choose a positive gap between the kick and bass notes");
     if (grooveLock(kicks, onsets(bass), window).lock > 0)
       return result(false, `Move ${ref} notes away from the kick hits so they take turns`);
-    if (bass.some((e) => kicks.some((k) => R.lt(e.onset, k) && R.lt(k, endOf(e)))))
+    if (p.onsetsOnly !== true && bass.some((e) => kicks.some((k) => R.lt(e.onset, k) && R.lt(k, endOf(e)))))
       return result(false, `Shorten ${ref} notes so they finish before the next kick`);
     for (let i = 1; i < bass.length; i++) {
       const prev = bass[i - 1] as NEvent;
@@ -81,7 +82,7 @@ const kickBass =
         return result(false, `Let each ${ref} note finish before another bass note starts`);
     }
     const bars = fullBars(n, ctx, deps);
-    // Oak's call: `minBassPerBar` notes in every full bar, not on average (X14, U08.L06 S6 "at least two notes a bar").
+    // Oak's call: `minBassPerBar` notes in every full bar, not on average (X14).
     const min = num(p, "minBassPerBar", 1);
     if (!bars.length || bars.some((b) => onsets(inBar(bass, b)).length < min))
       return result(false, `Add more ${ref} notes between the kicks throughout the piece`);
@@ -360,8 +361,8 @@ const depthLayers =
         );
   };
 
-// Oak's calls in `linear-drums`: its density and evenly-spaced-hit thresholds below are Oak's reading of "no single
-// timekeeper", not numbers from the book.
+// Owner's W5 call (item 3): a drum keeps time when it plays every eighth of the bar (every sixteenth
+// included, and extra hits between eighths); sparser evenly spaced parts may share the line.
 const linearDrums =
   (deps: CorrectionDeps): CorrectionRule =>
   (n, ctx, p) => {
@@ -371,15 +372,22 @@ const linearDrums =
       return result(false, "Let only one drum hit at a time including the first beat");
     const bars = fullBars(n, ctx, deps);
     const rows = bars.map((b) => inBar(events, b));
+    // Oak's call: six hits per bar on average keeps the shared line moving.
     if (
       !bars.length ||
       rows.reduce((sum, row) => sum + row.length, 0) / bars.length < num(p, "minHitsPerBar", 6)
     )
       return result(false, "Add more drum hits that take turns across the bar");
+    const meter = METERS[ctx.meter];
+    const eighths = (meter.num * 8) / meter.den;
+    const points = Number.isInteger(eighths) ? eighths : (meter.num * 16) / meter.den;
     for (const row of rows) {
       for (const role of new Set(row.map((e) => e.drum))) {
-        const count = evenCount(onsets(row.filter((e) => e.drum === role)));
-        if (count !== null && count >= 2)
+        const hits = onsets(row.filter((e) => e.drum === role)).map(R.frac);
+        const keepsTime = Array.from({ length: points }, (_, k) => rat(k, points)).every((at) =>
+          hits.some((hit) => R.eq(hit, at)),
+        );
+        if (keepsTime)
           return result(false, "Break up the evenly spaced hits so no drum keeps time through the whole bar");
       }
     }
