@@ -13,6 +13,7 @@ import { courseRoutes } from "./routes/course.ts";
 import { createMounter } from "./routes/define.ts";
 import { libraryRoutes } from "./routes/library.ts";
 import { metaRoutes } from "./routes/meta.ts";
+import { oak2PendingRoutes } from "./routes/oak2.ts";
 import { opsRoutes } from "./routes/ops.ts";
 import { practiceRoutes } from "./routes/practice.ts";
 import { songRoutes } from "./routes/songs.ts";
@@ -88,6 +89,8 @@ export function buildApp(d: AppDeps): Hono {
   songRoutes(mount, d);
   tutorRoutes(mount, d);
   opsRoutes(mount, d);
+  // Oak 2.0 (contracts §13): endpoints not built yet answer the typed 501 (routes/oak2.ts).
+  oak2PendingRoutes(mount);
   tutorTurnRoutes(app, d);
 
   if (d.tutor !== null) app.route("/", d.tutor.app);

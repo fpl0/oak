@@ -84,8 +84,8 @@ import { noteName } from "../match/common.ts";
 import { runMatcher } from "../match/index.ts";
 import type { Normalized } from "../types.ts";
 import type { RubricContext } from "./context.ts";
-import type { CorrectionDeps } from "./corrections-rules.ts";
-import { correctionRules, placeText } from "./corrections-rules.ts";
+import type { CorrectionDeps, CorrectionRule } from "./corrections-rules.ts";
+import { correctionRules, placeText, withAlsoUses } from "./corrections-rules.ts";
 import {
   chordInversionsRule,
   chordQualitiesRule,
@@ -94,6 +94,9 @@ import {
   pickupRule,
   voiceLeadingGateRule,
 } from "./harmony-rules.ts";
+import { oak2FormRules } from "./oak2-form.ts";
+import { oak2PitchRules } from "./oak2-pitch.ts";
+import { oak2RhythmRules } from "./oak2-rhythm.ts";
 import {
   bassLineRule,
   bluesFormRule as bluesFormWave5,
@@ -1837,12 +1840,20 @@ export const CUSTOM_DEPS: CorrectionDeps = {
     return { used: count > 0, label: tools.map((t) => toolText(t, ctx.toolCode)).join(" or ") };
   },
 };
+/** A table of custom rules with the `alsoUses` check every custom rule gets (corrections-rules.ts `withAlsoUses`). */
+const withAlsoUsesAll = (table: Record<string, CorrectionRule>): Record<string, CustomRule> =>
+  Object.fromEntries(Object.entries(table).map(([k, r]) => [k, withAlsoUses(r, CUSTOM_DEPS)]));
 const BUILT_CUSTOM_RULES: Readonly<Record<string, CustomRule>> = {
   // Corrections pass: effect checks for the lesson fixes (rubric/corrections-rules.ts).
   ...correctionRules(CUSTOM_DEPS),
   // Wave 7 Build: the advanced tracks' rules (rubric/wave7-custom.ts), walking-bass, allowed-tensions and
   // ii-v-chain rebuilt to their content-kit definitions (w7plan A3, A4).
   ...wave7CustomRules(CUSTOM_DEPS),
+  // Oak 2.0 W0 (docs/oak2/PLAN.md §5–§6, docs/design/oak2/W0.md): form and arrangement, pitch and harmony, rhythm
+  // and sound. Each is unit-tested on real Strudel in its own oak2-*.test.ts; `withAlsoUses` as for the others.
+  ...withAlsoUsesAll(oak2FormRules(CUSTOM_DEPS)),
+  ...withAlsoUsesAll(oak2PitchRules(CUSTOM_DEPS)),
+  ...withAlsoUsesAll(oak2RhythmRules(CUSTOM_DEPS)),
 };
 /**
  * Every custom rule by name. Wave 7 (rubric/wave7-rules.ts): each planned rule of the advanced tracks

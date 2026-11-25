@@ -119,6 +119,24 @@ test("every rule name of the content contract has an analyzer", () => {
     "black-keys",
     "chance-varies",
     "echo",
+    // Oak 2.0 W0 (rubric/oak2-form.ts, oak2-pitch.ts, oak2-rhythm.ts).
+    "ends-on-purpose",
+    "carved",
+    "staggered-boundary",
+    "unique-event",
+    "arc",
+    "same-shape",
+    "bass-names-chord",
+    "inverted-copy",
+    "rotated-copy",
+    "time-shifted",
+    "gap-fill",
+    "kick-bass-composite",
+    "hocket",
+    "stepped-control",
+    "no-chance",
+    "depth-layers",
+    "linear-drums",
   ];
   // Wave 7 Build (rubric/wave7-custom.ts): every planned custom rule of the advanced tracks is built.
   expect(wave7UnbuiltCustom(built)).toEqual([]);

@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import {
   contract,
   ENDPOINT_NAMES,
+  OAK2_ENDPOINTS,
   WAVE2_ENDPOINTS,
   WAVE3_ENDPOINTS,
   WAVE4_ENDPOINTS,
@@ -10,6 +11,7 @@ import {
   WAVE7_ENDPOINTS,
 } from "@oak/api";
 import { gradeResult, type Harness, harness } from "../testing/harness.ts";
+import { OAK2_PENDING } from "./oak2.ts";
 
 let h: Harness;
 beforeEach(async () => {
@@ -48,7 +50,7 @@ describe("meta", () => {
     }>("GET", "/api/health");
     expect(r.status).toBe(200);
     expect(r.body.ok).toBe(true);
-    expect(r.body.schemaVersion).toBe(11);
+    expect(r.body.schemaVersion).toBe(12);
     expect(r.body.contentVersion).toBe("fixture-1");
     expect(r.body.tutor).toBe("unreachable");
     expect(r.body.dev).toBe(false);
@@ -884,6 +886,70 @@ describe("Wave 7 endpoints", () => {
         const path = `/api${def.path.replace(/:([A-Za-z]+)/g, "1")}`;
         const r = await full.json<{ error?: { code: string } }>(def.method, path, WAVE7_BODIES[name]);
         if (WAVE7_PENDING.includes(name))
+          expect({ name, status: r.status, code: r.body?.error?.code }).toEqual({
+            name,
+            status: 501,
+            code: "not_implemented",
+          });
+        else expect({ name, status: r.status }).not.toEqual({ name, status: 501 });
+      }
+    } finally {
+      await full.close();
+    }
+  });
+});
+
+/** Valid bodies for the Oak 2.0 writes, so a pending endpoint reaches its 501 stub instead of a 400. */
+const OAK2_BODIES: Partial<Record<(typeof OAK2_ENDPOINTS)[number], unknown>> = {
+  "scraps.create": {
+    role: "bass",
+    label: "bass",
+    code: 'bass: note("c2 ~ g2 ~")',
+    bpm: 100,
+    meter: "4/4",
+    key: null,
+    sourceKind: "sketch",
+    sourceRef: null,
+  },
+  "templates.create": {
+    name: "My blank",
+    isBlank: true,
+    fromSketch: null,
+    code: "setcpm(100/4)",
+    bpm: 100,
+    meter: "4/4",
+  },
+  "templates.patch": { name: "Renamed" },
+  "later.create": { text: "Look at modes later", source: "learner" },
+  "later.patch": { done: true },
+  "catalogs.create": {
+    refKind: "song",
+    refId: "U01",
+    lines: { tempo: "", sound: "", harmony: "", melody: "", rhythm: "", form: "" },
+    sketchId: null,
+  },
+  "sketches.patchVersion": { takeState: "kept" },
+  "album.patchTrack": { shelved: true },
+};
+
+describe("Oak 2.0 endpoints", () => {
+  test("a pending endpoint answers the typed 501 stub; a built one never does", async () => {
+    const full = await harness({ dev: true });
+    try {
+      for (const name of OAK2_ENDPOINTS) {
+        const def = contract[name] as { method: string; path: string; confirm?: unknown };
+        const path = `/api${def.path.replace(/:([A-Za-z]+)/g, "1")}`;
+        const r = await full.json<{ error?: { code: string } }>(
+          def.method,
+          path,
+          def.method === "GET" ? undefined : (OAK2_BODIES[name] ?? {}),
+        );
+        // A confirm-guarded endpoint answers its confirm check before any handler runs.
+        if (def.confirm !== undefined) {
+          expect({ name, status: r.status }).not.toEqual({ name, status: 404 });
+          continue;
+        }
+        if (OAK2_PENDING.includes(name))
           expect({ name, status: r.status, code: r.body?.error?.code }).toEqual({
             name,
             status: 501,

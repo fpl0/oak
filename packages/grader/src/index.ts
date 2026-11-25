@@ -30,6 +30,7 @@ import type {
   TutorEvalView,
 } from "./types.ts";
 
+export { type Dimension, diffDimensions, type PieceView } from "./analyze/diff-dimensions.ts";
 // Wave 3 seam (docs/design/wave3.md §3.3): which key each stretch of each track is read in, for degree labels.
 export {
   type EventLabel,
@@ -53,6 +54,14 @@ export {
   tapTargets,
   tapWindow,
 } from "./perf/index.ts";
+// Oak 2.0 W0: visible code rewrites for the Studio's variation tools, and the describer of what changed.
+export {
+  invertAroundCentre,
+  retrogradePitches,
+  rewriteDegrees,
+  rotatePitches,
+  wrapChain,
+} from "./rewrite/index.ts";
 export { evaluateForGrading } from "./runtime/analyze.ts";
 export { barsToQuery } from "./runtime/caps.ts";
 export { initRealm } from "./runtime/realm.ts";

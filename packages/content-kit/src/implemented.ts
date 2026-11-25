@@ -318,6 +318,24 @@ export const IMPLEMENTED: Implemented = {
   // Corrections pass (grader): effect checks for the lesson fixes, each unit-tested on a right and a wrong piece in
   // packages/grader/src/rubric/corrections-rules.test.ts (`CORRECTION_RULES` in rubric/corrections-rules.ts).
   customRules: [
+    // Oak 2.0 W0 (docs/oak2/PLAN.md §5–§6): oak2-form.ts, oak2-pitch.ts, oak2-rhythm.ts.
+    "ends-on-purpose",
+    "carved",
+    "staggered-boundary",
+    "unique-event",
+    "arc",
+    "same-shape",
+    "bass-names-chord",
+    "inverted-copy",
+    "rotated-copy",
+    "time-shifted",
+    "gap-fill",
+    "kick-bass-composite",
+    "hocket",
+    "stepped-control",
+    "no-chance",
+    "depth-layers",
+    "linear-drums",
     "silent-beat",
     "split-beat",
     "held",
