@@ -1,6 +1,6 @@
 // Oak 2.0 W1 (PLAN §4 S3): the Jam toggle and, while Jam is on, the bar under the header: what Jam does, an
-// optional timebox (the learner names the task and picks a length; a quiet clock; when it runs out Oak asks once
-// and never stops the playback) and an optional "what's in this take" row that only describes the last Run.
+// optional timebox (the learner names the task and picks a length; a quiet clock; when it runs out Oak names a
+// stop and break and never stops the playback) and an optional "what's in this take" row that only describes the last Run.
 import { Clock, Music2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/kit/Button.tsx";
@@ -12,7 +12,7 @@ import {
   TIMEBOX_MINUTES,
   type Timebox,
   timeboxLeft,
-  timeUpQuestion,
+  timeUpLine,
 } from "./jam.ts";
 
 /** The header's Jam switch (off by default; the learner chooses). */
@@ -169,31 +169,33 @@ export function JamBar({
         </label>
       </div>
       {rough ? (
-        <p className="text-text" data-testid="rough-pass">
-          {lastRunCode === null ? JAM_WORDS.roughPassEmpty : roughPassLine(lastRunCode)}
-        </p>
+        <div className="flex flex-col gap-1">
+          <p className="text-text" data-testid="rough-pass">
+            {lastRunCode === null ? JAM_WORDS.roughPassEmpty : roughPassLine(lastRunCode)}
+          </p>
+          {lastRunCode !== null ? (
+            <p className="text-text-2" data-testid="rough-pass-listen">
+              {JAM_WORDS.roughPassListen}
+            </p>
+          ) : null}
+        </div>
       ) : null}
       {timebox && up ? (
         <Callout
           tone="info"
-          title={timeUpQuestion(timebox.task)}
+          title={timeUpLine(timebox.task)}
           actions={
-            <>
-              <Button
-                size="sm"
-                variant="primary"
-                onClick={() => {
-                  setTimebox(null);
-                  onSwitchToEditing();
-                }}
-                data-testid="timebox-switch"
-              >
-                {JAM_WORDS.switchToEditing}
-              </Button>
-              <Button size="sm" variant="ghost" onClick={() => setTimebox(null)} data-testid="timebox-keep">
-                {JAM_WORDS.keepJamming}
-              </Button>
-            </>
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => {
+                setTimebox(null);
+                onSwitchToEditing();
+              }}
+              data-testid="timebox-switch"
+            >
+              {JAM_WORDS.switchToEditing}
+            </Button>
           }
         />
       ) : null}

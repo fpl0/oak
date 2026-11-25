@@ -5,6 +5,7 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, mock, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import type { SketchDetail, SketchVersion } from "@oak/api";
+import type { SequenceItem } from "./sequence.ts";
 
 GlobalRegistrator.register();
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
@@ -17,8 +18,12 @@ mock.module(new URL("../piece-read.ts", import.meta.url).pathname, () => ({
   },
 }));
 const played: string[][] = [];
+type PlayerProps = { items: readonly SequenceItem[]; onPlayed?(item: SequenceItem, index: number): void };
+const renders: PlayerProps[] = [];
 mock.module(new URL("./BackToBack.tsx", import.meta.url).pathname, () => ({
-  BackToBack: ({ items }: { items: readonly { code: string }[] }) => {
+  BackToBack: (props: PlayerProps) => {
+    renders.push(props);
+    const { items } = props;
     played.push(items.map((i) => i.code));
     return null;
   },
@@ -94,6 +99,7 @@ beforeAll(() => {
 beforeEach(() => {
   readCalls.length = 0;
   played.length = 0;
+  renders.length = 0;
   sessionStorage.clear();
 });
 afterEach(() => {
@@ -103,7 +109,7 @@ afterAll(async () => {
   await GlobalRegistrator.unregister();
 });
 
-async function mount(sketch: SketchDetail, shown: SketchVersion) {
+async function mount(sketch: SketchDetail, shown: SketchVersion, jam = false) {
   root = createRoot(container);
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   await act(async () => {
@@ -117,7 +123,7 @@ async function mount(sketch: SketchDetail, shown: SketchVersion) {
           cursorLabel={null}
           meter="4/4"
           keySpec={null}
-          jam={false}
+          jam={jam}
           editor={null}
           applyCode={() => {}}
           saveVersion={async () => null}
@@ -153,6 +159,8 @@ describe("Variation: versions flagged review-before-running", () => {
   test("a flagged sibling is never read or played; its row says it waits for review", async () => {
     writeVariation("sk1", { draft: null, chainStart: null, siblingParent: 1 });
     await mount(sketchOf([parent, okSibling, flaggedSibling]), parent);
+    await finishItem(0);
+    await finishItem(1);
     expect(readCalls.length).toBeGreaterThan(0);
     expect(readCalls.some((c) => c.includes("FLAGGED"))).toBe(false);
     expect(played.length).toBeGreaterThan(0);
@@ -198,5 +206,70 @@ describe("Variation: versions flagged review-before-running", () => {
     const rows = all("chain-row");
     expect(rows[1]?.querySelector('[data-testid="variation-imported"]')?.textContent).toBe(W.imported);
     expect(readCalls.some((c) => c.includes("FLAGGED"))).toBe(false);
+  });
+});
+
+async function finishItem(index: number) {
+  const latest = renders.at(-1);
+  const item = latest?.items[index];
+  expect(latest?.onPlayed).toBeDefined();
+  if (!item) throw new Error("Missing sequence item");
+  await act(async () => latest?.onPlayed?.(item, index));
+  await act(async () => {
+    await new Promise((r) => setTimeout(r, 10));
+  });
+}
+
+describe("X24: Siblings waits for listening", () => {
+  const parent = ver(1, 'drums: s("bd*4")');
+  const rhythm = ver(2, 'drums: s("bd*8")', {
+    parentVersion: 1,
+    generation: 1,
+    dimension: "rhythm",
+    note: "Sibling: rhythm",
+  });
+  const sound = ver(3, 'drums: s("sd*4")', {
+    parentVersion: 1,
+    generation: 1,
+    dimension: "sound",
+    note: "Sibling: sound",
+  });
+  const setup = async (jam = false) => {
+    writeVariation("sk1", { draft: null, chainStart: null, siblingParent: 1 });
+    await mount(sketchOf([parent, rhythm, sound]), parent, jam);
+  };
+  test("AC2/3/4/6: reads only the heard pair, retained across tabs without storage", async () => {
+    await setup();
+    const stored = sessionStorage.getItem("oak.variation.sk1");
+    const keys = Object.keys(sessionStorage);
+    expect(all("variation-change")).toEqual([]);
+    expect(readCalls).toEqual([]);
+    await finishItem(0);
+    expect(all("variation-change")).toEqual([]);
+    expect(readCalls).toEqual([]);
+    await finishItem(1);
+    expect(all("sibling-row")[0]?.querySelectorAll('[data-testid="variation-change"]')).toHaveLength(1);
+    expect(all("sibling-row")[1]?.querySelector('[data-testid="variation-change"]')).toBeNull();
+    expect(readCalls).toEqual([parent.code, rhythm.code]);
+    for (const label of [W.generationsTab, W.siblingsTab]) {
+      const tab = [...container.querySelectorAll('[role="tab"]')].find((t) => t.textContent === label);
+      await act(async () => (tab as HTMLElement).click());
+    }
+    expect(all("sibling-row")[0]?.querySelectorAll('[data-testid="variation-change"]')).toHaveLength(1);
+    expect(sessionStorage.getItem("oak.variation.sk1")).toBe(stored);
+    expect(Object.keys(sessionStorage)).toEqual(keys);
+  });
+  test("AC5: a sibling heard without its parent has no line or read", async () => {
+    await setup();
+    await finishItem(2);
+    expect(all("variation-change")).toEqual([]);
+    expect(readCalls).toEqual([]);
+  });
+  test("AC7: Jam has no line or read even after both versions finish", async () => {
+    await setup(true);
+    await finishItem(0);
+    await finishItem(1);
+    expect(all("variation-change")).toEqual([]);
+    expect(readCalls).toEqual([]);
   });
 });

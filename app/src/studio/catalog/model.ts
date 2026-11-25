@@ -254,7 +254,8 @@ export const CATALOG_WORDS = {
   start: "Catalog a reference",
   outsideStart: "Outside your lane",
   outsideIntro:
-    "Pick a style you usually skip and a track its fans love. Listen, then write what they hear in it.",
+    "Pick a style you would never play for yourself and a track its fans love. Listen, then write what they hear in it.",
+  outsideUse: "Anything here you could use?",
   outsideLines: "Write each line as what its fans love about it.",
   outsideStyle: "The style",
   outsideTrack: "The track",

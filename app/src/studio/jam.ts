@@ -49,7 +49,6 @@ export const JAM_WORDS = {
     "Play freely: every Run is kept as a take. The tutor, hints and compare wait until you switch to editing.",
   jamOn: "Jam is on. Every Run is kept as a take; the tutor, hints and compare wait.",
   switchToEditing: "Switch to editing",
-  keepJamming: "Keep jamming",
   timebox: "Timebox",
   timeboxTask: "What is this jam for?",
   timeboxTaskPlaceholder: "a groove, a bass line…",
@@ -59,6 +58,7 @@ export const JAM_WORDS = {
   timeboxLeft: "left",
   roughPass: "What's in this take",
   roughPassTitle: "A plain line about the parts in your last Run.",
+  roughPassListen: "Listen past the sounds and the mix: how are the notes?",
   roughPassEmpty: "Run the code to see what this take has.",
   focus: "Focus one part",
   focusTitle: "Solo the line under the cursor and lock the others while you work on it.",
@@ -94,12 +94,9 @@ export function roughPassLine(code: string): string {
   const present = new Set<StudioRole>();
   for (const l of labelledLines(code)) if (!l.muted) present.add(roleOfLabel(l.label));
   const has = ROLE_ORDER.filter((r) => present.has(r));
-  const not = ROLE_ORDER.filter((r) => !present.has(r));
   if (has.length === 0) return "This take has no part yet.";
   const hasWords = listOf(has.map((r) => (r === "tune" ? "a tune" : r)));
-  return not.length === 0
-    ? `This take has ${hasWords}.`
-    : `This take has ${hasWords}. Not in it yet: ${not.join(", ")}.`;
+  return `This take has ${hasWords}.`;
 }
 
 // --- timebox --------------------------------------------------------------------------------------
@@ -120,9 +117,9 @@ export function timeboxLeft(t: Timebox, now: number): { leftMs: number; up: bool
   return { leftMs, up: leftMs === 0 };
 }
 
-/** The question when the clock runs out. */
-export function timeUpQuestion(task: string): string {
-  return `Time's up for “${task}”. Switch to editing?`;
+/** The stop-and-break line when the clock runs out; playback stays with the learner. */
+export function timeUpLine(task: string): string {
+  return `Time's up for “${task}”. Stop here and take a short break.`;
 }
 
 /** `m:ss` for the quiet clock. */

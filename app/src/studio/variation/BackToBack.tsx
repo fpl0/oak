@@ -22,11 +22,14 @@ export function BackToBack({
   playLabel,
   onCurrent,
   gainOf,
+  onPlayed,
 }: {
   items: readonly SequenceItem[];
   playLabel: string;
   onCurrent?(index: number | null): void;
   gainOf?(index: number): number;
+  /** Called at an item's full-bar boundary, never for an interrupted or failed item. */
+  onPlayed?(item: SequenceItem, index: number): void;
 }): JSX.Element {
   const { unlocked } = useUnlockedSet();
   const slug = `b2b${useId().replace(/[^A-Za-z0-9]/g, "")}`;
@@ -42,6 +45,8 @@ export function BackToBack({
   itemsRef.current = items;
   const onCurrentRef = useRef(onCurrent);
   onCurrentRef.current = onCurrent;
+  const onPlayedRef = useRef(onPlayed);
+  onPlayedRef.current = onPlayed;
   const gainRef = useRef(gainOf);
   gainRef.current = gainOf;
 
@@ -86,7 +91,11 @@ export function BackToBack({
     const times = sequenceTimes(list)[index];
     const ms = times ? (times.endSec - times.startSec) * 1000 : 0;
     clearTimer();
-    timer.current = setTimeout(() => void playFrom(h, index + 1, id), ms);
+    timer.current = setTimeout(() => {
+      if (id !== run.current || h.disposed) return;
+      onPlayedRef.current?.(item, index);
+      void playFrom(h, index + 1, id);
+    }, ms);
   };
 
   const start = (h: EditorHandle) => {

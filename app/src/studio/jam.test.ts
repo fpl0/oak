@@ -15,7 +15,7 @@ import {
   studioChrome,
   TIMEBOX_MINUTES,
   timeboxLeft,
-  timeUpQuestion,
+  timeUpLine,
 } from "./jam.ts";
 
 beforeEach(() => {
@@ -98,24 +98,21 @@ describe("rough pass", () => {
     const lines = [roughPassLine(all), roughPassLine(drumsBass), roughPassLine(none)];
     expect(lines).toEqual([
       "This take has drums, bass, chords and a tune.",
-      "This take has drums and bass. Not in it yet: chords, tune.",
+      "This take has drums and bass.",
       "This take has no part yet.",
     ]);
     for (const l of lines) {
+      expect(l).not.toContain("Not in it yet");
       expect(isDescriptive(l)).toBe(true);
       expect(l).not.toMatch(/[✓✔✗✘/]|\d/);
     }
   });
 
   test("a muted line does not count; vox is a tune; an other label is not named", () => {
-    expect(roughPassLine('drums: s("bd")\n_bass: note("c2")')).toBe(
-      "This take has drums. Not in it yet: bass, chords, tune.",
-    );
-    expect(roughPassLine('vox: n("0 2")\nriff: s("hh*8")')).toBe(
-      "This take has a tune. Not in it yet: drums, bass, chords.",
-    );
+    expect(roughPassLine('drums: s("bd")\n_bass: note("c2")')).toBe("This take has drums.");
+    expect(roughPassLine('vox: n("0 2")\nriff: s("hh*8")')).toBe("This take has a tune.");
     expect(roughPassLine('kick: s("bd*4")\npad: chord("C").voicing()')).toBe(
-      "This take has drums and chords. Not in it yet: bass, tune.",
+      "This take has drums and chords.",
     );
   });
 });
@@ -133,8 +130,9 @@ describe("timebox", () => {
     expect(timeboxLeft(t, 0)).toEqual({ leftMs: 600_000, up: false });
   });
 
-  test("the time's-up question names the task", () => {
-    expect(timeUpQuestion("groove")).toBe("Time's up for “groove”. Switch to editing?");
+  test("the time's-up line names the task", () => {
+    expect("keepJamming" in JAM_WORDS).toBe(false);
+    expect(timeUpLine("groove")).toBe("Time's up for “groove”. Stop here and take a short break.");
   });
 });
 
@@ -159,7 +157,7 @@ describe("words", () => {
       FOCUS_ASK,
       FOCUS_YES,
       FOCUS_NOT_YET,
-      timeUpQuestion("groove"),
+      timeUpLine("groove"),
       focusLine("bass"),
       ...Object.values(JAM_WORDS),
     ];

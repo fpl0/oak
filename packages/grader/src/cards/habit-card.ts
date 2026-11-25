@@ -43,7 +43,7 @@ export function habitCard(habitId: string): StudioCard | null {
       const hi = Number(match[2]);
       if (!Number.isSafeInteger(lo) || !Number.isSafeInteger(hi) || lo > hi) return null;
       return make(
-        `Not this time: a tempo outside ${lo} to ${hi} BPM.`,
+        `This time, try a tempo outside ${lo} to ${hi} BPM.`,
         "Instead, try Tempo try and pick a tempo by feel.",
         { kind: "tempo" },
       );

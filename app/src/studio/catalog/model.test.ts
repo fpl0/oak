@@ -237,10 +237,17 @@ describe("Outside your lane and words", () => {
     ];
     for (const s of all) expect({ s, ok: isDescriptive(s) }).toEqual({ s, ok: true });
     expect(CATALOG_WORDS.outsideIntro).toBe(
-      "Pick a style you usually skip and a track its fans love. Listen, then write what they hear in it.",
+      "Pick a style you would never play for yourself and a track its fans love. Listen, then write what they hear in it.",
     );
     expect(CATALOG_WORDS.recordingOnly).toBe(
       "Oak reads chords and form from code only, so here it is just you and the recording.",
     );
   });
+});
+
+test("X24 AC24: Outside your lane asks what the learner could use", () => {
+  expect(CATALOG_WORDS.outsideUse).toBe("Anything here you could use?");
+  for (const value of Object.values(CATALOG_WORDS)) {
+    if (typeof value === "string") expect(value).not.toContain("usually skip");
+  }
 });

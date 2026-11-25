@@ -8,8 +8,10 @@ import { strudel } from "../../../../packages/grader/src/analyze/__support__/fix
 import { localChain } from "./lineage-queries.ts";
 import {
   chainTip,
+  changeLineReady,
   childFields,
   childrenOf,
+  DIMENSION_NAMES,
   DIMENSION_WORDS,
   describeChange,
   generationsOnly,
@@ -126,7 +128,7 @@ describe("describeChange only describes", () => {
     );
     expect(describeChange("notes", [])).toBe("Nothing has changed against its parent yet.");
     expect(describeChange("form", ["sound", "rhythm", "notes"])).toBe(
-      "You picked the form. What changed: the sound, the rhythm and the notes.",
+      "You picked the form. What changed: the sound, the rhythm and the notes of a part.",
     );
   });
   test("from two real pieces", async () => {
@@ -212,4 +214,20 @@ describe("every note only describes", () => {
     ];
     for (const text of all) expect(isDescriptive(text)).toBe(true);
   });
+});
+
+test("X24 AC1: changeLineReady needs both versions", () => {
+  expect(changeLineReady(new Set([1, 2]), 1, 2)).toBe(true);
+  expect(changeLineReady(new Set([1]), 1, 2)).toBe(false);
+  expect(changeLineReady(new Set([2]), 1, 2)).toBe(false);
+  expect(changeLineReady(new Set(), 1, 2)).toBe(false);
+  expect(changeLineReady(new Set([1, 2, 3]), 1, 3)).toBe(true);
+});
+test("X24 AC23: notes name a part without changing the button or stored note", () => {
+  expect(describeChange("notes", ["notes"])).toBe("You changed the notes of a part.");
+  expect(isDescriptive(describeChange("notes", ["notes"]))).toBe(true);
+  expect(VARIATION_WORDS.siblingRow(1, "notes")).toBe("Sibling 1, picked the notes of a part");
+  expect(VARIATION_WORDS.changing("notes")).toBe("Changing the notes of a part.");
+  expect(DIMENSION_NAMES.notes).toBe("Notes");
+  expect(VARIATION_WORDS.siblingNote("notes")).toBe("Sibling: notes");
 });

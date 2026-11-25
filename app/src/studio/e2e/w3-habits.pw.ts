@@ -119,6 +119,9 @@ test("the Habits tab names the bass sound three sketches share; Not this time pu
   const fourth = await newFree(page, "Something new");
   await openSketch(page, fourth);
   await page.getByTestId("sounds-like").click();
+  await expect(page.getByTestId("sounds-like-list")).toHaveCount(0);
+  await page.getByTestId("sounds-like-same").fill("Sound: I keep using the same bass sound.");
+  await page.getByTestId("sounds-like-reveal").click();
   const list = page.getByTestId("sounds-like-list");
   await list.locator('[data-habit="sound.bass.ebass"]').getByTestId("not-this-time").click();
   await expect(list.locator('[data-habit="sound.bass.ebass"]')).toContainText("On this sketch as a card");
