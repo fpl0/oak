@@ -681,6 +681,12 @@ export const FIXTURES = {
   // Songs shelf lists it.
   "songs.get": { ...U01_SONG, takes: [] },
   "songs.list": { items: [{ ...U01_SONG, lessonsCount: 0 }] },
+  // No newer release (the update notice of 1.4.0; before this the smoke suite saw its 404 on every page).
+  "app.update": null,
+  // Oak 2.0 W1: Studio's scraps and templates and Today's Later list, all empty.
+  "scraps.list": { items: [] },
+  "templates.list": { items: [] },
+  "later.list": { items: [] },
 } satisfies Partial<Record<JsonEndpointName, unknown>>;
 
 FIXTURES["profile.get"] = FIXTURES.bootstrap.profile;

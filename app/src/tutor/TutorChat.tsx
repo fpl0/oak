@@ -3,13 +3,14 @@
 // mistake, a listening note, a capstone or transcription review), suggested prompts and the composer. It runs the asks other
 // surfaces queue (context.ts) one at a time, and is never a dead panel: when the tutor is off, closed for a
 // checkpoint or a drill trial, or the server is down, it says why and what to do.
-import type { SubjectRef, TutorNote } from "@oak/api";
+import type { SubjectRef, ThreadKind, TutorNote } from "@oak/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { clsx } from "clsx";
-import { Lightbulb, Lock, MessageSquareText, Send, Square, Stethoscope, X } from "lucide-react";
+import { Clock, Lightbulb, Lock, MessageSquareText, Send, Square, Stethoscope, X } from "lucide-react";
 import { type ReactNode, useEffect, useId, useRef, useState } from "react";
 import { useHealth, useTutorRetractNote, useTutorStatus, useTutorTimeline } from "../lib/queries.ts";
+import { useLaterCreate, useLaterOpen } from "../session/today/later-queries.ts";
 import { Button } from "../ui/kit/Button.tsx";
 import { Skeleton } from "../ui/kit/basics.tsx";
 import { Callout } from "../ui/kit/Controls.tsx";
@@ -37,12 +38,71 @@ import {
   useTutorContext,
 } from "./context.ts";
 import { shownSubject, usePanelView, useShownSubject, useTokenContext } from "./hooks.ts";
-import { Markdown } from "./Markdown.tsx";
+import { LaterOfferContext, Markdown } from "./Markdown.tsx";
 import type { TokenContext } from "./music-tokens.ts";
 import { REVIEW_WAIT_MS, reviewPending, unansweredReviewAt } from "./review-request.ts";
 import { DayDivider, dayLabel, HistoryEntry, LiveTurnView, learnerDay } from "./Timeline.tsx";
 import { reasonText } from "./TutorSettings.tsx";
 import { onTurns, sendTurn, settleThread, stopTurn, streamingTurn, turnsOf, useTurns } from "./turns.ts";
+
+// --- the Later offer (Oak 2.0 W1, PLAN S7) ---------------------------------------------------------------
+
+/** The thread kinds where the tutor's `[[later]]` becomes "Park it for later" (contracts §10.7). */
+const LATER_KINDS: ReadonlySet<ThreadKind> = new Set<ThreadKind>(["chat", "hint", "explain"]);
+/** The longest Later item (`LaterCreateSchema`). */
+const LATER_MAX = 500;
+
+/** The learner's question as a Later item: one line, trimmed, at most 500 characters. */
+export function laterTextOf(question: string): string {
+  return question.replace(/\s+/g, " ").trim().slice(0, LATER_MAX);
+}
+
+/** "Park it for later": puts the question the reply answers on Today's Later list, once. */
+function ParkForLater({ question }: { question: string }) {
+  const text = laterTextOf(question);
+  const create = useLaterCreate();
+  const open = useLaterOpen();
+  const parked = create.isSuccess || (open.data?.items ?? []).some((i) => i.text === text);
+  if (text === "") return null;
+  if (parked)
+    return (
+      <span
+        className="ml-1 inline-flex items-center gap-1 text-sm text-text-2"
+        data-testid="later-parked"
+        role="status"
+      >
+        <Clock aria-hidden className="size-3.5" /> On your Later list
+      </span>
+    );
+  return (
+    <Button
+      variant="secondary"
+      size="sm"
+      className="ml-1"
+      loading={create.isPending}
+      onClick={() =>
+        create.mutate(
+          { body: { text, source: "tutor" } },
+          { onError: () => toast.error("That could not be parked. Try again.") },
+        )
+      }
+      data-testid="park-later"
+    >
+      <Clock aria-hidden className="size-3.5" /> Park it for later
+    </Button>
+  );
+}
+
+/** Wraps one reply so its `[[later]]` parks `question`; replies of other thread kinds are left as they are. */
+function withLaterOffer(key: string, kind: ThreadKind, question: string | null, node: ReactNode): ReactNode {
+  if (!LATER_KINDS.has(kind) || question === null || laterTextOf(question) === "") return node;
+  const offer = () => <ParkForLater question={question} />;
+  return (
+    <LaterOfferContext.Provider key={key} value={offer}>
+      {node}
+    </LaterOfferContext.Provider>
+  );
+}
 
 // --- ask runner and turn side effects --------------------------------------------------------------
 
@@ -662,6 +722,7 @@ function OffGuidance({ down }: { down: boolean }) {
 
 function closedCopy(subject: TutorSubject, reason: string | null): string {
   if (reason) return reason;
+  if (!subject.tutorOpen && subject.closedNotice) return subject.closedNotice;
   if (subject.thread.subjectKind === "checkpoint")
     return "Checkpoint in progress. Claude reviews it with you afterwards.";
   if (subject.thread.subjectKind === "drill")
@@ -703,21 +764,33 @@ function ThreadBody({
   // History and live turns merged by time: a failed live turn stays where it happened, newer turns come after.
   type Row = { at: number; day: string; node: ReactNode };
   const rows: Row[] = [];
+  // The learner message each reply answers: the last user entry before it in the same conversation.
+  const asked = new Map<string, string>();
+  let lastAsk: { conversationId: string; text: string } | null = null;
+  for (const e of entries) {
+    if (e.role === "user") lastAsk = { conversationId: e.conversationId, text: e.text };
+    else if (lastAsk?.conversationId === e.conversationId)
+      asked.set(`${e.conversationId}-${e.seq}`, lastAsk.text);
+  }
   for (const e of entries) {
     const revealAllowed =
       e === lastAssistant && turns.length === 0 && !!e.stepId && e.stepId === subject.stepId;
+    const key = `${e.conversationId}-${e.seq}`;
     rows.push({
       at: Date.parse(e.at),
       day: learnerDay(e.at),
-      node: (
+      node: withLaterOffer(
+        `later-${key}`,
+        e.kind,
+        e.role === "assistant" ? (asked.get(key) ?? null) : null,
         <HistoryEntry
-          key={`${e.conversationId}-${e.seq}`}
+          key={key}
           entry={e}
           cards={tl?.cards ?? []}
           subject={subject}
           ctx={ctx}
           revealAllowed={revealAllowed}
-        />
+        />,
       ),
     });
   }
@@ -725,8 +798,11 @@ function ThreadBody({
     rows.push({
       at: t.startedAt,
       day: learnerDay(t.startedAt),
-      node: (
-        <LiveTurnView key={`live-${t.id}`} turn={t} subject={subject} ctx={ctx} onRephrase={onRephrase} />
+      node: withLaterOffer(
+        `later-live-${t.id}`,
+        t.kind,
+        t.request.userText.trim() !== "" ? t.request.userText : t.label,
+        <LiveTurnView key={`live-${t.id}`} turn={t} subject={subject} ctx={ctx} onRephrase={onRephrase} />,
       ),
     });
   rows.sort((a, b) => a.at - b.at);

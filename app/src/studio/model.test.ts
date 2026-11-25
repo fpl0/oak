@@ -59,9 +59,10 @@ describe("starters", () => {
     }
   });
 
-  test("the blank starter plays a kick, hats and a snare: one bar of four beats", async () => {
+  test("the built-in Blank plays nothing and names no sound", async () => {
     const { events } = await evalHeadless(BLANK_CODE, 1);
-    expect(events.map((e) => e.s)).toEqual(["bd", "hh", "sd", "hh"]);
+    expect(events).toEqual([]);
+    expect(BLANK_CODE).not.toMatch(/\bs\(/);
   });
 
   test("sketch titles count up from the highest number used", () => {
@@ -278,11 +279,15 @@ describe("liner flags and export", () => {
   });
 
   test("the exported file is the code with a comment header, and it still runs", async () => {
-    const text = exportText({ title: "Sketch 007" }, V({ version: 4 }), ["Band: Oak (Pop style)"]);
+    // A version with a part (Oak's Blank plays nothing since Oak 2.0 W1), so "it still runs" is heard.
+    const groove = 'setcpm(90/4)\n\ndrums: s("bd hh sd hh")\n';
+    const text = exportText({ title: "Sketch 007" }, V({ version: 4, code: groove }), [
+      "Band: Oak (Pop style)",
+    ]);
     expect(
       text.startsWith("// Sketch 007 (v4, 2026-11-11)\n// C major · 4/4 · 90 BPM\n// Band: Oak (Pop style)"),
     ).toBe(true);
-    expect(text.endsWith(`${BLANK_CODE.trimEnd()}\n`)).toBe(true);
+    expect(text.endsWith(`${groove.trimEnd()}\n`)).toBe(true);
     expect((await evalHeadless(text, 1)).events).toHaveLength(4);
     expect(exportFileName("Sketch 007", 4)).toBe("sketch-007-v4.js");
     expect(exportFileName("¿Qué?", 1)).toBe("que-v1.js");

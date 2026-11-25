@@ -28,7 +28,7 @@ import type { CodeRange, LintDiagnostic, UnlockableId } from "@oak/content-kit";
 import { type CompletionKind, completionSiteAt, completionsFor, type Vocabulary } from "./completion.ts";
 import { oakEditorTheme } from "./editor-theme.ts";
 import { toCmDiagnostics } from "./lint-bridge.ts";
-import type { EditorHooks, EditorOptions } from "./types.ts";
+import type { EditorHooks, EditorOptions, LintFloor } from "./types.ts";
 
 export type MarkKind = "hint" | "error" | "target" | "ok";
 
@@ -183,6 +183,16 @@ export function oakCompletionSource(deps: CompletionDeps) {
   };
 }
 
+// --- the lint floor (Oak 2.0 W1, jam) -------------------------------------------------------------
+
+/**
+ * The diagnostics the editor displays at a lint floor: `"error"` keeps only error-severity findings (jam hides
+ * critique); `"info"` keeps everything. Display only: evaluation and its outcome read the full lint.
+ */
+export function aboveFloor(diagnostics: readonly LintDiagnostic[], floor: LintFloor): LintDiagnostic[] {
+  return floor === "error" ? diagnostics.filter((d) => d.severity === "error") : [...diagnostics];
+}
+
 // --- the bundle ----------------------------------------------------------------------------------
 
 export interface OakExtensionDeps extends CompletionDeps {
@@ -191,6 +201,8 @@ export interface OakExtensionDeps extends CompletionDeps {
   /** Diagnostics pushed from outside (evaluation errors, the grader); cleared on the next edit. */
   external: () => readonly LintDiagnostic[];
   clearExternal: () => void;
+  /** Oak 2.0 W1: the lowest severity displayed (`setLintFloor`), read on every lint run. Default `"info"`. */
+  lintFloor?: () => LintFloor;
   readOnly: Compartment;
   initialReadOnly: EditorOptions["readOnly"];
 }
@@ -208,7 +220,8 @@ export function oakExtensions(deps: OakExtensionDeps): Extension[] {
         } catch {
           own = [];
         }
-        return toCmDiagnostics([...own, ...deps.external()], code.length);
+        const shown = aboveFloor([...own, ...deps.external()], deps.lintFloor?.() ?? "info");
+        return toCmDiagnostics(shown, code.length);
       },
       { delay: 250 },
     ),

@@ -39,6 +39,10 @@ export function libraryRoutes(mount: Mounter, d: AppDeps): void {
     lib.deleteSketch(params.id);
     return { ok: true as const };
   });
+  // Oak 2.0 W1 (S3): keep or cut a take (cut = hidden in the app, never deleted).
+  mount("sketches.patchVersion", ({ params, body }) =>
+    lib.patchSketchVersion(params.id, versionParam(params.version), body.takeState),
+  );
 
   mount("album.get", () => lib.album());
   mount("album.track", ({ params }) => lib.track(params.id));

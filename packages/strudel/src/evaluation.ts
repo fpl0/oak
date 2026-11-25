@@ -12,6 +12,7 @@ import { transpiler } from "@strudel/transpiler";
 import type { PreparedBand } from "./band.ts";
 import { TRACK_KEY } from "./haps.ts";
 import { isBandHapMuted, isMuted, trackNameOf } from "./mutes.ts";
+import { plainValue } from "./plain-sounds.ts";
 import {
   type BuiltSong,
   buildSong,
@@ -251,6 +252,22 @@ export interface FinalizeOptions {
   transpose?: () => number;
   /** The track Oak's scope taps (`ScopeTap.setSource({ kind: "track" })`), read live; null for the master bus. */
   scopeTrack?: () => string | null;
+  /**
+   * Oak 2.0 W1: plain sounds (`EditorHandle.setPlainSounds`), read live per hap: while it answers true the learner's
+   * bass, chords and tune haps play `plainValue`; drums, the Band and the code are untouched.
+   */
+  plain?: () => boolean;
+}
+
+/** Plays the learner's pitched parts with plain sounds while `on()` answers true (read per hap, live). */
+export function plainTracks(pattern: Pattern, on: () => boolean): Pattern {
+  return (pattern.withHap as (fn: (hap: Strudel.Hap) => Strudel.Hap) => Pattern).call(pattern, (hap) => {
+    if (!on()) return hap;
+    const track = hap.context[TRACK_KEY];
+    const next = plainValue(hap.value, typeof track === "string" ? track : null);
+    if (next === hap.value) return hap;
+    return (hap as unknown as { withValue(f: (x: unknown) => unknown): Strudel.Hap }).withValue(() => next);
+  });
 }
 
 /** Superdough's analyser id the scope's track source reads (`analyze` on a hap sends its voice there). */
@@ -275,7 +292,7 @@ export function tapTrack(pattern: Pattern, scopeTrack: () => string | null): Pat
 
 /**
  * The `editPattern` step: compose a unit song, stack the Band, mute untagged (`main`) and Band haps live, transpose
- * live.
+ * live, plain sounds live (Oak 2.0 W1).
  * The painter is added by the caller, last, so that nothing after it drops the painters.
  */
 export function finalizePattern(pattern: Pattern, opts: FinalizeOptions): Pattern {
@@ -296,6 +313,7 @@ export function finalizePattern(pattern: Pattern, opts: FinalizeOptions): Patter
   });
   const transpose = opts.transpose;
   if (transpose) out = out.fmap((value) => transposeValue(value, transpose()));
+  if (opts.plain) out = plainTracks(out, opts.plain);
   if (opts.scopeTrack) out = tapTrack(out, opts.scopeTrack);
   return out;
 }

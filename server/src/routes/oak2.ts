@@ -7,8 +7,23 @@ import type { Mounter } from "./define.ts";
 
 export type Oak2Endpoint = (typeof OAK2_ENDPOINTS)[number];
 
-/** Oak 2.0 endpoints still answering the typed 501 stub. */
-export const OAK2_PENDING: readonly Oak2Endpoint[] = [...OAK2_ENDPOINTS];
+/** Oak 2.0 endpoints built so far, each mounted by its own route module (W1: scraps, templates, Later, take state). */
+const OAK2_BUILT: ReadonlySet<Oak2Endpoint> = new Set<Oak2Endpoint>([
+  "scraps.list",
+  "scraps.create",
+  "scraps.delete",
+  "templates.list",
+  "templates.create",
+  "templates.patch",
+  "templates.delete",
+  "sketches.patchVersion",
+  "later.list",
+  "later.create",
+  "later.patch",
+]);
+
+/** Oak 2.0 endpoints still answering the typed 501 stub (after W1: the W3/W4 names only). */
+export const OAK2_PENDING: readonly Oak2Endpoint[] = OAK2_ENDPOINTS.filter((n) => !OAK2_BUILT.has(n));
 
 export function oak2PendingRoutes(mount: Mounter): void {
   for (const name of OAK2_PENDING)

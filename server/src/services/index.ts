@@ -16,11 +16,13 @@ import { CourseService } from "./course.ts";
 import { GatesService } from "./gates.ts";
 import { GymService } from "./gym.ts";
 import { LadderService } from "./ladder.ts";
+import { LaterService } from "./later.ts";
 import { type LadderGenerator, LibraryService, type PatternStimulus } from "./library.ts";
 import { MasteryService } from "./mastery.ts";
 import { OnboardingService } from "./onboarding.ts";
 import { OpsService } from "./ops.ts";
 import type { SrsPort } from "./ports.ts";
+import { ScrapsService } from "./scraps.ts";
 import { SessionsService } from "./sessions.ts";
 import { SideLessonsService } from "./side-lessons.ts";
 import { StreakService } from "./streak.ts";
@@ -28,6 +30,7 @@ import { TrackPlanService } from "./track-plan.ts";
 import { TracksService } from "./tracks.ts";
 import { UnitSongsService } from "./unit-songs.ts";
 import { UnlocksService } from "./unlocks.ts";
+import { UserTemplatesService } from "./user-templates.ts";
 import { VoiceService } from "./voice.ts";
 
 export interface Services {
@@ -58,6 +61,12 @@ export interface Services {
   trackPlan: TrackPlanService;
   /** Unit songs (spec 2026-11-24 §5.4): each unit's song, its takes, the backfill, releases. */
   unitSongs: UnitSongsService;
+  /** Oak 2.0 W1 (PLAN S1): saved scraps and the index of every sketch's labelled lines. */
+  scraps: ScrapsService;
+  /** Oak 2.0 W1 (PLAN S2): the learner's own templates and Blank. */
+  templates: UserTemplatesService;
+  /** Oak 2.0 W1 (PLAN S7): the Later list on Today. */
+  later: LaterService;
 }
 
 export interface ServiceOptions {
@@ -210,6 +219,9 @@ export function createServices(ctx: ServiceContext, opts: ServiceOptions): Servi
     tracks,
     trackPlan,
     unitSongs,
+    scraps: new ScrapsService(ctx),
+    templates: new UserTemplatesService(ctx),
+    later: new LaterService(ctx),
   };
   return services;
 }

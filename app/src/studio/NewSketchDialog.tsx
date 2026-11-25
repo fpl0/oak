@@ -1,18 +1,24 @@
-// "New sketch from…" (ux §2.3): Blank, today's Make, over a Band (pop or jazz-soul kit, in a key), or a song
-// template ("Four-chord pop", …; studio/templates.ts). An unlocked template is one more choice of the same radio
-// group; a locked one says which capstone's release unlocks it (contracts §3.2 A).
-import type { Sketch, SketchCreate } from "@oak/api";
+// "New sketch from…" (ux §2.3; Oak 2.0 W1 S2, starts.ts): the learner's own starting points first (their Blank,
+// Oak's Blank at a tempo they choose, today's Make, over a Band, drums and bass first, from your head, fill it all,
+// plain start, from scraps, their templates), then Oak's song templates as "Learning kits" ("Four-chord pop", …;
+// studio/templates.ts). An unlocked kit is one more choice of the same radio group; a locked one says which
+// capstone's release unlocks it (contracts §3.2 A). A template of the learner's that came from a backup is checked
+// strictly before its sketch runs (contracts §11.3).
+import type { Sketch, SketchCreate, UserTemplate } from "@oak/api";
 import type { FlavourId, KeySpec, MeterId } from "@oak/content-kit";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { clsx } from "clsx";
 import { Lock } from "lucide-react";
 import { useId, useState } from "react";
 import { bandMeter, bands } from "../../../content/bands/index.ts";
+import { openCapture } from "../capture/store.ts";
 import { useContent } from "../lib/content.ts";
 import { lessonTitles, unlockSite } from "../lib/content-model.ts";
 import { errorWords } from "../lib/error-words.ts";
 import { formatDate } from "../lib/format.ts";
-import { useProfile, useSketch, useSketchCreate } from "../lib/queries.ts";
+import { lintInBrowser } from "../lib/grader-client.ts";
+import { apiQuery, useProfile, useSketch, useSketchCreate } from "../lib/queries.ts";
 import { currentSessionId } from "../session/store.ts";
 import { siteTitle } from "../toolbox/model.ts";
 import { Button } from "../ui/kit/Button.tsx";
@@ -20,21 +26,37 @@ import { SegmentedControl } from "../ui/kit/Controls.tsx";
 import { Dialog } from "../ui/kit/Dialog.tsx";
 import { toast } from "../ui/kit/Toast.tsx";
 import { BandOptions } from "./BandOptions.tsx";
-import { writeLength } from "./draft.ts";
+import { readLength, writeLength } from "./draft.ts";
 import { focusOnOpen } from "./focus.ts";
+import { MyTemplates } from "./MyTemplates.tsx";
 import {
-  BLANK_CODE,
   bandsForMeter,
   DEFAULT_KEY,
   MODES,
   nextSketchTitle,
-  OVER_BAND_CODE,
+  OAK_DEFAULTS,
+  overBandStart,
   type SketchBand,
   STUDIO_FLAVOURS,
+  strictLint,
+  strictVerdict,
   studioFlavour,
   TONICS,
 } from "./model.ts";
 import { useUnlockedSet } from "./queries.ts";
+import {
+  blankStartBody,
+  drumsAndBassCode,
+  FILL_REFUSALS,
+  FILL_SECTIONS,
+  type FillSections,
+  fillItAllCode,
+  plainStartCode,
+  START_DETAILS,
+  START_HEADINGS,
+  templateStartBody,
+  templateStartDetail,
+} from "./starts.ts";
 import {
   type StarterSong,
   starterSong,
@@ -42,9 +64,27 @@ import {
   templateSketchBody,
   templateTitle,
 } from "./templates.ts";
+import { useTemplates } from "./templates-queries.ts";
 
-/** Blank, the last Make, over a Band, or a template's id (`tb.template.…`). */
-type Start = "blank" | "make" | "band" | (string & {});
+/**
+ * The learner's Blank, Oak's Blank, the last Make, over a Band, drums and bass first, from your head, fill it all,
+ * plain start, from scraps, one of the learner's templates (`tpl:<id>`) or a learning kit's id (`tb.template.…`).
+ */
+type Start =
+  | "your-blank"
+  | "blank"
+  | "make"
+  | "band"
+  | "drums-bass"
+  | "from-head"
+  | "fill"
+  | "plain"
+  | "from-scraps"
+  | (string & {});
+
+/** Oak's Blank's tempo field (and drums and bass first, plain start): a tempo the learner can play along to. */
+const TEMPO_MIN = 40;
+const TEMPO_MAX = 240;
 
 export function NewSketchDialog({
   open,
@@ -55,14 +95,39 @@ export function NewSketchDialog({
   onClose(): void;
   sketches: readonly Sketch[];
 }) {
+  const [managing, setManaging] = useState(false);
+  const close = () => {
+    setManaging(false);
+    onClose();
+  };
   return (
-    <Dialog open={open} onClose={onClose} title="New sketch" className="w-[min(94vw,36rem)]">
-      {open ? <NewSketchForm onClose={onClose} sketches={sketches} /> : null}
+    <Dialog
+      open={open}
+      onClose={close}
+      title={managing ? START_HEADINGS.yourTemplates : "New sketch"}
+      className="w-[min(94vw,36rem)]"
+    >
+      {open ? (
+        <>
+          {managing ? <MyTemplates onBack={() => setManaging(false)} /> : null}
+          <div hidden={managing}>
+            <NewSketchForm onClose={close} onManage={() => setManaging(true)} sketches={sketches} />
+          </div>
+        </>
+      ) : null}
     </Dialog>
   );
 }
 
-function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: readonly Sketch[] }) {
+function NewSketchForm({
+  onClose,
+  onManage,
+  sketches,
+}: {
+  onClose(): void;
+  onManage(): void;
+  sketches: readonly Sketch[];
+}) {
   const navigate = useNavigate();
   const create = useSketchCreate();
   const profile = useProfile();
@@ -78,7 +143,30 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
     ? lastMake.updatedAt.slice(0, 10) === new Date().toISOString().slice(0, 10)
     : false;
 
-  const [start, setStart] = useState<Start>("blank");
+  const mine = useTemplates();
+  const myTemplates: readonly UserTemplate[] = mine.data?.items ?? [];
+  const yourBlank = myTemplates.find((t) => t.isBlank) ?? null;
+  const others = myTemplates.filter((t) => !t.isBlank);
+  // Until the learner picks, the learner's own Blank is the start when they have one, else Oak's.
+  const [picked, setPicked] = useState<Start | null>(null);
+  const start: Start = picked ?? (yourBlank ? "your-blank" : "blank");
+  const [tempo, setTempo] = useState<string>(String(OAK_DEFAULTS.bpm));
+  const bpm = Math.min(TEMPO_MAX, Math.max(TEMPO_MIN, Math.round(Number(tempo)) || OAK_DEFAULTS.bpm));
+  // Fill it all: a sketch of the learner's (the most recently edited first) and how many sections.
+  const fillable = [...sketches]
+    .filter((s) => !s.archived)
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const [fillPicked, setFillId] = useState<string>("");
+  const fillId = fillPicked || (fillable[0]?.id ?? "");
+  const [sections, setSections] = useState<FillSections>(FILL_SECTIONS.preselected);
+  const fillSource = useQuery({
+    ...apiQuery("sketches.get", { params: { id: fillId } }),
+    enabled: start === "fill" && fillId !== "",
+  });
+  const fillVersion = fillSource.data?.versions.at(-1);
+  const fillBars = readLength(fillId) ?? 4;
+  const fillResult = fillVersion ? fillItAllCode(fillVersion.code, { sections, bars: fillBars }) : null;
+  const fillProblem = fillResult && "error" in fillResult ? FILL_REFUSALS[fillResult.error] : null;
   const [title, setTitle] = useState(() => nextSketchTitle(sketches));
   // Until the learner types a title, choosing a template names the sketch after it.
   const [titleTyped, setTitleTyped] = useState(false);
@@ -94,14 +182,26 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
   );
   const song: StarterSong | null = starterSong(start);
   const choose = (value: Start) => {
-    setStart(value);
+    setPicked(value);
     if (titleTyped) return;
     const s = starterSong(value);
     setTitle(s ? templateTitle(s.name, sketches) : nextSketchTitle(sketches));
   };
 
   const submit = async () => {
+    // Two starts are not a sketch yet: they open the capture dialog or Studio's scraps.
+    if (start === "from-head") {
+      onClose();
+      openCapture({ to: "sketch" });
+      return;
+    }
+    if (start === "from-scraps") {
+      onClose();
+      void navigate({ to: "/studio", search: { scraps: true } });
+      return;
+    }
     let body: SketchCreate;
+    let bars: number | null = song ? song.bars : null;
     const base = {
       title: title.trim() || nextSketchTitle(sketches),
       originKind: "free" as const,
@@ -127,33 +227,76 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
       };
     } else if (start === "band" && band) {
       const b: SketchBand = { bandId: band.id, flavour, mutes: [] };
+      const over = overBandStart(meter);
       body = {
         ...base,
-        code:
-          meter === "3/4"
-            ? OVER_BAND_CODE.replace("setcpm(90/4)", "setcpm(108/3)").replace("hh*8", "hh*6")
-            : OVER_BAND_CODE,
-        bpm: meter === "3/4" ? 108 : 90,
+        code: over.code,
+        bpm: over.bpm,
         meter,
         key,
         band: b,
         flags: { lockedTools: [], previewTools: [] },
       };
-    } else {
+    } else if (start === "drums-bass" || start === "plain") {
+      const m = OAK_DEFAULTS.meter;
       body = {
         ...base,
-        code: BLANK_CODE,
-        bpm: 90,
-        meter: "4/4",
+        code: start === "plain" ? plainStartCode(bpm, m) : drumsAndBassCode(bpm, m),
+        bpm,
+        meter: m,
         key: null,
         band: null,
         flags: { lockedTools: [], previewTools: [] },
       };
+    } else if (start === "fill") {
+      const source = fillable.find((s) => s.id === fillId);
+      if (!fillVersion || !source || !fillResult || "error" in fillResult) {
+        toast.info("Pick a sketch to fill", fillProblem ?? "Its parts become sections of a new sketch.");
+        return;
+      }
+      body = {
+        ...base,
+        code: fillResult.code,
+        bpm: fillVersion.bpm,
+        meter: fillVersion.meter,
+        key: fillVersion.key,
+        band: fillVersion.band,
+        flags: {
+          lockedTools: [...fillVersion.flags.lockedTools],
+          previewTools: [],
+          ...(fillVersion.flags.reviewBeforeRun === true ? { reviewBeforeRun: true as const } : {}),
+        },
+        note: `Filled from “${source.title}”`,
+      };
+      bars = sections * fillBars;
+    } else {
+      const template = start.startsWith("tpl:") ? others.find((t) => `tpl:${t.id}` === start) : null;
+      const opts = { title: base.title, sessionId: base.sessionId };
+      body = template
+        ? templateStartBody(template, opts)
+        : blankStartBody(start === "your-blank" ? yourBlank : null, {
+            ...opts,
+            bpm,
+            meter: OAK_DEFAULTS.meter,
+          });
+      // A template or Blank from a backup: the strict lint decides; if it is not safe, the sketch opens in Review.
+      // A lint that cannot run leaves the flag on (the safe side).
+      if (body.flags.reviewBeforeRun === true) {
+        const verdict = await lintInBrowser(
+          body.code,
+          strictLint(body.meter ?? OAK_DEFAULTS.meter, null),
+        ).then(strictVerdict, () => null);
+        if (verdict?.safe) {
+          const { reviewBeforeRun: _checked, ...flags } = body.flags;
+          body = { ...body, flags };
+        }
+      }
     }
     try {
       const saved = await create.mutateAsync({ body });
-      // The template's whole song loops: 8 or 12 bars, not the Studio's default 4.
-      if (song) writeLength(saved.sketch.id, song.bars);
+      // A learning kit's whole song loops (8 or 12 bars), and a filled sketch plays all its sections, not the
+      // Studio's default 4.
+      if (bars !== null) writeLength(saved.sketch.id, bars);
       onClose();
       void navigate({ to: "/studio/$sketchId", params: { sketchId: saved.sketch.id } });
     } catch (e) {
@@ -187,6 +330,25 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
     </label>
   );
 
+  const tempoField = (
+    <label className="ml-8 flex items-center gap-2 text-sm">
+      <span className="text-text-2">Tempo</span>
+      <input
+        type="number"
+        inputMode="numeric"
+        aria-label="Tempo"
+        min={TEMPO_MIN}
+        max={TEMPO_MAX}
+        step={1}
+        value={tempo}
+        onChange={(e) => setTempo(e.target.value)}
+        onBlur={() => setTempo(String(bpm))}
+        className="h-8 w-20 rounded-control border border-border bg-surface px-2 text-text"
+      />
+      <span className="text-text-3">BPM</span>
+    </label>
+  );
+
   return (
     <form
       onSubmit={(e) => {
@@ -210,7 +372,9 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
       </label>
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-1 text-sm font-medium text-text-2">Start from</legend>
-        {option("blank", "Blank", "A tempo line and one drum part to build on.")}
+        {yourBlank ? option("your-blank", "Your Blank", templateStartDetail(yourBlank)) : null}
+        {option("blank", "Oak's Blank", START_DETAILS.oakBlank)}
+        {start === "blank" ? tempoField : null}
         {option(
           "make",
           isToday ? "Today's Make" : "Your last Make",
@@ -294,9 +458,64 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
             </div>
           </div>
         ) : null}
+        {option("drums-bass", "Drums and bass first", START_DETAILS.drumsAndBass)}
+        {start === "drums-bass" ? tempoField : null}
+        {option("from-head", "From your head", START_DETAILS.fromHead)}
+        {option("fill", "Fill it all", START_DETAILS.fillItAll, fillable.length === 0)}
+        {start === "fill" ? (
+          <div className="grid gap-3 rounded-control border border-border p-3">
+            <label className="flex flex-col gap-1 text-sm">
+              <span className="text-text-2">Sketch</span>
+              <select
+                aria-label="Sketch"
+                value={fillId}
+                onChange={(e) => setFillId(e.target.value)}
+                className="h-8 rounded-control border border-border bg-surface px-2 text-text"
+              >
+                {fillable.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="flex flex-col gap-1 text-sm">
+              <span className="text-text-2">Sections, {fillBars} bars each</span>
+              <SegmentedControl<string>
+                label="Sections"
+                size="sm"
+                value={String(sections)}
+                options={FILL_SECTIONS.choices.map((n) => ({ value: String(n), label: String(n) }))}
+                onChange={(v) => setSections(Number(v) as FillSections)}
+              />
+            </div>
+            {fillProblem ? (
+              <p className="text-sm text-text-2" role="status">
+                {fillProblem}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+        {option("plain", "Plain start", START_DETAILS.plainStart)}
+        {start === "plain" ? tempoField : null}
+        {option("from-scraps", "From scraps", START_DETAILS.fromScraps)}
+        {others.length > 0 ? (
+          <>
+            <p className="mt-1 text-sm font-medium text-text-2">{START_HEADINGS.yourTemplates}</p>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {others.map((t) => option(`tpl:${t.id}`, t.name, templateStartDetail(t), false, true))}
+            </div>
+          </>
+        ) : null}
+        {myTemplates.length > 0 ? (
+          <Button variant="link" size="sm" className="self-start" onClick={onManage}>
+            {START_HEADINGS.manageTemplates}
+          </Button>
+        ) : null}
         {templates.length > 0 ? (
           <>
-            <p className="mt-1 text-sm font-medium text-text-2">Templates</p>
+            <p className="mt-1 text-sm font-medium text-text-2">{START_HEADINGS.learningKits}</p>
+            <p className="-mt-1 text-sm text-text-3">{START_HEADINGS.learningKitsNote}</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {templates.map((t) => {
                 const s = starterSong(t.id);
@@ -329,7 +548,11 @@ function NewSketchForm({ onClose, sketches }: { onClose(): void; sketches: reado
           Cancel
         </Button>
         <Button variant="primary" type="submit" loading={create.isPending}>
-          Create sketch
+          {start === "from-head"
+            ? "Hum, tap or record"
+            : start === "from-scraps"
+              ? "Open scraps"
+              : "Create sketch"}
         </Button>
       </div>
     </form>

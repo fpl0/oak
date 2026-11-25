@@ -1,8 +1,11 @@
 // Oak 2.0 W1: the places in the sketch editor that W1 tools fill (a registry, so no task edits SketchEditor for
-// another). Empty until the W1 integrator wires the slots (stage B); SketchEditor renders each slot in its place.
+// another). Wired in stage B; SketchEditor renders each slot in its place, in this order.
 import type { SketchDetail, SketchVersion } from "@oak/api";
 import type { EditorHandle } from "@oak/strudel";
 import type { ComponentType } from "react";
+import { CommitGuard } from "./CommitGuard.tsx";
+import { MakeBlankButton } from "./MakeBlankButton.tsx";
+import { SoundTools } from "./SoundTools.tsx";
 
 export interface EditorSlotProps {
   sketch: SketchDetail;
@@ -26,4 +29,8 @@ export interface EditorSlot {
   Component: ComponentType<EditorSlotProps>;
 }
 
-export const EDITOR_SLOTS: readonly EditorSlot[] = [];
+export const EDITOR_SLOTS: readonly EditorSlot[] = [
+  { id: "make-blank", place: "header", Component: MakeBlankButton },
+  { id: "sound-tools", place: "toolbar", Component: SoundTools },
+  { id: "commit-guard", place: "aside", Component: CommitGuard },
+];

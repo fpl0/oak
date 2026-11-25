@@ -143,6 +143,9 @@ export interface EditorOptions {
   onEvicted?(): void;
 }
 
+/** Oak 2.0 W1: the lowest lint severity the editor displays. */
+export type LintFloor = "info" | "error";
+
 export interface EvaluateOptions {
   autostart?: boolean;
   /**
@@ -191,6 +194,19 @@ export interface EditorHandle {
   setMutes(mutes: MuteMap): void;
   getMutes(): MuteMap;
   setBand(band: BandSetup | null): void;
+  /**
+   * Oak 2.0 W1 (listening aid): while on, the learner's `bass`, `chords` and `tune` parts (by `roleOfLabel`) play one
+   * plain sound each (`PLAIN_SOUNDS`) without their sound-shaping links. Drums, the Band and the code are untouched;
+   * it takes effect on the playing pattern at once and never reaches the text.
+   */
+  setPlainSounds(on: boolean): void;
+  plainSounds(): boolean;
+  /**
+   * Oak 2.0 W1 (jam): which lint findings the editor shows. `"error"` hides `warn` and `info` findings from the
+   * editor's lint display; evaluation, its outcome's diagnostics and the refusal of locked code are unchanged.
+   * Default `"info"` (everything shows).
+   */
+  setLintFloor(floor: LintFloor): void;
   /** Complete teardown: scheduler, drawer, editor, DOM, inline styles, and the window listener kabelsalat leaks per mirror. */
   dispose(): void;
 }
@@ -248,7 +264,17 @@ export interface MasterBus {
   level(): { rms: number; peak: number };
   /** Times the bus was re-attached to a fresh destinationGain (superdough rebuilds it on resetGlobalEffects). */
   attachCount(): number;
+  /**
+   * Oak 2.0 W1 (listening aid): hear the mix as through a muffled wall, a small speaker or very quietly. The stage
+   * sits after `volume`, before the speakers only: the analyser, the meters and the record tap never hear it.
+   * `null`: off (the stage passes the sound through unchanged).
+   */
+  setListenThrough(mode: ListenThroughMode | null): void;
+  listenThrough(): ListenThroughMode | null;
 }
+
+/** Oak 2.0 W1: the listen-through modes (`LISTEN_THROUGH` in listen-through.ts). */
+export type ListenThroughMode = "muffled" | "small-speaker" | "quiet";
 
 export interface RecordOptions {
   /** Bars to record from the next integer cycle. */

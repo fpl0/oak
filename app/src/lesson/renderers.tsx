@@ -8,6 +8,7 @@ import { type ReactNode, useCallback, useEffect, useRef, useState } from "react"
 import type { AnswerSpec } from "../answers/types.ts";
 import { useContent } from "../lib/content.ts";
 import { useLessonSketch } from "../lib/queries.ts";
+import { SaveLineButton } from "../studio/scraps/SaveLineButton.tsx";
 import { IS_MAC } from "../ui/keys/KeymapProvider.tsx";
 import { Button } from "../ui/kit/Button.tsx";
 import { Kbd } from "../ui/kit/basics.tsx";
@@ -740,6 +741,15 @@ function MakeRenderer() {
               id={editorId}
               tutorBars
               code={code}
+              toolbar={
+                <SaveLineButton
+                  code={code}
+                  source={{ kind: "lesson", ref: `${h.lesson.id}/${h.step.id}` }}
+                  bpm={workbench.lessonCtx.defaultBpm}
+                  meter={workbench.lessonCtx.meter}
+                  keySpec={workbench.lessonCtx.key}
+                />
+              }
               // Switching copies puts the other one into the editor even when its text equals the last prop.
               {...(own ? { codeKey: side } : {})}
               {...(song ? { loopRequest: request, onLoopChange: (l: SongLoopNow) => setLoopNow(l) } : {})}

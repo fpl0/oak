@@ -232,6 +232,8 @@ export {
   type TapInputExtras,
   tapsToOnsets,
 } from "./tap.ts";
+// Oak 2.0 W1 (X5): taps to a mini-notation rhythm, for capture's Tap mode.
+export { type TapGrid, type TapsToMiniOptions, type TapsToMiniResult, tapsToMini } from "./tap-notation.ts";
 export {
   computePeaks,
   createTranscriptionPlayer,

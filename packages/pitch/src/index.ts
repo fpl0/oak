@@ -74,6 +74,8 @@ export {
   tonicPc,
   tuningOffsetCents,
 } from "./hum.ts";
+// Oak 2.0 W1 (X8): a hum from a whole recording (a voice memo), through the live path's `humToDraft`.
+export { HUM_PCM_MAX_GAIN_DB, type HumFromPcmOptions, humFromPcm } from "./hum-pcm.ts";
 // Wave 7 (the jazz track): the ii–V–I guide tones in any key, tensions sung over a chord, the roots under a walking
 // bass, each wrong note named against its chord, each with a Quiet path.
 export {

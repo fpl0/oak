@@ -13,6 +13,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
+import { CaptureButton, CaptureHost } from "../../capture/CaptureButton.tsx";
 import { useContent } from "../../lib/content.ts";
 import { NAV_ITEMS, type NavId, noteReturnTarget, returnTarget } from "../../lib/nav.ts";
 import { useCourseProgress, useDue } from "../../lib/queries.ts";
@@ -136,6 +137,7 @@ function TopBar() {
         <NowPlaying />
         <MicLiveDot />
         <AudioStatus />
+        <CaptureButton />
         <IconButton
           label="Command palette"
           shortcut="⌘K"
@@ -191,6 +193,7 @@ function FocusBar() {
       {startedAt && <Elapsed since={startedAt} />}
       <MicLiveDot />
       <AudioStatus />
+      <CaptureButton />
       <TutorToggle />
     </header>
   );
@@ -234,6 +237,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <CommandPalette />
       <GlobalKeys />
       <TrackCommands />
+      <CaptureHost />
       <Toaster />
     </div>
   );

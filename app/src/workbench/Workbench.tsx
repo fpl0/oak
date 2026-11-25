@@ -5,14 +5,16 @@
 // static analysis path (the browser grader host), so they show code that has not been played; while it
 // plays, the adapter's paint clock drives the playhead and the highlights.
 import type { ChordLensId, LensId, LineLensId, MusicLensId, TrackLensId } from "@oak/api";
-import type {
-  GradeResult,
-  HintLadder,
-  HintRung,
-  KeySpec,
-  LintContext,
-  PickupSpec,
-  UnlockableId,
+import {
+  type GradeResult,
+  type HintLadder,
+  type HintRung,
+  type KeySpec,
+  type LintContext,
+  labelledLines,
+  lineAt,
+  type PickupSpec,
+  type UnlockableId,
 } from "@oak/content-kit";
 import type { StaffKind } from "@oak/notation";
 import {
@@ -268,6 +270,18 @@ export interface WorkbenchProps {
     chipsOf(tracks: readonly string[]): { id: string; label: string }[];
     mutesOf(state: Pick<MuteMap, "muted" | "solo">, tracks: readonly string[]): MuteMap;
   };
+  /**
+   * Oak 2.0 W1 (focus one part): while set, every other labelled line of the learner's code is muted through the
+   * handle's `setMutes` (the chips show it); cleared, the mutes focus added are taken off again and the learner's
+   * own mutes stay as they are. The Band is untouched.
+   */
+  soloLabel?: string | null;
+  /** Oak 2.0 W1: the label of the statement under the editor's cursor (`lineAt` at the selection head), or `null`. */
+  onCursorLabel?(label: string | null): void;
+  /** Oak 2.0 W1 (jam): which lint findings the editor shows (`EditorHandle.setLintFloor`). Default `"info"`. */
+  lintFloor?: "info" | "error";
+  /** Oak 2.0 W1: the live editor handle once created, `null` when it is disposed (editor slots use it). */
+  onHandle?(h: EditorHandle | null): void;
 }
 
 interface RunIssue {
@@ -621,6 +635,17 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
 
   // --- the editor (stable lifecycle: created once per ID, disposed on unmount) --------------------
   const id = editorId(props.id, props.n ?? 0);
+  // Oak 2.0 W1: the label under the cursor, reported when it changes.
+  const cursorLabel = useRef<string | null | undefined>(undefined);
+  const reportCursorLabel = () => {
+    const live = liveHandle.current;
+    if (!live || live.disposed || !propsRef.current.onCursorLabel) return;
+    const st = live.view.state;
+    const label = lineAt(st.doc.toString(), st.selection.main.head)?.label ?? null;
+    if (label === cursorLabel.current) return;
+    cursorLabel.current = label;
+    propsRef.current.onCursorLabel(label);
+  };
   const suppressCursor = useRef<string | null>(null);
   const practiceRef = useRef(practice);
   practiceRef.current = practice;
@@ -636,6 +661,7 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
       band: p.band ?? null,
       hooks: {
         onCursor: (range) => {
+          reportCursorLabel();
           const key = `${range.from}:${range.to}`;
           if (suppressCursor.current === key) return;
           suppressCursor.current = null;
@@ -714,6 +740,18 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
   useEffect(() => {
     if (handle && !handle.disposed) handle.setBand(props.band ?? null);
   }, [handle, props.band]);
+  // Oak 2.0 W1: the host sees the handle (editor slots), and sets the lint floor (jam shows only errors).
+  useEffect(() => {
+    propsRef.current.onHandle?.(handle);
+    cursorLabel.current = undefined;
+  }, [handle]);
+  const lintFloorSet = useRef(false);
+  useEffect(() => {
+    if (!handle || handle.disposed) return;
+    if (props.lintFloor === undefined && !lintFloorSet.current) return;
+    lintFloorSet.current = true;
+    handle.setLintFloor(props.lintFloor ?? "info");
+  }, [handle, props.lintFloor]);
   const lastUnlocked = useRef(props.lint.unlocked);
   useEffect(() => {
     if (!handle || handle.disposed) return;
@@ -1037,6 +1075,43 @@ function WorkbenchView(props: WorkbenchProps & { source: LensSource | null }) {
     handle?.setMutes(next);
     propsRef.current.onMutes?.(next);
   };
+
+  // --- Oak 2.0 W1: focus one part (`soloLabel`) -----------------------------------------------------------
+  // The labels focus muted (that were not muted before), so ending focus takes off only those. Not reported through
+  // `onMutes`: a focus is not the learner's own mute and is never saved with the sketch.
+  const mutesNow = useRef(mutes);
+  mutesNow.current = mutes;
+  const focusAdded = useRef<{ label: string | null; added: ReadonlySet<string> }>({
+    label: null,
+    added: new Set(),
+  });
+  const soloLabel = props.soloLabel ?? null;
+  const labelsKey = useMemo(
+    () =>
+      labelledLines(code)
+        .map((l) => l.label)
+        .join("\n"),
+    [code],
+  );
+  useEffect(() => {
+    if (!handle || handle.disposed) return;
+    const prev = focusAdded.current;
+    if (soloLabel === null && prev.added.size === 0) return;
+    // Take off what the previous focus added, then add what this one needs.
+    const muted = new Set([...mutesNow.current.muted].filter((t) => !prev.added.has(t)));
+    const added = new Set<string>();
+    if (soloLabel !== null) {
+      for (const l of labelsKey.split("\n")) {
+        if (l === "" || l === soloLabel || muted.has(l)) continue;
+        muted.add(l);
+        added.add(l);
+      }
+    }
+    focusAdded.current = { label: soloLabel, added };
+    const next: MuteMap = { ...mutesNow.current, muted };
+    setMutes(next);
+    handle.setMutes(next);
+  }, [handle, soloLabel, labelsKey]);
   const onPracticeTempo = () => {
     const next = nextPracticeTempo(practice);
     setPractice(next);

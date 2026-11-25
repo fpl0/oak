@@ -26,7 +26,7 @@ test.beforeAll(async ({ browser }) => {
   await page.close();
 });
 
-test("an empty sketchbook says what to do; New sketch → Blank opens it in the workbench", async ({
+test("an empty sketchbook says what to do; New sketch → Oak's Blank opens it in the workbench", async ({
   page,
 }) => {
   const errors = watchErrors(page);
@@ -39,11 +39,14 @@ test("an empty sketchbook says what to do; New sketch → Blank opens it in the 
   const dialog = page.getByRole("dialog", { name: "New sketch" });
   await expect(dialog).toBeVisible();
   await expect(page).toHaveURL(/\/studio$/);
-  await expect(dialog.getByRole("radio", { name: /Blank/ })).toBeChecked();
+  // No Blank of the learner's yet: Oak's Blank is the start (Oak 2.0 W1: a tempo line, no part).
+  await expect(dialog.getByRole("radio", { name: /Oak's Blank/ })).toBeChecked();
+  await expect(dialog.getByRole("radio", { name: /Your Blank/ })).toHaveCount(0);
   // No lesson Make yet: that start is offered but explained, not clickable.
   await expect(dialog.getByRole("radio", { name: /Make/ })).toBeDisabled();
   await expect(dialog).toContainText("Finish a lesson's Make and you can carry it on here.");
-  // The templates wait for their capstones, each named by its title; none is offered yet.
+  // The learning kits (Oak's song templates) wait for their capstones, each named by its title; none is offered yet.
+  await expect(dialog).toContainText("Learning kits");
   await expect(dialog.getByTestId("template-locked")).toHaveCount(4);
   await expect(dialog.getByTestId("template-locked").first()).toContainText("Four-chord pop");
   await expect(dialog.getByTestId("template-locked").first()).toContainText("Unlocks when you release");
@@ -54,7 +57,8 @@ test("an empty sketchbook says what to do; New sketch → Blank opens it in the 
   await expect(page.locator(`${WB}[data-analysis=ready]`)).toBeVisible({ timeout: 60_000 });
   await expect(page.getByTestId("sketch-title")).toHaveText("First free sketch");
   await expect(page.getByTestId("save-state")).toContainText("Saved v1");
-  await expect(page.locator(".cm-content")).toContainText('drums: s("bd hh sd hh")');
+  await expect(page.locator(".cm-content")).toContainText("setcpm(90/4)");
+  await expect(page.locator(".cm-content")).not.toContainText("bd hh sd hh");
   expect(errors).toEqual([]);
 });
 

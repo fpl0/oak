@@ -127,6 +127,11 @@ export interface TutorSubject {
   title: string;
   /** False during a checkpoint and during drill trials (contracts §10.4): asks are refused with a notice. */
   tutorOpen: boolean;
+  /**
+   * Oak 2.0 W1: the refusal's words while `tutorOpen` is false, when the surface has its own reason (Studio's jam:
+   * `JAM_TUTOR_NOTICE`). Absent: the checkpoint copy.
+   */
+  closedNotice?: string;
   lessonId?: string;
   /** Local step ID (`S5`). */
   stepId?: string;
@@ -833,6 +838,7 @@ function ask(kind: ThreadKind, userText: string, label: string, subject?: TutorS
     return refuse({
       kind: "closed",
       message:
+        subj.closedNotice ??
         "The tutor is closed here: checkpoints and drill trials are yours alone. It opens again after.",
     });
   const a: TutorAsk = {

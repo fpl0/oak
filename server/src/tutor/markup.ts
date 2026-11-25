@@ -1,4 +1,5 @@
-// Tutor output markup (contracts §10.7): markdown plus `[[kind:value]]` tokens and `[[reveal]]`.
+// Tutor output markup (contracts §10.7): markdown plus `[[kind:value]]` tokens, `[[reveal]]` and (Oak 2.0 W1)
+// `[[later]]`, the tutor's offer to park a question on the learner's Later list.
 // `parseMarkup` turns a tutor message into a typed segment list for the panel; `sanitizeMarkdown`
 // is the same text made safe to store and to hand to a markdown renderer.
 //
@@ -10,6 +11,7 @@
 //  - an unknown or malformed token stays plain text.
 // Pure; the browser uses this file as it is.
 import { type Piece, serializePiece, splitMarkdown } from "./markup-guard.ts";
+import type { ThreadKind } from "./types.ts";
 
 export { escapeTags, HtmlGuard } from "./markup-guard.ts";
 
@@ -36,7 +38,11 @@ export type Segment =
   | { type: "code_inline"; code: string }
   | { type: "code_block"; lang: string | null; code: string; playable: false }
   | TokenSegment
-  | { type: "reveal"; raw: string };
+  | { type: "reveal"; raw: string }
+  | { type: "later"; raw: string };
+
+/** Oak 2.0 W1: the threads where `[[later]]` is an offer ("Park it for later"); elsewhere it stays plain text. */
+export const LATER_THREADS: ReadonlySet<ThreadKind> = new Set<ThreadKind>(["chat", "hint", "explain"]);
 
 export interface MarkupOptions {
   /** Whether `[[reveal]]` is valid here: a hint or chat thread on a graded, unpassed step. */
@@ -45,6 +51,11 @@ export interface MarkupOptions {
   introducedTerms?: ReadonlySet<string>;
   /** Tool IDs the learner has unlocked. Omit to leave `locked` unset. */
   unlockedTools?: ReadonlySet<string>;
+  /**
+   * Oak 2.0 W1: the thread kind of the message. `[[later]]` is kept (once) only in `chat`, `hint` and `explain`;
+   * in `listening`, the reviews, or with no thread given, it stays plain text.
+   */
+  thread?: ThreadKind;
 }
 
 const NUMERAL = "(?:VII|VI|IV|V|III|II|I|vii|vi|iv|v|iii|ii|i)";
@@ -140,9 +151,13 @@ export function rewriteLinks(md: string): string {
     .replace(/\]:/g, "]\\:");
 }
 
-const TOKEN = /\[\[(reveal|(deg|rn|note|chord|bars|tool|term):([^\]\s]{1,64}))\]\]/g;
+const TOKEN = /\[\[(reveal|later|(deg|rn|note|chord|bars|tool|term):([^\]\s]{1,64}))\]\]/g;
 
-function proseSegments(md: string, opts: MarkupOptions, seen: { reveal: boolean }): Segment[] {
+function proseSegments(
+  md: string,
+  opts: MarkupOptions,
+  seen: { reveal: boolean; later: boolean },
+): Segment[] {
   const out: Segment[] = [];
   const text = (s: string) => {
     const safe = rewriteLinks(s);
@@ -158,6 +173,12 @@ function proseSegments(md: string, opts: MarkupOptions, seen: { reveal: boolean 
         seen.reveal = true;
         seg = { type: "reveal", raw };
       }
+    } else if (m[1] === "later") {
+      // One offer per message, in the threads where a detour can come up.
+      if (opts.thread !== undefined && LATER_THREADS.has(opts.thread) && !seen.later) {
+        seen.later = true;
+        seg = { type: "later", raw };
+      }
     } else {
       seg = token(m[2] as TokenKind, m[3] as string, raw, opts);
     }
@@ -172,7 +193,7 @@ function proseSegments(md: string, opts: MarkupOptions, seen: { reveal: boolean 
 
 export function parseMarkup(input: string, opts: MarkupOptions = {}): Segment[] {
   const out: Segment[] = [];
-  const seen = { reveal: false };
+  const seen = { reveal: false, later: false };
   const pieces = splitMarkdown(input);
   let prose = "";
   const flushProse = () => {

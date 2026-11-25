@@ -1924,8 +1924,8 @@ export const SketchVersionCreateSchema = z.strictObject({
   ...sketchVersionInput,
   /**
    * Oak 2.0 (contracts §13). `analysis` above is the worker's analysis, saved with the version (the habits mirror
-   * reads it). A Run in a jam is a take (`takeState: null` until kept or cut); a sibling or next generation names its
-   * parent, generation and dimension. Absent = `null`.
+   * reads it). A Run in a jam is a take (`takeState: "open"` until kept or cut; `null` = not a take); a sibling or
+   * next generation names its parent, generation and dimension. Absent = `null`.
    */
   takeState: z.enum(TAKE_STATES).nullable().optional(),
   parentVersion: lineageFields.parentVersion.optional(),

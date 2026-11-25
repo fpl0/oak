@@ -3,7 +3,13 @@
 // block), the strict check an imported version must pass before it runs, liner flags, version labels, the
 // tree-ring cover and the export file. No DOM, no network: tested in model.test.ts.
 
-import type { Sketch, SketchVersion, SketchVersionCreate, TrackLensId } from "@oak/api";
+import {
+  PLAIN_SOUNDS,
+  type Sketch,
+  type SketchVersion,
+  type SketchVersionCreate,
+  type TrackLensId,
+} from "@oak/api";
 import type {
   BandDef,
   FlavourId,
@@ -19,10 +25,35 @@ import { toolName } from "../lib/tool-label.ts";
 
 // --- starters -------------------------------------------------------------------------------------
 
-/** Tempo line, one labelled part, only tools from the first lessons (contracts §3.2: U00.L01, U01.L01). */
-export const BLANK_CODE = 'setcpm(90/4)\n\ndrums: s("bd hh sd hh")\n';
+/**
+ * Oak's Blank (Oak 2.0 W1, PLAN §2 fidelity: defaults must not be mistaken for habits): a tempo line and a comment,
+ * no part, so nothing Oak chose is heard as the learner's style. The New sketch dialog writes the learner's chosen
+ * tempo in place of 90 (`blankStartBody` in starts.ts).
+ */
+export const BLANK_CODE = "setcpm(90/4)\n\n// Your first part goes here: a name, a colon, then a pattern.\n";
 /** Over a Band: a light part of the learner's own on top of the backing. */
 export const OVER_BAND_CODE = 'setcpm(90/4)\n\nhats: s("hh*8")\n';
+/** Over a Band in 3/4: the same light part, six hats a bar, at the waltz vamp's tempo. */
+export const OVER_BAND_CODE_3_4 = 'setcpm(108/3)\n\nhats: s("hh*6")\n';
+
+/** Over a Band's starting code and tempo for a meter (only 3/4 differs; Over a Band offers 4/4 and 3/4). */
+export function overBandStart(meter: MeterId): { code: string; bpm: number } {
+  return meter === "3/4" ? { code: OVER_BAND_CODE_3_4, bpm: 108 } : { code: OVER_BAND_CODE, bpm: 90 };
+}
+
+/**
+ * The lines Oak's own starts write (starts.ts composes them; OAK_DEFAULTS lists them). Every pattern is a rest
+ * (`"~"`): a start gives parts a name and a plain sound, never notes or a rhythm.
+ */
+export const START_LINES = {
+  blankComment: "// Your first part goes here: a name, a colon, then a pattern.",
+  drumsBassComment: "// Drums first, then a bass that fits them; the rest comes later.",
+  plainComment: "// Plain sounds on purpose: make the sounds yours later.",
+  drums: 'drums: s("~")',
+  bass: `bass: note("~").s("${PLAIN_SOUNDS.bass}")`,
+  chords: `chords: note("~").s("${PLAIN_SOUNDS.chords}")`,
+  mel: `mel: note("~").s("${PLAIN_SOUNDS.tune}")`,
+} as const;
 
 /** The flavour kits that ship in Wave 2 (contracts §5.10 table: pop and jazz-soul). */
 export const STUDIO_FLAVOURS: readonly { id: FlavourId; label: string }[] = [
@@ -36,6 +67,31 @@ export function studioFlavour(f: string | null | undefined): FlavourId {
 }
 
 export const DEFAULT_KEY: KeySpec = { tonic: "C", mode: "major" };
+
+/**
+ * What Oak fills in when the learner has not chosen (Oak 2.0 W1): the tempo, meter and key of Oak's Blank, Over a
+ * Band, captures and a sketch from scraps with no tempo of its own, and every line (trimmed) that any Oak start,
+ * `OVER_BAND_CODE` or its 3/4 variant can write. The habits mirror (W3 X16 `summarizeHabits(items, defaults)`) reads
+ * these as Oak's, never as the learner's habits. 90 BPM in 4/4, C major: Oak's call, never shown as a target.
+ */
+export const OAK_DEFAULTS: {
+  readonly bpm: 90;
+  readonly meter: "4/4";
+  readonly key: KeySpec;
+  readonly lines: readonly string[];
+} = {
+  bpm: 90,
+  meter: "4/4",
+  key: DEFAULT_KEY,
+  lines: [
+    ...new Set(
+      [BLANK_CODE, OVER_BAND_CODE, OVER_BAND_CODE_3_4, ...Object.values(START_LINES)]
+        .flatMap((code) => code.split("\n"))
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0),
+    ),
+  ],
+};
 export const STUDIO_METERS: readonly MeterId[] = ["4/4", "3/4", "2/4", "6/8"];
 export const TONICS = ["C", "C#", "Db", "D", "Eb", "E", "F", "F#", "G", "Ab", "A", "Bb", "B"] as const;
 export const MODES = ["major", "minor"] as const;

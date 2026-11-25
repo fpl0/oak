@@ -9,6 +9,7 @@
     "./pitch-worklet": "./src/worklets/pitch.worklet.ts",
     "./waveview": "./src/waveview.ts",
     "./master-meter": "./src/master-meter.ts",
-    "./mix-meter": "./src/mix-meter.ts"
+    "./mix-meter": "./src/mix-meter.ts",
+    "./tap-notation": "./src/tap-notation.ts"
   }
 }

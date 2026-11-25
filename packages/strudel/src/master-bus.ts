@@ -5,10 +5,15 @@
 //                               │     └─▶ preAnalyser         ├─▶ analyser (meter, Oak scope)
 //                               │                             └─▶ tapGain ─▶ tap (MediaStream, the recorder)
 //
+// Oak 2.0 W1: `volume ─▶ listen-through stage ─▶ ctx.destination` (listen-through.ts). The stage is a pass-through
+// unless the learner turns it on; it sits after the analyser and record-tap branches, so a muffled or quiet listen
+// never reaches a meter reading or a recording.
+//
 // The DynamicsCompressor adds makeup gain even below threshold; `trim` undoes it. superdough rebuilds
 // `destinationGain` on `resetGlobalEffects()` and connects it straight to the destination, so the bus
 // hooks `initializeAudio` of the controller's output and re-attaches.
 import * as webaudio from "@strudel/webaudio";
+import { listenStage } from "./listen-through.ts";
 import type { MasterBus } from "./types.ts";
 
 export const LIMITER = { threshold: -3, knee: 0, ratio: 20, attack: 0.003, release: 0.1 } as const;
@@ -60,11 +65,13 @@ export function createMasterBus(ctx: AudioContext): MasterBusInternals {
   const preAnalyser = new AnalyserNode(ctx, { fftSize: 2048, smoothingTimeConstant: 0 });
   const tap = ctx.createMediaStreamDestination();
   const tapGain = new GainNode(ctx, { gain: 1 });
+  const listen = listenStage(ctx);
   input.connect(limiter);
   input.connect(preAnalyser);
   limiter.connect(trim);
   trim.connect(volume);
-  volume.connect(ctx.destination);
+  volume.connect(listen.input);
+  listen.output.connect(ctx.destination);
   trim.connect(analyser);
   trim.connect(tapGain);
   tapGain.connect(tap);
@@ -101,6 +108,10 @@ export function createMasterBus(ctx: AudioContext): MasterBusInternals {
     },
     level: () => levelOf(analyser, levelBuf),
     attachCount: () => attached,
+    setListenThrough(mode) {
+      listen.set(mode);
+    },
+    listenThrough: () => listen.mode,
     attachSuperdough() {
       const controller = webaudio.getSuperdoughAudioController() as { output: SuperdoughOutputLike };
       output = controller.output;
@@ -124,6 +135,7 @@ export function createMasterBus(ctx: AudioContext): MasterBusInternals {
       input.gain.linearRampToValueAtTime(1, t + ms / 1000 + 0.01);
     },
     dispose() {
+      listen.dispose();
       for (const node of [input, limiter, trim, volume, analyser, preAnalyser, tapGain, tap]) {
         try {
           node.disconnect();

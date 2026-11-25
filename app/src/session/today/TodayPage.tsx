@@ -65,6 +65,7 @@ import {
 } from "../today-model.ts";
 import { type OfferRow, offerPlan, offersFromTracks, trackDay } from "../tracks-day.ts";
 import { AlbumStrip, LastSketchCard, NextUnlockCard, OakGlanceCard, SongReadyCard } from "./Glance.tsx";
+import { LaterList } from "./LaterList.tsx";
 import { InlineCodeText, SideOfferLine } from "./SideOffer.tsx";
 import { CftStrip, FirstDayLine, OpenToYou, OtherTabLine, TracksLine } from "./TodayWave6.tsx";
 import { CourseFirstDayLine, KeepPlayingLine, TrackOffers, TrackSessionLine } from "./TodayWave7.tsx";
@@ -714,6 +715,8 @@ export function TodayPage() {
                 )}
               </nav>
             )}
+          {/* Oak 2.0 W1 (PLAN S7): questions and ideas parked for another day, under the day's own decisions. */}
+          {b && view?.state !== "first-run" && <LaterList />}
         </section>
 
         <aside className="flex flex-col gap-4 lg:col-span-4" aria-label="At a glance">

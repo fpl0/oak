@@ -10,6 +10,8 @@
 // Music tokens (`[[deg:5]]`, `[[rn:V7]]`, …) are parsed with `parseTutorText` from @oak/api, so the panel and the
 // server's markup guard agree on what a token is. Inside inline code a token is just text. A value written with
 // Unicode accidentals or as a movable-do syllable is first put in the grammar's own spelling (`canonicalTokenRaw`).
+// Oak 2.0 W1: `[[later]]` (exactly that, no value) is the tutor's offer to park the question on the Later list; the
+// renderer decides whether it becomes a button (chat, hint and explain threads) or nothing.
 import { type MusicToken, parseTutorText } from "@oak/api";
 import { canonicalTokenRaw } from "./music-tokens.ts";
 
@@ -19,8 +21,12 @@ export type Inline =
   | { t: "em"; children: Inline[] }
   | { t: "code"; text: string }
   | { t: "link"; href: string; children: Inline[] }
-  | { t: "token"; token: MusicToken; raw: string }
+  | { t: "token"; token: TutorToken; raw: string }
   | { t: "br" };
+
+/** A music token, `[[reveal]]`, or (Oak 2.0 W1) `[[later]]`. */
+export type TutorToken = MusicToken | { kind: "later" };
+export const LATER_TOKEN = "[[later]]";
 
 export type Block =
   | { t: "p"; children: Inline[] }
@@ -128,6 +134,14 @@ export function parseInline(src: string, depth = 0): Inline[] {
       }
       buf += run;
       i += run.length;
+      continue;
+    }
+
+    // The Later offer: exactly `[[later]]`; `[[later:x]]` is plain text.
+    if (rest.startsWith(LATER_TOKEN)) {
+      flush();
+      out.push({ t: "token", token: { kind: "later" }, raw: LATER_TOKEN });
+      i += LATER_TOKEN.length;
       continue;
     }
 
@@ -349,8 +363,8 @@ export function parseMarkdown(src: string): Block[] {
 }
 
 /** Every token in a parsed document, in order (tests and the "reveal" check). */
-export function tokensIn(blocks: Block[]): MusicToken[] {
-  const out: MusicToken[] = [];
+export function tokensIn(blocks: Block[]): TutorToken[] {
+  const out: TutorToken[] = [];
   const walk = (nodes: Inline[]) => {
     for (const n of nodes) {
       if (n.t === "token") out.push(n.token);
@@ -380,7 +394,7 @@ export function plainText(blocks: Block[]): string {
           case "br":
             return "\n";
           case "token":
-            return n.token.kind === "reveal" ? "" : n.token.value;
+            return n.token.kind === "reveal" || n.token.kind === "later" ? "" : n.token.value;
           default:
             return inl(n.children);
         }

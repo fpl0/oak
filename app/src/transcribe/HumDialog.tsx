@@ -29,6 +29,7 @@ export function HumDialog({
   quiet,
   code,
   onUse,
+  useLabel,
 }: {
   open: boolean;
   onClose(): void;
@@ -37,6 +38,8 @@ export function HumDialog({
   quiet: boolean;
   code: string;
   onUse(code: string, draft: HumDraft): void;
+  /** The use button's text (Oak 2.0 capture: "Save to scraps"). Default "Put the draft in the editor". */
+  useLabel?: string;
 }) {
   const profileQ = useProfile();
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
@@ -145,7 +148,7 @@ export function HumDialog({
               }}
               data-testid="hum-use"
             >
-              Put the draft in the editor
+              {useLabel ?? "Put the draft in the editor"}
             </Button>
           </>
         ) : (

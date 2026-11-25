@@ -3,14 +3,15 @@
 // history compares any earlier version with A/B, the Band layer (pop or jazz-soul kit) follows the sketch's
 // key and tempo, locked tools are hints that never block (contracts §3.1 rule 4), an imported version opens
 // as text until the strict check passes (§11.3), Claude can be asked for a listening note, and the code
-// exports as a .js file.
-import type { SketchDetail, SketchVersion } from "@oak/api";
-import type { KeySpec, LintResult, MeterId } from "@oak/content-kit";
-import type { EvalOutcome, MuteMap } from "@oak/strudel";
+// exports as a .js file. Oak 2.0 W1: Jam (every Run is a take; the tutor, hints, tips and compare wait; only lint
+// errors show), the takes panel after a jam, Focus one part, and the editor slots other W1 tools fill.
+import type { SketchDetail, SketchVersion, TakeState } from "@oak/api";
+import { type KeySpec, type LintResult, labelledLines, type MeterId } from "@oak/content-kit";
+import type { EditorHandle, EvalOutcome, MuteMap } from "@oak/strudel";
 import { cpsToBpm, METERS } from "@oak/theory";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Archive, ChevronLeft, Download, Save, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { bandMeter, bands } from "../../../content/bands/index.ts";
 import { useContent } from "../lib/content.ts";
 import { lessonTitles } from "../lib/content-model.ts";
@@ -37,6 +38,10 @@ import { ServicesGate } from "../workbench/ServicesGate.tsx";
 import { Workbench } from "../workbench/Workbench.tsx";
 import { BandOptions } from "./BandOptions.tsx";
 import { clearDraft, readDraft, readLength, writeDraft, writeLength } from "./draft.ts";
+import { EDITOR_SLOTS, type EditorSlotPlace, type EditorSlotProps } from "./editor-slots.ts";
+import { FocusPanel, FocusToggle } from "./FocusPart.tsx";
+import { JamBar, JamToggle } from "./JamBar.tsx";
+import { JAM_TUTOR_NOTICE, JAM_WORDS, studioChrome } from "./jam.ts";
 import {
   bandMutesOf,
   bandReached,
@@ -83,6 +88,8 @@ import { useUnlockedSet } from "./queries.ts";
 import { ReviewPanel } from "./ReviewPanel.tsx";
 import { SketchCover } from "./SketchCover.tsx";
 import { ExportDialog, NameVersionDialog } from "./StudioDialogs.tsx";
+import { TakesPanel } from "./TakesPanel.tsx";
+import { TAKES_WORDS, takesOf } from "./takes.ts";
 import { VersionHistory } from "./VersionHistory.tsx";
 
 type SaveStatus =
@@ -145,19 +152,40 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
   const queue = useRef<Promise<unknown>>(Promise.resolve());
   const bpmRef = useRef<number | null>(latest.bpm);
 
+  // --- Oak 2.0 W1: jam, focus, the cursor's line, the live editor (for the slots) -----------------------
+  // Neither Jam nor Focus is on by default: the learner chooses.
+  const [jam, setJam] = useState(false);
+  const jamRef = useRef(jam);
+  jamRef.current = jam;
+  const chrome = studioChrome({ jam });
+  const [focus, setFocus] = useState<string | null>(null);
+  const [cursorLabel, setCursorLabel] = useState<string | null>(null);
+  const [editorHandle, setEditorHandle] = useState<EditorHandle | null>(null);
+  const [showCut, setShowCut] = useState(false);
+  const [lastRunCode, setLastRunCode] = useState<string | null>(null);
+  const takesHeading = useRef<HTMLHeadingElement>(null);
+  const editorDomId = `studio${id.replace(/[^a-z0-9]/gi, "").slice(-10)}`;
+
   const bandNow = (): SketchBand | null => (band ? { ...band, mutes: bandMutesOf(mutes.current) } : null);
   const bandSetup = bandSetupFor(band, bands, keySpec, bandReached(progress.data));
   const lessonCtx = { key: keySpec, meter, defaultBpm: latest.bpm ?? 90, loopBars: length };
   const lintCtx = studioLint(unlocked, meter, keySpec);
 
   // --- saving ---------------------------------------------------------------------------------------
-  const save = (d: Omit<VersionDraft, "sessionId">): Promise<SketchVersion | null> => {
+  const save = (
+    d: Omit<VersionDraft, "sessionId">,
+    extra: { takeState?: TakeState } = {},
+  ): Promise<SketchVersion | null> => {
     const job = queue.current.then(async () => {
       setStatus({ kind: "saving" });
       try {
         const res = await addVersion.mutateAsync({
           params: { id },
-          body: versionBody({ ...d, sessionId: currentSessionId() }),
+          body: {
+            ...versionBody({ ...d, sessionId: currentSessionId() }),
+            // Oak 2.0 W1: a Run saved while Jam is on is a take.
+            ...(extra.takeState === undefined ? {} : { takeState: extra.takeState }),
+          },
         });
         const v = res.sketch.versions.at(-1) ?? null;
         saved.current = { code: d.code, key: d.key, meter: d.meter, band: d.band };
@@ -178,17 +206,21 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
   const onEvaluated = (outcome: EvalOutcome) => {
     if (!outcome.ok) return;
     lastRunOk.current = outcome.code;
+    setLastRunCode(outcome.code);
     const m = METERS[meter];
     if (outcome.cps !== null) bpmRef.current = Math.round(cpsToBpm(outcome.cps, m) * 10) / 10;
     const now = { code: outcome.code, key: keySpec, meter, band: bandNow() };
     if (!differsFrom(saved.current as Parameters<typeof differsFrom>[0], now)) return;
-    void save({
-      ...now,
-      bpm: bpmRef.current,
-      lockedTools: outcome.lint?.lockedTools ?? [],
-      note: null,
-      ranOk: true,
-    });
+    void save(
+      {
+        ...now,
+        bpm: bpmRef.current,
+        lockedTools: outcome.lint?.lockedTools ?? [],
+        note: null,
+        ranOk: true,
+      },
+      jamRef.current ? { takeState: "open" } : {},
+    );
   };
 
   const retrySave = async () => {
@@ -301,25 +333,30 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
   const thread = { subjectKind: "sketch" as const, subjectId: id };
   const onHarmony = useSubjectHarmony(thread);
   useEffect(() => {
-    setSubject({ thread, title: sketch.title, tutorOpen: true, sketchId: id, code: liveRef.current });
+    setSubject({
+      thread,
+      title: sketch.title,
+      tutorOpen: !jamRef.current,
+      closedNotice: JAM_TUTOR_NOTICE,
+      sketchId: id,
+      code: liveRef.current,
+    });
     return () => clearSubject(thread);
   }, [id]);
+  // Oak 2.0 W1: Jam closes the tutor with its own notice (not the checkpoint copy); editing opens it again.
+  useEffect(() => {
+    patchSubject(thread, { tutorOpen: chrome.tutorOpen, closedNotice: JAM_TUTOR_NOTICE });
+  }, [chrome.tutorOpen]);
   useEffect(() => {
     patchSubject(thread, { title: sketch.title, code: liveCode });
   }, [liveCode, sketch.title]);
-  // The tutor's Apply lands in this editor as one undoable change; the next Run saves it as a version.
-  useEffect(
-    () =>
-      registerTutorHost({
-        thread,
-        sketchId: id,
-        applyCode: (code) => {
-          if (!applyToEditor(`studio${id.replace(/[^a-z0-9]/gi, "").slice(-10)}`, code)) return;
-          setLiveCode(code);
-        },
-      }),
-    [id],
-  );
+  // The tutor's Apply lands in this editor as one undoable change; the next Run saves it as a version. The W1 editor
+  // slots write code through the same path.
+  const applyCode = (code: string) => {
+    if (!applyToEditor(editorDomId, code)) return;
+    setLiveCode(code);
+  };
+  useEffect(() => registerTutorHost({ thread, sketchId: id, applyCode }), [id]);
 
   // --- keys -------------------------------------------------------------------------------------------
   useHotkeys([
@@ -386,6 +423,65 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
     }
   };
 
+  // --- Oak 2.0 W1: jam on and off, building from takes, focus ----------------------------------------------
+  const toggleJam = (on: boolean) => {
+    setJam(on);
+    if (on) {
+      setCompare(null);
+      return;
+    }
+    // Jam off opens the edit view: the takes panel.
+    requestAnimationFrame(() => {
+      takesHeading.current?.scrollIntoView({ block: "nearest" });
+      takesHeading.current?.focus({ preventScroll: true });
+    });
+  };
+  const onBuild = async (code: string, note: string) => {
+    let locked: string[] = [];
+    try {
+      locked = (await lintInBrowser(code, lintCtx)).lockedTools;
+    } catch {
+      // the lint is a hint; the version is saved either way
+    }
+    const v = await save({
+      code,
+      bpm: bpmRef.current,
+      meter,
+      key: keySpec,
+      band: bandNow(),
+      lockedTools: locked,
+      note,
+      ranOk: false,
+    });
+    if (!v) return;
+    setCompare(null);
+    setSeed((s) => ({ code, n: s.n + 1 }));
+    setLiveCode(code);
+    toast.success(TAKES_WORDS.built, versionLabel(v));
+  };
+  const hasTakes = takesOf(sketch.versions, { showCut: true }).length > 0;
+  const labelsNow = labelledLines(liveCode).map((l) => l.label);
+  // Focus: only the focused statement is editable (the editor maps the range through edits; outlined as a target).
+  const focusReadOnly = useMemo(() => {
+    if (focus === null) return undefined;
+    const line = labelledLines(liveRef.current).find((l) => l.label === focus);
+    return line ? { editable: [{ from: line.from, to: line.to }] } : undefined;
+  }, [focus, seed.n]);
+  const slotProps: EditorSlotProps = {
+    sketch,
+    version: latest,
+    liveCode,
+    cursorLabel,
+    jam,
+    editor: editorHandle,
+    applyCode,
+  };
+  const slots = (place: EditorSlotPlace) =>
+    EDITOR_SLOTS.filter((s) => s.place === place).map(({ id: slotId, Component }) => (
+      <Component key={slotId} {...slotProps} />
+    ));
+  const toolbarSlots = slots("toolbar");
+
   const fitting = bandsForMeter(bands, meter, bandMeter);
   const liner = linerFlags(latest, toolbox, flavourLabel);
   const onWorkbenchMutes = useCallback((m: MuteMap) => {
@@ -435,6 +531,17 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
         )}
         <SaveState status={status} onRetry={() => void retrySave()} />
         <div className="ml-auto flex flex-wrap items-center gap-1.5">
+          {review === null ? (
+            <>
+              <JamToggle jam={jam} onToggle={toggleJam} />
+              <FocusToggle
+                focus={focus}
+                cursorLabel={cursorLabel}
+                onFocus={setFocus}
+                onNoLine={() => toast.info(JAM_WORDS.focusNoLine)}
+              />
+            </>
+          ) : null}
           <Button
             icon={<Save aria-hidden className="size-4" />}
             onClick={() => setNaming(true)}
@@ -465,8 +572,16 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
           >
             Delete
           </Button>
+          {review === null ? slots("header") : null}
         </div>
       </header>
+
+      {jam && review === null ? (
+        <JamBar sketchId={id} lastRunCode={lastRunCode} onSwitchToEditing={() => toggleJam(false)} />
+      ) : null}
+      {focus !== null && review === null ? (
+        <FocusPanel key={focus} label={focus} labels={labelsNow} onEnd={() => setFocus(null)} />
+      ) : null}
 
       {/* settings of the sketch: key, meter, length, Band */}
       <fieldset className="m-0 min-w-0 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-card border border-border bg-surface px-3 py-2 text-sm">
@@ -634,10 +749,16 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
                 band={bandSetup}
                 initialMutes={mutes.current}
                 onMutes={onWorkbenchMutes}
-                target={compare ? { code: compare.code, audible: "always" } : null}
+                target={compare && chrome.compare ? { code: compare.code, audible: "always" } : null}
                 abLabels={compare ? { a: "now", b: versionLabel(compare) } : { a: "now", b: "earlier" }}
                 onChange={onChange}
                 onEvaluated={onEvaluated}
+                lintFloor={chrome.lintFloor}
+                soloLabel={focus}
+                onCursorLabel={setCursorLabel}
+                onHandle={setEditorHandle}
+                {...(focusReadOnly === undefined ? {} : { readOnly: focusReadOnly, targetRegions: true })}
+                {...(toolbarSlots.length > 0 ? { toolbar: <>{toolbarSlots}</> } : {})}
                 onModel={(m) => {
                   setHasChords(m.harmony !== null && m.harmony.source === "learner");
                   setHasSections((m.lines?.sections.length ?? 0) > 0);
@@ -660,15 +781,30 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
           )}
         </div>
         <aside className="flex min-w-0 flex-col gap-3">
+          {!jam && hasTakes && review === null ? (
+            <TakesPanel
+              sketch={sketch}
+              showCut={showCut}
+              onShowCut={setShowCut}
+              comparing={compare?.version ?? null}
+              onPlay={(v) => void onCompare(v)}
+              onBuild={onBuild}
+              headingRef={takesHeading}
+            />
+          ) : null}
           <VersionHistory
             versions={sketch.versions}
             current={sketch.currentVersion}
             comparing={compare?.version ?? null}
             onCompare={(v) => void onCompare(v)}
             onOpen={onOpen}
+            showCut={showCut}
+            onShowCut={setShowCut}
+            compare={chrome.compare}
           />
-          {hints.length > 0 && !review ? <LockedHints hints={hints} /> : null}
-          {harmonyHints.length > 0 && !review ? (
+          {/* Jam hides every hint and tip callout (W1 fidelity rule 2). */}
+          {hints.length > 0 && !review && chrome.hints ? <LockedHints hints={hints} /> : null}
+          {harmonyHints.length > 0 && !review && chrome.hints ? (
             <Callout tone="info" title="Coming for your chords" className="text-sm">
               <ul className="flex flex-col gap-0.5" data-testid="harmony-hints">
                 {harmonyHints.map((h) => (
@@ -679,13 +815,13 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
               </ul>
             </Callout>
           ) : null}
-          {(soundHints.length > 0 || soundTips.length > 0) && !review ? (
+          {((soundHints.length > 0 && chrome.hints) || (soundTips.length > 0 && chrome.tips)) && !review ? (
             <Callout tone="info" title="Views for this sketch" className="text-sm">
               <ul className="flex flex-col gap-0.5" data-testid="sound-hints">
-                {soundTips.map((t) => (
+                {(chrome.tips ? soundTips : []).map((t) => (
                   <li key={t}>{t}</li>
                 ))}
-                {soundHints.map((h) => (
+                {(chrome.hints ? soundHints : []).map((h) => (
                   <li key={h.id}>
                     {h.what}: from {h.at}.
                   </li>
@@ -693,13 +829,13 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
               </ul>
             </Callout>
           ) : null}
-          {(musicHints.length > 0 || musicTips.length > 0) && !review ? (
+          {((musicHints.length > 0 && chrome.hints) || (musicTips.length > 0 && chrome.tips)) && !review ? (
             <Callout tone="info" title="Lenses for this sketch" className="text-sm">
               <ul className="flex flex-col gap-0.5" data-testid="music-hints">
-                {musicTips.map((t) => (
+                {(chrome.tips ? musicTips : []).map((t) => (
                   <li key={t}>{t}</li>
                 ))}
-                {musicHints.map((h) => (
+                {(chrome.hints ? musicHints : []).map((h) => (
                   <li key={h.id}>
                     {h.what}: from {h.at}.
                   </li>
@@ -707,13 +843,13 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
               </ul>
             </Callout>
           ) : null}
-          {(trackHints.length > 0 || trackTips.length > 0) && !review ? (
+          {((trackHints.length > 0 && chrome.hints) || (trackTips.length > 0 && chrome.tips)) && !review ? (
             <Callout tone="info" title="Track lenses for this sketch" className="text-sm">
               <ul className="flex flex-col gap-0.5" data-testid="track-hints">
-                {trackTips.map((t) => (
+                {(chrome.tips ? trackTips : []).map((t) => (
                   <li key={t}>{t}</li>
                 ))}
-                {trackHints.map((h) => (
+                {(chrome.hints ? trackHints : []).map((h) => (
                   <li key={h.id}>
                     {h.what}: coming in {h.at}.
                   </li>
@@ -722,6 +858,7 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
             </Callout>
           ) : null}
 
+          {review === null ? slots("aside") : null}
           <Facts
             version={latest}
             liner={liner}

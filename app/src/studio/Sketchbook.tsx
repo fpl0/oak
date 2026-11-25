@@ -11,11 +11,19 @@ import { type SketchOrigin, useSketches } from "../lib/queries.ts";
 import { Button, buttonClass } from "../ui/kit/Button.tsx";
 import { Card, Chip, EmptyState, Page, PageHeader } from "../ui/kit/basics.tsx";
 import { QueryView } from "../ui/kit/QueryState.tsx";
-import { Tabs } from "../ui/kit/Tabs.tsx";
+import { Tabs, tabPanelProps } from "../ui/kit/Tabs.tsx";
 import { needsReview, sinceText } from "./model.ts";
 import { NewSketchDialog } from "./NewSketchDialog.tsx";
 import { useSketchDetails } from "./queries.ts";
 import { SketchCover } from "./SketchCover.tsx";
+import { ScrapsPanel } from "./scraps/ScrapsPanel.tsx";
+
+/** Oak 2.0 S1: the sketchbook's two tabs. */
+type BookTab = "sketches" | "scraps";
+const BOOK_TABS: { value: BookTab; label: string }[] = [
+  { value: "sketches", label: "Sketches" },
+  { value: "scraps", label: "Scraps" },
+];
 
 type Filter = "all" | "free" | "lesson-make" | "capstone" | "transcription";
 const FILTERS: { value: Filter; label: string }[] = [
@@ -82,13 +90,32 @@ function emptyFilter(filter: Filter, onNew: () => void): { title: string; body: 
   }
 }
 
-export function Sketchbook({ wantsNew, onNewHandled }: { wantsNew: boolean; onNewHandled(): void }) {
+export function Sketchbook({
+  wantsNew,
+  onNewHandled,
+  wantsScraps = false,
+  onScrapsChange,
+}: {
+  wantsNew: boolean;
+  onNewHandled(): void;
+  /** Oak 2.0 S1 (`/studio?scraps=1`): the sketchbook shows its Scraps tab. */
+  wantsScraps?: boolean;
+  /** The learner switched between Sketches and Scraps (the route keeps `?scraps` in step). */
+  onScrapsChange?(open: boolean): void;
+}) {
   usePageTitle("Studio");
   const [filter, setFilter] = useState<Filter>("all");
   const [q, setQ] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
   const [sort, setSort] = useState<Sort>("recent");
   const [dialog, setDialog] = useState(false);
+  // The tab follows `?scraps` when the route keeps it; without a route callback it is local.
+  const [localTab, setLocalTab] = useState<BookTab>(wantsScraps ? "scraps" : "sketches");
+  const tab: BookTab = onScrapsChange ? (wantsScraps ? "scraps" : "sketches") : localTab;
+  const setTab = (t: BookTab) => {
+    if (onScrapsChange) onScrapsChange(t === "scraps");
+    else setLocalTab(t);
+  };
   const sketches = useSketches(filter === "all" ? undefined : (filter as SketchOrigin));
   const all = useSketches();
 
@@ -136,76 +163,92 @@ export function Sketchbook({ wantsNew, onNewHandled }: { wantsNew: boolean; onNe
           </Button>
         }
       />
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <Tabs<Filter> label="Show" value={filter} onChange={setFilter} items={FILTERS} />
-        <label className="relative flex items-center">
-          <span className="sr-only">Search sketches</span>
-          <Search aria-hidden className="pointer-events-none absolute left-2 size-4 text-text-3" />
-          <input
-            ref={searchRef}
-            type="search"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search"
-            className="h-8 w-56 rounded-control border border-border bg-surface pr-2 pl-8 text-sm"
-          />
-        </label>
-        <label className="flex items-center gap-2 text-sm text-text-2">
-          Sort
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as Sort)}
-            className="h-8 rounded-control border border-border bg-surface px-2 text-text"
-          >
-            <option value="recent">Last edited</option>
-            <option value="oldest">Oldest first</option>
-            <option value="title">Title</option>
-          </select>
-        </label>
-      </div>
-      <QueryView
-        query={sketches}
-        isEmpty={(d) => d.items.length === 0}
-        empty={(() => {
-          const e = emptyFilter(filter, () => setDialog(true));
-          return (
-            <EmptyState icon={<NotebookPen aria-hidden />} title={e.title} action={e.action}>
-              {e.body}
-            </EmptyState>
-          );
-        })()}
-      >
-        {() =>
-          visible.length === 0 ? (
-            <div
-              className="flex flex-col items-center gap-1 py-8 text-center text-text-2"
-              data-testid="search-empty"
-            >
-              <p>No sketches match “{q}”.</p>
-              <p className="text-sm">Search looks at titles and tags.</p>
-              <Button
-                variant="link"
-                size="sm"
-                onClick={() => {
-                  setQ("");
-                  // The button goes away with the empty result: keep the focus where the learner types next.
-                  searchRef.current?.focus();
-                }}
+      <Tabs<BookTab>
+        label="Sketchbook"
+        value={tab}
+        onChange={setTab}
+        items={BOOK_TABS}
+        className="mb-4"
+        idBase="sketchbook"
+      />
+      {tab === "scraps" ? (
+        <div {...tabPanelProps("sketchbook", "scraps")}>
+          <ScrapsPanel />
+        </div>
+      ) : (
+        <div {...tabPanelProps("sketchbook", "sketches")}>
+          <div className="mb-4 flex flex-wrap items-center gap-3">
+            <Tabs<Filter> label="Show" value={filter} onChange={setFilter} items={FILTERS} />
+            <label className="relative flex items-center">
+              <span className="sr-only">Search sketches</span>
+              <Search aria-hidden className="pointer-events-none absolute left-2 size-4 text-text-3" />
+              <input
+                ref={searchRef}
+                type="search"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search"
+                className="h-8 w-56 rounded-control border border-border bg-surface pr-2 pl-8 text-sm"
+              />
+            </label>
+            <label className="flex items-center gap-2 text-sm text-text-2">
+              Sort
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as Sort)}
+                className="h-8 rounded-control border border-border bg-surface px-2 text-text"
               >
-                Clear search
-              </Button>
-            </div>
-          ) : (
-            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-testid="sketch-list">
-              {visible.map((s) => (
-                <li key={s.id}>
-                  <SketchCard sketch={s} detail={details.get(s.id) ?? null} now={now} />
-                </li>
-              ))}
-            </ul>
-          )
-        }
-      </QueryView>
+                <option value="recent">Last edited</option>
+                <option value="oldest">Oldest first</option>
+                <option value="title">Title</option>
+              </select>
+            </label>
+          </div>
+          <QueryView
+            query={sketches}
+            isEmpty={(d) => d.items.length === 0}
+            empty={(() => {
+              const e = emptyFilter(filter, () => setDialog(true));
+              return (
+                <EmptyState icon={<NotebookPen aria-hidden />} title={e.title} action={e.action}>
+                  {e.body}
+                </EmptyState>
+              );
+            })()}
+          >
+            {() =>
+              visible.length === 0 ? (
+                <div
+                  className="flex flex-col items-center gap-1 py-8 text-center text-text-2"
+                  data-testid="search-empty"
+                >
+                  <p>No sketches match “{q}”.</p>
+                  <p className="text-sm">Search looks at titles and tags.</p>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() => {
+                      setQ("");
+                      // The button goes away with the empty result: keep the focus where the learner types next.
+                      searchRef.current?.focus();
+                    }}
+                  >
+                    Clear search
+                  </Button>
+                </div>
+              ) : (
+                <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" data-testid="sketch-list">
+                  {visible.map((s) => (
+                    <li key={s.id}>
+                      <SketchCard sketch={s} detail={details.get(s.id) ?? null} now={now} />
+                    </li>
+                  ))}
+                </ul>
+              )
+            }
+          </QueryView>
+        </div>
+      )}
       <NewSketchDialog open={dialog} onClose={() => setDialog(false)} sketches={all.data?.items ?? []} />
     </Page>
   );

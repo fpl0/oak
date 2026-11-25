@@ -1,5 +1,6 @@
-// The Studio's song templates (ux §2.3, content/toolbox.ts section A): a whole song to start a sketch from, one
-// for each `tb.template.*` row that a capstone's release unlocks. Each starter plays on its own (no Band), uses only
+// The Studio's song templates (ux §2.3, content/toolbox.ts section A), shown to the learner as "Learning kits" since
+// Oak 2.0 W1 (the learner's own starting points come first: starts.ts): a whole song to learn from and start a sketch
+// from, one for each `tb.template.*` row that a capstone's release unlocks. Each starter plays on its own (no Band), uses only
 // what the learner has at its unlock site (templates.test.ts lints each one there), and leaves a marked line for
 // the learner's own part. Every line is Oak's own; the progressions and forms are the common ones.
 import type { SketchCreate } from "@oak/api";
@@ -137,7 +138,7 @@ export function templateTitle(name: string, existing: readonly { title: string }
   return `${name} ${n}`;
 }
 
-/** A new free sketch from a template: its code, tempo, meter and key, no Band. */
+/** A new free sketch from a learning kit: its code, tempo, meter and key, no Band. */
 export function templateSketchBody(song: StarterSong, title: string, sessionId: string | null): SketchCreate {
   return {
     title,
@@ -150,7 +151,7 @@ export function templateSketchBody(song: StarterSong, title: string, sessionId: 
     key: song.key,
     band: null,
     analysis: null,
-    note: `From the template ${song.name}`,
+    note: `From the learning kit ${song.name}`,
     tutorAssisted: false,
     ranOk: false,
     flags: { lockedTools: [], previewTools: [] },
@@ -159,7 +160,7 @@ export function templateSketchBody(song: StarterSong, title: string, sessionId: 
 
 const MODE_WORDS: Readonly<Record<string, string>> = { blues: "blues", dorian: "Dorian", major: "major" };
 
-/** "G major, 100 BPM, 8 bars": what a template's song is, in a line. */
+/** "G major, 100 BPM, 8 bars": what a learning kit's song is, in a line. */
 export function templateDetail(s: StarterSong): string {
   const tonic = s.key.tonic.replace(/(?<=[A-G])b/, "♭").replace("#", "♯");
   return `${tonic} ${MODE_WORDS[s.key.mode] ?? s.key.mode}, ${s.bpm} BPM, ${s.bars} bars`;

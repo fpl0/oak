@@ -7,6 +7,7 @@ import {
   DEFAULT_TRANSCRIPTION_SETTINGS,
   type Sketch,
   type SketchVersion,
+  type TakeState,
   type Transcription,
 } from "@oak/api";
 import type { GradeResult } from "@oak/content-kit";
@@ -27,6 +28,9 @@ interface SketchRow {
   listening_comment: string | null;
   created_at: string;
   updated_at: string;
+  /** Oak 2.0 (migration 0012): S7 committed lines and S6 drawn cards; NULL = none. */
+  committed_json?: string | null;
+  cards_json?: string | null;
 }
 const toSketch = (r: SketchRow): Sketch => ({
   id: r.id,
@@ -39,6 +43,8 @@ const toSketch = (r: SketchRow): Sketch => ({
   listeningNote: r.listening_comment,
   createdAt: r.created_at,
   updatedAt: r.updated_at,
+  committed: fromJson<NonNullable<Sketch["committed"]>>(r.committed_json ?? null, []),
+  cards: fromJson<NonNullable<Sketch["cards"]>>(r.cards_json ?? null, []),
 });
 interface SketchVersionRow {
   sketch_id: string;
@@ -53,6 +59,11 @@ interface SketchVersionRow {
   band_json: string | null;
   flags_json: string | null;
   created_at: string;
+  /** Oak 2.0 (migration 0012): S3 take state and S5 lineage; NULL = not a take / not in a chain. */
+  take_state?: string | null;
+  parent_version?: number | null;
+  generation?: number | null;
+  dimension?: string | null;
 }
 const toSketchVersion = (r: SketchVersionRow): SketchVersion => ({
   sketchId: r.sketch_id,
@@ -67,6 +78,10 @@ const toSketchVersion = (r: SketchVersionRow): SketchVersion => ({
   band: fromJson<SketchVersion["band"]>(r.band_json, null),
   flags: fromJson<SketchVersion["flags"]>(r.flags_json, NO_FLAGS),
   createdAt: r.created_at,
+  takeState: (r.take_state ?? null) as TakeState | null,
+  parentVersion: r.parent_version ?? null,
+  generation: r.generation ?? null,
+  dimension: (r.dimension ?? null) as SketchVersion["dimension"] | null,
 });
 
 export class SketchesRepo {
@@ -128,8 +143,9 @@ export class SketchesRepo {
   insertVersion(v: SketchVersion): void {
     run(
       this.db,
-      `INSERT INTO sketch_versions (sketch_id, version, code, bpm, meter, key, analysis_json, note, tutor_assisted, band_json, flags_json, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO sketch_versions (sketch_id, version, code, bpm, meter, key, analysis_json, note, tutor_assisted, band_json, flags_json, created_at,
+         take_state, parent_version, generation, dimension)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       v.sketchId,
       v.version,
       v.code,
@@ -142,6 +158,10 @@ export class SketchesRepo {
       toJsonOrNull(v.band),
       toJson(v.flags),
       v.createdAt,
+      v.takeState ?? null,
+      v.parentVersion ?? null,
+      v.generation ?? null,
+      v.dimension ?? null,
     );
     run(
       this.db,
@@ -153,7 +173,14 @@ export class SketchesRepo {
   }
   patch(
     id: string,
-    patch: { title?: string; tags?: string[]; archived?: boolean; listeningNote?: string | null },
+    patch: {
+      title?: string;
+      tags?: string[];
+      archived?: boolean;
+      listeningNote?: string | null;
+      committed?: NonNullable<Sketch["committed"]>;
+      cards?: NonNullable<Sketch["cards"]>;
+    },
     at: string,
   ): void {
     if (patch.title !== undefined)
@@ -164,7 +191,34 @@ export class SketchesRepo {
       run(this.db, "UPDATE sketches SET archived = ? WHERE id = ?", int(patch.archived), id);
     if (patch.listeningNote !== undefined)
       run(this.db, "UPDATE sketches SET listening_comment = ? WHERE id = ?", patch.listeningNote, id);
+    // Oak 2.0: the whole list replaces the stored one; an empty list is stored as NULL ("none").
+    if (patch.committed !== undefined)
+      run(
+        this.db,
+        "UPDATE sketches SET committed_json = ? WHERE id = ?",
+        patch.committed.length === 0 ? null : toJson(patch.committed),
+        id,
+      );
+    if (patch.cards !== undefined)
+      run(
+        this.db,
+        "UPDATE sketches SET cards_json = ? WHERE id = ?",
+        patch.cards.length === 0 ? null : toJson(patch.cards),
+        id,
+      );
     run(this.db, "UPDATE sketches SET updated_at = ? WHERE id = ?", at, id);
+  }
+  /** Oak 2.0 S3: keep or cut a take, or clear the mark (never deletes the version). False when there is no such version. */
+  setTakeState(id: string, version: number, takeState: TakeState | null): boolean {
+    return (
+      run(
+        this.db,
+        "UPDATE sketch_versions SET take_state = ? WHERE sketch_id = ? AND version = ?",
+        takeState,
+        id,
+        version,
+      ).changes > 0
+    );
   }
   delete(id: string): boolean {
     return run(this.db, "DELETE FROM sketches WHERE id = ?", id).changes > 0;

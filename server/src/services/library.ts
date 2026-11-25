@@ -16,6 +16,8 @@ import {
   type SketchDetail,
   type SketchSaved,
   type SketchVersion,
+  TAKE_STATES,
+  type TakeState,
   type Transcription,
   type TranscriptionDetail,
   type TranscriptionSettings,
@@ -138,6 +140,11 @@ export class LibraryService {
       band: v.band,
       flags: v.flags,
       createdAt: at,
+      // Oak 2.0 (contracts §13): a jam Run is a take; a sibling or next generation names its lineage. Absent = null.
+      takeState: v.takeState ?? null,
+      parentVersion: v.parentVersion ?? null,
+      generation: v.generation ?? null,
+      dimension: v.dimension ?? null,
     };
   }
 
@@ -177,11 +184,31 @@ export class LibraryService {
 
   patchSketch(
     id: string,
-    patch: { title?: string; tags?: string[]; archived?: boolean; listeningNote?: string | null },
+    patch: {
+      title?: string;
+      tags?: string[];
+      archived?: boolean;
+      listeningNote?: string | null;
+      committed?: NonNullable<Sketch["committed"]>;
+      cards?: NonNullable<Sketch["cards"]>;
+    },
   ): Sketch {
     if (this.#repos.sketches.get(id) === null) throw notFound(`sketch ${id}`);
     this.#repos.sketches.patch(id, patch, this.time.iso());
     return this.#repos.sketches.get(id) as Sketch;
+  }
+
+  /**
+   * Oak 2.0 S3 (`sketches.patchVersion`): keep or cut a jam take, or clear the mark. Cut hides it in the app; the
+   * version is never deleted. 404 for an unknown sketch or version.
+   */
+  patchSketchVersion(id: string, version: number, takeState: TakeState | null): SketchVersion {
+    if (takeState !== null && !(TAKE_STATES as readonly string[]).includes(takeState))
+      throw badRequest(`takeState must be one of ${TAKE_STATES.join(", ")} or null`);
+    if (this.#repos.sketches.get(id) === null) throw notFound(`sketch ${id}`);
+    if (!this.#repos.sketches.setTakeState(id, version, takeState))
+      throw notFound(`sketch ${id} version ${version}`);
+    return this.#repos.sketches.version(id, version) as SketchVersion;
   }
 
   deleteSketch(id: string): void {

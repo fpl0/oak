@@ -1,8 +1,9 @@
 // Renders the closed markdown AST of markdown.ts. Strings only ever become React text children (escaped); there
-// is no dangerouslySetInnerHTML anywhere in the tutor UI. `[[reveal]]` is handed to `renderReveal`.
+// is no dangerouslySetInnerHTML anywhere in the tutor UI. `[[reveal]]` is handed to `renderReveal`, `[[later]]` (Oak 2.0
+// W1) to `renderLater`; without a renderer either renders nothing.
 import type { SubjectRef } from "@oak/api";
 import { Link } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { createContext, type ReactNode, useContext } from "react";
 import { type Block, type Inline, parseInline, parseMarkdown } from "./markdown.ts";
 import type { TokenContext } from "./music-tokens.ts";
 import { splitSections } from "./sections.ts";
@@ -14,6 +15,19 @@ export interface MarkdownProps {
   thread: SubjectRef;
   /** What `[[reveal]]` becomes (the Reveal (hint 4) button, or nothing). */
   renderReveal?: () => ReactNode;
+  /** What `[[later]]` becomes ("Park it for later" in chat, hint and explain threads; nothing elsewhere). */
+  renderLater?: () => ReactNode;
+}
+
+/**
+ * Oak 2.0 W1: what `[[later]]` becomes when a message's own `renderLater` is not given. The tutor panel provides it
+ * around the replies of chat, hint and explain threads (with the question each one answers); everywhere else there is
+ * no provider and the token renders nothing.
+ */
+export const LaterOfferContext = createContext<(() => ReactNode) | null>(null);
+
+function withLater(props: MarkdownProps, fromContext: (() => ReactNode) | null): MarkdownProps {
+  return props.renderLater || !fromContext ? props : { ...props, renderLater: fromContext };
 }
 
 function inlines(nodes: Inline[], p: MarkdownProps, key: string): ReactNode[] {
@@ -68,6 +82,7 @@ function inlines(nodes: Inline[], p: MarkdownProps, key: string): ReactNode[] {
         );
       case "token":
         if (n.token.kind === "reveal") return <span key={k}>{p.renderReveal?.() ?? null}</span>;
+        if (n.token.kind === "later") return <span key={k}>{p.renderLater?.() ?? null}</span>;
         return <TokenChip key={k} token={n.token} raw={n.raw} ctx={p.ctx} thread={p.thread} />;
       default:
         return null;
@@ -129,8 +144,13 @@ function blocks(bs: Block[], p: MarkdownProps, key: string): ReactNode[] {
 }
 
 export function Markdown(props: MarkdownProps) {
+  const later = useContext(LaterOfferContext);
   const doc = parseMarkdown(props.text);
-  return <div className="flex flex-col gap-2 leading-relaxed break-words">{blocks(doc, props, "m")}</div>;
+  return (
+    <div className="flex flex-col gap-2 leading-relaxed break-words">
+      {blocks(doc, withLater(props, later), "m")}
+    </div>
+  );
 }
 
 /**
@@ -138,5 +158,6 @@ export function Markdown(props: MarkdownProps) {
  * emphasis and inline code render, nothing becomes a block.
  */
 export function InlineMarkdown(props: MarkdownProps) {
-  return <>{inlines(parseInline(props.text), props, "i")}</>;
+  const later = useContext(LaterOfferContext);
+  return <>{inlines(parseInline(props.text), withLater(props, later), "i")}</>;
 }

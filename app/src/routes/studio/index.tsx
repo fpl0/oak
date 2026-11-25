@@ -8,6 +8,13 @@ const searchSchema = z.object({
   new: z.boolean().optional().catch(undefined),
   /** "Try it in Studio" (the Coda, the unlock moment): a new sketch from this tool's demo. */
   try: z.string().optional().catch(undefined),
+  /** Oak 2.0 S1: open the sketchbook on its Scraps tab ("From scraps", a capture's "See it in scraps"). */
+  /** `?scraps=1` (a number once TanStack parses the search) counts as `true`, as the plan and the specs write it. */
+  scraps: z
+    .union([z.boolean(), z.literal(1), z.literal("1")])
+    .transform((v) => v === true || v === 1 || v === "1")
+    .optional()
+    .catch(undefined),
 });
 
 export const Route = createFileRoute("/studio/")({
@@ -16,7 +23,7 @@ export const Route = createFileRoute("/studio/")({
 });
 
 function StudioRoute() {
-  const { new: wantsNew, try: tryTool } = Route.useSearch();
+  const { new: wantsNew, try: tryTool, scraps: wantsScraps } = Route.useSearch();
   const navigate = useNavigate();
   if (tryTool)
     return (
@@ -28,6 +35,10 @@ function StudioRoute() {
   return (
     <Sketchbook
       wantsNew={wantsNew === true}
+      wantsScraps={wantsScraps === true}
+      onScrapsChange={(open) =>
+        void navigate({ to: "/studio", search: open ? { scraps: true } : {}, replace: true })
+      }
       onNewHandled={() => void navigate({ to: "/studio", search: {}, replace: true })}
     />
   );

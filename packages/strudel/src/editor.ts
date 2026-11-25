@@ -20,6 +20,7 @@ import {
   newSession,
 } from "./evaluation.ts";
 import {
+  aboveFloor,
   addFlashEffect,
   editableField,
   editableOf,
@@ -54,6 +55,7 @@ import type {
   EditorOptions,
   EvalOutcome,
   EvaluateOptions,
+  LintFloor,
   LiveHap,
   MuteMap,
   ScopePanel,
@@ -97,6 +99,10 @@ export function createEditor(rt: Runtime, root: HTMLElement, opts: EditorOptions
   let disposed = false;
   let playing = false;
   let mutes: MuteMap = NO_MUTES;
+  /** Oak 2.0 W1 listening aid: read live by `finalizePattern` per hap; never touches the code. */
+  let plain = false;
+  /** Oak 2.0 W1 (jam): the lowest lint severity the editor displays. */
+  let lintFloor: LintFloor = "info";
   let band: BandSetup | null = opts.band ?? null;
   let lintCtx: LintContext = { ...opts.lint };
   let external: LintDiagnostic[] = [];
@@ -154,7 +160,12 @@ export function createEditor(rt: Runtime, root: HTMLElement, opts: EditorOptions
         solo: true,
         autodraw: false,
         editPattern: (pat: Strudel.Pattern) => {
-          const out = finalizePattern(pat, { session, mutes: () => mutes, scopeTrack: rt.scope.track });
+          const out = finalizePattern(pat, {
+            session,
+            mutes: () => mutes,
+            scopeTrack: rt.scope.track,
+            plain: () => plain,
+          });
           return (out.onPaint as (fn: unknown) => Strudel.Pattern)(
             (_ctx: unknown, time: number, haps: Strudel.Hap[]) => paint(time, haps),
           );
@@ -259,6 +270,7 @@ export function createEditor(rt: Runtime, root: HTMLElement, opts: EditorOptions
         clearExternal: () => {
           external = [];
         },
+        lintFloor: () => lintFloor,
         readOnly,
         initialReadOnly: opts.readOnly,
       }),
@@ -334,7 +346,9 @@ export function createEditor(rt: Runtime, root: HTMLElement, opts: EditorOptions
     if (disposed) return;
     external = [...diagnostics];
     try {
-      view.dispatch(setDiagnostics(view.state, toCmDiagnostics(external, view.state.doc.length)));
+      view.dispatch(
+        setDiagnostics(view.state, toCmDiagnostics(aboveFloor(external, lintFloor), view.state.doc.length)),
+      );
     } catch {
       // view destroyed meanwhile
     }
@@ -613,7 +627,14 @@ export function createEditor(rt: Runtime, root: HTMLElement, opts: EditorOptions
       flashTimers.add(timer);
     },
     queryHaps(from, to) {
-      return queryLiveHaps(lastPattern, from, to, tracks);
+      // Static views and probes read the code's own sounds: plain sounds change only what is heard (Oak 2.0 W1).
+      const wasPlain = plain;
+      plain = false;
+      try {
+        return queryLiveHaps(lastPattern, from, to, tracks);
+      } finally {
+        plain = wasPlain;
+      }
     },
     editableRanges() {
       const st = view.state.field(editableField);
@@ -641,6 +662,23 @@ export function createEditor(rt: Runtime, root: HTMLElement, opts: EditorOptions
     getMutes: () => copyMutes(mutes),
     setBand(next) {
       band = next;
+    },
+    setPlainSounds(on) {
+      plain = on;
+    },
+    plainSounds: () => plain,
+    setLintFloor(floor) {
+      if (floor === lintFloor) return;
+      lintFloor = floor;
+      if (disposed) return;
+      try {
+        view.dispatch(
+          setDiagnostics(view.state, toCmDiagnostics(aboveFloor(external, lintFloor), view.state.doc.length)),
+        );
+      } catch {
+        // view destroyed meanwhile
+      }
+      relint(view);
     },
     dispose() {
       teardown();

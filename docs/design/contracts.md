@@ -2336,7 +2336,10 @@ bars    : n or n-m                                        [[bars:3-4]]    → lo
 tool    : a ToolId                                        [[tool:tb.voicing]] → Toolbox link; shows a lock if locked
 term    : a TermId                                        [[term:cadence]] → glossary popover; "preview" badge if not yet introduced
 reveal  : no value; valid only on a hint or chat thread whose subject step is graded and unpassed → the "Reveal (hint 4)" button
+later   : no value; at most one per message; valid only on a chat, hint or explain thread → "Park it for later" (Oak 2.0 W1)
 ```
+
+`[[later]]` (Oak 2.0 W1, PLAN S7) offers to park the learner's question on their Later list (§13.2 `later.create`, `source: "tutor"`, the question trimmed to 500 characters). The server keeps it once per message and only when `MarkupOptions.thread` is `chat`, `hint` or `explain` (`server/src/tutor/markup.ts`, `LATER_THREADS`); without a thread, or on any other thread, it stays plain text, as an unknown token does. In the app it parses to the `TutorToken` `{ kind: "later" }` (`app/src/tutor/markdown.ts`; `[[later:x]]` stays plain text) and renders through `LaterOfferContext`.
 
 Unknown or malformed tokens render as plain text. Tutor markdown is rendered **without raw HTML**: no HTML nodes, no images, no iframes; links are allowed only to in-app routes. Inline code is allowed; multi-line code must come through `propose_code`.
 
@@ -2380,6 +2383,8 @@ Unknown or malformed tokens render as plain text. Tutor markdown is rendered **w
 ### 10.11 Persona (binding rules for `server/src/tutor/prompt/persona.md`)
 
 Formative only; refers to "Oak's checker" for results and never decides pass or fail. Sound → code → symbol. Degrees first, letter names in parentheses, movable do for singing. Always explains `n` = degree − 1. Uses the STYLE dialect in every card. Socratic ladder: ask one question → point to the place → model with a different example → reveal only through `[[reveal]]`. Never claims to hear audio. No lyrics; no copyrighted melodies; public-domain repertoire only. One idea per message, ending with a concrete next action. Specific praise only. Length limits per thread kind (§10.2).
+
+**Judging a piece** (Oak 2.0 W1, PLAN S7; `## Judging a piece` in `persona.ts`). The tutor judges whether a piece works for what the learner is trying to do, never whether it is original, and asks when it cannot tell what they are going for. It is honest: no padding with praise, strengths named only when real. Outside a review "none" is a valid answer ("nothing stands out yet"); in a review, whose schema (§10.6) requires strengths, it picks the real ones, however small. What does not work yet is said as plainly as what does, with the bar and a reason. An off-topic question that would take a long detour gets one or two sentences and a `[[later]]` offer (§10.7); today's task stays the task. In a Studio jam the tutor is closed (`TutorSubject.tutorOpen: false` with the jam's own `closedNotice`), so it does not judge a jam at all.
 
 ### 10.A Amendment 1.2 (2026-11-11): two tutor backends
 
@@ -2711,6 +2716,18 @@ Amended request bodies: `SketchVersionCreateSchema` gains optional `takeState`, 
 2. **No invented numbers** (PLAN §2 fidelity rule 2): an Oak threshold is written as Oak's call in the code that holds it and kept loose.
 3. **Nothing the learner made is lost:** cut takes, shelved tracks and done Later items stay as rows; only the two confirm-guarded DELETEs remove a row.
 
+### 13.5 W1 state (Studio core, 2026-11-25)
+
+The seam for W2–W4 is `docs/design/oak2/W1.md`. Binding from W1:
+
+1. **Built endpoints.** `scraps.*` (`ScrapsService`, `scrapsRoutes`), `templates.*` (`UserTemplatesService`, `templatesRoutes`), `later.*` (`LaterService`, `laterRoutes`) and `sketches.patchVersion` (`LibraryService.patchSketchVersion`, in `libraryRoutes`). `OAK2_PENDING` (`server/src/routes/oak2.ts`) now holds only `sketches.lineage`, `album.patchTrack`, `habits.get`, `catalogs.list`, `catalogs.create`, `capstones.checkHistory`.
+2. **Takes.** A Run that saves while Jam is on is a version with `takeState: "open"`; keep sets `kept`, cut sets `cut`, "Bring back" sets `open`; nothing is deleted. `sketches.create` takes no `takeState`, so a sketch's first version is never a take.
+3. **Index scraps** are every labelled line (muted ones included) of the current version of every unarchived sketch, computed per list and never stored; their id is `idx_<sketchId>_v<version>_<position>` and `scraps.delete` refuses them (409). Their `code` is `scrapCode` (`@oak/content-kit` `studio-code.ts`): the line's consts, transitively, in source order, then the line. A version flagged `reviewBeforeRun` gives index scraps flagged the same.
+4. **Templates.** `templateOfCode` (`server/src/services/template-code.ts`) keeps the first tempo statement and, per labelled unmuted part, its head with every string argument replaced by `"~"` and only the `SOUND_LINKS` links; everything else is named in `dropped`. A template plays no note. One Blank at a time. A template made from a flagged sketch version keeps `reviewBeforeRun`.
+5. **`OAK_DEFAULTS`** (`app/src/studio/model.ts`): `{ bpm: 90, meter: "4/4", key: C major, lines }`, where `lines` lists every line an Oak start writes (the Blank's tempo line and comment, Over a Band, drums and bass first, plain start). W3's habits mirror (X16 `summarizeHabits(items, defaults)`) ignores those lines and reads tempo against `OAK_DEFAULTS.bpm`. The built-in Blank writes a tempo line and a comment, no part.
+6. **`PLAIN_SOUNDS`** (`@oak/content-kit`): `{ bass: "triangle", chords: "piano", tune: "sine" }` until W2 swaps in sound pack v5's `plainbass`, `plainkeys`, `plainlead` (one edit). Plain sounds and listen-through change only what is heard: never the code, never a recording or the meters, and both reset when the editor closes.
+7. **Committed sounds** are `Sketch.committed` entries `{ label, version, at }`; the line's sound settings (`soundSettingsOf`) as they were in that version. An edit to them asks first (CommitGuard) and never blocks a Run.
+
 ## Change log
 
 | Version | Date | Change |
@@ -2729,4 +2746,4 @@ Amended request bodies: `SketchVersionCreateSchema` gains optional `takeState`, 
 | 1.9 | 2026-11-24 | The fifth flavour, `flavour.electronic` (same version, unit-songs branch). §1.2 flavour grammar; §5.10 table row and the electronic paragraph (oak909, acid sawtooth bass, sawtooth stabs, square lead; straight; four-note chords from U06.L10; ships `S1`); every Band and unit song carries electronic code. |
 | 1.9 | 2026-11-24 | Unit songs, infrastructure (same version, unit-songs branch). §5.11 rule 2: the one composer moves to `packages/grader/src/song/compose.ts` (`@oak/grader/song`), re-exported unchanged as `@oak/strudel/song-compose`, because the grader's Workbench analysis composes songs and the grader may not import the adapter. Rule 8: song levels are set and guarded by the song loudness harness (`songs.pw.ts`, `sound-songs.json`), not by staying under the Bands. Rules 9–10: sound pack v4 names no part lists (`conga bongo clave`, the foley one-shots, `sbd`, the six breaks) stand for kit sounds (`drumPartsOfSound`); a break belongs to every drum part. Rule 18 names `AlbumSource.songRelease`. The grader's drum tables classify the v4 names additively (`DRUM_MAP`: hand percussion, foley and breaks `perc`, `sbd` `kick`; the lint's sample-index names; `tables()` is a sample loader the base lint checks); no rubric rule, matcher or test changes. |
 | 2.0 | 2026-11-24 | Oak 2.0 W0 foundations (`docs/oak2/PLAN.md` revision 2). §13 (new): migration 0012 (tables `scraps`, `user_templates`, `capstone_check_history`, `later_items`, `catalogs`; columns `sketch_versions.take_state/parent_version/generation/dimension`, `sketches.committed_json/cards_json`, `album_tracks.shelved`; additive only, no CHECK on status-like text, scraps and templates marked for review on import), the seventeen 2.0 endpoints (`OAK2_ENDPOINTS`, typed 501 until built), their enums and shapes. §11.6: `DELETE /api/scraps/:id` and `DELETE /api/templates/:id` need a nonce (`scrap.delete`, `template.delete`). §11.11: rows for the 0012 tables and columns. The ledger stays §12, so Oak 2.0 is §13. |
-| 2.1 | 2026-11-25 | Oak 2.0 W1: `TAKE_STATES` gains `open` (no migration: no CHECK) |
+| 2.1 | 2026-11-25 | Oak 2.0 W1: `TAKE_STATES` gains `open` (no migration: no CHECK). §10.7: the `[[later]]` token (no value; once per message; chat, hint and explain threads only). §10.11: the "Judging a piece" rules. §13.5 (new): W1 state (the built scraps, templates, Later and take-state endpoints; takes; index scraps; templates; `OAK_DEFAULTS`; `PLAIN_SOUNDS`; committed sounds). |
