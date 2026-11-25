@@ -11,7 +11,7 @@ import {
 import { THREAD_DEFAULT_LIMIT, THREAD_MAX_LIMIT } from "../thread-view.ts";
 import { SUBJECT_KINDS, type ThreadKind, type TurnRequest } from "../types.ts";
 
-const base = TurnRequestSchema.omit({ kind: true });
+const base = TurnRequestSchema.omit({ kind: true, reviewQuestion: true });
 const id = z.string().min(1).max(200);
 const hasText = (s: string) => s.trim().length > 0;
 
@@ -52,6 +52,7 @@ const reviewBody = (...kinds: [(typeof SUBJECT_KINDS)[number], ...(typeof SUBJEC
 /** Wave 4: a capstone review may name the album version it is about (both fields, or neither). */
 export const CapstoneReviewBody = reviewBody("capstone", "track")
   .extend({
+    reviewQuestion: TurnRequestSchema.shape.reviewQuestion,
     albumTrackId: id.optional(),
     albumVersion: z.number().int().positive().optional(),
   })

@@ -83,7 +83,9 @@ export async function prepareTurn(request: TurnRequest, ports: TutorPorts): Prom
   if (reviewKind !== null && found === null)
     throw new TutorError("bad_request", { detail: "nothing to review" });
   // The version reviewed is the one asked for; an adapter that does not say so is told here.
-  const review = found === null ? null : { ...found, target: found.target ?? target };
+  let review = found === null ? null : { ...found, target: found.target ?? target };
+  if (review !== null && (thread.subjectKind === "capstone" || thread.subjectKind === "track"))
+    review = { ...review, question: request.reviewQuestion ?? null };
 
   const prefix = buildPrefix(await ports.lessons.prefixSources());
   const version = prefixVersion(prefix);

@@ -30,11 +30,11 @@ describe("capstone review", () => {
     });
   });
 
-  test("exactly 2 or 3 strengths", () => {
-    expect(capstone({ strengths: [strength] })).toEqual(["strengths: need 2 to 3, got 1"]);
+  test("0 to 3 strengths", () => {
+    expect(capstone({ strengths: [strength] })).toEqual([]);
     expect(capstone({ strengths: [strength, strength, strength] })).toEqual([]);
     expect(capstone({ strengths: [strength, strength, strength, strength] })).toEqual([
-      "strengths: need 2 to 3, got 4",
+      "strengths: need 0 to 3, got 4",
     ]);
   });
 
@@ -121,7 +121,11 @@ describe("capstone review", () => {
 
   test("every problem is reported at once, so one resubmission can fix them all", () => {
     expect(
-      capstone({ strengths: [strength], linerNote: words(70), listeningQuestion: "No question" }),
+      capstone({
+        strengths: [strength, strength, strength, strength],
+        linerNote: words(70),
+        listeningQuestion: "No question",
+      }),
     ).toHaveLength(3);
   });
 });

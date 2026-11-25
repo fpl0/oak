@@ -27,6 +27,7 @@ function cleanCapstone(r: CapstoneReview): CapstoneReview {
     })),
     listeningQuestion: sanitizeMarkdown(r.listeningQuestion),
     linerNote: sanitizeMarkdown(r.linerNote),
+    ...(r.answer === undefined ? {} : { answer: r.answer === null ? null : sanitizeMarkdown(r.answer) }),
   };
 }
 

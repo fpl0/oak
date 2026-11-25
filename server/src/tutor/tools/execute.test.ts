@@ -659,7 +659,10 @@ describe("submit_*_review", () => {
     const tooLong = { ...CAPSTONE_REVIEW, linerNote: Array.from({ length: 61 }, () => "w").join(" ") };
     const first = await h.call("submit_capstone_review", tooLong);
     expect(first.json).toEqual({ accepted: false, problems: ["linerNote: 61 words, the limit is 60"] });
-    const second = await h.call("submit_capstone_review", { ...CAPSTONE_REVIEW, strengths: [] });
+    const second = await h.call("submit_capstone_review", {
+      ...CAPSTONE_REVIEW,
+      strengths: [...CAPSTONE_REVIEW.strengths, ...CAPSTONE_REVIEW.strengths],
+    });
     expect(second.json.accepted).toBe(false);
     const third = await h.call("submit_capstone_review", CAPSTONE_REVIEW);
     expect(third.json).toEqual({ accepted: false, problems: ["no resubmissions left"] });

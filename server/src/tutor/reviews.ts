@@ -30,6 +30,7 @@ export const CapstoneReviewSchema = z.strictObject({
   ),
   listeningQuestion: z.string(),
   linerNote: z.string(),
+  answer: z.string().nullable().optional(),
 });
 export type CapstoneReview = z.infer<typeof CapstoneReviewSchema>;
 
@@ -62,7 +63,7 @@ export const ListeningNoteSchema = z.strictObject({ text: z.string().min(1).max(
 export type ListeningNote = z.infer<typeof ListeningNoteSchema>;
 
 export const REVIEW_LIMITS = {
-  strengths: [2, 3],
+  strengths: [0, 3],
   strengthWords: 40,
   titleWords: 8,
   whyWords: 50,
@@ -73,6 +74,7 @@ export const REVIEW_LIMITS = {
   flagWords: 30,
   questionWords: 30,
   linerNoteWords: 60,
+  answerWords: 60, // Oak's call: a direct, brief answer to the learner's question.
 } as const;
 
 // --- JSON Schemas ------------------------------------------------------------------------------
@@ -102,7 +104,7 @@ const linerNote = str(
 export const CAPSTONE_REVIEW_JSON_SCHEMA: JsonSchema = obj({
   strengths: {
     type: "array",
-    description: "Exactly 2 or 3 strengths, each anchored to bars.",
+    description: "0 to 3 strengths, only real ones, each anchored to bars.",
     items: obj({ text: str("At most 40 words. Specific, never generic praise."), bars }),
   },
   revisions: {
@@ -122,12 +124,16 @@ export const CAPSTONE_REVIEW_JSON_SCHEMA: JsonSchema = obj({
   },
   listeningQuestion,
   linerNote,
+  answer: {
+    type: ["string", "null"],
+    description: "Your answer to learner_question, first; null when the learner asked none.",
+  },
 });
 
 export const TRANSCRIPTION_REVIEW_JSON_SCHEMA: JsonSchema = obj({
   strengths: {
     type: "array",
-    description: "Exactly 2 or 3 strengths, each anchored to bars and a layer.",
+    description: "0 to 3 strengths, only real ones, each anchored to bars and a layer.",
     items: obj({ text: str("At most 40 words."), bars, layer }),
   },
   revisions: {
@@ -154,6 +160,7 @@ export const TRANSCRIPTION_REVIEW_JSON_SCHEMA: JsonSchema = obj({
 // --- validation --------------------------------------------------------------------------------
 
 export interface ReviewRules {
+  question?: string | null;
   /** 1 for C0-C4 and X1; 2 from C5 on (see `revisionCountFor`). */
   revisions: 1 | 2;
   /** Length of the piece when known: bar anchors must lie inside it. */
@@ -163,7 +170,7 @@ export interface ReviewRules {
    * in the piece's key and in STYLE's arrange() form, prose inside the introduced terms. Absent: not checked.
    */
   lint?: ReviewLintContext | null;
-  /** 3 when the review must give exactly three strengths, the strongest first (the Core Finale's single). */
+  /** 3 asks for up to three real strengths, the strongest first (the Core Finale's single). */
   strengths?: 2 | 3 | undefined;
   /**
    * Wave 7: a two-version capstone (AC1): every strength and revision says which version it is about (by its label
@@ -173,8 +180,8 @@ export interface ReviewRules {
 }
 
 /**
- * Strengths a capstone's review must give, when fixed: CF-A, the learner's album single, gets three, the first
- * naming what is strongest in the song (wave6 tutor task; contracts §10.6 allows two or three everywhere).
+ * CF-A, the learner's album single, asks for up to three real strengths, the strongest first.
+ * This is emphasis for the tutor, never a minimum count.
  */
 export function strengthsWantedFor(capstoneId: string | null | undefined): 3 | undefined {
   return capstoneId === "CF-A" ? 3 : undefined;
@@ -204,7 +211,10 @@ export function versionNames(review: Pick<ReviewSource, "versions">): { id: stri
  * (the key plan's keys, else the piece's key) and the terms its prose may use.
  */
 export function reviewRulesOf(
-  review: Pick<ReviewSource, "revisions" | "totalBars" | "facts" | "strengthsWanted" | "versions">,
+  review: Pick<
+    ReviewSource,
+    "revisions" | "totalBars" | "facts" | "strengthsWanted" | "versions" | "question"
+  >,
   terms: IntroducedTerms | null,
   subjectId?: string | null,
 ): ReviewRules {
@@ -213,6 +223,7 @@ export function reviewRulesOf(
   // `all` the vocabulary is unknown and only names the course never uses are refused.
   const introduced = terms?.all !== undefined ? new Set(terms.all) : null;
   return {
+    question: review.question ?? null,
     revisions: review.revisions,
     totalBars: review.totalBars,
     lint: { keys, introduced },
@@ -343,7 +354,7 @@ export function validateCapstoneReview(raw: unknown, rules: ReviewRules): Struct
   if (!parsed.success) return { ok: false, problems: zodProblems(parsed.error) };
   const r = parsed.data;
   const c = new Checker(rules);
-  const [minS, maxS] = rules.strengths === 3 ? [3, 3] : REVIEW_LIMITS.strengths;
+  const [minS, maxS] = REVIEW_LIMITS.strengths;
   c.count("strengths", r.strengths.length, minS, maxS);
   r.strengths.forEach((s, i) => {
     c.words(`strengths[${i}].text`, s.text, REVIEW_LIMITS.strengthWords);
@@ -351,6 +362,19 @@ export function validateCapstoneReview(raw: unknown, rules: ReviewRules): Struct
     c.prose(`strengths[${i}].text`, s.text);
     c.bars(`strengths[${i}].bars`, s.bars);
   });
+  if (rules.question != null && (r.answer == null || r.answer.trim() === "")) {
+    const questionPreviewChars = 80; // Oak's call: enough context to repair an unanswered question.
+    c.problems.push(
+      `answer: the learner asked "${rules.question.slice(0, questionPreviewChars)}": answer it here first`,
+    );
+  } else if (rules.question == null && r.answer != null) {
+    c.problems.push("answer: leave it null; the learner asked no question");
+  }
+  if (typeof r.answer === "string" && r.answer.trim() !== "") {
+    c.words("answer", r.answer, REVIEW_LIMITS.answerWords);
+    c.verdict("answer", r.answer);
+    c.prose("answer", r.answer);
+  }
   c.count("revisions", r.revisions.length, rules.revisions, rules.revisions);
   r.revisions.forEach((rev, i) => {
     const at = `revisions[${i}]`;
@@ -397,7 +421,7 @@ export function validateTranscriptionReview(
   if (!parsed.success) return { ok: false, problems: zodProblems(parsed.error) };
   const r = parsed.data;
   const c = new Checker(rules);
-  const [minS, maxS] = rules.strengths === 3 ? [3, 3] : REVIEW_LIMITS.strengths;
+  const [minS, maxS] = REVIEW_LIMITS.strengths;
   c.count("strengths", r.strengths.length, minS, maxS);
   r.strengths.forEach((s, i) => {
     c.words(`strengths[${i}].text`, s.text, REVIEW_LIMITS.strengthWords);

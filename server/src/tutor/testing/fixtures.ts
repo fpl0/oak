@@ -153,6 +153,7 @@ export const REVIEW_SOURCE: ReviewSource = {
 };
 
 export const CAPSTONE_REVIEW: CapstoneReview = {
+  answer: null,
   strengths: [
     { text: "The bass sits on the root on every downbeat, so the two chords read clearly.", bars: [1, 4] },
     { text: "The hi-hats keep a steady eighth-note pulse under the changes.", bars: [1, 8] },

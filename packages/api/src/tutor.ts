@@ -175,7 +175,7 @@ export type ReviewValue = CapstoneReview | TranscriptionReview;
 
 /** Counts and word limits a strict JSON Schema cannot express; the server checks them. */
 export const REVIEW_LIMITS = {
-  strengths: [2, 3],
+  strengths: [0, 3],
   strengthWords: 40,
   titleWords: 8,
   whyWords: 50,
@@ -186,6 +186,7 @@ export const REVIEW_LIMITS = {
   flagWords: 30,
   questionWords: 30,
   linerNoteWords: 60,
+  answerWords: 60, // Oak's call: a direct, brief answer to the learner's question.
 } as const;
 
 /** Exactly 1 revision for C0 to C4 and X1; exactly 2 for C5 and every later capstone. */

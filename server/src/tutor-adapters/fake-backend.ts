@@ -59,6 +59,9 @@ export const FAKE_CARD_CODE = [
   'mel: n("<[0 2 4 2] [3 5 7 5] [4 6 8 6] [7 4 2 0]>").scale("C4:major").s("piano")',
 ].join("\n");
 
+export const FAKE_REVIEW_ANSWER =
+  "Loop bars 1 to 4 and then the last bar, and listen for which one feels more settled when the loop comes round.";
+
 const WIRE = {
   input_tokens: 120,
   output_tokens: 60,
@@ -192,6 +195,7 @@ export function fakeCapstoneReview(
   tryCode: string = FAKE_CARD_CODE,
   strengths: 2 | 3 = 2,
   versions: readonly string[] = [],
+  answer?: string | null,
 ) {
   const span = (a: number, b: number): [number, number] => [Math.min(a, bars), Math.min(b, bars)];
   const about = (i: number, text: string) =>
@@ -218,7 +222,7 @@ export function fakeCapstoneReview(
         text: about(1, "The melody outlines each chord above the bass, so every bar sounds settled."),
         bars: span(1, 1),
       },
-      // CF-A (strengths_wanted: 3): a third, anchored to the piece's last bars.
+      // CF-A (strengths_wanted: up to 3): a third, anchored to the piece's last bars.
       ...(strengths === 3
         ? [
             {
@@ -235,6 +239,7 @@ export function fakeCapstoneReview(
     listeningQuestion: "Does the last bar sound finished or open when the loop comes round?",
     linerNote:
       "A steady four-bar groove in C major whose melody outlines each chord before it turns for home.",
+    ...(answer === undefined ? {} : { answer }),
   };
 }
 
@@ -431,8 +436,8 @@ export class FakeTutorBackend implements TutorBackend {
     const capstone = input.kind === "review-capstone";
     let revisions = capstone ? (/^(?:C[0-4]|X1)$/.test(subject.id) ? 1 : 2) : 1;
     let bars = 4;
-    // CF-A's review wants three strengths: Oak's context says so (`strengths_wanted: 3`), and so does the validator.
-    let strengths: 2 | 3 = /^strengths_wanted: 3\b/m.test(input.user.oakContext ?? "") ? 3 : 2;
+    // CF-A asks for up to three real strengths; accept the current and legacy context forms.
+    let strengths: 2 | 3 = /^strengths_wanted: (?:up to )?3\b/m.test(input.user.oakContext ?? "") ? 3 : 2;
     let n = 0;
     // Like a model that reads Oak's problems and resubmits: the count of revisions and the piece's length
     // are only known to the validator.
@@ -447,6 +452,7 @@ export class FakeTutorBackend implements TutorBackend {
             fakeTryCode(input.user.oakContext),
             strengths,
             fakeVersionLabels(input.user.oakContext),
+            /^learner_question:/m.test(input.user.oakContext) ? FAKE_REVIEW_ANSWER : undefined,
           )
         : fakeTranscriptionReview(revisions, bars);
       const check = await input.validate(raw, signal);
