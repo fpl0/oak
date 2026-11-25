@@ -80,7 +80,7 @@ test("the scale builder (U11.L01 S6): the keys the learner picked, by name, not 
   page,
 }) => {
   test.setTimeout(120_000);
-  await wrongCheck(page, "after GYM.08", "U11.L01", "S6", "all seven notes of G major");
+  await wrongCheck(page, "after GYM.09", "U11.L01", "S6", "all seven notes of G major");
   const { sent, echoed } = await echo(page, "Which keys are extra?");
   expect(sent).toContain("the scale I built from G: G3 A3 B3 C4 D4 E4 F♯4");
   for (const t of [sent, echoed]) {
@@ -93,7 +93,7 @@ test("the bar buttons (U09.L01 S6): the bar picked, not the bar where the sectio
   page,
 }) => {
   test.setTimeout(120_000);
-  await wrongCheck(page, "after GYM.04", "U09.L01", "S6", "bar 5, the second phrase of the first section");
+  await wrongCheck(page, "after U08.L05", "U09.L01", "S6", "bar 5, the second phrase of the first section");
   const { sent, echoed } = await echo(page, "Where does the second section start?");
   expect(sent).toContain("My answer: bar 5");
   expect(sent).not.toMatch(/bar 9\b/);

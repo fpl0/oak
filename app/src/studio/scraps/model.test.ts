@@ -85,6 +85,32 @@ describe("sketchFromScraps", () => {
     expect(r.events.filter((e) => e.track === "perc").map((e) => e.begin)).toEqual(["1/4", "3/4"]);
   });
 
+  test("W5 S3: a renamed const never lands on a name the same scrap declares", async () => {
+    const body = sketchFromScraps(
+      [
+        scrap('const p = note("c4")\nmel: p.s("piano")'),
+        scrap('const p = note("d2")\nconst p2 = note("e2")\nbass: stack(p, p2).s("sine")'),
+      ],
+      "Two p's",
+      null,
+    );
+    const declared = [...body.code.matchAll(/^const\s+(\w+)/gm)].map((m) => m[1]);
+    expect(declared).toHaveLength(3);
+    expect(new Set(declared).size).toBe(3);
+    const names = /bass: stack\((\w+),\s*(\w+)\)/.exec(body.code);
+    expect(names).not.toBeNull();
+    const [, x, y] = names as RegExpExecArray;
+    expect(x).not.toBe(y);
+    expect(body.code).toContain(`const ${x} = note("d2")`);
+    expect(body.code).toContain(`const ${y} = note("e2")`);
+    const r = await evalHeadless(body.code, 1);
+    const bass = r.events
+      .filter((e) => e.track === "bass")
+      .map((e) => String((e.value as { note?: unknown }).note).toLowerCase())
+      .sort();
+    expect(bass).toEqual(["d2", "e2"]);
+  });
+
   test("a const name inside a string is not renamed", () => {
     const body = sketchFromScraps(
       [

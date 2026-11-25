@@ -371,20 +371,30 @@ export const SOUND_LINKS: ReadonlySet<string> = new Set([
   "dict",
 ]);
 
+/** The mix links: how loud a line is and where it sits, set while mixing, after the sounds are committed. */
+const MIX_LINKS: ReadonlySet<string> = new Set(["gain", "velocity", "postgain", "pan"]);
+
 /**
- * A statement's sound settings: its `SOUND_LINKS` links after the first call, re-joined as `.name(args)` in written
- * order (`bass: note("c2 e2").s("ebass").lpf(600)` → `.s("ebass").lpf(600)`). The first call is the pattern itself
- * (`s("bd hh")` on a drum line is the rhythm), so it never counts. A leading label is skipped; `""` when the
- * statement is not a call chain or has no sound links.
+ * The links "Commit the sounds" reads and guards: `SOUND_LINKS` without the mix (`gain`, `velocity`, `postgain`,
+ * `pan`). Committing closes sound design and leaves the mix open, so the next sessions can arrange and mix (PLAN S7,
+ * Rendering as Commitment; W5 F3).
  */
-export function soundSettingsOf(statement: string): string {
+export const COMMIT_LINKS: ReadonlySet<string> = new Set([...SOUND_LINKS].filter((l) => !MIX_LINKS.has(l)));
+
+/**
+ * A statement's sound settings: its `links` (default `SOUND_LINKS`) after the first call, re-joined as `.name(args)`
+ * in written order (`bass: note("c2 e2").s("ebass").lpf(600)` → `.s("ebass").lpf(600)`). The first call is the
+ * pattern itself (`s("bd hh")` on a drum line is the rhythm), so it never counts. A leading label is skipped; `""`
+ * when the statement is not a call chain or has none of those links. Committed sounds read `COMMIT_LINKS`.
+ */
+export function soundSettingsOf(statement: string, links: ReadonlySet<string> = SOUND_LINKS): string {
   const label = LABEL_RE.exec(statement.trimStart());
   const expr = label ? statement.trimStart().slice(label[0].length) : statement;
-  const links = chainLinks(expr);
-  if (!links) return "";
-  return links
+  const chain = chainLinks(expr);
+  if (!chain) return "";
+  return chain
     .slice(1)
-    .filter((l) => SOUND_LINKS.has(l.name))
+    .filter((l) => links.has(l.name))
     .map((l) => `.${l.name}(${l.args})`)
     .join("");
 }

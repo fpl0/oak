@@ -3,7 +3,8 @@
 // answers it first (X20, server side). Pure: `ReviewAsk.tsx` renders it.
 
 export const REVIEW_PROMPTS = [
-  { id: "sound", chip: "The sound", text: "Does the sound suit the song?" },
+  // The sounds the learner chose in the code: the review reads code, it never hears the take (W5 F5).
+  { id: "sound", chip: "The sound", text: "Do the sounds I chose suit the song?" },
   { id: "form", chip: "The form", text: "Does the form keep a listener with it to the end?" },
   { id: "detail", chip: "A detail", text: "In bars _ to _, does this part work?" },
 ] as const;
@@ -28,6 +29,8 @@ export function cleanQuestion(raw: string): string | null {
 export const REVIEW_ASK_COPY = {
   label: "Your question for the review (optional)",
   placeholder: "Ask one thing you want to know about this draft.",
+  /** Under the field: what the review reads (the persona: it "cannot hear audio"). */
+  readsCode: "Claude reads your code and Oak's analysis; it does not hear your take.",
   fillBars: "Write the bar numbers in place of each _ first.",
   tooLong: `Keep the question under ${REVIEW_QUESTION_MAX} characters.`,
   request: "Request review",

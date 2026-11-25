@@ -203,9 +203,13 @@ export function CaptureDialog({ request, onClose }: { request: CaptureRequest; o
       stopRef.current = null;
     };
     try {
+      // Closed during any of these awaits: start nothing (no click, no Space listener).
       const oak = await getOak();
+      if (cancelled) return;
       await oak.unlock();
+      if (cancelled) return;
       const { clickPlan } = await import("@oak/drills");
+      if (cancelled) return;
       const barSec = barSeconds(bpm, meter);
       const units = METERS[meter].unitsPerBar;
       // One bar to count in, then the click keeps going under the taps.
@@ -224,12 +228,12 @@ export function CaptureDialog({ request, onClose }: { request: CaptureRequest; o
       await new Promise<void>((resolve) => {
         timers.push(setTimeout(resolve, ms(downbeat + bars * barSec + 0.3)));
       });
-      if (cancelled) return;
-      // The take is over: stop the click and the Space listener (without cancelling this run).
+      // The take is over (or was closed): stop the click and the Space listener.
       for (const t of timers) clearTimeout(t);
       click.stop();
       unlisten();
       unlisten = null;
+      if (cancelled) return;
       stopRef.current = null;
       if (!mounted.current) return;
       // Taps up to one bar early are a pickup (the engine writes that bar first); anything earlier is dropped.
@@ -297,8 +301,11 @@ export function CaptureDialog({ request, onClose }: { request: CaptureRequest; o
       stopRef.current = null;
     };
     try {
+      // Closed during these awaits: play nothing and leave Space alone.
       const oak = await getOak();
+      if (run.stopped) return;
       await oak.unlock();
+      if (run.stopped) return;
       const ctx = oak.ctx;
       const src = ctx.createBufferSource();
       run.source = src;

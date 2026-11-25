@@ -8,6 +8,7 @@
 // L10 done: the stage D families open at the levels the course gives them, the chord lenses unlocked) and, for the
 // hub, "C2 released" (families graduated into Mixed harmony, melodic dictation below its mastery level in mixed
 // practice). Nothing is patched: what the page shows is the server's.
+import { DatabaseSync } from "node:sqlite";
 import { fileURLToPath } from "node:url";
 import type { DrillTrialRecord, Trial } from "@oak/api";
 import { expect, type Page, test } from "@playwright/test";
@@ -411,6 +412,17 @@ test("the Practice hub shows stage D honestly: levels, mixed practice and its co
   page,
 }) => {
   await seed(page, "C2 released");
+  // Where cadence stands after the seed is the seeded learner's own practice (since Oak 2.0 W2's longer core, 79% at
+  // level 2); the card under test is the one at its highest open level, so the family is put there, as the seed's
+  // own `setFamilyLevel` would.
+  const db = new DatabaseSync(`${stack.dataDir}/oak.db`);
+  try {
+    db.prepare("UPDATE family_state SET level = 3, promo_day = NULL WHERE family_id = ?").run(
+      "fam.har.cadence",
+    );
+  } finally {
+    db.close();
+  }
   await prepare(page);
   await page.goto("/practice");
   const stage = page.getByTestId("stage-D");

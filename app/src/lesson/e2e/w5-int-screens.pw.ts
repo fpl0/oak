@@ -42,7 +42,7 @@ async function matrix(page: Page, name: string, visible: readonly string[]) {
 
 test("U09.L01: the tap verdict, the bar buttons and the end, in both themes and sizes", async ({ page }) => {
   test.setTimeout(150_000);
-  await seed(page, "after GYM.04");
+  await seed(page, "after U08.L05");
   await setQuiet(page, false);
   const def = await lessonDefW5("U09.L01");
   await page.goto("/learn/U09.L01");

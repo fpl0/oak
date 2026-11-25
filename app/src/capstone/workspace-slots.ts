@@ -22,6 +22,10 @@ export interface CapstoneSlotProps {
   starter: string;
   /** The draft's latest saved version, or `null` before the first save. */
   savedVersion: number | null;
+  /** The code of `savedVersion` (the live code may be ahead of it until the next autosave), or `null`. */
+  savedCode: string | null;
+  /** Saves `code` now (the pending autosave, flushed) and resolves with the version that holds it. */
+  saveNow(code: string): Promise<number>;
   released: boolean;
   /** The session the workspace is on (0-based). */
   sessionIndex: number;

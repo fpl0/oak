@@ -1,6 +1,7 @@
 // Oak 2.0 W4 F3: the erase pass as the learner meets it, over a fake editor handle. Each part is muted in turn on top
 // of the learner's own mutes, which come back when the pass ends, is closed, or the card goes away; Oak's reading
-// appears only after the pass (or on "Show Oak's reading now"); "Leave it out in the code" writes `_<label>:` through
+// appears only after the pass, or on "Show Oak's reading now", which is offered only once the learner has answered
+// "Do you miss it?" for a part (decision 127, PLAN §2 rule 3); "Leave it out in the code" writes `_<label>:` through
 // `applyCode`. A DOM simulator (happy-dom) renders it.
 import { afterAll, afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
@@ -109,10 +110,25 @@ describe("ErasePass", () => {
     root = createRoot(container); // for afterEach
   });
 
-  test("Show Oak's reading now shows it before the pass ends", () => {
+  test("Show Oak's reading now is offered only after the learner has answered once (question first, then Oak)", () => {
     const ed = fakeEditor({ muted: new Set(), solo: null });
     mount(ed);
+    // Idle: the learner has not listened yet.
+    expect(byTest("erase-show-reading")).toBeNull();
     click("erase-start");
+    // Listening, before any "Do you miss it?" answer.
+    expect(byTest("erase-step")?.dataset.part).toBe("bass");
+    expect(byTest("erase-show-reading")).toBeNull();
+    // Skipping a part is not an answer.
+    click("erase-next");
+    expect(byTest("erase-step")?.dataset.part).toBe("chords");
+    expect(byTest("erase-show-reading")).toBeNull();
+    click("erase-close");
+    click("erase-start");
+    click("erase-dont-miss");
+    // One answer given: the reading may come early, as a comparison.
+    expect(byTest("erase-step")?.dataset.part).toBe("chords");
+    expect(byTest("erase-reading")).toBeNull();
     click("erase-show-reading");
     expect(byTest("erase-reading")?.textContent).toContain("bass and chords");
   });

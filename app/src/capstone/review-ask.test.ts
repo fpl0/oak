@@ -34,7 +34,9 @@ describe("cleanQuestion", () => {
 
   test("the three prompts are the sound, the form and a detail", () => {
     expect(REVIEW_PROMPTS.map((p) => p.id)).toEqual(["sound", "form", "detail"]);
-    expect(cleanQuestion(REVIEW_PROMPTS[0].text)).toBe("Does the sound suit the song?");
+    // The chip asks about the sounds chosen in the code: Claude reads code, it never hears the take (W5 F5).
+    expect(REVIEW_PROMPTS[0].chip).toBe("The sound");
+    expect(cleanQuestion(REVIEW_PROMPTS[0].text)).toBe("Do the sounds I chose suit the song?");
     expect(cleanQuestion(REVIEW_PROMPTS[2].text)).toBeNull();
   });
 });
@@ -72,6 +74,12 @@ describe("askReview sends the question", () => {
       if (r.ok) expect(Object.hasOwn(r.ask.request, "reviewQuestion")).toBe(false);
     }
   });
+});
+
+test("the field says what the review reads (W5 F5)", () => {
+  expect(REVIEW_ASK_COPY.readsCode).toBe(
+    "Claude reads your code and Oak's analysis; it does not hear your take.",
+  );
 });
 
 test("every review-ask string is descriptive", () => {

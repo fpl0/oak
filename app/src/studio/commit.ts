@@ -1,7 +1,8 @@
 // Oak 2.0 W1 (PLAN S7, commit sounds): the learner commits a line's sound as it was in a version; a later edit to
 // that sound is noticed and asked about (CommitGuard), never blocked. Pure: reads code as text through the shared
-// studio-code helpers, so "the sound of a line" means the same thing here as in "Make this my Blank".
-import { chainLinks, labelledLines, SOUND_LINKS, soundSettingsOf } from "@oak/content-kit";
+// studio-code helpers. "The sound of a line" here is its `COMMIT_LINKS`: "Make this my Blank"'s `SOUND_LINKS` without
+// the mix (`gain`, `velocity`, `postgain`, `pan`), so a committed sound leaves the mix open (W5 F3).
+import { COMMIT_LINKS, chainLinks, labelledLines, soundSettingsOf } from "@oak/content-kit";
 
 export interface CommittedRef {
   label: string;
@@ -14,7 +15,7 @@ function statementOf(code: string, label: string): { from: number; to: number; t
 }
 
 /**
- * The committed labels whose sound settings (`soundSettingsOf`) differ now from the committed version's line. A label
+ * The committed labels whose sound settings (`soundSettingsOf` over `COMMIT_LINKS`) differ now from the committed version's line. A label
  * missing from the code now or from the committed version (or a version whose code is gone) is not listed. A label
  * committed twice counts once, at its last entry.
  */
@@ -31,7 +32,8 @@ export function soundChanges(
     const thenCode = codeOf(version);
     const then = thenCode === null ? null : statementOf(thenCode, label);
     if (!now || !then) continue;
-    if (soundSettingsOf(now.text) !== soundSettingsOf(then.text)) out.push({ label, version });
+    if (soundSettingsOf(now.text, COMMIT_LINKS) !== soundSettingsOf(then.text, COMMIT_LINKS))
+      out.push({ label, version });
   }
   return out;
 }
@@ -79,7 +81,7 @@ function linkSpans(text: string): { headEnd: number; spans: LinkSpan[] } | null 
 function withSoundLinks(text: string, wanted: readonly { name: string; args: string }[]): string | null {
   const read = linkSpans(text);
   if (!read) return null;
-  const sound = read.spans.filter((s) => SOUND_LINKS.has(s.name));
+  const sound = read.spans.filter((s) => COMMIT_LINKS.has(s.name));
   // The same links in the same order: change only their arguments, so the line keeps its layout.
   if (sound.length === wanted.length && sound.every((s, i) => s.name === wanted[i]?.name)) {
     let out = text;
@@ -106,8 +108,8 @@ function withSoundLinks(text: string, wanted: readonly { name: string; args: str
 }
 
 /**
- * Puts back the committed sound of `label`: its sound links become those of the same label in `fromCode` (the
- * committed version); its notes, rhythm and every other line stay byte-identical. The code comes back unchanged when
+ * Puts back the committed sound of `label`: its sound links (`COMMIT_LINKS`) become those of the same label in
+ * `fromCode` (the committed version); its notes, rhythm, mix and every other line stay byte-identical. The code comes back unchanged when
  * the label is in neither, or a line is not a plain call chain.
  */
 export function restoreSound(code: string, label: string, fromCode: string): string {
@@ -117,7 +119,7 @@ export function restoreSound(code: string, label: string, fromCode: string): str
   const thenRead = linkSpans(then.text);
   if (!thenRead) return code;
   const wanted = thenRead.spans
-    .filter((s) => SOUND_LINKS.has(s.name))
+    .filter((s) => COMMIT_LINKS.has(s.name))
     .map(({ name, args }) => ({ name, args }));
   const next = withSoundLinks(now.text, wanted);
   if (next === null) return code;

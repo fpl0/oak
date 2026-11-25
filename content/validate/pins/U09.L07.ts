@@ -157,9 +157,11 @@ const PINS: Oak2Pin[] = [
         'const chordsBridge = chord("<F Em Dm G>").voicing()',
         'const bassBridge = n("<3 2 1 4>").scale("C2:major")',
         'const melBridge = n("<[5 ~ 5 7] [6 ~ 4 ~] [3 ~ 5 3] [4 ~ ~ ~]>").scale("C4:major")',
+        // The drums name the bridge too, so every part agrees on the sections (W5: it failed on the form, not here).
+        "const drumsBridge = drumsVerse",
       ],
       [
-        "drums: arrange([4, drumsVerse], [4, drumsChorus], [4, drumsVerse], [4, drumsChorus])",
+        "drums: arrange([4, drumsVerse], [4, drumsChorus], [4, drumsBridge], [4, drumsChorus])",
         'chords: arrange([4, chordsVerse], [4, chordsChorus], [4, chordsBridge], [4, chordsChorus]).s("piano")',
         'bass: arrange([4, bassVerse], [4, bassChorus], [4, bassBridge], [4, bassChorus]).s("ebass").lpf(600)',
         'mel: arrange([4, melVerse], [4, melChorus], [4, melBridge], [4, melChorus]).s("piano")',

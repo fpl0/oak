@@ -218,6 +218,37 @@ const PINS: Oak2Pin[] = [
   },
 ];
 
+// W5 release review: the fade to silence (C5) and the groove cut off mid-bar (C6), pinned after the rule was fixed.
+const W5: Oak2Pin[] = [
+  {
+    owner: "U09.L06",
+    at: "S7",
+    name: "W5: the verse looped while every part fades to silence (its last notes under the mix)",
+    kind: "book-other-way",
+    expect: "pass",
+    code: make({
+      chords: `${LOOP}${fade("0")}`,
+      bass: `${ROOTS}${fade("0")}`,
+      mel: `${MEL_VERSE}${fade("0")}`,
+      drums: `${BEAT}${fade("0")}`,
+    }),
+  },
+  {
+    owner: "U09.L06",
+    at: "S7",
+    name: "W5: the verse groove cut off at beat 3 of the last bar, then silence: a stop, not a last hit",
+    kind: "book-miss",
+    expect: "fail",
+    says: "The outro ends on purpose",
+    code: make({
+      chords: 'chord("<C Am F G C Am F [G G G ~]>").voicing()',
+      bass: 'n("<0 5 3 4 0 5 3 [4 4 4 ~]>").scale("C2:major")',
+      mel: 'n("<[7 ~ 4 2] [0 ~ 2 ~] [3 ~ 5 3] [4 ~ ~ ~] [7 ~ 4 2] [0 ~ 2 ~] [3 ~ 5 3] [4 ~ 4 ~]>").scale("C4:major")',
+      drums: `s("<[bd hh sd hh bd hh sd hh]!7 [bd hh sd hh bd hh ~ ~]>")${LEVELS}`,
+    }),
+  },
+];
+
 // X14 adversarial review (W2 Task 14): the confirmed findings, pinned after the rule or step was fixed.
 const X14: Oak2Pin[] = [
   {
@@ -238,4 +269,4 @@ const X14: Oak2Pin[] = [
   },
 ];
 
-export default [...PINS, ...X14];
+export default [...PINS, ...X14, ...W5];

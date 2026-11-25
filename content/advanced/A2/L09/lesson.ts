@@ -112,7 +112,7 @@ bass: arrange([4, bassVerse], [4, bassChorus], [4, bassVerse], [4, bassChorus])
   .s("sawtooth").lpf(400)`;
 const OFF_GRID = song({ melVerse2: 'n("<[4 ~ 2 0] [2 [~ 0 ~ ~] 0 ~] [4 2 4 ~] [1 ~ 6 ~]>")' });
 
-const boundary = (fill?: "anticipate" | "hesitate"): RubricRule => ({
+const boundary = (fill?: "anticipate" | "hesitate", wholeBars = false): RubricRule => ({
   id: fill ?? "fuzzy-seam",
   label:
     fill === "anticipate"
@@ -124,7 +124,8 @@ const boundary = (fill?: "anticipate" | "hesitate"): RubricRule => ({
   skills: ["F06", "D09"],
   rule: "custom",
   fn: "staggered-boundary",
-  params: { min: 1, ...(fill ? { fill } : {}) },
+  // `wholeBars` (W5): in the Make a part may stay, rest or arrive a whole bar off the seam (Fuzzy Boundaries).
+  params: { min: 1, ...(fill ? { fill } : {}), ...(wholeBars ? { wholeBars } : {}) },
 });
 const unique = (required = true): RubricRule => ({
   id: "heard-once",
@@ -437,7 +438,7 @@ export default defineLesson({
       exercise: {
         kind: "code-make",
         id: "seams-and-surprises",
-        version: 1,
+        version: 2,
         role: "practice",
         prompt:
           "Write your verse, chorus, verse, chorus over the Band's A minor chords, four bars each. Blur a seam by letting a part leave early, stay late or enter late. Done when some parts change off the bar line while others keep the seam in place. Try adding a sound heard once.",
@@ -445,7 +446,7 @@ export default defineLesson({
         code: { starter: MAKE_STARTER },
         bars: [16, 16],
         saveAs: "sketch",
-        rubric: [boundary(), unique(false)],
+        rubric: [boundary(undefined, true), unique(false)],
         feedbackText: {
           "rubric.unmet":
             "{label}: not yet. Compare the parts around each section change and the bars that return.",

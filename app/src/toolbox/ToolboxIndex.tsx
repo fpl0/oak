@@ -172,8 +172,10 @@ function ToolCard({
         )}
         <span className="mt-auto pt-1 text-sm">
           {open ? (
-            <Chip tone="accent" title={siteIds}>
-              Learned in {siteTitle(sitesOf(t)[0] ?? "", titles)}
+            // A long lesson title ("Learned in Sixteenths & 1-e-&-a") is cut with an ellipsis inside the card, never
+            // wider than it (the grid's narrowest column with the tutor docked at 1280 px).
+            <Chip tone="accent" title={siteIds} className="max-w-full">
+              <span className="truncate">Learned in {siteTitle(sitesOf(t)[0] ?? "", titles)}</span>
             </Chip>
           ) : (
             <span className="text-text-2" title={siteIds}>

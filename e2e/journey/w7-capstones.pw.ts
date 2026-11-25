@@ -269,7 +269,7 @@ test("(g) AC2 session 3, the last session of the course: released; the Coda of t
   const finale = page.getByTestId("coda-course-finale");
   await expect(finale).toBeVisible({ timeout: 30_000 });
   await expect(page.getByTestId("course-finale-heading")).toHaveText("You have completed Oak.");
-  await expect(page.getByTestId("course-finale-road")).toHaveText(/^Since .+: 259 sessions on \d+ days/, {
+  await expect(page.getByTestId("course-finale-road")).toHaveText(/^Since .+: 270 sessions on \d+ days/, {
     timeout: 30_000,
   });
   await expect(page.getByTestId("course-record-line")).toHaveText(
@@ -286,7 +286,7 @@ test("(g) AC2 session 3, the last session of the course: released; the Coda of t
     sessionsDone: number;
     album: { released: number; total: number };
   }>(request, "GET", "/api/course/whole");
-  expect(whole).toMatchObject({ stage: "complete", sessionsDone: 259, album: { released: 20, total: 20 } });
+  expect(whole).toMatchObject({ stage: "complete", sessionsDone: 270, album: { released: 20, total: 20 } });
   // The album: both sides as records.
   await page.goto("/album");
   await expect(page.getByTestId("course-complete")).toBeVisible({ timeout: 60_000 });

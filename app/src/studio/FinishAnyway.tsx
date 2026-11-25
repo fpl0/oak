@@ -61,9 +61,12 @@ export function FinishAnywayDialog({
   const [current, setCurrent] = useState(code);
   useEffect(() => setCurrent(code), [code]);
   const [asked, setAsked] = useState(abandon === undefined);
+  // Back to the first question only when the dialog opens or the question changes, never on a parent re-render
+  // that passes a new `abandon` object (W5 S5).
+  const abandonKind = abandon?.kind;
   useEffect(() => {
-    if (open) setAsked(abandon === undefined);
-  }, [open, abandon]);
+    if (open) setAsked(abandonKind === undefined);
+  }, [open, abandonKind]);
   const [sections, setSections] = useState<FillSections>(FILL_SECTIONS.preselected as FillSections);
   const [filled, setFilled] = useState(false);
   const sketchTitle = target.kind === "sketch" ? target.sketch.title : target.title;
@@ -94,7 +97,8 @@ export function FinishAnywayDialog({
   const grid = sectionGrid(current);
 
   const doShelve = async () => {
-    if (target.kind !== "sketch" || title.trim() === "") return;
+    // The Shelf takes a finished piece: every part in every section first (PLAN F6; Fail Better p. 292).
+    if (target.kind !== "sketch" || title.trim() === "" || state !== "whole") return;
     try {
       const track = await shelve.mutateAsync({ sketch: target.sketch, liveCode: current, title });
       setShelvedTitle(track.title);
@@ -294,12 +298,17 @@ export function FinishAnywayDialog({
                 variant="primary"
                 className="self-start"
                 loading={shelve.isPending}
-                disabled={title.trim() === ""}
+                disabled={title.trim() === "" || state !== "whole"}
                 onClick={() => void doShelve()}
                 data-testid="shelve"
               >
                 {shelve.isPending ? FINISH_COPY.shelving : FINISH_COPY.shelve}
               </Button>
+              {state !== "whole" ? (
+                <p className="text-sm text-text-2" data-testid="shelf-fill-first">
+                  {FINISH_COPY.shelfFillFirst}
+                </p>
+              ) : null}
             </>
           )}
         </section>

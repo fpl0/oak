@@ -93,11 +93,18 @@ describe("Hide it and write", () => {
 });
 
 describe("Oak's reading is hidden until the sketch is written", () => {
-  test("revealed only when the catalog names an existing sketch", () => {
-    expect(revealed({ sketchId: null }, [])).toBe(false);
-    expect(revealed({ sketchId: null }, [{ id: "sk_1" }])).toBe(false);
-    expect(revealed({ sketchId: "sk_1" }, [{ id: "sk_1" }])).toBe(true);
+  // W5 S9 (Catalog of Attributes pp. 17–18): Oak's reading and the reference wait until the learner has written a
+  // part from the lines, not just until the comment-only sketch exists.
+  test("revealed only once the sketch has a version after its first with an unmuted part", () => {
+    const start = { version: 1, code: "// Tempo: slow\n// Drums: four on the floor" };
+    const sk = (...versions: { version: number; code: string }[]) => [{ id: "sk_1", versions }];
+    expect(revealed({ sketchId: "sk_1" }, sk(start))).toBe(false);
+    expect(
+      revealed({ sketchId: "sk_1" }, sk(start, { version: 2, code: '// still thinking\n_drums: s("bd*4")' })),
+    ).toBe(false);
+    expect(revealed({ sketchId: "sk_1" }, sk(start, { version: 2, code: 'drums: s("bd*4")' }))).toBe(true);
     expect(revealed({ sketchId: "sk_gone" }, [])).toBe(false);
+    expect(revealed({ sketchId: null }, sk(start, { version: 2, code: 'drums: s("bd*4")' }))).toBe(false);
   });
 
   test("catalogOfSketch finds the catalog that names the sketch", () => {

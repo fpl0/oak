@@ -382,7 +382,7 @@ test("a gym day on the graded ladder: gym.start, the item for GYM.01, a graded p
   await expect(block).toHaveAttribute("data-gym", "GYM.01", { timeout: 60_000 });
   await expect(block).toHaveAttribute("data-kind", "ladder");
   await expect(page.getByTestId("gym-block-title")).toContainText("GYM.01 · Ladder, level 1: drum loops");
-  await expect(page.getByTestId("ladder-panel")).toContainText("L1", { timeout: 60_000 });
+  await expect(page.getByTestId("ladder-panel")).toContainText("Level 1", { timeout: 60_000 });
   const gym = await api<GymPlanBody>(request, "GET", "/api/gym");
   const row = gym.history.find((g) => g.gymId === "GYM.01");
   expect(row).toMatchObject({ sessionId, kind: "ladder" });

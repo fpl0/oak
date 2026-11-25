@@ -232,7 +232,7 @@ test("past X2: the edge of what's written — a review day with Studio and the g
 // screen names the lesson and what it is for, with the next unlock beside it; the Coda says what is next and what it
 // is for, and the next unlock. Nothing reads as a debt.
 const RETURN_DAYS = [
-  { point: "after U08.L04", item: "U08.L05" },
+  { point: "after GYM.04", item: "U08.L05" },
   { point: "after U09.L01", item: "U09.L02" },
   { point: "after U10.L02", item: "U10.L03" },
   { point: "after U11.L03", item: "U11.L04" },

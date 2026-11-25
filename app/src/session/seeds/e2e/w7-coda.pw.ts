@@ -62,7 +62,7 @@ test("the whole course complete: the ending, once, in place of the next line; re
   // The heading (ms.28's sentence), the road, then the record, the three tracks, what they can do, what stays open.
   await expect(page.getByTestId("course-finale-heading")).toHaveText("You have completed Oak.");
   await expect(page.getByText("You have completed Oak.")).toHaveCount(1);
-  await expect(page.getByTestId("course-finale-road")).toHaveText(/^Since .+: 259 sessions on \d+ days/);
+  await expect(page.getByTestId("course-finale-road")).toHaveText(/^Since .+: 270 sessions on \d+ days/);
   const order = await page
     .locator(
       '[data-testid="course-record"], [data-testid="course-tracks"], [data-testid="course-cando"], [data-testid="course-open"]',

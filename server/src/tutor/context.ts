@@ -105,9 +105,11 @@ function reviewLines(kind: string, subjectId: string, r: ReviewSource): string[]
     `brief: ${block(r.brief)}`,
     `analysis: ${block(r.analysis)}`,
   );
+  // An optional line is one of the book's moves the brief offers (PLAN §2 rule 1): said so, so that an unmet one does
+  // not reach the reviewer as a shortcoming (W5 F4; the persona's Reviews rule).
   for (const item of r.rubric) {
     lines.push(
-      `rubric: ${inline(item.label, 160)}${item.required ? " (required)" : ""}: ${item.met ? "met" : "not met"}`,
+      `rubric: ${inline(item.label, 160)}${item.required ? " (required)" : " (a suggestion, not a requirement)"}: ${item.met ? "met" : "not met"}`,
     );
   }
   for (const item of r.checklist) lines.push(`checklist: ${inline(item, 160)}`);

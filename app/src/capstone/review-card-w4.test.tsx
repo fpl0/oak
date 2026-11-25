@@ -125,6 +125,17 @@ describe("ReviewAsk", () => {
     expect(sent).toEqual(["In bars 5 to 8, does this part work?"]);
   });
 
+  test("the sound chip writes its starter, and a line under the field says Claude reads code, not the take (W5 F5)", () => {
+    render(<ReviewAsk disabled={false} onRequest={() => {}} />);
+    const field = byTest("review-question") as HTMLTextAreaElement;
+    expect(byTest("review-prompt-sound")?.textContent).toBe("The sound");
+    act(() => (byTest("review-prompt-sound") as HTMLButtonElement).click());
+    expect(field.value).toBe("Do the sounds I chose suit the song?");
+    expect(byTest("review-reads")?.textContent).toBe(
+      "Claude reads your code and Oak's analysis; it does not hear your take.",
+    );
+  });
+
   test("an empty field requests a review with no question", () => {
     const sent: (string | null)[] = [];
     render(<ReviewAsk disabled={false} onRequest={(q) => sent.push(q)} />);

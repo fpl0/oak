@@ -1,7 +1,7 @@
 // Oak 2.0 W4 F6 "Finish it anyway" (DeSantis, Fail Better; Arranging as a Subtractive Process): how far a piece is
 // arranged, filling the parts that are not in sections yet, and carving a part out of a section as visible code.
 import { describe, expect, test } from "bun:test";
-import { lintBase } from "@oak/grader";
+import { lintBase, sectionsFromAst } from "@oak/grader";
 import { evalHeadless } from "@oak/grader/testing";
 import { isDescriptive } from "./descriptive.ts";
 import { arrangementState, carveCell, FINISH_COPY, fillTheRest, sectionGrid } from "./finish-anyway.ts";
@@ -81,6 +81,26 @@ describe("fillTheRest", () => {
     if (!("code" in r)) throw new Error(r.error);
     expect(r.code.match(/const mel[AB] = /g)).toEqual(["const melA = ", "const melB = "]);
     expect(r.code).toContain("mel: arrange([4, melA], [4, melB], [4, melA])");
+  });
+  test("W5 S7: consts with no <role><Section> name: the sections take the grader's names, so the form stays consistent", () => {
+    const plain = [
+      'const a = s("bd*4")',
+      'const b = s("bd sd")',
+      "drums: arrange([4, a], [4, b])",
+      'bass: note("c2").s("sine")',
+    ].join("\n");
+    const r = fillTheRest(plain);
+    if (!("code" in r)) throw new Error(r.error);
+    expect(r.code).toContain("bass: arrange([4, bassA], [4, bassB])");
+    expect(r.code).not.toContain("bassS1");
+    const read = sectionsFromAst(r.code);
+    expect(read !== null && "inconsistent" in read).toBe(false);
+    expect(read !== null && "sections" in read ? read.sections.map((x) => x.tag) : null).toEqual(["a", "b"]);
+    // The <role><Section> names are unchanged.
+    const named = plain.replace(/\ba\b/g, "drumsA").replace(/\bb\b/g, "drumsB");
+    const n = fillTheRest(named);
+    if (!("code" in n)) throw new Error(n.error);
+    expect(n.code).toContain("bass: arrange([4, bassA], [4, bassB])");
   });
 });
 

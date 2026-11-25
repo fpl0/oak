@@ -20,4 +20,10 @@ export type Oak2Pin = {
   says?: string;
   /** The learner's whole code; `setcpm(96/4)` is put in front when it sets no tempo. */
   code: string;
+  /**
+   * A `book-miss` must fail on the book's point: its feedback holds no lint finding (`form.*`, `code.locked-*`, …),
+   * only `rubric.unmet` and the reference checks (`harmony.pcset`, `melody.*`, …). A pin meant to fail on lint says
+   * so here (W5).
+   */
+  failsOn?: "lint";
 };

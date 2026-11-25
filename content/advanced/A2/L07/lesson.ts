@@ -190,7 +190,7 @@ const corrections = (wrap: (...lines: string[]) => string): TestCase[] => [
 
 export default defineLesson({
   id: "A2.L07",
-  version: 1,
+  version: 2,
   title: "Hocket",
   objective: "One line split across two sounds, note by note.",
   key: { tonic: "A", mode: "minor" },

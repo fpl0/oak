@@ -82,7 +82,7 @@ const sameShape = (minShifts: number) =>
 
 export default defineLesson({
   id: "U06.L13",
-  version: 1,
+  version: 2,
   title: "Parallel Chords",
   objective:
     "I can move one chord shape by half steps, so every chord keeps its colour and the loop leaves the key.",
@@ -433,6 +433,14 @@ export default defineLesson({
             response: {
               code: code('chords: n("[0,2,4,6]").add(n("<0 3 4 5>")).scale("C3:major").s("piano")'),
             },
+            expect: "fail",
+            feedback: ["rubric.unmet"],
+          },
+          // The right functions, the wrong result (W5, AUTHORING §20.2 rule 2): moved only by octaves, the chord
+          // never changes height as a pitch class, so the harmony stays put (X14's pin).
+          {
+            name: "the shape moved only by octaves",
+            response: { code: code(chords(SHAPE, '.transpose("<0 12 24 12>")')) },
             expect: "fail",
             feedback: ["rubric.unmet"],
           },

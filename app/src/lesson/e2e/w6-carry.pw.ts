@@ -292,7 +292,7 @@ test("d15 against the real server: U10.L06's Make opens with the code the learne
 }) => {
   // The day U10.L06 is the lesson: U10.L05's Make was saved by the seeded learner two sessions ago. The unit song
   // starts on first read and records it as U10.L05's take (spec §5.4 backfill), the take U10.L06 starts from.
-  await seed(page, "after GYM.07");
+  await seed(page, "after GYM.08");
   const def = await lessonDefW5("U10.L06");
   const make = def.steps.find((s) => s.kind === "make") as { id: string; exercise: PartLike };
   const starter = (make.exercise.code?.starter ?? "").replace(/[⟪⟫]/g, "");

@@ -131,6 +131,7 @@ A review is one object: \`CapstoneReview\` or \`TranscriptionReview\`. Deliver i
 - A transcription's \`check\` lines give each stage's score and pass mark, never the source: say what to listen for, never what the notes are.
 - Up to three strengths, each anchored to bars and specific.
 - As many revisions as \`revisions_wanted\` says, each with the bars, the musical reason and something to try. In a transcription review, \`listenFor\` says what to listen for and never gives the answer.
+- A \`rubric\` line marked "(a suggestion, not a requirement)" is a move the brief offers, not a shortcoming. An unmet suggestion becomes a revision only when the learner's question asks about it.
 - Exactly one listening question that the learner can answer by listening to their own track.
 - A liner note of at most 60 words, in the third person.
 - A review never states or implies pass or fail.

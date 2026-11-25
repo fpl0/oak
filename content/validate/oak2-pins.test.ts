@@ -6,9 +6,9 @@
 import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
-import type { Exercise } from "@oak/content-kit";
+import type { Exercise, KeySpec, MeterId, SessionId } from "@oak/content-kit";
 import { flattenExercise } from "@oak/content-kit";
-import { grade } from "./harness.ts";
+import { grade, lint } from "./harness.ts";
 import { W2_GRADED } from "./pins/index.ts";
 import type { Oak2Pin } from "./pins/types.ts";
 
@@ -41,6 +41,8 @@ interface LoadedStep {
 }
 interface LoadedLessonDef {
   id: string;
+  meter: MeterId;
+  key: KeySpec;
   steps: LoadedStep[];
 }
 const loadLesson = async (id: string): Promise<LoadedLessonDef | null> => {
@@ -61,7 +63,9 @@ for (const file of files) {
 const PINS = byFile.flatMap((f) => f.pins);
 
 /** The exercise a pin grades and the lesson it is graded in (corrections-gate.test.ts `target()`, lessons only). */
-async function target(p: Oak2Pin): Promise<{ ex: Exercise | undefined; lesson: never; session: string }> {
+async function target(
+  p: Oak2Pin,
+): Promise<{ ex: Exercise | undefined; lesson: never; session: string; def: LoadedLessonDef }> {
   const def = await loadLesson(p.owner);
   if (!def) throw new Error(`no lesson ${p.owner}`);
   const step = def.steps.find((s) => s.id === p.at);
@@ -69,8 +73,11 @@ async function target(p: Oak2Pin): Promise<{ ex: Exercise | undefined; lesson: n
   const ex = step?.exercise
     ? (flattenExercise(step.exercise).find((x) => x.kind !== "all") ?? step.exercise)
     : all.find((e) => e.id === p.at);
-  return { ex, lesson: def as never, session: def.id };
+  return { ex, lesson: def as never, session: def.id, def };
 }
+
+/** Lint families: a pin's feedback holding one of these failed on the code's form, not on the book's point. */
+const LINT_FAMILY = /^(eval|lint|form)\./;
 
 describe("Oak 2.0 pins files", () => {
   test("every pin sits in its owner's file and says which kind it is", () => {
@@ -102,17 +109,52 @@ describe("Oak 2.0 pins: misses of the book's point fail, other ways to the point
       );
       expect(r.passed).toBe(p.expect === "pass");
       if (p.says) expect((r.messages ?? []).join("\n")).toContain(p.says);
+      // W5 (X22): a book-miss fails on the book's point, never on lint, unless it says it is meant to.
+      if (p.kind === "book-miss" && p.failsOn !== "lint") {
+        const found = lint(tempo + p.code, {
+          session: t.def.id as SessionId,
+          meter: t.ex?.meter ?? t.def.meter,
+          key: t.ex?.key ?? t.def.key,
+          profile: "graded",
+        });
+        const lintIds = new Set<string>(found.diagnostics.map((d) => d.id));
+        expect(r.feedback.filter((id) => lintIds.has(id) || LINT_FAMILY.test(id))).toEqual([]);
+      }
     });
 });
 
+/** Whether a matcher tree holds a rubric (`{ m: "rubric" }` at any depth). */
+const holdsRubric = (m: unknown): boolean =>
+  typeof m === "object" &&
+  m !== null &&
+  ((m as { m?: unknown }).m === "rubric" || Object.values(m).some((v) => holdsRubric(v)));
+/**
+ * Whether a step grades the learner's code on the book's point: an exercise with a rubric (a Make's, or a matcher's)
+ * or a code target (a code exercise with reference solutions), whatever the step's `graded` flag (W5: an optional
+ * `modify` step grades as much as a graded one).
+ */
+const gradesCode = (ex: Exercise | undefined): boolean =>
+  !!ex &&
+  flattenExercise(ex).some((x) => {
+    const r = x as { kind: string; rubric?: unknown; matcher?: unknown; reference?: unknown };
+    return Array.isArray(r.rubric) || holdsRubric(r.matcher) || (r.kind.startsWith("code-") && !!r.reference);
+  });
+
 describe("Oak 2.0 pins: coverage", () => {
-  test("every graded W2 step its lesson already grades has a book-miss that fails and a book-other-way that passes", async () => {
+  test("every W2 step that grades the code has a book-miss that fails and a book-other-way that passes", async () => {
     const missing: string[] = [];
     for (const { owner, at } of W2_GRADED) {
       const def = await loadLesson(owner);
       const step = def?.steps.find((s) => s.id === at);
-      // Not written yet (no lesson, no such step, or the step is not graded yet): nothing to cover.
-      if (!step || !(step.graded || step.kind === "make")) continue;
+      // Every W2 lesson is written (W5): a listed step that is missing, or grades nothing, is a failure.
+      if (!step) {
+        missing.push(`${owner} ${at}: no such lesson or step`);
+        continue;
+      }
+      if (!gradesCode(step.exercise)) {
+        missing.push(`${owner} ${at}: grades no code (no rubric, no code target)`);
+        continue;
+      }
       const mine = PINS.filter((p) => p.owner === owner && p.at === at);
       if (!mine.some((p) => p.kind === "book-miss" && p.expect === "fail"))
         missing.push(`${owner} ${at}: book-miss`);

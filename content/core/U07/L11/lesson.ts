@@ -472,6 +472,11 @@ export default defineLesson({
             expect: "pass",
           },
           {
+            name: "two octaves down, in note names",
+            response: { code: code(mel(MOTIF), 'vox: note("g2 e2 c2@2 d2 f2 ~ ~").s("rhodes").gain(.7)') },
+            expect: "pass",
+          },
+          {
             name: "unchanged",
             response: { code: S4_REFERENCE },
             expect: "fail",

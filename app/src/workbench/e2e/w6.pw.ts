@@ -337,14 +337,15 @@ test("d3: the ribbon's arrows reach every section; the staff pages to the sectio
   await expect(canvas(page)).toHaveAttribute("data-window", "0-16");
   await page.keyboard.press("End");
   await expect.poll(focused).toBe("outro");
-  // Enter loops the Outro; Play: the staff turns to the page that holds bar 33 although the tune rests there
-  // on its last bar and the page before it still shows.
+  // Enter loops the Outro: a new loop region turns the staff to the page that holds bar 33 at once, stopped or not
+  // (StaffView `loopFrom`, the UI/UX review), although the tune rests there on its last bar. Play keeps it there.
   await page.keyboard.press("Enter");
   await expect(wb).toHaveAttribute("data-loop", "33-40");
-  await expect(page.getByTestId("staff-view")).toHaveAttribute("data-page", "0");
+  // (The page size depends on the lens lines under the staff: the pager names the bars.)
+  await expect(page.getByTestId("staff-pager")).toContainText(/Bars 33–\d+ of 40/, { timeout: 15_000 });
+  await expect(page.getByTestId("staff-view")).not.toHaveAttribute("data-page", "0");
   await page.getByTestId("play-toggle").click();
   await expect(wb).toHaveAttribute("data-playing", "1", { timeout: 20_000 });
-  // (The page size depends on the lens lines under the staff: the pager names the bars.)
   await expect(page.getByTestId("staff-pager")).toContainText(/Bars 33–\d+ of 40/, { timeout: 15_000 });
   await expect(page.getByTestId("staff-view")).not.toHaveAttribute("data-page", "0");
   await page.getByTestId("play-toggle").click();

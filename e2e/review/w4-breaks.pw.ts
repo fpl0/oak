@@ -141,8 +141,9 @@ test("a gym session across 04:00 belongs to the day it began", async ({ page, re
   );
   expect(gym.history.map((g) => g.gymId)).toEqual(["GYM.01"]);
   expect(gym.next?.gymId).toBe("GYM.02");
-  // The next learner day is a lesson again: the gym slot was counted, never repeated.
+  // The next learner day is a lesson again: the gym slot was counted, never repeated. (Since Oak 2.0 W2 GYM.01 sits
+  // after U07.L11 and before U07.L03 in the default order, so the lesson after it is U07.L03.)
   const next = await api<{ kind: string; mapItemId: string }>(request, "GET", "/api/session/today");
-  expect(next).toMatchObject({ kind: "lesson", mapItemId: "U07.L04" });
+  expect(next).toMatchObject({ kind: "lesson", mapItemId: "U07.L03" });
   expect(problems).toEqual([]);
 });

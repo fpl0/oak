@@ -1,15 +1,16 @@
 // Oak 2.0 W4 (W1 gap 1; PLAN S7 Rendering as Commitment): the capstone workspace's "Commit the sounds" card
 // (`CAPSTONE_SLOTS` entry `commit-after-session`, registered by the W4 integrator). After a completed session of a
-// multi-session capstone, before the last, it offers to commit every part's sound in the draft's saved version, so
-// the next sessions arrange and mix. A later edit to a committed sound shows W1's sentence with "Put it back" and
+// multi-session capstone, before the last, it offers to commit every part's sound as the learner hears it (the live
+// code, saved first when it is ahead of the last autosave), so the next sessions arrange and mix. A later edit to a committed sound shows W1's sentence with "Put it back" and
 // "Keep the change" (which uncommits that part). It never blocks a Run, a check or a release.
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { errorWords } from "../lib/error-words.ts";
 import { apiQuery, useSketchPatch } from "../lib/queries.ts";
 import { COMMIT_COPY, restoreSound, soundChanges } from "../studio/commit.ts";
 import { Button } from "../ui/kit/Button.tsx";
 import { toast } from "../ui/kit/Toast.tsx";
-import { COMMIT_SESSION_COPY, commitAll, showCommitOffer, uncommittedLabels } from "./commit-session.ts";
+import { COMMIT_SESSION_COPY, commitHeard, showCommitOffer, uncommittedLabels } from "./commit-session.ts";
 import type { CapstoneSlotProps } from "./workspace-slots.ts";
 
 export function CommitAfterSession(p: CapstoneSlotProps) {
@@ -20,6 +21,7 @@ export function CommitAfterSession(p: CapstoneSlotProps) {
   });
   const sketch = p.sketchId === null ? null : (sketchQ.data ?? null);
   const patch = useSketchPatch();
+  const [flushing, setFlushing] = useState(false);
   const committed = sketch?.committed ?? [];
   const codeOf = (version: number): string | null =>
     sketch?.versions.find((v) => v.version === version)?.code ?? null;
@@ -41,12 +43,24 @@ export function CommitAfterSession(p: CapstoneSlotProps) {
       toast.error(COMMIT_SESSION_COPY.failed, errorWords(e));
     }
   };
-  const commit = () => {
-    if (p.savedVersion === null) return;
-    void save(
-      commitAll(p.liveCode, p.savedVersion, new Date().toISOString(), committed),
-      COMMIT_SESSION_COPY.committed,
-    );
+  // The code the learner hears: a sound edited since the last autosave is saved first (W5 F2).
+  const commit = async () => {
+    setFlushing(true);
+    try {
+      const next = await commitHeard({
+        liveCode: p.liveCode,
+        savedVersion: p.savedVersion,
+        savedCode: p.savedCode,
+        saveNow: p.saveNow,
+        at: new Date().toISOString(),
+        committed,
+      });
+      if (next) await save(next, COMMIT_SESSION_COPY.committed);
+    } catch (e) {
+      toast.error(COMMIT_SESSION_COPY.failed, errorWords(e));
+    } finally {
+      setFlushing(false);
+    }
   };
 
   return (
@@ -63,8 +77,8 @@ export function CommitAfterSession(p: CapstoneSlotProps) {
             size="sm"
             variant="secondary"
             disabled={p.savedVersion === null || p.sketchId === null}
-            loading={patch.isPending}
-            onClick={commit}
+            loading={flushing || patch.isPending}
+            onClick={() => void commit()}
             data-testid="commit-sounds"
           >
             {COMMIT_SESSION_COPY.commit}

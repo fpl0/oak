@@ -1,8 +1,8 @@
 // Oak 2.0 W3 (PLAN §4 S6): the catalog in its sketch (slot `catalog-lines`, place `aside`), shown when a catalog names
 // this sketch. The learner's six lines, and "Compare with the reference": the reference comes back, and for a unit song
 // Oak's reading (`referenceReading`) sits beside the learner's words. The learner has listened and written first
-// (`revealed`: a sketch has been written from the lines), so Oak's reading is a comparison, never a key (PLAN §2 rule
-// 3). A transcription or an audio file gets no reading: Oak reads chords and form from code only. In Jam the compare
+// (`revealed`: a version after the comment-only start has an unmuted part), so Oak's reading is a comparison, never
+// a key (PLAN §2 rule 3). A transcription or an audio file gets no reading: Oak reads chords and form from code only. In Jam the compare
 // is hidden (Jam shows no compare, W1 rule 2); the lines stay.
 import { CATALOG_LINES, type Catalog, type UnitSongDef } from "@oak/api";
 import { songLengthBars } from "@oak/strudel/song-compose";
@@ -32,13 +32,22 @@ export function CatalogLines({ sketch, jam }: EditorSlotProps) {
   const q = useCatalogs();
   const catalog = q.data ? catalogOfSketch(q.data.items, sketch.id) : null;
   if (catalog === null) return null;
-  return <CatalogLinesCard catalog={catalog} sketchId={sketch.id} jam={jam} />;
+  return <CatalogLinesCard catalog={catalog} sketch={sketch} jam={jam} />;
 }
 
-function CatalogLinesCard({ catalog, sketchId, jam }: { catalog: Catalog; sketchId: string; jam: boolean }) {
+function CatalogLinesCard({
+  catalog,
+  sketch,
+  jam,
+}: {
+  catalog: Catalog;
+  sketch: EditorSlotProps["sketch"];
+  jam: boolean;
+}) {
   const ref = useRefOf(catalog);
   const [comparing, setComparing] = useState(false);
-  const canCompare = !jam && revealed(catalog, [{ id: sketchId }]);
+  // The compare button and the reference player wait until a part has been written from the lines (W5 S9).
+  const canCompare = !jam && revealed(catalog, [sketch]);
   const open = comparing && canCompare;
   const reading = useSongReading(open && ref.song ? ref.song : null);
   const hide = () => {

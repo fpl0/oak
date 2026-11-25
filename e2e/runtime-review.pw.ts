@@ -171,13 +171,13 @@ test("evaluation errors are friendly, located, and never stop the loop that play
 
   // 2. An unknown function.
   await typeCode(page, 'setcpm(92/4)\nmel: note("c4 e4 g4").s("triangle").fooBar()');
-  await expect(banner).toContainText("`fooBar` isn't a Strudel function", { timeout: 5000 });
+  await expect(banner).toContainText("fooBar isn't a Strudel function", { timeout: 5000 });
   await expect(banner.locator("p")).not.toContainText("TypeError");
   await expect(wb).toHaveAttribute("data-playing", "1");
 
   // 3. An unknown name.
   await typeCode(page, "setcpm(92/4)\nmel: wobble(3)");
-  await expect(banner).toContainText("`wobble` isn't something Strudel knows", { timeout: 5000 });
+  await expect(banner).toContainText("wobble isn't something Strudel knows", { timeout: 5000 });
   await expect(wb).toHaveAttribute("data-playing", "1");
   expect(await maxLevel(page, 1000)).toBeGreaterThan(0.01);
 

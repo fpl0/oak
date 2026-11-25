@@ -140,10 +140,15 @@ function withoutTempo(code: string): string {
 function uniqueCode(code: string, usedConsts: Set<string>, usedLabels: Set<string>): string {
   let out = withoutTempo(code);
   const renames = new Map<string, string>();
-  for (const d of constDecls(out)) {
+  const decls = constDecls(out);
+  for (const d of decls) {
     if (renames.has(d.name)) continue;
-    const to = freeName(d.name, usedConsts);
-    renames.set(d.name, to);
+    // Free against the earlier picks, this pick's other consts and the names already given here (W5 S3: `p` → `p2`
+    // must not land on this pick's own `p2`).
+    const avoid = new Set(usedConsts);
+    for (const o of decls) if (o.name !== d.name) avoid.add(o.name);
+    for (const to of renames.values()) avoid.add(to);
+    renames.set(d.name, freeName(d.name, avoid));
   }
   for (const to of renames.values()) usedConsts.add(to);
   out = renameIdentifiers(out, new Map([...renames].filter(([from, to]) => from !== to)));

@@ -7,6 +7,7 @@
 //     generation is the chain's tip, so Runs in between never become parents. The chain view lists the chain first to
 //     last (`sketches.lineage`) with a note where a generation changes back what its parent changed.
 // It describes and never scores (PLAN §2); in Jam the describe lines and notes are hidden, the buttons stay.
+// A version a backup import flagged "review before running" is listed but never read or played (contracts §11.3).
 import { SKETCH_DIMENSIONS, type SketchDimension, type SketchVersion } from "@oak/api";
 import { diffDimensions, sectionsFromAst } from "@oak/grader";
 import { useQuery } from "@tanstack/react-query";
@@ -328,11 +329,25 @@ function Siblings({
   const parent =
     parentVersion === null ? undefined : ctx.sketch.versions.find((v) => v.version === parentVersion);
   if (!parent) return <p className="text-sm text-text-3">{W.noSiblings}</p>;
+  // A version a backup import flagged is never read or played here (contracts §11.3); a flagged parent: the notice.
+  if (needsReview(parent))
+    return (
+      <div className="flex flex-col gap-2">
+        <Imported />
+        {onUseCurrent ? (
+          <div>
+            <Button size="sm" variant="ghost" onClick={onUseCurrent}>
+              {W.useCurrent}
+            </Button>
+          </div>
+        ) : null}
+      </div>
+    );
   const siblings = siblingsOf(ctx.sketch.versions, parent.version);
-  const items = [
-    itemOf(parent, W.parentIs, ctx),
-    ...siblings.map((s, i) => itemOf(s, W.siblingRow(i + 1, s.dimension ?? "sound"), ctx)),
-  ];
+  const playable = siblings.flatMap((s, i) =>
+    needsReview(s) ? [] : [itemOf(s, W.siblingRow(i + 1, s.dimension ?? "sound"), ctx)],
+  );
+  const items = [itemOf(parent, W.parentIs, ctx), ...playable];
   return (
     <div className="flex flex-col gap-2">
       <p className="text-sm text-text-2">{W.parentOf(parent.version)}</p>
@@ -351,14 +366,16 @@ function Siblings({
                 {W.siblingRow(i + 1, s.dimension ?? "sound")}{" "}
                 <span className="font-normal text-text-3">v{s.version}</span>
               </p>
-              {!jam && s.dimension ? (
+              {needsReview(s) ? (
+                <Imported />
+              ) : !jam && s.dimension ? (
                 <ChangeLine ctx={ctx} parent={parent} child={s} picked={s.dimension} />
               ) : null}
             </li>
           ))}
         </ol>
       )}
-      {siblings.length > 0 ? <BackToBack items={items} playLabel={W.playSiblings} /> : null}
+      {playable.length > 0 ? <BackToBack items={items} playLabel={W.playSiblings} /> : null}
       {onUseCurrent ? (
         <div>
           <Button size="sm" variant="ghost" onClick={onUseCurrent}>
@@ -367,6 +384,15 @@ function Siblings({
         </div>
       ) : null}
     </div>
+  );
+}
+
+/** A version from a backup that waits for review: it is not read and not played (contracts §11.3). */
+function Imported() {
+  return (
+    <p className="text-sm text-text-2" data-testid="variation-imported">
+      {W.imported}
+    </p>
   );
 }
 
@@ -456,7 +482,7 @@ function Chain({
   const items: SequenceItem[] = [];
   for (const r of rows) {
     const v = byVersion.get(r.version);
-    if (v)
+    if (v && !needsReview(v))
       items.push(
         itemOf(v, r.generation === null ? W.startOf(r.version) : W.chainRow(r.generation, r.dimension), ctx),
       );
@@ -485,6 +511,7 @@ function Chain({
                 {r.generation === null ? W.startOf(r.version) : W.chainRow(r.generation, r.dimension)}{" "}
                 {r.generation === null ? null : <span className="font-normal text-text-3">v{r.version}</span>}
               </p>
+              {needsReview(byVersion.get(r.version)) ? <Imported /> : null}
               {note ? (
                 <p className="text-text-2" data-testid="chain-undo-note">
                   {note}
@@ -499,7 +526,7 @@ function Chain({
           {status}
         </p>
       ) : null}
-      <BackToBack items={items} playLabel={W.playChain} />
+      {items.length > 0 ? <BackToBack items={items} playLabel={W.playChain} /> : null}
       {onNewChain ? (
         <div>
           <Button size="sm" variant="ghost" onClick={onNewChain}>

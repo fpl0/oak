@@ -216,8 +216,20 @@ export default [
   ...(["S4", "S5", "S7"] as const).flatMap((at) => [
     miss(at, "every part switches on the bar line with a crash", HARD),
     miss(at, "every part changes one beat early together", MOVED),
-    miss(at, "hats change a whole bar early", WHOLE_BAR),
   ]),
+  // The fill steps ask for a fill; a whole-bar move is none. The Make reads whole bars (`wholeBars`, W5 C8).
+  miss("S4", "hats change a whole bar early", WHOLE_BAR),
+  miss("S5", "hats change a whole bar early", WHOLE_BAR),
+  other(
+    "S7",
+    "W5: the hats take up the chorus beat a whole bar early while the rest change on the bar line",
+    WHOLE_BAR,
+  ),
+  other(
+    "S7",
+    "W5: the verse hats stay a whole bar late into the chorus",
+    song({ hatsChorus: 's("<hh*8 hh*16 hh*16 hh*16>")' }, true),
+  ),
   miss("S6", "an effect throughout a bridge heard once", BRIDGE),
   miss("S6", "the same effect in bar 2 of both verses", REPEATED_EFFECT),
   other("S4", "toms finish early and every drum leaves the downbeat empty", GAP_TOMS),

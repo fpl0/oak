@@ -3,8 +3,10 @@
 // track day with the focus on it (one primary action, the other tracks one row each); and the day after the whole
 // course, an ordinary day with what stays open. `plan.trackOffers`, `plan.track`, `plan.focus`, `tracks.focus` and
 // `course.whole` are the server's own.
+import { DatabaseSync } from "node:sqlite";
 import { expect, type Page, test } from "@playwright/test";
 import { useUiPrefs } from "../../../../../e2e/support/ui.ts";
+import { stack } from "./playwright.config.ts";
 import { api, blockHmr, matrix, seed } from "./support.ts";
 import { openToday, sessionPage, sessionState, startByEnter, watch } from "./w5-helpers.ts";
 import { focus7, NEVER7, plan7 } from "./w7-helpers.ts";
@@ -76,10 +78,10 @@ test("a track in focus: its next session is the day's; the core is done, the oth
   await seed(request, "two tracks in progress");
   const plan = await plan7(request);
   expect(plan).toMatchObject({ kind: "lesson", mapItemId: "J1.L04", focus: "J" });
-  expect(plan.track).toMatchObject({ trackId: "J", sessionIndex: 4, sessionsTotal: 34 });
+  expect(plan.track).toMatchObject({ trackId: "J", sessionIndex: 4, sessionsTotal: 35 });
   await useUiPrefs(page, { theme: "bark" });
   await openToday(page);
-  await expect(page.getByTestId("track-session")).toHaveText("Jazz Harmony · session 4 of 34", {
+  await expect(page.getByTestId("track-session")).toHaveText("Jazz Harmony · session 4 of 35", {
     timeout: 20_000,
   });
   await expect(offers(page).getByTestId("track-lead")).toHaveText(/^Today is your Jazz track\./);
@@ -93,7 +95,7 @@ test("a track in focus: its next session is the day's; the core is done, the oth
   await radio.focus();
   await page.keyboard.press("ArrowRight");
   await expect.poll(async () => (await focus7(request)).focus).toBe("R");
-  await expect(page.getByTestId("track-session")).toHaveText(/^Advanced Rhythm · session 3 of 20$/, {
+  await expect(page.getByTestId("track-session")).toHaveText(/^Advanced Rhythm · session 3 of 21$/, {
     timeout: 20_000,
   });
   await startByEnter(page);
@@ -112,12 +114,12 @@ test("the last day of the course: AC2's last session is the day's, said as what 
   await seed(request, "after AC2.S2");
   const plan = await plan7(request);
   expect(plan).toMatchObject({ kind: "capstone", mapItemId: "AC2.S3", focus: "A", course: "in-progress" });
-  expect(plan.track).toMatchObject({ trackId: "A", sessionIndex: 20, sessionsTotal: 20 });
+  expect(plan.track).toMatchObject({ trackId: "A", sessionIndex: 23, sessionsTotal: 23 });
   const whole = await api<{ stage: string; sessionsDone: number }>(request, "GET", "/api/course/whole");
-  expect(whole).toMatchObject({ stage: "in-progress", sessionsDone: 258 });
+  expect(whole).toMatchObject({ stage: "in-progress", sessionsDone: 269 });
   await useUiPrefs(page, { theme: "paper" });
   await openToday(page);
-  await expect(page.getByTestId("track-session")).toHaveText("Arrangement & Sound · session 20 of 20", {
+  await expect(page.getByTestId("track-session")).toHaveText("Arrangement & Sound · session 23 of 23", {
     timeout: 20_000,
   });
   await expect(page.getByTestId("start-session")).toHaveCount(1);
@@ -177,6 +179,17 @@ test("a jazz day in Quiet mode: Today names the track session; the warm-up's ii�
 }) => {
   const errors = watch(page, [/\/api\/tutor/]);
   await seed(request, "J3.L02 next");
+  // When the ii–V–I set falls due is the seeded learner's own review history: since Oak 2.0 W2 put J3.L05 before
+  // J3.L02 it is not due on this day, so it is made due (the warm-up's planner reads `srs_cards.due_at`).
+  const db = new DatabaseSync(`${stack.dataDir}/oak.db`);
+  try {
+    db.prepare("UPDATE srs_cards SET due_at = ? WHERE card_id = ?").run(
+      new Date(Date.now() - 86_400_000).toISOString(),
+      "fam.jzz.ii-v",
+    );
+  } finally {
+    db.close();
+  }
   await api(request, "PUT", "/api/voice/quiet", { quiet: true, scope: "today" });
   const plan = await plan7(request);
   expect(plan).toMatchObject({ kind: "lesson", mapItemId: "J3.L02", focus: "J" });
@@ -184,7 +197,7 @@ test("a jazz day in Quiet mode: Today names the track session; the warm-up's ii�
   const { trials } = wire(page);
   await useUiPrefs(page, { theme: "bark" });
   await openToday(page);
-  await expect(page.getByTestId("track-session")).toHaveText("Jazz Harmony · session 14 of 34", {
+  await expect(page.getByTestId("track-session")).toHaveText("Jazz Harmony · session 15 of 35", {
     timeout: 20_000,
   });
   await startDay(page, "J3.L02");

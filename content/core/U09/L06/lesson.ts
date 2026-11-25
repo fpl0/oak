@@ -218,8 +218,8 @@ const MAKE_CADENCE = makeSong({
   drums: `s("<[bd hh sd hh bd hh sd hh]!6 [bd hh sd hh sd sd sd sd] [[bd,cr] ~ ~ ~]>")${DRUM_LEVELS}`,
 });
 /** The verse twice, every part fading out over the eight bars. */
-// Down to .1, not to 0: the grader leaves out notes more than 24 dB under the loudest (AUTHORING §20.2 rule 3), so a
-// fade to silence loses its last notes and no longer reads as a repeating loop (reported to the W2 integrator).
+// Down to .1: W2 chose it because a fade to silence lost its last notes under the 24 dB floor and failed `fades-out`.
+// Since W5 the rule reads a fade to silence too (the S7 pin with `saw.range(1, 0)`, W5.md); the piece keeps .1.
 const FADE8 = ".gain(saw.range(1, .1).slow(8))";
 const MAKE_FADE = makeSong({
   chords: `${LOOP}${FADE8}`,

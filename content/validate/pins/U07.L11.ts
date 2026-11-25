@@ -122,4 +122,22 @@ export default [
     says: "`late` unlocks in U13.L01",
     code: pair(MOTIF, "").replace(".gain(.7)", ".late(1/8).gain(.7)"),
   },
+  // S8 (optional): the upside-down copy under the motif (W5, X22: the step grades and had no pins).
+  {
+    owner: "U07.L11",
+    at: "S8",
+    name: "the motif copied an octave down: under it the whole bar, but moving the same way, not mirrored",
+    kind: "book-miss",
+    expect: "fail",
+    says: "`vox` still mirrors the motif: not yet",
+    code: pair("-7 -5 -3@2 -4 -6 ~ ~"),
+  },
+  {
+    owner: "U07.L11",
+    at: "S8",
+    name: "mirrored around a lower centre (degree sum -4): F3 D3 B2 C3 E3, every note under the motif",
+    kind: "book-other-way",
+    expect: "pass",
+    code: pair("-4 -6 -8@2 -7 -5 ~ ~"),
+  },
 ] satisfies Oak2Pin[];

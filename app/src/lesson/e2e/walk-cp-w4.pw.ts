@@ -285,9 +285,9 @@ test("U06.CP to a soft pass: two empty hand-ins fail, the third offers Continue 
   );
   expect(await cpStatus(page, "U06")).toMatchObject({ status: "soft-passed", attempts: 3 });
   await expect(result).toContainText("The next lessons are open");
-  // A soft pass opens what a pass opens: U07.L03 and on need U06.CP (contracts §7.6 rule 2). With U07.L02 done,
-  // U07.L03 opens.
-  completeLessons(["U07.L02"]);
+  // A soft pass opens what a pass opens: U07.L03 and on need U06.CP (contracts §7.6 rule 2). With U07.L02 and
+  // U07.L11 (Oak 2.0 W2, between them in the default order) done, U07.L03 opens.
+  completeLessons(["U07.L02", "U07.L11"]);
   await page.goto("/learn/U07.L03");
   await expect(page.getByTestId("lesson-step")).toHaveAttribute("data-step", "S1", { timeout: 30_000 });
   expect((await api(page, "PUT", "/dev/clock", { reset: true })).status).toBe(200);

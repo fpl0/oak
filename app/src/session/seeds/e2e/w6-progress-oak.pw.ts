@@ -49,7 +49,7 @@ test("the tracks open on Progress: Jazz and Rhythm as open branches with their n
     const row = card.locator(`[data-track="${id}"]`);
     await expect(row).toHaveAttribute("data-open", "true");
     await expect(row.getByTestId("track-note")).toHaveText(`Next: ${nextOf[id]}.`);
-    await expect(row.getByTestId("track-count")).toHaveText(/^0 of (34|20) sessions$/);
+    await expect(row.getByTestId("track-count")).toHaveText(/^0 of (35|21) sessions$/);
   }
   // J2.L04 is passed over until U14.CP, named as waiting, never as a failure; J4 and J5 say what opens them.
   const waiting = card.locator('[data-track="J"]').getByTestId("track-waiting");

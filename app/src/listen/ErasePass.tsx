@@ -1,9 +1,11 @@
 // Oak 2.0 W4 F3 "Erase and listen" (The Power of Erasing), shared by Studio's aside slot (`ErasePassSlot`) and the
 // capstone workspace (`ErasePassCard`). The learner mutes each part in turn ("Now without bass. Do you miss it?") and
 // listens; their own mutes are read once at the start and put back when the pass ends, is closed, or the card goes
-// away. Only after the pass (or on "Show Oak's reading now") does Oak say where two parts crowd one register at the
-// same moment. Every change to the code is offered, never applied without a click, and is one undoable edit. There
-// is no quota: keeping every part is a fine result, and the copy says so.
+// away. Only after the pass does Oak say where two parts crowd one register at the same moment; "Show Oak's reading
+// now" brings it earlier, and is offered only once the learner has answered "Do you miss it?" for a part (decision
+// 127: the question first, then Oak's reading; PLAN §2 rule 3). Every change to the code is offered, never applied
+// without a click, and is one undoable edit. There is no quota: keeping every part is a fine result, and the copy
+// says so.
 import type { EditorHandle, MuteMap } from "@oak/strudel";
 import { Eraser } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -140,11 +142,6 @@ export function ErasePass({
           <Button size="sm" onClick={start} data-testid="erase-start">
             {ERASE_COPY.start}
           </Button>
-          {reading === null && (
-            <Button size="sm" variant="ghost" onClick={readNow} data-testid="erase-show-reading">
-              {ERASE_COPY.showReading}
-            </Button>
-          )}
         </div>
       )}
       {problem && (
@@ -181,7 +178,7 @@ export function ErasePass({
             <Button size="sm" variant="ghost" onClick={close} data-testid="erase-close">
               {ERASE_COPY.close}
             </Button>
-            {reading === null && (
+            {reading === null && Object.keys(answers).length >= 1 && (
               <Button size="sm" variant="ghost" onClick={readNow} data-testid="erase-show-reading">
                 {ERASE_COPY.showReading}
               </Button>

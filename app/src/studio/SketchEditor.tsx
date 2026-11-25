@@ -480,6 +480,15 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
     else if (kind === "delete") void remove();
     else archive();
   };
+  // The dialog's `abandon` keeps its identity while one question is open (W5 S5): an inline object made the dialog
+  // go back to its first question on every re-render. `goOn` reaches the newest handlers through a ref.
+  const goOnRef = useRef<() => void>(() => {});
+  goOnRef.current = abandoning === "delete" ? () => void remove() : archive;
+  // Read only while `abandoning` is set (the dialog is not rendered otherwise).
+  const abandonProp = useMemo(
+    () => ({ kind: abandoning ?? "delete", goOn: () => goOnRef.current() }),
+    [abandoning],
+  );
 
   // --- Oak 2.0 W1: jam on and off, building from takes, focus ----------------------------------------------
   const toggleJam = (on: boolean) => {
@@ -969,10 +978,7 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
           code={liveCode}
           applyCode={applyCode}
           target={{ kind: "sketch", sketch, liveCode }}
-          abandon={{
-            kind: abandoning,
-            goOn: abandoning === "delete" ? () => void remove() : archive,
-          }}
+          abandon={abandonProp}
           play={() => {
             if (editorHandle && !editorHandle.disposed) void editorHandle.play();
           }}

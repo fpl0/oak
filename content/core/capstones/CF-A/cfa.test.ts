@@ -278,6 +278,53 @@ describe("CF-A's ending (Oak 2.0 W4 F1; DeSantis, Three Ways to End)", () => {
       expect([r.status, requiredFailing(r)]).toEqual(["pass", []]);
     }
   });
+  // W5 (C5): a fade all the way to silence loses its last notes under the mix's floor; it still fades out.
+  test("a fade to silence ends on purpose too", async () => {
+    const toSilence = CF_A_PIECES.fade.replaceAll(", .08).slow(4))", ", 0).slow(4))");
+    expect(toSilence).toContain("saw.range(.8, 0).slow(4)");
+    const r = await grade(toSilence);
+    expect((r.rubric ?? []).find((x) => x.ruleId === "ending")?.ok).toBe(true);
+    expect([r.status, requiredFailing(r)]).toEqual(["pass", []]);
+  });
+  // W5 (C6; Short Loops as Endings: "If you simply stop the music… abrupt"): the drums in sections and a one-bar `Cut`
+  // where every part plays its groove to beat 3 and stops. A new last bar and silence, but no last hit.
+  test("the groove cut off halfway through a last bar is no final hit", async () => {
+    const plan = ["Verse", "Chorus", "Verse", "Chorus", "Bridge", "Chorus", "Chorus"];
+    const drums: Record<string, [string, string]> = {
+      kick: ['s("bd ~ bd ~").gain(.8)', 's("bd ~ bd ~").gain(.8)'],
+      snare: ['s("~ sd ~ sd").gain(.8)', 's("~ sd ~ ~").gain(.8)'],
+      hats: ['s("hh*8").gain(.4)', 's("hh hh hh hh hh hh ~ ~").gain(.4)'],
+    };
+    const consts: string[] = [
+      'const bassCut = n("0").struct("x ~ ~ x ~ ~ ~ ~")',
+      'const chordsCut = chord("[C C C ~]").voicing()',
+      'const melCut = n("[7 ~ 7 ~]")',
+    ];
+    const tracks: string[] = [];
+    for (const [role, [beat, cut]] of Object.entries(drums)) {
+      for (const sec of ["Verse", "Chorus", "Bridge"]) consts.push(`const ${role}${sec} = ${beat}`);
+      consts.push(`const ${role}Cut = ${cut}`);
+      tracks.push(
+        `${role}: arrange(${[...plan.map((x) => `[8, ${role}${x}]`), `[1, ${role}Cut]`].join(", ")})`,
+      );
+    }
+    const lines = CF_A_PIECES.stops.split("\n").filter((l) => !/^(kick|snare|hats): s\(/.test(l));
+    const body = lines
+      .join("\n")
+      .replace("[8, bassChorus]).scale", "[8, bassChorus], [1, bassCut]).scale")
+      .replace("[8, chordsChorus]).s(", "[8, chordsChorus], [1, chordsCut]).s(")
+      .replace("[8, melChorus]).scale", "[8, melChorus], [1, melCut]).scale")
+      .replace("setcpm(100/4)\n", `setcpm(100/4)\n\n${consts.join("\n")}\n`)
+      .replace("\nbass: arrange(", `\n${tracks.join("\n")}\nbass: arrange(`);
+    expect(body).toContain("[1, kickCut]");
+    expect(body).toContain("[1, melCut]");
+    const r = await grade(body);
+    expect([r.status, requiredFailing(r)]).toEqual(["fail", ["ending"]]);
+    expect(detail(r, "ending")).toStartWith("the last section (the cut) plays on like the rest");
+    // The shipped hit (every part on beat 1, then silence) still ends on purpose.
+    const hit = await grade(CF_A_PIECES.hit);
+    expect((hit.rubric ?? []).find((x) => x.ruleId === "ending")?.ok).toBe(true);
+  });
   test("a song that keeps every other line and simply stops fails the ending alone", async () => {
     const r = await grade(CF_A_PIECES.stops);
     expect([r.status, requiredFailing(r)]).toEqual(["fail", ["ending"]]);

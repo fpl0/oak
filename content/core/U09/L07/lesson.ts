@@ -538,7 +538,7 @@ export default defineLesson({
       exercise: {
         kind: "code-make",
         id: "carve-your-song",
-        version: 1,
+        version: 2,
         role: "practice",
         prompt:
           "Every part of your song plays in every section, over Oak's drums. Carve it by deleting only: rest parts with `silence`, mask bars, or take notes out of a part, and keep one section whole. Done when at least one section leaves out a part or a quarter of the notes.",
@@ -553,7 +553,8 @@ export default defineLesson({
             "staggered-boundary",
             "At one change of section, a part stops, carries on or comes in a beat or more off the bar line",
             false,
-            { min: 1 },
+            // W5: a part may also stay, rest or arrive a whole bar off the seam (Fuzzy Boundaries); S5 stays off-bar.
+            { min: 1, wholeBars: true },
           ),
           rule("once", "unique-event", "One bar heard only once, inside a section you play twice", false, {
             min: 1,

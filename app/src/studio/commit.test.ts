@@ -36,6 +36,22 @@ describe("soundChanges", () => {
       soundChanges(withBass('bass: note("c2 e2").s("ebass").lpf(600).room(0.4)'), committed, codeOf),
     ).toEqual([{ label: "bass", version: 2 }]);
   });
+  test("the mix is not the sound: a committed line's gain, velocity, postgain or pan may change without asking (W5 F3)", () => {
+    const at = (bass: string) => withBass(bass);
+    const v = withBass('bass: note("c2 ~").s("ebass").lpf(600).gain(.5)');
+    const of = (n: number) => (n === 2 ? v : null);
+    expect(soundChanges(at('bass: note("c2 ~").s("ebass").lpf(600).gain(.8)'), committed, of)).toEqual([]);
+    expect(
+      soundChanges(at('bass: note("c2 ~").s("ebass").lpf(600).gain(.5).pan(.2)'), committed, of),
+    ).toEqual([]);
+    expect(
+      soundChanges(at('bass: note("c2 ~").s("ebass").lpf(600).velocity(.7).postgain(1.2)'), committed, of),
+    ).toEqual([]);
+    // A filter is still the sound: it asks.
+    expect(soundChanges(at('bass: note("c2 ~").s("ebass").lpf(900).gain(.5)'), committed, of)).toEqual([
+      { label: "bass", version: 2 },
+    ]);
+  });
   test("a label gone from either side is not listed", () => {
     expect(soundChanges(withBass("// no bass now"), committed, codeOf)).toEqual([]);
     expect(soundChanges(V2, [{ label: "chords", version: 2 }], codeOf)).toEqual([]);
@@ -76,6 +92,13 @@ describe("restoreSound", () => {
     const now = '// mine\nbass: note("c2 g2")\n  .s("ebass")\n  .lpf(1200)\nmel: n("0")';
     expect(restoreSound(now, "bass", then)).toBe(
       '// mine\nbass: note("c2 g2")\n  .s("ebass")\n  .lpf(600)\nmel: n("0")',
+    );
+  });
+  test("putting the sound back leaves the mix as it is now (W5 F3)", () => {
+    const then = withBass('bass: note("c2 ~").s("ebass").lpf(600).gain(.5)');
+    const now = withBass('bass: note("c2 e2").s("ebass").lpf(900).gain(.8).pan(.3)');
+    expect(restoreSound(now, "bass", then)).toBe(
+      withBass('bass: note("c2 e2").s("ebass").lpf(600).gain(.8).pan(.3)'),
     );
   });
   test("links added after commit are removed", () => {

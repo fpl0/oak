@@ -161,6 +161,29 @@ describe("<oak_context>", () => {
   });
 });
 
+describe("review rubric lines: a suggestion is not a requirement (W5 F4, PLAN §2 rule 1)", () => {
+  test("an optional line says it is a suggestion; a required line is unchanged", async () => {
+    const ports = makePorts();
+    ports.lessons.reviews.set("capstone:C3", {
+      ...REVIEW_SOURCE,
+      rubric: [
+        { label: "Eight bars", required: true, met: true },
+        { label: "A seam between sections", required: false, met: false },
+        { label: "One event that happens once", required: false, met: true },
+      ],
+    });
+    const prep = await prepareTurn(
+      { thread: { subjectKind: "capstone", subjectId: "C3" }, kind: "review-capstone", userText: "" },
+      ports,
+    );
+    const text = prep.user.oakContext;
+    expect(text).toContain("rubric: Eight bars (required): met");
+    expect(text).toContain("rubric: A seam between sections (a suggestion, not a requirement): not met");
+    expect(text).toContain("rubric: One event that happens once (a suggestion, not a requirement): met");
+    expect(text).not.toContain("rubric: A seam between sections: not met");
+  });
+});
+
 describe("unit songs (contracts §5.11 rule 19)", () => {
   const SONG = {
     title: "Porch light",

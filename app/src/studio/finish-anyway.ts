@@ -4,6 +4,7 @@
 // const and an `arrange()` over the sections the piece already has; a part taken out of a section is
 // `silence /* <its const> */`, so ticking it again brings the const back. Pure: tested in finish-anyway.test.ts.
 import { type CodeLine, constDecls, labelledLines } from "@oak/api";
+import { sectionsFromAst } from "@oak/grader";
 
 export type ArrangementState = "none" | "half" | "whole";
 
@@ -193,7 +194,8 @@ const suffixOf = (expr: string): string | null => {
  *
  * The names follow the sections because the grader names a section after its consts: one `bassAll` beside
  * `drumsA`/`drumsB` reads as a section "all" in one part and "a" in another, an inconsistent `arrange()` that the
- * lint refuses to run (`form.inconsistent-arrange`). A section no part names gets `S<n>`.
+ * lint refuses to run (`form.inconsistent-arrange`). Where no part's const has a section name (`arrange([4, a], …)`),
+ * the section takes the grader's own name for it (`a` → `bassA`); a section the grader names nothing gets `S<n>`.
  */
 export function fillTheRest(
   code: string,
@@ -208,9 +210,19 @@ export function fillTheRest(
   const bars = first.map((e) => e.bars);
   for (const e of arranged as Entry[][])
     if (e.length !== bars.length || e.some((x, i) => x.bars !== bars[i])) return { error: "mixed-sections" };
+  // No entry has a `<role><Section>` name (`arrange([4, a], [4, b])`): the section's name as the grader reads it
+  // (`a` → `A`, so `bassA` reads as section "a" too); `S<n>` only when the grader names it nothing (W5 S7).
+  const read = sectionsFromAst(code);
+  const graderTags = read !== null && "sections" in read ? read.sections.map((x) => x.tag) : [];
+  const graderSuffix = (i: number): string | null => {
+    const tag = graderTags[i];
+    if (tag === undefined || tag === "rest" || !/^[a-z][a-z0-9]*$/.test(tag)) return null;
+    return `${tag[0]?.toUpperCase()}${tag.slice(1)}`;
+  };
   const suffixes = bars.map(
     (_, i) =>
       (arranged as Entry[][]).map((e) => suffixOf((e[i] as Entry).expr)).find((x) => x !== null) ??
+      graderSuffix(i) ??
       `S${i + 1}`,
   );
 
@@ -272,6 +284,7 @@ export const FINISH_COPY = {
   shelving: "Putting it on the Shelf…",
   shelved: "On the Shelf: finished, and kept off the album.",
   shelveFailed: "It could not go on the Shelf. Try again.",
+  shelfFillFirst: "Fill it all first, so every part plays in every section.",
   capstoneShelf: "When it's checked, release it with “Put it on the Shelf” ticked.",
   cardLine: "Some parts are in sections and some are not. Finish it anyway: fill every section, then carve.",
   close: "Close",

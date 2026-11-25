@@ -239,6 +239,11 @@ function degree(midi: number, pcs: number[]): number | null {
   const index = pcs.indexOf(mod12(midi));
   return index < 0 ? null : Math.floor((midi - (pcs[0] as number)) / 12) * pcs.length + index;
 }
+/**
+ * Oak's call, not the book's: the share of the copy's notes that must mirror the source around one centre. Loose, so
+ * one note in seven may miss the mirror (an ornament, a passing note); the number is never shown to the learner.
+ */
+const INVERTED_SHARE = 0.85;
 const invertedCopy: CorrectionRule = (n, ctx, p) => {
   const parts = pair(n, ctx, p);
   if ("ok" in parts) return parts;
@@ -265,7 +270,7 @@ const invertedCopy: CorrectionRule = (n, ctx, p) => {
     new Set(parts.source.map((e) => e.midi)).size > 1 && new Set(parts.copy.map((e) => e.midi)).size > 1;
   // The half-step tolerance must not turn a narrow transposition into an inversion.
   const transposed = new Set(parts.source.map((e, i) => (parts.copy[i] as Note).midi - e.midi)).size === 1;
-  const ok = moves && !transposed && value >= 0.85;
+  const ok = moves && !transposed && value >= INVERTED_SHARE;
   const wrong = parts.copy[matches.indexOf(false)] ?? parts.copy[0];
   return result(
     ok,
@@ -276,7 +281,7 @@ const invertedCopy: CorrectionRule = (n, ctx, p) => {
     wrong?.track ?? parts.copyRef,
     wrong?.onset,
     value,
-    0.85,
+    INVERTED_SHARE,
   );
 };
 

@@ -156,7 +156,7 @@ test("a jazz day's ii–V–I: major or minor, the key it lands in, the 3rds and
   const posts = trialPosts(page);
   await seed(page, "J3.L02 next");
   await prepare(page, { 0: { category: "major-ii-V", level: 2 } });
-  await trackDay(page, /^Jazz Harmony · session 14 of 34$/);
+  await trackDay(page, /^Jazz Harmony · session 15 of 35$/);
   await startPractice(page, "fam.jzz.ii-v");
   const t = await firstTrial(page);
   expect(t.category).toBe("major-ii-V");
@@ -269,7 +269,7 @@ test("a rhythm day's clave the other way round, its grid drawn; a sound day's ch
   posts.clear();
   await seed(page, "A2.L04 next");
   await page.evaluate(() => localStorage.removeItem("oak.drills.inflight.v1"));
-  await trackDay(page, /^Arrangement & Sound · session \d+ of 20$/);
+  await trackDay(page, /^Arrangement & Sound · session \d+ of 23$/);
   await page.goto("/practice/fam.snd.params");
   await expect(page.getByTestId("start-set")).toBeFocused({ timeout: 60_000 });
   await page.evaluate(() => {
@@ -299,7 +299,7 @@ test("a rhythm day's 3 against 2 with two hands: F keeps the 2, J taps the 3; th
   const posts = trialPosts(page);
   await seed(page, "R3.L02 next");
   await prepare(page, { 0: { category: "tap-3-over-2", level: 3 }, 1: { category: "4:3", level: 2 } });
-  await trackDay(page, /^Advanced Rhythm · session 12 of 20$/);
+  await trackDay(page, /^Advanced Rhythm · session 13 of 21$/);
   await startPractice(page, "fam.rhy.polyrhythm");
   await firstTrial(page);
   const lanes = await hook<Lane[]>(page, "__oakDrillLanes");

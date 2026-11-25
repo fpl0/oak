@@ -1,7 +1,7 @@
 // Oak 2.0 W4 F4: the review request with the learner's one optional question. Three chips (the sound, the form, a
 // detail) write a starter question into the field for the learner to edit; "Request review" sends the cleaned text,
 // or no question at all when the field is empty. While the detail prompt still holds its "_" placeholders the button
-// waits and says why.
+// waits and says why. A line under the field says what the review reads: the code and Oak's analysis, never the take.
 import { MessageSquareText } from "lucide-react";
 import { useId, useState } from "react";
 import { Button } from "../ui/kit/Button.tsx";
@@ -51,9 +51,13 @@ export function ReviewAsk({
         rows={2}
         maxLength={REVIEW_QUESTION_MAX}
         placeholder={REVIEW_ASK_COPY.placeholder}
+        aria-describedby={`${id}-reads`}
         className="rounded-control border border-border bg-surface p-2"
         data-testid="review-question"
       />
+      <p id={`${id}-reads`} className="text-text-3" data-testid="review-reads">
+        {REVIEW_ASK_COPY.readsCode}
+      </p>
       {waiting && (
         <p className="text-text-3" data-testid="review-question-note">
           {REVIEW_ASK_COPY.fillBars}

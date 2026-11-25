@@ -2,7 +2,7 @@
 // real daily sessions on the real stack (real server, real content, the scripted fake tutor, Chrome's fake
 // microphone), each from a dev seed (wave5.md §6), each Today → the warm-up (reported skipped: gate journey 2 and
 // the session-seeds days walk the sets) → the New block → the Coda.
-//   (a) "after U07.L10": U08.L01 Roots Down Low (it comes before GYM.03, U07.CP and C2 in the default order). The Make is a bass line on the roots under the learner's four-chord loop.
+//   (a) "after GYM.03": U08.L01 Roots Down Low (it comes after GYM.03 and before U07.CP and C2 in the default order). The Make is a bass line on the roots under the learner's four-chord loop.
 //   (b) "after U09.L01": U09.L02. The form map opens in the step, the sections read A B A B …, and a section loops
 //       from the map and from the ribbon by keyboard.
 //   (c) "U09.CP due": the Bass & form checkpoint to a pass (sung items left out: they never gate).
@@ -89,7 +89,7 @@ for (const quiet of [false, true]) {
     request,
   }) => {
     test.setTimeout(240_000);
-    const { w, micAsks } = await begin(page, request, "after U07.L10", { quiet });
+    const { w, micAsks } = await begin(page, request, "after GYM.03", { quiet });
     const plan = await lessonDay(page, request, u08l01, {
       warmupSets: 0,
       unlocks: "auto",

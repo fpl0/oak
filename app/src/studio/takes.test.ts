@@ -113,6 +113,34 @@ describe("buildFromTakes", () => {
     expect(buildFromTakes([{ version: 1, code: 'drums: s("bd")' }], { drums: 1 })).toBe('drums: s("bd")');
   });
 
+  test("W5 S2: a rename never collides with the take's own names, and renames apply at once (no p → p2 → p22)", async () => {
+    const a = { version: 1, code: 'const p = note("c4")\nmel: p.s("piano")' };
+    const b = {
+      version: 2,
+      code: 'const p = note("d2")\nconst p2 = note("e2")\nbass: stack(p, p2).s("sine")',
+    };
+    const code = buildFromTakes([a, b], { mel: 1, bass: 2 });
+    const declared = [...code.matchAll(/^const\s+(\w+)/gm)].map((m) => m[1]);
+    expect(new Set(declared).size).toBe(declared.length);
+    expect(declared).toHaveLength(3);
+    const bass = labelledLines(code).find((l) => l.label === "bass")?.text ?? "";
+    const names = /stack\((\w+),\s*(\w+)\)/.exec(bass);
+    expect(names).not.toBeNull();
+    const [, x, y] = names as RegExpExecArray;
+    expect(x).not.toBe(y);
+    expect(code).toContain(`const ${x} = note("d2")`);
+    expect(code).toContain(`const ${y} = note("e2")`);
+    const { events } = await evalHeadless(code, 1);
+    const bassNotes = events
+      .filter((e) => e.track === "bass")
+      .map((e) => String((e.value as { note?: unknown }).note).toLowerCase())
+      .sort();
+    expect(bassNotes).toEqual(["d2", "e2"]);
+    expect(
+      events.filter((e) => e.track === "mel").map((e) => String((e.value as { note?: unknown }).note)),
+    ).toEqual(["c4"]);
+  });
+
   test("a pick whose take lacks the label is left out", () => {
     expect(buildFromTakes([take5], { bass: 5, drums: 5 })).toBe('setcpm(100/4)\n\ndrums: s("bd*4")');
   });

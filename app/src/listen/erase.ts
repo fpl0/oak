@@ -1,7 +1,8 @@
 // Oak 2.0 W4 F3 "Erase and listen" (The Power of Erasing): the learner mutes each part in turn and listens, says
 // whether they miss it, and only then may leave a part out or thin it, each as visible code (one undoable change).
 // Oak's reading of where two parts crowd one register at the same moment is shown only after the learner's own
-// listening (PLAN §2 rule 3). There is no quota: keeping every part is a fine outcome, and the copy says so.
+// listening (PLAN §2 rule 3): at the end of the pass, or early ("Show Oak's reading now") once at least one
+// "Do you miss it?" has been answered, never before. There is no quota: keeping every part is a fine outcome, and the copy says so.
 // Pure: `ErasePass.tsx` drives it.
 import { labelledLines, roleOfLabel } from "@oak/api";
 import { wrapChain } from "@oak/grader";

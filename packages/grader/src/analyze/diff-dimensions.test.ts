@@ -190,10 +190,38 @@ describe("normalized event boundaries", () => {
     const b = simple([{ ...note(62), onset: [2, 4] }, note(60)]);
     expect(diffDimensions(a, b)).toEqual([]);
   });
-  test("control values alone are outside the requested control-name comparison", () => {
+  // W5 S8 (PLAN S5: Oak "describes what changed in each"): a sound control's value is part of the sound.
+  test("a sound control's value changes sound", () => {
     const a = simple([{ ...note(60), controls: { cutoff: 800 } }]);
     const b = simple([{ ...note(60), controls: { cutoff: 1200 } }]);
+    expect(diffDimensions(a, b)).toEqual(["sound"]);
+  });
+  test("a cutoff less than a third of an octave away is the same setting", () => {
+    const a = simple([{ ...note(60), controls: { cutoff: 2000 } }]);
+    const b = simple([{ ...note(60), controls: { cutoff: 2010 } }]);
     expect(diffDimensions(a, b)).toEqual([]);
+  });
+  test("level and routing controls are not sound: gain, velocity, postgain, pan, orbit", () => {
+    const a = simple([{ ...note(60), controls: { gain: 0.5 } }]);
+    const b = simple([
+      { ...note(60), controls: { gain: 0.8, velocity: 0.7, postgain: 2, pan: 0.2, orbit: 2 } },
+    ]);
+    expect(diffDimensions(a, b)).toEqual([]);
+  });
+});
+
+describe("W5 S8: sound control values through Strudel", () => {
+  test("lpf 200 → 8000 changes sound", async () => {
+    await pair(`${melody()}.lpf(200)`, `${melody()}.lpf(8000)`, ["sound"]);
+  });
+  test("room 0.1 → 0.9 changes sound", async () => {
+    await pair(`${melody()}.room(0.1)`, `${melody()}.room(0.9)`, ["sound"]);
+  });
+  test("gain .5 → .8 changes nothing", async () => {
+    await pair(`${melody()}.gain(.5)`, `${melody()}.gain(.8)`, []);
+  });
+  test("lpf 2000 → 2010 changes nothing", async () => {
+    await pair(`${melody()}.lpf(2000)`, `${melody()}.lpf(2010)`, []);
   });
   test("per-cycle comparison does not fold away alternation", async () => {
     await pair('mel: note("<c4 [c4 c4]>").s("piano")', 'mel: note("<[c4 c4] c4>").s("piano")', ["rhythm"]);

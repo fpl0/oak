@@ -330,7 +330,7 @@ test("the shortcut sheet lists Transcribe and the harmony answers from any page"
   const sheet = page.getByRole("dialog", { name: "Keyboard shortcuts" });
   await expect(sheet).toBeVisible();
   const tr = sheet.locator('[data-sheet-section="transcribe"]');
-  for (const t of ["Set the loop start (A) at the playhead", "Slower by 5 %", "Fine-tune up 5 cents"])
+  for (const t of ["Set the loop start (A) at the playhead", "Slower by 5%", "Fine-tune up 5 cents"])
     await expect(tr).toContainText(t);
   const harmony = sheet.locator('[data-sheet-section="harmony"]');
   await expect(harmony).toContainText("Numerals: next inversion");

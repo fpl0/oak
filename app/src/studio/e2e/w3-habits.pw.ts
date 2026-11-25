@@ -163,6 +163,11 @@ test("a catalog of a unit song: six lines, Hide it and write, and Oak's tempo on
   const aside = page.getByTestId("catalog-lines");
   await expect(aside).toBeVisible();
   await expect(page.locator("[data-testid^=oak-reading-]")).toHaveCount(0);
+  // W5 S9: Compare waits until a part has been written from the lines, not just the comment-only sketch.
+  await expect(aside.getByTestId("catalog-compare-open")).toHaveCount(0);
+  await setCode(page, `${text}\ndrums: s("bd*4")\n`);
+  await run(page, 2);
+  await expect(page.locator("[data-testid^=oak-reading-]")).toHaveCount(0);
   await aside.getByTestId("catalog-compare-open").click();
   await expect(aside.getByTestId("oak-reading-tempo")).toContainText("BPM", { timeout: 60_000 });
   expect(errors).toEqual([]);

@@ -15,11 +15,67 @@ const set = (values: string[]): string => key([...new Set(values)].sort());
 const learner = (n: Normalized): [string, NEvent[]][] =>
   Object.entries(n.byTrack).filter(([track, events]) => !track.startsWith("band.") && events.length > 0);
 
-function sound(events: readonly NEvent[]): string {
-  return key([
-    set(events.map((e) => key([e.s ?? null, e.bank ?? null]))),
-    set(events.flatMap((e) => Object.keys(e.controls ?? {}))),
-  ]);
+/**
+ * Oak's call (W5 S8): level and routing are not timbre, so they never change "sound" (PLAN F5 takes level out of
+ * every A/B): a louder, panned or re-routed part is the same sound.
+ */
+const LEVEL_KEYS = new Set(["gain", "velocity", "postgain", "pan", "orbit"]);
+/** Controls measured in hertz, heard as ratios (as in `rubric/oak2-form.ts`). */
+const FREQUENCY_KEYS = ["cutoff", "hcutoff", "bandf"] as const;
+const FREQUENCY = new Set<string>(FREQUENCY_KEYS);
+/**
+ * Oak's call, copied from `rubric/oak2-form.ts` (X14 round 2): frequencies less than a third of an octave apart are
+ * heard as one setting, so a cutoff moved from 2000 to 2010 changes nothing.
+ */
+const SAME_SETTING_OCTAVES = 1 / 3;
+/** Other control values are compared to 3 significant figures. */
+const round3 = (v: unknown): unknown =>
+  typeof v === "number" && Number.isFinite(v) ? Number(v.toPrecision(3)) : v;
+
+interface SoundSig {
+  /** The instruments, the control names and each event's non-frequency control values. */
+  text: string;
+  /** Per frequency control: its distinct values, near ones (< a third of an octave) folded into the lowest. */
+  freq: number[][];
+}
+
+const timbre = (e: NEvent): [string, unknown][] =>
+  Object.entries(e.controls ?? {})
+    .filter(([k]) => !LEVEL_KEYS.has(k))
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
+
+function heard(values: number[]): number[] {
+  const out: number[] = [];
+  let prev = 0;
+  for (const v of [...new Set(values)].sort((x, y) => x - y)) {
+    if (out.length === 0 || Math.log2(v / prev) >= SAME_SETTING_OCTAVES - 1e-9) out.push(v);
+    prev = v;
+  }
+  return out;
+}
+
+function sound(events: readonly NEvent[]): SoundSig {
+  return {
+    text: key([
+      set(events.map((e) => key([e.s ?? null, e.bank ?? null]))),
+      set(events.flatMap((e) => timbre(e).map(([k]) => k))),
+      set(events.map((e) => key(timbre(e).flatMap(([k, v]) => (FREQUENCY.has(k) ? [] : [[k, round3(v)]]))))),
+    ]),
+    freq: FREQUENCY_KEYS.map((k) =>
+      heard(events.map((e) => e.controls?.[k]).filter((v): v is number => typeof v === "number" && v > 0)),
+    ),
+  };
+}
+
+function sameSound(a: SoundSig, b: SoundSig): boolean {
+  if (a.text !== b.text) return false;
+  return a.freq.every((xs, i) => {
+    const ys = b.freq[i] as number[];
+    return (
+      xs.length === ys.length &&
+      xs.every((x, j) => Math.abs(Math.log2(x / (ys[j] as number))) < SAME_SETTING_OCTAVES - 1e-9)
+    );
+  });
 }
 
 // Keep the cycle number: folding all bars into one would hide alternating rhythms.
@@ -61,7 +117,7 @@ function trackChanges(a: Normalized, b: Normalized, changed: Set<Dimension>): vo
   for (const [track, events] of left) {
     const other = right.get(track);
     if (!other) continue;
-    if (sound(events) !== sound(other)) changed.add("sound");
+    if (!sameSound(sound(events), sound(other))) changed.add("sound");
     if (onsets(events) !== onsets(other)) changed.add("rhythm");
     else if (pitches(events) !== pitches(other)) changed.add("notes");
   }
@@ -77,7 +133,7 @@ function trackChanges(a: Normalized, b: Normalized, changed: Set<Dimension>): vo
         changed.add("sound");
         continue;
       }
-      if (!alternatives.some((candidate) => sound(candidate) === sound(events))) changed.add("sound");
+      if (!alternatives.some((candidate) => sameSound(sound(candidate), sound(events)))) changed.add("sound");
       if (!alternatives.some((candidate) => onsets(candidate) === onsets(events))) changed.add("rhythm");
       if (
         events.some((e) => e.midi !== null) &&

@@ -1157,6 +1157,8 @@ export function Loaded({
                   liveCode={code}
                   starter={starterOf(def, nextIndex)}
                   savedVersion={savedInfo?.version ?? null}
+                  savedCode={draftSaver.savedCode}
+                  saveNow={async (c) => (await save(c, false)).version}
                   released={released}
                   sessionIndex={nextIndex}
                   sessionsDone={done}

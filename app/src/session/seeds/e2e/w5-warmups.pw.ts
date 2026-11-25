@@ -35,10 +35,11 @@ test("a U08 day: the bass-and-kick set opens in the warm-up, answered by key, th
   test.setTimeout(240_000);
   const problems = watch(page);
   const sent = wire(page);
+  // The day after U08.L04 opens the set it taught; since Oak 2.0 W2 that day is U08.L06 (Bass and Kick as One Line).
   const s = await seed(request, "after U08.L04");
-  expect(s.next).toBe("U08.L05");
+  expect(s.next).toBe("U08.L06");
   await useUiPrefs(page, { theme: "paper" });
-  await startDay(page, "U08.L05");
+  await startDay(page, "U08.L06");
   const item = await toFamily(page, "fam.rhy.groove-lock", {
     hear: true,
     shot: "w5-warmup-intro-rhy.groove-lock",
@@ -185,9 +186,9 @@ test("a U11 gym day: the twelve-bar position set opens in the warm-up; the chart
   const problems = watch(page);
   const sent = wire(page);
   const s = await seed(request, "after U11.L05");
-  expect(s.next).toBe("GYM.10");
+  expect(s.next).toBe("GYM.11");
   await useUiPrefs(page, { theme: "paper" });
-  await startDay(page, "GYM.10");
+  await startDay(page, "GYM.11");
   const item = await toFamily(page, "fam.frm.blues", { shot: "w5-warmup-intro-frm.blues" });
   const before = (await state(page)).warmupIndex;
   const total = await totalOf(page);

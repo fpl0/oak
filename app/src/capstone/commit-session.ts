@@ -4,14 +4,15 @@
 // before the last (Oak's call, "Calls to check" 11). It never blocks a Run, a check or a release; a later edit to a
 // committed sound is noticed and asked about with W1's words (`soundChanges`, `restoreSound`). Pure.
 import type { Sketch } from "@oak/api";
-import { labelledLines, soundSettingsOf } from "@oak/content-kit";
+import { COMMIT_LINKS, labelledLines, soundSettingsOf } from "@oak/content-kit";
 
 /** One committed line of a sketch (`Sketch.committed`, `sketches.patch`). */
 export type SketchCommitted = NonNullable<Sketch["committed"]>[number];
 
 /**
- * The unmuted labelled lines that have a sound to commit (a non-empty `soundSettingsOf`: a drum line's `s("bd")` is
- * its rhythm, not a sound setting) and no committed entry yet, in source order, each label once.
+ * The unmuted labelled lines that have a sound to commit (a non-empty `soundSettingsOf` over `COMMIT_LINKS`: a drum
+ * line's `s("bd")` is its rhythm, not a sound setting, and `gain`/`pan` are the mix, left open) and no committed entry
+ * yet, in source order, each label once.
  */
 export function uncommittedLabels(
   code: string,
@@ -21,7 +22,7 @@ export function uncommittedLabels(
   const out: string[] = [];
   for (const line of labelledLines(code)) {
     if (line.muted || done.has(line.label) || out.includes(line.label)) continue;
-    if (soundSettingsOf(line.text) !== "") out.push(line.label);
+    if (soundSettingsOf(line.text, COMMIT_LINKS) !== "") out.push(line.label);
   }
   return out;
 }
@@ -34,6 +35,25 @@ export function commitAll(
   committed: readonly SketchCommitted[],
 ): SketchCommitted[] {
   return [...committed, ...uncommittedLabels(code, committed).map((label) => ({ label, version, at }))];
+}
+
+/**
+ * "Commit the sounds" commits the code the learner hears, not the last autosave (W5 F2): when the live code is ahead
+ * of the saved version, the pending save is flushed first (`saveNow`) and the commit names the version it returns,
+ * so a sound changed a moment before the click is committed as heard and is not at once read back as changed.
+ * `null` before the draft's first save: the card asks for a Run instead.
+ */
+export async function commitHeard(o: {
+  liveCode: string;
+  savedVersion: number | null;
+  savedCode: string | null;
+  saveNow: (code: string) => Promise<number>;
+  at: string;
+  committed: readonly SketchCommitted[];
+}): Promise<SketchCommitted[] | null> {
+  if (o.savedVersion === null) return null;
+  const version = o.savedCode === o.liveCode ? o.savedVersion : await o.saveNow(o.liveCode);
+  return commitAll(o.liveCode, version, o.at, o.committed);
 }
 
 /** After a completed session, before the last, while the piece is not released and a part has a sound to commit. */

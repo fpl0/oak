@@ -7,6 +7,7 @@ import type { KeySpec, MeterId, NEvent, PickupSpec } from "@oak/content-kit";
 import { strudel } from "../analyze/__support__/fixtures.ts";
 import { sectionsFromAst } from "../analyze/sections.ts";
 import { normalizedFromEvents } from "../analyze/tracks.ts";
+import { MASKED_RATIO, SILENT_GAIN } from "../normalize/nevent.ts";
 import type { Normalized } from "../types.ts";
 import type { RubricContext } from "./context.ts";
 import { oak2FormRules } from "./oak2-form.ts";
@@ -23,6 +24,20 @@ interface Opts {
   pickup?: PickupSpec;
   /** Strudel code of a Band, played beside the learner as `band.<label>` tracks. */
   band?: string;
+  /**
+   * Leave out what production `normalize` leaves out (`audibleInMix`): silent events and events more than 24 dB under
+   * the loudest learner event. The fixture keeps them; a fade to silence needs them gone, as the grader hears it.
+   */
+  heard?: boolean;
+}
+/** The learner's events as the grader hears them: no silent events, none masked 24 dB under the loudest. */
+function heardOnly(n: Normalized): Normalized {
+  const loud = n.all.filter((e) => e.gain > SILENT_GAIN);
+  const peak = Math.max(0, ...loud.map((e) => e.gain));
+  return normalizedFromEvents(
+    loud.filter((e) => e.gain >= peak * MASKED_RATIO),
+    { cps: n.cps },
+  );
 }
 /** The Band's events as `band.<label>` tracks next to the learner's (what the grade pipeline hands a rubric). */
 function withBand(n: Normalized, band: Normalized): Normalized {
@@ -33,6 +48,7 @@ async function run(name: string, code: string, params: Record<string, unknown> =
   const s = sectionsFromAst(code);
   const total = o.bars ?? (s && "totalBars" in s ? s.totalBars : 4);
   let n = await strudel(code, total);
+  if (o.heard) n = heardOnly(n);
   if (o.band) n = withBand(n, await strudel(o.band, total));
   const key = o.key === undefined ? C : o.key;
   const ctx: RubricContext = {
@@ -137,6 +153,54 @@ mel: arrange([4, melVerse], [4, melOutro])`;
     const r = await passes("ends-on-purpose", code);
     expect(r.detail).toMatch(/fades out/);
   });
+  // W5 (C5): the notes of a fade to silence drop under the mix's floor, so the last bars lose notes or fall silent.
+  // The loop still repeats up to the last bar heard, and reaching silence after a fall is a fade (Oak's call).
+  const FADE_TO = (to: string) => `setcpm(120/4)
+const drumsVerse = s("[bd hh sd hh]*2")
+const drumsOutro = s("[bd hh sd hh]*2").gain(saw.range(.8, ${to}).slow(4))
+const melVerse = n("<[0 2 4 2]*2 [4 2 0 2]*2>").scale("C4:major").s("piano")
+const melOutro = n("[0 2 4 2]*2").scale("C4:major").s("piano").gain(saw.range(.8, ${to}).slow(4))
+drums: arrange([4, drumsVerse], [4, drumsOutro])
+mel: arrange([4, melVerse], [4, melOutro])`;
+  test("fades-out: a fade to silence fades out, though its last notes are under the mix (W5)", async () => {
+    for (const to of ["0", ".02"]) {
+      const r = await passes("ends-on-purpose", FADE_TO(to), { modes: ["fades-out"] }, { heard: true });
+      expect(r.detail).toMatch(/fades out/);
+    }
+    // Silent a bar early: the last bar is empty.
+    const early = `setcpm(120/4)
+const drumsVerse = s("bd sd bd sd")
+const drumsOutro = s("bd sd bd sd").gain("<.8 .4 .1 0>")
+drums: arrange([4, drumsVerse], [4, drumsOutro])`;
+    await passes("ends-on-purpose", early, { modes: ["fades-out"] }, { heard: true });
+  });
+  test("fades-out: a loop that stops dead, with no fall in level before its silence, is no fade (W5)", async () => {
+    const dead = `setcpm(120/4)
+const drumsVerse = s("bd sd bd sd")
+const drumsOutro = s("<[bd sd bd sd]!3 ~>")
+const melVerse = n("<[0 2 4 2] [4 2 0 ~]>").scale("C4:major").s("piano")
+const melOutro = n("<[0 2 4 2]!3 ~>").scale("C4:major").s("piano")
+drums: arrange([4, drumsVerse], [4, drumsOutro])
+mel: arrange([4, melVerse], [4, melOutro])`;
+    await failsWith(
+      "ends-on-purpose",
+      dead,
+      /fade out a part that repeats/,
+      { modes: ["fades-out"] },
+      { heard: true },
+    );
+    // Cut off halfway through its last bar, at full level.
+    const cut = dead
+      .replace('s("<[bd sd bd sd]!3 ~>")', 's("<[bd sd bd sd]!3 [bd sd ~ ~]>")')
+      .replace('n("<[0 2 4 2]!3 ~>")', 'n("<[0 2 4 2]!3 [0 2 ~ ~]>")');
+    await failsWith(
+      "ends-on-purpose",
+      cut,
+      /fade out a part that repeats/,
+      { modes: ["fades-out"] },
+      { heard: true },
+    );
+  });
   test("fades-out: a small dip in level is no fade", async () => {
     const code = `setcpm(120/4)
 const drumsVerse = s("bd sd bd sd")
@@ -157,6 +221,36 @@ drums: arrange([4, drumsVerse], [4, drumsOutro])`;
       );
     const r = await passes("ends-on-purpose", code, { modes: ["final-hit"] });
     expect(r.detail).toMatch(/one last hit \(bar 8, beat 1\)/);
+  });
+
+  // W5 (C6): a hit is one moment, not a groove that stops. Oak's call: every onset of the last onset's bar lies within
+  // one beat of it (a flam or a pickup into the hit is fine).
+  test("final-hit: the groove cut off halfway through a new last bar is no hit (W5)", async () => {
+    const code = LOOP.replace(
+      'const drumsOutro = s("bd sd bd sd")',
+      'const drumsOutro = s("<[bd sd bd sd] [bd sd bd sd] [bd sd bd sd] [bd sd bd ~]>")',
+    )
+      .replace('const bassOutro = n("0 4")', 'const bassOutro = n("<[0 4] [0 4] [0 4] [0 ~]>")')
+      .replace(
+        'const melOutro = n("<[0 2 4 2] [4 2 0 ~]>")',
+        'const melOutro = n("<[0 2 4 2] [4 2 0 ~] [0 2 4 2] [0 2 4 ~]>")',
+      );
+    await failsWith("ends-on-purpose", code, /end on one last hit followed by silence/, {
+      modes: ["final-hit"],
+    });
+  });
+  test("final-hit: a pickup into the hit is still one hit (W5)", async () => {
+    const code = LOOP.replace(
+      'const drumsOutro = s("bd sd bd sd")',
+      'const drumsOutro = s("<[bd sd bd sd] [bd sd bd sd] [bd sd bd sd] [~ [~ sd] bd ~]>")',
+    )
+      .replace('const bassOutro = n("0 4")', 'const bassOutro = n("<[0 4] [0 4] [0 4] [~ ~ 0 ~]>")')
+      .replace(
+        'const melOutro = n("<[0 2 4 2] [4 2 0 ~]>")',
+        'const melOutro = n("<[0 2 4 2] [4 2 0 ~] [0 2 4 2] [~ ~ 0 ~]>")',
+      );
+    const r = await passes("ends-on-purpose", code, { modes: ["final-hit"] });
+    expect(r.detail).toMatch(/one last hit \(bar 8, beat 3\)/);
   });
 
   test("cadence: the last chord change is V to I, on a bar written for the end", async () => {
@@ -263,10 +357,11 @@ const drumsOutro = s("<[bd sd sd] [bd sd ~]>")
 drums: arrange([4, drumsVerse], [2, drumsOutro])`;
     const r = await passes("ends-on-purpose", waltz, { modes: ["final-hit"] }, { meter: "3/4" });
     expect(r.detail).toMatch(/bar 6, beat 2/);
-    // In 3/4 a quarter of the bar is less than a beat: the last hit leaves no full beat of silence after it.
+    // In 3/4 a quarter of the bar is less than a beat: the last hit leaves no full beat of silence after it (one hit
+    // alone in its bar, so only the silence decides; W5).
     await failsWith(
       "ends-on-purpose",
-      waltz.replace("[bd sd ~]", "[bd sd sd ~]"),
+      waltz.replace("[bd sd ~]", "[~ ~ sd ~]"),
       /end on one last hit/,
       { modes: ["final-hit"] },
       { meter: "3/4" },
@@ -274,7 +369,7 @@ drums: arrange([4, drumsVerse], [2, drumsOutro])`;
     // The same piece counted in 4/4 has a full (shorter) beat of silence: the meter decides.
     await passes(
       "ends-on-purpose",
-      waltz.replace("[bd sd ~]", "[bd sd sd ~]"),
+      waltz.replace("[bd sd ~]", "[~ ~ sd ~]"),
       { modes: ["final-hit"] },
       { meter: "4/4" },
     );
@@ -432,6 +527,60 @@ mel: arrange([4, melVerse], [4, melChorus])`;
       .replace('n("0 0 0 0").scale', 'n("<[0 0 0 0] [0 0 0 0] [0 0 0 0] [0 0 0 4]>").scale')
       .replace('n("0 2 4 2").scale', 'n("<[0 2 4 2] [0 2 4 2] [0 2 4 2] [0 2 4 6]>").scale');
     await failsWith("staggered-boundary", code, /all change 1 beat early together/);
+  });
+  // W5 (C8; Fuzzy Boundaries: extend, retract or delete across the boundary): with `wholeBars`, a part that stays,
+  // stops or arrives a whole bar off the seam counts too; without it, a whole bar is a move on a bar line (W0).
+  // Every part's verse and chorus differ on every beat, so a part carried over is heard for its whole bar.
+  const SEAM = (o: {
+    drums?: string;
+    bass?: string;
+    mel?: string;
+    drumsC?: string;
+    bassC?: string;
+    melC?: string;
+  }) =>
+    `setcpm(120/4)
+const drumsVerse = s("${o.drums ?? "bd sd bd sd"}")
+const drumsChorus = s("${o.drumsC ?? "sd bd sd bd"}")
+const bassVerse = n("${o.bass ?? "0 0 0 0"}").scale("C2:major").s("piano")
+const bassChorus = n("${o.bassC ?? "3 3 4 4"}").scale("C2:major").s("piano")
+const melVerse = n("${o.mel ?? "0 2 4 2"}").scale("C4:major").s("piano")
+const melChorus = n("${o.melC ?? "7 6 5 3"}").scale("C4:major").s("piano")
+drums: arrange([4, drumsVerse], [4, drumsChorus])
+bass: arrange([4, bassVerse], [4, bassChorus])
+mel: arrange([4, melVerse], [4, melChorus])`;
+  test("wholeBars: a part carried a whole bar into the next section is a stagger (W5)", async () => {
+    const code = SEAM({ melC: "<[0 2 4 2] [7 6 5 3] [7 6 5 3] [7 6 5 3]>" });
+    const r = await passes("staggered-boundary", code, { wholeBars: true });
+    expect(r.detail).toMatch(
+      /`mel` carries on a bar into the chorus \(bar 6, beat 1\) while the rest change/,
+    );
+    await failsWith("staggered-boundary", code, /every part changes right on the bar line/);
+    // Arriving a bar late (a bar of rest first) counts too.
+    const late = SEAM({ bassC: "<~ [3 3 4 4] [3 3 4 4] [3 3 4 4]>" });
+    const l = await passes("staggered-boundary", late, { wholeBars: true });
+    expect(l.detail).toMatch(/`bass` comes in a bar late/);
+  });
+  test("wholeBars: a part that takes up the next section's beat a bar early, or rests a bar, is a stagger (W5)", async () => {
+    const early = SEAM({ drums: "<[bd sd bd sd] [bd sd bd sd] [bd sd bd sd] [sd bd sd bd]>" });
+    const r = await passes("staggered-boundary", early, { wholeBars: true });
+    expect(r.detail).toMatch(/`drums` changes a bar early \(bar 4, beat 1\)/);
+    const rests = SEAM({ bass: "<[0 0 0 0] [0 0 0 0] [0 0 0 0] ~>" });
+    const s2 = await passes("staggered-boundary", rests, { wholeBars: true });
+    expect(s2.detail).toMatch(/`bass` stops a bar early/);
+  });
+  test("wholeBars: every changing part a whole bar late together just moves the seam; a fill bar is no stagger (W5)", async () => {
+    const late = SEAM({
+      drumsC: "<[bd sd bd sd] [sd bd sd bd] [sd bd sd bd] [sd bd sd bd]>",
+      bassC: "<[0 0 0 0] [3 3 4 4] [3 3 4 4] [3 3 4 4]>",
+      melC: "<[0 2 4 2] [7 6 5 3] [7 6 5 3] [7 6 5 3]>",
+    });
+    await failsWith("staggered-boundary", late, /all change 4 beats late together/, { wholeBars: true });
+    // A whole bar of new material before the seam (a fill) is not the next section's beat come early.
+    const fill = SEAM({ drums: "<[bd sd bd sd] [bd sd bd sd] [bd sd bd sd] [sd sd sd sd]>" });
+    await failsWith("staggered-boundary", fill, /every part changes right on the bar line/, {
+      wholeBars: true,
+    });
   });
   test("fill: anticipate leaves the downbeat empty; hesitate runs past it", async () => {
     const anticipate = HARD.replace(
@@ -707,6 +856,7 @@ describe("arc", () => {
     thin: `s("bd ~ ~ ~")`,
     mid: `s("bd ~ sd ~")`,
     full: `s("bd*4, hh*8, ~ sd ~ sd")`,
+    peak: `s("bd*4, hh*8, sd*4")`,
   };
   const piece = (...parts: (keyof typeof S)[]) =>
     `setcpm(120/4)\n${parts.map((p, i) => `const drums${["A", "B", "C", "D", "E"][i]} = ${S[p]}`).join("\n")}\ndrums: arrange(${parts.map((_, i) => `[2, drums${["A", "B", "C", "D", "E"][i]}]`).join(", ")})`;
@@ -719,7 +869,17 @@ describe("arc", () => {
     await passes("arc", piece("thin", "full", "full", "thin"));
   });
   test("the fullest first fails", async () => {
-    await failsWith("arc", piece("full", "mid", "thin"), /comes first/);
+    await failsWith(
+      "arc",
+      piece("full", "mid", "thin"),
+      /nothing thinner comes before the a: put a thinner section before it/,
+    );
+  });
+  // W5 (C7): the message names the side the peak lacks, read from the peak itself, not from the first section.
+  test("the peak last after a full first section needs a thinner section after it, not before (W5)", async () => {
+    // A is almost as busy as the peak C (14 against 16 onsets a bar), so it is not thinner; B is.
+    await failsWith("arc", piece("full", "thin", "peak"), /the fullest section, the c, comes last/);
+    await failsWith("arc", piece("peak", "thin", "thin"), /nothing thinner comes before the a/);
   });
   test("the fullest last fails (it builds but never comes down)", async () => {
     await failsWith("arc", piece("thin", "mid", "full"), /comes last/);

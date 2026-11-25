@@ -1123,8 +1123,8 @@ const POP_PLAN: SinglePlan = [
  * How a single ends (U09.L06 Endings, DeSantis's "Three Ways to End"; CF-A's required `ending` line since Oak 2.0 W4):
  * `exits` a four-bar outro where the tune leaves after two bars and the chords after three, the bass and drums
  * playing to the end; `hit` one new last bar, every part on beat 1 and then silence; `fade` a four-bar outro that
- * loops IV–I while every part fades to a tenth of its level (not to 0: the grader leaves out notes 24 dB under the
- * mix, W2.md); `none` the last chorus simply stops.
+ * loops IV–I while every part fades to a tenth of its level (W2 chose .08 because `fades-out` then failed a fade to
+ * silence; since W5 it reads one too, W5.md); `none` the last chorus simply stops.
  */
 type SingleEnding = "exits" | "hit" | "fade" | "none";
 interface PopSingle {
@@ -1141,8 +1141,8 @@ interface PopSingle {
   suspension?: boolean;
 }
 /**
- * A fade over a four-bar outro (W2's U09.L06 fade form), from `top` down to .08, a tenth of the loudest part: not to
- * 0, since the grader leaves out notes more than 24 dB under the loudest (W2.md "Rule findings not changed").
+ * A fade over a four-bar outro (W2's U09.L06 fade form), from `top` down to .08, a tenth of the loudest part. W2 chose
+ * .08 because `fades-out` failed a fade to 0; since W5 a fade to silence passes too (`cfa.test.ts`, W5.md).
  */
 const fade4 = (top: number): string => `.gain(saw.range(${String(top).replace(/^0/, "")}, .08).slow(4))`;
 /**

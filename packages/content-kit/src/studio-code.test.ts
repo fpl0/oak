@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { LABEL_ROLES } from "./schema/common.ts";
 import {
+  COMMIT_LINKS,
   chainLinks,
   constDecls,
   labelledLines,
@@ -202,6 +203,22 @@ describe("chainLinks and soundSettingsOf", () => {
     expect(soundSettingsOf('mel: "c4".note()')).toBe("");
     expect(SOUND_LINKS.has("lpf")).toBe(true);
     expect(SOUND_LINKS.has("fast")).toBe(false);
+  });
+
+  test("COMMIT_LINKS is SOUND_LINKS without the mix (gain, velocity, postgain, pan): committing a sound leaves the mix open (W5 F3)", () => {
+    for (const mix of ["gain", "velocity", "postgain", "pan"]) {
+      expect(SOUND_LINKS.has(mix)).toBe(true);
+      expect(COMMIT_LINKS.has(mix)).toBe(false);
+    }
+    expect([...COMMIT_LINKS]).toEqual(
+      [...SOUND_LINKS].filter((l) => !["gain", "velocity", "postgain", "pan"].includes(l)),
+    );
+    const line = 'chords: chord("<C F>").voicing().gain(0.5).pan(0.3).lpf(900)';
+    // The default reads every sound link, as "Make this my Blank" and templates do.
+    expect(soundSettingsOf(line)).toBe(".voicing().gain(0.5).pan(0.3).lpf(900)");
+    expect(soundSettingsOf(line, SOUND_LINKS)).toBe(soundSettingsOf(line));
+    expect(soundSettingsOf(line, COMMIT_LINKS)).toBe(".voicing().lpf(900)");
+    expect(soundSettingsOf('pad: note("c3").gain(0.5)', COMMIT_LINKS)).toBe("");
   });
 });
 

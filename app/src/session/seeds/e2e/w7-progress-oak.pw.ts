@@ -32,7 +32,7 @@ test("the jazz track taken before U14.CP: J2.L04 waits for its checkpoint, the t
   await expect(jazz.getByTestId("track-waiting").first()).toHaveText(
     "J2.L04 Chord-Scales waits for the U14 checkpoint. The track goes on without it, and it is offered as soon as that is passed.",
   );
-  await expect(jazz.getByTestId("track-count")).toHaveText("8 of 34 sessions");
+  await expect(jazz.getByTestId("track-count")).toHaveText("8 of 35 sessions");
   await expect(jazz.locator('[data-capstone="JC1"]').getByTestId("capstone-gate")).toHaveText(
     /first jazz checkpoint/,
   );

@@ -89,7 +89,7 @@ const STAFF = { roll: false, staff: "treble", keyboard: false } as const;
 
 export default defineLesson({
   id: "U07.L01",
-  version: 5,
+  version: 6,
   title: "Shape",
   objective: "I can shape a melody: mostly steps, a leap or two, and one high point placed on purpose.",
   key: { tonic: "C", mode: "major" },

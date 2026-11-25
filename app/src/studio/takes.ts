@@ -55,10 +55,12 @@ const LABEL_PREFIX = /^\s*[A-Za-z_$][\w$]*\s*:(?!:)/;
 const CONST_NAME = /^const\s+([A-Za-z_$][\w$]*)/;
 
 /**
- * `text` with the identifier `from` renamed to `to` wherever it is code: not inside a string, a template or a
- * comment, not after a `.` (a property), and not a label (`groove: …` keeps its label).
+ * `text` with every identifier in `renames` renamed at once (one pass, so `p → p2` and `p2 → p3` never chain)
+ * wherever it is code: not inside a string, a template or a comment, not after a `.` (a property), and not a label
+ * (`groove: …` keeps its label).
  */
-function renameIdent(text: string, from: string, to: string): string {
+function renameIdents(text: string, renames: ReadonlyMap<string, string>): string {
+  if (renames.size === 0) return text;
   const label = LABEL_PREFIX.exec(text)?.[0].length ?? 0;
   let out = text.slice(0, label);
   let i = label;
@@ -88,7 +90,7 @@ function renameIdent(text: string, from: string, to: string): string {
       let k = i - 1;
       while (k >= 0 && /\s/.test(text[k] as string)) k--;
       const property = text[k] === "." && text[k - 1] !== ".";
-      out += word === from && !property ? to : word;
+      out += property ? word : (renames.get(word) ?? word);
       i = j;
     } else {
       out += c;
@@ -147,24 +149,27 @@ export function buildFromTakes(
     const parts = scrapParts(take.code, label);
     if (parts === null) continue;
     used.push(take.version);
-    const renames: [string, string][] = [];
-    const applyRenames = (s: string) => renames.reduce((acc, [a, b]) => renameIdent(acc, a, b), s);
+    // This take's renames, applied together to its original text. A fresh name avoids every name written so far
+    // and every const this take declares, so it never lands on one of the take's own names.
+    const renames = new Map<string, string>();
+    const own = new Set(constDecls(take.code).map((d) => d.name));
+    const taken = (n: string) => emitted.has(n) || own.has(n) || [...renames.values()].includes(n);
     for (const raw of parts.consts) {
-      let text = applyRenames(raw);
-      const name = CONST_NAME.exec(text)?.[1] as string;
+      const name = CONST_NAME.exec(raw)?.[1] as string;
+      let text = renameIdents(raw, renames);
       const prior = emitted.get(name);
       if (prior === text) continue;
       if (prior !== undefined) {
         let k = 2;
-        while (emitted.has(`${name}${k}`)) k++;
+        while (taken(`${name}${k}`)) k++;
         const fresh = `${name}${k}`;
-        renames.push([name, fresh]);
-        text = renameIdent(text, name, fresh);
+        renames.set(name, fresh);
+        text = renameIdents(raw, renames);
         emitted.set(fresh, text);
       } else emitted.set(name, text);
       body.push(text);
     }
-    body.push(applyRenames(parts.line));
+    body.push(renameIdents(parts.line, renames));
   }
   if (body.length === 0) return "";
 

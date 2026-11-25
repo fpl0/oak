@@ -234,7 +234,7 @@ const FREEZE_STARTER = randomBar(`⟪${RANDOM_LINE}⟫`);
 
 export default defineLesson({
   id: "U09.L04",
-  version: 4,
+  version: 5,
   title: "The Energy Curve",
   objective: "I can draw a build-up with a signal so the chorus lands with more energy than the verse.",
   key: { tonic: "C", mode: "major" },
@@ -544,7 +544,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Listen to both loops over the same drums. In the first, chance picks eight new notes every bar. In the second, its first bar comes back again and again. Listen for the moment that bar stops sounding random.",
+          "Listen to both loops over the same drums. In the first, chance picks eight new notes every bar. In the second, its first bar comes back again and again. Does either loop start to sound chosen as it repeats? Notice when.",
         skills: [{ skill: "F05", w: 1 }],
         hints: null,
         tests: [],

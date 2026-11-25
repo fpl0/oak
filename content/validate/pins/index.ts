@@ -1,7 +1,8 @@
 // The graded steps Oak 2.0 W2 adds (docs/superpowers/plans/2026-11-25-oak2-w2.md): every graded code step and every
 // Make of the ten new lessons, and the graded steps added to existing lessons. `../oak2-pins.test.ts` requires each
-// of them, once its lesson has the step and grades it, to hold at least one `book-miss` pin that fails and one
-// `book-other-way` pin that passes (docs/oak2/PLAN.md §2 rule 4).
+// of them (every one is written since W5) to grade the code (a rubric or a code target, whatever its `graded` flag)
+// and to hold at least one `book-miss` pin that fails and one `book-other-way` pin that passes (docs/oak2/PLAN.md
+// §2 rule 4).
 
 export const W2_GRADED: readonly { owner: string; at: string }[] = [
   // The ten new lessons.
@@ -10,6 +11,8 @@ export const W2_GRADED: readonly { owner: string; at: string }[] = [
   { owner: "U07.L11", at: "S4" },
   { owner: "U07.L11", at: "S6" },
   { owner: "U07.L11", at: "S7" },
+  // W5 (X22): the optional "Under the motif", graded by `inverted-copy` and `register-separation`.
+  { owner: "U07.L11", at: "S8" },
   { owner: "U08.L06", at: "S4" },
   { owner: "U08.L06", at: "S5" },
   { owner: "U08.L06", at: "S6" },

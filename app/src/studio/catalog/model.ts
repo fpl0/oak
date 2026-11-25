@@ -1,7 +1,7 @@
 // Oak 2.0 W3 (PLAN §4 S6, "Catalog of Attributes"): the learner listens to a reference and writes six plain lines
 // about it (tempo, sound, harmony, melody, rhythm, form); "Hide it and write" starts a sketch whose code holds the
 // lines as comments. The learner does the listening first (PLAN §2 rule 3): Oak's reading of a unit song is shown only
-// once a sketch has been written from the lines (`revealed`), and then only beside the learner's own words. Oak reads
+// once a part has been written from the lines (`revealed`), and then only beside the learner's own words. Oak reads
 // chords and form from code, so a transcription or an audio file gets no reading at all. Pure: model.test.ts.
 import {
   CATALOG_LINES,
@@ -87,9 +87,19 @@ export function catalogSketchBody(o: {
   };
 }
 
-/** Oak's reading may show only once a sketch has been written from the lines and still exists. */
-export function revealed(catalog: Pick<Catalog, "sketchId">, sketches: readonly { id: string }[]): boolean {
-  return catalog.sketchId !== null && sketches.some((s) => s.id === catalog.sketchId);
+/**
+ * Oak's reading (and the reference) may show only once the learner has written from the lines (W5 S9; Catalog of
+ * Attributes pp. 17–18): the catalog's sketch still exists and has a version after its first (v1 is the comment-only
+ * start) with at least one unmuted labelled line.
+ */
+export function revealed(
+  catalog: Pick<Catalog, "sketchId">,
+  sketches: readonly { id: string; versions: readonly { version: number; code: string }[] }[],
+): boolean {
+  const sketch = catalog.sketchId === null ? undefined : sketches.find((s) => s.id === catalog.sketchId);
+  if (!sketch || sketch.versions.length === 0) return false;
+  const first = Math.min(...sketch.versions.map((v) => v.version));
+  return sketch.versions.some((v) => v.version > first && labelledLines(v.code).some((l) => !l.muted));
 }
 
 /** The catalog of a sketch (the newest one naming it), or `null`. */

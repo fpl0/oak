@@ -173,7 +173,7 @@ test("the last session of the course across the 04:00 rollover: the finale first
   await expect(page.getByTestId("start-session")).toBeVisible();
   await expect(page.locator("main")).not.toContainText(/track you chose|still being written|\[\[/);
   const whole = await api<{ stage: string; sessionsDone: number }>(request, "GET", "/api/course/whole");
-  expect(whole).toMatchObject({ stage: "complete", sessionsDone: 259 });
+  expect(whole).toMatchObject({ stage: "complete", sessionsDone: 270 });
   expect(problems).toEqual([]);
   await resetClock(request);
 });

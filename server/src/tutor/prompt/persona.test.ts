@@ -178,3 +178,13 @@ describe("persona: the binding rules of contracts §10.11", () => {
       expect(PERSONA).not.toContain(deferred);
   });
 });
+
+describe("reviews: a suggestion is not a requirement (W5 F4, PLAN §2 rule 1)", () => {
+  test("the Reviews section says an unmet suggestion is a revision only when the learner's question asks about it", () => {
+    const reviews = PERSONA.slice(PERSONA.indexOf("## Reviews"), PERSONA.indexOf("## Boundaries"));
+    expect(reviews).toContain("(a suggestion, not a requirement)");
+    expect(reviews).toContain(
+      "An unmet suggestion becomes a revision only when the learner's question asks about it.",
+    );
+  });
+});
