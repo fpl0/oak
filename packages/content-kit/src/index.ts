@@ -5,6 +5,7 @@
 // so type-only consumers do not pull zod into their bundle through a named import.
 export * from "./budget.ts";
 export * from "./define.ts";
+export * from "./descriptive.ts";
 export * from "./ids.ts";
 export * from "./implemented.ts";
 export * from "./issue-view.ts";
@@ -12,7 +13,9 @@ export * from "./lint-types.ts";
 export * from "./params.ts";
 export * from "./rat.ts";
 export * from "./schema/index.ts";
+export * from "./studio-cards.ts";
 export * from "./studio-code.ts";
+export * from "./studio-defaults.ts";
 export * from "./unit-songs/claims.ts";
 export * from "./version.ts";
 export * as schemas from "./zod.ts";

@@ -44,6 +44,7 @@ import {
   TONICS,
 } from "./model.ts";
 import { useUnlockedSet } from "./queries.ts";
+import { START_SLOTS } from "./start-slots.ts";
 import {
   blankStartBody,
   drumsAndBassCode,
@@ -68,7 +69,8 @@ import { useTemplates } from "./templates-queries.ts";
 
 /**
  * The learner's Blank, Oak's Blank, the last Make, over a Band, drums and bass first, from your head, fill it all,
- * plain start, from scraps, one of the learner's templates (`tpl:<id>`) or a learning kit's id (`tb.template.…`).
+ * plain start, from scraps, a start slot (`slot:<id>`, Oak 2.0 W3 `START_SLOTS`), one of the learner's templates
+ * (`tpl:<id>`) or a learning kit's id (`tb.template.…`).
  */
 type Start =
   | "your-blank"
@@ -181,6 +183,8 @@ function NewSketchForm({
     (t) => t.kind === "template" && t.id.startsWith("tb.template.") && !t.code.startsWith("recipe"),
   );
   const song: StarterSong | null = starterSong(start);
+  // Oak 2.0 W3: a start slot brings its own Start, shown in place of this dialog's.
+  const slot = START_SLOTS.find((x) => `slot:${x.id}` === start) ?? null;
   const choose = (value: Start) => {
     setPicked(value);
     if (titleTyped) return;
@@ -189,6 +193,8 @@ function NewSketchForm({
   };
 
   const submit = async () => {
+    // A start slot makes its sketch with its own Start.
+    if (slot) return;
     // Two starts are not a sketch yet: they open the capture dialog or Studio's scraps.
     if (start === "from-head") {
       onClose();
@@ -499,6 +505,7 @@ function NewSketchForm({
         {option("plain", "Plain start", START_DETAILS.plainStart)}
         {start === "plain" ? tempoField : null}
         {option("from-scraps", "From scraps", START_DETAILS.fromScraps)}
+        {START_SLOTS.map((x) => option(`slot:${x.id}`, x.label, x.detail))}
         {others.length > 0 ? (
           <>
             <p className="mt-1 text-sm font-medium text-text-2">{START_HEADINGS.yourTemplates}</p>
@@ -543,17 +550,28 @@ function NewSketchForm({
           </>
         ) : null}
       </fieldset>
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-wrap items-start justify-end gap-2">
         <Button variant="ghost" onClick={onClose}>
           Cancel
         </Button>
-        <Button variant="primary" type="submit" loading={create.isPending}>
-          {start === "from-head"
-            ? "Hum, tap or record"
-            : start === "from-scraps"
-              ? "Open scraps"
-              : "Create sketch"}
-        </Button>
+        {slot ? (
+          <slot.Component
+            sketches={sketches}
+            sessionId={currentSessionId()}
+            onCreated={(sketchId) => {
+              onClose();
+              void navigate({ to: "/studio/$sketchId", params: { sketchId } });
+            }}
+          />
+        ) : (
+          <Button variant="primary" type="submit" loading={create.isPending}>
+            {start === "from-head"
+              ? "Hum, tap or record"
+              : start === "from-scraps"
+                ? "Open scraps"
+                : "Create sketch"}
+          </Button>
+        )}
       </div>
     </form>
   );

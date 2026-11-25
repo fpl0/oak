@@ -5,8 +5,9 @@
 // as text until the strict check passes (§11.3), Claude can be asked for a listening note, and the code
 // exports as a .js file. Oak 2.0 W1: Jam (every Run is a take; the tutor, hints, tips and compare wait; only lint
 // errors show), the takes panel after a jam, Focus one part, and the editor slots other W1 tools fill.
-import type { SketchDetail, SketchVersion, TakeState } from "@oak/api";
+import type { SketchDetail, SketchDimension, SketchVersion, TakeState } from "@oak/api";
 import { type KeySpec, type LintResult, labelledLines, type MeterId } from "@oak/content-kit";
+import { sectionsFromAst } from "@oak/grader";
 import type { EditorHandle, EvalOutcome, MuteMap } from "@oak/strudel";
 import { cpsToBpm, METERS } from "@oak/theory";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -84,6 +85,7 @@ import {
   versionBody,
   versionLabel,
 } from "./model.ts";
+import { analysisForSave } from "./piece-read.ts";
 import { useUnlockedSet } from "./queries.ts";
 import { ReviewPanel } from "./ReviewPanel.tsx";
 import { SketchCover } from "./SketchCover.tsx";
@@ -172,19 +174,56 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
   const lintCtx = studioLint(unlocked, meter, keySpec);
 
   // --- saving ---------------------------------------------------------------------------------------
+  const lengthRef = useRef(length);
+  lengthRef.current = length;
+  /** The bars a save's analysis reads (Oak 2.0 W3): the `arrange()` total, else the sketch's loop length. */
+  const analysisBars = (code: string): number => {
+    try {
+      const ast = sectionsFromAst(code);
+      if (ast && "totalBars" in ast && ast.totalBars > 0) return ast.totalBars;
+    } catch {
+      // unreadable code: the loop length
+    }
+    return lengthRef.current;
+  };
   const save = (
     d: Omit<VersionDraft, "sessionId">,
-    extra: { takeState?: TakeState } = {},
+    extra: {
+      takeState?: TakeState;
+      /** Oak 2.0 W3: a sibling or the next generation names its parent, generation and dimension. */
+      parentVersion?: number;
+      generation?: number;
+      dimension?: SketchDimension;
+      /** A Run's autosave: skipped when an earlier save in the queue already saved this state. */
+      unlessSaved?: boolean;
+    } = {},
   ): Promise<SketchVersion | null> => {
     const job = queue.current.then(async () => {
+      if (extra.unlessSaved && !differsFrom(saved.current as Parameters<typeof differsFrom>[0], d))
+        return null;
       setStatus({ kind: "saving" });
       try {
+        // Oak 2.0 W3: the worker's analysis rides with every Studio save (the habits mirror reads it); never throws,
+        // and `null` after ANALYSIS_SAVE_TIMEOUT_MS, so the save is never held up for long.
+        const analysis = await analysisForSave(d.code, {
+          meter: d.meter,
+          key: d.key,
+          bars: analysisBars(d.code),
+        });
         const res = await addVersion.mutateAsync({
           params: { id },
           body: {
             ...versionBody({ ...d, sessionId: currentSessionId() }),
+            analysis,
             // Oak 2.0 W1: a Run saved while Jam is on is a take.
             ...(extra.takeState === undefined ? {} : { takeState: extra.takeState }),
+            ...(extra.parentVersion === undefined
+              ? {}
+              : {
+                  parentVersion: extra.parentVersion,
+                  generation: extra.generation ?? null,
+                  dimension: extra.dimension ?? null,
+                }),
           },
         });
         const v = res.sketch.versions.at(-1) ?? null;
@@ -219,7 +258,8 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
         note: null,
         ranOk: true,
       },
-      jamRef.current ? { takeState: "open" } : {},
+      // A second Run of the same code while the first is still saving saves nothing more.
+      jamRef.current ? { takeState: "open", unlessSaved: true } : { unlessSaved: true },
     );
   };
 
@@ -467,14 +507,35 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
     const line = labelledLines(liveRef.current).find((l) => l.label === focus);
     return line ? { editable: [{ from: line.from, to: line.to }] } : undefined;
   }, [focus, seed.n]);
+  // Oak 2.0 W3: a sibling or the next generation, saved from the live draft through the same queue as every Run.
+  const saveVersion: EditorSlotProps["saveVersion"] = ({ parentVersion, generation, dimension, note }) => {
+    const code = liveRef.current;
+    return save(
+      {
+        code,
+        bpm: bpmRef.current,
+        meter,
+        key: keySpec,
+        band: bandNow(),
+        lockedTools: lint?.lockedTools ?? [],
+        note,
+        ranOk: lastRunOk.current === code,
+      },
+      { parentVersion, generation, dimension },
+    );
+  };
   const slotProps: EditorSlotProps = {
     sketch,
     version: latest,
     liveCode,
+    lastRunCode,
     cursorLabel,
+    meter,
+    keySpec,
     jam,
     editor: editorHandle,
     applyCode,
+    saveVersion,
   };
   const slots = (place: EditorSlotPlace) =>
     EDITOR_SLOTS.filter((s) => s.place === place).map(({ id: slotId, Component }) => (

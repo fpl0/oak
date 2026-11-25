@@ -42,6 +42,8 @@ export {
   trackKeyContexts,
   transposeAfterScaleTracks,
 } from "./analyze/scale-context.ts";
+// Oak 2.0 W3: the card deck's checkers (cardFacts, describeCard, habitCard).
+export * from "./cards/index.ts";
 // --- realm, evaluation, normalization, lint (grader runtime) --------------------------------------
 export { lintBase, lintOak, lintStrict, sectionsFromAst, toolsUsed } from "./lint/index.ts";
 export { type NamedToolEntry, nameUnlockSites, type UnlockSiteName } from "./lint/toolbox.ts";
@@ -55,13 +57,8 @@ export {
   tapWindow,
 } from "./perf/index.ts";
 // Oak 2.0 W0: visible code rewrites for the Studio's variation tools, and the describer of what changed.
-export {
-  invertAroundCentre,
-  retrogradePitches,
-  rewriteDegrees,
-  rotatePitches,
-  wrapChain,
-} from "./rewrite/index.ts";
+// W3: re-exported whole, so the variation task (W3 Task 1) adds its transforms in rewrite/index.ts alone.
+export * from "./rewrite/index.ts";
 export { evaluateForGrading } from "./runtime/analyze.ts";
 export { barsToQuery } from "./runtime/caps.ts";
 export { initRealm } from "./runtime/realm.ts";

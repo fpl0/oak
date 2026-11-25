@@ -3771,8 +3771,11 @@ export const LaterPatchSchema = z
   .strictObject({ text: z.string().trim().min(1).max(500), done: z.boolean() })
   .partial();
 
-/** S6 Catalog of attributes: what the reference is (`catalogs.ref_kind`, no CHECK). */
-export const CATALOG_REF_KINDS = ["song", "transcription", "audio"] as const;
+/**
+ * S6 Catalog of attributes: what the reference is (`catalogs.ref_kind`, no CHECK). `outside` (Oak 2.0 W3): a track
+ * the learner names for Outside your lane; `refId` is their own words ("<style> — <track>"), never resolved.
+ */
+export const CATALOG_REF_KINDS = ["song", "transcription", "audio", "outside"] as const;
 /** The six plain lines, in the order the learner writes them. */
 export const CATALOG_LINES = ["tempo", "sound", "harmony", "melody", "rhythm", "form"] as const;
 const catalogLines = z.strictObject(
