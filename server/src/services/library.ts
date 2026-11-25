@@ -41,6 +41,7 @@ import {
 } from "./audio-store.ts";
 import { familyForLayer } from "./capstone-sessions.ts";
 import { LearnerTime, newId, type ServiceContext } from "./context.ts";
+import { checkLineage } from "./lineage.ts";
 import { evidenceWeight, type MasteryService } from "./mastery.ts";
 import type { StreakService } from "./streak.ts";
 
@@ -176,6 +177,7 @@ export class LibraryService {
     tx(this.#repos.db, () => {
       const s = this.#repos.sketches.get(id);
       if (s === null) throw notFound(`sketch ${id}`);
+      checkLineage(this.#repos.sketches.versions(id), body);
       this.#repos.sketches.insertVersion(this.#version(id, s.currentVersion + 1, body, this.time.iso()));
       if (body.ranOk) this.d.streak.qualify("sketch");
     });
