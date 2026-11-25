@@ -591,7 +591,8 @@ test("R4 real numeric edits classify as tweaks", async () => {
   ).toBe("tweaks");
 });
 
-test("R5 every T and E program except E5 evaluates with events", async () => {
+test("R5 programs evaluate except tokenizer-only E3 and E5 with invalid mini-notation", async () => {
+  // E3 and E5 are tokenizer-only rows whose strings are not valid mini-notation, so R5 excludes both.
   // Full literals keep this proof independently runnable; duplicates across rows need only one evaluation.
   const codes = [
     'setcpm(96/4)\n\nbass: note("c2 e2").s("ebass").lpf(600)\ndrums: s("bd ~ sd ~")',
@@ -620,8 +621,6 @@ test("R5 every T and E program except E5 evaluates with events", async () => {
     'setcpm(96/4)\n\nconst riff2 = "c2 e2"\n\nbass: note(riff2)',
     'setcpm(96/4)\n\ndrums: s("bd ~ sd ~").bank("oak909")',
     'setcpm(96/4)\n\ndrums: s("bd ~ sd ~").bank("oak808")',
-    'setcpm(96/4)\n\nbass: note("c2 // e2").s("ebass")',
-    'setcpm(96/4)\n\nbass: note("c2 // g2").s("ebass")',
     // biome-ignore lint/suspicious/noTemplateCurlyInString: Strudel evaluates this interpolation.
     'setcpm(96/4)\n\nbass: note(`c2 ${1} e2`).s("ebass")',
     // biome-ignore lint/suspicious/noTemplateCurlyInString: Strudel evaluates this interpolation.
