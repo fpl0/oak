@@ -6,7 +6,7 @@ import { buildPiece, type TrackSpec } from "../build.ts";
 import { mod, spellMidi, stepToMidi } from "../kernel.ts";
 import { above, rn, voiceProgression } from "../music.ts";
 import { atom, chordOf, line, type Node, rest, seq } from "../pat.ts";
-import { cueOf, type Generator, jitter, pickKey, pickTempo, trialOf } from "./common.ts";
+import { cueOf, type GenCtx, type Generator, jitter, pickKey, pickTempo, trialOf } from "./common.ts";
 
 // --- fam.snd.params -----------------------------------------------------------------------------
 
@@ -186,6 +186,99 @@ export const MASK_LABELS = {
   none: "Neither: the bass has its octave to itself",
 } as const;
 
+export interface FrontEvent {
+  track: string;
+  t: number;
+  dur: number;
+  midi: number;
+  gain: number;
+}
+
+/** Equal post-sound gain and a unique winner by distinct bar patterns, independent of register/rate. */
+export function frontChecks(events: readonly FrontEvent[]): Record<Role, boolean> {
+  const roles: Role[] = ["bass", "pad", "lead"];
+  const counts = roles.map((role) => {
+    const track = role === "lead" ? "mel" : role;
+    const bars = Array.from({ length: 4 }, (_, b) =>
+      events.filter((e) => e.track === track && Math.floor(e.t) === b),
+    );
+    if (bars.some((bar) => bar.length === 0)) return 0;
+    return new Set(
+      bars.map((bar) =>
+        bar
+          .map((e) => `${e.t % 1}|${e.dur}|${e.midi}`)
+          .sort()
+          .join(" "),
+      ),
+    ).size;
+  });
+  const gains = events.map((e) => e.gain);
+  const equal = gains.length > 0 && gains.every((g) => g > 0 && Math.abs(g - (gains[0] as number)) < 1e-9);
+  return Object.fromEntries(
+    roles.map((role, i) => [
+      role,
+      equal && (counts[i] as number) > 1 && counts.every((n, j) => i === j || (counts[i] as number) > n),
+    ]),
+  ) as Record<Role, boolean>;
+}
+
+function frontTrial(ctx: GenCtx) {
+  const key = pickKey(ctx, "major");
+  const front = ctx.rng.pick(["bass", "pad", "lead"] as const);
+  const highPad = ctx.rng.next() < 0.5;
+  const octaves = { bass: 2, pad: highPad ? 4 : 3, lead: highPad ? 3 : 5 };
+  const sounds = {
+    bass: ctx.rng.pick(ROLE_SOUNDS.bass),
+    pad: ctx.rng.pick(ROLE_SOUNDS.pad),
+    lead: ctx.rng.pick(ROLE_SOUNDS.lead),
+  };
+  // A repeating background may be busier than the changing part. The pad keeps its held chords.
+  const busy = front === "bass" ? "lead" : front === "lead" ? "bass" : ctx.rng.pick(["bass", "lead"]);
+  const rates = {
+    bass: busy === "bass" ? 8 : ctx.rng.pick([2, 4]),
+    pad: 1,
+    lead: busy === "lead" ? 8 : ctx.rng.pick([2, 4]),
+  };
+  const changes = ctx.rng.shuffle([0, 1, 2, 3]);
+  const tracks: TrackSpec[] = (["bass", "pad", "lead"] as const).map((role) => ({
+    label: role === "lead" ? "mel" : role,
+    src: "note",
+    pat: {
+      t: "alt",
+      items: Array.from({ length: 4 }, (_, bar) => {
+        const offset = role === front ? (changes[bar] as number) : 0;
+        const name = (degree: number) => spellMidi(stepToMidi(degree + offset, key, octaves[role]), key).code;
+        return role === "pad"
+          ? chordOf([0, 2, 4].map(name))
+          : line(Array.from({ length: rates[role] }, (_, i) => name(i % 2 === 0 ? 0 : 2)));
+      }),
+    },
+    s: sounds[role],
+    // The pack supplies each sound's own level; no role gets an additional loudness cue.
+    gain: 0.55,
+  }));
+  const piece = buildPiece({ bpm: pickTempo(ctx), bars: 4, tracks });
+  const checks = frontChecks(
+    piece.events.map((e) => ({
+      track: e.track,
+      t: e.onset[0] / e.onset[1],
+      dur: e.dur[0] / e.dur[1],
+      midi: e.midi as number,
+      gain: e.gain,
+    })),
+  );
+  if (!checks[front] || Object.values(checks).filter(Boolean).length !== 1)
+    throw new Error("ambiguous front part");
+  return trialOf(piece, { choice: [ROLE_LABELS[front]] }, cueOf(ctx), {
+    mode: "choice",
+    key,
+    options: Object.values(ROLE_LABELS),
+    front,
+    sounds,
+    prompt: "Which part is in front: which changes most from bar to bar?",
+  });
+}
+
 /**
  * `fam.snd.roles` (A2.L01, content/specs/A2.md). Level 1 "roles": two bars of bass, pad and lead, then two bars
  * with one of them gone; which part dropped out? Level 2 "masking": one of the upper parts dropped into the
@@ -195,6 +288,7 @@ export const MASK_LABELS = {
 export const soundRoles: Generator = {
   name: "sound-roles",
   generate(ctx) {
+    if (ctx.category === "front") return frontTrial(ctx);
     const key = pickKey(ctx, "major");
     const sounds = {
       bass: ctx.rng.pick(ROLE_SOUNDS.bass),
