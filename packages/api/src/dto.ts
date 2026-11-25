@@ -2039,6 +2039,11 @@ export const AlbumSchema = z.object({
       }),
     )
     .optional(),
+  /**
+   * Oak 2.0 W4 F6: the Shelf, finished tracks kept off the album (`shelved`). Never listed in `tracks`; a shelved
+   * capstone track still counts in its side's `released`. The W4 server always sends it; absent from an older server.
+   */
+  shelf: z.array(AlbumTrackSchema).optional(),
 });
 export type Album = z.infer<typeof AlbumSchema>;
 const trackVersionInput = {
@@ -2054,6 +2059,8 @@ export const AlbumTrackCreateSchema = z.strictObject({
   title: z.string().min(1).max(120),
   flavour: flavour.nullable(),
   ...trackVersionInput,
+  /** Oak 2.0 W4 F6: create the track on the Shelf (a sketch finished anyway). Absent = false. */
+  shelved: z.boolean().optional(),
 });
 export const AlbumTrackVersionCreateSchema = z.strictObject(trackVersionInput);
 
@@ -2555,6 +2562,11 @@ export const CapstoneReleaseSchema = z.strictObject({
   theoryTags: z.array(z.string()).max(12),
   /** Whether the review's liner note goes into the album (`Settings.linerNotesInAlbum` is the default). */
   includeReviewNote: z.boolean(),
+  /**
+   * Oak 2.0 W4 F6: `true` puts the released track on the Shelf, `false` puts it on the album, absent keeps the track's
+   * current state (a first release: the album). Every other rule of a release is unchanged.
+   */
+  shelved: z.boolean().optional(),
 });
 export type CapstoneRelease = z.infer<typeof CapstoneReleaseSchema>;
 export const CapstoneReleaseResultSchema = z.object({

@@ -102,6 +102,7 @@ import { WorkbenchServicesLoader } from "./WorkbenchServicesLoader.tsx";
 import { pieceForm, releaseGate, rowExtras, rubricUsesSections } from "./wave5.ts";
 import { mergeExtras, runningLength, showsLeadSheet, wave6Extras } from "./wave6.ts";
 import { wave7Extras } from "./wave7.ts";
+import { CAPSTONE_SLOTS } from "./workspace-slots.ts";
 import { useSong } from "./x1/songs.ts";
 
 export { starterOf };
@@ -867,8 +868,8 @@ export function Loaded({
         reviewVersion={review.version}
         reviewWait={review.wait}
         canRequestReview={state.sketchId !== null || official !== null}
-        onRequestReview={() => {
-          const r = askReviewFor(def, codeRef.current, released, savedInfo?.version ?? null);
+        onRequestReview={(question) => {
+          const r = askReviewFor(def, codeRef.current, released, savedInfo?.version ?? null, question);
           if (r.ok) {
             review.asked();
             if (!fromTopRef.current) setResume(false);
@@ -1145,6 +1146,33 @@ export function Loaded({
                 onOutcome={setMaster}
               />
             )}
+            {!version &&
+              !importReview &&
+              CAPSTONE_SLOTS.filter((sl) => sl.place === "main").map(({ id: slotId, Component }) => (
+                <Component
+                  key={slotId}
+                  def={def}
+                  state={state}
+                  sketchId={draftSaver.sketchId}
+                  liveCode={code}
+                  starter={starterOf(def, nextIndex)}
+                  savedVersion={savedInfo?.version ?? null}
+                  released={released}
+                  sessionIndex={nextIndex}
+                  sessionsDone={done}
+                  totalSessions={total}
+                  band={band}
+                  keySpec={def.key ?? live.outcome?.key ?? null}
+                  bars={outcome?.bars ?? null}
+                  editor={() => oak.editors.get(editorId(slug)) ?? null}
+                  applyCode={(next) => {
+                    const h = oak.editors.get(editorId(slug));
+                    if (h && !h.disposed) h.setCode(next, { undoable: true });
+                    codeRef.current = next;
+                    setCode(next);
+                  }}
+                />
+              ))}
             {importReview ? (
               <ReviewPanel
                 key={importReview.version}
@@ -1263,13 +1291,20 @@ export function Loaded({
   );
 }
 
-function askReviewFor(def: CapstoneDef, code: string, released: boolean, version: number | null) {
+function askReviewFor(
+  def: CapstoneDef,
+  code: string,
+  released: boolean,
+  version: number | null,
+  question: string | null,
+) {
   const r = askReview({
     capstoneId: def.id,
     title: def.title,
     code,
     released,
     note: reviewRequestText(version, false),
+    question,
   });
   if (!r.ok) openTutor();
   return r;

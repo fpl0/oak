@@ -46,7 +46,8 @@ export interface BriefPanelProps {
   /** Where the last review request stands (`useCapstoneReview`). */
   reviewWait: ReviewWait;
   canRequestReview: boolean;
-  onRequestReview(): void;
+  /** Oak 2.0 W4 F4: `question` is the learner's one question for the review, or `null` for none. */
+  onRequestReview(question: string | null): void;
   onReport(note: string | null): Promise<void>;
 }
 
@@ -212,7 +213,7 @@ function ReviewSection(p: BriefPanelProps) {
         size="sm"
         icon={<MessageSquareText aria-hidden className="size-4" />}
         disabled={!p.canRequestReview || p.reviewWait.kind === "pending"}
-        onClick={p.onRequestReview}
+        onClick={() => p.onRequestReview(null)}
         data-testid="request-review"
       >
         {p.reviewWait.kind === "pending" ? "Review requested" : r ? "Ask for a new review" : "Request review"}

@@ -536,6 +536,7 @@ export function SketchEditor({ sketch }: { sketch: SketchDetail }) {
     editor: editorHandle,
     applyCode,
     saveVersion,
+    compareWith: compare,
   };
   const slots = (place: EditorSlotPlace) =>
     EDITOR_SLOTS.filter((s) => s.place === place).map(({ id: slotId, Component }) => (

@@ -119,6 +119,11 @@ export const TutorTurnRequestSchema = z.strictObject({
   albumVersion: z.number().int().positive().exactOptional(),
   /** Wave 4: a transcription review of one version of the subject's project (default: its current version). */
   transcriptionVersion: z.number().int().nonnegative().exactOptional(),
+  /**
+   * Oak 2.0 W4 F4: the one question the learner asks a capstone or track review; the review answers it first
+   * (`CapstoneReview.answer`). At most 300 characters (Oak's call). Absent = no question.
+   */
+  reviewQuestion: z.string().trim().min(1).max(300).exactOptional(),
 });
 export type TutorTurnRequest = z.infer<typeof TutorTurnRequestSchema>;
 
@@ -140,6 +145,11 @@ export const CapstoneReviewSchema = z.strictObject({
   ),
   listeningQuestion: z.string(),
   linerNote: z.string(),
+  /**
+   * Oak 2.0 W4 F4: the answer to the learner's `reviewQuestion`, shown first; `null` without a question. Absent from
+   * reviews stored before W4, which still parse.
+   */
+  answer: z.string().nullable().optional(),
 });
 export type CapstoneReview = z.infer<typeof CapstoneReviewSchema>;
 

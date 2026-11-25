@@ -1,6 +1,6 @@
 // Oak 2.0 W1: the places in the sketch editor that W1 tools fill (a registry, so no task edits SketchEditor for
 // another). Wired in stage B; SketchEditor renders each slot in its place, in this order. W3 widened the props
-// (`lastRunCode`, `meter`, `keySpec`, `saveVersion`).
+// (`lastRunCode`, `meter`, `keySpec`, `saveVersion`); W4 added `compareWith`.
 import type { KeySpec, MeterId, SketchDetail, SketchDimension, SketchVersion } from "@oak/api";
 import type { EditorHandle } from "@oak/strudel";
 import type { ComponentType } from "react";
@@ -42,6 +42,8 @@ export interface EditorSlotProps {
     dimension: SketchDimension;
     note: string | null;
   }): Promise<SketchVersion | null>;
+  /** Oak 2.0 W4: the version the history's Compare picked, or `null` (the matched version compare reads it). */
+  compareWith: SketchVersion | null;
 }
 
 export type EditorSlotPlace = "header" | "toolbar" | "aside";
