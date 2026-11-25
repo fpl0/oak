@@ -88,14 +88,17 @@ const kickBass =
     return result(true, "The kick and bass take turns as one line");
   };
 
+// `pitches` is the whole given line, `steps` per bar: one bar, or a line of several bars that loops (`pitches[0..steps-1]`
+// is bar 1 of the loop). The loop is counted from cycle 0, as Strudel's `<...>` counts it (X9, A2.L07's four-bar line).
 const hocket =
   (deps: CorrectionDeps): CorrectionRule =>
   (n, ctx, p) => {
     const refs = strs(p, "tracks");
     const pitches = nums(p, "pitches");
     const steps = num(p, "steps", 0);
-    if (refs.length !== 2 || ![8, 16].includes(steps) || pitches.length !== steps)
+    if (refs.length !== 2 || ![8, 16].includes(steps) || !pitches.length || pitches.length % steps !== 0)
       return result(false, "Choose two parts and a complete line to share between them");
+    const loopBars = pitches.length / steps;
     const parts = refs.map((ref) => heard(n, ref));
     for (let i = 0; i < parts.length; i++) if (!parts[i]?.length) return missing(refs[i] as string);
     const sounds = parts.map((part) => new Set(part.map((e) => controlValue(e, "s", n.cps))));
@@ -104,8 +107,12 @@ const hocket =
     const bars = fullBars(n, ctx, deps);
     if (!bars.length) return result(false, "Play a full bar of the shared line");
     const counts = [0, 0];
+    // Bars whose notes all came from one part while the line had two or more notes there.
+    const oneSided: number[] = [];
     for (const b of bars) {
+      const at = (b % loopBars) * steps;
       const cells: NEvent[][] = Array.from({ length: steps }, () => []);
+      const players = new Set<number>();
       for (let i = 0; i < parts.length; i++) {
         for (const e of inBar(parts[i] as NEvent[], b)) {
           const step = R.mul(R.frac(e.onset), rat(steps));
@@ -113,11 +120,14 @@ const hocket =
             return result(false, "Place each shared note on its place in the given line");
           cells[step[0]]?.push(e);
           counts[i] = (counts[i] ?? 0) + 1;
+          players.add(i);
         }
       }
+      if (players.size < 2 && pitches.slice(at, at + steps).filter((m) => m !== -1).length >= 2)
+        oneSided.push(b);
       for (let s = 0; s < steps; s++) {
         const cell = cells[s] as NEvent[];
-        const want = pitches[s];
+        const want = pitches[at + s];
         if (cell.length !== (want === -1 ? 0 : 1) || (want !== -1 && cell[0]?.midi !== want))
           return {
             ok: false,
@@ -133,6 +143,16 @@ const hocket =
     const total = (counts[0] ?? 0) + (counts[1] ?? 0);
     if (!total || counts.some((c) => c / total < 0.25))
       return result(false, `Give both ${refs[0]} and ${refs[1]} a share of the line`);
+    // A hocket passes the line between the sounds note by note; trading whole bars is call and response (PLAN §5,
+    // the book's "Linear Rhythm in Melodies"). Oak's call: every bar of the line with two or more notes holds notes
+    // from both sounds. Turns inside the bar are not capped, so halves of a bar traded every bar still pass.
+    const first = oneSided[0];
+    if (first !== undefined)
+      return {
+        ok: false,
+        detail: `Let ${refs[0]} and ${refs[1]} take turns inside each bar instead of trading whole bars`,
+        where: locAt(rat(first), ctx),
+      };
     return result(true, "Both sounds share the complete line without doubling its notes");
   };
 
