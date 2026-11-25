@@ -72,6 +72,8 @@ describe("JC2's brief", () => {
       ["head-sound", "sounds", false],
       ["chord-tones", "chord-tones-strong", false],
       ["tempo", "tempo-bpm", false],
+      // Oak 2.0 W4 F1: the book's ending as a suggestion (no skills, never blocks).
+      ["ending", "custom", false],
     ]);
     const [form, walking, swing, onePattern, head] = brief.rubric;
     expect(form).toMatchObject({ variant: "jazz", choruses: 2 });

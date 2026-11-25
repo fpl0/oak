@@ -28,11 +28,14 @@ const cft = capstones.find((c) => c.id === "CF-T");
  * `form.contains`) is planned, and the other two required rules already have analyzers.
  */
 const briefWith = (rubric: RubricRule[]): Exercise => ({ ...(cfa?.brief as Exercise), rubric }) as Exercise;
-const rules = (cfa?.brief?.rubric ?? []).map((r): RubricRule => {
+// The spec's Wave 6 lines (devices, form, length and the suggestions). Oak 2.0 W4's required `ending` line is graded on
+// its own below: the reference single stops at the end of its lifted chorus.
+const allRules = (cfa?.brief?.rubric ?? []).map((r): RubricRule => {
   if (r.rule !== "form") return r;
   const { contains: _planned, ...rest } = r;
   return { ...rest, pattern: "verse chorus verse chorus bridge chorus chorus" };
 });
+const rules = allRules.filter((r) => r.id !== "ending");
 const gradeSingle = (code: string) =>
   grade(
     briefWith(rules),
@@ -77,6 +80,8 @@ describe("CF: the finale spec against the registries", () => {
       "device-count",
       "form",
       "duration-sec",
+      // Oak 2.0 W4 F1: it ends on purpose (`ends-on-purpose`, any of U09.L06's endings).
+      "custom",
     ]);
     expect(cfa?.opensAfter).toEqual({ capstones: ["C7"] });
     expect(cft?.opensAfter).toEqual({ lessonsCompleted: ["U15.L01"] });
@@ -97,6 +102,16 @@ describe("CF-A: what the spec calls verified", () => {
     expect([g.decided, g.passed, g.feedback]).toEqual([true, true, g.feedback]);
     // 56 bars at 100 BPM: 56 × 240 / 100 seconds.
     expect((56 * 240) / 100).toBeCloseTo(134.4, 6);
+    // Oak 2.0 W4: the whole brief now asks for an ending on purpose, the one line the reference misses.
+    const whole = await grade(
+      briefWith(allRules),
+      { name: "probe", response: { code: CF_A_REFERENCE_POP }, expect: "fail", feedback: ["rubric.unmet"] },
+      { id: "CF-A" as never, key: C, meter: "4/4", bpm: 100 },
+      "CF-A.S1" as SessionId,
+      "capstone",
+    );
+    expect([whole.decided, whole.passed]).toEqual([true, false]);
+    expect((whole.rubric ?? []).filter((x) => x.required && !x.ok).map((x) => x.ruleId)).toEqual(["ending"]);
   });
   test("without its devices the same plan fails on the device line alone", async () => {
     const plain = CF_A_REFERENCE_POP.replace("<F G E7 Am F G C C>", "<F G Em Am F G C C>")

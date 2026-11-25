@@ -75,6 +75,8 @@ describe("RC1's brief", () => {
       ["parts", "tracks", false],
       ["clav", "sounds", false],
       ["displaced", "custom", false],
+      // Oak 2.0 W4 F1: the book's ending as a suggestion (no skills, never blocks).
+      ["ending", "custom", false],
     ]);
     const [ghosts, bass, , , horns] = brief.rubric;
     expect(ghosts).toMatchObject({

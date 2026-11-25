@@ -199,6 +199,17 @@ const ALLOWED_RUBS: Record<string, string> = {
     "jazz-soul, exactly four: sevenths at 76, the borrowed B♭m7, a chain of dominants, a pushed upright, a 4–3",
     "F5 over E4",
   )]: "the verse's cadence holds F over C7 and falls to E, the 4–3 suspension the brief counts as a device",
+  // Oak 2.0 W4: the pop single's two other endings keep its verse, and with it the same cadence.
+  [cfa(
+    "ends on one last hit: a new last bar, every part on beat 1 with a crash, then silence",
+    "C5 over B4",
+  )]:
+    "the pop single ending on one hit: its verse cadence holds C over G before it falls to B, the 4–3 suspension",
+  [cfa(
+    "ends with a fade: the outro loops IV–I while every part falls to a tenth of its level",
+    "C5 over B4",
+  )]:
+    "the pop single ending in a fade: its verse cadence holds C over G before it falls to B, the 4–3 suspension",
 };
 
 describe("tunes over their own chords", () => {

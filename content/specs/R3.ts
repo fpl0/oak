@@ -704,7 +704,7 @@ export const R3: UnitSpec = {
             '`one-bass`: `{ rule: "onsets", track: "@bass", contains: [[0, 1]], perBar: true }`.',
             '`one-kick`: `{ rule: "onsets", track: "@drums", drum: "kick", contains: [[0, 1]], perBar: true }`.',
             '`horns`: `{ rule: "custom", fn: "stabs", params: { track: "horns", min: 2, perBars: 2 } }` (planned; `maxDur` defaults to an eighth, each attack audible).',
-            'Not required, shown as suggestions: `tempo-bpm` 90–115 (the brief\'s `bpm` already bounds the piece); `clav` on a `keys` line (`sounds` contains `snd.clav`, `track: "keys"`); a displaced figure (`custom displaced-copy`).',
+            'Not required, shown as suggestions: `tempo-bpm` 90–115 (the brief\'s `bpm` already bounds the piece); `clav` on a `keys` line (`sounds` contains `snd.clav`, `track: "keys"`); a displaced figure (`custom displaced-copy`); and (Oak 2.0 W4) "It ends on purpose" (`custom ends-on-purpose`, any of U09.L06\'s endings, no skills).',
           ],
         },
         {
@@ -804,7 +804,7 @@ export const R3: UnitSpec = {
             '`tresillo`: `{ rule: "onsets", track: "@bass", contains: [[0, 1], [3, 8], [3, 4]], perBar: true }` (every bar, which contracts allows: "every bar also passes").',
             '`poly`: `{ rule: "polyrhythm", a: "perc2", b: "kick", ratio: [3, 2], minBars: 4 }` (planned, feature `polyrhythm.together`). This spec changes the scaffold\'s `b: "drums"` to `b: "kick"`: a `drums:` line is a whole kit (STYLE §2) and can never be two even attacks while it carries hats, so the brief names a `kick:` line for the two.',
             '`euclid`: keep `{ rule: "uses", tool: "tb.mini.euclid", min: 1 }` (§6.6) AND add the heard `{ rule: "euclid", track: "perc3", k: 5, n: 16, rotationFree: true }` (planned): a five-over-sixteen bell in the rotation the learner chooses (R3.L03\'s Make). The bass `c2(3,8)` alone satisfies `uses`; the heard rule makes the Euclidean bell a line of its own.',
-            "Not required, shown as suggestions: `clave-aligned` on a `keys` montuno (R3.L04); a tumbao instead of the tresillo bass in the two-side bars is NOT allowed by `tresillo` (every bar), and the brief says so.",
+            'Not required, shown as suggestions: `clave-aligned` on a `keys` montuno (R3.L04); a tumbao instead of the tresillo bass in the two-side bars is NOT allowed by `tresillo` (every bar), and the brief says so. Oak 2.0 W4 adds the suggestion "It ends on purpose" (`custom ends-on-purpose`, any of U09.L06\'s endings, no skills).',
           ],
         },
         {

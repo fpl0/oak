@@ -3,33 +3,27 @@
 // two opens with its session); the brief's rules run on each version with the other one beside it
 // (`GradeContext.otherVersion`, for `two-versions-differ`). The compare card renders both offline and plays them
 // A/B at matched loudness: the louder is turned down to the quieter's level, and a switch keeps the place in the
-// tune (the bar), not the second, because the tempi differ. The album holds both: the first release waits until
+// tune (the bar), not the second, because the tempi differ (Oak 2.0 W4: the compare is the shared `MatchedCompare`). The album holds both: the first release waits until
 // both versions meet the brief, and the second is added to the same track.
 import type { CapstoneDef, CapstoneState, UnlockableId } from "@oak/api";
 import type { KeySpec } from "@oak/content-kit";
 import type { BandSetup } from "@oak/strudel";
-import { PieceRenderError, type RenderedPiece, renderPiece } from "@oak/strudel/offline";
 import { useQuery } from "@tanstack/react-query";
 import { clsx } from "clsx";
-import { Headphones, Lock, Square } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { analyzeCode } from "../lib/grader-client.ts";
+import { Lock } from "lucide-react";
+import { useEffect, useState } from "react";
 import { apiQuery, useCapstoneSessions, useCourseProgress, useUnlocks } from "../lib/queries.ts";
+import { MatchedCompare } from "../listen/MatchedCompare.tsx";
 import { bandReached } from "../studio/model.ts";
-import { Button } from "../ui/kit/Button.tsx";
-import { useWorkbenchServices } from "../workbench/services.tsx";
 import { checklistOf, readiness } from "./checklist.ts";
 import type { CapstoneContent } from "./content.ts";
 import { checkPiece } from "./engine.ts";
-import { exportBandOf, exportErrorText, pieceLength, renderableCode } from "./export.ts";
+import { exportBandOf } from "./export.ts";
 import { latestVersion, useDraft } from "./queries.ts";
 import { currentSession, sessionViews, starterOf } from "./sessions.ts";
 import { useSongMelody } from "./song-melody.ts";
 import {
   arrangeStarter,
-  matchedGains,
-  matchedText,
-  samePlaceIn,
   songOfDraft,
   type VersionDraft,
   versionDrafts,
@@ -320,194 +314,18 @@ function VersionsBar({
             .join(" · ")}
         </p>
       </div>
-      {both && <CompareAB codes={codes as Record<Vid, string>} played={played} labels={labels} />}
+      {both && (
+        <MatchedCompare
+          testId="versions-compare"
+          sides={(["a", "b"] as const).map((v) => ({
+            id: v,
+            label: labels[v],
+            code: codes[v] as string,
+            band: played[v].band,
+            key: played[v].key,
+          }))}
+        />
+      )}
     </section>
-  );
-}
-
-/** Both versions rendered offline, then played A/B at matched loudness, switching at the same bar. */
-function CompareAB({
-  codes,
-  played,
-  labels,
-}: {
-  codes: Record<Vid, string>;
-  played: Record<Vid, Played>;
-  labels: Record<Vid, string>;
-}) {
-  const { oak } = useWorkbenchServices();
-  const [phase, setPhase] = useState<"idle" | "rendering" | "ready" | "error">("idle");
-  const [progress, setProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const [playing, setPlaying] = useState<Vid | null>(null);
-  const renders = useRef<{ key: string; a: RenderedPiece; b: RenderedPiece } | null>(null);
-  const abort = useRef<AbortController | null>(null);
-  const node = useRef<{
-    src: AudioBufferSourceNode;
-    gain: GainNode;
-    side: Vid;
-    startedAt: number;
-    offset: number;
-  } | null>(null);
-  const bandKey = (v: Vid) =>
-    `${played[v].band?.band ?? ""}|${played[v].band?.tracks.join(",") ?? ""}|${played[v].key?.tonic ?? ""}`;
-  const key = `${codes.a}\u0000${codes.b}\u0000${bandKey("a")}\u0000${bandKey("b")}`;
-  const fresh = renders.current?.key === key;
-  const stop = () => {
-    const n = node.current;
-    node.current = null;
-    if (n) {
-      n.src.onended = null;
-      try {
-        n.src.stop();
-      } catch {
-        /* already stopped */
-      }
-      n.gain.disconnect();
-    }
-    setPlaying(null);
-  };
-  useEffect(
-    () => () => {
-      abort.current?.abort();
-      stop();
-    },
-    [],
-  );
-  // The code moved on: the renders no longer speak for it.
-  useEffect(() => {
-    if (!fresh && phase === "ready") {
-      stop();
-      setPhase("idle");
-    }
-  }, [key]);
-
-  const prepare = async (): Promise<boolean> => {
-    if (fresh) return true;
-    abort.current?.abort();
-    const ctrl = new AbortController();
-    abort.current = ctrl;
-    setPhase("rendering");
-    setError(null);
-    setProgress(0);
-    try {
-      // A loop is rendered for its own length (the renderer takes only a piece that says where it ends).
-      const code = async (src: string) => renderableCode(src, await pieceLength(src, analyzeCode));
-      const a = await renderPiece({
-        code: await code(codes.a),
-        band: played.a.band,
-        key: played.a.key,
-        signal: ctrl.signal,
-        onProgress: (p) => setProgress(p / 2),
-      });
-      const b = await renderPiece({
-        code: await code(codes.b),
-        band: played.b.band,
-        key: played.b.key,
-        signal: ctrl.signal,
-        onProgress: (p) => setProgress(0.5 + p / 2),
-      });
-      renders.current = { key, a, b };
-      setPhase("ready");
-      return true;
-    } catch (e) {
-      if (e instanceof PieceRenderError && e.code === "aborted") {
-        setPhase("idle");
-        return false;
-      }
-      setError(exportErrorText(e));
-      setPhase("error");
-      return false;
-    }
-  };
-
-  const play = async (side: Vid) => {
-    if (playing === side) return stop();
-    if (!(await prepare())) return;
-    const r = renders.current;
-    if (!r) return;
-    await oak.unlock();
-    const ctx = oak.ctx as AudioContext;
-    const was = node.current;
-    // The same bar of the tune in the other render (the tempi differ).
-    const at = was
-      ? samePlaceIn(
-          was.offset + (ctx.currentTime - was.startedAt),
-          r[was.side].cps,
-          r[side].cps,
-          r[side].durationS,
-        )
-      : 0;
-    stop();
-    const piece = r[side];
-    const buffer = ctx.createBuffer(2, piece.left.length, piece.sampleRate);
-    buffer.copyToChannel(piece.left as Float32Array<ArrayBuffer>, 0);
-    buffer.copyToChannel(piece.right as Float32Array<ArrayBuffer>, 1);
-    const src = ctx.createBufferSource();
-    src.buffer = buffer;
-    const gain = ctx.createGain();
-    gain.gain.value = matchedGains(r.a.rms, r.b.rms)[side];
-    src.connect(gain).connect(ctx.destination);
-    src.onended = () => {
-      if (node.current?.src === src) {
-        node.current = null;
-        setPlaying(null);
-      }
-    };
-    src.start(0, at);
-    node.current = { src, gain, side, startedAt: ctx.currentTime, offset: at };
-    setPlaying(side);
-  };
-
-  const r = renders.current;
-  const match = fresh && r ? matchedGains(r.a.rms, r.b.rms) : null;
-  return (
-    <div className="flex flex-col gap-1.5" data-testid="versions-compare">
-      <div className="flex flex-wrap items-center gap-2">
-        <Headphones aria-hidden className="size-4 text-text-3" />
-        <span className="font-medium">Compare</span>
-        {(["a", "b"] as const).map((v) => (
-          <Button
-            key={v}
-            size="sm"
-            variant={playing === v ? "primary" : "secondary"}
-            aria-pressed={playing === v}
-            loading={phase === "rendering" && playing === null}
-            onClick={() => void play(v)}
-            data-testid={`compare-${v}`}
-          >
-            {v.toUpperCase()}: {labels[v]}
-          </Button>
-        ))}
-        {playing && (
-          <Button size="sm" variant="ghost" icon={<Square aria-hidden className="size-3.5" />} onClick={stop}>
-            Stop
-          </Button>
-        )}
-        {phase === "rendering" && (
-          <span
-            className="flex items-center gap-2 text-text-3 tabular-nums"
-            role="status"
-            data-testid="compare-progress"
-          >
-            Rendering both, {Math.round(progress * 100)}%
-            <Button size="sm" variant="ghost" onClick={() => abort.current?.abort()}>
-              Cancel
-            </Button>
-          </span>
-        )}
-      </div>
-      <p
-        className={clsx("text-text-2", phase === "error" && "text-issue")}
-        data-testid="compare-note"
-        role={phase === "error" ? "alert" : undefined}
-      >
-        {phase === "error"
-          ? error
-          : match
-            ? `${matchedText(match, labels)} A switch keeps your place in the tune.`
-            : "Each version is rendered once, then A and B play at the same loudness; a switch keeps your place in the tune."}
-      </p>
-    </div>
   );
 }

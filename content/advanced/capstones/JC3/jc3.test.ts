@@ -183,6 +183,11 @@ describe("the brief", () => {
       ["bridge-guides", "guide-tones", true],
       ["original", "custom", true],
       ["tempo", "tempo-bpm", false],
+      // Oak 2.0 W4 F1: the book's ending, seam, once-only and arc lines as suggestions (no skills, never block).
+      ["ending", "custom", false],
+      ["seam", "custom", false],
+      ["once", "custom", false],
+      ["arc", "custom", false],
     ]);
     expect(brief.rubric.find((r) => r.id === "bridge")).toMatchObject({
       rn: ["III7", "III7", "VI7", "VI7", "II7", "II7", "V7", "V7"],

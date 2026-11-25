@@ -252,6 +252,8 @@ interface TrackRow {
   current_version: number;
   cover_seed: string;
   created_at: string;
+  /** Oak 2.0 F6 (migration 0012): 1 on the Shelf, kept off the album; 0 on the album. */
+  shelved: number;
 }
 const toTrack = (r: TrackRow): AlbumTrack => ({
   id: r.id,
@@ -264,6 +266,7 @@ const toTrack = (r: TrackRow): AlbumTrack => ({
   currentVersion: r.current_version,
   coverSeed: r.cover_seed,
   createdAt: r.created_at,
+  shelved: r.shelved === 1,
 });
 interface TrackVersionRow {
   track_id: string;
@@ -333,8 +336,8 @@ export class AlbumRepo {
   insertTrack(t: AlbumTrack): void {
     run(
       this.db,
-      `INSERT INTO album_tracks (id, capstone_id, sketch_id, side, track_no, title, flavour, current_version, cover_seed, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO album_tracks (id, capstone_id, sketch_id, side, track_no, title, flavour, current_version, cover_seed, created_at, shelved)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       t.id,
       t.capstoneId,
       t.sketchId,
@@ -345,7 +348,14 @@ export class AlbumRepo {
       t.currentVersion,
       t.coverSeed,
       t.createdAt,
+      t.shelved === true ? 1 : 0,
     );
+  }
+  /** Oak 2.0 F6: put a track on the Shelf or take it off; false when there is no such track. */
+  setShelved(trackId: string, shelved: boolean): boolean {
+    if (this.track(trackId) === null) return false;
+    run(this.db, "UPDATE album_tracks SET shelved = ? WHERE id = ?", shelved ? 1 : 0, trackId);
+    return true;
   }
   versions(trackId: string): AlbumTrackVersion[] {
     return all<TrackVersionRow>(

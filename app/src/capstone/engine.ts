@@ -220,6 +220,8 @@ export interface ReleaseInput {
   linerNotesMd: string;
   theoryTags: string[];
   includeReviewNote: boolean;
+  /** Oak 2.0 W4 F6: `true` releases to the Shelf, `false` to the album, absent keeps the track where it is. */
+  shelved?: boolean;
   /** Claude's liner note, appended by this client only when the server cannot release (see below). */
   reviewNote: string | null;
   recording: Recording | null;
@@ -255,6 +257,7 @@ export async function releaseTrack(i: ReleaseInput): Promise<ReleaseOutcome> {
         linerNotesMd: i.linerNotesMd,
         theoryTags: i.theoryTags,
         includeReviewNote: i.includeReviewNote,
+        ...(i.shelved === undefined ? {} : { shelved: i.shelved }),
       },
     });
     track = r.track;
@@ -287,8 +290,17 @@ export async function releaseTrack(i: ReleaseInput): Promise<ReleaseOutcome> {
             title: i.title,
             flavour: i.flavour,
             ...version,
+            ...(i.shelved === undefined ? {} : { shelved: i.shelved }),
           },
         });
+    // A revision through `album.addVersion` keeps the track's place unless the learner chose one (Oak 2.0 W4 F6).
+    if (i.state.trackId && i.shelved !== undefined && (track.shelved ?? false) !== i.shelved)
+      track = {
+        ...track,
+        shelved:
+          (await callApi("album.patchTrack", { params: { id: track.id }, body: { shelved: i.shelved } }))
+            .shelved ?? i.shelved,
+      };
   }
   // The take is of the code released: AC1's release puts both of its versions on the one track (track version 1 is
   // version one, 2 is version two; server capstone-release.ts), so the recording belongs to the track version whose

@@ -1,12 +1,12 @@
-// Oak 2.0 W1 wiring (plan Task 9 Step B3): the W1 endpoints are mounted in the real app, and only the W3/W4 names
-// still answer the typed 501.
+// Oak 2.0 W1 wiring (plan Task 9 Step B3): the W1 endpoints are mounted in the real app. After W4 no Oak 2.0 name
+// answers the typed 501 any more.
 import { describe, expect, test } from "bun:test";
 import { harness } from "../testing/harness.ts";
 import { OAK2_PENDING } from "./oak2.ts";
 
 describe("Oak 2.0 W1 wiring", () => {
-  test("OAK2_PENDING holds only the W4 endpoints (after W3)", () => {
-    expect([...OAK2_PENDING]).toEqual(["album.patchTrack", "capstones.checkHistory"]);
+  test("OAK2_PENDING is empty (after W4)", () => {
+    expect([...OAK2_PENDING]).toEqual([]);
   });
 
   test("scraps, templates and Later answer through the full app, and refuse a foreign Host", async () => {

@@ -69,6 +69,8 @@ describe("JC1's brief", () => {
       ["guide-tones", "guide-tones", true],
       ["tempo", "tempo-bpm", true],
       ["parts", "tracks", false],
+      // Oak 2.0 W4 F1: the book's ending as a suggestion (no skills, never blocks).
+      ["ending", "custom", false],
     ]);
     const [bars, iiV, guide, tempo, parts] = brief.rubric;
     expect(bars).toMatchObject({ min: 16, max: 16 });

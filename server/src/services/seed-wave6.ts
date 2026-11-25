@@ -193,17 +193,20 @@ mel: arrange([8, melVerse], [8, melChorus], [8, melBridge], [8, melChorus], [8, 
 /**
  * CF-A.S4 and the release: the single arranged to length — verse chorus verse chorus bridge chorus and the last
  * chorus a whole step up, 56 bars at 100 BPM (134.4 seconds). The pop reference of content/specs/CF.md, which
- * content/specs/finale.test.ts grades with the real grader.
+ * content/specs/finale.test.ts grades with the real grader. It ends on purpose (CF-A's `ending` line since Oak 2.0
+ * W4): in the last chorus the tune leaves two bars before the end and the chords one bar before (`…Chorus3`).
  */
 export const CFA_SINGLE = `setcpm(100/4)
 
 ${CFA_CONSTS}
 ${CFA_TUNES}
+const chordsChorus3 = chordsChorus2.mask("<1!7 0>")
+const melChorus3 = melChorus.mask("<1!6 0!2>")
 
 ${CFA_KIT}
-chords: arrange([8, chordsVerse], [8, chordsChorus], [8, chordsVerse], [8, chordsChorus], [8, chordsBridge], [8, chordsChorus], [8, chordsChorus2]).s("piano").gain(.5).room(.3)
+chords: arrange([8, chordsVerse], [8, chordsChorus], [8, chordsVerse], [8, chordsChorus], [8, chordsBridge], [8, chordsChorus], [8, chordsChorus3]).s("piano").gain(.5).room(.3)
 bass: arrange([8, bassVerse], [8, bassChorus], [8, bassVerse], [8, bassChorus], [8, bassBridge], [8, bassChorus], [8, bassChorus]).scale("<C2:major!48 D2:major!8>").s("ebass").lpf(700)
-mel: arrange([8, melVerse], [8, melChorus], [8, melVerse], [8, melChorus], [8, melBridge], [8, melChorus], [8, melChorus]).scale("<C4:major!48 D4:major!8>").s("piano").room(.25)`;
+mel: arrange([8, melVerse], [8, melChorus], [8, melVerse], [8, melChorus], [8, melBridge], [8, melChorus], [8, melChorus3]).scale("<C4:major!48 D4:major!8>").s("piano").room(.25)`;
 
 /** The seeded draft of a Wave 6 compose capstone session, by index (the last one is the release). */
 export const WAVE6_CAPSTONE_DRAFTS: Readonly<Record<string, readonly string[]>> = {

@@ -300,11 +300,14 @@ describe("the registries hold U12–U17 before their lessons are written", () =>
     expect(by("C7")?.opensAfter).toEqual({ checkpoints: ["U17.CP"] });
     expect(by("CF-A")?.opensAfter).toEqual({ capstones: ["C7"] });
     expect(by("CF-T")).toMatchObject({ inGymSlots: true, kind: "transcribe" });
+    // Oak 2.0 W4 F1 adds the book's moves as W0 custom rules (`ends-on-purpose`, required on CF-A only; the seam,
+    // once-only and arc suggestions); no other custom rule is in these rubrics.
+    const BOOK = ["ends-on-purpose", "staggered-boundary", "unique-event", "arc"];
     for (const id of ["C6", "C7", "CF-A"])
       expect([
         id,
         by(id)
-          ?.brief?.rubric.filter((r) => r.rule === "custom")
+          ?.brief?.rubric.filter((r) => r.rule === "custom" && !BOOK.includes((r as { fn: string }).fn))
           .map((r) => r.id),
       ]).toEqual([id, []]);
     // The required lines are contracts §6.6 exactly; a brief may add `required: false` suggestions beside them.
@@ -312,7 +315,7 @@ describe("the registries hold U12–U17 before their lessons are written", () =>
       by(id)
         ?.brief?.rubric.filter((r) => r.required)
         .map((r) => r.rule);
-    expect(required("CF-A")).toEqual(["device-count", "form", "duration-sec"]);
+    expect(required("CF-A")).toEqual(["device-count", "form", "duration-sec", "custom"]);
     expect(required("C7")).toEqual(["contains-rn", "contains-rn", "key-change", "bars"]);
     expect(required("C6")).toEqual(["mode", "bars"]);
     expect(TRANSCRIBE_PASS["CF-T"]).toMatchObject({

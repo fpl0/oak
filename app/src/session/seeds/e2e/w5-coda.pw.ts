@@ -625,7 +625,8 @@ test("a gym day on ladder L5: the folk song and its next phrase, explained, and 
   const errors = watch(page);
   await seed(request, "ladder L5");
   const plan = await api<{ kind: string; mapItemId: string }>(request, "GET", "/api/session/today");
-  expect(plan).toMatchObject({ kind: "gym", mapItemId: "GYM.07" });
+  // GYM.08 since Oak 2.0 W2 moved the gym slots (the seed's own description, server/src/services/seed-wave5.ts).
+  expect(plan).toMatchObject({ kind: "gym", mapItemId: "GYM.08" });
   await useUiPrefs(page, { theme: "paper" });
   const open = async (p: Page) => {
     await openToday(p);

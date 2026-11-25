@@ -22,6 +22,7 @@ import { Progress } from "../ui/kit/basics.tsx";
 import { Callout, SegmentedControl } from "../ui/kit/Controls.tsx";
 import { Dialog } from "../ui/kit/Dialog.tsx";
 import { Switch } from "../ui/kit/Field.tsx";
+import { toast } from "../ui/kit/Toast.tsx";
 import { useWorkbenchServices } from "../workbench/services.tsx";
 import type { CeremonyData } from "./Ceremony.tsx";
 import { FLAVOUR_TITLE } from "./content.ts";
@@ -30,6 +31,13 @@ import { LINER_MAX_WORDS, wordCount } from "./liner.ts";
 import { clock } from "./piece.ts";
 import { type ReleaseActorInput, releaseMachine } from "./release-machine.ts";
 import { releaseErrorText } from "./release-text.ts";
+
+/** Oak 2.0 W4 F6: releasing to the Shelf, in words (each one passes `isDescriptive`). */
+export const SHELF_RELEASE_COPY = {
+  label: "Put it on the Shelf, not on the album",
+  line: "A piece on the Shelf counts as finished and opens what a release opens; it stays off the album.",
+  released: "On the Shelf: finished, and kept off the album.",
+} as const;
 
 /** The checked piece being released: its code and saved version, its first pass and its analysis. */
 export interface ReleasePiece {
@@ -74,8 +82,14 @@ export function ReleaseDialog(p: ReleaseDialogProps) {
   // The album gets its name at its first release (ux §5.3), editable later on /album.
   const album = useAlbumTitle();
   // The album is named with its first track only: a learner who kept "Oak Sessions" is not asked again on track 11.
-  const albumTracks = useAlbum().data?.tracks.length;
+  const albumQ = useAlbum();
+  const albumTracks = albumQ.data?.tracks.length;
   const namesAlbum = p.state.trackId === null && !album.named && albumTracks === 0;
+  // Oak 2.0 W4 F6: a revision of a track on the Shelf starts with "Put it on the Shelf" ticked.
+  const onShelfNow =
+    p.state.trackId !== null && (albumQ.data?.shelf ?? []).some((t) => t.id === p.state.trackId);
+  const onShelfRef = useRef(onShelfNow);
+  onShelfRef.current = onShelfNow;
   const [albumName, setAlbumName] = useState(album.title);
   const [flavour, setFlavour] = useState<FlavourId | null>(p.flavour);
   const flavourRef = useRef(flavour);
@@ -116,6 +130,7 @@ export function ReleaseDialog(p: ReleaseDialogProps) {
             linerNotesMd: notesFor(input.line),
             theoryTags: tags,
             includeReviewNote: input.includeReviewNote && p.review !== null,
+            shelved: input.shelved ?? onShelfRef.current,
             reviewNote: p.review?.linerNote ?? null,
             recording: input.recording,
             otherTakes: input.otherTakes,
@@ -124,6 +139,7 @@ export function ReleaseDialog(p: ReleaseDialogProps) {
           });
           const name = albumNameRef.current?.trim();
           if (name && name !== DEFAULT_ALBUM_TITLE) await album.set(name).catch(() => {});
+          if (out.track.shelved === true) toast.success(SHELF_RELEASE_COPY.released);
           const music = outcome.n
             ? {
                 events: outcome.n.all,
@@ -340,6 +356,20 @@ export function ReleaseDialog(p: ReleaseDialogProps) {
             placeholder="What you were going for, in your words."
             onChange={(e) => send({ type: "EDIT", patch: { line: e.target.value } })}
             className="h-9 rounded-control border border-border bg-surface px-2"
+          />
+        </div>
+        <div className="flex items-start justify-between gap-3 rounded-card border border-border p-3">
+          <div className="min-w-0 text-sm">
+            <label className="font-medium" htmlFor="rel-shelf">
+              {SHELF_RELEASE_COPY.label}
+            </label>
+            <p className="mt-0.5 text-text-2">{SHELF_RELEASE_COPY.line}</p>
+          </div>
+          <Switch
+            id="rel-shelf"
+            checked={ctx.shelved ?? onShelfNow}
+            disabled={busy}
+            onChange={(v: boolean) => send({ type: "EDIT", patch: { shelved: v } })}
           />
         </div>
         {p.review ? (

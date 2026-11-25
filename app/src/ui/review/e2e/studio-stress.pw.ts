@@ -104,11 +104,17 @@ test("A/B hammered while playing, then leaving the page: silence, one player", a
   await expect(page.locator(`${WB}[data-analysis=ready]`)).toBeVisible({ timeout: 60_000 });
   await page.getByTestId("play-toggle").click();
   await expect(page.locator(WB)).toHaveAttribute("data-playing", "1", { timeout: 20_000 });
-  await page.getByRole("button", { name: "Compare with version 1" }).click();
-  await expect(page.getByTestId("ab-controls")).toBeVisible();
-  for (let i = 0; i < 12; i++) await page.getByTestId(i % 2 ? "ab-a" : "ab-b").click();
-  await expect(page.getByTestId("ab-now")).toContainText(/A · now|B · v1/, { timeout: 15_000 });
   expect(await rms(page)).toBeGreaterThan(0.001);
+  // Oak 2.0 W4 (PLAN F5): the version compare is the matched card (offline renders at the same loudness).
+  await page.getByRole("button", { name: "Compare with version 1" }).click();
+  const card = page.getByTestId("matched-version-compare");
+  await card.getByTestId("compare-b").click();
+  await expect(card.getByTestId("compare-note")).toContainText(
+    /Matched in loudness|already play at the same loudness/,
+    { timeout: 90_000 },
+  );
+  for (let i = 0; i < 12; i++) await card.getByTestId(i % 2 ? "compare-b" : "compare-a").click();
+  await expect(card.getByTestId("compare-b")).toHaveAttribute("aria-pressed", "true");
   // Away while it plays: the Studio's sound stops with the page.
   await page.getByRole("link", { name: "Toolbox" }).click();
   await expect(page).toHaveURL(/\/toolbox$/);

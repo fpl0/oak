@@ -147,6 +147,8 @@ describe("the brief", () => {
       ["devices", "device-count", true],
       ["tempo", "tempo-bpm", false],
       ["top-voice", "voice-leading", false],
+      // Oak 2.0 W4 F1: the book's ending as a suggestion (no skills, never blocks).
+      ["ending", "custom", false],
     ]);
     expect(brief.rubric.find((r) => r.id === "devices")).toMatchObject({
       devices: ["tritone sub", "secondary ii–V", "backdoor", "diminished passing"],

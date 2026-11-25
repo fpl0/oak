@@ -1,10 +1,15 @@
 // Recording a performance through the @oak/strudel recorder (MediaRecorder on the master bus, UI sounds
 // suppressed), for a capstone release and an album track's re-recording. No grader import: unit-testable.
+// Oak 2.0 W4 F5: every take comes back normalised to the album's loudness (`normalize.ts`), once, here: both callers
+// (`ReleaseDialog`, `TrackPage`) record through this function.
 import type { EditorHandle, OakStrudel, Recording } from "@oak/strudel";
+import { normalizeRecording } from "./normalize.ts";
 
 /**
  * Plays the piece once from bar 1 and records it (the recorder starts at once when nothing plays; the editor
- * then starts on its first cycle). Resolves with the audio when the last bar and the tail have played.
+ * then starts on its first cycle). Resolves with the audio when the last bar and the tail have played: a silent
+ * take is refused first, before any decoding; a take with sound comes back as a WAV at the album's loudness, or
+ * as recorded when it cannot be decoded.
  */
 export async function recordPerformance(
   oak: OakStrudel,
@@ -28,7 +33,7 @@ export async function recordPerformance(
     const take = await recording;
     peak = Math.max(peak, oak.master.level().peak);
     if (isSilentTake(peak)) throw new Error(SILENT_TAKE);
-    return take;
+    return await normalizeRecording(take, oak.ctx);
   } catch (e) {
     oak.recorder.cancel();
     throw e;

@@ -565,7 +565,14 @@ describe("content/capstones.ts carries exactly these required rules", () => {
       // The REQUIRED rules are contracts §6.6 exactly; a brief may add `required: false` suggestions beside them
       // (the finale spec's groove-lock, contrast, motif-reuse, chord-tones-strong and range), which never gate.
       const required = (rs: readonly RubricRule[]) => rs.filter((r) => r.required).map(body);
-      expect(required(shipped?.rubric ?? [])).toEqual(required(ours.rubric));
+      // Oak 2.0 W4 F1 adds one required line to CF-A after these: it ends on purpose (U09.L06's endings).
+      const w4 = (rs: readonly RubricRule[]) => rs.filter((r) => r.id === "ending");
+      expect(required((shipped?.rubric ?? []).filter((r) => r.id !== "ending"))).toEqual(
+        required(ours.rubric),
+      );
+      expect(required(w4(shipped?.rubric ?? []))).toEqual(
+        id === "CF-A" ? [{ id: "ending", required: true, rule: "custom", fn: "ends-on-purpose" }] : [],
+      );
       expect(ours.rubric.every((r) => r.required)).toBe(true);
     });
   test("CF-T: form map 1, bass 0.90, changes 0.85 per bar, melody 0.90", async () => {

@@ -259,9 +259,12 @@ const angle = (cells: readonly string[]) =>
 /**
  * The draft skeleton of a mapped tune (CF.md "When it passes"): one const per distinct section and track, and one
  * `arrange()` per track with the sections in order, so a section that comes back is written once. A pickup bar is
- * its own one-bar section (`melPickup`; bass and chords rest in it).
+ * its own one-bar section (`melPickup`; bass and chords rest in it). Oak 2.0 W4 F7 (`empty: true`, a form borrowed
+ * for a sketch or a bare capstone draft): every const is rests and names no sound (no `.s(…)`), so the skeleton plays
+ * nothing and nothing Oak writes reads as the learner's habit (W1 fidelity rule 4).
  */
-export function skeletonOfForm(g: SongGiven, m: FormMap): string {
+export function skeletonOfForm(g: SongGiven, m: FormMap, opts: { empty?: boolean } = {}): string {
+  const empty = opts.empty === true;
   const key: KeySpec = g.key ?? { tonic: "C", mode: "major" };
   const sections = sectionsOf(m);
   const distinct = new Map<string, FormSection>();
@@ -275,9 +278,11 @@ export function skeletonOfForm(g: SongGiven, m: FormMap): string {
     const rests = Array.from({ length: s.bars }, () => "~");
     consts.push(
       `// ${suffix}: ${s.bars} bars (first heard at bar ${s.from})`,
-      `const bass${suffix} = n("${angle(bars)}").scale("${scaleName(key, 2)}").s("ebass")`,
+      empty
+        ? `const bass${suffix} = n("${angle(rests)}").scale("${scaleName(key, 2)}")`
+        : `const bass${suffix} = n("${angle(bars)}").scale("${scaleName(key, 2)}").s("ebass")`,
       `const chords${suffix} = note("${angle(rests)}")`,
-      `const mel${suffix} = n("${angle(rests)}").scale("${scaleName(key, 4)}").s("piano")`,
+      `const mel${suffix} = n("${angle(rests)}").scale("${scaleName(key, 4)}")${empty ? "" : '.s("piano")'}`,
       "",
     );
   }
@@ -286,10 +291,10 @@ export function skeletonOfForm(g: SongGiven, m: FormMap): string {
     const units = METERS[g.meter]?.unitsPerBar ?? 4;
     const lead = Math.max(0, Math.round(units - (g.pickupBeats ?? 0)));
     const tail = Math.max(1, Math.round(g.pickupBeats ?? 1));
-    const cell = `[${[...Array(lead).fill("~"), ...Array(tail).fill("0")].join(" ")}]`;
+    const cell = `[${[...Array(lead).fill("~"), ...Array(tail).fill(empty ? "~" : "0")].join(" ")}]`;
     consts.push(
       "// The pickup: the notes before bar 1",
-      `const melPickup = n("${cell}").scale("${scaleName(key, 4)}").s("piano")`,
+      `const melPickup = n("${cell}").scale("${scaleName(key, 4)}")${empty ? "" : '.s("piano")'}`,
       "",
     );
   }

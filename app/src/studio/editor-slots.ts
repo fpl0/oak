@@ -7,8 +7,11 @@ import type { ComponentType } from "react";
 import { CommitGuard } from "./CommitGuard.tsx";
 import { CardsPanel } from "./cards/CardsPanel.tsx";
 import { CatalogLines } from "./catalog/CatalogLines.tsx";
+import { ErasePassSlot } from "./ErasePassSlot.tsx";
+import { FinishAnywaySlot } from "./FinishAnyway.tsx";
 import { SoundsLikeButton } from "./habits/SoundsLikeButton.tsx";
 import { MakeBlankButton } from "./MakeBlankButton.tsx";
+import { MatchedVersionCompare } from "./MatchedVersionCompare.tsx";
 import { SoundTools } from "./SoundTools.tsx";
 import { TempoTry } from "./TempoTry.tsx";
 import { TransformMenu } from "./variation/TransformMenu.tsx";
@@ -65,4 +68,8 @@ export const EDITOR_SLOTS: readonly EditorSlot[] = [
   { id: "variation", place: "aside", Component: VariationPanel },
   { id: "cards", place: "aside", Component: CardsPanel },
   { id: "catalog-lines", place: "aside", Component: CatalogLines },
+  // Oak 2.0 W4 (PLAN F6, F3, F5), wired in stage B. The matched compare is Studio's only version compare.
+  { id: "finish-anyway", place: "header", Component: FinishAnywaySlot },
+  { id: "erase-pass", place: "aside", Component: ErasePassSlot },
+  { id: "matched-compare", place: "aside", Component: MatchedVersionCompare },
 ];
