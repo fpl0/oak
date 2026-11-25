@@ -7,13 +7,28 @@ mock.module(new URL("../lib/content.ts", import.meta.url).pathname, () => ({
   contentQuery: { queryKey: ["content"], queryFn: async () => ({}) },
   useContent: () => ({ data: undefined, isPending: false, isError: false }),
 }));
+// W3's slots reach the grader worker (a Vite `?worker` import, which bun cannot load); nothing here evaluates code.
+mock.module(new URL("../lib/grader-client.ts", import.meta.url).pathname, () => ({
+  graderHost: async () => {
+    throw new Error("no grader worker in unit tests");
+  },
+  analyzeCode: async () => null,
+  gradeInBrowser: async () => null,
+  lintInBrowser: async () => null,
+  disposeGraderHost: async () => {},
+}));
+// BackToBack's hidden player is a Workbench, which loads the audio worklets (Vite `?worker&url` imports).
+mock.module(new URL("../workbench/Workbench.tsx", import.meta.url).pathname, () => ({
+  Workbench: () => null,
+}));
 
 const { captureEngines } = await import("../capture/engines.ts");
 const { EDITOR_SLOTS } = await import("./editor-slots.ts");
 
 describe("W1 registries", () => {
-  test("the editor slots are Make this my Blank, the sound tools and the commit guard, in their places", () => {
-    expect(EDITOR_SLOTS.map((s) => [s.id, s.place])).toEqual([
+  test("the editor slots open with Make this my Blank, the sound tools and the commit guard, in their places", () => {
+    // W3 appends its slots after W1's three (w3-wiring.test.ts pins the whole list).
+    expect(EDITOR_SLOTS.slice(0, 3).map((s) => [s.id, s.place])).toEqual([
       ["make-blank", "header"],
       ["sound-tools", "toolbar"],
       ["commit-guard", "aside"],

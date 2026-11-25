@@ -11,13 +11,16 @@ import { BackupService } from "./backup.ts";
 import { CanDoService } from "./cando.ts";
 import { CapstoneReleaseService } from "./capstone-release.ts";
 import { CapstoneSessionsService } from "./capstone-sessions.ts";
+import { CatalogsService } from "./catalogs.ts";
 import type { ServiceContext } from "./context.ts";
 import { CourseService } from "./course.ts";
 import { GatesService } from "./gates.ts";
 import { GymService } from "./gym.ts";
+import { HabitsService } from "./habits.ts";
 import { LadderService } from "./ladder.ts";
 import { LaterService } from "./later.ts";
 import { type LadderGenerator, LibraryService, type PatternStimulus } from "./library.ts";
+import { LineageService } from "./lineage.ts";
 import { MasteryService } from "./mastery.ts";
 import { OnboardingService } from "./onboarding.ts";
 import { OpsService } from "./ops.ts";
@@ -67,6 +70,12 @@ export interface Services {
   templates: UserTemplatesService;
   /** Oak 2.0 W1 (PLAN S7): the Later list on Today. */
   later: LaterService;
+  /** Oak 2.0 W3 (PLAN S5): a version's variation chain, first to last. */
+  lineage: LineageService;
+  /** Oak 2.0 W3 (PLAN S6): the habits mirror, read from the learner's own free sketches. */
+  habits: HabitsService;
+  /** Oak 2.0 W3 (PLAN S6): the catalog of attributes. */
+  catalogs: CatalogsService;
 }
 
 export interface ServiceOptions {
@@ -222,6 +231,9 @@ export function createServices(ctx: ServiceContext, opts: ServiceOptions): Servi
     scraps: new ScrapsService(ctx),
     templates: new UserTemplatesService(ctx),
     later: new LaterService(ctx),
+    lineage: new LineageService(ctx),
+    habits: new HabitsService(ctx),
+    catalogs: new CatalogsService(ctx),
   };
   return services;
 }

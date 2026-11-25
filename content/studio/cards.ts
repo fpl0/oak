@@ -111,7 +111,7 @@ export const STUDIO_CARDS: readonly StudioCard[] = [
     kind: "amateur",
     unlock: "U07.L02",
     source: "Misusing Rhythmic Tools",
-    text: "Use a tool for something it was not made for: open Transforms and try a new use.",
+    text: "Use a tool for something it was not made for: open Transforms and try a move from “Misuse a rhythm tool”.",
   },
   {
     id: "card.ending-first",

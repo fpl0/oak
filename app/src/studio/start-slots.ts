@@ -4,6 +4,7 @@
 // Wired in W3 stage B ("With a card"); W4 adds "From a form you mapped" here.
 import type { Sketch } from "@oak/api";
 import type { ComponentType } from "react";
+import { WithCardStart } from "./cards/WithCardStart.tsx";
 
 export interface StartSlotProps {
   sketches: readonly Sketch[];
@@ -19,4 +20,11 @@ export interface StartSlot {
   Component: ComponentType<StartSlotProps>;
 }
 
-export const START_SLOTS: readonly StartSlot[] = [];
+export const START_SLOTS: readonly StartSlot[] = [
+  {
+    id: "with-card",
+    label: "With a card",
+    detail: "Oak draws a card from your deck; you start a sketch with it.",
+    Component: WithCardStart,
+  },
+];

@@ -9,10 +9,13 @@ import { type Db, openDb } from "./db/index.ts";
 import { createRepos } from "./db/repos/index.ts";
 import type { AppDeps, GraderHosts } from "./deps.ts";
 import { ApiError, errorResponse } from "./errors.ts";
+import { catalogsRoutes } from "./routes/catalogs.ts";
 import { courseRoutes } from "./routes/course.ts";
 import { createMounter } from "./routes/define.ts";
+import { habitsRoutes } from "./routes/habits.ts";
 import { laterRoutes } from "./routes/later.ts";
 import { libraryRoutes } from "./routes/library.ts";
+import { lineageRoutes } from "./routes/lineage.ts";
 import { metaRoutes } from "./routes/meta.ts";
 import { oak2PendingRoutes } from "./routes/oak2.ts";
 import { opsRoutes } from "./routes/ops.ts";
@@ -96,6 +99,10 @@ export function buildApp(d: AppDeps): Hono {
   scrapsRoutes(mount, d.services.scraps);
   templatesRoutes(mount, d.services.templates);
   laterRoutes(mount, d.services.later);
+  // Oak 2.0 W3: a version's variation chain, the habits mirror, the catalog of attributes.
+  lineageRoutes(mount, d.services.lineage);
+  habitsRoutes(mount, d.services.habits);
+  catalogsRoutes(mount, d.services.catalogs);
   // Oak 2.0 (contracts §13): endpoints not built yet answer the typed 501 (routes/oak2.ts).
   oak2PendingRoutes(mount);
   tutorTurnRoutes(app, d);

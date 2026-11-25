@@ -687,6 +687,9 @@ export const FIXTURES = {
   "scraps.list": { items: [] },
   "templates.list": { items: [] },
   "later.list": { items: [] },
+  // Oak 2.0 W3: Today's Studio offers read the catalogs; the Studio's Habits tab reads the mirror. Both empty.
+  "catalogs.list": { items: [] },
+  "habits.get": { sketches: 0, habits: [] },
 } satisfies Partial<Record<JsonEndpointName, unknown>>;
 
 FIXTURES["profile.get"] = FIXTURES.bootstrap.profile;

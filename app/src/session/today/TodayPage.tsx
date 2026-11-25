@@ -67,6 +67,7 @@ import { type OfferRow, offerPlan, offersFromTracks, trackDay } from "../tracks-
 import { AlbumStrip, LastSketchCard, NextUnlockCard, OakGlanceCard, SongReadyCard } from "./Glance.tsx";
 import { LaterList } from "./LaterList.tsx";
 import { InlineCodeText, SideOfferLine } from "./SideOffer.tsx";
+import { StudioOffers } from "./StudioOffers.tsx";
 import { CftStrip, FirstDayLine, OpenToYou, OtherTabLine, TracksLine } from "./TodayWave6.tsx";
 import { CourseFirstDayLine, KeepPlayingLine, TrackOffers, TrackSessionLine } from "./TodayWave7.tsx";
 import { WeeklyRhythm } from "./WeeklyRhythm.tsx";
@@ -715,6 +716,8 @@ export function TodayPage() {
                 )}
               </nav>
             )}
+          {/* Oak 2.0 W3 (PLAN S6): "Just play" on a light day and "Outside your lane", calm lines, never a goal. */}
+          {b && view && <StudioOffers state={view.state} day={b.day} />}
           {/* Oak 2.0 W1 (PLAN S7): questions and ideas parked for another day, under the day's own decisions. */}
           {b && view?.state !== "first-run" && <LaterList />}
         </section>

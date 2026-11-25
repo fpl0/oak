@@ -5,8 +5,14 @@ import type { KeySpec, MeterId, SketchDetail, SketchDimension, SketchVersion } f
 import type { EditorHandle } from "@oak/strudel";
 import type { ComponentType } from "react";
 import { CommitGuard } from "./CommitGuard.tsx";
+import { CardsPanel } from "./cards/CardsPanel.tsx";
+import { CatalogLines } from "./catalog/CatalogLines.tsx";
+import { SoundsLikeButton } from "./habits/SoundsLikeButton.tsx";
 import { MakeBlankButton } from "./MakeBlankButton.tsx";
 import { SoundTools } from "./SoundTools.tsx";
+import { TempoTry } from "./TempoTry.tsx";
+import { TransformMenu } from "./variation/TransformMenu.tsx";
+import { VariationPanel } from "./variation/VariationPanel.tsx";
 
 export interface EditorSlotProps {
   sketch: SketchDetail;
@@ -50,4 +56,11 @@ export const EDITOR_SLOTS: readonly EditorSlot[] = [
   { id: "make-blank", place: "header", Component: MakeBlankButton },
   { id: "sound-tools", place: "toolbar", Component: SoundTools },
   { id: "commit-guard", place: "aside", Component: CommitGuard },
+  // Oak 2.0 W3 (PLAN S5, S6), wired in stage B.
+  { id: "sounds-like", place: "header", Component: SoundsLikeButton },
+  { id: "transforms", place: "toolbar", Component: TransformMenu },
+  { id: "tempo-try", place: "toolbar", Component: TempoTry },
+  { id: "variation", place: "aside", Component: VariationPanel },
+  { id: "cards", place: "aside", Component: CardsPanel },
+  { id: "catalog-lines", place: "aside", Component: CatalogLines },
 ];

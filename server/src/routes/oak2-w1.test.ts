@@ -5,15 +5,8 @@ import { harness } from "../testing/harness.ts";
 import { OAK2_PENDING } from "./oak2.ts";
 
 describe("Oak 2.0 W1 wiring", () => {
-  test("OAK2_PENDING holds only the W3/W4 endpoints", () => {
-    expect([...OAK2_PENDING]).toEqual([
-      "sketches.lineage",
-      "album.patchTrack",
-      "habits.get",
-      "catalogs.list",
-      "catalogs.create",
-      "capstones.checkHistory",
-    ]);
+  test("OAK2_PENDING holds only the W4 endpoints (after W3)", () => {
+    expect([...OAK2_PENDING]).toEqual(["album.patchTrack", "capstones.checkHistory"]);
   });
 
   test("scraps, templates and Later answer through the full app, and refuse a foreign Host", async () => {

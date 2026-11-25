@@ -1,9 +1,10 @@
 // Oak 2.0 W3: the Studio's card deck (PLAN §4 S6), behind one function so the cards panel and "With a card" can be
-// built before the deck exists. `null` until W3 stage A wires `content/studio/cards.ts` and `@oak/grader`'s
-// checkers (then `facts`, `describe` and `habitCard` are exactly `cardFacts`, `describeCard` and `habitCard`); the
-// panels show nothing while it is `null`.
+// built before the deck exists. W3 stage A wired it: `content/studio/cards.ts` and `@oak/grader`'s checkers
+// (`facts`, `describe` and `habitCard` are exactly `cardFacts`, `describeCard` and `habitCard`). The panels still treat
+// `null` as "no deck" and show nothing.
+import { STUDIO_CARDS } from "@content/studio/cards.ts";
 import type { AnalysisSummary, CardCheck, CardFacts, StudioCard, ToolEntry } from "@oak/api";
-import type { Normalized } from "@oak/grader";
+import { cardFacts, describeCard, habitCard, type Normalized } from "@oak/grader";
 
 export interface CardDeck {
   cards: readonly StudioCard[];
@@ -21,6 +22,8 @@ export interface CardDeck {
   habitCard(habitId: string): StudioCard | null;
 }
 
+const DECK: CardDeck = { cards: STUDIO_CARDS, facts: cardFacts, describe: describeCard, habitCard };
+
 export function cardDeck(): CardDeck | null {
-  return null;
+  return DECK;
 }

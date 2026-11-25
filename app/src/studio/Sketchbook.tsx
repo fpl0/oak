@@ -1,6 +1,6 @@
 // The sketchbook (ux §2.3): every sketch with its ring cover (one ring per version), flavour, key and tempo,
 // when it was last edited and its liner flags (tools not yet unlocked, an imported version to review).
-// Filters, search, sort, and "New sketch from…".
+// Filters, search, sort, and "New sketch from…". Oak 2.0: the Scraps tab (W1), the Habits and Catalogs tabs (W3).
 import type { Sketch, SketchDetail } from "@oak/api";
 import { Link } from "@tanstack/react-router";
 import { NotebookPen, Plus, Search } from "lucide-react";
@@ -12,17 +12,22 @@ import { Button, buttonClass } from "../ui/kit/Button.tsx";
 import { Card, Chip, EmptyState, Page, PageHeader } from "../ui/kit/basics.tsx";
 import { QueryView } from "../ui/kit/QueryState.tsx";
 import { Tabs, tabPanelProps } from "../ui/kit/Tabs.tsx";
+import type { CatalogMode } from "./catalog/CatalogFlow.tsx";
+import { CatalogsTab } from "./catalog/CatalogsTab.tsx";
+import { HabitsTab } from "./habits/HabitsTab.tsx";
 import { needsReview, sinceText } from "./model.ts";
 import { NewSketchDialog } from "./NewSketchDialog.tsx";
 import { useSketchDetails } from "./queries.ts";
 import { SketchCover } from "./SketchCover.tsx";
 import { ScrapsPanel } from "./scraps/ScrapsPanel.tsx";
 
-/** Oak 2.0 S1: the sketchbook's two tabs. */
-type BookTab = "sketches" | "scraps";
+/** Oak 2.0: the sketchbook's tabs (S1 Scraps; S6 Habits and Catalogs, W3). */
+export type BookTab = "sketches" | "scraps" | "habits" | "catalogs";
 const BOOK_TABS: { value: BookTab; label: string }[] = [
   { value: "sketches", label: "Sketches" },
   { value: "scraps", label: "Scraps" },
+  { value: "habits", label: "Habits" },
+  { value: "catalogs", label: "Catalogs" },
 ];
 
 type Filter = "all" | "free" | "lesson-make" | "capstone" | "transcription";
@@ -94,14 +99,25 @@ export function Sketchbook({
   wantsNew,
   onNewHandled,
   wantsScraps = false,
+  wantsHabits = false,
+  wantsCatalog = null,
   onScrapsChange,
+  onTabChange,
 }: {
   wantsNew: boolean;
   onNewHandled(): void;
   /** Oak 2.0 S1 (`/studio?scraps=1`): the sketchbook shows its Scraps tab. */
   wantsScraps?: boolean;
+  /** Oak 2.0 W3 (`/studio?habits=1`): the Habits tab. */
+  wantsHabits?: boolean;
+  /**
+   * Oak 2.0 W3 (`/studio?catalog=new|outside`): the Catalogs tab; `outside` opens "Outside your lane" in it.
+   */
+  wantsCatalog?: "new" | "outside" | null;
   /** The learner switched between Sketches and Scraps (the route keeps `?scraps` in step). */
   onScrapsChange?(open: boolean): void;
+  /** The learner switched tabs (the route keeps `?scraps`, `?habits` and `?catalog` in step); wins over `onScrapsChange`. */
+  onTabChange?(tab: BookTab): void;
 }) {
   usePageTitle("Studio");
   const [filter, setFilter] = useState<Filter>("all");
@@ -109,13 +125,24 @@ export function Sketchbook({
   const searchRef = useRef<HTMLInputElement>(null);
   const [sort, setSort] = useState<Sort>("recent");
   const [dialog, setDialog] = useState(false);
-  // The tab follows `?scraps` when the route keeps it; without a route callback it is local.
-  const [localTab, setLocalTab] = useState<BookTab>(wantsScraps ? "scraps" : "sketches");
-  const tab: BookTab = onScrapsChange ? (wantsScraps ? "scraps" : "sketches") : localTab;
+  // The tab follows `?scraps`, `?habits` and `?catalog` when the route keeps them; without a route callback it is
+  // local.
+  const asked: BookTab = wantsScraps
+    ? "scraps"
+    : wantsHabits
+      ? "habits"
+      : wantsCatalog !== null
+        ? "catalogs"
+        : "sketches";
+  const [localTab, setLocalTab] = useState<BookTab>(asked);
+  const routed = onTabChange !== undefined || onScrapsChange !== undefined;
+  const tab: BookTab = routed ? asked : localTab;
   const setTab = (t: BookTab) => {
-    if (onScrapsChange) onScrapsChange(t === "scraps");
+    if (onTabChange) onTabChange(t);
+    else if (onScrapsChange) onScrapsChange(t === "scraps");
     else setLocalTab(t);
   };
+  const catalogMode: CatalogMode | null = wantsCatalog === "outside" ? "outside" : null;
   const sketches = useSketches(filter === "all" ? undefined : (filter as SketchOrigin));
   const all = useSketches();
 
@@ -174,6 +201,14 @@ export function Sketchbook({
       {tab === "scraps" ? (
         <div {...tabPanelProps("sketchbook", "scraps")}>
           <ScrapsPanel />
+        </div>
+      ) : tab === "habits" ? (
+        <div {...tabPanelProps("sketchbook", "habits")}>
+          <HabitsTab />
+        </div>
+      ) : tab === "catalogs" ? (
+        <div {...tabPanelProps("sketchbook", "catalogs")}>
+          <CatalogsTab key={catalogMode ?? "list"} initialMode={catalogMode} />
         </div>
       ) : (
         <div {...tabPanelProps("sketchbook", "sketches")}>
