@@ -1,5 +1,6 @@
 // A2.L09 applies U09.L07's fuzzy boundary and unique event to the A2 loop.
-// W0's anticipation is Oak's call: all drums leave the first half beat empty.
+// W0's anticipation is Oak's call: all drums leave the first half beat empty; X14 round 2 adds that the fill
+// peaks in the bar's second half, the downbeat is usually played, and a hesitating fill runs on after the downbeat.
 // Its fill rules compare drum-hit counts; the labels expose those exact checks.
 // S6 starts without a fill so an earlier one-time fill cannot satisfy its rule.
 import {
@@ -115,9 +116,9 @@ const boundary = (fill?: "anticipate" | "hesitate"): RubricRule => ({
   id: fill ?? "fuzzy-seam",
   label:
     fill === "anticipate"
-      ? "More drum hits in a section's last bar than its earlier bars; no drum in the next section's first half beat"
+      ? "A drum fill toward the end of a section's last bar (more hits than its earlier bars); no drum in the next section's first half beat, where one usually plays"
       : fill === "hesitate"
-        ? "More drum hits in a section's last bar than its earlier bars, and in the next section's first beat than its later first beats"
+        ? "A drum fill toward the end of a section's last bar (more hits than its earlier bars) that runs on: more drum hits just after the next section's downbeat than in its later first beats"
         : "Some parts change a beat or more off the bar line at a seam, without every changing part moving together",
   required: true,
   skills: ["F06", "D09"],
@@ -127,7 +128,7 @@ const boundary = (fill?: "anticipate" | "hesitate"): RubricRule => ({
 });
 const unique = (required = true): RubricRule => ({
   id: "heard-once",
-  label: "A part's sound heard in one bar only, inside a verse or chorus that returns",
+  label: "A part changes or stops for one bar only, inside a verse or chorus that returns",
   required,
   skills: ["F06", "D09"],
   rule: "custom",
@@ -163,7 +164,9 @@ export default defineLesson({
       id: "S1",
       kind: "listen",
       title: "Three ways across",
-      minutes: 0.5,
+      // Three items of six bars (the verse's four, the chorus's first two: the seam and the crash after it) play
+      // 48 s; a listen step's items fill at most 85 % of its minutes (wave7-learner.test.ts), so 1 minute.
+      minutes: 1,
       ui: { panels: ROLL },
       exercise: {
         kind: "listen",
@@ -176,9 +179,9 @@ export default defineLesson({
         hints: null,
         tests: [],
         items: [
-          { code: PLAIN, bars: 8, caption: "Follow the drums into the chorus." },
-          { code: EARLY, bars: 8, caption: "Listen for space around the chorus's first beat." },
-          { code: LATE, bars: 8, caption: "Follow the busy snare beyond the bar line." },
+          { code: PLAIN, bars: 6, caption: "Follow the drums into the chorus." },
+          { code: EARLY, bars: 6, caption: "Listen for space around the chorus's first beat." },
+          { code: LATE, bars: 6, caption: "Follow the busy snare beyond the bar line." },
         ],
       },
     },
@@ -271,7 +274,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Add a snare fill in bar 4 that ends before the chorus, with every drum line resting on the chorus's first beat and returning later in that bar. Keep bass, chords and tune unchanged. Done when bar 4 has extra drum hits and no drum plays on bar 5's first beat.",
+          "Add a snare fill at the end of bar 4, then silence every drum for the first half of bar 5's first beat and bring the groove back later in that bar. Keep bass, chords and tune unchanged. Done when bar 4 ends with extra drum hits and no drum plays in the first half of bar 5's first beat.",
         skills: SKILLS,
         code: { starter: PLAIN },
         reference: { solutions: [EARLY], bars: 16 },
@@ -321,7 +324,7 @@ export default defineLesson({
         version: 1,
         role: "check",
         prompt:
-          "Extend the snare fill from bar 4 into the first beat or two of bar 5 only. Keep the other parts unchanged and the plain backbeat in bars 6 to 8. Done when bar 5's first beat has extra snare hits and bars 6 to 8 start as before.",
+          "Extend the snare fill from bar 4 into the first beat or two of bar 5 only. Keep the other parts unchanged and the plain backbeat in bars 6 to 8. Done when bar 5's first beat has extra snare hits after the downbeat and bars 6 to 8 start as before.",
         skills: SKILLS,
         code: { starter: song({ snareVerse: HESITATE.snareVerse }) },
         reference: { solutions: [LATE], bars: 16 },
@@ -346,6 +349,12 @@ export default defineLesson({
           test(
             "fill added only before the seam",
             song({ snareVerse: verseFill("sd*4 sd*4 sd*4 sd*4") }),
+            "fail",
+            ["rubric.unmet"],
+          ),
+          test(
+            "the crash moved onto bar 5's downbeat: it marks the seam",
+            song({ snareVerse: HESITATE.snareVerse, percChorus: 's("<[cr ~ ~ ~] ~ ~ ~>")' }),
             "fail",
             ["rubric.unmet"],
           ),
@@ -404,6 +413,12 @@ export default defineLesson({
           test("one off-grid note instead", OFF_GRID, "pass"),
           test("unchanged", PLAIN, "fail", ["code.unchanged"]),
           test("same effect in both verses", REPEATED_EFFECT, "fail", ["rubric.unmet"]),
+          test(
+            "same effect in a different bar of each verse: heard twice",
+            song().replace(".lpf(2000)", '.lpf("<2000 400 2000!8 400 2000!5>")'),
+            "fail",
+            ["rubric.unmet"],
+          ),
           test("filter changed for the whole song", song().replace(".lpf(2000)", ".lpf(400)"), "fail", [
             "rubric.unmet",
           ]),
@@ -450,8 +465,8 @@ export default defineLesson({
             "pass",
           ),
           test("unchanged", MAKE_STARTER, "fail", ["rubric.unmet"]),
-          // Without perc, which W0 reads as changing on the bar line although it is silent there,
-          // the three drum lines all leave one beat early together: that only moves the seam.
+          // The three drum lines all leave one beat early together: that only moves the seam. `perc`, silent on
+          // both sides of the bar line, does not mark it (X14 round 2: the rule once read it as changing there).
           test(
             "verse drums leave one beat early together",
             song(
@@ -461,7 +476,6 @@ export default defineLesson({
                 hatsVerse: 's("<hh*8 hh*8 hh*8 [hh hh hh hh hh hh ~ ~]>")',
               },
               true,
-              ["kick", "snare", "hats"],
             ),
             "fail",
             ["rubric.unmet"],

@@ -115,7 +115,8 @@ describe("side lessons (contracts §2.6, §9.6; wave5.md §5.1)", () => {
       expect(again.alternatives.some((a) => a.mapItemId === "A1.L01")).toBe(false);
       const progress1 = await ok<CourseProgress>(h, "GET", "/api/lessons/progress");
       // Wave 7: the map counts track A's side lessons once a track lesson is written (contracts §9.6: 1 in track A).
-      expect(progress1.mapDone).toBe(progress0.mapDone + (progress0.mapTotal === 259 ? 1 : 0));
+      // 270: the whole course since Oak 2.0 W2 (content/syllabus.ts SESSION_COUNTS.total; it was 259).
+      expect(progress1.mapDone).toBe(progress0.mapDone + (progress0.mapTotal === 270 ? 1 : 0));
       expect(progress1.mapTotal).toBe(progress0.mapTotal);
       expect(progress1.sideLessons).toEqual({ done: 1, total: 4 });
       expect(progress1.next).toBe("U03.L03");
@@ -455,7 +456,8 @@ describe("carry-overs c2, c10, c11", () => {
   }, 120_000);
 
   test("c10: a gym day's Coda carries its card (ladder: level, realism, graded pass)", async () => {
-    const h = await seeded("after U09.L04");
+    // U09.L03: the day before GYM.05 since Oak 2.0 W2 moved the slots (decision 103; it was U09.L04).
+    const h = await seeded("after U09.L03");
     try {
       const me = new SimLearner(h, real, 9);
       const plan = await me.today();

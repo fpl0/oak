@@ -557,6 +557,12 @@ interface Shift {
   /** Beats from the bar line: negative before it, positive after it. */
   beats: number;
   kind: "stops" | "early" | "late" | "carries" | "changes-late";
+  /**
+   * The beats the change could be heard at: `beats` widened over the track's beats that are silent both as played
+   * and as its loop would play them (a snare whose beat 3 is always empty, silent from beat 3, "stops" at beat 4 by
+   * its first missing hit but is heard leaving at beat 3).
+   */
+  span: [number, number];
 }
 
 /**
@@ -587,7 +593,14 @@ function moveAt(t: Track, a: SectionInfo, c: SectionInfo, u: number): Shift[] | 
       diff.slice(k).every((dd, j) => dd || (silent(got[k + j] as string) && silent(want[k + j] as string)));
     if (suffix) {
       const stops = got.slice(k).every(silent);
-      shifts.push({ track: t.name, beats: -(u - k), kind: stops ? "stops" : "early" });
+      let from = k;
+      while (from > 0 && silent(got[from - 1] as string) && silent(want[from - 1] as string)) from--;
+      shifts.push({
+        track: t.name,
+        beats: -(u - k),
+        kind: stops ? "stops" : "early",
+        span: [-(u - from), -(u - k)],
+      });
     }
   }
   if (expC !== null) {
@@ -602,12 +615,31 @@ function moveAt(t: Track, a: SectionInfo, c: SectionInfo, u: number): Shift[] | 
     if (prefix) {
       // Carrying on is playing what the track played in `a` (its loop's bar there) past the bar line.
       const prev = beatSigs(t, expA ?? b - 1, u);
+      // A track silent in both loops that adds a hit on the downbeat (a crash) marks the bar line; it does not
+      // change off it (X14 round 2, A2.L09 S7).
+      if (
+        shifts.length === 0 &&
+        prev.every(silent) &&
+        want.every(silent) &&
+        t.events.some((e) => R.eq(e.onset, rat(b)))
+      )
+        return "bar";
       const late = got.slice(0, k).every(silent);
       const carries = got.slice(0, k).every((g, j) => silent(g) || g === prev[j]);
-      shifts.push({ track: t.name, beats: k, kind: late ? "late" : carries ? "carries" : "changes-late" });
+      let to = k;
+      while (to < u - 1 && silent(got[to] as string) && silent(want[to] as string)) to++;
+      shifts.push({
+        track: t.name,
+        beats: k,
+        kind: late ? "late" : carries ? "carries" : "changes-late",
+        span: [k, to],
+      });
     }
   }
   if (shifts.length > 0) return shifts;
+  // A track silent in the bars on both sides of the bar line does not mark it, whatever it plays later (a crash in
+  // the second bar of the next section; X14 round 2, A2.L09 S7).
+  if (beatSigs(t, b - 1, u).every(silent) && beatSigs(t, b, u).every(silent)) return null;
   // No shift: does the track change at all across the seam (its bars in `a` against its bars in `c`)?
   const setA = new Set(aBars.length > 0 ? aBars : [sigsOf(b - 1)]);
   const setC = new Set(cBars.length > 0 ? cBars : [sigsOf(b)]);
@@ -640,8 +672,10 @@ const drumHits = (drums: readonly Track[], from: number, to: number): number =>
  * `staggered-boundary` (U09.L07 Carve It; A2.L09 Seams and Surprises; Fuzzy Boundaries): at ≥ `min` (default 1)
  * section seams, some but not all parts change state a beat or more off the bar line (stop early, carry on into the
  * next section, or come in late). Every part switching on the bar line fails; so does every changing part moving by
- * the same amount (the seam just moved). With `fill`: a drum fill in the bar before the seam (more drum hits than any
- * other bar of the section) that leaves the downbeat empty (`anticipate`) or runs past it (`hesitate`).
+ * the same amount (the seam just moved: one beat in every part's span). With `fill`: a drum fill in the bar before
+ * the seam (more drum hits than any other bar of the section, its last busier beat in the bar's second half) that
+ * leaves the downbeat empty where the drums usually play one (`anticipate`), or whose own drum lines run past the
+ * downbeat with more hits in the first beat than the section's later first beats (`hesitate`).
  */
 const staggeredBoundary: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx, p) => {
   const pc = readPiece(n, ctx, p, deps, true);
@@ -662,25 +696,43 @@ const staggeredBoundary: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n
     if (fill) {
       if (drums.length === 0 || a.bars < 2) continue;
       const beat = 1 / pc.u;
-      const before = drumHits(drums, b - 1, b);
-      const usual = Math.max(
-        ...Array.from({ length: a.bars - 1 }, (_, j) => drumHits(drums, a.startBar + j, a.startBar + j + 1)),
+      const earlier = Array.from({ length: a.bars - 1 }, (_, j) => a.startBar + j);
+      /** The most drum hits of `ts` in [bar + from, bar + from + len) over the given bars. */
+      const most = (ts: readonly Track[], from: number, len: number, bars: readonly number[]) =>
+        Math.max(0, ...bars.map((x) => drumHits(ts, x + from, x + from + len)));
+      // The fill: the drum lines with more hits in the bar before the seam than in any earlier bar of the section
+      // (judged line by line, so other lines may make room for it; X14 round 2, A2.L09 S5).
+      const fillers = drums.filter((t) => drumHits([t], b - 1, b) > most([t], 0, 1, earlier));
+      if (fillers.length === 0) continue;
+      // The fill peaks just before the downbeat (the book's "Fuzzy Boundaries"). Oak's call: its last beat (a beat
+      // where the fill's lines have more hits than in that beat of any earlier bar of the section) lies in the
+      // bar's second half, so a fill at the start of the bar followed by the usual groove is not one (X14 round 2,
+      // A2.L09 S4).
+      const fillBeats = Array.from({ length: pc.u }, (_, j) => j).filter(
+        (j) =>
+          drumHits(fillers, b - 1 + j * beat, b - 1 + (j + 1) * beat) >
+          most(fillers, j * beat, beat, earlier),
       );
-      if (before <= usual) continue;
+      if ((fillBeats.at(-1) ?? -1) < pc.u / 2) continue;
+      const later = c.bars > 1 ? Array.from({ length: c.bars - 1 }, (_, j) => b + 1 + j) : earlier;
       const down = drumHits(drums, b, b + beat / 2);
-      const firstBeat = drumHits(drums, b, b + beat);
-      const usualFirst = Math.max(
-        0,
-        ...(c.bars > 1
-          ? Array.from({ length: c.bars - 1 }, (_, j) => drumHits(drums, b + 1 + j, b + 1 + j + beat))
-          : Array.from({ length: a.bars - 1 }, (_, j) =>
-              drumHits(drums, a.startBar + j, a.startBar + j + beat),
-            )),
-      );
-      if (fill === "anticipate" && down === 0)
+      // The empty downbeat is a gap only where the drums usually play one (X14 round 2: no downbeat anywhere is no
+      // gap). Oak's call: more than half of the two sections' other bars have a drum hit in their first half beat.
+      const others = [...earlier, ...later.filter((x) => !earlier.includes(x))];
+      const usualDown = others.filter((x) => drumHits(drums, x, x + beat / 2) > 0).length * 2 > others.length;
+      if (fill === "anticipate" && down === 0 && usualDown)
         found.push(`a drum fill before ${seam}, with an empty downbeat`);
-      if (fill === "hesitate" && firstBeat > usualFirst)
-        found.push(`a drum fill that runs past the downbeat at ${seam}`);
+      if (fill === "hesitate") {
+        // The fill itself runs on past the downbeat: its lines, or a line silent all through the section before
+        // (toms taking the fill over), have more hits after the downbeat inside the first beat than in that place
+        // of the section's later bars. A hit on the downbeat itself (a crash, a kick) marks the seam instead
+        // (X14 round 2, A2.L09 S5).
+        const quiet = drums.filter((t) => drumHits([t], a.startBar, b) === 0);
+        const runOn = [...fillers, ...quiet.filter((t) => !fillers.includes(t))];
+        const after = (x: number): number => drumHits(runOn, x, x + beat) - drumHits(runOn, x, x + 1e-6);
+        if (after(b) > Math.max(0, ...later.map(after)))
+          found.push(`a drum fill that runs past the downbeat at ${seam}`);
+      }
       continue;
     }
     const shifts: Shift[] = [];
@@ -691,10 +743,13 @@ const staggeredBoundary: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n
       else if (m) shifts.push(...m);
     }
     if (shifts.length === 0) continue;
-    const offsets = new Set(shifts.map((s) => s.beats));
-    if (onBar === 0 && offsets.size === 1) {
-      const s = shifts[0] as Shift;
-      moved ??= `at ${seam} the parts all change ${plural(Math.abs(s.beats), "beat")} ${s.beats < 0 ? "early" : "late"} together: that just moves the seam; let only some parts change off the bar line`;
+    // Every changing part moving at one moment only moves the seam. Oak's call: the parts move together when one
+    // beat lies in every part's span (X14 round 2, A2.L09 S7: kick, snare and hats all silent from beat 3).
+    const lo = Math.max(...shifts.map((s) => s.span[0]));
+    const hi = Math.min(...shifts.map((s) => s.span[1]));
+    if (onBar === 0 && lo <= hi) {
+      const beats = lo < 0 ? hi : lo;
+      moved ??= `at ${seam} the parts all change ${plural(Math.abs(beats), "beat")} ${beats < 0 ? "early" : "late"} together: that just moves the seam; let only some parts change off the bar line`;
       continue;
     }
     found.push(
@@ -719,6 +774,49 @@ const staggeredBoundary: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n
 
 // --- unique-event ----------------------------------------------------------------------------------------------
 
+/** Controls measured in hertz, heard as ratios. */
+const FREQUENCY_KEYS = ["cutoff", "hcutoff", "bandf"] as const;
+/**
+ * Oak's call, the floor `stepped-control` uses for held frequencies: values less than a third of an octave apart are
+ * heard as one setting, so a cutoff moved from 2000 to 1990 for one bar changes nothing (X14 round 2, A2.L09 S6).
+ */
+const SAME_SETTING_OCTAVES = 1 / 3;
+/** The track's events with each frequency control set to the lowest value of its run of near values. */
+function heardControls(events: readonly NEvent[]): NEvent[] {
+  const reps = new Map<string, Map<number, number>>();
+  for (const k of FREQUENCY_KEYS) {
+    const values = [
+      ...new Set(
+        events.map((e) => e.controls?.[k]).filter((v): v is number => typeof v === "number" && v > 0),
+      ),
+    ].sort((x, y) => x - y);
+    const m = new Map<number, number>();
+    let rep = values[0] ?? 0;
+    let prev = rep;
+    for (const v of values) {
+      if (Math.log2(v / prev) >= SAME_SETTING_OCTAVES - 1e-9) rep = v;
+      m.set(v, rep);
+      prev = v;
+    }
+    reps.set(k, m);
+  }
+  return events.map((e) => {
+    if (!e.controls) return e;
+    const c = { ...e.controls };
+    for (const k of FREQUENCY_KEYS) {
+      const v = c[k];
+      const r = typeof v === "number" ? reps.get(k)?.get(v) : undefined;
+      if (r !== undefined) c[k] = r;
+    }
+    return { ...e, controls: c };
+  });
+}
+/** The control settings a bar's events use, whatever their notes: a one-time effect is one of these. */
+const controlSet = (es: readonly NEvent[]): string =>
+  [...new Set(es.flatMap((e) => Object.entries(e.controls ?? {}).map(([k, v]) => `${k}=${String(v)}`)))]
+    .sort()
+    .join(",");
+
 /**
  * `unique-event` (U09.L07; A2.L09; Unique Events): at least `min` (default 1) bars hold a moment heard once: a track's
  * bar material (onsets with pitch or drum sound; with `controls`, its sound controls too) heard in exactly that one bar
@@ -738,11 +836,24 @@ const uniqueEvent: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx,
     sections.find((s) => b >= s.startBar && b < s.startBar + s.bars);
   const moments = new Map<number, string>();
   const wholeOnce = new Set<string>();
+  const tally = (xs: readonly string[]): Map<string, number> => {
+    const m = new Map<string, number>();
+    for (const x of xs) m.set(x, (m.get(x) ?? 0) + 1);
+    return m;
+  };
+  const eventsOf = (t: Track): NEvent[] => (controls ? heardControls(t.events) : t.events);
   for (const t of pc.tracks) {
-    const bars = perBar(t.events, pc.total);
+    const bars = perBar(eventsOf(t), pc.total);
     const sigs = bars.map((es, b) => barSig(es, b, { dur: true, controls }));
-    const times = new Map<string, number>();
-    for (const s of sigs) times.set(s, (times.get(s) ?? 0) + 1);
+    const times = tally(sigs);
+    // With `controls`, a bar whose notes are heard elsewhere is new only through its sound, and that sound must be
+    // heard in no other bar: the same effect in two bars with different notes is heard twice (X14 round 2, A2.L09 S6).
+    const plainTimes = tally(bars.map((es, b) => barSig(es, b, { dur: true })));
+    const plain = bars.map((es, b) => barSig(es, b, { dur: true }));
+    const sounds = bars.map(controlSet);
+    const soundTimes = tally(sounds);
+    const newSound = (b: number): boolean =>
+      !controls || plainTimes.get(plain[b] as string) === 1 || soundTimes.get(sounds[b] as string) === 1;
     // A stop is a moment too: an empty bar in a section that comes back, where the track plays in the bars around it
     // and at the same place of every other time that section comes.
     const stop = (b: number): boolean => {
@@ -760,7 +871,8 @@ const uniqueEvent: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx,
         })
       );
     };
-    const once = (b: number): boolean => (sigs[b] !== "" && times.get(sigs[b] as string) === 1) || stop(b);
+    const once = (b: number): boolean =>
+      (sigs[b] !== "" && times.get(sigs[b] as string) === 1 && newSound(b)) || stop(b);
     for (let b = 0; b < pc.total; b++) {
       if (!once(b)) continue;
       const s = sectionAtBar(b);
@@ -783,7 +895,7 @@ const uniqueEvent: (deps: CorrectionDeps) => CorrectionRule = (deps) => (n, ctx,
     if ((count.get(s.label) ?? 0) > 1) continue;
     const inside = (b: number): boolean => b >= s.startBar && b < s.startBar + s.bars;
     const isNew = pc.tracks.some((t) => {
-      const sigs = perBar(t.events, pc.total).map((es, b) => barSig(es, b, { dur: true, controls }));
+      const sigs = perBar(eventsOf(t), pc.total).map((es, b) => barSig(es, b, { dur: true, controls }));
       const outside = new Set(sigs.filter((_, b) => !inside(b)));
       return sigs.some((x, b) => inside(b) && x !== "" && !outside.has(x));
     });

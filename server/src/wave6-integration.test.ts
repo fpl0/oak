@@ -92,13 +92,14 @@ describe("the skill map shows nothing as practised before it is taught", () => {
 });
 
 describe("the course map and Today's alternatives", () => {
-  test("mapTotal is the core's 185 sessions until a track lesson is written, then all 259 (wave7.md §5)", async () => {
+  // Counts of contracts 2.2 (Oak 2.0 W2, content/syllabus.ts SESSION_COUNTS): core 191, whole course 270 (were 185, 259).
+  test("mapTotal is the core's 191 sessions until a track lesson is written, then all 270 (wave7.md §5)", async () => {
     const content = await real();
     const h = await seeded("after X2 (U12.L02 next)");
     try {
       const p = await ok<CourseProgress>(h, "GET", "/api/lessons/progress");
       const trackWritten = content.lessons.some((l) => /^[JR]\d\.|^A2\./.test(l.id));
-      expect(p.mapTotal).toBe(trackWritten ? 259 : 185);
+      expect(p.mapTotal).toBe(trackWritten ? 270 : 191);
       expect(p.mapDone).toBeLessThan(p.mapTotal);
     } finally {
       await h.close();

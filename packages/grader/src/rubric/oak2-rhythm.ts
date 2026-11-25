@@ -88,6 +88,26 @@ const kickBass =
     return result(true, "The kick and bass take turns as one line");
   };
 
+/**
+ * The start of the first turn of a shared line that lasts a bar (one cycle) or more: a run of notes on one part,
+ * from its first onset to the other part's next onset (or to the end of its last note). Undefined when none does.
+ */
+function longTurn(parts: readonly NEvent[][]): Rat | undefined {
+  const tagged = parts
+    .flatMap((part, i) => part.map((e) => ({ e, i })))
+    .sort((a, b) => R.cmp(a.e.onset, b.e.onset));
+  let start = 0;
+  for (let j = 1; j <= tagged.length; j++) {
+    const here = tagged[j];
+    const from = tagged[start] as { e: NEvent; i: number };
+    if (here && here.i === from.i) continue;
+    const to = here ? here.e.onset : endOf((tagged[j - 1] as { e: NEvent }).e);
+    if (!R.lt(R.sub(to, from.e.onset), rat(1))) return from.e.onset;
+    start = j;
+  }
+  return undefined;
+}
+
 // `pitches` is the whole given line, `steps` per bar: one bar, or a line of several bars that loops (`pitches[0..steps-1]`
 // is bar 1 of the loop). The loop is counted from cycle 0, as Strudel's `<...>` counts it (X9, A2.L07's four-bar line).
 const hocket =
@@ -141,17 +161,22 @@ const hocket =
     if (merged.some((e, i) => i > 0 && R.lt(e.onset, endOf(merged[i - 1] as NEvent))))
       return result(false, "Shorten the shared notes so each finishes before the next one starts");
     const total = (counts[0] ?? 0) + (counts[1] ?? 0);
+    // Oak's call: each sound plays at least a quarter of the notes (the book gives no share).
     if (!total || counts.some((c) => c / total < 0.25))
       return result(false, `Give both ${refs[0]} and ${refs[1]} a share of the line`);
     // A hocket passes the line between the sounds note by note; trading whole bars is call and response (PLAN §5,
     // the book's "Linear Rhythm in Melodies"). Oak's call: every bar of the line with two or more notes holds notes
-    // from both sounds. Turns inside the bar are not capped, so halves of a bar traded every bar still pass.
+    // from both sounds, and no turn lasts a bar or more, counted from its first note to the other sound's next note
+    // (a bar-long phrase traded across the bar line is call and response too; X14 round 2, A2.L07). Shorter turns
+    // are not capped, so halves of a bar traded every bar still pass.
     const first = oneSided[0];
-    if (first !== undefined)
+    const tooLong = first === undefined ? longTurn(parts as NEvent[][]) : undefined;
+    const turnAt = first !== undefined ? rat(first) : tooLong;
+    if (turnAt !== undefined)
       return {
         ok: false,
         detail: `Let ${refs[0]} and ${refs[1]} take turns inside each bar instead of trading whole bars`,
-        where: locAt(rat(first), ctx),
+        where: locAt(turnAt, ctx),
       };
     return result(true, "Both sounds share the complete line without doubling its notes");
   };

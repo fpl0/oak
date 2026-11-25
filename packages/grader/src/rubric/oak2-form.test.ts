@@ -450,6 +450,116 @@ mel: arrange([4, melVerse], [4, melChorus])`;
     await passes("staggered-boundary", hesitate, { fill: "hesitate" });
     await failsWith("staggered-boundary", HARD, /drum fill/, { fill: "anticipate" });
   });
+  // X14 round 2 (A2.L09): drum lines on their own tracks, verse → chorus at bar 5.
+  const KIT = (
+    kick: string,
+    snare: string,
+    hats: string,
+    perc = "silence",
+    percChorus = 's("<~ [cr ~ ~ ~] ~ ~>")',
+  ) =>
+    `setcpm(90/4)
+const kickVerse = ${kick}
+const kickChorus = s("bd*4")
+const snareVerse = ${snare}
+const snareChorus = s("~ sd ~ sd")
+const hatsVerse = ${hats}
+const hatsChorus = s("hh*16")
+const percVerse = ${perc}
+const percChorus = ${percChorus}
+kick: arrange([4, kickVerse], [4, kickChorus])
+snare: arrange([4, snareVerse], [4, snareChorus])
+hats: arrange([4, hatsVerse], [4, hatsChorus])
+perc: arrange([4, percVerse], [4, percChorus])`;
+  test("a part silent on both sides of the bar line does not mark it; parts silent from one beat leave together", async () => {
+    // kick, snare and hats all leave one beat early; perc only plays in the chorus's second bar.
+    await failsWith(
+      "staggered-boundary",
+      KIT(
+        's("<bd*8 bd*8 bd*8 [bd bd bd bd bd bd ~ ~]>")',
+        's("<sd*8 sd*8 sd*8 [sd sd sd sd sd sd ~ ~]>")',
+        's("<hh*8 hh*8 hh*8 [hh hh hh hh hh hh ~ ~]>")',
+      ),
+      /all change 1 beat early together/,
+    );
+    // All silent from beat 3, though the kick's and snare's last missing hits fall on different beats.
+    await failsWith(
+      "staggered-boundary",
+      KIT(
+        's("<[bd ~ bd ~] [bd ~ bd ~] [bd ~ bd ~] [bd ~ ~ ~]>")',
+        's("<[~ sd ~ sd] [~ sd ~ sd] [~ sd ~ sd] [~ sd ~ ~]>")',
+        's("<hh*8 hh*8 hh*8 [hh*4 ~]>")',
+      ),
+      /all change 2 beats early together/,
+    );
+    // A crash on the chorus downbeat marks the seam on the bar line.
+    await failsWith(
+      "staggered-boundary",
+      KIT('s("bd ~ bd ~")', 's("~ sd ~ sd")', 's("hh*8")', "silence", 's("<[cr ~ ~ ~] ~ ~ ~>")'),
+      /every part changes right on the bar line/,
+    );
+    // Hats leave two beats early while the kick changes on the bar line: blurred.
+    await passes(
+      "staggered-boundary",
+      KIT('s("bd ~ bd ~")', 's("~ sd ~ sd")', 's("<hh*8 hh*8 hh*8 [hh*4 ~]>")'),
+    );
+  });
+  test("fill: it peaks late in the bar; the gap is where drums usually play; the fill's own lines run on", async () => {
+    const gap = (kit: string) =>
+      kit
+        .replace('s("bd*4")', 's("<[~ bd bd bd] bd*4 bd*4 bd*4>")')
+        .replace('s("hh*16")', 's("<[~ hh*4 hh*4 hh*4] hh*16 hh*16 hh*16>")');
+    const fill = (f: string) => `s("<[~ sd ~ sd] [~ sd ~ sd] [~ sd ~ sd] [${f}]>")`;
+    await passes("staggered-boundary", gap(KIT('s("bd ~ bd ~")', fill("sd*4 sd*4 sd*4 ~"), 's("hh*8")')), {
+      fill: "anticipate",
+    });
+    // A fill at the start of the bar, then the usual backbeat: not one that peaks before the downbeat.
+    await failsWith(
+      "staggered-boundary",
+      gap(KIT('s("bd ~ bd ~")', fill("sd*4 sd*4 ~ sd"), 's("hh*8")')),
+      /no drum fill before a seam/,
+      { fill: "anticipate" },
+    );
+    // No drum ever plays a downbeat: the empty one at the seam is no gap.
+    await failsWith(
+      "staggered-boundary",
+      KIT('s("~ bd ~ bd")', fill("sd*4 sd*4 sd*4 ~"), 's("[~ hh]*4")')
+        .replace('s("bd*4")', 's("~ bd bd bd")')
+        .replace('s("hh*16")', 's("[~ hh]*4")'),
+      /no drum fill before a seam/,
+      { fill: "anticipate" },
+    );
+    const late = KIT('s("bd ~ bd ~")', fill("~ sd sd*4 sd*4"), 's("hh*8")');
+    // The fill stops at the bar line and a crash lands on the downbeat: no hesitation.
+    await failsWith(
+      "staggered-boundary",
+      late.replace('s("<~ [cr ~ ~ ~] ~ ~>")', 's("<[cr ~ ~ ~] ~ ~ ~>")'),
+      /no drum fill that runs past the downbeat/,
+      { fill: "hesitate" },
+    );
+    // The snare runs on; then the fill passes to toms on a line silent before; then the hats make room.
+    await passes(
+      "staggered-boundary",
+      late.replace(
+        'snareChorus = s("~ sd ~ sd")',
+        'snareChorus = s("<[sd*4 sd ~ sd] [~ sd ~ sd] [~ sd ~ sd] [~ sd ~ sd]>")',
+      ),
+      { fill: "hesitate" },
+    );
+    await passes(
+      "staggered-boundary",
+      late.replace('s("<~ [cr ~ ~ ~] ~ ~>")', 's("<[ht*4 ~ ~ ~] [cr ~ ~ ~] ~ ~>")'),
+      { fill: "hesitate" },
+    );
+    await passes(
+      "staggered-boundary",
+      KIT('s("bd ~ bd ~")', fill("~ sd sd*4 sd*4"), 's("<hh*8 hh*8 hh*8 ~>")').replace(
+        'snareChorus = s("~ sd ~ sd")',
+        'snareChorus = s("<[sd*4 sd ~ sd] [~ sd ~ sd] [~ sd ~ sd] [~ sd ~ sd]>")',
+      ),
+      { fill: "hesitate" },
+    );
+  });
   test("edge 1: a named track with no events fails naming it", async () => {
     await failsWith("staggered-boundary", HARD, /`hats` plays nothing/, { tracks: ["hats"] });
   });
@@ -515,6 +625,20 @@ mel: arrange([4, melVerse], [4, melChorus], [4, melVerse], [4, melChorus])`;
   test("nothing heard once fails", async () => {
     await failsWith("unique-event", PLAIN, /nothing happens only once/);
   });
+  test("with controls, a change too small to hear or the same effect twice is no moment (X14 round 2)", async () => {
+    const mel = (lpf: string) => `${PLAIN.replace(/\nmel: .*/, "")}
+mel: arrange([4, melVerse], [4, melChorus], [4, melVerse], [4, melChorus]).lpf(${lpf})`;
+    await passes("unique-event", mel('"<2000!9 1200 2000!6>"'), { controls: true });
+    // 2000 → 1990: under a third of an octave.
+    await failsWith("unique-event", mel('"<2000!9 1990 2000!6>"'), /nothing happens only once/, {
+      controls: true,
+    });
+    // The same dip in bar 2 and bar 11: different notes under it, the same sound twice.
+    await failsWith("unique-event", mel('"<2000 400 2000!8 400 2000!5>"'), /nothing happens only once/, {
+      controls: true,
+    });
+  });
+
   test("a one-bar stop in the second verse is a moment too (X14 other way)", async () => {
     const code = `${BASE}
 const drumsVerse2 = drumsVerse.mask("<1 1 1 0>")

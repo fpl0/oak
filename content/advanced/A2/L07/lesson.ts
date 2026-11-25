@@ -14,8 +14,9 @@
 //
 // The corrections-pass standard (AUTHORING §20.2) on S4 and the Make: both grade the `hocket` rule, which reads the
 // heard notes of `mel` and `vox` against the whole four-bar line (`pitches` per loop): every note once in its place,
-// no note twice, nothing ringing over the next, two sounds, each sound in every bar (whole bars traded fail: call
-// and response), each with a share. A part more than 24 dB under the loudest sounds no notes to the grader, so a
+// no note twice, nothing ringing over the next, two sounds, each sound in every bar and no turn as long as a bar
+// (whole bars traded fail: call and response, even moved off the bar line), each with a quarter of the notes
+// (Oak's call, shown in the label and the Make's Done-when). A part more than 24 dB under the loudest sounds no notes to the grader, so a
 // `vox` turned down to nothing fails. The right-function wrong answers: `vox` playing with `mel` (a doubling), and
 // the moved notes at `.gain(.02)`.
 import { defineLesson, type HintLadder, type RubricRule, type TestCase } from "@oak/content-kit";
@@ -122,7 +123,7 @@ const WRONG_QUOTES = (src: string) =>
 const HOCKET_RULE: RubricRule = {
   id: "one-line-two-sounds",
   label:
-    "`mel` and `vox` play every note of the line once between them, each in its place and never together, on two different sounds, taking turns inside every bar",
+    "`mel` and `vox` play every note of the line once between them, each in its place and never together, on two different sounds, each at least a quarter of the notes, taking turns shorter than a bar inside every bar",
   required: true,
   skills: ["D09", "M07"],
   rule: "custom",
@@ -145,6 +146,12 @@ const corrections = (wrap: (...lines: string[]) => string): TestCase[] => [
     "pass",
   ),
   test("whole bars traded: call and response", wrap(...split(wholeBars)), "fail", ["rubric.unmet"]),
+  test(
+    "bar-long turns traded across the bar line: call and response moved by half a bar",
+    wrap(...split((i) => Math.floor((i + 4) / 8) % 2 === 1)),
+    "fail",
+    ["rubric.unmet"],
+  ),
   test("vox doubles every note of mel", wrap(mel(FULL), vox(FULL)), "fail", ["rubric.unmet"]),
   test(
     "the right notes moved to vox, turned down until they are not heard",
@@ -389,7 +396,7 @@ export default defineLesson({
         version: 1,
         role: "practice",
         prompt:
-          "Share the tune between `mel` and `vox` your own way: turns of one, two or three notes, crossing the bar line if you like. Keep every note of the tune once, give `vox` its own sound, and keep the bass and chords. Done when both sounds play in every bar and never at the same moment.",
+          "Share the tune between `mel` and `vox` a note, a beat or a few notes at a time, crossing the bar line if you like. Keep every note once, give `vox` its own sound, and keep the bass and chords. Done when both sounds play in every bar, each at least a quarter of the notes, and never together.",
         skills: [
           { skill: "D09", w: 0.6 },
           { skill: "M07", w: 0.4 },
@@ -410,6 +417,11 @@ export default defineLesson({
           test("the starter as it is", MAKE_STARTER, "fail", ["rubric.unmet"]),
           test("reference: every second note on vox", MAKE_REFERENCE, "pass"),
           test("minimal: three notes each, crossing bar lines", make(...split(threes)), "pass"),
+          test(
+            "vox switches between two sounds of its own",
+            make(...split(odd, '.scale("A4:minor").s("<piano triangle>").gain(.5)')),
+            "pass",
+          ),
           test(
             "beyond the brief: vox on triangle with room, in turns of one, two, one and three",
             make(...split(irregular, '.scale("A4:minor").s("triangle").gain(.45).room(.3)')),

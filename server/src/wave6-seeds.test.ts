@@ -264,7 +264,8 @@ async function deepChecks(h: Harness, point: string, plan: SessionPlan): Promise
       const summary = lastSummary(h);
       expect((summary.gatesOpened ?? []).map((g) => g.gateId).sort()).toEqual(["J.main", "R.main"]);
       // Wave 7: the first lessons of J and R are written (J1.L01, R1.L01, the Foundation exemplars). The core stays
-      // the New block and each open track is offered beside it (wave7.md §5.2); the map counts all 259 sessions.
+      // the New block and each open track is offered beside it (wave7.md §5.2); the map counts all 270 sessions
+      // (content/syllabus.ts SESSION_COUNTS.total since Oak 2.0 W2; it was 259).
       const written = (id: string) => full.lessons.some((l) => l.id === id);
       const first = { J: "J1.L01", R: "R1.L01" } as const;
       const tracks = await ok<Tracks>(h, "GET", "/api/tracks");
@@ -288,7 +289,7 @@ async function deepChecks(h: Harness, point: string, plan: SessionPlan): Promise
           "J1.L01",
           "R1.L01",
         ]);
-        expect(p.mapTotal).toBe(259);
+        expect(p.mapTotal).toBe(270);
       } else {
         const unwritten: ("J" | "R")[] = (["J", "R"] as const).filter((t) => !written(first[t]));
         expect(plan.tracks?.open as string[] | undefined).toEqual(unwritten);

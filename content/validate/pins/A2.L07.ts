@@ -32,7 +32,9 @@ const halves = (i: number) => i % 8 < 4;
 const full = pattern(() => true);
 // Message start copied from content:check A2.L07 --verbose (S4 and the Make share the rule and its label).
 const SAYS =
-  "`mel` and `vox` play every note of the line once between them, each in its place and never together, on two different sounds, taking turns inside every bar: not yet.";
+  "`mel` and `vox` play every note of the line once between them, each in its place and never together, on two different sounds, each at least a quarter of the notes, taking turns shorter than a bar inside every bar: not yet.";
+// X14 round 2: bar-long phrases traded with the hand-over moved off the bar line (by one note, by half a bar).
+const shiftedBars = (offset: number) => (i: number) => Math.floor((i + offset) / 8) % 2 === 0;
 
 export default [
   ...["S4", "S6"].flatMap((at): Oak2Pin[] => [
@@ -106,6 +108,47 @@ export default [
         at,
         pattern(halves),
         pattern((i) => !halves(i)),
+      ),
+    },
+    ...[1, 4].map(
+      (offset): Oak2Pin => ({
+        owner: "A2.L07",
+        at,
+        name: `bar-long phrases traded across the bar line, moved by ${offset === 1 ? "one note" : "half a bar"} (X14 round 2: call and response)`,
+        kind: "book-miss",
+        expect: "fail",
+        says: SAYS,
+        code: piece(
+          at,
+          pattern(shiftedBars(offset)),
+          pattern((i) => !shiftedBars(offset)(i)),
+        ),
+      }),
+    ),
+    {
+      owner: "A2.L07",
+      at,
+      name: "vox switches between two sounds of its own, note by note (X14 round 2: the Make's suggested third colour)",
+      kind: "book-other-way",
+      expect: "pass",
+      code: piece(
+        at,
+        pattern(alternate),
+        pattern((i) => !alternate(i)),
+        "piano triangle",
+      ),
+    },
+    {
+      owner: "A2.L07",
+      at,
+      name: "one vox note a bar, under a quarter of the line (X14 round 2; Oak's call: each sound plays at least a quarter of the notes, decisions list)",
+      kind: "extra",
+      expect: "fail",
+      says: SAYS,
+      code: piece(
+        at,
+        pattern((i) => i % 8 !== 3),
+        pattern((i) => i % 8 === 3),
       ),
     },
     {

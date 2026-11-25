@@ -399,8 +399,9 @@ describe("Oak 2.0 W2: lesson gates and listening words", () => {
     });
   test("motion has its listening line; A2.L01 retains its original words", async () => {
     const text = await Bun.file(new URL("../../../app/src/drills/listen-for.ts", import.meta.url)).text();
+    // The W2 integration shortened X12's line to at most 40 words (app/src/drills/listen-for.test.ts).
     expect(text).toContain(
-      '"fam.har.motion":\n    "Follow the top note and the bass from chord to chord. When they move together by the same amount every time, the chords are parallel; when the top note stays close while the bass moves a different way, they are voice-led."',
+      '"fam.har.motion":\n    "Follow the top note and the bass from chord to chord. Moving together by the same amount each time, the chords are parallel; the top note staying close while the bass moves, they are voice-led."',
     );
     expect(text).toContain(
       '"fam.snd.roles":\n    "Pick out who plays what: the tune, the harmony, the low end. Where two parts sit at the same height, they blur into each other."',

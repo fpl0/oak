@@ -274,6 +274,36 @@ describe("AC2 hocket", () => {
       /trading whole bars/,
     );
   });
+  // X14 round 2 (A2.L07): a bar-long phrase traded across the bar line is call and response too.
+  test("bar-long turns that cross the bar line fail; half-bar turns pass", async () => {
+    for (const offset of [1, 4])
+      check(
+        await run(
+          "hocket",
+          split4((i) => Math.floor((i + offset) / 8) % 2 === 0),
+          params4,
+        ),
+        false,
+        /instead of trading whole bars/,
+      );
+    check(
+      await run(
+        "hocket",
+        split4((i) => i % 8 < 4),
+        params4,
+      ),
+      true,
+    );
+    // Turns of five, four and three notes, crossing the bar line: none reaches a bar.
+    check(
+      await run(
+        "hocket",
+        split4((i) => Math.floor(i / 4) % 2 === 0 || i % 8 === 7),
+        params4,
+      ),
+      true,
+    );
+  });
 });
 
 describe("AC3 stepped-control", () => {

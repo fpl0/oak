@@ -574,7 +574,7 @@ export const WAVE7_SEED_DESCRIPTIONS: readonly DevSeedPoint[] = [
   {
     point: "core complete, tracks untouched",
     description:
-      "Wave 6's “core complete” (session 185; J and R open; A1.L01–L04 not done), the focus never chosen. Today is a review day with trackOffers J1.L01, R1.L01 and A1.L01 (each as soon as it is written).",
+      "Wave 6's “core complete” (session 191; J and R open; A1.L01–L04 not done), the focus never chosen. Today is a review day with trackOffers J1.L01, R1.L01 and A1.L01 (each as soon as it is written).",
   },
   {
     point: "J1.L03 next",
@@ -680,6 +680,6 @@ export const WAVE7_SEED_DESCRIPTIONS: readonly DevSeedPoint[] = [
   {
     point: "whole course complete",
     description:
-      "All 259 sessions: the core, then J, R and A in order, all twenty capstones released with recordings; yesterday's summary carries courseComplete. Today is a review day with plan.course complete. JC4 is on Georgia on My Mind.",
+      "All 270 sessions: the core, then J, R and A in order, all twenty capstones released with recordings; yesterday's summary carries courseComplete. Today is a review day with plan.course complete. JC4 is on Georgia on My Mind.",
   },
 ];

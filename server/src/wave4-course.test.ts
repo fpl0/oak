@@ -178,7 +178,8 @@ describe("the Wave 4 dev seeds on the real content (wave4.md §6)", () => {
             expect(gym.history.map((g) => g.gymId)).toEqual(["GYM.01", "GYM.02"]);
             expect(gym.history[1]).toMatchObject({ kind: "ladder", realism: 1 });
             expect(ladder.gradedPasses["1"]).toBe(2);
-            expect(gym.sinceLast).toBe(0);
+            // Since Oak 2.0 W2 (decision 103) GYM.02 follows U07.L06, so U07.L07 is one core session after it.
+            expect(gym.sinceLast).toBe(1);
             if (written(real, "U07.L08"))
               expect(plan).toMatchObject({ kind: "lesson", mapItemId: "U07.L08" });
             const projects = await me.api<{ items: Transcription[] }>("GET", "/api/transcriptions");

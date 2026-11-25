@@ -1579,6 +1579,18 @@
       "kind": "example"
     },
     {
+      "id": "A2.L07@broken",
+      "kind": "example"
+    },
+    {
+      "id": "A2.L07@hocket",
+      "kind": "example"
+    },
+    {
+      "id": "A2.L09@gap-and-crash",
+      "kind": "example"
+    },
+    {
       "id": "J1.L01@the-ride",
       "kind": "example"
     },
@@ -3551,6 +3563,30 @@
       "kind": "exercise"
     },
     {
+      "id": "A2.L07/a-tune-of-colours",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L07/find-the-doubled-note",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L07/one-tune-two-sounds",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L07/share-the-line",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L07/whose-notes",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L07/your-own-split",
+      "kind": "exercise"
+    },
+    {
       "id": "A2.L08/carve-the-sections",
       "kind": "exercise"
     },
@@ -3572,6 +3608,34 @@
     },
     {
       "id": "A2.L08/write-your-peak",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L09/anticipating-fill",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L09/crash-place",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L09/fill-ending",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L09/hesitating-fill",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L09/one-bar-effect",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L09/seams-and-surprises",
+      "kind": "exercise"
+    },
+    {
+      "id": "A2.L09/three-seams",
       "kind": "exercise"
     },
     {
@@ -13316,6 +13380,30 @@
       "kind": "step"
     },
     {
+      "id": "A2.L07/S1",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L07/S2",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L07/S3",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L07/S4",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L07/S5",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L07/S6",
+      "kind": "step"
+    },
+    {
       "id": "A2.L08/S1",
       "kind": "step"
     },
@@ -13337,6 +13425,34 @@
     },
     {
       "id": "A2.L08/S6",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L09/S1",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L09/S2",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L09/S3",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L09/S4",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L09/S5",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L09/S6",
+      "kind": "step"
+    },
+    {
+      "id": "A2.L09/S7",
       "kind": "step"
     },
     {

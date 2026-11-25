@@ -176,12 +176,12 @@ export const SEED_POINTS: readonly DevSeedPoint[] = [
   {
     point: "after U07.L03 (gym due)",
     description:
-      "U06.CP passed, U07.L01–L03 done: four core sessions since U07.L01 started the slot rule. Today's New block is GYM.01 (ladder L1, R0).",
+      "U06.CP passed, U07.L01, U07.L02 and U07.L11 done: four core sessions since U07.L01 started the slot rule (since Oak 2.0 W2 GYM.01 comes before U07.L03; the name is kept). Today's New block is GYM.01 (ladder L1, R0).",
   },
   {
     point: "after U07.L07",
     description:
-      "GYM.01 done (one graded L1 pass), U07.L04–L07, GYM.02 done (no audio project: a ladder session one realism level up, graded pass); today is U07.L08.",
+      "GYM.01 done (one graded L1 pass), U07.L03–L06, GYM.02 done (no audio project: a ladder session one realism level up, graded pass), then U07.L07; today is U07.L08.",
   },
   {
     point: "U07.CP due",
@@ -216,12 +216,12 @@ export const SEED_POINTS: readonly DevSeedPoint[] = [
   {
     point: "ladder L3",
     description:
-      "Through U07.L07 (GYM.01 done, GYM.02 not yet) with the ladder at L3, realism R1, and one L3 item started yesterday (no answer yet). Today's New block is GYM.02: no audio project, so a ladder session (L3, R2).",
+      "Through U07.L06 (GYM.01 done, GYM.02 not yet) with the ladder at L3, realism R1, and one L3 item started yesterday (no answer yet). Today's New block is GYM.02: no audio project, so a ladder session (L3, R2).",
   },
   {
     point: "own-audio project",
     description:
-      "Through U07.L07 (GYM.02 not yet) with one own-audio project: a 6-second WAV in the data dir, two regions, one code version, the checklist half done (contour 2, rhythm 1, landing 1), player settings. Today's New block is GYM.02 (own audio).",
+      "Through U07.L06 (GYM.02 not yet) with one own-audio project: a 6-second WAV in the data dir, two regions, one code version, the checklist half done (contour 2, rhythm 1, landing 1), player settings. Today's New block is GYM.02 (own audio).",
   },
   {
     point: "<N>-day gap",
@@ -317,9 +317,11 @@ export function planSeed(point: string, order: readonly string[]): SeedPlan {
   // Wave 4 points whose names do not follow the Wave 2 patterns (wave4.md §6).
   const named: Record<string, () => SeedPlan> = {
     "u05.l07 gate open": () => ({ upTo: before("U05.L07"), extra: { kind: "gate-open" }, gapDays: null }),
-    "after u07.l03 (gym due)": () => ({ upTo: inOrder("U07.L03"), extra: null, gapDays: null }),
-    // GYM.02 follows U07.L07 in the default order; the point includes it (today is U07.L08).
-    "after u07.l07": () => ({ upTo: inOrder("GYM.02"), extra: null, gapDays: null, unit: "U07.L07" }),
+    // Since Oak 2.0 W2 (decision 103) GYM.01 follows U07.L11, before U07.L03: the point keeps its name (the e2e
+    // seed it by name) and ends the day before the slot, so today is still GYM.01.
+    "after u07.l03 (gym due)": () => ({ upTo: inOrder("U07.L11"), extra: null, gapDays: null }),
+    // GYM.02 follows U07.L06 since Oak 2.0 W2 (decision 103); the point walks it and U07.L07 (today is U07.L08).
+    "after u07.l07": () => ({ upTo: inOrder("U07.L07"), extra: null, gapDays: null }),
     "c2 open": () => ({ upTo: before("C2.S1"), extra: null, gapDays: null }),
     "c2.s1 done": () => ({ upTo: inOrder("C2.S1"), extra: null, gapDays: null }),
     "c2 released": () => ({
@@ -336,8 +338,9 @@ export function planSeed(point: string, order: readonly string[]): SeedPlan {
     }),
     "x1.s2 done": () => ({ upTo: inOrder("X1.S2"), extra: null, gapDays: null }),
     "x1 released": () => ({ upTo: inOrder("X1.S3"), extra: null, gapDays: null }),
-    "ladder l3": () => ({ upTo: inOrder("U07.L07"), extra: { kind: "ladder-l3" }, gapDays: null }),
-    "own-audio project": () => ({ upTo: inOrder("U07.L07"), extra: { kind: "own-audio" }, gapDays: null }),
+    // U07.L06, the day before GYM.02 since Oak 2.0 W2 moved the slots (it was U07.L07).
+    "ladder l3": () => ({ upTo: inOrder("U07.L06"), extra: { kind: "ladder-l3" }, gapDays: null }),
+    "own-audio project": () => ({ upTo: inOrder("U07.L06"), extra: { kind: "own-audio" }, gapDays: null }),
     // Wave 5 (wave5.md §6).
     "after x1 (u08.l02 next)": () => ({ upTo: inOrder("X1.S3"), extra: null, gapDays: null }),
     "c3 open": () => ({ upTo: inOrder("U09.CP"), extra: null, gapDays: null }),
@@ -372,7 +375,7 @@ export function planSeed(point: string, order: readonly string[]): SeedPlan {
     }),
     "side lesson offered": () => ({ upTo: inOrder("U03.L02"), extra: null, gapDays: null }),
     "imported own-audio (c2)": () => ({
-      upTo: inOrder("U07.L07"),
+      upTo: inOrder("U07.L06"),
       extra: { kind: "own-audio", imported: true },
       gapDays: null,
     }),
