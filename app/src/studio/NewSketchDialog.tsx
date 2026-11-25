@@ -48,8 +48,10 @@ import { START_SLOTS } from "./start-slots.ts";
 import {
   blankStartBody,
   drumsAndBassCode,
+  FILL_LENGTH_LINE,
   FILL_REFUSALS,
   FILL_SECTIONS,
+  FILL_SONG_BARS,
   type FillSections,
   fillItAllCode,
   plainStartCode,
@@ -166,8 +168,9 @@ function NewSketchForm({
     enabled: start === "fill" && fillId !== "",
   });
   const fillVersion = fillSource.data?.versions.at(-1);
-  const fillBars = readLength(fillId) ?? 4;
-  const fillResult = fillVersion ? fillItAllCode(fillVersion.code, { sections, bars: fillBars }) : null;
+  const fillResult = fillVersion
+    ? fillItAllCode(fillVersion.code, { sections, loopBars: readLength(fillId) ?? 4 })
+    : null;
   const fillProblem = fillResult && "error" in fillResult ? FILL_REFUSALS[fillResult.error] : null;
   const [title, setTitle] = useState(() => nextSketchTitle(sketches));
   // Until the learner types a title, choosing a template names the sketch after it.
@@ -274,7 +277,7 @@ function NewSketchForm({
         },
         note: `Filled from “${source.title}”`,
       };
-      bars = sections * fillBars;
+      bars = FILL_SONG_BARS;
     } else {
       const template = start.startsWith("tpl:") ? others.find((t) => `tpl:${t.id}` === start) : null;
       const opts = { title: base.title, sessionId: base.sessionId };
@@ -486,7 +489,7 @@ function NewSketchForm({
               </select>
             </label>
             <div className="flex flex-col gap-1 text-sm">
-              <span className="text-text-2">Sections, {fillBars} bars each</span>
+              <span className="text-text-2">{FILL_LENGTH_LINE}</span>
               <SegmentedControl<string>
                 label="Sections"
                 size="sm"

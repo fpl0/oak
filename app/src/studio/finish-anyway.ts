@@ -20,6 +20,19 @@ export function arrangementState(code: string): ArrangementState {
   return arranged === lines.length ? "whole" : "half";
 }
 
+/**
+ * Whether the capstone workspace shows its "Finish it anyway" card: not released, half arranged, and not the
+ * untouched starter (the owner's call, W5 item 7: the book's problem shows late, so a starter that comes half
+ * arranged is no reason to offer it).
+ */
+export function showsCapstoneFinishCard(o: {
+  liveCode: string;
+  starter: string;
+  released: boolean;
+}): boolean {
+  return !o.released && arrangementState(o.liveCode) === "half" && o.liveCode.trim() !== o.starter.trim();
+}
+
 // --- reading arrange() ---------------------------------------------------------------------------------------
 
 interface Entry {
@@ -259,6 +272,7 @@ export function fillTheRest(
 export const FINISH_COPY = {
   open: "Finish it anyway…",
   title: "Finish it anyway",
+  reason: "Finishing is practised by finishing; a piece on the Shelf stays off the album.",
   askDelete: "Before you delete it: finish it anyway?",
   askArchive: "Before you archive it: finish it anyway?",
   finish: "Finish it anyway",

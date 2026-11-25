@@ -81,9 +81,9 @@ export function FinishAnywayDialog({
   };
 
   const state = arrangementState(current);
-  const bars = target.kind === "sketch" ? (readLength(target.sketch.id) ?? 4) : 4;
+  const loopBars = target.kind === "sketch" ? (readLength(target.sketch.id) ?? 4) : 4;
   const fillNow = (): void => {
-    const r = state === "none" ? fillItAllCode(current, { sections, bars }) : fillTheRest(current);
+    const r = state === "none" ? fillItAllCode(current, { sections, loopBars }) : fillTheRest(current);
     if ("code" in r) {
       write(r.code);
       setFilled(true);
@@ -91,7 +91,7 @@ export function FinishAnywayDialog({
   };
   const fillProblem = (() => {
     if (state === "whole") return null;
-    const r = state === "none" ? fillItAllCode(current, { sections, bars }) : fillTheRest(current);
+    const r = state === "none" ? fillItAllCode(current, { sections, loopBars }) : fillTheRest(current);
     return "error" in r ? fillWords[r.error] : null;
   })();
   const grid = sectionGrid(current);
@@ -138,6 +138,9 @@ export function FinishAnywayDialog({
         }
       >
         <span data-testid="finish-anyway-ask" />
+        <p className="text-sm text-text-2" data-testid="finish-anyway-reason">
+          {FINISH_COPY.reason}
+        </p>
       </Dialog>
     );
   }
@@ -156,6 +159,11 @@ export function FinishAnywayDialog({
       }
     >
       <div className="flex flex-col gap-5" data-testid="finish-anyway">
+        {!abandon ? (
+          <p className="text-sm text-text-2" data-testid="finish-anyway-reason">
+            {FINISH_COPY.reason}
+          </p>
+        ) : null}
         <section aria-labelledby={`${ids}-fill`} className="flex flex-col gap-2">
           <h3 id={`${ids}-fill`} className="font-medium">
             {FINISH_COPY.fillStep}

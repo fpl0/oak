@@ -46,6 +46,36 @@ export function plainStartCode(bpm: number, meter: MeterId): string {
 export const FILL_SECTIONS = { choices: [2, 3, 4, 6, 8] as const, preselected: 4 } as const;
 export type FillSections = (typeof FILL_SECTIONS.choices)[number];
 
+/**
+ * Oak's call: the length Fill it all fills, in bars. The book gives no number ("an average song's worth of time",
+ * Arranging as a Subtractive Process p. 260); 64 is the owner's pick, kept loose and never shown as a target.
+ */
+export const FILL_SONG_BARS = 64;
+
+/**
+ * Fill it all's section lengths: `total` bars over `sections` sections, as evenly as whole loops allow, so no
+ * section cuts the learner's loop off (the Studio lint names a section that does: `form.section-period`).
+ * When `loopBars` divides `total` and there are at least as many loops as sections, every section is a whole
+ * number of loops; otherwise the split is in whole bars. Either way the remainder goes one unit each to the
+ * FIRST sections (lengths never increase from first to last), and the lengths sum to `total`.
+ */
+export function fillSectionBars(
+  sections: number,
+  loopBars: number,
+  total: number = FILL_SONG_BARS,
+): number[] {
+  const s = Math.min(total, Math.max(1, Math.round(sections)));
+  const loop = Math.max(1, Math.round(loopBars));
+  const unit = total % loop === 0 && total / loop >= s ? loop : 1;
+  const units = total / unit;
+  const base = Math.floor(units / s);
+  const extra = units % s;
+  return Array.from({ length: s }, (_, i) => (base + (i < extra ? 1 : 0)) * unit);
+}
+
+/** The New sketch dialog's line above the section count. */
+export const FILL_LENGTH_LINE = `Sections, ${FILL_SONG_BARS} bars in all`;
+
 const LABEL_HEAD = /^\s*[A-Za-z_$][\w$]*\s*:(?!:)\s*/;
 const ARRANGE = /\barrange\s*\(/;
 
@@ -58,7 +88,7 @@ const ARRANGE = /\barrange\s*\(/;
  */
 export function fillItAllCode(
   source: string,
-  o: { sections: number; bars: number },
+  o: { sections: number; loopBars: number },
 ): { code: string } | { error: "has-sections" | "no-parts" } {
   const lines = labelledLines(source);
   const consts = constDecls(source);
@@ -81,10 +111,9 @@ export function fillItAllCode(
   for (const { part, name, expr } of [...named].reverse()) {
     code = `${code.slice(0, part.from)}const ${name} = ${expr}${code.slice(part.to)}`;
   }
-  const sections = Math.max(1, Math.round(o.sections));
-  const bars = Math.max(1, Math.round(o.bars));
+  const bars = fillSectionBars(o.sections, o.loopBars);
   const arranged = named.map(({ part, name }) => {
-    const entries = Array.from({ length: sections }, () => `[${bars}, ${name}]`).join(", ");
+    const entries = bars.map((b) => `[${b}, ${name}]`).join(", ");
     return `${part.label}: arrange(${entries})`;
   });
   return { code: `${code.trimEnd()}\n\n${arranged.join("\n")}\n` };
