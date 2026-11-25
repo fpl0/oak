@@ -277,7 +277,7 @@ describe("the persona carries the Wave 6 rules", () => {
       "Every `tryCode` is written in the piece's key, which `try_code_key` gives",
       "never over inline patterns",
       'such as "perfect authentic cadence"',
-      "When `strengths_wanted` is 3",
+      "When `strengths_wanted` is up to 3",
     ])
       expect(PERSONA).toContain(text);
     // Still a constant, and still no semitones.

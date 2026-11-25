@@ -83,7 +83,10 @@ describe("a structured review", () => {
   });
 
   test("a rejected object goes back once, on the same session, as an <oak_context> block", async () => {
-    start({ ...CAPSTONE_REVIEW, strengths: [] }, CAPSTONE_REVIEW);
+    start(
+      { ...CAPSTONE_REVIEW, strengths: [...CAPSTONE_REVIEW.strengths, ...CAPSTONE_REVIEW.strengths] },
+      CAPSTONE_REVIEW,
+    );
     const { events, result } = await h.review(REQUEST);
 
     expect(result).toMatchObject({ ok: true, review: CAPSTONE_REVIEW });
@@ -106,7 +109,11 @@ describe("a structured review", () => {
   });
 
   test("never valid: no review is invented, the turn fails and the session is retired", async () => {
-    start({}, { ...CAPSTONE_REVIEW, strengths: [] }, CAPSTONE_REVIEW);
+    start(
+      {},
+      { ...CAPSTONE_REVIEW, strengths: [...CAPSTONE_REVIEW.strengths, ...CAPSTONE_REVIEW.strengths] },
+      CAPSTONE_REVIEW,
+    );
     const { events, result } = await h.review(REQUEST);
     expect(result).toMatchObject({ ok: false, review: null, error: { kind: "iteration_limit" } });
     expect(events.some((e) => e.type === "review")).toBe(false);
@@ -176,7 +183,13 @@ describe("a structured review", () => {
   test("a resubmission whose session is gone restarts with the request and the rejection together", async () => {
     h = startHarness({
       runs: [
-        { ...REVIEW_RUN, structuredOutput: { ...CAPSTONE_REVIEW, strengths: [] } },
+        {
+          ...REVIEW_RUN,
+          structuredOutput: {
+            ...CAPSTONE_REVIEW,
+            strengths: [...CAPSTONE_REVIEW.strengths, ...CAPSTONE_REVIEW.strengths],
+          },
+        },
         { failResume: true },
         { ...REVIEW_RUN, structuredOutput: CAPSTONE_REVIEW },
       ],

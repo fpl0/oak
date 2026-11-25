@@ -199,7 +199,10 @@ describe("reviews", () => {
     async (channel) => {
       const backend = new ScriptedBackend(channel === "tool" ? "anthropic-api" : "claude-cli");
       backend.channel = channel;
-      backend.deliveries = [{ ...CAPSTONE_REVIEW, strengths: [] }, CAPSTONE_REVIEW];
+      backend.deliveries = [
+        { ...CAPSTONE_REVIEW, strengths: [...CAPSTONE_REVIEW.strengths, ...CAPSTONE_REVIEW.strengths] },
+        CAPSTONE_REVIEW,
+      ];
       const { run, ports } = setup([backend]);
       ports.lessons.reviews.set("capstone:C2", REVIEW_SOURCE);
       const { events, types } = await run(request);

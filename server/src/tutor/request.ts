@@ -48,6 +48,7 @@ export const TurnRequestSchema = z.strictObject({
   albumTrackId: z.string().min(1).max(200).optional(),
   albumVersion: z.number().int().positive().optional(),
   transcriptionVersion: z.number().int().nonnegative().optional(),
+  reviewQuestion: z.string().trim().min(1).max(300).optional(), // Oak's call: one short question.
 });
 
 /** Parse a request body. zod's `optional()` yields `T | undefined`; the result is narrowed to TurnRequest. */
@@ -70,5 +71,6 @@ export function parseTurnRequest(
   if (d.albumTrackId !== undefined) request.albumTrackId = d.albumTrackId;
   if (d.albumVersion !== undefined) request.albumVersion = d.albumVersion;
   if (d.transcriptionVersion !== undefined) request.transcriptionVersion = d.transcriptionVersion;
+  if (d.reviewQuestion !== undefined) request.reviewQuestion = d.reviewQuestion;
   return { ok: true, request };
 }

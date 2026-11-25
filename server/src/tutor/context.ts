@@ -91,13 +91,20 @@ function checkerLines(grade: GradeSnapshot, ctx: Pick<TurnContext, "disclosure" 
 }
 
 function reviewLines(kind: string, subjectId: string, r: ReviewSource): string[] {
-  const lines = [
-    `review_of: ${kind} ${subjectId} "${inline(r.title, 120)}"`,
+  const lines = [`review_of: ${kind} ${subjectId} "${inline(r.title, 120)}"`];
+  if (r.question != null) {
+    const questionChars = 300; // Oak's call: keep the learner's question on one short context line.
+    lines.push(
+      `learner_question: ${inline(r.question, questionChars)}`,
+      "answer_first: the learner asked the question above; answer it in `answer` before anything else, plainly, by bars when it is about a passage; if the code and facts cannot settle it, say what to listen for",
+    );
+  }
+  lines.push(
     `revisions_wanted: ${r.revisions}`,
     `total_bars: ${r.totalBars ?? "unknown"}`,
     `brief: ${block(r.brief)}`,
     `analysis: ${block(r.analysis)}`,
-  ];
+  );
   for (const item of r.rubric) {
     lines.push(
       `rubric: ${inline(item.label, 160)}${item.required ? " (required)" : ""}: ${item.met ? "met" : "not met"}`,
@@ -108,10 +115,10 @@ function reviewLines(kind: string, subjectId: string, r: ReviewSource): string[]
     lines.push(`review_target: album track ${inline(r.target.trackId, 80)} version ${r.target.version}`);
   else if (r.target?.kind === "transcription")
     lines.push(`review_target: transcription version ${r.target.version}`);
-  // Wave 6: the Core Finale's single asks for the longest review: three strengths, the strongest first.
+  // The Core Finale's single asks for up to three real strengths, the strongest first.
   if ((r.strengthsWanted ?? strengthsWantedFor(subjectId)) === 3)
     lines.push(
-      "strengths_wanted: 3 · the first names what is strongest in this song, in the learner's own bars; each is anchored to bars from the facts below",
+      "strengths_wanted: up to 3 · the first names what is strongest in this song, in the learner's own bars; each is anchored to bars from the facts below",
     );
   // Wave 6 (d2): what a review's try-it code and prose are held to. Oak refuses a review that breaks these.
   if (kind === "capstone" || kind === "track") {

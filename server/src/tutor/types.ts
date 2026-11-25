@@ -141,6 +141,7 @@ export interface TurnRequest {
   albumVersion?: number;
   /** Wave 4: a transcription review of one version of the project (default: its latest). */
   transcriptionVersion?: number;
+  reviewQuestion?: string;
 }
 
 /** The version a review request names, if any (both album fields, or the transcription version). */

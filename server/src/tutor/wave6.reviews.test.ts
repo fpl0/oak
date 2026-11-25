@@ -98,7 +98,7 @@ const CASES: Case[] = [
     userText: "",
     lines: [
       "revisions_wanted: 2",
-      "strengths_wanted: 3 · the first names what is strongest in this song, in the learner's own bars",
+      "strengths_wanted: up to 3 · the first names what is strongest in this song, in the learner's own bars",
       "form: Verse Chorus Verse Chorus Bridge Chorus Chorus 2 (ABABCBB); section bars count from the first full bar",
       "length: 2:14 (134 s) · 56 bars",
       "devices: 5 of the six core devices (secondary dominant, borrowed chord, modulation, suspension, syncopated bass) · not found: modal colour",
@@ -202,23 +202,23 @@ describe("CF-A: the longest review the tutor writes", () => {
       expect(words(CFA_REVIEW)).toBeGreaterThan(words(other));
   });
 
-  test("a CF-A review with two strengths is refused with its problem and repaired once", async () => {
-    const two = { ...CFA_REVIEW, strengths: CFA_REVIEW.strengths.slice(0, 2) };
-    expect(validateCapstoneReview(two, rulesFor({ id: "CF-A", source: CFA_SOURCE }))).toMatchObject({
+  test("a CF-A review with four strengths is refused with its problem and repaired once", async () => {
+    const four = { ...CFA_REVIEW, strengths: [...CFA_REVIEW.strengths, CFA_REVIEW.strengths[0]] };
+    expect(validateCapstoneReview(four, rulesFor({ id: "CF-A", source: CFA_SOURCE }))).toMatchObject({
       ok: false,
-      problems: ["strengths: need exactly 3, got 2"],
+      problems: ["strengths: need 0 to 3, got 4"],
     });
-    // A source without the field still asks for three, by the capstone's id.
+    // A source without the field still asks for up to three, by the capstone's id.
     const { strengthsWanted: _drop, ...bare } = CFA_SOURCE;
     const ports = capstonePorts({ id: "CF-A", source: bare });
     c = startComposed({
       apiKey: CASSETTE_KEY,
       ports,
       cassette: cassette(
-        "cfa-two-strengths",
+        "cfa-four-strengths",
         response(
           "msg_t1",
-          [toolUseBlock(0, "toolu_t1", "submit_capstone_review", chunkJson(two, 40))],
+          [toolUseBlock(0, "toolu_t1", "submit_capstone_review", chunkJson(four, 40))],
           "tool_use",
         ),
         response(
@@ -232,8 +232,8 @@ describe("CF-A: the longest review the tutor writes", () => {
     const res = await c.sse("/api/tutor/reviews/capstone", {
       thread: { subjectKind: "capstone", subjectId: "CF-A" },
     });
-    expect(userText(c.wire[0])).toContain("strengths_wanted: 3");
-    expect(userText(c.wire[1])).toContain("strengths: need exactly 3, got 2");
+    expect(userText(c.wire[0])).toContain("strengths_wanted: up to 3");
+    expect(userText(c.wire[1])).toContain("strengths: need 0 to 3, got 4");
     expect(res.events.filter((e) => e === "review")).toHaveLength(1);
     expect(res.frames.find((f) => f.event === "review")?.data).toEqual({
       reviewKind: "capstone",

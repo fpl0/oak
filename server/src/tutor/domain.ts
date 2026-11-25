@@ -194,6 +194,8 @@ export interface ReviewSource {
   versions?: ReviewVersion[];
   /** Wave 7: the two versions compared: the same tune, and the axes that differ (tempo, sound, swing, …). */
   versionsCompared?: { sameTune: boolean; axes: string[] } | null;
+  /** Oak 2.0 W4 F4: the learner's one question for a capstone or track review; null or absent = none. */
+  question?: string | null;
 }
 
 /** Wave 4: the version a review is about (contracts §10.6 storage; wave4.md §5.2). */
