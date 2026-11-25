@@ -12,6 +12,7 @@ export * from "./lint-types.ts";
 export * from "./params.ts";
 export * from "./rat.ts";
 export * from "./schema/index.ts";
+export * from "./studio-code.ts";
 export * from "./unit-songs/claims.ts";
 export * from "./version.ts";
 export * as schemas from "./zod.ts";

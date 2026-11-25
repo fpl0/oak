@@ -1817,10 +1817,11 @@ const bandState = z.strictObject({
   song: z.strictObject({ unitId, takeIds: z.array(z.number().int().positive()).max(256) }).optional(),
 });
 /**
- * Oak 2.0 S3 (contracts §13): a jam take is `kept` or `cut` (cut = hidden, never deleted); `null` = not judged, or not
- * a take. Stored in `sketch_versions.take_state`, which has no CHECK (the service validates against this list).
+ * Oak 2.0 S3 (contracts §13): a jam take is `open` (not kept or cut yet), `kept` or `cut` (cut = hidden, never
+ * deleted); `null` = not a take. Stored in `sketch_versions.take_state`, which has no CHECK (the service validates
+ * against this list).
  */
-export const TAKE_STATES = ["kept", "cut"] as const;
+export const TAKE_STATES = ["open", "kept", "cut"] as const;
 export type TakeState = (typeof TAKE_STATES)[number];
 /**
  * Oak 2.0 S5: the musical dimensions a variation changes, the learner's pick for a sibling or a generation
