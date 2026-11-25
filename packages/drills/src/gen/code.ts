@@ -477,12 +477,12 @@ function transformCase(ctx: GenCtx, key: KeySpec, kind: "inversion" | "rotation"
     [1, 1, 1, 1, 2],
   );
   const lineOf = (node: Node) => `n("${print(node).text}").scale("${scaleStr(key, octave)}")`;
-  const mk = (node: Node, code = lineOf(node), transpose = 0) =>
+  const mk = (node: Node, code = lineOf(node)) =>
     fnCand(
       code,
       query(node, 2).map((e) => ({
         t: e.onset[0] / e.onset[1],
-        midi: stepToMidi(Number(e.v), key, octave) + transpose,
+        midi: stepToMidi(Number(e.v), key, octave),
       })),
     );
   const checked = query(original, 1).map((e) => ({ t: e.onset[0] / e.onset[1], dur: e.dur[0] / e.dur[1] }));
@@ -497,12 +497,11 @@ function transformCase(ctx: GenCtx, key: KeySpec, kind: "inversion" | "rotation"
       : node.t === "rest"
         ? rest
         : { ...node, items: node.items.map(toNotes) };
+  // A second plain degree line prevents recognizing inversion by the absence of a transform call.
+  const degreeShift = kind === "inversion" ? ctx.rng.pick([1, 2]) : 0;
   const near =
     kind === "inversion"
-      ? [
-          mk(reversed, `${lineOf(original)}.rev()`),
-          mk(original, `note("${print(toNotes(original)).text}").transpose(2)`, 2),
-        ]
+      ? [mk(reversed, `${lineOf(original)}.rev()`), mk(rhythm(degrees.map((degree) => degree + degreeShift)))]
       : kind === "rotation"
         ? [mk(reversed, `${lineOf(original)}.rev()`), mk(shifted)]
         : [mk(rotated), mk(original)];

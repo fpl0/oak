@@ -12,7 +12,7 @@ export type Motion = keyof typeof MOTION_LABELS;
 
 const intervals = (chord: readonly number[]) => chord.slice(1).map((n, i) => n - (chord[i] as number));
 
-/** Disjoint descriptions; a changed shape cannot also be parallel. */
+/** Every change must support the same answer: all block moves, or none. */
 export function motionChecks(chords: readonly (readonly number[])[], roots: readonly number[]) {
   const valid =
     chords.length === 4 &&
@@ -38,6 +38,7 @@ export function motionChecks(chords: readonly (readonly number[])[], roots: read
     "voice-led":
       valid &&
       shapes.size > 1 &&
+      chords.slice(1).every((c, i) => new Set(c.map((n, v) => n - (chords[i]?.[v] as number))).size > 1) &&
       chords.slice(1).every((c, i) => Math.abs((c.at(-1) as number) - (chords[i]?.at(-1) as number)) <= 2),
   };
 }

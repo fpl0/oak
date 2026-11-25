@@ -76,7 +76,7 @@ const BY_FAMILY: Readonly<Record<string, string>> = {
   "fam.chd.inversion":
     "Listen only to the lowest note. With the root at the bottom a chord sounds solid; with the 3rd, lighter and on the move; with the 5th, unsettled.",
   "fam.har.motion":
-    "Follow the top note from chord to chord. When it moves as far as the bass every time, the chords are parallel; when it barely moves, they are voice-led.",
+    "Follow the top note and the bass from chord to chord. When they move together by the same amount every time, the chords are parallel; when the top note stays close while the bass moves a different way, they are voice-led.",
   "fam.har.function":
     "Every chord has a job. Home sounds at rest, away moves off it, and tension wants to come back. Listen to how much each chord wants to move.",
   "fam.har.cadence":

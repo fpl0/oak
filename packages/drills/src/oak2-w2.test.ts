@@ -109,15 +109,45 @@ describe("Oak 2.0 W2: harmony motion", () => {
             const distance = Math.abs(required(roots[b]) - required(roots[b - 1]));
             expect(distance).toBeGreaterThanOrEqual(category === "parallel-step" ? 1 : 3);
             expect(distance).toBeLessThanOrEqual(category === "parallel-step" ? 2 : 7);
-            if (answer === "voice-led")
+            if (answer === "voice-led") {
+              const moves = required(chords[b]).map((n, v) => n - required(required(chords[b - 1])[v]));
+              expect(new Set(moves).size).toBeGreaterThan(1);
               expect(chords[b]).toEqual(
                 nearestMotionChord(required(chords[b - 1]), required(roots[b]), shape),
               );
+            }
           }
         }
         expect([...seen].sort()).toEqual(["parallel", "voice-led"]);
       });
     }
+  test("reject a voice-led item with exactly one block move, after real evaluation", async () => {
+    const result = await evalHeadless(
+      chordCode([
+        [48, 52, 55],
+        [49, 53, 56],
+        [46, 51, 55],
+        [45, 48, 53],
+      ]),
+      4,
+    );
+    expect(result.cpsSet).toBe(true);
+    expect(result.events).toHaveLength(12);
+    const chords = chordsOf(result.events);
+    const moves = chords
+      .slice(1)
+      .map((chord, i) => chord.map((n, v) => n - required(required(chords[i])[v])));
+    expect(moves.filter((change) => new Set(change).size === 1)).toHaveLength(1);
+    for (const change of moves) expect(Math.abs(required(change.at(-1)))).toBeLessThanOrEqual(2);
+    const shapes = chords.map((chord) =>
+      chord
+        .slice(1)
+        .map((n, i) => n - required(chord[i]))
+        .join(","),
+    );
+    expect(new Set(shapes).size).toBeGreaterThan(1);
+    expect(motionChecks(chords, [48, 49, 51, 53])["voice-led"]).toBe(false);
+  });
   test("reject a re-voiced parallel chord and a five-half-step top jump, after real evaluation", async () => {
     const parallel = [
       [48, 52, 55],
@@ -151,6 +181,9 @@ describe("Oak 2.0 W2: motif transforms", () => {
         const { t, events } = await played("fam.code.functions", 4, category, seed);
         const options = t.params.options as string[];
         expect(options).toHaveLength(3);
+        const plain = options.filter((option) => /^n\("[^"]+"\)\.scale\("[^"]+"\)$/.test(option));
+        expect(plain).toContain(required(t.expected.choice?.[0]));
+        expect(plain.length).toBeGreaterThanOrEqual(2);
         const motif = await evalHeadless(candidateCode(t.params.motif as string), 2);
         expect(transformRhythmOk(motif.events.map((e) => ({ t: e.onset, dur: duration(e) })))).toBe(true);
         const sigs = [];
@@ -164,6 +197,26 @@ describe("Oak 2.0 W2: motif transforms", () => {
           expect(res.cpsSet).toBe(true);
           expect(res.events.length).toBeGreaterThan(0);
           expect(res.logs).toEqual([]);
+          if (category === "inversion" && plain.includes(option) && option !== t.expected.choice?.[0]) {
+            const degreesOf = (code: string) =>
+              required(
+                required(required(code.match(/n\("([^"]+)"\)/))[1])
+                  .replace(/@\d+/g, "")
+                  .match(/-?\d+/g),
+              ).map(Number);
+            const original = degreesOf(t.params.motif as string);
+            const transposed = degreesOf(option);
+            const shifts = transposed.map((n, i) => n - required(original[i]));
+            expect(new Set(shifts).size).toBe(1);
+            expect([1, 2]).toContain(required(shifts[0]));
+            const octave = Number(required(option.match(/(\d):major/))[1]);
+            expect(res.events.filter((e) => e.onset < 1).map((e) => e.midi)).toEqual(
+              transposed.map((degree) => stepToMidi(degree, t.params.key as KeySpec, octave)),
+            );
+            expect(res.events.map((e) => [e.begin, e.end])).toEqual(
+              motif.events.map((e) => [e.begin, e.end]),
+            );
+          }
           const sig = signature(res.events);
           sigs.push(JSON.stringify(sig));
           expect(JSON.stringify(sig) === JSON.stringify(signature(events))).toBe(
@@ -221,6 +274,8 @@ describe("Oak 2.0 W2: motif transforms", () => {
 
 describe("Oak 2.0 W2: front part", () => {
   test("30 real trials: unique changing part, equal gains, register and rate are not answers", async () => {
+    let isHighest = 0;
+    let isBusiest = 0;
     let notHighest = 0;
     let notBusiest = 0;
     const seen = new Set<string>();
@@ -233,8 +288,9 @@ describe("Oak 2.0 W2: front part", () => {
       const checks = frontChecks(asFront(events));
       expect(checks[front]).toBe(true);
       expect(Object.values(checks).filter(Boolean)).toHaveLength(1);
-      expect(t.expected.choice).toEqual([ROLE_LABELS[front]]);
-      expect(t.params.options).toEqual(Object.values(ROLE_LABELS));
+      expect(t.expected.choice).toEqual([front]);
+      expect(t.params.options).toEqual(Object.keys(ROLE_LABELS));
+      expect(t.params.optionLabels).toEqual(ROLE_LABELS);
       expect(new Set(events.map((e) => e.value.gain))).toEqual(new Set([0.55]));
       const tracks = ["bass", "pad", "mel"];
       const track = front === "lead" ? "mel" : front;
@@ -242,10 +298,21 @@ describe("Oak 2.0 W2: front part", () => {
         Math.max(...events.filter((e) => e.track === name).map((e) => required(e.midi))),
       );
       const counts = tracks.map((name) => events.filter((e) => e.track === name).length / 4);
+      // Count a held chord as one attack; retain the original notes-per-bar comparison too.
+      const attacks = tracks.map(
+        (name) => new Set(events.filter((e) => e.track === name).map((e) => e.begin)).size / 4,
+      );
+      expect(counts.map((n) => n === Math.max(...counts))).toEqual(
+        attacks.map((n) => n === Math.max(...attacks)),
+      );
+      expect(attacks[1]).toBe(1);
+      expect(events.filter((e) => e.track === "pad").every((e) => duration(e) === 1)).toBe(true);
       registers.add(highest.join(","));
       rates.add(counts.join(","));
       if (required(highest[tracks.indexOf(track)]) < Math.max(...highest)) notHighest++;
+      else isHighest++;
       if (required(counts[tracks.indexOf(track)]) < Math.max(...counts)) notBusiest++;
+      else isBusiest++;
       for (const name of tracks)
         for (let bar = 0; bar < 4; bar++)
           expect(events.some((e) => e.track === name && Math.floor(e.onset) === bar)).toBe(true);
@@ -253,6 +320,8 @@ describe("Oak 2.0 W2: front part", () => {
     expect(seen.size).toBe(3);
     expect(registers.size).toBeGreaterThan(1);
     expect(rates.size).toBeGreaterThan(1);
+    expect(isHighest).toBeGreaterThanOrEqual(7);
+    expect(isBusiest).toBeGreaterThanOrEqual(7);
     expect(notHighest).toBeGreaterThanOrEqual(10);
     expect(notBusiest).toBeGreaterThanOrEqual(10);
   });
@@ -331,7 +400,7 @@ describe("Oak 2.0 W2: lesson gates and listening words", () => {
   test("motion has its listening line; A2.L01 retains its original words", async () => {
     const text = await Bun.file(new URL("../../../app/src/drills/listen-for.ts", import.meta.url)).text();
     expect(text).toContain(
-      '"fam.har.motion":\n    "Follow the top note from chord to chord. When it moves as far as the bass every time, the chords are parallel; when it barely moves, they are voice-led."',
+      '"fam.har.motion":\n    "Follow the top note and the bass from chord to chord. When they move together by the same amount every time, the chords are parallel; when the top note stays close while the bass moves a different way, they are voice-led."',
     );
     expect(text).toContain(
       '"fam.snd.roles":\n    "Pick out who plays what: the tune, the harmony, the low end. Where two parts sit at the same height, they blur into each other."',

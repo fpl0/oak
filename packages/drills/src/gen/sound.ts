@@ -232,8 +232,15 @@ function frontTrial(ctx: GenCtx) {
     pad: ctx.rng.pick(ROLE_SOUNDS.pad),
     lead: ctx.rng.pick(ROLE_SOUNDS.lead),
   };
-  // A repeating background may be busier than the changing part. The pad keeps its held chords.
-  const busy = front === "bass" ? "lead" : front === "lead" ? "bass" : ctx.rng.pick(["bass", "lead"]);
+  // Rate must sometimes agree with the answer and sometimes oppose it; the pad keeps held chords.
+  const busy =
+    front === "pad"
+      ? ctx.rng.pick(["bass", "lead"])
+      : ctx.rng.next() < 0.5
+        ? front
+        : front === "bass"
+          ? "lead"
+          : "bass";
   const rates = {
     bass: busy === "bass" ? 8 : ctx.rng.pick([2, 4]),
     pad: 1,
@@ -269,10 +276,11 @@ function frontTrial(ctx: GenCtx) {
   );
   if (!checks[front] || Object.values(checks).filter(Boolean).length !== 1)
     throw new Error("ambiguous front part");
-  return trialOf(piece, { choice: [ROLE_LABELS[front]] }, cueOf(ctx), {
+  return trialOf(piece, { choice: [front] }, cueOf(ctx), {
     mode: "choice",
     key,
-    options: Object.values(ROLE_LABELS),
+    options: Object.keys(ROLE_LABELS),
+    optionLabels: ROLE_LABELS,
     front,
     sounds,
     prompt: "Which part is in front: which changes most from bar to bar?",
