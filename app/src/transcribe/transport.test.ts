@@ -46,6 +46,7 @@ function fakePlayer() {
     setRate: (r) => calls.push(`rate:${r}`),
     setTranspose: (s) => calls.push(`transpose:${s}`),
     setLoop: (l) => calls.push(`loop:${l ? `${l.fromBar}+${l.bars}` : "off"}`),
+    setEnd: (b) => calls.push(`end:${b ?? "off"}`),
     setMutes: (m) => {
       mutes = m.muted;
     },
@@ -107,6 +108,41 @@ describe("pattern transport", () => {
     expect(player.calls.filter((c) => c.startsWith("load")).length).toBe(loads);
     expect(player.calls.filter((c) => c === "play")).toHaveLength(1);
     expect(t.state.playing).toBe(true);
+  });
+
+  test("played once through: the item stops at its last bar and the next play starts from bar 1", async () => {
+    const player = fakePlayer();
+    const timers = manualTimers();
+    const t = await createPatternTransport({ player, ref: REF, bars: 2, cps: 0.5, ...timers });
+    // The pattern itself sends nothing past the item's end (the scheduler's look-ahead never reaches a repeat).
+    expect(player.calls).toContain("end:2");
+    await t.play();
+    player.setPos(1.9);
+    timers.tick();
+    expect(t.state.playing).toBe(true);
+    expect(t.state.time).toBeCloseTo(3.8, 6);
+    player.setPos(2.02);
+    timers.tick();
+    expect(t.state.playing).toBe(false);
+    expect(player.playing).toBe(false);
+    expect(t.state.time).toBe(0);
+    // Polling stopped with the take: a later tick changes nothing.
+    player.setPos(3);
+    timers.tick();
+    expect(t.state.time).toBe(0);
+  });
+
+  test("with an A–B loop the item plays on past its last bar until it is stopped", async () => {
+    const player = fakePlayer();
+    const timers = manualTimers();
+    const t = await createPatternTransport({ player, ref: REF, bars: 4, cps: 0.5, ...timers });
+    t.setLoop({ startS: 4, endS: 8 });
+    await t.play();
+    // The player reports the bar within the loop; the take has run past four bars of the scheduler's clock.
+    player.setPos(3.5);
+    timers.tick();
+    expect(t.state.playing).toBe(true);
+    expect(player.playing).toBe(true);
   });
 
   test("listening to one layer mutes the others on the source side only, without a reload", async () => {

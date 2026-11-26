@@ -102,6 +102,8 @@ export function createPatternPlayer(rt: Runtime): PatternPlayer {
   let rate = 1;
   let transpose = 0;
   let loop: { fromBar: number; bars: number } | null = null;
+  /** Once through: nothing starts at or after this bar while no loop is set (`setEnd`). */
+  let end: number | null = null;
   let baseCps = 0.5;
   let raw: Strudel.Pattern | undefined;
   let effective: Strudel.Pattern | undefined;
@@ -195,6 +197,12 @@ export function createPatternPlayer(rt: Runtime): PatternPlayer {
     });
     if (loop)
       out = (out.ribbon as (offset: number, cycles: number) => Strudel.Pattern)(loop.fromBar, loop.bars);
+    else if (end !== null) {
+      // The scheduler queries ahead of what is heard, so a stop at the last bar comes after the repeat's first
+      // notes were already sent: past the end there is nothing to send.
+      const stop = end;
+      out = out.filterHaps((h: Strudel.Hap) => !h.whole || h.whole.begin.valueOf() < stop);
+    }
     // Realism after the loop (so a note pushed across the loop point stays one note, never a re-triggered
     // fragment), keyed by the bar each looped cycle plays: bars 3–4 looped sound as they did in the full play.
     if (!isCleanRealism(realism)) {
@@ -356,6 +364,10 @@ export function createPatternPlayer(rt: Runtime): PatternPlayer {
         next && next.bars > 0 && Number.isFinite(next.fromBar)
           ? { fromBar: next.fromBar, bars: next.bars }
           : null;
+      effective = build();
+    },
+    setEnd(bar) {
+      end = bar !== null && Number.isFinite(bar) && bar > 0 ? bar : null;
       effective = build();
     },
     setMutes(next) {

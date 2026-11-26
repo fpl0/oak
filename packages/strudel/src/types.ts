@@ -346,6 +346,12 @@ export interface PatternPlayer {
   /** −12 to 12. */
   setTranspose(semitones: number): void;
   setLoop(loop: { fromBar: number; bars: number } | null): void;
+  /**
+   * Where a source played once through ends: with no A–B loop, nothing starts at or after this bar (the pattern
+   * would otherwise repeat for as long as the scheduler runs). `null`, the default, plays on. The caller still
+   * stops the player when `position()` reaches it.
+   */
+  setEnd(bar: number | null): void;
   setMutes(mutes: MuteMap): void;
   /**
    * Wave 4 (docs/design/wave4.md §3.5): the realism of a ladder stimulus (contracts §6.12): humanised timing and

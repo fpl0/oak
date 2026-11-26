@@ -97,6 +97,7 @@ export interface PatternPlayerPort {
   setRate(rate: number): void;
   setTranspose(semitones: number): void;
   setLoop(loop: { fromBar: number; bars: number } | null): void;
+  setEnd(bar: number | null): void;
   setMutes(mutes: { muted: ReadonlySet<string>; solo: string | null }): void;
   setRealism(spec: RealismSpec): void;
   position(): number;
@@ -252,7 +253,15 @@ export async function createPatternTransport(d: PatternTransportDeps): Promise<T
       if (st.get().playing) st.set({ playing: false });
       return;
     }
-    st.set({ time: clamp(d.player.position() * barSec, 0, st.get().durationS) });
+    const bar = d.player.position();
+    // Once through, then the item ends at its last bar (an A–B loop plays until it is stopped). The next play
+    // starts again from bar 1.
+    if (st.get().loop === null && bar >= d.bars) {
+      pause();
+      st.set({ time: 0 });
+      return;
+    }
+    st.set({ time: clamp(bar * barSec, 0, st.get().durationS) });
   };
 
   async function play(): Promise<void> {
@@ -269,6 +278,8 @@ export async function createPatternTransport(d: PatternTransportDeps): Promise<T
     st.set({ playing: false });
   }
 
+  // The hidden pattern repeats for as long as it runs: past the item's last bar nothing more is sent.
+  d.player.setEnd(d.bars);
   await load();
   if (d.realism && d.realism.level > 0) {
     try {
