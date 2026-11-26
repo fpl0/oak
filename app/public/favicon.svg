@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-labelledby="oak-icon-title">
+  <title id="oak-icon-title">Oak</title>
+  <!-- Oak's app icon: a cut log that is also a record. Its growth rings are the grooves (one ring a day), the
+       amber outer ring is today's, and the label in the middle holds a sprout. macOS grid: an 824 px rounded
+       square centred on a 1024 canvas, with room for the shadow. Rendered to icon.png by
+       desktop/scripts/render-icon.mjs; app/public/favicon.svg is a copy of this file. -->
+  <defs>
+  <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+  <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000" flood-opacity="0.30"/>
+  </filter>
+  <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#fff" stop-opacity="0.16"/>
+  <stop offset="0.5" stop-color="#fff" stop-opacity="0"/>
+  <stop offset="1" stop-color="#000" stop-opacity="0.10"/>
+  </linearGradient>
+  <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#2D6B47"/>
+  <stop offset="1" stop-color="#143D26"/>
+  </linearGradient>
+<radialGradient id="wood" cx="0.46" cy="0.42" r="0.65">
+  <stop offset="0" stop-color="#F7E2B5"/>
+  <stop offset="0.65" stop-color="#E6C287"/>
+  <stop offset="1" stop-color="#C99250"/>
+  </radialGradient>
+<linearGradient id="bark" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0" stop-color="#8A5A30"/>
+  <stop offset="1" stop-color="#3E2210"/>
+  </linearGradient>
+<linearGradient id="sheen" x1="0" y1="0" x2="1" y2="1">
+  <stop offset="0.25" stop-color="#fff" stop-opacity="0"/>
+  <stop offset="0.45" stop-color="#fff" stop-opacity="0.28"/>
+  <stop offset="0.55" stop-color="#fff" stop-opacity="0"/>
+  </linearGradient>
+<radialGradient id="label" cx="0.4" cy="0.35" r="0.7">
+  <stop offset="0" stop-color="#F3B65A"/>
+  <stop offset="1" stop-color="#C77A22"/>
+  </radialGradient>
+<filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+  <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#04170B" flood-opacity="0.55"/>
+  </filter>
+  </defs>
+  <g filter="url(#sh)">
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#bg)"/>
+  </g>
+  <g filter="url(#soft)">
+  <circle cx="512" cy="512" r="318" fill="url(#bark)"/>
+  <circle cx="512" cy="512" r="294" fill="url(#wood)"/>
+  </g>
+  <circle cx="512.0" cy="512.0" r="280" fill="none" stroke="#9A6430" stroke-opacity="0.55" stroke-width="6"/>
+  <circle cx="511.4" cy="511.5" r="267" fill="none" stroke="#9A6430" stroke-opacity="0.30" stroke-width="3"/>
+  <circle cx="510.7" cy="511.0" r="254" fill="none" stroke="#9A6430" stroke-opacity="0.30" stroke-width="3"/>
+  <circle cx="510.1" cy="510.4" r="241" fill="none" stroke="#9A6430" stroke-opacity="0.55" stroke-width="6"/>
+  <circle cx="509.4" cy="509.9" r="228" fill="none" stroke="#9A6430" stroke-opacity="0.30" stroke-width="3"/>
+  <circle cx="508.8" cy="509.4" r="215" fill="none" stroke="#9A6430" stroke-opacity="0.30" stroke-width="3"/>
+  <circle cx="508.1" cy="508.9" r="202" fill="none" stroke="#9A6430" stroke-opacity="0.55" stroke-width="6"/>
+  <circle cx="507.4" cy="508.4" r="189" fill="none" stroke="#9A6430" stroke-opacity="0.30" stroke-width="3"/>
+  <circle cx="506.8" cy="507.8" r="176" fill="none" stroke="#9A6430" stroke-opacity="0.30" stroke-width="3"/>
+  <circle cx="506.1" cy="507.3" r="163" fill="none" stroke="#9A6430" stroke-opacity="0.55" stroke-width="6"/>
+  <circle cx="505.5" cy="506.8" r="150" fill="none" stroke="#9A6430" stroke-opacity="0.30" stroke-width="3"/>
+  <circle cx="504.9" cy="506.3" r="137" fill="none" stroke="#9A6430" stroke-opacity="0.30" stroke-width="3"/>
+  <circle cx="504.2" cy="505.8" r="124" fill="none" stroke="#9A6430" stroke-opacity="0.55" stroke-width="6"/>
+  <circle cx="503.6" cy="505.2" r="111" fill="none" stroke="#9A6430" stroke-opacity="0.30" stroke-width="3"/>
+  <circle cx="512" cy="512" r="294" fill="url(#sheen)"/>
+  <circle cx="512" cy="512" r="294" fill="none" stroke="#F0A93E" stroke-width="12"/>
+  <circle cx="512" cy="512" r="104" fill="url(#label)"/>
+  <path d="M512 548 C 510 520 512 500 516 476" stroke="#1F5C36" stroke-width="12" stroke-linecap="round" fill="none"/>
+  <path d="M516 482 C 540 450 584 446 604 462 C 584 494 540 500 516 482 Z" fill="#2F7D4A"/>
+  <path d="M512 500 C 492 474 454 470 434 484 C 452 512 490 516 512 500 Z" fill="#3E9A5C"/>
+  <circle cx="512" cy="552" r="10" fill="#3E2210"/>
+  <rect x="100" y="100" width="824" height="824" rx="186" fill="url(#gloss)"/>
+  <rect x="101.5" y="101.5" width="821" height="821" rx="184.5" fill="none" stroke="#fff" stroke-opacity="0.18" stroke-width="3"/>
+  </svg>
