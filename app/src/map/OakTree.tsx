@@ -88,7 +88,9 @@ function ReviveBar({ model }: { model: OakModel }) {
   }).length;
   if (counts.drying === 0 && faded === 0) return null;
   return (
-    <div className="flex items-center gap-2" data-testid="revive-bar">
+    // Its small buttons stand into the row's gaps: the row keeps the legend's one line, the height the canvas
+    // below is sized for (the page never scrolls, a drying leaf or not).
+    <div className="-my-1.5 flex items-center gap-2" data-testid="revive-bar">
       {counts.drying > 0 && (
         <Link to="/session/revive" className={buttonClass("secondary", "sm")} data-testid="revive-all">
           Revive {counts.drying} {counts.drying === 1 ? "leaf" : "leaves"} (≈ {minutesOf(model.reviveSec)}{" "}

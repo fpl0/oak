@@ -44,6 +44,8 @@ export function useSideRecord(side: "A" | "B"): {
   record: SideARecordView | null;
   isError: boolean;
   retry(): void;
+  /** Tracks whose detail (and so the version a cover grows from) is still on its way. */
+  detailsPending: ReadonlySet<string>;
 } {
   const album = useAlbum();
   const content = useCapstoneContent();
@@ -51,6 +53,7 @@ export function useSideRecord(side: "A" | "B"): {
   const details = useQueries({
     queries: tracks.map((t) => apiQuery("album.track", { params: { id: t.id } })),
   });
+  const detailsPending = new Set(tracks.flatMap((t, i) => (details[i]?.isPending ? [t.id] : [])));
   if (!album.data || !content.data)
     return {
       record: null,
@@ -59,6 +62,7 @@ export function useSideRecord(side: "A" | "B"): {
         void album.refetch();
         void content.refetch();
       },
+      detailsPending,
     };
   const detailOf = new Map<string, AlbumTrackDetail>(
     details.flatMap((q) => (q.data ? [[q.data.id, q.data] as const] : [])),
@@ -67,6 +71,7 @@ export function useSideRecord(side: "A" | "B"): {
     record: sideRecord(side, tracks, detailOf, content.data.capstones),
     isError: false,
     retry: () => void album.refetch(),
+    detailsPending,
   };
 }
 
@@ -110,7 +115,7 @@ export function SideARecord({ coda = false }: { coda?: boolean }) {
 
 /** One side of the record: its covers in running order, Play from first to last, its recordings in one archive. */
 export function SideRecord({ side, coda = false }: { side: "A" | "B"; coda?: boolean }) {
-  const { record, isError, retry } = useSideRecord(side);
+  const { record, isError, retry, detailsPending } = useSideRecord(side);
   const low = side.toLowerCase();
   const sideName = `Side ${side}`;
   const album = useAlbumTitle();
@@ -317,6 +322,7 @@ export function SideRecord({ side, coda = false }: { side: "A" | "B"; coda?: boo
           <li key={t.capstoneId} className="min-w-0">
             <Cover
               t={t}
+              detailPending={t.trackId !== null && detailsPending.has(t.trackId)}
               playing={playing?.no === t.no}
               side={side}
               onPlay={() => play(t)}
@@ -334,12 +340,15 @@ export function SideRecord({ side, coda = false }: { side: "A" | "B"; coda?: boo
 
 function Cover({
   t,
+  detailPending,
   playing,
   side,
   onPlay,
   register,
 }: {
   t: RecordTrack;
+  /** The track's detail is still on its way: which version the cover grows from is not known yet. */
+  detailPending: boolean;
   playing: boolean;
   side: "A" | "B";
   onPlay(): void;
@@ -393,7 +402,9 @@ function Cover({
           seed={t.coverSeed}
           title={t.title}
           music={music}
-          loading={pending}
+          // Until the detail names the version, the cover shows its wood: never the seed-only rings first and
+          // the music's rings after (a cover that changed under the learner's eyes, and under a test's).
+          loading={pending || detailPending}
           size={220}
           className="h-auto w-full"
         />
