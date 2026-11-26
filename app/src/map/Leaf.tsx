@@ -10,14 +10,14 @@ export const LEAF_FILL: Record<LeafStatus, string> = {
   available: "fill-none",
   introduced: "fill-[#b7791f] dark:fill-[#e0a54a]",
   practising: "fill-[#2a7f80] dark:fill-[#5fc0be]",
-  mastered: "fill-[#2f6b45] dark:fill-[#6fbf8a]",
+  mastered: "fill-[#1d7444] dark:fill-[#72d494]",
 };
 export const LEAF_STROKE: Record<LeafStatus, string> = {
   locked: "stroke-text-3",
   available: "stroke-accent",
   introduced: "stroke-[#b7791f] dark:stroke-[#e0a54a]",
   practising: "stroke-[#2a7f80] dark:stroke-[#5fc0be]",
-  mastered: "stroke-[#2f6b45] dark:stroke-[#6fbf8a]",
+  mastered: "stroke-[#1d7444] dark:stroke-[#72d494]",
 };
 /** Background fill for dots (thumbnail) and swatches. */
 export const LEAF_DOT: Record<LeafStatus, string> = {

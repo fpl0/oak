@@ -43,14 +43,14 @@ describe("contract leaf states in both themes", () => {
                     available: "none",
                     learning: "#b7791f",
                     practiced: "#2a7f80",
-                    mastered: "#2f6b45",
+                    mastered: "#1d7444",
                   }[level]
                 : {
                     new: "none",
                     available: "none",
                     learning: "#e0a54a",
                     practiced: "#5fc0be",
-                    mastered: "#6fbf8a",
+                    mastered: "#72d494",
                   }[level],
             );
           }

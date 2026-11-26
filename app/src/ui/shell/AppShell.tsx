@@ -95,8 +95,8 @@ function NavRail({ path }: { path: string }) {
             data-nav-pending={pending || undefined}
             data-nav-tracks={n.id === "oak" && tracksNote ? "open" : undefined}
             className={clsx(
-              "relative flex size-10 items-center justify-center rounded-control transition-colors",
-              active ? "bg-lane-in text-accent" : "text-text-2 hover:bg-surface-2 hover:text-text",
+              "relative flex size-10 items-center justify-center rounded-xl transition-colors",
+              active ? "bg-accent/15 text-accent" : "text-text-2 hover:bg-surface-2 hover:text-text",
             )}
           >
             {ICONS[n.id]}
@@ -109,14 +109,12 @@ function NavRail({ path }: { path: string }) {
   return (
     <nav
       aria-label="Main"
-      className="flex w-[var(--oak-nav-w)] shrink-0 flex-col items-center justify-between border-r border-border bg-surface py-2"
+      className="flex w-[var(--oak-nav-w)] shrink-0 flex-col items-center justify-between border-r border-border bg-bg py-2"
     >
       <ul className="flex flex-col items-center gap-1">
-        <li
-          className="mb-2 flex h-10 items-center font-display text-lg font-semibold text-accent"
-          aria-hidden
-        >
-          Oak
+        {/* Oak's mark: the app icon (desktop/build/icon.svg, copied to app/public/favicon.svg). */}
+        <li className="mb-2 flex h-10 items-center" aria-hidden>
+          <img src="/favicon.svg" alt="" width={36} height={36} className="size-9" draggable={false} />
         </li>
         {main.map(item)}
       </ul>

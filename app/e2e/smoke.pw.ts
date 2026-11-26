@@ -119,8 +119,8 @@ test("the body background follows the theme", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "dark" });
   await expect.poll(() => page.evaluate(() => document.documentElement.dataset.theme)).toBe("bark");
   const bark = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
-  expect(paper).toBe("rgb(246, 242, 234)");
-  expect(bark).toBe("rgb(20, 17, 14)");
+  expect(paper).toBe("rgb(244, 244, 242)");
+  expect(bark).toBe("rgb(14, 14, 16)");
 });
 
 test.describe("keyboard", () => {

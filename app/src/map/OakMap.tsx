@@ -421,7 +421,7 @@ export function OakMap(props: OakMapProps) {
                           : isNext
                             ? "stroke-accent-2"
                             : lv.status === "mastered"
-                              ? "stroke-[#2f6b45] dark:stroke-[#6fbf8a]"
+                              ? "stroke-[#1d7444] dark:stroke-[#72d494]"
                               : feeder
                                 ? "stroke-accent-2/60"
                                 : "stroke-border",

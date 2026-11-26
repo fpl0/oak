@@ -90,11 +90,13 @@ describe("tokens.css (ux §7.2, §7.9: WCAG 2.2 AA in both themes)", () => {
           expect(contrast(t[fg] as string, t[bg] as string)).toBeGreaterThanOrEqual(4.5);
     });
   }
-  test("the spec colours of ux §7.2 are kept where they pass", () => {
-    expect(tokens("paper").bg).toBe("#f6f2ea");
-    expect(tokens("bark").bg).toBe("#14110e");
-    expect(tokens("paper").accent).toBe("#2f6b45");
-    expect(tokens("bark").accent).toBe("#6fbf8a");
+  // Oak 2.0 (the owner's pick, 2026-11-26): "Night studio", neutral greys with a green accent, replacing ux §7.2's
+  // warm neutrals. Pinned so a change to the palette is a decision, not a drift.
+  test("the Oak 2.0 Night studio colours", () => {
+    expect(tokens("paper").bg).toBe("#f4f4f2");
+    expect(tokens("bark").bg).toBe("#0e0e10");
+    expect(tokens("paper").accent).toBe("#1d7444");
+    expect(tokens("bark").accent).toBe("#72d494");
   });
 });
 

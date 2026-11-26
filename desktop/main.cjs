@@ -178,7 +178,7 @@ function createWindow() {
     show: false,
     titleBarStyle: "hidden",
     trafficLightPosition: { x: 14, y: Math.round(BAR / 2 - 7) },
-    backgroundColor: nativeTheme.shouldUseDarkColors ? "#14110e" : "#f6f2ea",
+    backgroundColor: nativeTheme.shouldUseDarkColors ? "#0e0e10" : "#f4f4f2",
     webPreferences: {
       contextIsolation: true,
       sandbox: true,

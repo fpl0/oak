@@ -142,6 +142,8 @@ self.addEventListener("message", (event) => {
         // The offline renderer's document (Export renders in a frame of it) is warmed with the shell, so a first
         // Export works offline too; its scripts are in the manifest.
         listed.push("/offline-render.html");
+        // Oak's mark in the side bar (and the tab icon) is a public file, not in the manifest.
+        listed.push("/favicon.svg");
         const urls = [...(Array.isArray(data.urls) ? data.urls : []), ...listed].filter((u) => {
           if (typeof u !== "string") return false;
           const url = new URL(u, self.location.origin);

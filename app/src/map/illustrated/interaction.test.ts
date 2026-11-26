@@ -139,7 +139,7 @@ test("theme updates redraw glyphs; wheel pan changes only the scene transform", 
     document.documentElement.dataset.theme = "bark";
     await Promise.resolve();
   });
-  expect(leaf("R01").innerHTML).toContain("#6fbf8a");
+  expect(leaf("R01").innerHTML).toContain("#72d494");
   const svg = container.querySelector("svg");
   const scene = svg?.querySelector(":scope > g");
   if (!svg || !scene) throw new Error("Missing scene");

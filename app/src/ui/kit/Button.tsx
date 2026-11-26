@@ -46,7 +46,7 @@ const LINK_SIZES: Record<ButtonSize, string> = {
 
 export const buttonClass = (variant: ButtonVariant = "secondary", size: ButtonSize = "md", extra?: string) =>
   clsx(
-    "inline-flex items-center justify-center whitespace-nowrap rounded-control border font-medium",
+    "inline-flex items-center justify-center whitespace-nowrap rounded-full border font-medium",
     "transition-colors duration-150 select-none",
     "disabled:opacity-50 disabled:pointer-events-none",
     VARIANTS[variant],

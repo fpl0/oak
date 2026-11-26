@@ -123,11 +123,11 @@ for (const scheme of ["light", "dark"] as const) {
     expect(info.htmlClass).not.toContain("dark");
     expect(info.strudelVars).toBe("");
     expect(info.font).toContain("JetBrains Mono");
-    // Every surface is the theme's surface (Bark #1C1814, Paper #FFFDF8).
-    const want = scheme === "light" ? "rgb(255, 253, 248)" : "rgb(28, 24, 20)";
+    // Every surface is the theme's surface (Bark #161618, Paper #FFFFFF; Oak 2.0 Night studio).
+    const want = scheme === "light" ? "rgb(255, 255, 255)" : "rgb(22, 22, 24)";
     expect(info.surfaceRgb).toBe(want);
     for (const bg of [info.roll, info.staff, info.editorBox]) expect(bg).toBe(want);
-    expect(info.transport).not.toBe(scheme === "light" ? "rgb(38, 32, 26)" : "rgb(239, 233, 222)");
+    expect(info.transport).not.toBe(scheme === "light" ? "rgb(29, 29, 32)" : "rgb(236, 236, 234)");
     // Plain text and every word-bearing token reach AA on the surface.
     expect(contrast(info.line ?? "", want)).toBeGreaterThanOrEqual(7);
     expect(info.spans.length).toBeGreaterThan(10);

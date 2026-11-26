@@ -1,4 +1,5 @@
-/* Oak design tokens (ux §7.2, §7.5, §7.6). Paper is the light theme, Bark the dark one; the theme hook is
+/* Oak design tokens (ux §7.2, §7.5, §7.6). Oak 2.0 "Night studio": neutral greys with a green accent and amber for
+   highlights, flat (no shadows on cards; only overlays are set off). Paper is the light theme, Bark the dark one; the theme hook is
    data-theme="paper" | "bark" on <html> (contracts §11.9). Chrome is warm neutral; saturated colour is
    reserved for musical meaning (palette.ts). Every token is an --oak-* custom property; Tailwind maps them
    in app.css. */
@@ -6,48 +7,48 @@
 :root,
 :root[data-theme="paper"] {
   color-scheme: light;
-  --oak-bg: #f6f2ea;
-  --oak-surface: #fffdf8;
-  --oak-surface-2: #efe9de;
-  --oak-border: #ddd3c3;
-  --oak-text: #1f1a14;
-  --oak-text-2: #5c5247;
+  --oak-bg: #f4f4f2;
+  --oak-surface: #ffffff;
+  --oak-surface-2: #ececea;
+  --oak-border: #dcdcd7;
+  --oak-text: #17171a;
+  --oak-text-2: #53535a;
   /* ux §7.2 lists #8A7F72; darkened a step so small text passes WCAG AA (4.5:1) on --oak-surface-2. */
-  --oak-text-3: #6e6457;
-  --oak-accent: #2f6b45;
-  --oak-accent-hover: #255838;
+  --oak-text-3: #62626a;
+  --oak-accent: #1d7444;
+  --oak-accent-hover: #175f38;
   --oak-on-accent: #ffffff;
   --oak-accent-2: #b7791f;
-  --oak-link: #2f6b45;
+  --oak-link: #1d7444;
   /* ux §7.2 lists #B4532A; darkened a step for AA (4.5:1) as small text on --oak-bg and --oak-surface-2. */
   --oak-issue: #a84c25;
-  --oak-lane-in: rgba(47, 107, 69, 0.06);
+  --oak-lane-in: rgba(29, 116, 68, 0.06);
   --oak-danger: #a4262c;
   --oak-on-danger: #ffffff;
   --oak-mic: #c62828;
   /* Secondary controls (buttons, steppers, selects): a fill and a border that set them off from a card. */
-  --oak-control: #fffdf8;
-  --oak-control-hover: #efe9de;
-  --oak-control-border: #cdbfa9;
-  --oak-selection: rgba(47, 107, 69, 0.18);
-  --oak-scrim: rgba(31, 26, 20, 0.32);
-  --oak-shadow: 0 1px 2px rgba(31, 26, 20, 0.06), 0 4px 12px rgba(31, 26, 20, 0.05);
-  --oak-shadow-overlay: 0 8px 32px rgba(31, 26, 20, 0.16), 0 1px 2px rgba(31, 26, 20, 0.08);
+  --oak-control: #ffffff;
+  --oak-control-hover: #ececea;
+  --oak-control-border: #babab3;
+  --oak-selection: rgba(29, 116, 68, 0.18);
+  --oak-scrim: rgba(23, 23, 26, 0.32);
+  --oak-shadow: none;
+  --oak-shadow-overlay: 0 0 0 1px var(--oak-border), 0 12px 32px rgba(23, 23, 26, 0.12);
   /* Code (the Strudel editor, @oak/strudel editor-theme.ts): every role is AA on --oak-surface. */
-  --oak-code-text: #1f1a14;
+  --oak-code-text: #17171a;
   --oak-code-fn: #6b3fa0;
-  --oak-code-string: #2f6b45;
+  --oak-code-string: #1d7444;
   --oak-code-label: #0b5f8a;
   --oak-code-atom: #a8471c;
-  --oak-code-punct: #5c5247;
-  --oak-code-bracket: #6e6457;
-  --oak-code-comment: #6e6457;
+  --oak-code-punct: #53535a;
+  --oak-code-bracket: #62626a;
+  --oak-code-comment: #62626a;
   --oak-code-meta: #8a5a00;
   --oak-code-invalid: #b4532a;
-  --oak-code-caret: #2f6b45;
-  --oak-code-gutter: #8a7f72;
-  --oak-code-active-line: rgba(31, 26, 20, 0.04);
-  --oak-code-selection: rgba(47, 107, 69, 0.2);
+  --oak-code-caret: #1d7444;
+  --oak-code-gutter: #85858c;
+  --oak-code-active-line: rgba(23, 23, 26, 0.04);
+  --oak-code-selection: rgba(29, 116, 68, 0.2);
   /* Wave 7: the illustrated Oak (app/src/map/illustrated) draws with these, mirrored in palette.ts TREE_COLOURS for
      its SVG (tested equal in theme.test.ts). Chrome tokens where the tree shares a meaning (paper, ground, ink,
      accent, issue, the acorn's amber); wood, grain and the practising leaf are the tree's own. Every leaf fill
@@ -65,49 +66,49 @@
 
 :root[data-theme="bark"] {
   color-scheme: dark;
-  --oak-bg: #14110e;
-  --oak-surface: #1c1814;
-  --oak-surface-2: #26201a;
-  --oak-border: #3a3128;
-  --oak-text: #f2ebdf;
-  --oak-text-2: #bdb2a3;
+  --oak-bg: #0e0e10;
+  --oak-surface: #161618;
+  --oak-surface-2: #1d1d20;
+  --oak-border: #2a2a2f;
+  --oak-text: #ededee;
+  --oak-text-2: #a8a8b0;
   /* ux §7.2 lists #8C8172; lifted a step for AA on --oak-surface-2. */
-  --oak-text-3: #9a8f80;
-  --oak-accent: #6fbf8a;
-  --oak-accent-hover: #86cc9d;
-  --oak-on-accent: #10180f;
+  --oak-text-3: #8f8f97;
+  --oak-accent: #72d494;
+  --oak-accent-hover: #8de0a9;
+  --oak-on-accent: #0b130e;
   --oak-accent-2: #e0a54a;
-  --oak-link: #6fbf8a;
-  --oak-issue: #e07b4f;
-  --oak-lane-in: rgba(111, 191, 138, 0.07);
+  --oak-link: #7fdca0;
+  --oak-issue: #f0895c;
+  --oak-lane-in: rgba(114, 212, 148, 0.06);
   /* Lifted from #E5484D for AA as text on --oak-surface-2 (danger chips, "Delete" labels). */
   --oak-danger: #ec6468;
-  --oak-on-danger: #14110e;
+  --oak-on-danger: #0e0e10;
   --oak-mic: #ff5a52;
   /* Wave 4: a secondary button on a Bark card had the card's own fill and a 1.4:1 border, so it read as
      disabled. Controls now sit a step above the surface with a border that holds at ~2:1. */
-  --oak-control: #2a231c;
-  --oak-control-hover: #342b22;
-  --oak-control-border: #4f4336;
-  --oak-selection: rgba(111, 191, 138, 0.22);
-  --oak-scrim: rgba(0, 0, 0, 0.5);
+  --oak-control: #1f1f23;
+  --oak-control-hover: #27272c;
+  --oak-control-border: #44444c;
+  --oak-selection: rgba(114, 212, 148, 0.2);
+  --oak-scrim: rgba(0, 0, 0, 0.55);
   /* Bark uses borders, not shadows (ux §7.5). */
   --oak-shadow: none;
   --oak-shadow-overlay: 0 0 0 1px var(--oak-border), 0 12px 40px rgba(0, 0, 0, 0.5);
-  --oak-code-text: #f2ebdf;
+  --oak-code-text: #ededee;
   --oak-code-fn: #cfa6f0;
   --oak-code-string: #9fd8a4;
   --oak-code-label: #7cc8f2;
   --oak-code-atom: #f2a07a;
-  --oak-code-punct: #bdb2a3;
-  --oak-code-bracket: #9a8f80;
-  --oak-code-comment: #9a8f80;
+  --oak-code-punct: #a8a8b0;
+  --oak-code-bracket: #8f8f97;
+  --oak-code-comment: #8f8f97;
   --oak-code-meta: #e0a54a;
-  --oak-code-invalid: #e07b4f;
-  --oak-code-caret: #6fbf8a;
-  --oak-code-gutter: #8c8172;
-  --oak-code-active-line: rgba(242, 235, 223, 0.04);
-  --oak-code-selection: rgba(111, 191, 138, 0.25);
+  --oak-code-invalid: #f0895c;
+  --oak-code-caret: #72d494;
+  --oak-code-gutter: #86868e;
+  --oak-code-active-line: rgba(237, 237, 238, 0.04);
+  --oak-code-selection: rgba(114, 212, 148, 0.22);
   --oak-tree-bg: var(--oak-surface);
   --oak-tree-ground: var(--oak-surface-2);
   --oak-tree-wood: #887460;
@@ -121,23 +122,23 @@
 
 /* High contrast (Settings → Appearance). */
 :root[data-contrast="high"][data-theme="paper"] {
-  --oak-border: #a89a86;
-  --oak-control-border: #8f8170;
-  --oak-text-2: #3e362d;
-  --oak-text-3: #514839;
+  --oak-border: #9e9e98;
+  --oak-control-border: #85857f;
+  --oak-text-2: #3b3b40;
+  --oak-text-3: #4a4a50;
 }
 :root[data-contrast="high"][data-theme="bark"] {
-  --oak-border: #6a5c4c;
-  --oak-control-border: #7d6d5b;
-  --oak-text-2: #e0d6c7;
-  --oak-text-3: #c4b8a6;
+  --oak-border: #5a5a62;
+  --oak-control-border: #74747d;
+  --oak-text-2: #d8d8de;
+  --oak-text-3: #bfbfc6;
 }
 
 :root {
-  /* Layout (ux §7.5): 4 px grid; radii 6 controls, 10 cards, 16 sheets. */
-  --oak-radius-control: 6px;
-  --oak-radius-card: 10px;
-  --oak-radius-sheet: 16px;
+  /* Layout (ux §7.5): 4 px grid; radii 8 controls, 14 cards, 20 sheets (Oak 2.0: rounder, flat). */
+  --oak-radius-control: 8px;
+  --oak-radius-card: 14px;
+  --oak-radius-sheet: 20px;
   --oak-control-h: 32px;
   --oak-control-h-lg: 40px;
   --oak-nav-w: 56px;

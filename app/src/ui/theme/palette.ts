@@ -236,26 +236,26 @@ export interface TreeColours {
 
 export const TREE_COLOURS: Readonly<Record<ThemeName, TreeColours>> = {
   paper: {
-    bg: "#fffdf8",
-    ground: "#efe9de",
+    bg: "#ffffff",
+    ground: "#ececea",
     wood: "#86715a",
     grain: "#5c5247",
-    ink: "#5c5247",
-    accent: "#2f6b45",
+    ink: "#53535a",
+    accent: "#1d7444",
     issue: "#a84c25",
     acorn: "#b7791f",
-    leaf: { introduced: "#b7791f", practising: "#2a7f80", mastered: "#2f6b45" },
+    leaf: { introduced: "#b7791f", practising: "#2a7f80", mastered: "#1d7444" },
   },
   bark: {
-    bg: "#1c1814",
-    ground: "#26201a",
+    bg: "#161618",
+    ground: "#1d1d20",
     wood: "#887460",
     grain: "#d5c0a5",
-    ink: "#bdb2a3",
-    accent: "#6fbf8a",
-    issue: "#e07b4f",
+    ink: "#a8a8b0",
+    accent: "#72d494",
+    issue: "#f0895c",
     acorn: "#e0a54a",
-    leaf: { introduced: "#e0a54a", practising: "#5fc0be", mastered: "#6fbf8a" },
+    leaf: { introduced: "#e0a54a", practising: "#5fc0be", mastered: "#72d494" },
   },
 };
 
