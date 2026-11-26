@@ -77,9 +77,16 @@ export function createOnboardingStore(deps: StoreDeps): OnboardingStore {
         const state = await deps.get();
         fallback = false;
         // The server copy wins; if it is behind the local one (written while the server was away), the
-        // local one is newer by construction: it has every step the server has and more.
+        // local one is newer by construction: it has every step the server has and more. A finished local copy
+        // never wins: finishing also stamps the profile on the server, so a server that has no finish forgot it
+        // (progress reset), and the mirror is an old run's.
         const local = readLocal(deps.kv);
-        if (local && local.completed.length > state.completed.length && state.finishedAt === null)
+        if (
+          local &&
+          local.finishedAt === null &&
+          local.completed.length > state.completed.length &&
+          state.finishedAt === null
+        )
           return { state: local, source: "local" };
         writeLocal(state, deps.kv);
         return { state, source: "server" };

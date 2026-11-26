@@ -85,6 +85,26 @@ describe("onboarding persistence", () => {
     expect((await store.load()).state.step).toBe("mic");
   });
 
+  test("a finished local copy never overrides an unfinished server (progress reset since)", async () => {
+    const kv = memKV();
+    kv.setItem(
+      LOCAL_KEY,
+      JSON.stringify({
+        ...freshState(),
+        step: "coda",
+        completed: ["welcome", "loop", "edit", "react"],
+        startedAt: NOW,
+        finishedAt: NOW,
+      }),
+    );
+    const server = fakeServer(freshState());
+    const store = createOnboardingStore({ get: server.get, put: server.put, kv, now: () => NOW });
+    const loaded = await store.load();
+    expect(loaded.source).toBe("server");
+    expect(loaded.state.finishedAt).toBeNull();
+    expect(readLocal(kv)?.finishedAt).toBeNull(); // the stale mirror is replaced
+  });
+
   test("a bad request is an error, not a fallback", async () => {
     const kv = memKV();
     const store = createOnboardingStore({

@@ -195,6 +195,18 @@ function Flow({ param, profile }: { param: string; profile: Profile }) {
     }
   };
 
+  // The record says finished but the profile was never stamped (the stamp failed after the save): Today reads the
+  // profile, so without the stamp it would send the learner straight back here.
+  const goToday = async () => {
+    try {
+      if (profile.onboardedAt === null)
+        await profileUpdate.mutateAsync({ body: { onboardedAt: new Date().toISOString() } });
+      await navigate({ to: "/" });
+    } catch (e) {
+      toast.error("That didn't save", e instanceof Error ? e.message : undefined);
+    }
+  };
+
   if (loadError)
     return (
       <Page width="focus">
@@ -217,9 +229,9 @@ function Flow({ param, profile }: { param: string; profile: Profile }) {
             Onboarding is done. Today has your next session; Settings › Voice re-runs any measurement.
           </p>
           <div className="flex gap-2">
-            <Link to="/" className={buttonClass("primary")}>
+            <Button variant="primary" loading={profileUpdate.isPending} onClick={() => void goToday()}>
               Go to Today
-            </Link>
+            </Button>
             <Link to="/settings/voice/setup" className={buttonClass("secondary")}>
               Set up mic and voice
             </Link>
