@@ -374,7 +374,7 @@ export const A2: UnitSpec = {
         required: {
           rule: "custom",
           label:
-            "Every section is the fullest one with parts or notes taken away, each bar at its own place; at least one section leaves out a part or a quarter of the notes",
+            "Every section is the fullest one with parts or notes taken away, each bar at its own place; at least one section leaves out a part or plays clearly fewer notes",
           why: "`carved { minDiffer: 2 }`: the starter (every section the same) fails; a note the chorus does not play at that place fails (an additive build, or a bar moved); a part missing from the fullest section fails.",
         },
         suggestions: ["the fullest section with a thinner one before and after it (`custom` `arc`)"],

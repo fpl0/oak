@@ -237,9 +237,11 @@ describe("300-day simulation: companion assertions (spike S7)", () => {
     // three decks it was at most 10 (the median run 2); with twelve decks and this gate's two term cards a
     // lesson the fact forecast is closed for longer stretches and the padded term cards queue (measured: at most
     // 26, the median run 8). On the course as written the count is at most 2 on every run, inside the Wave 2
-    // criterion decision 27 replaced (simulation-wave6.test.ts).
+    // criterion decision 27 replaced (simulation-wave6.test.ts). Re-based when the owner let the gate's run
+    // grow with the core (decision 118 (b), 2026-11-25; decision 153): at 308 days the 20-minute d4 run reads
+    // 32 (28 at 300 days, the same settings).
     for (const { s } of all()) {
-      expect(s.deferredCards.p95).toBeLessThanOrEqual(28);
+      expect(s.deferredCards.p95).toBeLessThanOrEqual(32);
       // The waiting families are perceptual ones held by the active cap and the warm-up time; a concept
       // family needs no slot and is released in turn (it used to wait behind them for the whole run).
       expect(s.deferredFamiliesP95.all - s.deferredFamiliesP95.perceptual).toBeLessThanOrEqual(6);
